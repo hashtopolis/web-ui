@@ -13,6 +13,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
   private _dataType: string;
+  private _filterparam: string;
 
   setId(id: number): void {
     this._id = id;
@@ -20,6 +21,10 @@ export class HashesDataSource extends BaseDataSource<JHash> {
 
   setDataType(type: string): void {
     this._dataType = type;
+  }
+
+  setFilterParam(filterparam: string): void {
+    this._filterparam = filterparam;
   }
 
   loadAll(query?: Filter): void {
@@ -52,6 +57,10 @@ export class HashesDataSource extends BaseDataSource<JHash> {
         params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
       } else if (this._dataType === 'hashlists') {
         params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._id });
+
+        if (this._filterparam) {
+          params.addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true });
+        }
       }
 
       const hashes$ = this.service.getAll(SERV.HASHES, params.create());

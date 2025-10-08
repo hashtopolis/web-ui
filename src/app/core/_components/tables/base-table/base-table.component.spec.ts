@@ -128,7 +128,7 @@ describe('BaseTableComponent', () => {
     const mockWrapper = { id: 1, cracked: 100, taskType: 1, hashlist: { hashCount: 100 } } as JTaskWrapper;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100/100');
+      expect(links[0].label).toBe('100');
       expect(links[0].routerLink).toBe(null);
       expect(links[0].tooltip).toBe('Please access the cracked hashes via the row\'s context menu "show subtasks"');
       done();
@@ -146,7 +146,7 @@ describe('BaseTableComponent', () => {
     } as JTaskWrapper;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100/100');
+      expect(links[0].label).toBe('100');
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
       expect(links[0].tooltip).toBe(undefined);
       done();

@@ -1,5 +1,4 @@
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -37,27 +36,22 @@ export class HashesComponent implements OnInit, OnDestroy {
   // Component Properties
   editMode = false;
   editedIndex: number;
-  edited: any; // Change to Model
 
   // View type and filter options
   whichView: string;
-  titleName: any;
+  titleName: string;
+  filterParam: string;
 
   // Filtering and Display Properties
   crackPos: any = true;
-  cracked: any;
   filtering = '';
   filteringDescr = '';
   displaying = '';
   displayingDescr = '';
-  matchHashes: any;
 
   // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -114,7 +108,7 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
   }
 
-  getRouterLink(): any[] {
+  getRouterLink(): (string | number)[] {
     switch (this.whichView) {
       case 'chunks':
         return ['/tasks/show-tasks/', this.editedIndex, 'edit'];
@@ -138,7 +132,13 @@ export class HashesComponent implements OnInit, OnDestroy {
    */
   loadHashes(): void {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = Number(params['id']);
+      if (params['id'].includes('?')) {
+        const split = params['id'].split('?');
+        this.editedIndex = Number(split[0]);
+        this.filterParam = split[1];
+      } else {
+        this.editedIndex = Number(params['id']);
+      }
     });
 
     this.route.data.subscribe((data) => {
@@ -150,7 +150,7 @@ export class HashesComponent implements OnInit, OnDestroy {
               data: response.data,
               included: response.included
             });
-            this.titleName = chunk.id;
+            this.titleName = String(chunk.id);
           });
           break;
 
@@ -181,7 +181,7 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   // Update query parameters and trigger updates
-  onQueryp(name: any, type: number) {
+  onQueryp(name: string, type: number) {
     let query = {};
     if (type == 0) {
       query = { display: name };

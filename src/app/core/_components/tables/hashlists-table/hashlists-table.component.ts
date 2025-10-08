@@ -23,6 +23,7 @@ import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -101,7 +102,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
-        render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),
+        routerLink: (hashlist: JHashlist) => this.renderCrackedHashesLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, true)
       },
@@ -362,6 +363,23 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       links.push({
         routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id],
         label: hashlist.hashCount.toLocaleString()
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Show count of cracked hashes its percentage value
+   * @param hashlist - hashlist object to show count for
+   * @return observable array containing the link to render
+   * @private
+   */
+  private renderCrackedHashesLink(hashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (hashlist) {
+      links.push({
+        routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id + '?cracked'],
+        label: `${hashlist.cracked} (${formatPercentage(hashlist.cracked, hashlist.hashCount)})`
       });
     }
     return of(links);
