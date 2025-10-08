@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
@@ -47,7 +47,7 @@ declare let defaultOptions: AttackOptions;
   templateUrl: './pretasks-table.component.html',
   standalone: false
 })
-export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _supertTaskId: number;
   isDetail = false;
 
@@ -86,6 +86,10 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
     this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

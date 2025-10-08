@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgentErrors } from '@models/agent-errors.model';
@@ -30,7 +30,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './agent-error-table.component.html',
   standalone: false
 })
-export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
@@ -48,8 +48,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       this.dataSource.setAgentId(this.agentId);
     }
     this.contextMenuService = new AgentErrorContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {

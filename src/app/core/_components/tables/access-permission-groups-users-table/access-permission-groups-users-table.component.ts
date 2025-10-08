@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
@@ -22,7 +22,10 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './access-permission-groups-users-table.component.html',
   standalone: false
 })
-export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUsersTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -38,6 +41,10 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
       this.dataSource.setAccessPermGroupExpand(this.expand);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

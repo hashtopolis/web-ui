@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
@@ -30,7 +30,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './health-checks-table.component.html',
   standalone: false
 })
-export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
   selectedFilterColumn: string;
@@ -41,6 +41,11 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     this.dataSource = new HealthChecksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
+    this.dataSource.loadAll();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

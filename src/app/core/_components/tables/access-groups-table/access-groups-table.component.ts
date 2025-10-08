@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAccessGroup } from '@models/access-group.model';
 
@@ -28,7 +28,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './access-groups-table.component.html',
   standalone: false
 })
-export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
   selectedFilterColumn: string;
@@ -39,6 +39,10 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     this.dataSource = new AccessGroupsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AccessGroupsContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

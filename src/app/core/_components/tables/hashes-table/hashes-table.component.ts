@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
@@ -21,7 +21,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './hashes-table.component.html',
   standalone: false
 })
-export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() id: number;
   @Input() dataType: string;
   @Input() filterParam: string;
@@ -43,6 +43,10 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         this.dataSource.setFilterParam(this.filterParam);
       }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
