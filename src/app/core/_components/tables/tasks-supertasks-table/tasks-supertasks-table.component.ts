@@ -6,7 +6,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
-import { TaskSuperTaskContextMenuService } from '@services/context-menu/tasks/task-supertask-menu.service';
+import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -46,7 +46,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);
     }
-    this.contextMenuService = new TaskSuperTaskContextMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new TaskSupertaskSubtaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -75,7 +75,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
-        //routerLink: (wrapper: JTask) => this.renderTaskLink(wrapper),
+        routerLink: (wrapper: JTask) => this.renderTaskLinkSubtasks(wrapper),
         isSortable: true,
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
@@ -165,7 +165,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   rowActionClicked(event: ActionMenuEvent<JTask>): void {
     switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
+      case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
@@ -293,25 +293,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionDelete(tasks: JTask[]): void {
-    //Get the IDs of tasks to be deleted
-    const tasksIdsToDelete = tasks.map((tasks) => tasks.id);
-    //Remove the selected tasks from the list
-    const updatedTasks = this.dataSource.getData().filter((tasks) => !tasksIdsToDelete.includes(tasks.id));
-    //Update the supertask with the modified list of tasks
-    const payload = { tasks: updatedTasks.map((tasks) => tasks.id) };
     this.subscriptions.push(
-      this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted tasks!');
-          this.reload();
-        })
+      this.gs.delete(SERV.TASKS, tasks[0].id).subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted task!');
+        this.reload();
+      })
     );
   }
 
@@ -391,11 +377,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionCopyToTask(task: JTask): void {
-    this.router.navigate(['/tasks/new-tasks', task.id, 'copypretask']);
+    this.linkClicked.emit(); // close modal
+    this.router.navigate(['tasks', 'new-tasks', task.id, 'copy']);
   }
 
   private rowActionCopyToPretask(task: JTask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', task.id, 'copy']);
+    this.linkClicked.emit(); // close modal
+    this.router.navigate(['tasks', 'preconfigured-tasks', task.id, 'copytask']);
   }
 
   private rowActionArchive(wrapper: JTask): void {
@@ -407,6 +395,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionEdit(task: JTask): void {
+    this.linkClicked.emit(); // close modal
     this.router.navigate(['tasks', 'show-tasks', task.id, 'edit']);
   }
 

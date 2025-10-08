@@ -124,11 +124,13 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Initialize the component based on the data kind.
    */
   ngOnInit(): void {
+    this.buildForm();
+
     this.route.data.subscribe((data) => {
       this.determineView(data['kind']);
     });
 
-    this.buildForm();
+    // this.buildForm();
     this.loadData();
   }
 
