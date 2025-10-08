@@ -1,7 +1,8 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Inject } from "@angular/core";
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogData } from "./table-dialog.model";
+
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 /**
  * A reusable Angular Material dialog component for displaying custom messages and actions.
@@ -29,9 +30,9 @@ import { DialogData } from "./table-dialog.model";
  * @template T - The type of data contained in the dialog.
  */
 @Component({
-    selector: 'table-dialog',
-    templateUrl: 'table-dialog.component.html',
-    standalone: false
+  selector: 'table-dialog',
+  templateUrl: 'table-dialog.component.html',
+  standalone: false
 })
 export class TableDialogComponent<T> {
   /**
@@ -43,7 +44,7 @@ export class TableDialogComponent<T> {
   constructor(
     public dialogRef: MatDialogRef<TableDialogComponent<T>>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData<T>
-  ) { }
+  ) {}
 
   /**
    * Handles the click event on the "Cancel" button, closing the dialog.
