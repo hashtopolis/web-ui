@@ -1,4 +1,4 @@
-import { Subscription, finalize, forkJoin } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
