@@ -1,19 +1,18 @@
-import { Subscription, finalize } from 'rxjs';
+import { Subscription, finalize, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { SpeedStat } from '@models/speed-stat.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -23,7 +22,6 @@ import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
@@ -56,7 +54,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   tkeyspace: number;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
-  @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
   //Time calculation
@@ -75,11 +72,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   constructor(
     private titleService: AutoTitleService,
-    private uiService: UIConfigService,
     private route: ActivatedRoute,
     private alertService: AlertService,
     private gs: GlobalService,
-    private fs: FileSizePipe,
     private router: Router,
     private serializer: JsonAPISerializer,
     private confirmDialog: ConfirmDialogService
@@ -175,15 +170,17 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     if (this.editMode) {
       const params = new RequestParamBuilder()
         .addInclude('hashlist')
-        .addInclude('speeds')
         .addInclude('crackerBinary')
         .addInclude('crackerBinaryType')
         .addInclude('files')
         .create();
 
-      this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const task = this.serializer.deserialize<JTask>(responseBody);
+      forkJoin([
+        this.gs.get(SERV.TASKS, this.editedTaskIndex, params),
+        this.gs.ghelper(SERV.HELPER, 'getTaskSpeeds?task=' + this.editedTaskIndex)
+      ]).subscribe((result: [ResponseWrapper, ResponseWrapper]) => {
+        const task = this.serializer.deserialize<JTask>({ data: result[0].data, included: result[0].included });
+        task.speeds = this.serializer.deserialize<SpeedStat[]>({ data: result[1].data, included: result[1].included });
 
         this.originalValue = task;
         this.searched = task.searched;
@@ -209,6 +206,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         }
         this.tkeyspace = task.keyspace;
         this.tusepreprocessor = task.preprocessorId;
+
         this.updateForm.setValue({
           taskId: task.id,
           forcePipe: task.forcePipe === true ? 'Yes' : 'No',
@@ -280,30 +278,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           this.createForm.reset();
           this.alertService.showSuccessMessage('Agent assigned!');
         });
-    }
-  }
-
-  /**
-   * This function calculates Keyspace searched, Time Spent and Estimated Time
-   *
-   **/
-  timeCalc(chunks: JChunk[]) {
-    const cprogress = [];
-    const timespent = [];
-    const current = 0;
-    for (let i = 0; i < chunks.length; i++) {
-      cprogress.push(chunks[i].checkpoint - chunks[i].skip);
-      if (chunks[i].dispatchTime > current) {
-        timespent.push(chunks[i].solveTime - chunks[i].dispatchTime);
-      } else if (chunks[i].solveTime > current) {
-        timespent.push(chunks[i].solveTime - current);
-      }
-    }
-    if (cprogress.length > 0) {
-      this.cprogress = cprogress.reduce((a, i) => a + i);
-    }
-    if (timespent.length > 0) {
-      this.ctimespent = timespent.reduce((a, i) => a + i);
     }
   }
 
