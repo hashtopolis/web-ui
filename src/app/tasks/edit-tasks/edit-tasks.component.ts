@@ -173,22 +173,21 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .addInclude('crackerBinary')
         .addInclude('crackerBinaryType')
         .addInclude('files')
+        .addInclude('assignedAgents')
         .create();
 
-      forkJoin([
-        this.gs.get(SERV.TASKS, this.editedTaskIndex, params),
-        this.gs.ghelper(SERV.HELPER, 'getTaskSpeeds?task=' + this.editedTaskIndex)
-      ]).subscribe((result: [ResponseWrapper, ResponseWrapper]) => {
-        const task = this.serializer.deserialize<JTask>({ data: result[0].data, included: result[0].included });
-        task.speeds = this.serializer.deserialize<SpeedStat[]>({ data: result[1].data, included: result[1].included });
+      this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
+        const task = this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
 
         this.originalValue = task;
         this.searched = task.searched;
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
-        // Assigned Agents init
+
         this.assingAgentInit();
+        this.getTaskSpeeds(task.assignedAgents.length);
+
         // Hashlist Description and Type
         if (task.hashlist) {
           this.hashlistinform = task.hashlist;
@@ -326,6 +325,38 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       } else {
         this.alertService.showInfoMessage('Purge was cancelled');
       }
+    });
+  }
+
+  /**
+   * Get task speeds for speed diagram.
+   *
+   * Time range is roughly limited to one hour for a maximum of 10 agents.
+   * If we have more than 10 agents, the period will be decreased (e.g. 30 minutes for 20 agents)
+   * Estimation is a new speed entry per agent every 5 seconds: (60 seconds * 60) / 5 = 720
+   *
+   * The resulting array must ve reversed to have it sorted ascending by time
+   *
+   * @param assignedAgentsCount - number of assigned agents to the task
+   * @private
+   */
+  private getTaskSpeeds(assignedAgentsCount: number): void {
+    const limitPerAgent = 720;
+    const maxAgents = 10;
+    const requestLimit = Math.min(limitPerAgent * (assignedAgentsCount + 1), limitPerAgent * maxAgents);
+
+    const speedParams = new RequestParamBuilder()
+      .addFilter({
+        field: 'taskId',
+        value: this.editedTaskIndex,
+        operator: FilterType.EQUAL
+      })
+      .addSorting({ dataKey: 'speedId', direction: 'desc', isSortable: true })
+      .setPageSize(requestLimit);
+
+    this.gs.getAll(SERV.SPEEDS, speedParams.create()).subscribe((response: ResponseWrapper) => {
+      const speeds = this.serializer.deserialize<SpeedStat[]>({ data: response.data, included: response.included });
+      this.originalValue.speeds = [...speeds].reverse();
     });
   }
 }
