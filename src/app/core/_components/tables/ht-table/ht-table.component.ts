@@ -555,12 +555,18 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
-    this.dataSource.reset(true);
+    this.dataSource.reset(false);
+    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+    this.dataSource.pageSize = tableSettings['page'];
+    this.dataSource.pageAfter = tableSettings['start'];
+    this.dataSource.pageBefore = tableSettings['before'];
+    this.dataSource.index = tableSettings['index'];
+    this.dataSource.totalItems = tableSettings['totalItems'];
     this.dataSource.reload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.filterQueryFormGroup.get('textFilter').setValue('', { emitEvent: false});
   }
   clearSearchBox(): void {
     this.filterQueryFormGroup.get('textFilter').setValue('');
