@@ -80,33 +80,28 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
-    this.onInitialize();
   }
 
   ngOnInit() {
-    this.buildForm();
-    this.initForm();
-    this.assignChunksInit();
+    this.route.params.subscribe((params: Params) => {
+      this.editedTaskIndex = +params['id'];
+      this.editMode = params['id'] != null;
+
+      this.buildForm();
+      this.initForm();
+      this.assignChunksInit();
+    });
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
   }
 
-  onInitialize() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedTaskIndex = +params['id'];
-      this.editMode = params['id'] != null;
-
-      this.ngOnInit();
-    });
-  }
-
   /**
    * Reload data
    */
   refresh(): void {
-    this.onInitialize();
+    this.assingAgentInit();
     this.agentsTable.reload();
   }
 
