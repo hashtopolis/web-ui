@@ -66,7 +66,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   chunkview: number;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: number;
 
   private routeSub: Subscription;
 
@@ -159,7 +158,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .addInclude('hashlist')
         .addInclude('crackerBinary')
         .addInclude('crackerBinaryType')
-        .addInclude('files')
         .addInclude('assignedAgents')
         .create();
 
@@ -172,8 +170,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
 
-        const assignedAgentIds: Array<number> = task.assignedAgents.map((entry) => entry.id);
-        this.assingAgentInit(assignedAgentIds);
+        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
         this.getTaskSpeeds(task.assignedAgents.length);
 
         // Hashlist Description and Type
@@ -277,13 +274,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = true;
           break;
       }
     });
