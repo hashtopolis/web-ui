@@ -66,7 +66,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   chunkview: number;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: number;
 
   private routeSub: Subscription;
 
@@ -80,34 +79,21 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
-    this.onInitialize();
   }
 
   ngOnInit() {
-    this.buildForm();
-    this.initForm();
-    this.assignChunksInit();
-  }
-
-  ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-  }
-
-  onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedTaskIndex = +params['id'];
       this.editMode = params['id'] != null;
 
-      this.ngOnInit();
+      this.buildForm();
+      this.initForm();
+      this.assignChunksInit();
     });
   }
 
-  /**
-   * Reload data
-   */
-  refresh(): void {
-    this.onInitialize();
-    this.agentsTable.reload();
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   buildForm() {
@@ -172,7 +158,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .addInclude('hashlist')
         .addInclude('crackerBinary')
         .addInclude('crackerBinaryType')
-        .addInclude('files')
         .addInclude('assignedAgents')
         .create();
 
@@ -185,7 +170,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
 
-        this.assingAgentInit();
+        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
         this.getTaskSpeeds(task.assignedAgents.length);
 
         // Hashlist Description and Type
@@ -235,27 +220,31 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * The below functions are related with assign, manage and delete agents
    *
    **/
-  assingAgentInit() {
-    // TODO possibly we could turn this in a single helper request to the backend if we create a helper endpoint
-    // That retrieves available agents. Or even better, we might be able to use the agents, in the datasource of
-    // the assigned agents table. And use those IDs to filter for available agents.
+  assingAgentInit(assignedAgentIds: Array<number>) {
+    const params = new RequestParamBuilder();
+    if (assignedAgentIds.length > 0) {
+      params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
+    }
+
+    this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
+      const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
+      this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
+    });
+  }
+
+  reloadAgentAssignment() {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
+      const responseBodyAssignments = {
+        data: responseAssignments.data,
+        included: responseAssignments.included
+      };
       const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
-
-      const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
-
-      const params = new RequestParamBuilder();
-      if (agentAssignmentsAgentIds.length > 0) {
-        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
-      }
-
-      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-        const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
-      });
+      const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
+        (agentAssignment) => agentAssignment.agentId
+      );
+      this.assingAgentInit(agentAssignmentsAgentIds);
     });
   }
 
@@ -269,7 +258,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .create(SERV.AGENT_ASSIGN, payload)
         .pipe(
           finalize(() => {
-            this.assingAgentInit();
+            this.reloadAgentAssignment();
             this.agentsTable.reload();
           })
         )
@@ -285,13 +274,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = true;
           break;
       }
     });
