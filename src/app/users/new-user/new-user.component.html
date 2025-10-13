@@ -1,0 +1,41 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="'Create New User'"></app-page-subtitle>
+
+  <form [formGroup]="newUserForm" (ngSubmit)="onSubmit()">
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+        <input-text title="Username" formControlName="username" [isRequired]="true"></input-text>
+        <input-text email inputType="email" title="Email" formControlName="email" [isRequired]="true"></input-text>
+      </div>
+
+      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+        <input-select
+          [isLoading]="loadingPermissionGroups"
+          title="Global Permission Group"
+          formControlName="globalPermissionGroupId"
+          [items]="selectGlobalPermissionGroups"
+          [isRequired]="true"
+        >
+        </input-select>
+        <input-check title="Active" formControlName="isValid"></input-check>
+      </div>
+
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit
+          data-testid="submit-button"
+          appLoadingButton
+          [loading]="loading"
+          [name]="loading ? 'Processing...' : 'Create'"
+          [disabled]="!newUserForm.valid"
+        ></button-submit>
+        <div *ngIf="loading" style="display: inline-block; margin-left: 10px">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
+      </grid-buttons>
+    </div>
+    <span *ngIf="newUserForm.invalid && newUserForm.touched" class="help-block"
+      >Please complete all required fields!</span
+    >
+  </form>
+</grid-main>

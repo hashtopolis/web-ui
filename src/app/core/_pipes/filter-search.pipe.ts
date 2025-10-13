@@ -15,7 +15,8 @@ import { __values } from "tslib";
 **/
 
 @Pipe({
-  name: "search"
+    name: "search",
+    standalone: false
 })
 
 export class SearchPipe implements PipeTransform {

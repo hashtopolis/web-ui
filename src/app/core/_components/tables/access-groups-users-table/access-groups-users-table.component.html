@@ -1,15 +1,5 @@
-<ht-table
-  #table
-  name="accessGroupsUsersTable"
-  dataType="access-groups-users"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [hasBulkActions]="false"
-  [hasRowAction]="false"
-  [isFilterable]="true"
-  [filterFn]="filter"
-  [isPageable]="true"
-  (exportActionClicked)="exportActionClicked($event)"
-/>
+<ht-table #table name="accessGroupsUsersTable" dataType="access-groups-users" [columnLabels]="columnLabels"
+  [dataSource]="dataSource" [tableColumns]="tableColumns" [isSelectable]="true"
+  [contextMenuService]="contextMenuService" [isFilterable]="isFilterable" [filterFn]="filter" [isPageable]="true"
+  [isDetailPage]="true" (exportActionClicked)="exportActionClicked($event)"
+  (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)" />

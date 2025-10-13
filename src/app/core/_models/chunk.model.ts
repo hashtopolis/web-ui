@@ -1,18 +1,20 @@
-import { Agent } from './agent.model';
-import { Task } from './task.model';
+import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { JTask } from '@models/task.model';
 
-export interface Chunk {
-  _id: number;
-  _self: string;
-  chunkId: number;
+/**
+ * Interface for a task chunk
+ * @extends BaseModel
+ */
+export interface JChunk extends BaseModel {
   taskId: number;
   taskName?: string;
-  task?: Task;
+  task?: JTask;
   format: string;
   skip: number;
   length: number;
   agentId: number;
-  agent?: Agent;
+  agent?: JAgent;
   agentName?: string;
   dispatchTime: number;
   solveTime: number;
@@ -23,6 +25,9 @@ export interface Chunk {
   speed: number;
 }
 
+/**
+ * Interface for chunk data needed in different tables
+ */
 export interface ChunkData {
   dispatched: number;
   searched: number;

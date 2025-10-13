@@ -1,28 +1,37 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription, forkJoin } from 'rxjs';
 
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../../_services/main.config';
-import { Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+import { JConfig } from '@models/configs.model';
+import { HorizontalNav } from '@models/horizontalnav.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV, ServiceConfig } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { InfoMetadataForm, MetadataFormField, MetadataService } from '@services/metadata.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+type ConfigValues = Record<string, string | boolean>;
+type ConfigIds = Record<string, number>;
 
 @Component({
   selector: 'app-form',
-  templateUrl: 'formconfig.component.html'
+  templateUrl: 'formconfig.component.html',
+  standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormConfigComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
-  globalMetadata: any[] = [];
-  apiPath: string;
+  globalMetadata: InfoMetadataForm;
+  serviceConfig: ServiceConfig;
 
   /**
    * Flag that indicates whether the data for the form has been loaded and the form is ready for rendering.
@@ -46,23 +55,21 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    * Each item in the array represents a form field, including its type, label, and other properties.
-   * @type {any[]}
    */
-  formMetadata: any[] = [];
+  formMetadata: MetadataFormField[] = [];
 
   /**
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
-   * @type {any[]}
+
    */
-  formValues: any[] = [];
+  formValues: object;
 
   /**
    * An array of objects containing IDs and corresponding item names.
    * This information is used to map form field names to their associated IDs.
-   * @type {any[]}
    */
-  formIds: any[] = [];
+  formIds: ConfigIds = {};
 
   // Subscription for managing asynchronous data retrieval
   private mySubscription: Subscription;
@@ -72,10 +79,11 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
    * @param metadataService - The MetadataService for accessing form metadata.
    * @param titleService - The AutoTitleService for setting titles.
+   * @param uicService
    * @param route - The ActivatedRoute for retrieving route data.
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
-   * @param router - The Angular Router for navigation.
+   * @param serializer - JsonAPISerializer to serialize/deserialize json:api objects
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -85,22 +93,18 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private serializer: JsonAPISerializer
   ) {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe(
-      (data: { kind: string; path: string; type: string }) => {
-        const formKind = data.kind;
-        this.apiPath = data.path; // Get the API path from route data
-        // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(
-          formKind + 'Info'
-        )[0];
-        this.formMetadata = this.metadataService.getFormMetadata(formKind);
-        this.title = this.globalMetadata['title'];
-        titleService.set([this.title]);
-      }
-    );
+    this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
+      const formKind = data.kind;
+      this.serviceConfig = data.serviceConfig; // Get the API path from route data
+      // Load metadata and form information
+      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+      this.formMetadata = this.metadataService.getFormMetadata(formKind);
+      this.title = this.globalMetadata['title'];
+      this.titleService.set([this.title]);
+    });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
   }
@@ -130,21 +134,26 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   loadEdit() {
     // Fetch data from the API for editing
     this.mySubscription = this.gs
-      .getAll(this.apiPath, { maxResults: 500 })
-      .subscribe((result) => {
-        // Transform the retrieved array of objects into the desired structure for form rendering
-        this.formValues = result.values.reduce((result, item) => {
-          if (item.value === 'true') {
-            item.value = true;
-          } else if (item.value === 'false') {
-            item.value = false;
+      .getAll(this.serviceConfig, { page: { size: 500 } })
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const config = this.serializer.deserialize<JConfig[]>(responseBody);
+
+        this.formValues = config.reduce<ConfigValues>((configValues, item) => {
+          let value: string | boolean = item.value;
+
+          if (item.value === '1') {
+            value = true;
+          } else if (item.value === '0') {
+            value = false;
           }
-          result[item.item] = item.value;
-          return result;
+
+          configValues[item.item] = value;
+          return configValues;
         }, {});
         // Maps the item with the id, so can be used for update
-        this.formIds = result.values.reduce((result, item) => {
-          result[item.item] = item._id;
+        this.formIds = config.reduce<ConfigIds>((result, item) => {
+          result[item.item] = item.id;
           return result;
         }, {});
 
@@ -161,49 +170,59 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles the submission of the form.
-   * @param form - The form object containing the updated values.
+   * Handles the submission of the form using parallel requests for all changed fields.
+   * Shows a single success message when all updates complete.
+   * @param formValues - The current form values emitted from the dynamic form.
    */
-  onFormSubmit(form: any) {
-    const currentFormValues = form;
-    const initialFormValues = this.formValues;
-    const changedFields = {};
+  onFormSubmit(formValues: Record<string, unknown>) {
+    if (!formValues) return;
 
-    for (const key in currentFormValues) {
-      if (Object.prototype.hasOwnProperty.call(currentFormValues, key)) {
-        if (currentFormValues[key] !== initialFormValues[key]) {
-          // Convert boolean values to 1 (true) or 0 (false)
-          // const value = currentFormValues[key] === true ? 0 : (currentFormValues[key] === false ? 1 : currentFormValues[key]);
-          changedFields[key] = currentFormValues[key];
-        }
+    const changedFields = this.getChangedFields(formValues);
+
+    if (Object.keys(changedFields).length === 0) return;
+
+    // Prepare all update observables
+    const updateRequests = Object.keys(changedFields).map((key) => {
+      const id = this.formIds[key];
+      const value = changedFields[key];
+      return this.gs.update(SERV.CONFIGS, id, { item: key, value: String(value) });
+    });
+
+    // Execute all updates in parallel
+    this.mySubscription = forkJoin(updateRequests).subscribe({
+      next: () => {
+        // Mark all fields as updated
+        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key));
+
+        // Show a single success message
+        this.alert.showSuccessMessage(`Saved ${this.title}`);
+      },
+      error: (err) => {
+        console.error(`Error updating ${this.title}`, err);
+        this.alert.showErrorMessage(`Failed to save ${this.title}`);
       }
-    }
+    });
+  }
 
-    const fieldKeys = Object.keys(changedFields);
-    let index = 0;
+  /**
+   * Collects all fields that have changed compared to the initial form values.
+   * Converts boolean values to 1 (true) or 0 (false) for backend compatibility.
+   *
+   * @param currentValues The current values from the form.
+   * @returns An object where keys are the changed field names and values are the updated values.
+   */
+  private getChangedFields(currentValues: Record<string, unknown>): Record<string, unknown> {
+    const initialValues = this.formValues;
 
-    const showAlertsSequentially = () => {
-      if (index < fieldKeys.length) {
-        const key = fieldKeys[index];
-        const id = this.formIds[key];
-        const valueUpdate = changedFields[key];
-        const arr = { item: key, value: String(valueUpdate) };
+    return Object.keys(currentValues).reduce<Record<string, unknown>>((changedFields, key) => {
+      const initialValue = initialValues[key];
+      const currentValue = currentValues[key];
 
-        this.mySubscription = this.gs
-          .update(SERV.CONFIGS, id, arr)
-          .subscribe((result) => {
-            this.uicService.onUpdatingCheck(key);
-            this.alert.okAlert('Saved', key);
-
-            // Delay showing the next alert by 2000 milliseconds (2 seconds)
-            setTimeout(() => {
-              index++;
-              showAlertsSequentially();
-            }, 2000);
-          });
+      if (currentValue !== initialValue) {
+        changedFields[key] = typeof currentValue === 'boolean' ? (currentValue ? 1 : 0) : currentValue;
       }
-    };
 
-    showAlertsSequentially();
+      return changedFields;
+    }, {});
   }
 }

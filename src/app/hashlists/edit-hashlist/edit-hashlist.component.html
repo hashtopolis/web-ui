@@ -4,29 +4,32 @@
       <app-page-title [title]="type === 3 ? 'Edit SuperHashlist': 'Edit HashList'" [subbutton]="false"></app-page-title>
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
-          <input-text title="ID" formControlName="hashlistId" [disabled]="true"></input-text>
-          <div formGroupName="updateData" fxLayoutGap="10px">
-            <input-text title="Name" formControlName="name"></input-text>
-            <div>
-              <input-text-area title="Notes" formControlName="notes"></input-text-area>
-            </div>
-            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
-              <input-check title="Secret Data" formControlName="isSecret"></input-check>
-            </div>
+        <input-text title="ID" formControlName="hashlistId"></input-text>
+        <div formGroupName="updateData" fxLayoutGap="10px">
+          <input-text title="Name" formControlName="name"></input-text>
+          <div>
+            <input-text-area title="Notes" formControlName="notes"></input-text-area>
           </div>
           <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
-            <input-text title="Using hashcat brain" formControlName="useBrain" [disabled]="true"></input-text>
-            <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
-            <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
-            <input-text title="Cracked" formControlName="cracked" [disabled]="true"></input-text>
-            <input-text title="Remaining" formControlName="remaining" [disabled]="true"></input-text>
+            <input-select title="Access group" formControlName="accessGroupId"
+              [items]="selectAccessgroup"></input-select>
+            <input-check title="Secret Data" formControlName="isSecret"></input-check>
           </div>
+        </div>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <simulate-form-field label="Hash Type"
+            message="{{ hashtype?.id }} - {{ hashtype?.description }}"></simulate-form-field>
+          <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
+          </simulate-form-field>
+          <input-text title="Format" formControlName="format"></input-text>
+          <input-text title="Hashes" formControlName="hashCount"></input-text>
+          <input-text title="Cracked" formControlName="cracked"></input-text>
+          <input-text title="Remaining" formControlName="remaining"></input-text>
+        </div>
 
-          <grid-buttons>
-            <button-submit [name]="'Update'"></button-submit>
-          </grid-buttons>
+        <grid-buttons>
+          <button-submit [name]="'Update'"></button-submit>
+        </grid-buttons>
       </form>
 
       <!-- If its cracked or partially cracked then show additional actions -->
@@ -35,13 +38,15 @@
       <div fxLayout="row" fxLayoutGap="5px">
         <grid-buttons>
           <button-submit [name]="'Import pre-cracked hashes'" (click)="importCrackedHashes()"></button-submit>
-          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Generate Wordlist'" (click)="exportWordlist()"></button-submit>
-          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Export Left Hashes'" (click)="exportLeftHashes()"></button-submit>
+          <button-submit *ngIf="editedHashlist?.cracked > 0" [name]="'Generate Wordlist'"
+            (click)="exportWordlist()"></button-submit>
+          <button-submit *ngIf="editedHashlist?.cracked > 0" [name]="'Export Left Hashes'"
+            (click)="exportLeftHashes()"></button-submit>
         </grid-buttons>
       </div>
-      <br *ngIf="editedHashlist.cracked > 0">
+      <br *ngIf="editedHashlist?.cracked > 0">
 
-      <mat-accordion *ngIf="editedHashlist.cracked > 0">
+      <mat-accordion *ngIf="editedHashlist?.cracked > 0">
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title>
@@ -52,17 +57,17 @@
         </mat-expansion-panel>
       </mat-accordion>
 
-     </grid-main>
+    </grid-main>
+  </div>
 </div>
 <div class="col-md-5">
   <app-table *ngIf="type === 3">
     <app-page-subtitle [subtitle]="'Included Hashlists within the Superhashlist'"></app-page-subtitle>
-    <hashlists-table #table name="hashlistsInShTable" [shashlistId]="editedHashlistIndex"></hashlists-table>
+    <app-superhashlist-hashlist-table #table name="hashlistsInShTable"
+      [shashlistId]="editedHashlistIndex"></app-superhashlist-hashlist-table>
   </app-table>
   <app-table>
     <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-    <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>
+    <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex"></app-tasks-table>
   </app-table>
 </div>
-
-

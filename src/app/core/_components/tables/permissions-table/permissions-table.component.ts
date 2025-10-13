@@ -1,43 +1,48 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, catchError, of } from 'rxjs';
+
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+
+import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
-} from './permissions-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/permissions-table/permissions-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { GlobalPermissionGroup } from 'src/app/core/_models/global-permission-group.model';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { PermissionsDataSource } from 'src/app/core/_datasources/permissions.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { PermissionsDataSource } from '@datasources/permissions.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
-  selector: 'permissions-table',
-  templateUrl: './permissions-table.component.html'
+  selector: 'app-permissions-table',
+  templateUrl: './permissions-table.component.html',
+  standalone: false
 })
-export class PermissionsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PermissionsDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new PermissionsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -46,44 +51,51 @@ export class PermissionsTableComponent
       sub.unsubscribe();
     }
   }
-
-  filter(item: GlobalPermissionGroup, filterValue: string): boolean {
-    if (item.name.toLowerCase().includes(filterValue)) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
   }
-
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: PermissionsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (permission: GlobalPermissionGroup) => permission._id + ''
+        isSearchable: true,
+        export: async (permission: JGlobalPermissionGroup) => permission.id + ''
       },
       {
         id: PermissionsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (permission: GlobalPermissionGroup) =>
-          this.renderPermissionLink(permission),
+        routerLink: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
         isSortable: true,
-        export: async (permission: GlobalPermissionGroup) => permission.name
+        isSearchable: true,
+        export: async (permission: JGlobalPermissionGroup) => permission.name
       },
       {
         id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
-        isSortable: true,
-        render: (permission: GlobalPermissionGroup) => permission.user.length,
-        export: async (permission: GlobalPermissionGroup) => permission._id + ''
+        isSortable: false,
+        render: (permission: JGlobalPermissionGroup) => permission.userMembers.length,
+        export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<GlobalPermissionGroup>) {
+  openDialog(data: DialogData<JGlobalPermissionGroup>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -107,42 +119,16 @@ export class PermissionsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<GlobalPermissionGroup[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<GlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<GlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<GlobalPermissionGroup>(
-            this.tableColumns,
-            event.data,
-            PermissionsTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
+    this.exportService.handleExportAction<JGlobalPermissionGroup>(
+      event,
+      this.tableColumns,
+      PermissionsTableColumnLabel,
+      'hashtopolis-permissions'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<GlobalPermissionGroup>): void {
+  rowActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -160,7 +146,7 @@ export class PermissionsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<GlobalPermissionGroup[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -179,25 +165,19 @@ export class PermissionsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(permissions: GlobalPermissionGroup[]): void {
-    const requests = permissions.map((permission: GlobalPermissionGroup) => {
-      return this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, permission._id);
-    });
-
+  private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} permissions!`,
-            'Close'
-          );
-          this.reload();
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted permission groups!`);
+          this.dataSource.reload();
         })
     );
   }
@@ -205,10 +185,10 @@ export class PermissionsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(permissions: GlobalPermissionGroup[]): void {
+  private rowActionDelete(permissions: JGlobalPermissionGroup[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions[0]._id)
+        .delete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -216,18 +196,30 @@ export class PermissionsTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted permission group!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted permission group!');
           this.reload();
         })
     );
   }
 
-  private rowActionEdit(permission: GlobalPermissionGroup): void {
-    this.router.navigate([
-      '/users',
-      'global-permissions-groups',
-      permission._id,
-      'edit'
-    ]);
+  private rowActionEdit(permission: JGlobalPermissionGroup): void {
+    this.router.navigate(['/users', 'global-permissions-groups', permission.id, 'edit']);
+  }
+
+  /**
+   * Render edit permission group link
+   * @param permissionGroup - permissiongroup object to render edit link for
+   * @return observable araay containing link
+   * @private
+   */
+  private renderPermissionLink(permissionGroup: JGlobalPermissionGroup): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (permissionGroup) {
+      links.push({
+        routerLink: ['/users', 'global-permissions-groups', permissionGroup.id, 'edit'],
+        label: permissionGroup.name
+      });
+    }
+    return of(links);
   }
 }

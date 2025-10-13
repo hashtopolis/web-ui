@@ -18,11 +18,12 @@ import { Component } from '@angular/core';
  * This component provides a structured layout for displaying buttons inside a grid row.
  */
 @Component({
-  selector: 'grid-buttons',
-  template: `
+    selector: 'grid-buttons',
+    template: `
     <mat-card-actions>
       <ng-content></ng-content>
     </mat-card-actions>
-  `
+  `,
+    standalone: false
 })
 export class GridButtonsComponent {}

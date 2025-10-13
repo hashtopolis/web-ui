@@ -1,5 +1,13 @@
-import { AccessGroup } from './access-group.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { BaseModel } from '@models/base.model';
 
+/**
+ * Different file types
+ * - `WORDLIST` Wordlist/dictionary
+ * - `RULES`    Rules file
+ * - `OTHER`    Any other file
+ * @enum
+ */
 export enum FileType {
   WORDLIST,
   RULES,
@@ -7,46 +15,21 @@ export enum FileType {
 }
 
 /**
- * @deprecated Use File instead
+ * Interface definition for an uploaded file
+ * @extends BaseModel
  */
-export interface Filetype {
-  fileId: number;
+export interface JFile extends BaseModel {
   filename: string;
   size: number;
-  isSecret: number;
-  fileType: number;
-  accessGroupId: number;
-  lineCount: number;
-  accessGroup: AccessGroup;
-}
-
-/**
- * @todo Rename interface
- */
-export interface UpdateFileType {
-  fileId: number;
-  filename: string;
-  fileType: number;
-  accessGroupId: number;
-}
-
-export interface UploadFileTUS {
-  filename: string;
-  progress: number;
-  hash: string;
-  uuid: string;
-}
-
-export interface File {
-  _id: number;
-  _self: string;
-  accessGroup: AccessGroup;
-  accessGroupId?: number;
-  accessGroupName?: string;
-  fileId: number;
-  fileType: FileType;
-  filename: string;
   isSecret: boolean;
+  fileType: number;
+  accessGroupId: number;
   lineCount: number;
-  size: number;
+  accessGroup?: JAccessGroup;
+}
+export interface TaskSelectFile {
+  attackCmd: string;
+  files: number[];
+  otherFiles: number[];
+  type: string;
 }

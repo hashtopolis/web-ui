@@ -1,50 +1,54 @@
+import { catchError } from 'rxjs';
+
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAgentBinary } from '@models/agent-binary.model';
+
+import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
-} from './agent-binaries-table.constants';
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { AgentBinary } from 'src/app/core/_models/agent-binary.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { environment } from 'src/environments/environment';
+import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { environment } from '@src/environments/environment';
 
 @Component({
-  selector: 'agent-binaries-table',
-  templateUrl: './agent-binaries-table.component.html'
+  selector: 'app-agent-binaries-table',
+  templateUrl: './agent-binaries-table.component.html',
+  standalone: false
 })
-export class AgentBinariesTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-
+  selectedFilterColumn: string;
   agentdownloadURL: string;
 
   ngOnInit(): void {
     this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentBinariesDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.loadAll();
+    this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
 
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentdownloadURL = path + environment.config.agentdownloadURL;
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
@@ -52,59 +56,78 @@ export class AgentBinariesTableComponent
       sub.unsubscribe();
     }
   }
-
-  filter(item: AgentBinary, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: AgentBinariesTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary._id + ''
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.id,
+        export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
         id: AgentBinariesTableCol.TYPE,
-        dataKey: 'type',
+        dataKey: 'binaryType',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.type
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
+        export: async (agentBinary: JAgentBinary) => agentBinary.binaryType
       },
       {
         id: AgentBinariesTableCol.OS,
         dataKey: 'operatingSystems',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.operatingSystems
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
+        export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
       {
         id: AgentBinariesTableCol.FILENAME,
         dataKey: 'filename',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.filename
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.filename,
+        export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
       {
         id: AgentBinariesTableCol.VERSION,
         dataKey: 'version',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.version
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.version,
+        export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
       {
         id: AgentBinariesTableCol.UPDATE_TRACK,
         dataKey: 'updateTrack',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.updateTrack
+        isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
+        export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<AgentBinary>) {
+  openDialog(data: DialogData<JAgentBinary>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -128,42 +151,16 @@ export class AgentBinariesTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AgentBinary>(
-          'hashtopolis-agent-binaries',
-          this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<AgentBinary>(
-          'hashtopolis-agent-binaries',
-          this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<AgentBinary>(
-            this.tableColumns,
-            event.data,
-            AgentBinariesTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
+    this.exportService.handleExportAction<JAgentBinary>(
+      event,
+      this.tableColumns,
+      AgentBinariesTableColumnLabel,
+      'hashtopolis-agent-binaries'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<AgentBinary>): void {
+  rowActionClicked(event: ActionMenuEvent<JAgentBinary>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -187,7 +184,7 @@ export class AgentBinariesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -206,25 +203,19 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agentBinaries: AgentBinary[]): void {
-    const requests = agentBinaries.map((agentBinary: AgentBinary) => {
-      return this.gs.delete(SERV.AGENT_BINARY, agentBinary._id);
-    });
-
+  private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.AGENT_BINARY, agentBinaries)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} agentBinaries!`,
-            'Close'
-          );
-          this.reload();
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted agent binaries!`);
+          this.dataSource.reload();
         })
     );
   }
@@ -232,10 +223,10 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agentBinaries: AgentBinary[]): void {
+  private rowActionDelete(agentBinaries: JAgentBinary[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.AGENT_BINARY, agentBinaries[0]._id)
+        .delete(SERV.AGENT_BINARY, agentBinaries[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -243,32 +234,23 @@ export class AgentBinariesTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted agent binary!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted agent binary!');
           this.reload();
         })
     );
   }
 
-  private rowActionEdit(agentBinary: AgentBinary): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'agent-binaries',
-      agentBinary._id,
-      'edit'
-    ]);
+  private rowActionEdit(agentBinary: JAgentBinary): void {
+    this.router.navigate(['/config', 'engine', 'agent-binaries', agentBinary.id, 'edit']);
   }
 
-  private rowActionCopyLink(agentBinary: AgentBinary): void {
-    const link = `${this.agentdownloadURL}${agentBinary._id}`;
+  private rowActionCopyLink(agentBinary: JAgentBinary): void {
+    const link = `${this.agentdownloadURL}${agentBinary.id}`;
     this.clipboard.copy(link);
-    this.snackBar.open(
-      'The agent binary URL is copied to the clipboard',
-      'Close'
-    );
+    this.alertService.showSuccessMessage('The agent binary URL is copied to the clipboard');
   }
 
-  private rowActionDownload(agentBinary: AgentBinary): void {
-    window.location.href = `${this.agentdownloadURL}${agentBinary._id}`;
+  private rowActionDownload(agentBinary: JAgentBinary): void {
+    window.location.href = `${this.agentdownloadURL}${agentBinary.id}`;
   }
 }

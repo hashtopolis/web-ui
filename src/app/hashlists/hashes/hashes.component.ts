@@ -1,22 +1,29 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Subject, Subscription } from 'rxjs';
 
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { displays, filters } from 'src/app/core/_constants/hashes.config';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JChunk } from '@models/chunk.model';
+import { JHashlist } from '@models/hashlist.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { displays, filters } from '@src/app/core/_constants/hashes.config';
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes
  */
 @Component({
   selector: 'app-hashes',
-  templateUrl: './hashes.component.html'
+  templateUrl: './hashes.component.html',
+  standalone: false
 })
 export class HashesComponent implements OnInit, OnDestroy {
   /** Form group for the Hashes View. */
@@ -29,27 +36,22 @@ export class HashesComponent implements OnInit, OnDestroy {
   // Component Properties
   editMode = false;
   editedIndex: number;
-  edited: any; // Change to Model
 
   // View type and filter options
   whichView: string;
-  titleName: any;
+  titleName: string;
+  filterParam: string;
 
   // Filtering and Display Properties
   crackPos: any = true;
-  cracked: any;
   filtering = '';
   filteringDescr = '';
   displaying = '';
   displayingDescr = '';
-  matchHashes: any;
 
   // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -106,7 +108,7 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
   }
 
-  getRouterLink(): any[] {
+  getRouterLink(): (string | number)[] {
     switch (this.whichView) {
       case 'chunks':
         return ['/tasks/show-tasks/', this.editedIndex, 'edit'];
@@ -130,95 +132,56 @@ export class HashesComponent implements OnInit, OnDestroy {
    */
   loadHashes(): void {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = Number(params['id']);
+      if (params['id'].includes('?')) {
+        const split = params['id'].split('?');
+        this.editedIndex = Number(split[0]);
+        this.filterParam = split[1];
+      } else {
+        this.editedIndex = Number(params['id']);
+      }
     });
 
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'chunkshash':
           this.whichView = 'chunks';
-          this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['chunkId'];
+          this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const chunk = new JsonAPISerializer().deserialize<JChunk>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = String(chunk.id);
           });
-          this.initChashes();
           break;
 
         case 'taskhas':
           this.whichView = 'tasks';
-          this.gs.get(SERV.TASKS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['taskName'];
+          this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const task = new JsonAPISerializer().deserialize<JTask>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = task.taskName;
           });
-          this.initThashes();
           break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
-          this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['name'];
+          this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = hashlist.name;
           });
-          this.initHhashes();
           break;
       }
       this.buildForm();
     });
   }
 
-  /**
-   * Initialize based on Chunk hashes
-   *
-   */
-  private initChashes() {
-    const param = { filter: 'chunkId=' + this.editedIndex + '' };
-    this.getHashes(param);
-  }
-
-  /**
-   * Initialize based on Tasks hashes
-   *
-   */
-  private initThashes() {
-    // This should enough to filter by id
-    // let param = {'filter': 'taskId='+this.editedIndex+''};
-    this.getHashes();
-  }
-
-  /**
-   * Initialize based on Hashlists hashes
-   *
-   */
-  private initHhashes() {
-    const param = { filter: 'hashlistId=' + this.editedIndex + '' };
-    this.getHashes(param);
-  }
-
-  /**
-   * Fetch hashes from the server
-   *
-   */
-  async getHashes(param?: any) {
-    const params = { maxResults: 90000, expand: 'hashlist,chunk' };
-
-    const nwparams = { ...params, ...param };
-
-    this.gs.getAll(SERV.HASHES, nwparams).subscribe((hashes: any) => {
-      let res = hashes.values;
-      if (this.whichView === 'tasks') {
-        res = res.filter((u) => u.chunk?.taskId == this.editedIndex);
-      }
-      if (this.filtering === 'cracked') {
-        this.matchHashes = res.filter((u) => u.isCracked == true);
-      }
-      if (this.filtering === 'uncracked') {
-        this.matchHashes = res.filter((u) => u.isCracked == false);
-      } else {
-        this.matchHashes = res;
-      }
-      this.dtTrigger.next(null);
-    });
-  }
-
   // Update query parameters and trigger updates
-  onQueryp(name: any, type: number) {
+  onQueryp(name: string, type: number) {
     let query = {};
     if (type == 0) {
       query = { display: name };
@@ -226,10 +189,10 @@ export class HashesComponent implements OnInit, OnDestroy {
     if (type == 1) {
       query = { filter: name };
     }
-    this.router.navigate(
-      ['/hashlists/hashes/', this.whichView, this.editedIndex],
-      { queryParams: query, queryParamsHandling: 'merge' }
-    );
+    this.router.navigate(['/hashlists/hashes/', this.whichView, this.editedIndex], {
+      queryParams: query,
+      queryParamsHandling: 'merge'
+    });
     this.onDisplaying(name, type);
     this.ngOnInit();
   }

@@ -1,17 +1,18 @@
 <ht-table
   #table
-  name="filesTable"
+  [name]="name"
   dataType="files"
   [columnLabels]="columnLabels"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-  [hasBulkActions]="hasBulkActions"
-  [hasRowAction]="hasRowAction"
-  [isFilterable]="true"
-  [filterFn]="filter"
+  [contextMenuService]="contextMenuService"
+  [isFilterable]="isFilterable"
   [isPageable]="true"
+  [showExport]="showExport"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />

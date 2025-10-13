@@ -5,8 +5,9 @@ import { DialogData } from "./timeout-dialog.model";
 
 
 @Component({
-  selector: 'timeout-dialog',
-  templateUrl: 'timeout-dialog.component.html',
+    selector: 'timeout-dialog',
+    templateUrl: 'timeout-dialog.component.html',
+    standalone: false
 })
 export class TimeoutDialogComponent {
 

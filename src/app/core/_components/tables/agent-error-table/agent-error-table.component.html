@@ -1,0 +1,6 @@
+<ht-table #table name="agentErrorTable" [columnLabels]="columnLabels" dataType="agents-errors" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [contextMenuService]="contextMenuService" [isSelectable]="isSelectable"
+  [isPageable]="true" [isFilterable]="isFilterable" [isDetailPage]="true"
+  (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)" (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)" />

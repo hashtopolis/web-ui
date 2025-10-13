@@ -1,5 +1,6 @@
 export const BulkActionMenuLabel = {
   DELETE_AGENTS: 'Delete Agents',
+  DELETE_ERRORS: 'Delete Errors',
   DELETE_NOTIFICATIONS: 'Delete Notification',
   DELETE_PRETASKS: 'Delete PreTasks',
   DELETE_TASKS: 'Delete Tasks',
@@ -26,7 +27,9 @@ export const BulkActionMenuLabel = {
   ARCHIVE_HASHLISTS: 'Archive Hashlists',
   RESET_CHUNKS: 'Reset chunks',
   UNASSIGN_AGENTS: 'Unassign agents',
-  UNASSIGN_ACCESSGROUP_USERS: 'Unassign User'
+  REMOVE_ACCESSGROUP_AGENTS: 'Remove agents',
+  REMOVE_ACCESSGROUP_USERS: 'Remove users',
+  ARCHIVE_PRETASKS: 'Archive PreTasks'
 };
 
 export const BulkActionMenuAction = {

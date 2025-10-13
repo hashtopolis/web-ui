@@ -1,0 +1,31 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="'New Cracker type'"></app-page-subtitle>
+
+  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+    <div fxLayout="column" fxLayoutGap="16px">
+      <input-text width="256px" title="Type" formControlName="typeName" [isRequired]="true"></input-text>
+      <input-select width="256px"
+        title="Chunking Available"
+        formControlName="isChunkingAvailable"
+        tooltip="Does the cracker type support chunking?"
+        data-testid="input-select-chunkingAvailable"
+        [isRequired]="true"
+        [items]="[
+        { id: true, name: 'Yes' },
+        { id: false, name: 'No' },
+      ]"
+        style="width: 256px"
+      ></input-select>
+    </div>
+
+    <grid-buttons>
+      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+      <button-submit data-testid="submit-button-newCracker" [name]="'Create'" [disabled]="!newCrackerForm.valid"
+      ></button-submit>
+    </grid-buttons>
+
+    <span *ngIf="newCrackerForm.invalid && newCrackerForm.touched" class="help-block"
+    >Please complete all required fields!</span>
+  </form>
+
+</grid-main>

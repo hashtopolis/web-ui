@@ -1,23 +1,26 @@
-import {
-  BehaviorSubject,
-  Observable,
-  Subscription,
-  firstValueFrom
-} from 'rxjs';
-import { Chunk, ChunkData } from '../_models/chunk.model';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
-import { ChangeDetectorRef } from '@angular/core';
-import { GlobalService } from '../_services/main.service';
-import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
-import { ListResponseWrapper } from '../_models/response.model';
+import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
+import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { SelectionModel } from '@angular/cdk/collections';
-import { UIConfigService } from '../_services/shared/storage.service';
-import { environment } from './../../../environments/environment';
+import { MatSort, SortDirection } from '@angular/material/sort';
+
+import { ChunkData, JChunk } from '@models/chunk.model';
+import { UIConfig } from '@models/config-ui.model';
+import { Filter } from '@models/request-params.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { GlobalService } from '@services/main.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
+import { PermissionService } from '@services/permission/permission.service';
+import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { environment } from '@src/environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -27,71 +30,87 @@ import { environment } from './../../../environments/environment';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
-export abstract class BaseDataSource<
-  T,
-  P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator
-> implements DataSource<T>
-{
+@Injectable()
+export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
-  public sortingColumn;
-
+  public sortingColumn: { dataKey: string; direction: SortDirection; isSortable: boolean };
+  public pageAfter = undefined;
+  public pageBefore = undefined;
+  public index = 0;
+  /**
+   * Selection model for row selection in the table.
+   */
+  public selection = new SelectionModel<T>(true, []);
+  /**
+   * Reference to the paginator, if pagination is enabled.
+   */
+  public paginator: P | null;
+  /**
+   * The filter string to be applied to the table data.
+   */
+  public filter: string;
+  /**
+   * Reference to MatSort for sorting support.
+   */
+  public sort: MatSort;
+  public serializer: JsonAPISerializer;
+  /**
+   * Array of subscriptions that will be unsubscribed on disconnect.
+   */
+  protected subscriptions: Subscription[] = [];
+  /**
+   * BehaviorSubject to track the loading state.
+   */
+  protected loadingSubject = new BehaviorSubject<boolean>(false);
+  /**
+   * BehaviorSubject to track the data for the table.
+   */
+  protected dataSubject = new BehaviorSubject<T[]>([]);
+  /**
+   * An array of table columns.
+   */
+  protected columns: HTTableColumn[] = [];
+  /**
+   * Max rows in API response
+   */
+  protected maxResults = environment.config.prodApiMaxResults;
   /**
    * Copy of the original dataSubject data used for filtering
    */
   private originalData: T[] = [];
 
-  /**
-   * Array of subscriptions that will be unsubscribed on disconnect.
-   */
-  protected subscriptions: Subscription[] = [];
+  private readonly chunkTime: number = 600;
 
-  /**
-   * BehaviorSubject to track the loading state.
-   */
-  protected loadingSubject = new BehaviorSubject<boolean>(false);
+  public autoRefreshEnabled = false;
+  lastUpdated: Date;
 
-  /**
-   * BehaviorSubject to track the data for the table.
-   */
-  protected dataSubject = new BehaviorSubject<T[]>([]);
+  protected cdr: ChangeDetectorRef;
+  protected service: GlobalService;
+  protected uiService: UIConfigService;
+  protected permissionService: PermissionService;
+  public util: UISettingsUtilityClass;
+  autoRefreshService: AutoRefreshService;
+  private autoRefreshSubscription: Subscription;
 
-  /**
-   * An array of table columns.
-   */
-  protected columns: HTTableColumn[] = [];
+  constructor(protected injector: Injector) {
+    this.cdr = injector.get(ChangeDetectorRef);
+    this.service = injector.get(GlobalService);
+    this.uiService = injector.get(UIConfigService);
+    this.permissionService = injector.get(PermissionService);
+    this.serializer = new JsonAPISerializer();
+    this.autoRefreshService = injector.get(AutoRefreshService);
 
-  /**
-   * Max rows in API response
-   */
-  protected maxResults = environment.config.prodApiMaxResults;
+    const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
+    if (chunktimeSetting) {
+      this.chunkTime = Number(chunktimeSetting);
+    }
 
-  /**
-   * Selection model for row selection in the table.
-   */
-  public selection = new SelectionModel<T>(true, []);
-
-  /**
-   * Reference to the paginator, if pagination is enabled.
-   */
-  public paginator: P | null;
-
-  /**
-   * The filter string to be applied to the table data.
-   */
-  public filter: string;
-
-  /**
-   * Reference to MatSort for sorting support.
-   */
-  public sort: MatSort;
-
-  constructor(
-    protected cdr: ChangeDetectorRef,
-    protected service: GlobalService,
-    protected uiService: UIConfigService
-  ) {}
+    // Create util manually instead of injector.get
+    const localStorageService = injector.get(LocalStorageService<UIConfig>);
+    this.util = new UISettingsUtilityClass(localStorageService);
+  }
 
   /**
    * Gets the observable for the loading state.
@@ -107,7 +126,7 @@ export abstract class BaseDataSource<
    */
   set loading(value: boolean) {
     this.loadingSubject.next(value);
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   /**
@@ -139,6 +158,9 @@ export abstract class BaseDataSource<
     this.dataSubject.complete();
     this.loadingSubject.complete();
 
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
@@ -152,6 +174,8 @@ export abstract class BaseDataSource<
   setData(data: T[]): void {
     this.originalData = data;
     this.dataSubject.next(data);
+    this.lastUpdated = new Date();
+    this.cdr.detectChanges();
   }
 
   /**
@@ -161,76 +185,6 @@ export abstract class BaseDataSource<
    */
   setColumns(columns: HTTableColumn[]): void {
     this.columns = columns;
-  }
-
-  /**
-   * Sorts the data based on the sort configuration.
-   */
-  sortData(): void {
-    if (!this.sort || !this.sort.active || this.sort.direction === '') {
-      return;
-    }
-    const sortDirection = this.sort.direction;
-    const data = this.dataSubject.value.slice();
-    const columnMapping = this.columns.find(
-      (mapping) => mapping.id + '' === this.sort.active
-    );
-
-    if (!columnMapping) {
-      console.error('Column mapping not found for label: ' + this.sort.active);
-      return;
-    }
-
-    const property = columnMapping.dataKey;
-    const isAsc = sortDirection === 'asc';
-
-    const sortedData = data.sort((a, b) => {
-      return this.compare(a[property], b[property], isAsc);
-    });
-
-    this.dataSubject.next(sortedData);
-  }
-
-  /**
-   * Builds sorting parameters based on the provided sorting column.
-   * @param sortingColumn - The sorting column configuration.
-   * @returns {string} The sorting parameter string.
-   */
-  buildSortingParams(sortingColumn): string {
-    if (sortingColumn && sortingColumn.isSortable) {
-      const direction = sortingColumn.direction === 'asc' ? '' : '-';
-      return `${direction}${sortingColumn.dataKey}`;
-    }
-    return '';
-  }
-
-  /**
-   * Filters the data based on a filter function.
-   *
-   * @param filterFn - A function to filter the data based on filterValue.
-   */
-  filterData(filterFn: (item: T, filterValue: string) => boolean): void {
-    const filterValue = this.filter.trim().toLowerCase();
-    if (!filterValue) {
-      this.dataSubject.next(this.originalData);
-    } else {
-      const filteredData = this.originalData.filter((item) =>
-        filterFn(item, filterValue)
-      );
-
-      this.dataSubject.next(filteredData);
-    }
-  }
-
-  /**
-   * Compare function used for sorting.
-   */
-  private compare(
-    a: number | string,
-    b: number | string,
-    isAsc: boolean
-  ): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
   /**
@@ -252,25 +206,10 @@ export abstract class BaseDataSource<
    * @returns True if all rows are selected
    */
   isAllSelected(): boolean {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSubject.value.length;
+    const numSelected = this.selection.selected ? this.selection.selected.length : 0;
+    const numRows = this.dataSubject && this.dataSubject.value ? this.dataSubject.value.length : 0;
 
     return !!(numSelected > 0 && numSelected === numRows);
-  }
-
-  // Select all rows.
-  selectAll(): void {
-    this.dataSubject.value.forEach((row) => this.selection.select(row));
-  }
-
-  // Select a specific row.
-  selectRow(row: T): void {
-    this.selection.select(row);
-  }
-
-  // Deselect a specific row.
-  deselectRow(row: T): void {
-    this.selection.deselect(row);
   }
 
   // Checks if a row is selected.
@@ -309,17 +248,23 @@ export abstract class BaseDataSource<
    * Sets the pagination configuration for the data source, including page size, current page, and total items.
    *
    * @param pageSize - The number of items to display per page.
-   * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
+   * @param pageAfter - the pagination after parameter to retrieve data after this index.
+   * @param pageBefore - the pagination before parameter to retrieve data before this index.
+   * @param index - the pagination index.
    */
   setPaginationConfig(
     pageSize: number,
-    currentPage: number,
-    totalItems: number
+    totalItems: number,
+    pageAfter: number | string | null,
+    pageBefore: number | string | null,
+    index: number
   ): void {
     this.pageSize = pageSize;
-    this.currentPage = currentPage;
     this.totalItems = totalItems;
+    this.pageAfter = pageAfter;
+    this.pageBefore = pageBefore;
+    this.index = index;
   }
 
   /**
@@ -347,85 +292,119 @@ export abstract class BaseDataSource<
     this.filter = '';
   }
 
-  getFirstRow(): T | undefined {
-    const data = this.dataSubject.value;
-
-    if (data.length > 0) {
-      return data[0];
-    } else {
-      return undefined;
-    }
-  }
-
   abstract reload(): void;
 
-  async getChunkData(
-    id: number,
-    isAgent = true,
-    keyspace = 0
-  ): Promise<ChunkData> {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
+  /**
+   * Convert all JChunk objects related to a task or agent to a ChunkData object
+   * @param id - model ID of task or agent
+   * @param chunks - JChunk collection containing all tasks or agents related to the currenty displayed table object
+   * @param isAgent - true, ID is an agent ID, false: ID is a task ID
+   * @param keyspace - keyspace index
+   * @return mew ChunkData object containing data from all related JChunk objects
+   * @protected
+   */
+  protected convertChunks(id: number, chunks: Array<JChunk>, isAgent: boolean = true, keyspace = 0): ChunkData {
+    let dispatched = 0;
+    let searched = 0;
+    let cracked: number = 0;
+    let speed: number = 0;
+    let timespent: number = 0;
+    const tasks: Set<number> = new Set();
+    const agents: Set<number> = new Set();
 
-    const dispatched: number[] = [];
-    const searched: number[] = [];
-    const cracked: number[] = [];
-    const speed: number[] = [];
-    const timespent: number[] = [];
-    const now = Date.now();
-    const tasks: number[] = !isAgent ? [id] : [];
-    const agents: number[] = isAgent ? [id] : [];
-    const current = 0;
+    if (isAgent) agents.add(id);
+    else tasks.add(id);
 
-    const params = {
-      maxResults: this.maxResults,
-      filter: isAgent ? `agentId=${id}` : `taskId=${id}`
-    };
-
-    const response: ListResponseWrapper<Chunk> = await firstValueFrom(
-      this.service.getAll(SERV.CHUNKS, params)
-    );
-
-    for (const chunk of response.values) {
-      agents.push(chunk.agentId);
-      tasks.push(chunk.taskId);
+    const filterFn = isAgent ? (element: JChunk) => element.agentId === id : (element: JChunk) => element.taskId === id;
+    chunks.filter(filterFn).forEach((chunk) => {
+      agents.add(chunk.agentId);
+      tasks.add(chunk.taskId);
 
       // If progress is 100%, add total chunk length to dispatched
       if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
+        dispatched += chunk.length;
       }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
+      cracked += chunk.cracked;
+      searched += chunk.checkpoint - chunk.skip;
 
       // Calculate speed for chunks completed within the last chunktime
       if (
-        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
-          chunktime &&
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunkTime &&
         chunk.progress < 10000
       ) {
-        speed.push(chunk.speed);
+        speed += chunk.speed;
       }
 
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
+      if (chunk.dispatchTime > 0) {
+        timespent += chunk.solveTime - chunk.dispatchTime;
+      } else if (chunk.solveTime > 0) {
+        timespent += chunk.solveTime;
       }
-    }
+    });
 
     return {
-      tasks: Array.from(new Set(tasks)),
-      agents: Array.from(new Set(agents)),
-      dispatched:
-        keyspace && dispatched.length
-          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      searched:
-        keyspace && searched.length
-          ? searched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
-      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
-      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
+      tasks: Array.from(tasks),
+      agents: Array.from(agents),
+      dispatched: keyspace ? dispatched / keyspace : 0,
+      searched: keyspace ? searched / keyspace : 0,
+      cracked: cracked,
+      speed: speed,
+      timeSpent: timespent
     };
+  }
+
+  /**
+   * Enable or disable auto-refresh and subscribe to refresh events
+   * @param flag - true to enable auto-refresh, false to disable
+   */
+  toggleAutoRefresh(flag: boolean): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
+    this.autoRefreshEnabled = flag; // Keep the flag in sync
+    this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
+    this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.reload();
+    });
+  }
+
+  /**
+   * Stop auto-refresh and unsubscribe from refresh events
+   */
+  stopAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
+    this.autoRefreshEnabled = false; // Keep the flag in sync
+    this.autoRefreshService.stopAutoRefresh();
+  }
+
+  /**
+   * Start auto-refresh without changing the current settings
+   * (used when component is initialized and auto-refresh is already enabled)
+   */
+  startAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
+    this.autoRefreshEnabled = true; // Keep the flag in sync
+    this.autoRefreshService.startAutoRefresh({ immediate: false });
+    this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.reload();
+    });
+  }
+
+  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
+      // Reset pagination only when filter changes (not during pagination)
+      if (query && query.value) {
+        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+        params.setPageAfter(undefined);
+        params.setPageBefore(undefined);
+      }
+
+      params.addFilter(activeFilter);
+    }
+    return params;
   }
 }

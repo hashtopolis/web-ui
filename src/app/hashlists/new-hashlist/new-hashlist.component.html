@@ -2,7 +2,7 @@
 
   <app-page-subtitle subtitle="Create Hashlist"></app-page-subtitle>
 
-  <form [formGroup]="form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
@@ -13,7 +13,8 @@
         [isLoading]="isLoadingHashtypes"
         [placeholder]="'Hashtypes...'"
         [items]="selectHashtypes"
-        [label]="'Hashtype *'"
+        [label]="'Select or search Hashtype'"
+        [isRequired]="true"
         formControlName="hashTypeId"
         [multiselectEnabled]="false"
         [mergeIdAndName]="true"
@@ -60,14 +61,20 @@
       <hr>
     </div>
 
-    <input-select title="Hash Source" formControlName="sourceType" [items]="selectSource"></input-select>
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div fxLayout="column">
+        <input-select title="Hash Source" formControlName="sourceType" [items]="selectSource"></input-select>
+      </div>
+      <div fxLayout="column" style="position: relative; top: -10px;">
+        <input-check title="Secret Data" formControlName="isSecret"></input-check>
+      </div>
+    </div>
 
     <div *ngIf="sourceType === 'paste'">
       <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
-
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
+        <button-submit [name]="'Create'"></button-submit>
         <div *ngIf="isCreatingLoading">
           <mat-spinner diameter="24" color="accent"></mat-spinner>
         </div>
@@ -89,12 +96,11 @@
 
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+        <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
         <div *ngIf="isCreatingLoading">
           <mat-spinner diameter="24" color="accent"></mat-spinner>
         </div>
       </grid-buttons>
     </div>
-
   </form>
 </grid-main>

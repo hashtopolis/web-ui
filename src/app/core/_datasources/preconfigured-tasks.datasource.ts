@@ -1,97 +1,97 @@
-import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { Pretask } from '../_models/pretask.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JPretask } from '@models/pretask.model';
+import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
 
-export class PreTasksDataSource extends BaseDataSource<
-  Pretask,
-  MatTableDataSourcePaginator
-> {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
+  private _currentFilter: Filter = null;
 
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
-
-  // ToDo supertasks expand pretask doesnt include pretasfiles, so currently we need to make
-  // and additional call to pretasks and join arrays. API call expand is needed
-  loadAll(): void {
+  async loadAll(query?: Filter): Promise<void> {
     this.loading = true;
 
-    let pretasks$;
-
-    if (this._superTaskId === 0) {
-      const startAt = this.currentPage * this.pageSize;
-      const sorting = this.sortingColumn;
-
-      const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        expand: 'pretaskFiles'
-      };
-
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.ordering = order;
-      }
-
-      pretasks$ = this.service.getAll(SERV.PRETASKS, params);
-    } else {
-      pretasks$ = this.service.get(SERV.SUPER_TASKS, this._superTaskId, {
-        expand: 'pretasks'
-      });
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    this.subscriptions.push(
-      pretasks$
-        .pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((response: ListResponseWrapper<Pretask>) => {
-          let pretasks: Pretask[];
-          if (this._superTaskId === 0) {
-            pretasks = response.values;
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              response.total
-            );
-            this.setData(pretasks);
-          } else {
-            const superTaskPretasks = response.pretasks || [];
+    try {
+      if (this._superTaskId === 0) {
+        let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
+        params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+        const pretasks = await this.loadPretasks(params.create());
+        this.setData(pretasks);
+      } else {
+        let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
+        params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-            // Make another request to get pretaskFiles
-            this.service
-              .getAll(SERV.PRETASKS, {
-                expand: 'pretaskFiles'
-              })
-              .subscribe((pretaskFilesResponse: ListResponseWrapper<any>) => {
-                const pretaskFiles = pretaskFilesResponse.values || [];
+        const supertask = await this.loadSupertask(this._superTaskId, params.create());
+        const superTaskPreTaskIds = supertask.pretasks.map((p) => p.id);
+        const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds);
+        this.setData(pretaskFiles);
+      }
+    } finally {
+      this.loading = false;
+    }
+  }
 
-                // Merge pretasks with pretaskFiles
-                const pretasks = superTaskPretasks.map((superTaskPretask) => ({
-                  ...superTaskPretask,
-                  pretaskFiles: pretaskFiles.filter(
-                    (pf) => pf.pretaskId === superTaskPretask.pretaskId
-                  ),
-                  editst: true // Editing Supertask, tracking data
-                }));
-                this.setData(pretasks);
-              });
-          }
-        })
-    );
+  private async loadPretasks(params: RequestParams): Promise<JPretask[]> {
+    const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, params));
+
+    const length = response.meta.page.total_elements;
+    const nextLink = response.links.next;
+    const prevLink = response.links.prev;
+    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+    const responseData = { data: response.data, included: response.included };
+    return this.serializer.deserialize<JPretask[]>(responseData);
+  }
+
+  private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask> {
+    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.SUPER_TASKS, superTaskId, params));
+
+    const responseData = { data: response.data, included: response.included };
+    return this.serializer.deserialize<JSuperTask>(responseData);
+  }
+
+  private async loadPretaskFiles(pretaskIds: number[]): Promise<JPretask[]> {
+    if (pretaskIds && pretaskIds.length > 0) {
+      const paramsPretaskFiles = new RequestParamBuilder()
+        .addInitial(this)
+        .addInclude('pretaskFiles')
+        .addFilter({ field: 'pretaskId', operator: FilterType.IN, value: pretaskIds })
+        .create();
+      const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
+      const responseData = { data: response.data, included: response.included };
+      return this.serializer.deserialize<JPretask[]>(responseData);
+    }
+    return [];
   }
 
   reload(): void {
     this.clearSelection();
-    this.loadAll();
+    this.loadAll(); // This will use the stored filter
+  }
+
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

@@ -1,14 +1,16 @@
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { Component } from '@angular/core';
 
+import { AutoTitleService } from '@services/shared/autotitle.service';
+
 export interface Filter {
-  _id: number;
+  id: number;
   name: string;
 }
 
 @Component({
   selector: 'app-notifications',
-  templateUrl: './notifications.component.html'
+  templateUrl: './notifications.component.html',
+  standalone: false
 })
 export class NotificationsComponent {
   constructor(private titleService: AutoTitleService) {

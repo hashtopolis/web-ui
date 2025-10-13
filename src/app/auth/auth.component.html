@@ -15,7 +15,7 @@
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
-        <mat-form-field appearance="fill" class="card-login-field">
+        <mat-form-field appearance="outline" class="card-login-field">
           <mat-label>Username</mat-label>
           <mat-icon matPrefix>account_circle</mat-icon>
           <input
@@ -25,10 +25,10 @@
                 formControlName="username"
                 aria-describedby="username-error"
                 />
-          <mat-hint *ngIf="loginForm.controls['username'].errors">User Name is required</mat-hint>
+          <mat-error *ngIf="loginForm.controls['username'].errors?.required">Username is required</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="card-login-field">
+        <mat-form-field appearance="outline" class="card-login-field">
           <mat-label>Password</mat-label>
           <mat-icon matPrefix>lock</mat-icon>
           <input
@@ -42,6 +42,7 @@
           <button
             mat-icon-button
             matSuffix
+            type="button"
             (click)="isVisible = !isVisible"
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="isVisible"
@@ -50,11 +51,11 @@
               isVisible ? 'visibility_off' : 'visibility'
             }}</mat-icon>
           </button>
-          <mat-hint *ngIf="loginForm.controls['password'].errors">Password is required</mat-hint>
+          <mat-error *ngIf="loginForm.controls['password'].errors?.required">Password is required</mat-error>
         </mat-form-field>
 
         <grid-buttons>
-          <button-submit [name]="'Login'"></button-submit>
+          <button-submit [name]="'Login'" data-testid="submit-button"></button-submit>
           <div *ngIf="isLoading">
             <mat-spinner diameter="24" color="accent"></mat-spinner>
           </div>

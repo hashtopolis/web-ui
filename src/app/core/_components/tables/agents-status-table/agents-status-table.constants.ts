@@ -5,15 +5,21 @@ export enum AgentsStatusTableCol {
   AGENT_STATUS,
   WORKING_ON,
   ASSIGNED,
-  LAST_ACTIVITY
+  LAST_ACTIVITY,
+  GPU_UTILISATION,
+  GPU_TEMPERATURE,
+  CPU_UTILISATION
 }
 
 export const AgentsStatusTableColumnLabel = {
   [AgentsStatusTableCol.ID]: 'ID',
-  [AgentsStatusTableCol.STATUS]: 'Status',
   [AgentsStatusTableCol.NAME]: 'Name',
+  [AgentsStatusTableCol.STATUS]: 'Status',
   [AgentsStatusTableCol.AGENT_STATUS]: 'Agent Status',
   [AgentsStatusTableCol.WORKING_ON]: 'Currently working on',
   [AgentsStatusTableCol.ASSIGNED]: 'Assigned to',
-  [AgentsStatusTableCol.LAST_ACTIVITY]: 'Last Activity'
+  [AgentsStatusTableCol.LAST_ACTIVITY]: 'Last Activity',
+  [AgentsStatusTableCol.GPU_UTILISATION]: 'Average GPU Utilisation',
+  [AgentsStatusTableCol.GPU_TEMPERATURE]: 'Max GPU Temperature',
+  [AgentsStatusTableCol.CPU_UTILISATION]: 'Average CPU Utilisation'
 };

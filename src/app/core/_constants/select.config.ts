@@ -1,40 +1,60 @@
-export const ACCESS_GROUP_FIELD_MAPPING = {
+/**
+ * Interface definition for mapping API models to a select option
+ * @prop name Model specific name attribute
+ * @prop id   Model specific ID attribute
+ */
+export interface FieldMapping {
+  name: string;
+  id: string;
+}
+
+export const DEFAULT_FIELD_MAPPING: FieldMapping = {
+  name: 'name',
+  id: 'id'
+};
+
+export const ACCESS_GROUP_FIELD_MAPPING: FieldMapping = {
   name: 'groupName',
-  _id: '_id'
+  id: 'id'
 };
 
-export const CRACKER_TYPE_FIELD_MAPPING = {
+export const AGENT_MAPPING: FieldMapping = {
+  name: 'agentName',
+  id: 'id'
+};
+
+export const CRACKER_TYPE_FIELD_MAPPING: FieldMapping = {
   name: 'typeName',
-  _id: 'crackerBinaryTypeId'
+  id: 'id'
 };
 
-export const CRACKER_VERSION_FIELD_MAPPING = {
+export const CRACKER_VERSION_FIELD_MAPPING: FieldMapping = {
   name: 'version',
-  _id: 'crackerBinaryId'
+  id: 'id'
 };
 
-export const HASHTYPE_FIELD_MAPPING = {
+export const HASHTYPE_FIELD_MAPPING: FieldMapping = {
   name: 'description',
-  _id: '_id'
+  id: 'id'
 };
 
-export const PRETASKS_FIELD_MAPPING = {
+export const PRETASKS_FIELD_MAPPING: FieldMapping = {
   name: 'taskName',
-  _id: '_id'
+  id: 'id'
 };
 
-export const SUPER_TASK_FIELD_MAPPING = {
+export const SUPER_TASK_FIELD_MAPPING: FieldMapping = {
   name: 'taskName',
-  _id: 'pretaskId'
+  id: 'id'
 };
 
-export const TASKS_FIELD_MAPPING = {
+export const TASKS_FIELD_MAPPING: FieldMapping = {
   name: 'taskName',
-  _id: 'taskId'
+  id: 'id'
 };
 
 // Access Group Permission
-export const USER_AGP_FIELD_MAPPING = {
+export const USER_AGP_FIELD_MAPPING: FieldMapping = {
   name: 'groupName',
-  _id: '_id'
+  id: 'id'
 };

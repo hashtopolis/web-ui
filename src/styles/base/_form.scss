@@ -1,9 +1,11 @@
+@use "colors";
+
 .form-field {
   label {
     font-weight: 600;
     margin-bottom: 4px;
     display: inline-block;
-    color: $primary-700;
+    color: colors.$primary-700;
   }
 
   &.xs-field {
@@ -35,7 +37,7 @@
   }
 
   .mat-icon {
-    color: $primary-100;
+    color: colors.$primary-100;
   }
 }
 

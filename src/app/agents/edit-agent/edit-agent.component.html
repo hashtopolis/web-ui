@@ -1,17 +1,23 @@
 <grid-main>
   <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <simulate-form-field label="Agent ID"  message="{{ showagent['agentId'] }}"></simulate-form-field>
+    <div *ngIf="showagent" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
       <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
       <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
       <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
-        <input-select title="Assignment" formControlName="taskId" [items]="assignTasks" [isBlankOptionDisabled]="assignNew"></input-select>
+        <input-select
+          title="Assignment"
+          formControlName="taskId"
+          [items]="assignTasks"
+          [isBlankOptionDisabled]="assignNew"
+          [blankOptionText]="'Unassign'"
+        ></input-select>
       </form>
       <input-select title="Cracker errors" formControlName="ignoreErrors" [items]="selectIgnorerrors"></input-select>
       <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
       <input-check title="CPU only" formControlName="cpuOnly"></input-check>
-      <input-check title="Trust" formControlName="isTrusted"  tooltip="Trust agent with secret data"></input-check>
+      <input-check title="Trust" formControlName="isTrusted" tooltip="Trust agent with secret data"></input-check>
       <input-check title="Active" formControlName="isActive"></input-check>
     </div>
     <mat-accordion>
@@ -21,17 +27,44 @@
             <span><b>Detailed Information</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <simulate-form-field label="Last activity"  message="{{ showagent['lastTime'] | uiDate }}"></simulate-form-field>
-            <simulate-form-field label="Last Action"  message="{{ showagent['lastAct'] }}"></simulate-form-field>
-            <simulate-form-field label="IP"  message="{{ showagent['lastIp'] }}"></simulate-form-field>
-            <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
-            <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
-            <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
-            <simulate-form-field label="Graphic cards"  message="{{ this.renderDevices(showagent['devices']) }}"></simulate-form-field>
-            <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
-          </div>
-          <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
+        <div *ngIf="showagent" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <simulate-form-field
+            label="Last activity"
+            message="{{ showagent['lastTime'] | uiDate }}"
+          ></simulate-form-field>
+          <simulate-form-field label="Last Action" message="{{ showagent['lastAct'] }}"></simulate-form-field>
+          <simulate-form-field label="IP" message="{{ showagent['lastIp'] }}"></simulate-form-field>
+          <simulate-form-field label="Machine ID" message="{{ showagent['uid'] }}"></simulate-form-field>
+          <simulate-form-field label="Access token" message="{{ showagent['token'] }}"></simulate-form-field>
+          <simulate-form-field
+            label="O.S."
+            [message]="
+              showagent['os'] === 0
+                ? 'Linux'
+                : showagent['os'] === 1
+                  ? 'Windows'
+                  : showagent['os'] === 2
+                    ? 'IOS'
+                    : 'Unknown'
+            "
+            icon="computer"
+          ></simulate-form-field>
+          <simulate-form-field
+            *ngIf="showagent['devices']"
+            label="Graphic cards"
+            message="{{ this.renderDevices(showagent['devices']) }}"
+          ></simulate-form-field>
+          <simulate-form-field-multi
+            label="Member of access groups"
+            [items]="selectUserAgps"
+            routerLink="/users/access-groups/"
+          ></simulate-form-field-multi>
+        </div>
+        <simulate-form-field
+          label="Time spent cracking"
+          message="{{ timespent | sectotime }}"
+          *ngIf="timespent"
+        ></simulate-form-field>
       </mat-expansion-panel>
     </mat-accordion>
 
@@ -41,39 +74,40 @@
         <mat-spinner diameter="24" color="accent"></mat-spinner>
       </div>
     </grid-buttons>
-
   </form>
 </grid-main>
-<!-- Graphs -->
 <app-table>
-  <app-page-subtitle [subtitle]="'Device(s) Temperature'"></app-page-subtitle>
+  <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
+  <ng-container *ngIf="showagent">
   <div class="row">
     <div class="col col-12">
-      <div id="tempgraph" style="height: 250px;"></div>
+      <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
-  <app-page-subtitle [subtitle]="'Device(s) Utilization'"></app-page-subtitle>
+
+  <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
-      <div id="devicegraph" style="height: 250px;"></div>
+      <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
-  <app-page-subtitle [subtitle]="'Agent average CPU utilization'"></app-page-subtitle>
+
+  <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
-      <div id="cpugraph" style="height: 250px;"></div>
+      <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
+  </ng-container>
 </app-table>
+
 <!-- ToDO API Errors table -->
-<!-- <app-table>
-  <app-page-subtitle [subtitle]="'Error Messages'"></app-page-subtitle>
-</app-table> -->
+<app-table>
+  <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
+  <app-agent-error-table [agentId]="this.editedAgentIndex"></app-agent-error-table>
+</app-table>
 <!-- Dispatched Chunks -->
 <app-table>
   <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
-  <chunks-table [agentId]="this.editedAgentIndex"></chunks-table>
+  <app-chunks-table [agentId]="this.editedAgentIndex"></app-chunks-table>
 </app-table>
-
-
-

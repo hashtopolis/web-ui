@@ -1,33 +1,31 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { GlobalPermissionGroup } from '../_models/global-permission-group.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'user'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const permissions$ = this.service.getAll(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      params
-    );
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers');
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+
+    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create());
 
     this.subscriptions.push(
       permissions$
@@ -35,15 +33,18 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<GlobalPermissionGroup>) => {
-          const permissions: GlobalPermissionGroup[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+          const responseBody = { data: response.data, included: response.included };
+          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
-          this.setData(permissions);
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(globalPermissionGroups);
         })
     );
   }
@@ -51,5 +52,10 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

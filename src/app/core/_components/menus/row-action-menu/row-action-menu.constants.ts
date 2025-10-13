@@ -3,11 +3,12 @@ export const RowActionMenuLabel = {
   ACTIVATE_AGENT: 'Activate Agent',
   ACTIVATE_NOTIFICATION: 'Activate Notification',
   APPLY_HASHLIST: 'Apply Hashlist',
+  ARCHIVE_HASHLIST: 'Archive Hashlist',
+  UNARCHIVE_HASHLIST: 'Unarchive Hashlist',
   DEACTIVATE_USER: 'Deactivate User',
   DEACTIVATE_AGENT: 'Deactivate Agent',
   DEACTIVATE_NOTIFICATION: 'Deactivate Notification',
   EDIT_AGENT: 'Edit Agent',
-  EDIT_NOTIFICATION: 'Edit Notification',
   EDIT_PRETASK: 'Edit Pretask',
   EDIT_TASK: 'Edit Task',
   EDIT_SUPERTASK: 'Edit Supertask',
@@ -16,6 +17,7 @@ export const RowActionMenuLabel = {
   EDIT_HASHTYPE: 'Edit Hashtype',
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
+  DOWNLOAD_FILE: 'Download File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
   VIEW_HEALTHCHECK: 'View Health Check',
@@ -39,6 +41,7 @@ export const RowActionMenuLabel = {
   DELETE_ACCESSGROUP: 'Delete Access Group',
   DELETE_PERMISSION: 'Delete Permission Group',
   DELETE_VOUCHER: 'Delete Voucher',
+  DELETE_ERROR: 'Delete Error',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
@@ -53,7 +56,12 @@ export const RowActionMenuLabel = {
   UNASSIGN_AGENT: 'Unassign Agent',
   UNASSIGN_USER: 'Unassign User',
   UNASSIGN_PRETASK: 'Unassign Pretask',
-  RESET_CHUNK: 'Reset Task Chunk'
+  RESET_CHUNK: 'Reset Task Chunk',
+  REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
+  REMOVE_ACCESSGROUP_USER: 'Remove User',
+  ARCHIVE_PRETASK: 'Archive PreTask',
+  UNARCHIVE_PRETASK: 'Unarchive PreTask',
+  SHOW_SUBTASK: 'Show Subtasks'
 };
 
 export const RowActionMenuAction = {
@@ -66,13 +74,14 @@ export const RowActionMenuAction = {
   COPY_TO_PRETASK: 'copy-to-pretask',
   EDIT_TASKS: 'edit-tasks',
   EDIT_SUBTASKS: 'edit-subtasks',
+  SHOW_SUBTASKS: 'show-subtasks',
   NEW: 'new',
   IMPORT: 'import',
   EXPORT: 'export',
   ACTIVATE: 'activate',
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
-  UNARCHIVE: 'unrachive',
+  UNARCHIVE: 'unarchive',
   RESET: 'reset',
   VIEW: 'view'
 };

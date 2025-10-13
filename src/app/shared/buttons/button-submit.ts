@@ -1,6 +1,6 @@
+import { Location } from '@angular/common';
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
 
 /**
  * Component for rendering a submit or cancel button.
@@ -35,12 +35,13 @@ import { Location } from '@angular/common';
       [ngClass]="getCustomClass()"
       [type]="getTypeAttribute()"
       [disabled]="disabled"
-      (click)="handleClick()"
+      (click)="type === 'cancel' || type === 'delete' ? handleClick($event) : null"
     >
       {{ name }}
     </button>
   `,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class ButtonSubmitComponent {
   /**
@@ -77,11 +78,15 @@ export class ButtonSubmitComponent {
   /**
    * Handle the button click based on its type.
    */
-  handleClick(): void {
-    if (this.type === 'cancel') {
-      this.location.back(); // Go back to the previous window
-    } else {
+  handleClick(event: Event): void {
+    if (this.disabled) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       return;
+    }
+
+    if (this.type === 'cancel') {
+      this.location.back();
     }
   }
 

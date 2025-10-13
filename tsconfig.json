@@ -3,17 +3,24 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@models/*": ["./src/app/core/_models/*"],
+      "@components/*": ["./src/app/core/_components/*"],
+      "@datasources/*": ["./src/app/core/_datasources/*"],
+      "@services/*": ["./src/app/core/_services/*"],
+      "@constants/*": ["./src/app/core/_constants/*"]
+    },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": false,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
     "esModuleInterop": true,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "moduleResolution": "node",
@@ -29,6 +36,7 @@
       "ES2022",
       "dom"
     ],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

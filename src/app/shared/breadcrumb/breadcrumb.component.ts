@@ -5,8 +5,9 @@ import { filter } from "rxjs/operators";
 import { Input } from "@angular/core";
 
 @Component({
-  selector: 'app-breadcrumb',
-  templateUrl: './breadcrumb.component.html'
+    selector: 'app-breadcrumb',
+    templateUrl: './breadcrumb.component.html',
+    standalone: false
 })
 
 export class BreadcrumbComponent implements OnInit {

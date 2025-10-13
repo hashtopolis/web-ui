@@ -1,0 +1,27 @@
+.moveable-cursor {
+  cursor: move;
+}
+
+.tab-icon-margin {
+  margin-right: 0.5rem;
+}
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 500;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.dialog-icon {
+  font-size: 20px;
+  margin-right: 8px;
+  line-height: 1;
+}
+
+.dialog-title-text {
+  line-height: 1.2;
+}

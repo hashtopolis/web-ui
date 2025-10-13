@@ -1,31 +1,36 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LogsTableCol, LogsTableColumnLabel } from './logs-table.constants';
-
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { Log } from 'src/app/core/_models/log.model';
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
+import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
+/* eslint-disable @angular-eslint/component-selector */
 
 @Component({
   selector: 'logs-table',
-  templateUrl: './logs-table.component.html'
+  templateUrl: './logs-table.component.html',
+  standalone: false
 })
-export class LogsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new LogsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -34,92 +39,71 @@ export class LogsTableComponent
       sub.unsubscribe();
     }
   }
-
-  filter(item: Log, filterValue: string): boolean {
-    if (
-      item.message.toLowerCase().includes(filterValue) ||
-      item.level.toLowerCase().includes(filterValue) ||
-      item.issuer.toLowerCase().includes(filterValue)
-    ) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: LogsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (log: Log) => log._id + ''
+        isSearchable: true,
+        render: (log: JLog) => log.id,
+        export: async (log: JLog) => log.id + ''
       },
       {
         id: LogsTableCol.TIME,
         dataKey: 'time',
         isSortable: true,
-        render: (log: Log) => formatUnixTimestamp(log.time, this.dateFormat),
-        export: async (log: Log) =>
-          formatUnixTimestamp(log.time, this.dateFormat)
+        render: (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat),
+        export: async (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat)
       },
       {
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
-        render: (log: Log) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
-        export: async (log: Log) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
+        isSearchable: true,
+        render: (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        export: async (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
         id: LogsTableCol.ISSUER,
-        dataKey: 'issuer',
+        dataKey: 'issuerId',
         isSortable: true,
-        render: (log: Log) => `${log.issuer}-ID-${log.issuerId}`,
-        export: async (log: Log) => `${log.issuer}-ID-${log.issuerId}`
+        isSearchable: true,
+        render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
+        export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
       },
       {
         id: LogsTableCol.MESSAGE,
         dataKey: 'message',
         isSortable: true,
-        export: async (log: Log) => log.message
+        isSearchable: true,
+        render: (log: JLog) => log.message,
+        export: async (log: JLog) => log.message
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Log[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Log>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Log>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Log>(this.tableColumns, event.data, LogsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
+    this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }
 }

@@ -1,6 +1,7 @@
-import { AbstractInputComponent } from '../abstract-input';
 import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input Text Component.
@@ -25,7 +26,8 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
       useExisting: forwardRef(() => InputTextAreaComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: false
 })
 export class InputTextAreaComponent extends AbstractInputComponent<string> {
   constructor() {

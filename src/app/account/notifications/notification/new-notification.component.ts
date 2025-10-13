@@ -1,23 +1,28 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import {
-  ACTION,
-  ACTIONARRAY,
-  NOTIFARRAY
-} from '../../../core/_constants/notifications.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { environment } from '../../../../environments/environment';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../../core/_services/main.config';
-import { Filter } from '../notifications.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { JHashlist } from '@models/hashlist.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+
+import { Filter } from '@src/app/account/notifications/notifications.component';
+import { ACTION, ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
 
 @Component({
   selector: 'app-new-notification',
-  templateUrl: './new-notification.component.html'
+  templateUrl: './new-notification.component.html',
+  standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Notification';
@@ -29,14 +34,13 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   triggerAction: string;
   form: FormGroup;
   filters: Filter[];
-  editView = false;
   active = false;
   allowedActions = ACTIONARRAY.map((action) => ({
-    _id: action,
+    id: action,
     name: action
   }));
   maxResults: string | number;
-  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
+  notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
@@ -65,7 +69,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
-    titleService.set(['New Notification']);
+    this.titleService.set(['New Notification']);
   }
 
   /**
@@ -92,7 +96,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       action: new FormControl('', [Validators.required]),
       actionFilter: new FormControl(String('')),
-      notification: new FormControl('' || 'ChatBot', [Validators.required]),
+      notification: new FormControl('ChatBot', [Validators.required]),
       receiver: new FormControl('', [Validators.required]),
       isActive: new FormControl(true)
     });
@@ -115,25 +119,32 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.active = true;
 
       this.subscriptions.push(
-        this.gs.getAll(path).subscribe((res: any) => {
+        this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
+          const resource = new JsonAPISerializer().deserialize<BaseModel[]>({
+            data: response.data,
+            included: response.included
+          });
           const _filters: Filter[] = [];
-          for (let i = 0; i < res.values.length; i++) {
+          for (let i = 0; i < resource.length; i++) {
             if (path === SERV.AGENTS) {
+              const agent = resource[i] as JAgent;
               _filters.push({
-                _id: res.values[i]['_id'],
-                name: res.values[i]['agentName']
+                id: agent.id,
+                name: agent.agentName
               });
             }
             if (path === SERV.TASKS) {
+              const task = resource[i] as JTask;
               _filters.push({
-                _id: res.values[i]['_id'],
-                name: res.values[i]['taskName']
+                id: task.id,
+                name: task.taskName
               });
             }
             if (path === SERV.USERS || path === SERV.HASHLISTS) {
+              const hashlist = resource[i] as JHashlist;
               _filters.push({
-                _id: res.values[i]['_id'],
-                name: res.values[i]['name']
+                id: hashlist.id,
+                name: hashlist.name
               });
             }
           }
@@ -166,7 +177,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-          this.alert.okAlert('New Notification created!', '');
+          this.alert.showSuccessMessage('New Notification created');
           this.isCreatingLoading = false;
           this.router.navigate(['/account/notifications']);
         })

@@ -1,29 +1,17 @@
 <app-table>
   <ng-container [ngSwitch]="fileType">
     <ng-container *ngSwitchCase="FileType.WORDLIST">
-      <app-page-title
-        title="Wordlist Files"
-        buttontitle="New WordList"
-        buttonlink="/files/wordlist/new-wordlist"
-        [subbutton]="true"
-      ></app-page-title>
+      <app-page-title title="Wordlist Files" buttontitle="New Wordlist" buttonlink="/files/wordlist/new-wordlist"
+        [subbutton]="true"></app-page-title>
     </ng-container>
     <ng-container *ngSwitchCase="FileType.RULES">
-      <app-page-title
-        title="Rule Files"
-        buttontitle="New Rule"
-        buttonlink="/files/rules/new-rule"
-        [subbutton]="true"
-      ></app-page-title>
+      <app-page-title title="Rule Files" buttontitle="New Rule" buttonlink="/files/rules/new-rule"
+        [subbutton]="true"></app-page-title>
     </ng-container>
     <ng-container *ngSwitchCase="FileType.OTHER">
-      <app-page-title
-        title="Other Files"
-        buttontitle="New File"
-        buttonlink="/files/other/new-other"
-        [subbutton]="true"
-      ></app-page-title>
+      <app-page-title title="Other Files" buttontitle="New File" buttonlink="/files/other/new-other"
+        [subbutton]="true"></app-page-title>
     </ng-container>
   </ng-container>
-  <files-table [fileType]="fileType"></files-table>
+  <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
 </app-table>

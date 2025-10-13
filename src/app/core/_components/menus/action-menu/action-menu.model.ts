@@ -8,6 +8,6 @@ export interface ActionMenuItem {
   action?: string;
   icon?: string;
   red?: boolean;
-  routerLink?: any[];
-  external?: any;
+  routerLink?: string[];
+  external?: boolean;
 }

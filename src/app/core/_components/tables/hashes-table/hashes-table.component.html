@@ -1,16 +1,6 @@
-<ht-table
-  #table
-  name="hashesTable"
-  dataType="hashes"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [hasBulkActions]="false"
-  [hasRowAction]="false"
-  [isFilterable]="true"
-  [filterFn]="filter"
-  [isPageable]="true"
-  (rowActionClicked)="rowActionClicked($event)"
-  (exportActionClicked)="exportActionClicked($event)"
-/>
+<ht-table #table name="hashesTable" dataType="hashes" [columnLabels]="columnLabels" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [isSelectable]="true" [isFilterable]="!isFilterable" [isPageable]="true"
+  [isDetailPage]="true" (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)" (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (emitCopyRowData)="receiveCopyData($event)" (emitFullHashModal)="showTruncatedData($event)"
+  (backendSqlFilter)="filter($event)" />

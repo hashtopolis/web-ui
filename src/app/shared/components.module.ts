@@ -1,40 +1,41 @@
-import { ActiveSpinnerComponent } from './loading-spinner/loading-spinner-active.component';
-import { PassStrenghtComponent } from './password/pass-strenght/pass-strenght.component';
-import { HexconvertorComponent } from './utils/hexconvertor/hexconvertor.component';
-import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.component';
-import { PassMatchComponent } from './password/pass-match/pass-match.component';
-import { FixedAlertComponent } from './alert/fixed-alert/fixed-alert.component';
-import { CheatsheetComponent } from './alert/cheatsheet/cheatsheet.component';
-import { ColorPickerModule } from 'ngx-color-picker';
-import { CommonModule } from '@angular/common';
-import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
-import { FilterTextboxModule } from './filter-textbox/filter-textbox.module';
-import { SwitchThemeModule } from './switch-theme/switch-theme.module';
-import { TimeoutComponent } from './alert/timeout/timeout.component';
-import { HorizontalNavModule } from './navigation/navigation.module';
-import { InputModule } from './input/input.module';
-import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
-import { LottiesModule } from './lottie/lottie.module';
-import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PageTitleModule } from './page-headers/page-title.module';
-import { PaginationModule } from './pagination/pagination.module';
-import { GridModule } from './grid-containers/grid.module';
-import { TableModule } from './table/table-actions.module';
+
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { AlertComponent } from './alert/alert.component';
-import { ButtonsModule } from './buttons/buttons.module';
-import { GraphsModule } from './graphs/graphs.module';
-import { FormsModule } from '@angular/forms';
-import { CoreFormsModule } from './forms.module';
-import { AlertNavModule } from './alert/alert.module';
-import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
-import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generatorcomponent';
-import { ReportsModule } from './report-builder/reports.module';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+
+import { AlertComponent } from '@src/app/shared/alert/alert.component';
+import { AlertNavModule } from '@src/app/shared/alert/alert.module';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { FixedAlertComponent } from '@src/app/shared/alert/fixed-alert/fixed-alert.component';
+import { TimeoutComponent } from '@src/app/shared/alert/timeout/timeout.component';
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
+import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
+import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
+import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { GraphsModule } from '@src/app/shared/graphs/graphs.module';
+import { GridModule } from '@src/app/shared/grid-containers/grid.module';
+import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
+import { InputModule } from '@src/app/shared/input/input.module';
+import { ActiveSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner-active.component';
+import { LoadingSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner.component';
+import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
+import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+import { PaginationModule } from '@src/app/shared/pagination/pagination.module';
+import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
+import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
+import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
+import { SwitchThemeModule } from '@src/app/shared/switch-theme/switch-theme.module';
+import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { HexconvertorComponent } from '@src/app/shared/utils/hexconvertor/hexconvertor.component';
+import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 @NgModule({
   declarations: [
-    WordlisGeneratorComponent,
+    WordlistGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
@@ -48,18 +49,18 @@ import { ReportsModule } from './report-builder/reports.module';
     AlertComponent
   ],
   imports: [
+    ReactiveFormsModule,
+    MatCheckboxModule,
     FilterTextboxModule,
     HorizontalNavModule,
     DynamicFormModule,
     SwitchThemeModule,
-    ColorPickerModule,
     PaginationModule,
     CoreFormsModule,
     PageTitleModule,
     FlexLayoutModule,
     AlertNavModule,
     ButtonsModule,
-    LottiesModule,
     ReportsModule,
     CommonModule,
     GraphsModule,
@@ -69,7 +70,7 @@ import { ReportsModule } from './report-builder/reports.module';
     NgbModule
   ],
   exports: [
-    WordlisGeneratorComponent,
+    WordlistGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
@@ -83,7 +84,6 @@ import { ReportsModule } from './report-builder/reports.module';
     PassMatchComponent,
     SwitchThemeModule,
     DynamicFormModule,
-    ColorPickerModule,
     PaginationModule,
     TimeoutComponent,
     PageTitleModule,
@@ -91,7 +91,6 @@ import { ReportsModule } from './report-builder/reports.module';
     AlertNavModule,
     ButtonsModule,
     ReportsModule,
-    LottiesModule,
     GraphsModule,
     CommonModule,
     InputModule,

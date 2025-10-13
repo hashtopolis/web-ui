@@ -1,37 +1,39 @@
 @use '@angular/material' as mat;
 
-$primary-50: mat.get-color-from-palette($hashtopolis-primary-palette, 50);
-$primary-100: mat.get-color-from-palette($hashtopolis-primary-palette, 100);
-$primary-200: mat.get-color-from-palette($hashtopolis-primary-palette, 200);
-$primary-300: mat.get-color-from-palette($hashtopolis-primary-palette, 300);
-$primary-400: mat.get-color-from-palette($hashtopolis-primary-palette, 400);
-$primary-500: mat.get-color-from-palette($hashtopolis-primary-palette, 500);
-$primary-600: mat.get-color-from-palette($hashtopolis-primary-palette, 600);
-$primary-700: mat.get-color-from-palette($hashtopolis-primary-palette, 700);
-$primary-800: mat.get-color-from-palette($hashtopolis-primary-palette, 800);
-$primary-900: mat.get-color-from-palette($hashtopolis-primary-palette, 900);
+@use "src/styles/theme";
 
-$accent-50: mat.get-color-from-palette($hashtopolis-accent-palette, 50);
-$accent-100: mat.get-color-from-palette($hashtopolis-accent-palette, 100);
-$accent-200: mat.get-color-from-palette($hashtopolis-accent-palette, 200);
-$accent-300: mat.get-color-from-palette($hashtopolis-accent-palette, 300);
-$accent-400: mat.get-color-from-palette($hashtopolis-accent-palette, 400);
-$accent-500: mat.get-color-from-palette($hashtopolis-accent-palette, 500);
-$accent-600: mat.get-color-from-palette($hashtopolis-accent-palette, 600);
-$accent-700: mat.get-color-from-palette($hashtopolis-accent-palette, 700);
-$accent-800: mat.get-color-from-palette($hashtopolis-accent-palette, 800);
-$accent-900: mat.get-color-from-palette($hashtopolis-accent-palette, 900);
+$primary-50: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 50);
+$primary-100: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 100);
+$primary-200: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 200);
+$primary-300: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 300);
+$primary-400: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 400);
+$primary-500: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 500);
+$primary-600: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 600);
+$primary-700: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 700);
+$primary-800: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 800);
+$primary-900: mat.m2-get-color-from-palette(theme.$hashtopolis-primary-palette, 900);
 
-$warn-50: mat.get-color-from-palette($hashtopolis-warn-palette, 50);
-$warn-100: mat.get-color-from-palette($hashtopolis-warn-palette, 100);
-$warn-200: mat.get-color-from-palette($hashtopolis-warn-palette, 200);
-$warn-300: mat.get-color-from-palette($hashtopolis-warn-palette, 300);
-$warn-400: mat.get-color-from-palette($hashtopolis-warn-palette, 400);
-$warn-500: mat.get-color-from-palette($hashtopolis-warn-palette, 500);
-$warn-600: mat.get-color-from-palette($hashtopolis-warn-palette, 600);
-$warn-700: mat.get-color-from-palette($hashtopolis-warn-palette, 700);
-$warn-800: mat.get-color-from-palette($hashtopolis-warn-palette, 800);
-$warn-900: mat.get-color-from-palette($hashtopolis-warn-palette, 900);
+$accent-50: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 50);
+$accent-100: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 100);
+$accent-200: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 200);
+$accent-300: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 300);
+$accent-400: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 400);
+$accent-500: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 500);
+$accent-600: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 600);
+$accent-700: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 700);
+$accent-800: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 800);
+$accent-900: mat.m2-get-color-from-palette(theme.$hashtopolis-accent-palette, 900);
+
+$warn-50: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 50);
+$warn-100: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 100);
+$warn-200: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 200);
+$warn-300: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 300);
+$warn-400: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 400);
+$warn-500: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 500);
+$warn-600: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 600);
+$warn-700: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 700);
+$warn-800: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 800);
+$warn-900: mat.m2-get-color-from-palette(theme.$hashtopolis-warn-palette, 900);
 
 $color-black: #080808;
 $color-white: #ffffff;
@@ -57,5 +59,70 @@ $alert-color: #ffebee;
 $btn-text-color: #ffffff;
 $btn-bg-color: #1986b1;
 $btn-border-color: #1986b1;
+
+:root {
+  /* Primary palette */
+  --primary-50: #{$primary-50};
+  --primary-100: #{$primary-100};
+  --primary-200: #{$primary-200};
+  --primary-300: #{$primary-300};
+  --primary-400: #{$primary-400};
+  --primary-500: #{$primary-500};
+  --primary-600: #{$primary-600};
+  --primary-700: #{$primary-700};
+  --primary-800: #{$primary-800};
+  --primary-900: #{$primary-900};
+
+  /* Accent palette */
+  --accent-50: #{$accent-50};
+  --accent-100: #{$accent-100};
+  --accent-200: #{$accent-200};
+  --accent-300: #{$accent-300};
+  --accent-400: #{$accent-400};
+  --accent-500: #{$accent-500};
+  --accent-600: #{$accent-600};
+  --accent-700: #{$accent-700};
+  --accent-800: #{$accent-800};
+  --accent-900: #{$accent-900};
+
+  /* Warn palette */
+  --warn-50: #{$warn-50};
+  --warn-100: #{$warn-100};
+  --warn-200: #{$warn-200};
+  --warn-300: #{$warn-300};
+  --warn-400: #{$warn-400};
+  --warn-500: #{$warn-500};
+  --warn-600: #{$warn-600};
+  --warn-700: #{$warn-700};
+  --warn-800: #{$warn-800};
+  --warn-900: #{$warn-900};
+
+  /* Custom colors */
+  --color-black: #{$color-black};
+  --color-white: #{$color-white};
+  --color-grey-light: #{$color-grey-light};
+  --color-grey-border: #{$color-grey-border};
+  --color-grey: #{$color-grey};
+  --color-grey-metal: #{$color-grey-metal};
+  --color-grey-dark: #{$color-grey-dark};
+  --color-orange: #{$color-orange};
+  --color-orange-dark: #{$color-orange-dark};
+  --color-green: #{$color-green};
+  --color-green-dark: #{$color-green-dark};
+  --color-red: #{$color-red};
+  --color-red-dark: #{$color-red-dark};
+  --color-blue-light: #{$color-blue-light};
+  --color-blue: #{$color-blue};
+
+  /* Buttons, links, alerts */
+  --hyperlink-color: #{$hyperlink-color};
+  --search-text-highlight-color: #{$search-text-highlight-color};
+  --alert-color: #{$alert-color};
+
+  --btn-text-color: #{$btn-text-color};
+  --btn-bg-color: #{$btn-bg-color};
+  --btn-border-color: #{$btn-border-color};
+}
+
 
 

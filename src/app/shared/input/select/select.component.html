@@ -1,27 +1,42 @@
-<mat-form-field>
-  <mat-label>{{ title }}
-    <mat-icon
-      matTooltip="{{ tooltip }}"
-      matTooltipPosition="below"
-      matTooltipClass="tooltip-custom-style"
-      container="body"
-      aria-hidden="true"
-      *ngIf="tooltip"
-    >
-      info
-    </mat-icon>
+<mat-form-field [ngStyle]="{width: width}">
+  <mat-label>
+    <ng-container *ngIf="!isLoading; else loadingLabel">
+      {{ title }}
+      <mat-icon
+        *ngIf="tooltip"
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        container="body"
+        aria-hidden="true"
+      >
+        info
+      </mat-icon>
+    </ng-container>
+    <ng-template #loadingLabel>
+      <mat-spinner diameter="16" class="spinner-inline" color="primary"></mat-spinner>
+      <span>Loading...</span>
+    </ng-template>
   </mat-label>
+
   <mat-select
-            #inputField
-            [(ngModel)]="value"
-            (selectionChange)="onChangeValue($event.value)"
-            [required]="isRequired"
-            >
-    <mat-option value="null" *ngIf="isBlankOptionDisabled">Disabled</mat-option>
-    <mat-option *ngFor="let item of items" [value]="item._id">
+    #inputField
+    [(ngModel)]="value"
+    #ngModel="ngModel"
+    (selectionChange)="onChangeValue($event.value)"
+    [required]="!isLoading && isRequired"
+    [disabled]="isLoading || disabled"
+  >
+    <mat-option [value]="0" *ngIf="isBlankOptionDisabled">
+      {{ blankOptionText || 'Disabled' }}
+    </mat-option>
+
+    <mat-option *ngFor="let item of items" [value]="item.id">
       {{ item.name }}
     </mat-option>
   </mat-select>
+
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error>{{ title }} is required</mat-error>
+  <mat-error *ngIf="ngModel.invalid && ngModel.touched">{{ title }} is required</mat-error>
+
 </mat-form-field>

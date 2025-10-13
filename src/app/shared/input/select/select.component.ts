@@ -1,6 +1,7 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { AbstractInputComponent } from '../abstract-input';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Select Component.
@@ -25,11 +26,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       useExisting: forwardRef(() => InputSelectComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: false
 })
 export class InputSelectComponent extends AbstractInputComponent<any> {
-  @Input() items: any[];
+  @Input() items: any;
   @Input() isBlankOptionDisabled = false;
+  @Input() blankOptionText: string;
+  @Input() isLoading = false;
+  @Input() width: string = '';
 
   constructor() {
     super();

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, input } from '@angular/core';
 
 /**
  * Component for truncating and expanding text with a "More/Less" button.
@@ -6,18 +6,28 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'table-truncate',
   templateUrl: './table-truncate.component.html',
-  styleUrls: ['./table-truncate.component.scss']
+  styleUrls: ['./table-truncate.component.scss'],
+  standalone: false
 })
 export class TableTruncateComponent implements OnInit {
   @Input() text: string;
-  @Input() maxLength = 40;
+  @Input() path: string;
+  @Input() maxLength = 30;
+  @Input() endLength = 10;
 
   expanded = false;
   abbr: string;
 
   ngOnInit(): void {
+    if (this.path !== undefined && this.path === 'hash') {
+      let objText: string = this.text['hash'];
+      this.text = objText;
+    }
+
     if (this.text.length > this.maxLength) {
-      this.abbr = `${this.text.substring(0, this.maxLength)} [...]`;
+      const start = this.text.substring(0, this.maxLength);
+      const end = this.text.substring(this.text.length - this.endLength);
+      this.abbr = `${start}…${end}`;
     } else {
       this.abbr = this.text;
     }

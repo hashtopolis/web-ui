@@ -1,0 +1,6 @@
+<ht-table #table [name]="name" [columnLabels]="columnLabels" [dataType]="datatype" [dataSource]="dataSource"
+    [tableColumns]="tableColumns" [isSelectable]="isSelectable" [isFilterable]="isFilterable"
+    [contextMenuService]="contextMenuService" [filterFn]="filter.bind(this)" (editableSaved)="editableSaved($event)"
+    [isPageable]="false" [isDetailPage]="true" (bulkActionClicked)="bulkActionClicked($event)"
+    (rowActionClicked)="rowActionClicked($event)" (exportActionClicked)="exportActionClicked($event)"
+    (selectedFilterColumnChanged)="selectedFilterColumn = $event" />

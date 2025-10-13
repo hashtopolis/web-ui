@@ -4,21 +4,21 @@
       matTooltip="{{ tooltip }}"
       matTooltipPosition="below"
       matTooltipClass="tooltip-custom-style"
-      container="body"
+      matTooltipShowDelay="500"
       aria-hidden="true"
       *ngIf="tooltip"
     >
       info
     </mat-icon>
+
   </mat-label>
   <textarea
-    #inputField
     matInput
     [class.is-invalid]="error"
     [id]="inputId"
     [(ngModel)]="value"
     (ngModelChange)="onChange(value)"
-     matAutosize
+    cdkTextareaAutosize
      [required]="isRequired"
      class="custom-textarea"
   ></textarea>

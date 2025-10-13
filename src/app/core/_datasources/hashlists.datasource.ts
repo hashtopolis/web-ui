@@ -1,86 +1,116 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { HashListFormat } from '../_constants/hashlist.config';
-import { Hashlist } from '../_models/hashlist.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JHashlist } from '@models/hashlist.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class HashlistsDataSource extends BaseDataSource<Hashlist> {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
+
+export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
-  private _shashlistId = 0;
-
+  private superHashListID = 0;
+  private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.reset(true);
+    this.pageAfter = null;
+    this.pageBefore = null;
+    this.index = 0;
   }
 
-  setSHashlistId(shashlistId: number): void {
-    this._shashlistId = shashlistId;
+  setSuperHashListID(superHashListID: number): void {
+    this.superHashListID = superHashListID;
   }
-
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'hashType,accessGroup',
-      filter: `isArchived=${this.isArchived}`
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    let hashLists$;
-
-    if (this._shashlistId) {
-      hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, {
-        expand: 'hashlists,hashType'
-      });
-    } else {
-      hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
-    }
-
-    this.subscriptions.push(
-      hashLists$
-        .pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((response: ListResponseWrapper<Hashlist>) => {
-          let rows: Hashlist[] = [];
-          if (this._shashlistId) {
-            rows = response['hashlists'];
-          } else {
-            response.values.forEach((value: Hashlist) => {
-              if (value.format !== HashListFormat.SUPERHASHLIST) {
-                const hashlist = value;
-
-                hashlist.hashTypeDescription = hashlist.hashType.description;
-
-                rows.push(hashlist);
-              }
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    if (this.superHashListID) {
+      let params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');
+      params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+      this.subscriptions.push(
+        this.service
+          .get(SERV.HASHLISTS, this.superHashListID, params.create())
+          .pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((response: ResponseWrapper) => {
+            const responseData = { data: response.data, included: response.included };
+            const superHashList: JHashlist = this.serializer.deserialize<JHashlist>({
+              data: responseData.data,
+              included: responseData.included
             });
-          }
+            this.setData(superHashList.hashlists);
+            const length = response.meta.page.total_elements;
+            const nextLink = response.links.next;
+            const prevLink = response.links.prev;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total // TODO: This is incorrect because we exclude superhashlists
-          );
-          this.setData(rows);
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          })
+      );
+    } else {
+      const params = new RequestParamBuilder()
+        .addInitial(this)
+        .addInclude('hashType')
+        .addInclude('accessGroup')
+        .addFilter({
+          field: 'isArchived',
+          operator: FilterType.EQUAL,
+          value: this.isArchived
         })
-    );
+        .addFilter({ field: 'format', operator: FilterType.NOTIN, value: [HashListFormat.SUPERHASHLIST] });
+      if (query) {
+        params.addFilter(query);
+      }
+
+      this.subscriptions.push(
+        this.service
+          .getAll(SERV.HASHLISTS, params.create())
+          .pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((response: ResponseWrapper) => {
+            const responseData = { data: response.data, included: response.included };
+            const hashlists = this.serializer.deserialize<JHashlist[]>(responseData).map((element) => {
+              element.hashTypeDescription = element.hashType.description;
+              element.hashTypeId = element.hashType.id;
+              return element;
+            });
+
+            const length = response.meta.page.total_elements;
+            const nextLink = response.links.next;
+            const prevLink = response.links.prev;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
+
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+            this.setData(hashlists);
+          })
+      );
+    }
   }
 
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

@@ -12,7 +12,8 @@ import { firstValueFrom } from 'rxjs';
  **/
 
 @Pipe({
-  name: 'tdsearched'
+    name: 'tdsearched',
+    standalone: false
 })
 export class TaskSearchedPipe implements PipeTransform {
   constructor(private gs: GlobalService) {}

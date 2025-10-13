@@ -1,11 +1,16 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { Agent } from '../_models/agent.model';
-import { BaseDataSource } from './base.datasource';
-import { HealthCheckAgent } from '../_models/health-check.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
+import { catchError, finalize, of } from 'rxjs';
 
-export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent> {
+import { JHealthCheckAgent } from '@models/health-check.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
   private _healthCheckId = 0;
 
   setHealthCheckId(healthCheckId: number): void {
@@ -14,63 +19,39 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
 
   loadAll(): void {
     this.loading = true;
+    const healthCheckParams = new RequestParamBuilder()
+      .addInitial(this)
+      .addFilter({
+        field: 'healthCheckId',
+        operator: FilterType.EQUAL,
+        value: this._healthCheckId
+      })
+      .addInclude('agent')
+      .create();
 
-    /**
-     * @todo Extend health checks api response with Agents
-     */
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, {
-      maxResults: this.pageSize,
-      filter: `healthCheckId=${this._healthCheckId}`
-    });
-
-    const agents$ = this.service.getAll(SERV.AGENTS, {
-      maxResults: this.maxResults
-    });
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, healthCheckParams);
 
     this.subscriptions.push(
-      forkJoin([healthChecks$, agents$])
+      healthChecks$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(
-          ([healthCheckResponse, agentsResponse]: [
-            ListResponseWrapper<HealthCheckAgent>,
-            ListResponseWrapper<Agent>
-          ]) => {
-            const healthChecksAgent: HealthCheckAgent[] =
-              healthCheckResponse.values;
-            const agents: Agent[] = agentsResponse.values;
+        .subscribe((healthCheckResponse: ResponseWrapper) => {
+          const healthChecksAgent = new JsonAPISerializer().deserialize<JHealthCheckAgent[]>({
+            data: healthCheckResponse.data,
+            included: healthCheckResponse.included
+          });
 
-            const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
-              .map((healthCheckAgent: HealthCheckAgent) => {
-                const matchedAgent = agents.find(
-                  (el: Agent) => el._id === healthCheckAgent.agentId
-                );
+          const length = healthCheckResponse.meta.page.total_elements;
+          const nextLink = healthCheckResponse.links.next;
+          const prevLink = healthCheckResponse.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-                if (matchedAgent) {
-                  return {
-                    ...healthCheckAgent,
-                    agentName: matchedAgent.agentName
-                  };
-                } else {
-                  // Handle the case where no matching agent is found, ie. deleted agent
-                  return null;
-                }
-              })
-              .filter(
-                (joinedObject: { [key: string]: any } | null) =>
-                  joinedObject !== null
-              );
-
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              healthCheckResponse.total
-            );
-            this.setData(joinedData as HealthCheckAgent[]);
-          }
-        )
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(healthChecksAgent);
+        })
     );
   }
 
