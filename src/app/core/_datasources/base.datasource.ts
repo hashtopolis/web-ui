@@ -35,7 +35,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
-  public sortingColumn: { id: string; direction: SortDirection; isSortable: boolean };
+  public sortingColumn: { dataKey: string; direction: SortDirection; isSortable: boolean };
   public pageAfter = undefined;
   public pageBefore = undefined;
   public index = 0;

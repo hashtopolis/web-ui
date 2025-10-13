@@ -1,9 +1,11 @@
-import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
-import { SafeHtml } from '@angular/platform-browser';
+
 import { SortDirection } from '@angular/material/sort';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
@@ -106,7 +108,7 @@ export interface customCellColorInput {
 }
 
 export interface SortingColumn {
-  id: string;
+  dataKey: string;
   direction: SortDirection;
   isSortable: boolean;
 }
