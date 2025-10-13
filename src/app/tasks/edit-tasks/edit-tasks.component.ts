@@ -97,14 +97,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
   }
 
-  /**
-   * Reload data
-   */
-  refresh(): void {
-    this.assingAgentInit();
-    this.agentsTable.reload();
-  }
-
   buildForm() {
     this.updateForm = new FormGroup({
       taskId: new FormControl({ value: '', disabled: true }),
@@ -180,7 +172,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
 
-        this.assingAgentInit();
+        const assignedAgentIds: Array<number> = task.assignedAgents.map((entry) => entry.id);
+        this.assingAgentInit(assignedAgentIds);
         this.getTaskSpeeds(task.assignedAgents.length);
 
         // Hashlist Description and Type
@@ -230,27 +223,31 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * The below functions are related with assign, manage and delete agents
    *
    **/
-  assingAgentInit() {
-    // TODO possibly we could turn this in a single helper request to the backend if we create a helper endpoint
-    // That retrieves available agents. Or even better, we might be able to use the agents, in the datasource of
-    // the assigned agents table. And use those IDs to filter for available agents.
+  assingAgentInit(assignedAgentIds: Array<number>) {
+    const params = new RequestParamBuilder();
+    if (assignedAgentIds.length > 0) {
+      params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
+    }
+
+    this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
+      const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
+      this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
+    });
+  }
+
+  reloadAgentAssignment() {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
+      const responseBodyAssignments = {
+        data: responseAssignments.data,
+        included: responseAssignments.included
+      };
       const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
-
-      const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
-
-      const params = new RequestParamBuilder();
-      if (agentAssignmentsAgentIds.length > 0) {
-        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
-      }
-
-      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-        const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
-      });
+      const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
+        (agentAssignment) => agentAssignment.agentId
+      );
+      this.assingAgentInit(agentAssignmentsAgentIds);
     });
   }
 
@@ -264,7 +261,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .create(SERV.AGENT_ASSIGN, payload)
         .pipe(
           finalize(() => {
-            this.assingAgentInit();
+            this.reloadAgentAssignment();
             this.agentsTable.reload();
           })
         )

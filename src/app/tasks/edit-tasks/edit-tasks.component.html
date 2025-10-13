@@ -158,13 +158,13 @@
       </button>
 
       <!-- Reload button -->
-      <button mat-icon-button matSuffix (click)="assingAgentInit()" [attr.aria-label]="'Reload Table'">
+      <button mat-icon-button matSuffix (click)="reloadAgentAssignment()" [attr.aria-label]="'Reload Table'">
         <mat-icon>autorenew</mat-icon>
       </button>
     </mat-form-field>
   </form>
   <tasks-agents-table #assignedAgentsTable name="assignedAgentsTable" datatype="agents-assign" [taskId]="editedTaskIndex"
-    [assignAgents]="true" (assignedAgentsChanged)="refresh()"></tasks-agents-table>
+    [assignAgents]="true" (assignedAgentsChanged)="reloadAgentAssignment()"></tasks-agents-table>
 </app-table>
 <!-- Task speed -->
 <app-table>
