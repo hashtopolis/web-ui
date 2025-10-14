@@ -108,6 +108,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
     this.clearSelection();
     this.loadAll();
   }
+
   clearFilter(): void {
     this._currentFilter = null;
     this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);

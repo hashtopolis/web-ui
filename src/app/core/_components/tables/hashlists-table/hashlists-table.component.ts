@@ -68,6 +68,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+
   handleBackendSqlFilter(event: string) {
     if (event && event.trim().length > 0) {
       this.filter(event);
