@@ -197,7 +197,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const uisData = JSON.parse(localStorage?.getItem('uis'));
     let timeoutidle = 1;
     if (uisData !== null) {
-      timeoutidle = Number(uisData.find((o) => o.name === 'maxSessionLength').value * 60 * 60); //Convert max session hours to seconds
+      timeoutidle = Number(uisData.find((o: { name: string }) => o.name === 'maxSessionLength').value * 60 * 60); //Convert max session hours to seconds
     }
     return timeoutidle;
   }
@@ -214,6 +214,5 @@ export class AppComponent implements OnInit, AfterViewInit {
   closeModal() {
     this.showingModal = false;
     this.modalService.dismissAll();
-    this.ngOnInit();
   }
 }

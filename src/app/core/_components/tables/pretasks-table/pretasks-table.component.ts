@@ -56,7 +56,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   set supertTaskId(value: number) {
     if (value !== this._supertTaskId) {
       this._supertTaskId = value;
-      this.ngOnInit();
     }
   }
   get supertTaskId(): number {

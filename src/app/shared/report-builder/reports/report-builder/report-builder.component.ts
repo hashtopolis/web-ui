@@ -1,10 +1,10 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import vfsFonts from 'pdfmake/build/vfs_fonts';
+import { firstValueFrom } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
 
 pdfMake.vfs = vfsFonts.vfs;
 
@@ -349,7 +349,6 @@ export class ReportBuilderComponent implements OnInit {
       };
 
       pdfMake.createPdf(project).open();
-      this.ngOnInit();
     } catch (error) {
       console.error('Error rendering PDF:', error);
     }

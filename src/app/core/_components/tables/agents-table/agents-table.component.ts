@@ -49,7 +49,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   set taskId(value: number) {
     if (value !== this._taskId) {
       this._taskId = value;
-      this.ngOnInit();
     }
   }
   get taskId(): number {
