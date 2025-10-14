@@ -288,6 +288,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.ctimespent = taskDetailData['timeSpent'];
         this.currenspeed = taskDetailData['currentSpeed'];
         this.estimatedTime = taskDetailData['estimatedTime'];
+        this.cprogress = taskDetailData['cprogress'];
       });
   }
 

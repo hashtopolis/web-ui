@@ -40,7 +40,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   set editIndex(value: number) {
     if (value !== this._editIndex) {
       this._editIndex = value;
-      this.ngOnInit();
     }
   }
   get editIndex(): number {

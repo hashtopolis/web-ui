@@ -48,7 +48,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   set taskId(value: number) {
     if (value !== this._taskId) {
       this._taskId = value;
-      this.ngOnInit();
     }
   }
   get taskId(): number {
