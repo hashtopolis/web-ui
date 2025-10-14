@@ -66,7 +66,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     if (this.taskId != null) {
       this.dataSource.setTaskId(this.taskId);
       this.dataSource.setIsChunksLive(this.isChunksLive);
-      this.dataSource.loadAll();
+      this.dataSource.loadAll().then();
     }
   }
 
@@ -143,12 +143,12 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
-      return;
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS }).then();
     } else {
-      this.dataSource.loadAll(); // Reload all data if input is empty
+      this.dataSource.loadAll().then();
     }
   }
+
   handleBackendSqlFilter(event: string) {
     if (event && event.trim().length > 0) {
       this.filter(event);
