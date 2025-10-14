@@ -19,7 +19,8 @@ import {
 export type SortOrder = 'asc' | 'desc';
 @Injectable()
 @Pipe({
-  name: 'sort',
+    name: 'sort',
+    standalone: false
 })
 
 export class ArraySortPipe  implements PipeTransform {

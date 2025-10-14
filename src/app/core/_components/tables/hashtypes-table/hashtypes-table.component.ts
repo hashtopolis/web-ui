@@ -1,52 +1,43 @@
-/* eslint-disable @angular-eslint/component-selector */
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  OnInit
-} from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableIcon
-} from '../../tables/ht-table/ht-table.models';
+import { catchError } from 'rxjs';
+
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+
+import { JHashtype } from '@models/hashtype.model';
+
+import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HashtypesTableCol,
   HashtypesTableColumnLabel
-} from './hashtypes-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/hashtypes-table/hashtypes-table.constants';
+import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { Hashtype } from '../../../_models/hashtype.model';
-import { HashtypesDataSource } from '../../../_datasources/hashtypes.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
-  selector: 'hashtypes-table',
+  selector: 'app-hashtypes-table',
   templateUrl: './hashtypes-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
-export class HashtypesTableComponent
-  extends BaseTableComponent
-  implements OnInit, AfterViewInit
-{
+export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashtypesDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new HashtypesDataSource(this.injector);
+    this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
   }
 
@@ -56,51 +47,58 @@ export class HashtypesTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: HashtypesTableCol.HASHTYPE,
         dataKey: 'hashTypeId',
         isSortable: true,
-        export: async (hashtype: Hashtype) => hashtype.hashTypeId + ''
+        isSearchable: true,
+        render: (hashtype: JHashtype) => hashtype.id,
+        export: async (hashtype: JHashtype) => hashtype.id + ''
       },
       {
         id: HashtypesTableCol.DESCRIPTION,
         dataKey: 'description',
         isSortable: true,
-        export: async (hashtype: Hashtype) => hashtype.description
+        isSearchable: true,
+        render: (hashtype: JHashtype) => hashtype.description,
+        export: async (hashtype: JHashtype) => hashtype.description
       },
       {
         id: HashtypesTableCol.SALTED,
         dataKey: 'isSalted',
-        icons: (hashtype: Hashtype) => this.renderIsSaltedIcon(hashtype),
+        icon: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSalted'),
         isSortable: true,
-        export: async (hashtype: Hashtype) => (hashtype.isSalted ? 'Yes' : 'No')
+        export: async (hashtype: JHashtype) => (hashtype.isSalted ? 'Yes' : 'No')
       },
       {
         id: HashtypesTableCol.SLOW_HASH,
         dataKey: 'isSlowHash',
-        icons: (hashtype: Hashtype) => this.renderIsSlowIcon(hashtype),
+        icon: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSlowHash'),
         isSortable: true,
-        export: async (hashtype: Hashtype) =>
-          hashtype.isSlowHash ? 'Yes' : 'No'
+        export: async (hashtype: JHashtype) => (hashtype.isSlowHash ? 'Yes' : 'No')
       }
     ];
-
-    return tableColumns;
   }
 
-  filter(item: Hashtype, filterValue: string): boolean {
-    if (
-      item.hashTypeId.toString().toLowerCase().includes(filterValue) ||
-      item.description.toLowerCase().includes(filterValue)
-    ) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
   }
-
-  openDialog(data: DialogData<Hashtype>) {
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
+  openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -122,7 +120,7 @@ export class HashtypesTableComponent
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<Hashtype>): void {
+  rowActionClicked(event: ActionMenuEvent<JHashtype>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -130,7 +128,7 @@ export class HashtypesTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting hashtype ${event.data.hashTypeId} (${event.data.description}) ...`,
+          title: `Deleting hashtype ${event.data.id} (${event.data.id}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -140,7 +138,7 @@ export class HashtypesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Hashtype[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -156,28 +154,31 @@ export class HashtypesTableComponent
     }
   }
 
+  exportActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
+    this.exportService.handleExportAction<JHashtype>(
+      event,
+      this.tableColumns,
+      HashtypesTableColumnLabel,
+      'hashtopolis-hashtypes'
+    );
+  }
+
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(hashtypes: Hashtype[]): void {
-    const requests = hashtypes.map((hashtype: Hashtype) => {
-      return this.gs.delete(SERV.HASHTYPES, hashtype.hashTypeId);
-    });
-
+  private bulkActionDelete(hashtypes: JHashtype[]): void {
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.HASHTYPES, hashtypes)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} hashtypes!`,
-            'Close'
-          );
-          this.reload();
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted hashtypes!`);
+          this.dataSource.reload();
         })
     );
   }
@@ -185,10 +186,10 @@ export class HashtypesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(hashtypes: Hashtype[]): void {
+  private rowActionDelete(hashtypes: JHashtype[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HASHTYPES, hashtypes[0].hashTypeId)
+        .delete(SERV.HASHTYPES, hashtypes[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -196,76 +197,32 @@ export class HashtypesTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted hashtype!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted hashtype!');
           this.reload();
         })
     );
   }
 
-  private rowActionEdit(hashtype: Hashtype): void {
-    this.router.navigate(['/config', 'hashtypes', hashtype.hashTypeId, 'edit']);
+  private rowActionEdit(hashtype: JHashtype): void {
+    this.router.navigate(['/config', 'hashtypes', hashtype.id, 'edit']);
   }
 
-  exportActionClicked(event: ActionMenuEvent<Hashtype[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Hashtype>(
-          'hashtopolis-hashtypes',
-          this.tableColumns,
-          event.data,
-          HashtypesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Hashtype>(
-          'hashtopolis-hashtypes',
-          this.tableColumns,
-          event.data,
-          HashtypesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Hashtype>(
-            this.tableColumns,
-            event.data,
-            HashtypesTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
-  }
-
-  @Cacheable(['hashTypeId', 'isSalted'])
-  async renderIsSaltedIcon(hashtype: Hashtype): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (hashtype.isSalted) {
-      icons.push({
+  /**
+   * Redner a checkmark icon depending on the setting of the given property
+   * @param hashtype - hashtype database model
+   * @param property name of property to check
+   * @return checkmark icon, if property is present in hashtype and id property is set to true
+   * @private
+   */
+  private renderCheckmarkIcon(hashtype: JHashtype, property: string): HTTableIcon {
+    if (property in hashtype && hashtype[property] === true) {
+      return {
         name: 'check_circle',
         tooltip: 'Salted Hash',
         cls: 'text-ok'
-      });
+      };
     }
 
-    return icons;
-  }
-
-  @Cacheable(['hashTypeId', 'isSlowHash'])
-  async renderIsSlowIcon(hashtype: Hashtype): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (hashtype.isSlowHash) {
-      icons.push({
-        name: 'check_circle',
-        tooltip: 'Slow Hash',
-        cls: 'text-ok'
-      });
-    }
-
-    return icons;
+    return { name: '' };
   }
 }

@@ -1,19 +1,5 @@
-<ht-table
-  #table
-  name="filesAttackTable"
-  dataType="files-attack"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [hasBulkActions]="false"
-  [hasRowAction]="false"
-  [isFilterable]="true"
-  [filterFn]="filter"
-  [isPageable]="true"
-  [isCmdTask]="cmdTask"
-  [isCmdLabel]="customLabel"
-  [isCmdPreproAttack]="cmdPrepro"
-  [isCmdFiles]="formData.files"
-  [isSelectable]="true"
-  (checkboxChanged)="onCheckboxChanged($event)"
-/>
+<ht-table #table name="filesAttackTable" dataType="files-attack" [columnLabels]="columnLabels" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [isFilterable]="isFilterable" [isPageable]="true" [isCmdTask]="cmdTask"
+  [isCmdLabel]="customLabel" [isCmdPreproAttack]="cmdPrepro" [isCmdFiles]="formData.files" [isSelectable]="true"
+  [showExport]="false" [isDetailPage]="true" (checkboxChanged)="onCheckboxChanged($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event" (backendSqlFilter)="handleBackendSqlFilter($event)" />

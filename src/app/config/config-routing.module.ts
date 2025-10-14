@@ -1,20 +1,26 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule, Routes } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { ViewHealthChecksComponent } from './health-checks/view-health-check/view-health-checks.component';
-import { NewHealthChecksComponent } from './health-checks/new-health-check/new-health-checks.component';
-import { AgentBinariesComponent } from './engine/agent-binaries/agent-binaries.component';
-import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
-import { HealthChecksComponent } from './health-checks/health-checks.component';
-import { FormConfigComponent } from '../core/_components/forms/simple-forms/formconfig.component';
-import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
-import { CrackersComponent } from './engine/crackers/crackers.component';
-import { HashtypesComponent } from './hashtypes/hashtypes.component';
-import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { SERV } from '../core/_services/main.config';
-import { LogComponent } from './log/log.component';
+import { MyRoute } from '@models/routes.model';
+
+import { SERV } from '@services/main.config';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
+
+import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
+import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
+import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
+import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
+import { PreprocessorsComponent } from '@src/app/config/engine/preprocessors/preprocessors.component';
+import { HashtypesComponent } from '@src/app/config/hashtypes/hashtypes.component';
+import { HealthChecksComponent } from '@src/app/config/health-checks/health-checks.component';
+import { NewHealthChecksComponent } from '@src/app/config/health-checks/new-health-check/new-health-checks.component';
+import { ViewHealthChecksComponent } from '@src/app/config/health-checks/view-health-check/view-health-checks.component';
+import { LogComponent } from '@src/app/config/log/log.component';
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 
 const routes: MyRoute[] = [
   {
@@ -27,9 +33,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'serveragent',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Agent Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -39,9 +45,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servertaskchunk',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Task Chunk Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -51,9 +57,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'serverhch',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Hashes/Cracks/Hashlist Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -63,9 +69,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servernotif',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Notifications',
-          permission: 'Notif'
+          permission: Perm.Notif.READ
         },
         canActivate: [CheckPerm]
       },
@@ -75,9 +81,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servergs',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'General Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -87,7 +93,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashtypes',
           breadcrumb: 'Hashtypes',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.READ
         },
         canActivate: [CheckPerm]
       },
@@ -97,9 +103,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newhashtype',
           type: 'create',
-          path: SERV.HASHTYPES,
+          serviceConfig: SERV.HASHTYPES,
           breadcrumb: 'New Hashtype',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -109,9 +115,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edithashtype',
           type: 'edit',
-          path: SERV.HASHTYPES,
+          serviceConfig: SERV.HASHTYPES,
           breadcrumb: 'Edit Hashtype',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.READ
         },
         canActivate: [CheckPerm]
       },
@@ -121,7 +127,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'log',
           breadcrumb: 'Logs',
-          permission: 'Logs'
+          permission: Perm.Logs.READ
         },
         canActivate: [CheckPerm]
       },
@@ -131,7 +137,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'health-checks',
           breadcrumb: 'Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.READ
         },
         canActivate: [CheckPerm]
       },
@@ -141,7 +147,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-health-checks',
           breadcrumb: 'New Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -151,7 +157,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'view-health-checks',
           breadcrumb: 'View Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.READ
         },
         canActivate: [CheckPerm]
       },
@@ -161,7 +167,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'agent-binaries',
           breadcrumb: 'Engine > Agent-binaries',
-          permission: 'AgentBinary'
+          permission: Perm.AgentBinary.READ
         },
         canActivate: [CheckPerm]
       },
@@ -171,9 +177,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newagentbinary',
           type: 'create',
-          path: SERV.AGENT_BINARY,
+          serviceConfig: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > New Agent binary',
-          permission: 'AgentBinary'
+          permission: Perm.HealthCheck.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -183,9 +189,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editagentbinary',
           type: 'edit',
-          path: SERV.AGENT_BINARY,
+          serviceConfig: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > Edit Agent binary',
-          permission: 'AgentBinary'
+          permission: Perm.AgentBinary.READ
         },
         canActivate: [CheckPerm]
       },
@@ -195,19 +201,19 @@ const routes: MyRoute[] = [
         data: {
           kind: 'crackers',
           breadcrumb: 'Engine > Crackers',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinary.READ
         },
         canActivate: [CheckPerm]
       },
       {
         path: 'engine/crackers/new',
-        component: FormComponent,
+        component: NewCrackerComponent,
         data: {
           kind: 'newcracker',
           type: 'create',
-          path: SERV.CRACKERS_TYPES,
+          serviceConfig: SERV.CRACKERS_TYPES,
           breadcrumb: 'Engine > New Cracker',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinary.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -217,9 +223,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newcrackerversion',
           type: 'create',
-          path: SERV.CRACKERS,
+          serviceConfig: SERV.CRACKERS,
           breadcrumb: 'Engine > New Cracker Version/Binary',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinaryType.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -229,9 +235,9 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editcrackerversion',
           type: 'edit',
-          path: SERV.CRACKERS,
+          serviceConfig: SERV.CRACKERS,
           breadcrumb: 'Engine > Edit Cracker Version/Binary',
-          permission: 'CrackerBinaryType'
+          permission: Perm.CrackerBinaryType.READ
         },
         canActivate: [CheckPerm]
       },
@@ -241,31 +247,31 @@ const routes: MyRoute[] = [
         data: {
           kind: 'preprocessors',
           breadcrumb: 'Engine > Preprocessors',
-          permission: 'Prepro'
+          permission: Perm.Prepro.READ
         },
         canActivate: [CheckPerm]
       },
       {
         path: 'engine/preprocessors/new-preprocessor',
-        component: FormComponent,
+        component: NewEditPreprocessorComponent,
         data: {
           kind: 'newpreprocessor',
           type: 'create',
-          path: SERV.PREPROCESSORS,
+          serviceConfig: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > New Preprocessor',
-          permission: 'Prepro'
+          permission: Perm.Prepro.CREATE
         },
         canActivate: [CheckPerm]
       },
       {
         path: 'engine/preprocessors/:id/edit',
-        component: FormComponent,
+        component: NewEditPreprocessorComponent,
         data: {
           kind: 'editpreprocessor',
           type: 'edit',
-          path: SERV.PREPROCESSORS,
+          serviceConfig: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > Edit Preprocessor',
-          permission: 'Prepro'
+          permission: Perm.Prepro.READ
         },
         canActivate: [CheckPerm]
       }

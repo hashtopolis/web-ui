@@ -1,79 +1,84 @@
-import {
-  dateFormats,
-  proxytype,
-  serverlog
-} from '../../core/_constants/settings.config';
-import {
-  ACTIONARRAY,
-  NOTIFARRAY
-} from '../../core/_constants/notifications.config';
-import { fileFormat } from '../../core/_constants/files.config';
-import { TooltipService } from '../../core/_services/shared/tooltip.service';
-import { environment } from 'src/environments/environment';
-import { FormControl, Validators } from '@angular/forms';
-import { SERV } from '../../core/_services/main.config';
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { GlobalService } from './main.service';
+import { Observable, of } from 'rxjs';
+
 import { Injectable } from '@angular/core';
+import { FormControl, ValidatorFn, Validators } from '@angular/forms';
+
+import { SERV } from '@services/main.config';
+import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
+
+import { fileFormat } from '@src/app/core/_constants/files.config';
+import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
+import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { urlValidator } from '@src/app/core/_validators/url.validator';
+
+/**
+ * Metadata information for the form page.
+ *
+ * Properties:
+ * - title: Title for the form page
+ * - customform: Whether the form is custom or standard
+ * - subtitle: Whether the form has a subtitle
+ * - submitok: Message displayed upon successful submission
+ * - submitokredirect: Redirect URL upon successful submission
+ * - deltitle: Title for deletion confirmation dialog
+ * - delsubmitok: Message displayed upon successful deletion
+ * - delsubmitokredirect: Redirect URL upon successful deletion
+ * - delsubmitcancel: Message displayed when deletion is canceled
+ */
+export interface InfoMetadataForm {
+  title: string;
+  customform?: boolean;
+  subtitle?: boolean;
+  submitok?: string;
+  submitokredirect?: string;
+  deltitle?: string;
+  delsubmitok?: string;
+  delsubmitokredirect?: string;
+  delsubmitcancel?: string;
+}
+
+/**
+ * Metadata for each field in the form.
+ *
+ * Properties:
+ * - name: API name to be mapped with the formControl
+ * - label: Label name to be displayed
+ * - type: Type of the form field; e.g., select, text, checkbox
+ * - placeholder: Placeholder text for the input
+ * - selectOptions: Select options if the type is 'select'
+ * - selectOptions$: Select options observable if type is 'select' and used with selectEndpoint$
+ * - selectEndpoint$: API endpoint route, usually a constant like SERV
+ * - fieldMapping: Object with the dropdown options mapping, e.g., { id: '_id', name: 'groupName' }
+ * - requiredasterisk: Indicates if the field is required (shows asterisk)
+ * - tooltip: Tooltip information as string or more complex type
+ * - validators: Validation rules
+ * - isTitle: If true, will use only the label field as a title
+ */
+export interface MetadataFormField {
+  name?: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
+  selectOptions?: (Setting | Option)[];
+  selectOptions$?: Observable<{ label: string; value: number }[]>;
+  selectEndpoint$?: SERV;
+  fieldMapping?: Record<string, string> | FieldMapping;
+  requiredasterisk?: boolean;
+  tooltip?: string | boolean;
+  validators?: ValidatorFn[] | boolean;
+  isTitle?: boolean;
+  replacevalue?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetadataService {
-  tooltip: any;
+  private tooltip: ConfigTooltipsLevel;
 
-  constructor(
-    private tooltipService: TooltipService,
-    private gs: GlobalService
-  ) {
+  constructor(private tooltipService: TooltipService) {
     this.tooltip = this.tooltipService.getConfigTooltips();
   }
-
-  private maxResults = environment.config.prodApiMaxResults;
-
-  // ToDo in validators, go to the database and add max lenght
-  //checboxes issues when value is false,
-
-  // //
-  // Metadata Structure
-  // //
-
-  // Info Metadata, it contains information about the page such as title, subtitles, and notifications configuration.
-  infoMetadataForm = {
-    title: 'Title for the form page',
-    customform: false,
-    subtitle: false,
-    submitok: 'Message displayed upon successful submission',
-    submitokredirect: 'Redirect URL upon successful submission',
-    deltitle: 'Title for deletion confirmation',
-    delsubmitok: 'Message displayed upon successful deletion',
-    delsubmitokredirect: 'Redirect URL upon successful deletion',
-    delsubmitcancel: 'Message displayed when deletion is canceled'
-  };
-
-  // Metadata form, it contains information about each field.
-  metadataFormField = [
-    {
-      name: 'API name to be map with the formControl',
-      label: 'Label name to be displayed',
-      type: 'Type of the form field; (e.g., select, text, checkbox)',
-      placeholder: 'Type option text, then add placeholder',
-      selectOptions: "Select options if the type is 'select'",
-      selectOptions$:
-        "Select options if the type is 'selectd', used with selectEndpoint",
-      selectEndpoint$: 'API endpoint route, use SERV',
-      fieldMapping:
-        'Object with the dropdown options to be mapped, that is id and name. ie. id: _id, name:groupName',
-      requiredasterisk: 'Indicates if the field is required',
-      tooltip: 'Tooltip information as string or using ',
-      validators: 'Validation rules',
-      isTitle: 'boolean, if its true will use only the label field'
-    }
-  ];
-
-  // Examples
-  // Create title between fields. use  { label: 'More settings', isTitle: true }
 
   // // // // // // // //
   // AUTH SECTION      //
@@ -114,65 +119,6 @@ export class MetadataService {
   // //
   // Notifications
   // //
-
-  // This variable stores information about the edit notification page.
-  newnotifInfo = [
-    {
-      title: 'New Notification',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Notification created!',
-      submitokredirect: '/account/notifications'
-    }
-  ];
-
-  // This variable stores information about the edit notification page.
-  editnotifInfo = [
-    {
-      title: 'Edit Notification',
-      customform: false,
-      subtitle: false,
-      submitok: 'Saved!',
-      submitokredirect: '/account/notifications'
-    }
-  ];
-
-  //This variable defines the fields and properties required when creating a cracker Version.
-  newnotif = [
-    { name: 'action', type: 'seltextect', selectOptions: ACTIONARRAY },
-    { name: 'actionFilter', label: 'Value', type: 'text' },
-    {
-      name: 'notification',
-      label: 'Notification',
-      type: 'select',
-      selectOptions: NOTIFARRAY
-    },
-    { name: 'receiver', label: 'Receiver', type: 'text' },
-    {
-      name: 'isActive',
-      label: 'Receiver',
-      type: 'checkbox',
-      defaultValue: true
-    }
-  ];
-
-  //This variable defines the fields and properties required when editing a notification.
-  editnotif = [
-    { name: 'action', type: 'text', disabled: true },
-    {
-      name: 'notification',
-      label: 'Notification',
-      type: 'text',
-      disabled: true
-    },
-    { name: 'receiver', label: 'Receiver', type: 'text', disabled: true },
-    {
-      name: 'isActive',
-      label: 'Receiver',
-      type: 'checkbox',
-      validators: [Validators.required]
-    }
-  ];
 
   // // // // // // // //
   // TASKS SECTION     //
@@ -225,41 +171,63 @@ export class MetadataService {
   // //
 
   // This variable stores information about the edit wordlist file page.
+  // Edit wordlist file page
   editwordlistInfo = [
     {
       title: 'Edit Wordlist File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/wordlist'
+      submitokredirect: '/files/wordlist',
+      deltitle: 'Wordlist File',
+      delsubmitok: 'Wordlist deleted successfully!',
+      delsubmitokredirect: '/files/wordlist',
+      delsubmitcancel: 'Wordlist deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 
-  // This variable stores information about the edit rule file page.
+  // Edit rule file page
   editruleInfo = [
     {
       title: 'Edit Rule File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/rules'
+      submitokredirect: '/files/rules',
+      deltitle: 'Rule File',
+      delsubmitok: 'Rule deleted successfully!',
+      delsubmitokredirect: '/files/rules',
+      delsubmitcancel: 'Rule deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 
-  // This variable stores information about the edit other file page.
+  // Edit other file page
   editotherInfo = [
     {
       title: 'Edit Other File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/other'
+      submitokredirect: '/files/other',
+      deltitle: 'Other File',
+      delsubmitok: 'File deleted successfully!',
+      delsubmitokredirect: '/files/other',
+      delsubmitcancel: 'File deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 
   //This variable defines the fields and properties required when editing a wonrdlist, rule or other file.
   editfile = [
-    { name: 'fileId', label: 'ID', type: 'number', disabled: true },
+    { name: 'id', label: 'ID', type: 'number', disabled: true },
     { name: 'filename', label: 'Name', type: 'text' },
     {
       name: 'fileType',
@@ -273,8 +241,8 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_GROUPS,
-      selectOptions$: [],
-      fieldMapping: { id: '_id', name: 'groupName' }
+      selectOptions$: of([]),
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
   ];
@@ -359,8 +327,8 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating/editing an Agent Binary.
   agentbinary = [
     {
-      name: 'type',
-      label: 'Type',
+      name: 'binaryType',
+      label: 'Binary Type',
       type: 'text',
       requiredasterisk: true,
       tooltip: false,
@@ -441,8 +409,7 @@ export class MetadataService {
       label: 'Binary Base Name',
       type: 'text',
       requiredasterisk: true,
-      tooltip:
-        'Which needs to be called on the client without os-dependent extension',
+      tooltip: 'Which needs to be called on the client without os-dependent extension',
       validators: [Validators.required]
     },
     {
@@ -456,10 +423,10 @@ export class MetadataService {
     {
       name: 'downloadUrl',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required]
+      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     },
     {
       name: 'crackerBinaryTypeId',
@@ -479,8 +446,7 @@ export class MetadataService {
       label: 'Binary Base Name',
       type: 'text',
       requiredasterisk: true,
-      tooltip:
-        'Which needs to be called on the client without os-dependent extension',
+      tooltip: 'Which needs to be called on the client without os-dependent extension',
       validators: [Validators.required]
     },
     {
@@ -494,10 +460,10 @@ export class MetadataService {
     {
       name: 'downloadUrl',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required]
+      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     }
   ];
 
@@ -552,10 +518,11 @@ export class MetadataService {
     {
       name: 'url',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
+      tooltip:
+        'Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     },
     { label: 'Commands (set to empty if not available)', isTitle: true },
     {
@@ -625,12 +592,7 @@ export class MetadataService {
       type: 'number',
       requiredasterisk: true,
       tooltip: 'ie. Hashcat -m',
-      validators: [
-        Validators.required,
-        Validators.pattern('^[0-9]*$'),
-        Validators.minLength(1),
-        this.numberValidator
-      ]
+      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator]
     },
     {
       name: 'description',
@@ -668,12 +630,7 @@ export class MetadataService {
       type: 'number',
       requiredasterisk: true,
       tooltip: 'ie. Hashcat -m',
-      validators: [
-        Validators.required,
-        Validators.pattern('^[0-9]*$'),
-        Validators.minLength(1),
-        this.numberValidator
-      ],
+      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator],
       disabled: true
     },
     {
@@ -740,7 +697,7 @@ export class MetadataService {
     },
     {
       name: 'agentDataLifetime',
-      label: 'Retention Period for Utilization and Temperature Data',
+      label: 'Retention Period for Utilisation and Temperature Data',
       type: 'number',
       tooltip: false
     },
@@ -787,13 +744,13 @@ export class MetadataService {
     },
     {
       name: 'agentUtilThreshold1',
-      label: 'Orange Status Threshold for Agent Utilization',
+      label: 'Orange Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     },
     {
       name: 'agentUtilThreshold2',
-      label: 'Red Status Threshold for Agent Utilization',
+      label: 'Red Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     }
@@ -850,8 +807,7 @@ export class MetadataService {
     },
     {
       name: 'priority0Start',
-      label:
-        'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
+      label: 'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
       type: 'checkbox',
       tooltip: false
     },
@@ -870,8 +826,7 @@ export class MetadataService {
     },
     {
       name: 'ruleSplitAlways',
-      label:
-        'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
+      label: 'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
       type: 'checkbox',
       tooltip: false
     },
@@ -921,8 +876,7 @@ export class MetadataService {
     },
     {
       name: 'hashlistImportCheck',
-      label:
-        'Check for Previous Cracks in Other Hashlists at Hashlist Creation',
+      label: 'Check for Previous Cracks in Other Hashlists at Hashlist Creation',
       type: 'checkbox',
       tooltip: false
     },
@@ -1051,8 +1005,7 @@ export class MetadataService {
     },
     {
       name: 'hcErrorIgnore',
-      label:
-        'Ignore Error Messages Containing the Following String from Crackers',
+      label: 'Ignore Error Messages Containing the Following String from Crackers',
       type: 'textarea',
       tooltip: false
     },
@@ -1126,7 +1079,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
     },
@@ -1136,7 +1089,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
     }
@@ -1157,17 +1110,6 @@ export class MetadataService {
       customform: false,
       subtitle: false,
       submitok: 'New User created!',
-      submitokredirect: 'users/all-users'
-    }
-  ];
-
-  // This variable edit information about the user page.
-  editInfo = [
-    {
-      title: 'Edit User',
-      customform: false,
-      subtitle: false,
-      submitok: 'Saved!',
       submitokredirect: 'users/all-users'
     }
   ];
@@ -1194,45 +1136,9 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
-    }
-  ];
-
-  //This variable is similar to newuser but is used for editing an existing user.
-  edituser = [
-    { name: 'id', label: 'User ID', type: 'number', disabled: true },
-    { name: 'name', label: 'User Name', type: 'text', disabled: true },
-    { name: 'email', label: 'Email', type: 'email', disabled: true },
-    {
-      name: 'registered',
-      label: 'Creation date',
-      type: 'date',
-      disabled: true
-    },
-    { name: 'lastLogin', label: 'Last login', type: 'date', disabled: true },
-    { label: 'Update Settings', isTitle: true },
-    { label: 'Member of access groups', type: 'date', disabled: true },
-    {
-      name: 'globalPermissionGroupId',
-      label: 'Global Permission Group',
-      type: 'selectd',
-      requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
-      fieldMapping: { id: 'id', name: 'name' },
-      validators: [Validators.required]
-    },
-    { name: 'password', type: 'password' },
-    {
-      name: 'isValid',
-      label: 'Valid',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: false
     }
   ];
 
@@ -1339,32 +1245,22 @@ export class MetadataService {
    * @param formName - The name of the form for which metadata is requested.
    * @returns An array of form metadata.editnotifInfo
    */
-  getFormMetadata(formName: string): any[] {
+  getFormMetadata(formName: string): MetadataFormField[] {
     if (formName === 'authforgot') {
       return this.authforgot;
-    } else if (
-      formName === 'editwordlist' ||
-      formName === 'editrule' ||
-      formName === 'editother'
-    ) {
+    } else if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
       return this.editfile;
     } else if (formName === 'uisettings') {
       return this.uisettings;
     } else if (formName === 'newcracker') {
       return this.newcracker;
-    } else if (
-      formName === 'newagentbinary' ||
-      formName === 'editagentbinary'
-    ) {
+    } else if (formName === 'newagentbinary' || formName === 'editagentbinary') {
       return this.agentbinary;
     } else if (formName === 'newcrackerversion') {
       return this.newcrackerversion;
     } else if (formName === 'editcrackerversion') {
       return this.editcrackerversion;
-    } else if (
-      formName === 'newpreprocessor' ||
-      formName === 'editpreprocessor'
-    ) {
+    } else if (formName === 'editpreprocessor') {
       return this.preprocessor;
     } else if (formName === 'newhashtype') {
       return this.newhashtype;
@@ -1372,10 +1268,7 @@ export class MetadataService {
       return this.edithashtype;
     } else if (formName === 'newglobalpermissionsgp') {
       return this.newglobalpermissionsgp;
-    } else if (
-      formName === 'newaccessgroups' ||
-      formName === 'editaccessgroups'
-    ) {
+    } else if (formName === 'newaccessgroups' || formName === 'editaccessgroups') {
       return this.accessgroups;
     } else if (formName === 'serveragent') {
       return this.serveragent;
@@ -1389,8 +1282,6 @@ export class MetadataService {
       return this.servergs;
     } else if (formName === 'newuser') {
       return this.newuser;
-    } else if (formName === 'editnotif') {
-      return this.editnotif;
     } else {
       return [];
     }
@@ -1401,7 +1292,7 @@ export class MetadataService {
    * @param formName - The name of the info metadata for which information is requested.
    * @returns An array of info metadata.
    */
-  getInfoMetadata(formName: string): any[] {
+  getInfoMetadata(formName: string): InfoMetadataForm[] {
     if (formName === 'authforgotInfo') {
       return this.authforgotInfo;
     } else if (formName === 'editwordlistInfo') {
@@ -1448,29 +1339,9 @@ export class MetadataService {
       return this.servergsInfo;
     } else if (formName === 'newuserInfo') {
       return this.newuserInfo;
-    } else if (formName === 'editnotifInfo') {
-      return this.editnotifInfo;
     } else {
       return [];
     }
-  }
-
-  /**
-   * Fetches select options for a form control from an API endpoint.
-   *
-   * @param apiEndpoint - The API endpoint to retrieve select options from.
-   * @returns An observable that emits an array of select options.
-   */
-  fetchOptions(apiEndpoint: string): Observable<any[]> {
-    return this.gs.getAll(apiEndpoint).pipe(
-      map((data: any) => {
-        // Adjust this based on your API response structure
-        return data.options.map((option: any) => ({
-          label: option.label,
-          value: option.value
-        }));
-      })
-    );
   }
 
   // Custom validator to convert the input value to a number

@@ -1,22 +1,18 @@
-import { AccessGroup } from './access-group.model';
-import { Chunk } from './chunk.model';
-import { Task } from './task.model';
-import { User } from './user.model';
+import { ChunkData, JChunk } from '@models/chunk.model';
 
-export interface AgentStats {
-  _id: number;
-  _self: string;
-  agentStatId: number;
-  agentId: number;
-  statType: number;
-  time: number;
-  value: number[];
-}
+import { BaseModel } from '@models/base.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentErrors } from './agent-errors.model';
+import { JAgentStat } from '@models/agent-stats.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
-export interface Agent {
-  _id?: number;
-  _self?: string;
-  agentId: number;
+/**
+ * Interface for cracking agent
+ * @extends BaseModel
+ */
+export interface JAgent extends BaseModel {
   agentName: string;
   uid: string;
   os: number;
@@ -29,45 +25,24 @@ export interface Agent {
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId: number;
-  user?: User;
+  userId: null;
+  user?: JUser;
   cpuOnly: number;
   clientSignature: string;
-  agentstats?: AgentStats[];
-  accessGroups?: AccessGroup[];
-  task?: Task;
+  agentStats?: JAgentStat[];
+  agentErrors?: JAgentErrors[];
+  accessGroups?: JAccessGroup[];
+  accessGroup?: string;
+  task?: JTask;
   taskId?: number;
   taskName?: string;
-  chunk?: Chunk;
+  chunk?: JChunk;
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
-}
-
-export interface IAgents {
-  _expandable?: string;
-  startAt: number;
-  maxResults: number;
-  total: number;
-  isLast: string;
-  values: [
-    {
-      agentId: number;
-      agentName: string;
-      uid: string;
-      os: number;
-      devices: string;
-      cmdPars: string;
-      ignoreErrors: string;
-      isActive: string;
-      isTrusted: string;
-      token: string;
-      lastAct: string;
-      lastTime: number;
-      lastIp: string;
-      userId: number;
-      cpuOnly: number;
-      clientSignature: string;
-    }
-  ];
+  agentSpeed?: number;
+  chunks?: JChunk[];
+  chunkData?: ChunkData;
+  tasks?: JTask[];
+  assignments?: JAgentAssignment[];
 }

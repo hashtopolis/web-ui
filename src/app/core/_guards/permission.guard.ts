@@ -1,56 +1,64 @@
-import {
-  ActivatedRouteSnapshot,
-  CanActivateFn,
-  RouterStateSnapshot
-} from '@angular/router';
-import { Perm } from '../_constants/userpermissions.config';
-import { Injectable, inject } from '@angular/core';
-import { Observable, map, take } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from '../_services/shared/alert.service';
-import { SERV } from '../_services/main.config';
+import { Injectable, inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
+
+import { PermissionService } from '@services/permission/permission.service';
+import { AlertService } from '@services/shared/alert.service';
+
+import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PermissionGuard {
-  isAuthenticated: boolean;
-
   constructor(
     private alert: AlertService,
-    private gs: GlobalService
+    private permissionService: PermissionService
   ) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> {
-    return this.gs
-      .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
-      .pipe(
-        take(1),
-        map((perm) => {
-          const permissions = perm.globalPermissionGroup.permissions; //Check all permissions
-          const permName = Perm[route.data['permission']].READ; //Get permission name
-          const hasAccess = permissions[permName]; //returns true or false
-          if (hasAccess || typeof hasAccess == 'undefined') {
-            return true;
-          }
-          this.alert.okAlert(
-            'ACCESS DENIED',
-            'Please contact your Administrator.',
-            'error'
-          );
-          return false;
-        })
-      );
+  /**
+   * Format human readable response from the permission enum values
+   * @param perm Permission string value, e.g. "permAgentCreate"
+   * @private
+   */
+  private formatPermissionName(perm: PermissionValues): string {
+    type PermKey = keyof typeof Perm;
+
+    for (const resourceKey of Object.keys(Perm) as PermKey[]) {
+      const resourceEnum = Perm[resourceKey];
+      for (const actionKey in resourceEnum) {
+        if (resourceEnum[actionKey as keyof typeof resourceEnum] === perm) {
+          const actionFormatted = actionKey.charAt(0).toUpperCase() + actionKey.slice(1).toLowerCase();
+          return `${actionFormatted} ${resourceKey}`;
+        }
+      }
+    }
+    // fallback to raw string if no match found
+    return perm;
+  }
+
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const requiredPermission = route.data['permission'] as PermissionValues;
+    return this.permissionService.hasPermission(requiredPermission).pipe(
+      map((has) => {
+        if (has) {
+          return true;
+        }
+
+        const formattedPermission = this.formatPermissionName(requiredPermission);
+        const message = `You are not allowed to ${formattedPermission.toLowerCase()}`;
+        this.alert.showErrorMessage(`Access denied: ${message}. Please contact your Administrator.`);
+        return false;
+      }),
+      catchError(() => {
+        this.alert.showErrorMessage(`Access denied: Unexpected error while checking permissions.`);
+        return of(false);
+      })
+    );
   }
 }
 
-export const CheckPerm: CanActivateFn = (
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
-): Observable<boolean> => {
-  return inject(PermissionGuard).canActivate(route, state);
+export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean> => {
+  return inject(PermissionGuard).canActivate(route);
 };

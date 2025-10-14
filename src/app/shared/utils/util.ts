@@ -67,18 +67,14 @@ export const formatPercentage = (value: number, total: number): string => {
   if (total === 0) {
     return '';
   }
-
-  const percentage = (value / total) * 100;
-  const formattedPercentage = percentage.toFixed(1);
-
-  return `${formattedPercentage}%`;
+  return `${convertToLocale((value / total) * 100)}%`;
 };
 
 /**
  * Formats a file size in bytes into a human-readable string.
  *
  * @param sizeInBytes - The size in bytes to be formatted.
- * @param useLongForm - If true, use long-form units (e.g., "Kilobytes" instead of "KB").
+ * @param suffix - define type of suffix
  * @param baseSize - The base for size conversion (default is 1024).
  * @param threshold - The threshold for switching to the next unit (default is 1024).
  *
@@ -109,21 +105,42 @@ export const formatFileSize = (
     units = fileSizeUnitsLong;
   }
 
-  let formattedSize: number | string = 0;
-
   if (sizeInBytes < 1) {
-    return '0';
+    return '0 B';
   }
 
   const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
-  const power = Math.min(
-    Math.round(Math.log(scale) / Math.log(baseSize)),
-    units.length - 1
-  );
+  const power = Math.min(Math.round(Math.log(scale) / Math.log(baseSize)), units.length - 1);
   const size = sizeInBytes / Math.pow(baseSize, power);
   const unit = units ? units[power] : '';
+  return `${convertToLocale(size)} ${unit}`;
+};
 
-  formattedSize = Math.round(size * 100) / 100;
+/**
+ * Convert a given speed from number to string containing a unit
+ * @param speed - speed to convert
+ */
+export const convertCrackingSpeed = (speed: number): string => {
+  const units: Array<string> = ['H/s', 'kH/s', 'MH/s', 'GH/s', 'TH/s'];
+  const splitter: number = 1000;
+  let hashSpeed: number = speed;
 
-  return `${formattedSize} ${unit}`;
+  for (const unit of units) {
+    if (hashSpeed < splitter) {
+      return `${convertToLocale(hashSpeed)}\u00A0${unit}`;
+    }
+    hashSpeed /= splitter;
+  }
+
+  hashSpeed *= splitter;
+  return `${convertToLocale(hashSpeed)}\u00A0${units[-1]}`;
+};
+
+/**
+ * Convert a given number to a locale string (thousand and decimal separators) with to decimal places
+ * @param value - numeric value to convert
+ * @return formatted string with two decimal places
+ */
+export const convertToLocale = (value: number) => {
+  return (Math.round(value * 100) / 100).toLocaleString();
 };

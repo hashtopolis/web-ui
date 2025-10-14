@@ -1,8 +1,7 @@
 .text-container {
-  display: inline-block;
+  display: flex;
   position: relative;
-  max-width: 200px;
-  word-break: break-word;
+  max-width: 100%;
   margin: 0;
   padding: 0;
 
@@ -15,3 +14,4 @@
     padding: 0;
   }
 }
+ 

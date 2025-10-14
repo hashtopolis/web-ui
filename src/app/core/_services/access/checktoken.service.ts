@@ -1,14 +1,18 @@
-import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
 
-export interface AuthResponseData {
-  token: string;
-  expires: string;
-}
+import { AuthData } from '@models/auth-user.model';
+
+import { AuthService } from '@services/access/auth.service';
+import { AlertService } from '@services/shared/alert.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class CheckTokenService {
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private localStorageService: LocalStorageService<AuthData>,
+    private alertService: AlertService
+  ) {
     // We Listen using visibility api to look change events, tab inactive and active
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
@@ -18,10 +22,23 @@ export class CheckTokenService {
     });
   }
 
+  /**
+   * Checks the current user's token expiration date stored in localStorage.
+   * If no user data is found, the method exits.
+   * If the token is expired (less than 15 milliseconds remaining), the user is logged out.
+   *
+   * Intended usage:
+   * - Called when the browser tab becomes visible (via the Visibility API listener).
+   * - Can also be triggered manually to ensure session validity.
+   *
+   * Behavior:
+   * - Reads `_token` and `_expires` from `userData` in localStorage.
+   * - Calculates time remaining until expiration.
+   * - Logs out the user immediately if the token is near expiry.
+   * - Placeholder for token refresh logic when a refresh token system is implemented.
+   */
   checkTokenValidity() {
-    const userData: { _token: string; _expires: string } = JSON.parse(
-      localStorage.getItem('userData')
-    );
+    const userData = this.localStorageService.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
       return;
     }
@@ -38,6 +55,7 @@ export class CheckTokenService {
     //   );
     // }
     if (timeDifference < 15) {
+      this.alertService.showInfoMessage('Token expired, please log in again.');
       this.authService.logOut();
     }
   }

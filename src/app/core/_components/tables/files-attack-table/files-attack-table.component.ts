@@ -1,40 +1,31 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
-import { File, FileType } from 'src/app/core/_models/file.model';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+
+import { FileType, JFile } from '@models/file.model';
+
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
-} from './files-attack-table.constants';
-import {
-  CheckboxChangeEvent,
-  HTTableColumn,
-  HTTableIcon
-} from '../ht-table/ht-table.models';
+} from '@components/tables/files-attack-table/files-attack-table.constants';
+import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
-import { formatFileSize } from 'src/app/shared/utils/util';
+import { FilesDataSource } from '@datasources/files.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-  selector: 'files-attack-table',
-  templateUrl: './files-attack-table.component.html'
+  selector: 'app-files-attack-table',
+  templateUrl: './files-attack-table.component.html',
+  standalone: false
 })
-export class FilesAttackTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
   @Input() customLabel: string;
   @Input() bulkWordlistRule = false;
+  @Input() showExport = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
   @Input() formData: {
     attackCmd: string;
@@ -43,16 +34,19 @@ export class FilesAttackTableComponent
   };
 
   @Output() updateFormEvent = new EventEmitter<any>();
-
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(FilesAttackTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new FilesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -62,53 +56,50 @@ export class FilesAttackTableComponent
     }
   }
 
-  filter(item: File, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
   }
-
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: FilesAttackTableCol.ID,
         dataKey: '_id',
+        isSearchable: true,
         isSortable: true,
-        export: async (file: File) => file._id + ''
+        render: (file: JFile) => file.id,
+        export: async (file: JFile) => file.id + ''
       },
       {
         id: FilesAttackTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: File) => this.renderSecretIcon(file),
-        render: (file: File) => file.filename,
+        isSearchable: true,
+        icon: (file: JFile) => this.renderSecretIcon(file),
+        render: (file: JFile) => file.filename,
         isSortable: true,
-        export: async (file: File) => file.filename
+        export: async (file: JFile) => file.filename
       },
       {
         id: FilesAttackTableCol.SIZE,
         dataKey: 'size',
-        render: (file: File) => formatFileSize(file.size, 'short'),
+        render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: true,
-        export: async (file: File) => formatFileSize(file.size, 'short')
+        export: async (file: JFile) => formatFileSize(file.size, 'short')
       }
     ];
-
-    return tableColumns;
-  }
-
-  @Cacheable(['_id', 'isSecret'])
-  async renderSecretIcon(file: File): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (file.isSecret) {
-      icons.push({
-        name: 'lock',
-        tooltip: 'Secret'
-      });
-    }
-
-    return icons;
   }
 
   onCheckboxChanged(event: CheckboxChangeEvent): void {
@@ -128,7 +119,7 @@ export class FilesAttackTableComponent
     }
     const newCmdArray = currentCmd.split(' ');
     const fileName = event.row.filename;
-    const fileId = event.row._id;
+    const fileId = event.row.id;
     let newFileIds;
     if (event.columnType === 'CMD') {
       newFileIds = [...form.files];
@@ -138,16 +129,12 @@ export class FilesAttackTableComponent
 
     if (!event.checked) {
       // Remove -r and filename from the command
-      if (event.row.fileType === 1) {
-        const indexR = newCmdArray.indexOf('-r');
-        if (indexR !== -1) {
-          newCmdArray.splice(indexR, 1);
-        }
-      }
-
       const indexFileName = newCmdArray.indexOf(fileName);
       if (indexFileName !== -1) {
         newCmdArray.splice(indexFileName, 1);
+      }
+      if (event.row.fileType === 1) {
+        newCmdArray.splice(indexFileName - 1, 1);
       }
 
       // Remove fileId from the array

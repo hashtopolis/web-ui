@@ -1,43 +1,45 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  CrackerBinary,
-  CrackerBinaryType
-} from 'src/app/core/_models/cracker-binary.model';
-import {
-  CrackersTableCol,
-  CrackersTableColumnLabel
-} from './crackers-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { CrackersDataSource } from 'src/app/core/_datasources/crackers.datasource';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+
+import { CrackersContextMenuService } from '@services/context-menu/crackers/crackers-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CrackersDataSource } from '@datasources/crackers.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
-  selector: 'crackers-table',
-  templateUrl: './crackers-table.component.html'
+  selector: 'app-crackers-table',
+  templateUrl: './crackers-table.component.html',
+  standalone: false
 })
-export class CrackersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new CrackersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new CrackersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new CrackersContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -46,46 +48,54 @@ export class CrackersTableComponent
       sub.unsubscribe();
     }
   }
-
-  filter(item: CrackerBinaryType, filterValue: string): boolean {
-    if (item.typeName.toLowerCase().includes(filterValue)) {
-      return true;
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: CrackersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'crackerBinaryTypeId',
         isSortable: true,
-        export: async (cracker: CrackerBinaryType) => cracker._id + ''
+        isSearchable: true,
+        render: (cracker: JCrackerBinaryType) => cracker.id,
+        export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
-        id: CrackersTableCol.NAME,
+        id: CrackersTableCol.TYPE,
         dataKey: 'typeName',
         isSortable: true,
-        export: async (cracker: CrackerBinaryType) => cracker.typeName
+        isSearchable: true,
+        render: (cracker: JCrackerBinaryType) => cracker.typeName,
+        export: async (cracker: JCrackerBinaryType) => cracker.typeName
       },
       {
         id: CrackersTableCol.VERSIONS,
         dataKey: 'crackerVersions',
-        routerLink: (cracker: CrackerBinaryType) =>
-          this.renderVersions(cracker),
+        routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
-        export: async (cracker: CrackerBinaryType) =>
-          cracker.crackerVersions
-            .map((bin: CrackerBinary) => bin.version)
-            .join(', ')
+        export: async (cracker: JCrackerBinaryType) =>
+          cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<CrackerBinaryType>) {
+  openDialog(data: DialogData<JCrackerBinaryType>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -109,42 +119,16 @@ export class CrackersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<CrackerBinaryType[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<CrackerBinaryType>(
-          'hashtopolis-crackers',
-          this.tableColumns,
-          event.data,
-          CrackersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<CrackerBinaryType>(
-          'hashtopolis-crackers',
-          this.tableColumns,
-          event.data,
-          CrackersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<CrackerBinaryType>(
-            this.tableColumns,
-            event.data,
-            CrackersTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JCrackerBinaryType[]>): void {
+    this.exportService.handleExportAction<JCrackerBinaryType>(
+      event,
+      this.tableColumns,
+      CrackersTableColumnLabel,
+      'hashtopolis-crackers'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<CrackerBinaryType>): void {
+  rowActionClicked(event: ActionMenuEvent<JCrackerBinaryType>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -162,7 +146,7 @@ export class CrackersTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<CrackerBinaryType[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JCrackerBinaryType[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -181,25 +165,19 @@ export class CrackersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(crackers: CrackerBinaryType[]): void {
-    const requests = crackers.map((cracker: CrackerBinaryType) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, cracker._id);
-    });
-
+  private bulkActionDelete(crackers: JCrackerBinaryType[]): void {
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.CRACKERS_TYPES, crackers)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} crackers!`,
-            'Close'
-          );
-          this.reload();
+        .subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully deleted crackers');
+          this.dataSource.reload();
         })
     );
   }
@@ -207,10 +185,10 @@ export class CrackersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(crackers: CrackerBinaryType[]): void {
+  private rowActionDelete(crackers: JCrackerBinaryType[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, crackers[0]._id)
+        .delete(SERV.CRACKERS_TYPES, crackers[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -218,34 +196,32 @@ export class CrackersTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted cracker!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted cracker');
           this.reload();
         })
     );
   }
 
-  private rowActionAddVersion(cracker: CrackerBinaryType): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'crackers',
-      cracker.crackerBinaryTypeId,
-      'new'
-    ]);
+  private rowActionAddVersion(cracker: JCrackerBinaryType): void {
+    this.router.navigate(['/config', 'engine', 'crackers', cracker.id, 'new']);
   }
 
-  @Cacheable(['_id', 'crackerVersions'])
-  async renderVersions(
-    cracker: CrackerBinaryType
-  ): Promise<HTTableRouterLink[]> {
+  /**
+   * Render cracker versions link
+   * @param cracker - cracker object to render bersion links for
+   * @return observable object containing a router link array
+   * @private
+   */
+  private renderVersions(cracker: JCrackerBinaryType): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    for (const link of cracker.crackerVersions) {
-      links.push({
-        label: link.version,
-        routerLink: ['/config', 'engine', 'crackers', link._id, 'edit']
+    if (cracker) {
+      cracker.crackerVersions.forEach((entry) => {
+        links.push({
+          label: entry.version,
+          routerLink: ['/config', 'engine', 'crackers', entry.id, 'edit']
+        });
       });
     }
-
-    return links;
+    return of(links);
   }
 }

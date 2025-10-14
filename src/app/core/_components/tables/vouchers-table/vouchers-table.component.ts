@@ -1,40 +1,43 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { BaseModel } from '@models/base.model';
+
+import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
+
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import {
   VouchersTableCol,
   VouchersTableColumnLabel
-} from './vouchers-table.constants';
-import { catchError, forkJoin } from 'rxjs';
-
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { Voucher } from 'src/app/core/_models/voucher.model';
-import { VouchersDataSource } from 'src/app/core/_datasources/vouchers.datasource';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+} from '@src/app/core/_components/tables/vouchers-table/vouchers-table.constants';
+import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JVoucher } from '@src/app/core/_models/voucher.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'vouchers-table',
-  templateUrl: './vouchers-table.component.html'
+  selector: 'app-vouchers-table',
+  templateUrl: './vouchers-table.component.html',
+  standalone: false
 })
-export class VouchersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: VouchersDataSource;
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new VouchersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new VoucherContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -44,42 +47,50 @@ export class VouchersTableComponent
     }
   }
 
-  filter(item: Voucher, filterValue: string): boolean {
-    if (item.voucher.toLowerCase().includes(filterValue)) {
-      return true;
+  /**
+   * Filter voucher
+   * @param item
+   * @param filterValue
+   * @returns true, if voucher contains filterValue, else false
+   */
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
-
-    return false;
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: VouchersTableCol.ID,
         dataKey: '_id',
-        isSortable: true
+        render: (voucher: JVoucher) => voucher.id,
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
-        export: async (voucher: Voucher) => voucher.voucher
+        isCopy: true,
+        isSearchable: true,
+        export: async (voucher: JVoucher) => voucher.voucher
       },
       {
         id: VouchersTableCol.CREATED,
         dataKey: 'time',
         isSortable: true,
-        render: (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat),
-        export: async (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat)
+        render: (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateFormat),
+        export: async (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateFormat)
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<Voucher>) {
+  openDialog(data: DialogData<JVoucher>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -103,42 +114,24 @@ export class VouchersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Voucher[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Voucher>(
-          'hashtopolis-vouchers',
-          this.tableColumns,
-          event.data,
-          VouchersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Voucher>(
-          'hashtopolis-vouchers',
-          this.tableColumns,
-          event.data,
-          VouchersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Voucher>(
-            this.tableColumns,
-            event.data,
-            VouchersTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
+  exportActionClicked(event: ActionMenuEvent<JVoucher[]>): void {
+    this.exportService.handleExportAction<JVoucher>(
+      event,
+      this.tableColumns,
+      VouchersTableColumnLabel,
+      'hashtopolis-vouchers'
+    );
+  }
+
+  protected receiveCopyData(event: BaseModel): void {
+    if (this.clipboard.copy((event as JVoucher).voucher)) {
+      this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Voucher>): void {
+  rowActionClicked(event: ActionMenuEvent<JVoucher>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -156,7 +149,7 @@ export class VouchersTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Voucher[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JVoucher[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -175,25 +168,19 @@ export class VouchersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(vouchers: Voucher[]): void {
-    const requests = vouchers.map((voucher: Voucher) => {
-      return this.gs.delete(SERV.VOUCHER, voucher._id);
-    });
-
+  private bulkActionDelete(vouchers: JVoucher[]): void {
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.VOUCHER, vouchers)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} vouchers!`,
-            'Close'
-          );
-          this.reload();
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted vouchers!`);
+          this.dataSource.reload();
         })
     );
   }
@@ -201,10 +188,10 @@ export class VouchersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(vouchers: Voucher[]): void {
+  private rowActionDelete(vouchers: JVoucher[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.VOUCHER, vouchers[0]._id)
+        .delete(SERV.VOUCHER, vouchers[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -212,19 +199,13 @@ export class VouchersTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted voucher!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted voucher!');
           this.reload();
         })
     );
   }
 
-  private rowActionEdit(voucher: Voucher): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'vouchers',
-      voucher._id,
-      'edit'
-    ]);
+  private rowActionEdit(voucher: JVoucher): void {
+    this.router.navigate(['/config', 'engine', 'vouchers', voucher.id, 'edit']);
   }
 }

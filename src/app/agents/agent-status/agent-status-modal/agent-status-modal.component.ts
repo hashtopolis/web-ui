@@ -3,8 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
-  selector: 'app-agent-status-modal',
-  templateUrl: './agent-status-modal.component.html'
+    selector: 'app-agent-status-modal',
+    templateUrl: './agent-status-modal.component.html',
+    standalone: false
 })
 export class AgentStatusModalComponent implements OnInit {
   @Input() title = '';
@@ -77,7 +78,7 @@ export class AgentStatusModalComponent implements OnInit {
       this.statusNumber = 2;
       this.statusLabel = 'Device temperatures';
       this.statusInvalid = 'device';
-      this.unitLabel = '';
+      this.unitLabel = '°';
     } else if (this.thresholdType === 'util') {
       this.statusNumber = 3;
       this.statusLabel = 'Device utilisation';

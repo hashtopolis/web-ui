@@ -2,10 +2,10 @@
   <app-page-title title="New Agent" [subbutton]="false"></app-page-title>
   <mat-stepper #stepper>
     <mat-step label="Download Agent Binary" state="download">
-      <agent-binaries-table
-        [hasBulkActions]="false"
+      <app-agent-binaries-table
+
         [isSelectable]="false"
-      ></agent-binaries-table>
+      ></app-agent-binaries-table>
       <div class="highlight-box">
         <p>
           <strong>Download the agent binary</strong> and execute it on the
@@ -42,15 +42,16 @@
             matSuffix
             (click)="updateVoucher()"
             [attr.aria-label]="'Generate new Voucher'"
+            data-testid="generate-voucher-button"
           >
             <mat-icon>refresh</mat-icon>
           </button>
-          <button mat-icon-button matSuffix [disabled]="!isValid()">
+          <button mat-icon-button matSuffix [disabled]="!isValid()" type="submit" data-testid='add-voucher-button'>
             <mat-icon>add</mat-icon>
           </button>
         </mat-form-field>
       </form>
-      <vouchers-table #table></vouchers-table>
+      <app-vouchers-table #table></app-vouchers-table>
       <div class="highlight-box">
         <p>
           <strong>Generate a voucher</strong> to register the agent. Note that
@@ -59,7 +60,7 @@
       </div>
       <div>
         <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
-        <button-submit mat-button (click)="done()" name="Finish"></button-submit>
+        <button-submit mat-button (click)="done()" name="Finish" data-testid="finish-button"></button-submit>
       </div>
     </mat-step>
   </mat-stepper>

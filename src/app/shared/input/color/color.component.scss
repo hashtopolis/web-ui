@@ -1,0 +1,32 @@
+
+
+.color-input-container {
+  position: relative;
+  display: inline-block;
+}
+
+.color-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  font-size: 12px;
+  pointer-events: none; /* allows clicking through to the color picker */
+}
+
+/* Optional: Adjust text color based on background brightness for better visibility */
+:host ::ng-deep input[type="color"][value^="#f"],
+:host ::ng-deep input[type="color"][value^="#e"],
+:host ::ng-deep input[type="color"][value^="#d"],
+:host ::ng-deep input[type="color"][value^="#c"],
+:host ::ng-deep input[type="color"][value^="#b"],
+:host ::ng-deep input[type="color"][value^="#a"],
+:host ::ng-deep input[type="color"][value^="#0f"],
+:host ::ng-deep input[type="color"][value^="#ff"] {
+  & + .color-value {
+    color: black;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  }
+}

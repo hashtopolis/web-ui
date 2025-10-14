@@ -1,0 +1,5 @@
+<ht-table #table [name]="name" dataType="files" [columnLabels]="columnLabels" [dataSource]="dataSource"
+    [tableColumns]="tableColumns" [isSelectable]="true" [contextMenuService]="contextMenuService" [isFilterable]="true"
+    [filterFn]="filter.bind(this)" [isPageable]="false" [isDetailPage]="true" [showExport]="showExport"
+    (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
+    (exportActionClicked)="exportActionClicked($event)" (selectedFilterColumnChanged)="selectedFilterColumn = $event" />

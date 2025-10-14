@@ -1,29 +1,32 @@
+/**
+ * This module contains the datasource definition for the preprocessors table component
+ */
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Preprocessor } from '../_models/preprocessor.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JPreprocessor } from '@models/preprocessor.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this);
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+
+    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params.create());
 
     this.subscriptions.push(
       preprocessors$
@@ -31,14 +34,17 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Preprocessor>) => {
-          const preprocessors: Preprocessor[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+          const responseData = { data: response.data, included: response.included };
+          const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(preprocessors);
         })
     );
@@ -47,5 +53,10 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

@@ -1,79 +1,68 @@
-import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { faPaperPlane, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { Subscription } from 'rxjs';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @angular-eslint/component-selector */
 import {
+  AfterViewInit,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  Renderer2,
+  ViewChild
 } from '@angular/core';
-
 import { MatMenuTrigger } from '@angular/material/menu';
-import { Subscription } from 'rxjs';
-import { UISettingsUtilityClass } from '../../../../shared/utils/config';
-import { UIConfig } from '../../../_models/config-ui.model';
+import { NavigationEnd, Router } from '@angular/router';
 
-/**
- * Component representing an action menu with a list of menu items.
- *
- * Each action menu item can have either an `action` or a `routerLink`. If
- * the menu item `action` attribute is set an event is emitted with the
- * menu item itself and the `data` privided when clicked. If the `routerLink`
- * attribute is set the user will be routed on click.
- *
- * The actionMenuItems are divided into sections by providing them in separate
- * arrays like this: `[[A, B, C], [D, E, F]]`. This will generate two sections
- * separetad by a divider.
- *
- * @example
- * <action-menu
- *   icon="menu"
- *   label="Actions"
- *   cls="custom-class"
- *   [data]="customData"
- *   [actionMenuItems]="menuItems"
- *   (menuItemClicked)="onMenuItemClicked($event)"
- * ></action-menu>
- */
+import { UIConfig } from '@models/config-ui.model';
+
+import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+
 @Component({
   selector: 'action-menu',
-  templateUrl: './action-menu.component.html'
+  templateUrl: './action-menu.component.html',
+  standalone: false
 })
-export class ActionMenuComponent implements OnInit, OnDestroy {
+export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
-  currentUrl: any[];
+  private globalMouseMoveListener: (() => void) | null = null;
+
+  hovering = false;
+  hoverTimeout: ReturnType<typeof setTimeout>;
+  menuPanelId: string | undefined;
+
+  @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
+  @ViewChild('menuTriggerButton', { read: ElementRef }) triggerButton!: ElementRef<HTMLButtonElement>;
+
+  currentUrl: string[] = [];
   isActive = false;
 
   protected uiSettings: UISettingsUtilityClass;
 
-  /** Icon to be displayed in the menu button. */
-  @Input() icon: string;
-  /** Label for the menu button. */
-  @Input() label: string;
-  /** Determines if the menu button is disabled. */
+  @Input() icon: string = '';
+  @Input() label: string = '';
   @Input() disabled = false;
-  /** Custom CSS classes for styling. */
   @Input() cls = '';
-  /** Custom data to be associated with the menu. */
-  @Input() data: any;
-  /** Two-dimensional array of sections / menu items. */
+  @Input() data: unknown;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
   @Input() openOnMouseEnter = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> =
-    new EventEmitter<ActionMenuEvent<any>>();
+  /**
+   * If true, enable hover-close behavior. Useful for cases
+   * where the menu should close when leaving mouse outside.
+   */
+  @Input() enableHoverClose = false;
 
-  timedOutCloser: NodeJS.Timeout;
-  timedOutOpener: NodeJS.Timeout;
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
 
   openSubmenus: MatMenuTrigger[] = [];
 
@@ -81,38 +70,291 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   faGithub = faGithub;
   faPaperplane = faPaperPlane;
   faGlobe = faGlobe;
+  faBook = faBook;
 
   isDarkMode = false;
-  faIconColor = "white";
+  faIconColor = 'white';
+
+  hoveringButton = false;
+  hoveringMenu = false;
+
+  private static openMenuTrigger: MatMenuTrigger | null = null;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
-    private storage: LocalStorageService<UIConfig>
+    private storage: LocalStorageService<UIConfig>,
+    private renderer: Renderer2
   ) {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
-    if (this.isDarkMode) {
-      this.faIconColor = "white";
-    } else {
-      this.faIconColor = "black";
-    }
+    this.faIconColor = this.isDarkMode ? 'white' : 'black';
   }
 
+  /**
+   * Angular lifecycle hook: Initializes component.
+   * Subscribes to router events to close menu on navigation and update active state.
+   */
   ngOnInit(): void {
     this.subscriptions.push(
-      this.router.events.subscribe((event: any) => {
+      this.router.events.subscribe((event) => {
         if (event instanceof NavigationEnd) {
           this.currentUrl = event.url.split('/').slice(1);
           this.checkIsActive();
+
+          // Close menu on navigation end
+          if (this.trigger?.menuOpen) {
+            this.trigger.closeMenu();
+          }
         }
       })
     );
   }
 
   /**
-    *  Display fontawesome icons according to the icon name
-   **/
+   * Angular lifecycle hook: Called after view initialization.
+   * Sets menuPanelId, subscribes to menu open/close events to manage global mouse listener.
+   */
+  ngAfterViewInit(): void {
+    this.menuPanelId = this.trigger.menu?.panelId;
+
+    this.subscriptions.push(
+      this.trigger.menuClosed.subscribe(() => {
+        if (ActionMenuComponent.openMenuTrigger === this.trigger) {
+          ActionMenuComponent.openMenuTrigger = null;
+        }
+        this.removeGlobalMouseListener();
+      })
+    );
+
+    this.subscriptions.push(
+      this.trigger.menuOpened.subscribe(() => {
+        // Slight delay to ensure the menu DOM is initialized before checking pointer
+        setTimeout(() => {
+          this.addGlobalMouseListener();
+        }, 50); // even 10–30ms might work; tune as needed
+      })
+    );
+  }
+
+  /**
+   * Adds a global mousemove event listener on the document.
+   * Used to detect when the mouse pointer moves outside the button and menu to close it.
+   * Prevents multiple listeners by checking if one already exists.
+   */
+  addGlobalMouseListener() {
+    if (this.globalMouseMoveListener) return; // already listening
+
+    this.globalMouseMoveListener = this.renderer.listen('document', 'mousemove', (event: MouseEvent) => {
+      this.checkPointerOutside(event);
+    });
+  }
+
+  /**
+   * Removes the global mousemove event listener if it exists.
+   * Called when the menu closes to clean up resources.
+   */
+  removeGlobalMouseListener() {
+    if (this.globalMouseMoveListener) {
+      this.globalMouseMoveListener();
+      this.globalMouseMoveListener = null;
+    }
+  }
+
+  /**
+   * Angular lifecycle hook: Cleans up subscriptions and removes global mouse listener.
+   */
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+    this.removeGlobalMouseListener();
+  }
+
+  /**
+   * Checks if the current URL matches any of the routerLinks in the menu items.
+   * Sets the isActive flag to highlight the active menu state.
+   */
+  checkIsActive(): void {
+    this.isActive = false;
+    for (const section of this.actionMenuItems) {
+      if (this.isActive) break;
+      for (const item of section) {
+        if (item.routerLink) {
+          const partial = this.currentUrl.slice(0, item.routerLink.length);
+          if (partial.every((value, index) => value === item.routerLink[index])) {
+            this.isActive = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Handles a click on a menu item.
+   * Navigates internally or externally based on menuItem properties,
+   * or emits an event for custom handling.
+   * Closes the menu afterward.
+   * @param menuItem The clicked ActionMenuItem
+   */
+  onMenuItemClick(menuItem: ActionMenuItem): void {
+    if (menuItem.routerLink && !menuItem.external) {
+      this.router.navigate(menuItem.routerLink).then(() => {
+        this.closeMenuIfOpen();
+      });
+    } else if (menuItem.routerLink && menuItem.external) {
+      window.open(String(menuItem.routerLink), '_blank');
+      this.closeMenuIfOpen();
+    } else {
+      this.menuItemClicked.emit({
+        menuItem,
+        data: this.data
+      });
+      this.closeMenuIfOpen();
+    }
+  }
+
+  /**
+   * Closes the menu if it is currently open.
+   */
+  closeMenuIfOpen(): void {
+    if (this.trigger?.menuOpen) {
+      this.trigger.closeMenu();
+    }
+  }
+
+  /**
+   * Handles mouse entering the menu trigger button.
+   * Opens the menu if not already open and closes any other open menus.
+   */
+  onMouseEnter(): void {
+    this.hoveringButton = true;
+    this.clearHoverTimeout();
+
+    if (ActionMenuComponent.openMenuTrigger && ActionMenuComponent.openMenuTrigger !== this.trigger) {
+      ActionMenuComponent.openMenuTrigger.closeMenu();
+    }
+
+    if (!this.trigger.menuOpen) {
+      this.trigger.openMenu();
+      ActionMenuComponent.openMenuTrigger = this.trigger;
+    }
+  }
+
+  /**
+   * Handles mouse leaving the menu trigger button.
+   * Starts a timeout to possibly close the menu if pointer leaves both button and menu.
+   * @param event MouseEvent triggered on mouse leave
+   */
+  onMouseLeave(event: MouseEvent): void {
+    this.hoveringButton = false;
+    this.startHoverTimeout(event);
+  }
+
+  /**
+   * Handles mouse entering the menu panel.
+   * Cancels any pending close timeout.
+   */
+  onMenuMouseEnter(): void {
+    this.hoveringMenu = true;
+    this.clearHoverTimeout();
+  }
+
+  /**
+   * Handles mouse leaving the menu panel.
+   * Starts a timeout to possibly close the menu if pointer leaves both button and menu.
+   * @param event MouseEvent triggered on mouse leave
+   */
+  onMenuMouseLeave(event: MouseEvent): void {
+    this.hoveringMenu = false;
+    this.startHoverTimeout(event);
+  }
+
+  /**
+   * Starts a short timeout (150ms) to check if the mouse pointer
+   * is outside both the trigger button and menu panel before closing the menu.
+   * @param event MouseEvent used to check pointer position
+   */
+  startHoverTimeout(event: MouseEvent) {
+    if (!this.openOnMouseEnter || !this.enableHoverClose) return;
+    this.hoverTimeout = setTimeout(() => {
+      this.checkPointerOutside(event);
+    }, 150);
+  }
+
+  /**
+   * Clears any pending hover timeout to prevent premature menu closing.
+   */
+  clearHoverTimeout() {
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+    }
+  }
+
+  /**
+   * Prevents the default focus behavior and removes focus from the event target.
+   * Used to manage focus styling or accessibility.
+   * @param event FocusEvent to prevent default behavior
+   */
+  preventFocus(event: FocusEvent): void {
+    event.preventDefault();
+    (event.target as HTMLElement).blur();
+  }
+
+  /**
+   * Navigates to the first menu item programmatically.
+   * Opens external links in a new tab or routes internally.
+   * Closes the menu afterward.
+   * @param event MouseEvent to stop propagation
+   */
+  navigateToFirst(event: MouseEvent): void {
+    event.stopPropagation();
+    const firstItem = this.actionMenuItems[0]?.[0];
+    if (!firstItem) return;
+
+    if (firstItem.external) {
+      window.open(String(firstItem.routerLink), '_blank');
+      this.closeMenuIfOpen();
+    } else if (firstItem.routerLink) {
+      this.router.navigate(firstItem.routerLink).then(() => {
+        this.closeMenuIfOpen();
+      });
+    }
+  }
+
+  /**
+   * Returns true if mouse pointer is outside both the trigger button and menu panel.
+   * @param event MouseEvent to get pointer location
+   */
+  isPointerOutside(event: MouseEvent): boolean {
+    const x = event.clientX;
+    const y = event.clientY;
+
+    const hoveredElement = document.elementFromPoint(x, y);
+
+    const insideTrigger = this.triggerButton.nativeElement.contains(hoveredElement);
+    const insideMenu = hoveredElement?.closest(`#${this.menuPanelId ?? ''}`);
+
+    return !(insideTrigger || insideMenu);
+  }
+
+  /**
+   * Checks if the mouse pointer is outside both the trigger button and menu panel,
+   * and closes the menu if so. This method is called on every mousemove event globally.
+   * @param event MouseEvent containing pointer coordinates
+   */
+  checkPointerOutside(event: MouseEvent) {
+    if (!this.openOnMouseEnter || !this.enableHoverClose) return;
+    if (this.isPointerOutside(event)) {
+      this.trigger.closeMenu();
+    }
+  }
+
+  /**
+   * Helper methods to check if the provided icon name matches a known FontAwesome icon.
+   * @param name The icon name string to check
+   * @returns True if the icon name matches the specific FontAwesome icon
+   */
   iconContainsDiscord(name: string): boolean {
     if (name != undefined) {
       return name.toLowerCase() === 'fadiscord';
@@ -145,169 +387,11 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
-
-  /**
-   * Checks if a menu item should be considered active based on the current URL.
-   * It sets the 'isActive' property to true if the menu item's 'routerLink' matches
-   * or partially matches the beginning of the current URL.
-   *
-   * The 'actionMenuItems' array should contain sections of menu items, where each
-   * section is an array of menu items with 'routerLink' properties.
-   *
-   */
-  checkIsActive(): void {
-    this.isActive = false;
-    for (const section of this.actionMenuItems) {
-      if (this.isActive) {
-        break;
-      }
-      for (const item of section) {
-        if (item.routerLink) {
-          const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (
-            item.routerLink &&
-            partial.every((value, index) => value === item.routerLink[index])
-          ) {
-            this.isActive = true;
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Handle the click event when a menu item is selected.
-   * @param menuItem - The selected menu item.
-   */
-  onMenuItemClick(menuItem: ActionMenuItem): void {
-    if (menuItem.routerLink && !menuItem.external) {
-      this.router.navigate(menuItem.routerLink);
-    } else if (menuItem.routerLink && menuItem.external) {
-      // Open external link in a new tab
-      window.open(String(menuItem.routerLink), '_blank');
+  iconContainsBook(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'fabook';
     } else {
-      this.menuItemClicked.emit({
-        menuItem: menuItem,
-        data: this.data
-      });
-    }
-  }
-
-  /**
-   * Handle mouse enter event for the menu.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   */
-  menuEnter(trigger: MatMenuTrigger): void {
-    if (this.timedOutCloser) {
-      clearTimeout(this.timedOutCloser);
-    }
-
-    if (!trigger.menuOpen) {
-      this.timedOutOpener = setTimeout(() => {
-        this.openSubmenus.push(trigger);
-        trigger.openMenu();
-      }, 50);
-    }
-  }
-
-  /**
-   * Handle mouse leave event for the menu.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   */
-  menuLeave(trigger: MatMenuTrigger): void {
-    if (this.timedOutOpener) {
-      clearTimeout(this.timedOutOpener);
-    }
-
-    if (trigger.menuOpen) {
-      this.timedOutCloser = setTimeout(() => {
-        this.closeAllSubmenus();
-      }, 100);
-    }
-  }
-
-  /**
-   * Handle mouse enter event for a submenu.
-   */
-  subMenuEnter(trigger: MatMenuTrigger): void {
-    if (this.timedOutCloser) {
-      clearTimeout(this.timedOutCloser);
-    }
-
-    this.timedOutOpener = setTimeout(() => {
-      this.openSubmenus.push(trigger);
-      trigger.openMenu();
-    }, 50);
-  }
-
-  /**
-   * Handle mouse leave event for a submenu.
-   */
-  subMenuLeave(): void {
-    if (this.timedOutOpener) {
-      clearTimeout(this.timedOutOpener);
-    }
-
-    this.timedOutCloser = setTimeout(() => {
-      this.closeAllSubmenus();
-    }, 100);
-  }
-
-  /**
-   * Check if the related target is inside the menu panel.
-   * @param event - The mouse event.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   * @returns True if the related target is inside the menu panel, false otherwise.
-   */
-  isRelatedTargetInPanel(event: MouseEvent, trigger: MatMenuTrigger): boolean {
-    const panelId = trigger.menu?.panelId;
-
-    if (panelId && event.relatedTarget instanceof Element) {
-      const relatedTargetInPanel = event.relatedTarget.closest(`#${panelId}`);
-      const isAnotherMenuContent = event.relatedTarget.classList.contains(
-        'mat-mdc-menu-content'
-      );
-
-      return relatedTargetInPanel && !isAnotherMenuContent;
-    }
-
-    return false;
-  }
-
-  /**
-   * Prevent focus on the button.
-   * @param event - The focus event.
-   */
-  preventFocus(event: FocusEvent): void {
-    // Prevent the focus and blur the button immediately
-    event.preventDefault();
-    (event.target as HTMLElement).blur();
-  }
-
-  /**
-   * Close all open submenus.
-   */
-  closeAllSubmenus(): void {
-    this.openSubmenus.forEach((trigger) => trigger.closeMenu());
-    this.openSubmenus = [];
-  }
-
-  /**
-   * Navigate to the first menu item.
-   * @param event - The mouse event.
-   */
-  navigateToFirst(event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.actionMenuItems[0][0].external) {
-      window.open(String(this.actionMenuItems[0][0].routerLink), '_blank');
-    } else if (this.actionMenuItems[0][0].routerLink) {
-      this.router.navigate(this.actionMenuItems[0][0].routerLink);
+      return false;
     }
   }
 }

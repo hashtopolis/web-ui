@@ -1,25 +1,34 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
 import { Subscription } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { BaseModel } from '@models/base.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
+import { ServiceConfig } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { MetadataService } from '@services/metadata.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 @Component({
   selector: 'app-form',
-  templateUrl: 'form.component.html'
+  templateUrl: 'form.component.html',
+  standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
-  globalMetadata: any[] = [];
-  apiPath: string;
+  globalMetadata: ReturnType<MetadataService['getInfoMetadata']>[0];
+
+  serviceConfig: ServiceConfig;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
@@ -71,16 +80,14 @@ export class FormComponent implements OnInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    * Each item in the array represents a form field, including its type, label, and other properties.
-   * @type {any[]}
    */
-  formMetadata: any[] = [];
+  formMetadata: ReturnType<MetadataService['getFormMetadata']> = [];
 
   /**
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
-   * @type {any[]}
    */
-  formValues: any[] = [];
+  formValues: (BaseModel & Record<string, unknown>)[] = [];
 
   // Subscription for managing asynchronous data retrieval
   private subscriptionService: Subscription;
@@ -97,6 +104,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
    * @param router - The Angular Router for navigation.
+   * @param confirmDialog
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -105,23 +113,22 @@ export class FormComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private confirmDialog: ConfirmDialogService
   ) {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
-      (data: { kind: string; path: string; type: string }) => {
+      (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
         const formKind = data.kind;
-        this.apiPath = data.path; // Get the API path from route data
+        this.serviceConfig = data.serviceConfig; // Get the API path from route data
         this.type = data.type;
-        this.isCreate = this.type === 'create' ? true : false;
+        this.isCreate = this.type === 'create';
         // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(
-          formKind + 'Info'
-        )[0];
+        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
         this.formMetadata = this.metadataService.getFormMetadata(formKind);
         this.title = this.globalMetadata['title'];
         this.customform = this.globalMetadata['customform'];
-        titleService.set([this.title]);
+        this.titleService.set([this.title]);
         // Load metadata and form information
         if (this.type === 'edit') {
           this.getIndex();
@@ -139,11 +146,9 @@ export class FormComponent implements OnInit, OnDestroy {
    * Loads data for editing a form.
    */
   getIndex() {
-    this.routeParamsSubscription = this.route.params.subscribe(
-      (params: Params) => {
-        this.editedIndex = +params['id'];
-      }
-    );
+    this.routeParamsSubscription = this.route.params.subscribe((params: Params) => {
+      this.editedIndex = +params['id'];
+    });
   }
 
   /**
@@ -155,11 +160,10 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-
     const editSubscription = this.gs
-      .get(this.apiPath, this.editedIndex)
-      .subscribe((result) => {
-        this.formValues = result;
+      .get(this.serviceConfig, this.editedIndex)
+      .subscribe((response: ResponseWrapper) => {
+        this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
         this.isloaded = true; // Data is loaded and ready for form rendering
       });
 
@@ -195,28 +199,24 @@ export class FormComponent implements OnInit, OnDestroy {
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
    */
-  onFormSubmit(formValues: any) {
+  onFormSubmit(formValues: (BaseModel & Record<string, unknown>)[]) {
     if (this.customform) {
       this.modifyFormValues(formValues);
     }
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
-      const createSubscription = this.gs
-        .create(this.apiPath, formValues)
-        .subscribe(() => {
-          this.alert.okAlert(this.globalMetadata['submitok'], ''); // Display success alert first
-          this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
-        });
+      const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
+        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+      });
 
       this.unsubscribeService.add(createSubscription);
     } else {
       // Update mode: Submit form data for updating an existing item
-      const updateSubscription = this.gs
-        .update(this.apiPath, this.editedIndex, formValues)
-        .subscribe(() => {
-          this.alert.okAlert(this.globalMetadata['submitok'], '');
-          this.router.navigate([this.globalMetadata['submitokredirect']]);
-        });
+      const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
+        this.router.navigate([this.globalMetadata['submitokredirect']]);
+      });
       this.unsubscribeService.add(updateSubscription);
     }
   }
@@ -226,7 +226,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param formValues - The form values to be modified.
    * @returns The modified form values.
    */
-  modifyFormValues(formValues: any) {
+  modifyFormValues(formValues: (BaseModel | Record<string, unknown>)[]) {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
@@ -250,25 +250,19 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.globalMetadata['deltitle']) {
       this.getIndex();
     }
-    this.alert
-      .deleteConfirmation('', this.globalMetadata['deltitle'])
-      .then((confirmed) => {
+    this.confirmDialog
+      .confirmDeletion(this.globalMetadata['deltitle'], `${this.editedIndex}`)
+      .subscribe((confirmed) => {
         if (confirmed) {
           // Deletion
-          const deleteSubscription = this.gs
-            .delete(this.apiPath, this.editedIndex)
-            .subscribe(() => {
-              // Successful deletion
-              this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
-              this.router.navigate([
-                this.globalMetadata['delsubmitokredirect']
-              ]);
-            });
-
+          const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
+            this.router
+              .navigate([this.globalMetadata['delsubmitokredirect']])
+              .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
+          });
           this.unsubscribeService.add(deleteSubscription);
         } else {
-          // Handle cancellation
-          this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
+          this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
         }
       });
   }

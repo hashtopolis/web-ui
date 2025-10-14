@@ -1,28 +1,32 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-import { filter } from 'rxjs';
-import { UIConfigService } from './core/_services/shared/storage.service';
-import { CookieService } from './core/_services/shared/cookies.service';
-import { AuthService } from './core/_services/access/auth.service';
-import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
-import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
-import { UISettingsUtilityClass } from './shared/utils/config';
-import { LocalStorageService } from './core/_services/storage/local-storage.service';
-import { UIConfig } from './core/_models/config-ui.model';
-import { BreakpointService } from './core/_services/shared/breakpoint.service';
-import { CheckTokenService } from './core/_services/access/checktoken.service';
+import { filter } from 'rxjs';
+
+import { isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+
+import { UIConfig } from '@models/config-ui.model';
+
+import { AuthService } from '@services/access/auth.service';
+import { CheckTokenService } from '@services/access/checktoken.service';
+import { BreakpointService } from '@services/shared/breakpoint.service';
+import { CookieService } from '@services/shared/cookies.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { TimeoutComponent } from '@src/app/shared/alert/timeout/timeout.component';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit {
   currentUrl: string;
   currentStep: string;
-  appTitle = 'Hashtopolis';
   idleState = 'Not Started';
   timedOut = false;
   lastPing?: Date = null;
@@ -31,9 +35,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   idleTime: number = this.onTimeout();
   showingModal = false;
   modalRef = null;
-  uiSettings: UISettingsUtilityClass
+  uiSettings: UISettingsUtilityClass;
   isLogged: boolean;
-
 
   constructor(
     private cookieService: CookieService,
@@ -41,7 +44,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private modalService: NgbModal,
     private keepalive: Keepalive,
-    private checkt: CheckTokenService,
     private router: Router,
     private idle: Idle,
     private storage: LocalStorageService<UIConfig>,
@@ -49,15 +51,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     private elementRef: ElementRef,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
-    this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe((e: NavigationEnd) => {
-        this.currentUrl = e.url;
-        this.findCurrentStep(this.currentUrl);
-        if (isPlatformBrowser(this.platformId)) {
-          window.scrollTo(0, 0);
-        }
-      });
+    inject(CheckTokenService);
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+      this.currentUrl = e.url;
+      this.findCurrentStep(this.currentUrl);
+      if (isPlatformBrowser(this.platformId)) {
+        window.scrollTo(0, 0);
+      }
+    });
 
     idle.setIdle(this.idleTime);
     idle.setTimeout(this.timeoutMax);
@@ -66,11 +67,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     idle.onIdleStart.subscribe(() => {
       idle.clearInterrupts();
       this.checkLogin();
-      this.idleState = 'You\'ll be logged out in 15 seconds!'
+      this.idleState = "You'll be logged out in 15 seconds!";
     });
 
     idle.onIdleEnd.subscribe(() => {
-      this.idleState = "NOT_IDLE.";
+      this.idleState = 'NOT_IDLE.';
       this.modalRef.componentInstance.timedOut = false;
       this.timeoutCountdown = null;
       this.reset();
@@ -93,33 +94,32 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.modalRef.componentInstance.timeoutCountdown = this.timeoutCountdown;
     });
 
-    keepalive.interval(15);
-    keepalive.onPing.subscribe(() => this.lastPing = new Date());
+    this.keepalive.interval(15);
+    this.keepalive.onPing.subscribe(() => (this.lastPing = new Date()));
 
-    this.authService.getUserLoggedIn().subscribe(userLoggedIn => {
+    this.authService.getUserLoggedIn().subscribe((userLoggedIn) => {
       if (userLoggedIn) {
-        idle.watch()
+        idle.watch();
         this.timedOut = false;
       } else {
         idle.stop();
       }
-    })
+    });
   }
 
   ngOnInit(): void {
-    this.authService.autoLogin();
-    this.authService.isLogged.subscribe(status => {
+    this.authService.isLogged.subscribe((status) => {
       this.isLogged = status;
       if (status) {
         this.storageInit();
       }
     });
     this.authService.checkStatus();
-    this.uiSettings = new UISettingsUtilityClass(this.storage)
+    this.uiSettings = new UISettingsUtilityClass(this.storage);
   }
 
   ngAfterViewInit() {
-    this.setBodyClasses()
+    this.setBodyClasses();
   }
 
   /**
@@ -134,20 +134,20 @@ export class AppComponent implements OnInit, AfterViewInit {
    * corresponding CSS classes on the `<body>` element to apply visual styling changes.
    */
   private setBodyClasses(): void {
-    const classes: string[] = []
+    const classes: string[] = [];
     if (this.uiSettings) {
-      const layout = this.uiSettings.getSetting('layout')
+      const layout = this.uiSettings.getSetting('layout');
       if (layout === 'fixed') {
-        classes.push('fixed-width-layout')
+        classes.push('fixed-width-layout');
       } else if (layout === 'full') {
-        classes.push('full-width-layout')
+        classes.push('full-width-layout');
       }
 
-      const theme = this.uiSettings.getSetting('theme')
+      const theme = this.uiSettings.getSetting('theme');
       if (theme === 'light') {
-        classes.push('light-theme')
+        classes.push('light-theme');
       } else if (theme === 'dark') {
-        classes.push('dark-theme')
+        classes.push('dark-theme');
       }
     }
     if (classes) {
@@ -155,14 +155,14 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private findCurrentStep(currentRoute) {
+  private findCurrentStep(currentRoute: string) {
     const currRouteFragments = currentRoute.split('/');
     const length = currRouteFragments.length;
     this.currentStep = currentRoute.split('/')[length - 1];
   }
 
   checkLogin() {
-    const userData: { _token: string, _expires: string } = JSON.parse(localStorage.getItem('userData'));
+    const userData: { _token: string; _expires: string } = JSON.parse(localStorage.getItem('userData'));
     if (!userData) {
       return;
     }
@@ -176,7 +176,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.idle.setTimeout(false);
     this.idle.watch();
     this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
-    this.idleState = "NOT_IDLE.";
+    this.idleState = 'NOT_IDLE.';
     this.timedOut = false;
     this.timeoutCountdown = 0;
     this.lastPing = null;
@@ -197,7 +197,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const uisData = JSON.parse(localStorage?.getItem('uis'));
     let timeoutidle = 1;
     if (uisData !== null) {
-      timeoutidle = Number(uisData.find(o => o.name === 'maxSessionLength').value * 60 * 60); //Convert max session hours to seconds
+      timeoutidle = Number(uisData.find((o) => o.name === 'maxSessionLength').value * 60 * 60); //Convert max session hours to seconds
     }
     return timeoutidle;
   }
@@ -216,27 +216,4 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.modalService.dismissAll();
     this.ngOnInit();
   }
-
-  closeResult = '';
-  open(content) {
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => {
-        this.closeResult = `Closed with: ${result}`;
-      },
-      (reason) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-      },
-    );
-  }
-
-  private getDismissReason(reason: ModalDismissReasons | string): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
-  }
-
 }

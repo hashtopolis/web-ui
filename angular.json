@@ -15,12 +15,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist",
+            "outputPath": {
+              "base": "dist",
+              "browser": ""
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "crossOrigin": "use-credentials",
@@ -29,19 +33,18 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles/styles.scss",
-              "sweetalert2/src/sweetalert2.scss"
+              "src/styles/styles.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "node_modules"
+                "node_modules",
+                "."
               ]
             },
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/jquery-ui/dist/jquery-ui.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/sweetalert2/dist/sweetalert2.js",
               "node_modules/datatables.net/js/jquery.dataTables.min.js",
               "node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js",
               "node_modules/jszip/dist/jszip.js",
@@ -55,15 +58,16 @@
               "node_modules/@selectize/selectize/dist/js/selectize.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
-            ]
+            ],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "4.5mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "7mb",
+                  "maximumError": "7.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -74,9 +78,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -87,14 +89,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "hashtopolis:build"
+            "buildTarget": "hashtopolis:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "hashtopolis:build:production"
+              "buildTarget": "hashtopolis:build:production"
             },
             "development": {
-              "browserTarget": "hashtopolis:build:development"
+              "buildTarget": "hashtopolis:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -102,7 +104,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "hashtopolis:build"
+            "buildTarget": "hashtopolis:build"
           }
         },
         "test": {
@@ -120,7 +122,6 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/sweetalert2/src/sweetalert2.scss",
               "src/styles/styles.scss",
               "node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css",
               "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
@@ -132,7 +133,6 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/sweetalert2/dist/sweetalert2.js",
               "node_modules/datatables.net/js/jquery.dataTables.min.js",
               "node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js",
               "node_modules/jszip/dist/jszip.js",

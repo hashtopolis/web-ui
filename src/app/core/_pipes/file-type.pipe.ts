@@ -15,8 +15,9 @@ import {
 **/
 
 @Pipe({
-    name: 'fileType'
-  })
+    name: 'fileType',
+    standalone: false
+})
 @Injectable({
   providedIn: 'root'
 })

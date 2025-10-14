@@ -1,25 +1,17 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
-  forwardRef
-} from '@angular/core';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { AbstractControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { SelectField } from 'src/app/core/_models/input.model';
 import { Observable, Subject, combineLatest, of } from 'rxjs';
-import { AbstractInputComponent } from '../abstract-input';
-import { extractIds } from '../../../shared/utils/forms';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatInput } from '@angular/material/input';
 import { map, startWith } from 'rxjs/operators';
+
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { MatInput } from '@angular/material/input';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
+import { SelectOption, extractIds } from '@src/app/shared/utils/forms';
+
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
  * Supports dynamic filtering, highlighting, and emits selection changes.
@@ -34,26 +26,29 @@ import { map, startWith } from 'rxjs/operators';
       multi: true
     }
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
-export class InputMultiSelectComponent
-  extends AbstractInputComponent<any>
-  implements AfterViewInit
-{
+export class InputMultiSelectComponent extends AbstractInputComponent<number | number[]> implements AfterViewInit {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
-  @Input() items: SelectField[] = [];
+  @Input() items: SelectOption[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
-  @Input() initialHashlistId: any;
+  @Input() initialHashlistId: string | number;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
   private searchInputSubject = new Subject<string>();
-  filteredItems: Observable<any[]>;
-  selectedItems: SelectField[] = [];
+  filteredItems: Observable<SelectOption[]>;
   searchTerm = '';
+
+  // Visual chips
+  selectedItems: SelectOption[] = [];
+
+  // Validation model (dummy, never displayed)
+  chipGridValidation: SelectOption[] = [];
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
@@ -65,10 +60,8 @@ export class InputMultiSelectComponent
       ),
       of(this.items) // Emit the items array as an initial value
     ]).pipe(
-      map(([searchTerm, allItems]) => {
-        return searchTerm
-          ? this._filter(searchTerm)
-          : this.getUnselectedItems();
+      map(([searchTerm]) => {
+        return searchTerm ? this._filter(searchTerm) : this.getUnselectedItems();
       })
     );
   }
@@ -77,9 +70,7 @@ export class InputMultiSelectComponent
     // Check if initialHashlistId is provided
     if (this.initialHashlistId != null) {
       // Find the preselected item based on initialHashlistId
-      const preselectedItem = this.items.find(
-        (item) => item._id === this.initialHashlistId
-      );
+      const preselectedItem = this.items.find((item) => item.id === this.initialHashlistId);
 
       // If the preselected item is found, add it to selectedItems
       if (preselectedItem) {
@@ -94,27 +85,90 @@ export class InputMultiSelectComponent
     }
   }
 
+  public addChip(item: SelectOption): void {
+    if (!this.selectedItems.find((i) => i.id === item.id)) {
+      // Update visual array
+      if (this.multiselectEnabled) {
+        this.selectedItems.push(item);
+      } else {
+        this.selectedItems = [item];
+      }
+
+      // Update validation array
+      this.chipGridValidation = [...this.selectedItems];
+
+      // Remove item from available list
+      const index = this.items.findIndex((i) => i.id === item.id);
+      if (index !== -1) this.items.splice(index, 1);
+
+      // Update filtered items
+      this.searchInputSubject.next(this.searchTerm);
+
+      // Notify Angular forms
+      this.onChangeValue(this.selectedItems);
+    }
+  }
+
+  public remove(item: SelectOption): void {
+    const index = this.selectedItems.findIndex((i) => i.id === item.id);
+    if (index >= 0) {
+      this.selectedItems.splice(index, 1);
+      this.chipGridValidation = [...this.selectedItems];
+
+      // Put back to available items
+      this.items.push(item);
+      this.searchInputSubject.next(this.searchTerm);
+
+      this.onChangeValue(this.selectedItems);
+    }
+  }
+
+  // When typing a separator key (ENTER, COMMA)
+  onInputChipAdd(event: MatChipInputEvent) {
+    const value = event.value?.trim();
+    if (!value) return;
+
+    this.addChip({ id: value, name: value });
+    event.chipInput.clear();
+    this.searchTerm = '';
+  }
+
+  // When selecting from autocomplete
+  onAutocompleteSelect(selected: SelectOption) {
+    this.addChip(selected);
+    this.searchTerm = '';
+    this.searchInputSubject.next(this.searchTerm);
+  }
+
   /**
    * Handles the change in the input value and triggers the corresponding change events.
    *
-   * @param {any} value - The new value of the input.
+   * @param value - The new value of the input.
    * @returns {void}
    */
   /**
    * Handles the change in the input value and triggers the corresponding change events.
    *
-   * @param {any} value - The new value of the input.
+   * @param value - The new value of the input.
    * @returns {void}
    */
-  onChangeValue(value): void {
+  onChangeValue(value: SelectOption | SelectOption[]): void {
     if (!this.multiselectEnabled) {
-      this.value = Array.isArray(value)
-        ? extractIds(value, '_id')[0]
-        : extractIds(value, '_id')[0];
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id')[0];
+      } else if (value) {
+        this.value = extractIds([value], 'id')[0]; // wrap in array
+      } else {
+        this.value = null; // or handle empty case
+      }
     } else {
-      this.value = Array.isArray(value)
-        ? extractIds(value, '_id')
-        : extractIds(value, '_id');
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id');
+      } else if (value) {
+        this.value = extractIds([value], 'id');
+      } else {
+        this.value = [];
+      }
     }
 
     this.onChange(this.value);
@@ -130,44 +184,19 @@ export class InputMultiSelectComponent
   }
 
   /**
-   * Removes the specified item from the selected items.
-   *
-   * @param {SelectField} item - The item to be removed.
-   * @returns {void}
-   */
-  public remove(item: SelectField): void {
-    const index = this.selectedItems.indexOf(item);
-
-    if (index >= 0) {
-      // Add the removed item back to the unselected items
-      this.items.push(item);
-
-      this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
-
-      // Remove the item from the selected items
-      this.selectedItems.splice(index, 1);
-
-      // Update the filteredItems observable
-      this.searchInputSubject.next(this.searchTerm);
-
-      // Notify about the change
-      this.onChangeValue(this.selectedItems);
-      // this.onTouched();
-    }
-  }
-
-  /**
    * Filters the items based on the provided search value.
    *
    * @param {string} value - The search value to filter the items.
-   * @returns {SelectField[]} - The filtered array of items.
+   * @returns {SelectOption[]} - The filtered array of items.
    */
-  private _filter(value: string): SelectField[] {
-    const filterValue = value.toLowerCase();
-    return this.items.filter((item: SelectField) => {
-      const nameToSearch = this.mergeIdAndName
-        ? `${item._id} ${item.name}`.toLowerCase()
-        : item.name.toLowerCase();
+  private _filter(value: string | SelectOption): SelectOption[] {
+    // If a SelectOption is passed by accident, convert to string
+    const searchString = typeof value === 'string' ? value : (value.name ?? '');
+
+    const filterValue = searchString.toLowerCase();
+
+    return this.items.filter((item: SelectOption) => {
+      const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);
     });
   }
@@ -183,7 +212,7 @@ export class InputMultiSelectComponent
       // If an element has already been selected, it must be added to the list again
       if (this.selectedItems.length > 0) {
         this.items.push(this.selectedItems[0]);
-        this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+        this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
       }
 
       // For single-select, clear the selected items before adding the new one
@@ -215,10 +244,21 @@ export class InputMultiSelectComponent
   /**
    * Gets the unselected items from the available items list.
    *
-   * @returns {SelectField[]} - The array of unselected items.
+   * @returns {SelectOption[]} - The array of unselected items.
    */
-  private getUnselectedItems(): SelectField[] {
+  private getUnselectedItems(): SelectOption[] {
     return this.items.filter((item) => !this.selectedItems.includes(item));
+  }
+
+  /**
+   * Utility to escape HTML entities
+   * @param text
+   * @returns sanitized Text
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
   }
 
   /**
@@ -230,24 +270,15 @@ export class InputMultiSelectComponent
    */
   public updateHighlightedValue(value: string, term: string): SafeHtml {
     if (typeof term === 'string' && typeof value === 'string') {
-      const lowerValue = value.toLowerCase();
-      const lowerTerm = term.toLowerCase();
+      const escapedValue = this.escapeHtml(value);
+      const escapedTerm = this.escapeHtml(term);
 
-      const index = lowerValue.indexOf(lowerTerm);
+      const regex = new RegExp(`(${escapedTerm})`, 'ig');
+      const highlighted = escapedValue.replace(regex, '<span class="highlight-text">$1</span>');
 
-      if (index >= 0) {
-        const highlightedValue =
-          value.substring(0, index) +
-          `<span class="highlight-text">${value.substr(
-            index,
-            term.length
-          )}</span>` +
-          value.substring(index + term.length);
-
-        return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);
-      }
+      return this.sanitizer.bypassSecurityTrustHtml(highlighted);
     }
 
-    return this.sanitizer.bypassSecurityTrustHtml(value);
+    return this.sanitizer.bypassSecurityTrustHtml(this.escapeHtml(value));
   }
 }

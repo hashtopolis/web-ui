@@ -4,7 +4,6 @@ export enum HealthCheckAgentsTableCol {
   STATUS,
   START,
   GPUS,
-  CRACKED,
   ERRORS
 }
 
@@ -14,6 +13,5 @@ export const HealthCheckAgentsTableColColumnLabel = {
   [HealthCheckAgentsTableCol.STATUS]: 'Status',
   [HealthCheckAgentsTableCol.START]: 'Start',
   [HealthCheckAgentsTableCol.GPUS]: 'Number of Devices',
-  [HealthCheckAgentsTableCol.CRACKED]: 'Cracked',
   [HealthCheckAgentsTableCol.ERRORS]: 'Errors'
 };

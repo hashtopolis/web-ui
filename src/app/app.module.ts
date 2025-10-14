@@ -1,60 +1,49 @@
-/**
- * Main Modules
- *
- */
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { BrowserModule, Title } from '@angular/platform-browser';
-import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
-import { ReactiveFormsModule } from '@angular/forms';
-import { Injector, NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { StoreModule } from '@ngrx/store';
+import { DataTablesModule } from 'angular-datatables';
 import { MomentModule } from 'ngx-moment';
-/**
- * App Pages Components
- *
- */
-import { ScreenSizeDetectorComponent } from './layout/screen-size-detector/screen-size-detector.component';
-import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
-import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
-import { HttpResInterceptor } from './core/_interceptors/http-res.interceptor';
-import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
-import { ErrorPageComponent } from './layout/error-page/error-page.component';
-import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
-import { ConfigService } from './core/_services/shared/config.service';
-import { HeaderComponent } from './layout/header/header.component';
-import { FooterComponent } from './layout/footer/footer.component';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-/**
- * App Modules, Reducers
- *
- */
-import { ScrollYTopComponent } from './shared/scrollytop/scrollytop.component';
-import { ThemeService } from './core/_services/shared/theme.service';
-import { ComponentsModule } from './shared/components.module';
-import { DirectivesModule } from './shared/directives.module';
-import { configReducer } from './core/_store/config.reducer';
-import { PipesModule } from './shared/pipes.module';
-import { AuthModule } from './auth/auth.module';
+
+import { CommonModule } from '@angular/common';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from '@angular/material/card';
-import { CoreComponentsModule } from './core/_components/core-components.module';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import {
-  MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatSnackBarModule
-} from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BrowserModule, Title } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { AppInitService } from '@services/app-init.service';
+import { ConfigService } from '@services/shared/config.service';
+import { ThemeService } from '@services/shared/theme.service';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+
+import { AppRoutingModule } from '@src/app/app-routing.module';
+import { AppComponent } from '@src/app/app.component';
+import { AuthModule } from '@src/app/auth/auth.module';
+import { AuthInterceptorService } from '@src/app/core/_interceptors/auth-interceptor.service';
+import { HttpResInterceptor } from '@src/app/core/_interceptors/http-res.interceptor';
+import { configReducer } from '@src/app/core/_store/config.reducer';
+import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
+import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
+import { FooterComponent } from '@src/app/layout/footer/footer.component';
+import { HeaderComponent } from '@src/app/layout/header/header.component';
+import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
+import { ScreenSizeDetectorComponent } from '@src/app/layout/screen-size-detector/screen-size-detector.component';
+import { BreadcrumbComponent } from '@src/app/shared/breadcrumb/breadcrumb.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { DirectivesModule } from '@src/app/shared/directives.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
+import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.component';
 
 @NgModule({
   declarations: [
@@ -67,12 +56,12 @@ import {
     FooterComponent,
     AppComponent
   ],
+  bootstrap: [AppComponent],
   imports: [
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
     DirectivesModule,
-    HttpClientModule,
     DataTablesModule,
     ComponentsModule,
     BrowserModule,
@@ -106,6 +95,7 @@ import {
       useClass: HttpResInterceptor,
       multi: true
     },
+    provideAppInitializer(() => inject(AppInitService).initializeApp()),
     ThemeService,
     AppPreloadingStrategy,
     ConfigService,
@@ -116,9 +106,9 @@ import {
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
       useValue: { duration: 2500, verticalPosition: 'top' }
-    }
-  ],
-  bootstrap: [AppComponent]
+    },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
 })
 export class AppModule {
   static injector: Injector;

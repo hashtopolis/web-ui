@@ -1,70 +1,63 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { Hashtype } from '../_models/hashtype.model';
-import { HealthCheck } from '../_models/health-check.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JHealthCheck } from '@models/health-check.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
-
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
-    });
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('hashType');
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params.create());
 
     this.subscriptions.push(
-      forkJoin([healthChecks$, hashTypes$])
+      forkJoin([healthChecks$])
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(
-          ([healthCheckResponse, hashTypesResponse]: [
-            ListResponseWrapper<HealthCheck>,
-            ListResponseWrapper<Hashtype>
-          ]) => {
-            const healthChecks: HealthCheck[] = healthCheckResponse.values;
-            const hashTypes: Hashtype[] = hashTypesResponse.values;
+        .subscribe(([response]: [ResponseWrapper]) => {
+          const responseData = { data: response.data, included: response.included };
+          const healthChecks = this.serializer.deserialize<JHealthCheck[]>(responseData);
 
-            healthChecks.map((healthCheck: HealthCheck) => {
-              healthCheck.hashtype = hashTypes.find(
-                (el: Hashtype) => el._id === healthCheck.hashtypeId
-              );
-              healthCheck.hashtypeDescription =
-                healthCheck.hashtype.description;
-            });
+          healthChecks.forEach((healthCheck: JHealthCheck) => {
+            healthCheck.hashTypeDescription = healthCheck.hashType?.description;
+          });
 
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              healthCheckResponse.total
-            );
-            this.setData(healthChecks);
-          }
-        )
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(healthChecks);
+        })
     );
   }
 
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

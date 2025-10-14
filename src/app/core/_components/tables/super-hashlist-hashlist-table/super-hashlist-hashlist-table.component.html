@@ -1,0 +1,5 @@
+<ht-table #table (bulkActionClicked)="bulkActionClicked($event)" (exportActionClicked)="exportActionClicked($event)"
+    (rowActionClicked)="rowActionClicked($event)" (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+    [columnLabels]="columnLabels" [contextMenuService]="contextMenuService" [dataSource]="dataSource"
+    [filterFn]="filter.bind(this)" [isArchived]="isArchived" [isFilterable]="true" [isPageable]="false"
+    [isSelectable]="true" [name]="name" [tableColumns]="tableColumns" dataType="hashlists" [isDetailPage]="true" />

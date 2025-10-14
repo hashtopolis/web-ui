@@ -10,26 +10,10 @@
     <a [routerLink]="getRouterLink()">{{ titleName }}</a>
   </h2>
   <app-hexconvertor></app-hexconvertor>
-  <!-- <form [formGroup]="viewForm">
-    <div fxLayout="row" fxLayoutGap="10px">
-
-    <simulate-form-field label="Displaying:"  message="Hash + Plain" *ngIf="!displaying"></simulate-form-field>
-    <simulate-form-field label="Displaying:"  message="{{ displayingDescr }}" *ngIf="displaying"></simulate-form-field>
-    <simulate-form-field label="Filter:"  message="Cracked + Uncracked" *ngIf="!filtering"></simulate-form-field>
-    <simulate-form-field label="Filter:"  message="{{ filteringDescr }}" *ngIf="filtering"></simulate-form-field>
-
-    <input-select title="Display" formControlName="display" [items]="selectDisplays"></input-select>
-    <input-select title="Filter" formControlName="filter" [items]="selectFilters"  *ngIf="whichView !== 'tasks'"></input-select>
-
-    <grid-buttons>
-      <button-submit name="Ok" (click)="onRefresh()"></button-submit>
-    </grid-buttons>
-  </div>
- </form> -->
 </grid-main>
 <!-- Hashes -->
 <app-table>
- <hashes-table [id]="editedIndex" [dataType]="whichView"></hashes-table>
+ <hashes-table [id]="editedIndex" [dataType]="whichView" [filterParam]="filterParam"></hashes-table>
 </app-table>
 
 

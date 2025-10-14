@@ -9,6 +9,21 @@
     &.co-25 {
       width: 100%;
     }
+
+    .value {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px; // same as numbers
+    }
+
+    .spinner-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 24px;
+    }
   }
 
   &.ro-s {
@@ -36,6 +51,22 @@
 
     &.co-100 {
       width: 100%;
+      position: relative;
+
+      .app-echarts {
+        margin: 0;
+        margin-top: -30px !important;
+        padding: 0;
+        height: 250px;
+        position: relative;
+      }
+
+      .spinner-wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
     }
   }
 
@@ -59,7 +90,6 @@
 
 .chart-controls {
   color: #666;
-  font-size: 0.8em;
   text-align: right;
 
   .mdc-button {
@@ -73,3 +103,28 @@
     }
   }
 }
+
+
+.no-permission {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #666666;
+  font-style: italic;
+}
+
+.heatmap-no-permission {
+  display: flex;
+  align-items: center;         // vertical center
+  justify-content: center;     // horizontal center
+  width: 100%;
+  height: 250px;               // match the heatmap height
+  text-align: center;
+}
+
+#pcard.no-permission-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+}
+

@@ -14,7 +14,8 @@ import {
 **/
 
 @Pipe({
-  name: 'sectotime'
+    name: 'sectotime',
+    standalone: false
 })
 export class SecondsToTimePipe implements PipeTransform {
 
@@ -25,7 +26,9 @@ export class SecondsToTimePipe implements PipeTransform {
     let daylabel: string;
     let daysformatted = '';
 
-    if (seconds < 1 ) { return result = 'N/A'; }
+    if (Number.isNaN(seconds) || seconds < 1 ) {
+      return result = 'N/A';
+    }
 
     const secondsDay = (60*60*24);  // Seconds in a day
     if (seconds >= secondsDay){

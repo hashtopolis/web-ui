@@ -1,29 +1,34 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Log } from '../_models/log.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JLog } from '@models/log.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class LogsDataSource extends BaseDataSource<Log> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+export class LogsDataSource extends BaseDataSource<JLog> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    //ToDo: Reactivate sorting
+    // this.sortingColumn.isSortable = false;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const logs$ = this.service.getAll(SERV.LOGS, params);
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this);
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+
+    const logs$ = this.service.getAll(SERV.LOGS, params.create());
 
     this.subscriptions.push(
       logs$
@@ -31,20 +36,25 @@ export class LogsDataSource extends BaseDataSource<Log> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Log>) => {
-          const logs: Log[] = response.values;
-
-          if (startAt >= response.total) {
+        .subscribe((response: ResponseWrapper) => {
+          const responseData = { data: response.data, included: response.included };
+          const logs = this.serializer.deserialize<JLog[]>(responseData);
+          /* 
+            this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it 
+          */
+          /*           if (this.currentPage * this.pageSize >= logs.length) {
             this.currentPage = 0;
             this.loadAll();
             return;
-          }
+          } */
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(logs);
         })
     );
@@ -53,5 +63,10 @@ export class LogsDataSource extends BaseDataSource<Log> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

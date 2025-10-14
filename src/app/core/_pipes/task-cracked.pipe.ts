@@ -20,7 +20,8 @@ import { firstValueFrom } from 'rxjs';
 **/
 
 @Pipe({
-  name: 'tdcracked'
+    name: 'tdcracked',
+    standalone: false
 })
 export class TaskCrackedPipe implements PipeTransform {
 

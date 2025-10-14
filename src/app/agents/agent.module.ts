@@ -1,22 +1,25 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataTablesModule } from 'angular-datatables';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { NgModule } from '@angular/core';
 
-import { AgentStatusModalComponent } from './agent-status/agent-status-modal/agent-status-modal.component';
-import { AgentStatusComponent } from './agent-status/agent-status.component';
-import { ShowAgentsComponent } from './show-agents/show-agents.component';
-import { EditAgentComponent } from './edit-agent/edit-agent.component';
-import { NewAgentComponent } from './new-agent/new-agent.component';
-import { DirectivesModule } from '../shared/directives.module';
-import { ComponentsModule } from '../shared/components.module';
-import { AgentsRoutingModule } from './agents-routing.module';
-import { PipesModule } from '../shared/pipes.module';
-import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { CoreFormsModule } from '../shared/forms.module';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-stat-graph/agent-stat-graph.component';
+
+import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
+import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
+import { AgentsRoutingModule } from '@src/app/agents/agents-routing.module';
+import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
+import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
+import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { DirectivesModule } from '@src/app/shared/directives.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,8 @@ import { CoreFormsModule } from '../shared/forms.module';
     RouterModule,
     FormsModule,
     PipesModule,
-    NgbModule
+    NgbModule,
+    AgentStatGraphComponent
   ]
 })
 export class AgentsModule {}

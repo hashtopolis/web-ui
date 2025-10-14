@@ -13,11 +13,12 @@
               [isLoading]="isLoading"
               [placeholder]="'Hashlist...'"
               [items]="selectHashlists"
-              [label]="'Select or search Hashlist *'"
+              [label]="'Select or search Hashlist'"
               [mergeIdAndName]="true"
               [multiselectEnabled]="false"
               formControlName="hashlistId"
               [initialHashlistId]="isCopyHashlistId"
+              [isRequired]="true"
             ></input-multiselect>
           </ng-container>
         </div>
@@ -29,8 +30,8 @@
         </ng-template>
 
         <div>
-          <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
-          <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+          <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
+          <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
           <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
@@ -39,7 +40,7 @@
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Priority" formControlName="priority"></input-number>
+          <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
         </div>
 
@@ -86,7 +87,7 @@
       </form>
     </grid-main>
   </div>
-  <div fxFlex="30" fxFlex.lt-md="100">
+  <div fxFlex="50" fxFlex.lt-md="100">
     <mat-accordion multi>
 
       <mat-expansion-panel #wordlistPanel>
@@ -95,7 +96,7 @@
             <span><b>Wordlists</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeWordlist" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></files-attack-table>
+        <app-files-attack-table [fileType]="fileTypeWordlist" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel #rulesPanel>
@@ -104,7 +105,7 @@
             <span><b>Rules</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
+        <app-files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel #otherPanel>
@@ -113,7 +114,7 @@
             <span><b>Other</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
+        <app-files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
       </mat-expansion-panel>
 
     </mat-accordion>

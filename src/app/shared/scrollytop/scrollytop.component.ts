@@ -4,7 +4,8 @@ import { DOCUMENT } from '@angular/common';
 
 @Component({
     selector: 'app-scroll-top',
-    templateUrl: './scrollytop.component.html'
+    templateUrl: './scrollytop.component.html',
+    standalone: false
 })
 
 export class ScrollYTopComponent {

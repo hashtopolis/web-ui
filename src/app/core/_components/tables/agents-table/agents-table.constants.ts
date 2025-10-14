@@ -10,10 +10,6 @@ export enum AgentsTableCol {
   CURRENT_TASK,
   CURRENT_CHUNK,
   TASK_SPEED,
-  BENCHMARK,
-  TIME_SPENT,
-  SEARCHED,
-  CRACKED
 }
 
 export const AgentsTableColumnLabel = {
@@ -28,10 +24,6 @@ export const AgentsTableColumnLabel = {
   [AgentsTableCol.CURRENT_TASK]: 'Task',
   [AgentsTableCol.CURRENT_CHUNK]: 'Chunk',
   [AgentsTableCol.TASK_SPEED]: 'Speed',
-  [AgentsTableCol.BENCHMARK]: 'Benchmark',
-  [AgentsTableCol.TIME_SPENT]: 'Time Spent',
-  [AgentsTableCol.SEARCHED]: 'Keyspace Searched',
-  [AgentsTableCol.CRACKED]: 'Cracked'
 };
 
 export const AgentTableEditableAction = {

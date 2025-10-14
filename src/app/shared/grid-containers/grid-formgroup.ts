@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 
 @Component({
-  selector: 'grid-form-input',
-  template: `
+    selector: 'grid-form-input',
+    template: `
 <div class="form-group">
   <div class="form-outline form-input-custom">
     <label class="form-label {{labelclass}}" for={{name}} >{{name}}</label>
@@ -21,7 +21,8 @@ import { FormGroup } from '@angular/forms';
     <div #content><ng-content></ng-content></div>
   </div>
 </div>
-  `
+  `,
+    standalone: false
 })
 export class GridFormInputComponent {
 

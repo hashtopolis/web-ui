@@ -8,10 +8,12 @@ import { NgModule } from '@angular/core';
 import { ComponentsModule } from '../shared/components.module';
 import { AuthComponent } from './auth.component';
 import { CoreFormsModule } from '../shared/forms.module';
+import { AuthRoutingModule } from './auth-routing.module';
 
 @NgModule({
   declarations: [AuthComponent],
   imports: [
+    AuthRoutingModule,
     RouterModule.forChild([
       { path: 'auth', component: AuthComponent },
       {

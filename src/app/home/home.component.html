@@ -1,4 +1,23 @@
 <div class="home-grid">
+
+  <!-- Spinner template -->
+  <ng-template #spinner>
+    <div class="spinner-wrapper">
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="24"
+        color="primary">
+      </mat-progress-spinner>
+    </div>
+  </ng-template>
+
+  <!-- Reusable no-permission template for cards -->
+  <ng-template #noPermission let-testid="testid">
+    <div class="no-permission" [attr.data-testid]="testid">No permission</div>
+  </ng-template>
+
+
+  <!-- Row 1: Dashboard cards -->
   <div
     [ngClass]="{
       'ro-1': true,
@@ -7,8 +26,9 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }"
-  >
+    }">
+
+    <!-- Agents Card -->
     <div class="co co-25">
       <mat-card>
         <mat-card-content>
@@ -16,7 +36,21 @@
             <mat-icon>dns</mat-icon>
           </div>
           <h3>Agents</h3>
-          <span class="value">{{ activeAgents }} / {{ totalAgents }}</span>
+          <ng-container *ngIf="canReadAgents; else noPermAgents">
+            <span class="value" [class.refreshflash]="refreshFlash">
+              <ng-container *ngIf="loading; else agentsValue">
+                <ng-container *ngTemplateOutlet="spinner"></ng-container>
+              </ng-container>
+              <ng-template #agentsValue>
+                {{ activeAgents.toLocaleString() }} / {{ totalAgents.toLocaleString() }}
+              </ng-template>
+            </span>
+          </ng-container>
+          <ng-template #noPermAgents>
+            <ng-container
+              *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm'}">
+            </ng-container>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Active / Total Agents
@@ -24,6 +58,8 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Tasks Card -->
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -31,7 +67,19 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Tasks</h3>
-          <span class="value">{{ completedTasks }} / {{ totalTasks }} </span>
+          <ng-container *ngIf="canReadTasks; else noPermTasks">
+            <span class="value" [class.refreshflash]="refreshFlash">
+              <ng-container *ngIf="loading; else tasksValue">
+                <ng-container *ngTemplateOutlet="spinner"></ng-container>
+              </ng-container>
+              <ng-template #tasksValue>
+                {{ completedTasks.toLocaleString() }} / {{ totalTasks.toLocaleString() }}
+              </ng-template>
+            </span>
+          </ng-container>
+          <ng-template #noPermTasks>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm'}"></ng-container>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Tasks
@@ -39,6 +87,8 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Supertasks Card -->
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -46,7 +96,19 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Supertasks</h3>
-          <span class="value">{{ completedSupertasks }} /  {{ totalSupertasks }}</span>
+          <ng-container *ngIf="canReadTasks; else noPermSupertasks">
+            <span class="value" [class.refreshflash]="refreshFlash">
+              <ng-container *ngIf="loading; else supertasksValue">
+                <ng-container *ngTemplateOutlet="spinner"></ng-container>
+              </ng-container>
+              <ng-template #supertasksValue>
+                {{ completedSupertasks.toLocaleString() }} / {{ totalSupertasks.toLocaleString() }}
+              </ng-template>
+            </span>
+          </ng-container>
+          <ng-template #noPermSupertasks>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm'}"></ng-container>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Supertasks
@@ -54,6 +116,8 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Cracks Card -->
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -61,7 +125,19 @@
             <mat-icon>lock_open</mat-icon>
           </div>
           <h3>Cracks</h3>
-          <span class="value">{{ totalCracks }}</span>
+          <ng-container *ngIf="canReadCracks; else noPermCracks">
+            <span class="value" [class.refreshflash]="refreshFlash">
+              <ng-container *ngIf="loading; else cracksValue">
+                <ng-container *ngTemplateOutlet="spinner"></ng-container>
+              </ng-container>
+              <ng-template #cracksValue>
+                {{ totalCracks.toLocaleString() }}
+              </ng-template>
+            </span>
+          </ng-container>
+          <ng-template #noPermCracks>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm'}"></ng-container>
+          </ng-template>
           <span class="label">
             <mat-icon>event_available</mat-icon>
             Last 7 days
@@ -70,6 +146,8 @@
       </mat-card>
     </div>
   </div>
+
+  <!-- Row 2: Heatmap -->
   <div
     [ngClass]="{
       'ro-2': true,
@@ -78,35 +156,60 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }"
-  >
+    }">
     <div class="co co-100">
-      <div id="pcard" class="app-echarts" style="height: 250px"></div>
+      <div class="app-echarts" style="height: 250px;">
+        <!-- No permission template always defined -->
+        <ng-template #noPermChart>
+          <div class="no-permission heatmap-no-permission" data-test-id="heatmap-no-perm" style="text-align:center; margin-top:1rem;">
+            No permission to view chart data
+          </div>
+        </ng-template>
 
-      <div class="chart-controls">
-        <span *ngIf="lastUpdated">Last updated: {{ lastUpdated }}</span>
-        <ng-container *ngIf="!refreshPage">
-          <button
-            mat-button
-            (click)="setAutoreload(true)"
-            matTooltip="Enable Auto Reload"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </ng-container>
-        <ng-container *ngIf="refreshPage">
-          <button
-            mat-button
-            (click)="setAutoreload(false)"
-            matTooltip="Pause Auto Reload"
-          >
-            <mat-icon>pause_circle_outline</mat-icon>
-          </button>
+        <!-- Chart or spinner -->
+        <ng-container *ngIf="canReadCracks; else noPermChart">
+          <ng-container *ngIf="loading; else heatmapChart">
+            <ng-container *ngTemplateOutlet="spinner"></ng-container>
+          </ng-container>
+
+          <ng-template #heatmapChart>
+            <ng-container *ngIf="heatmapData?.length; else emptyHeatmap">
+              <app-heatmap-chart
+                [class.refreshflash]="refreshFlash"
+                [data]="heatmapData"
+                [isDarkMode]="isDarkMode">
+              </app-heatmap-chart>
+            </ng-container>
+            <ng-template #emptyHeatmap>
+              <div class="no-permission heatmap-no-permission" style="text-align:center; margin-top:1rem;">
+                No data to display
+              </div>
+            </ng-template>
+          </ng-template>
         </ng-container>
       </div>
     </div>
+    <div *ngIf="canReadCracks" class="chart-controls">
+      <last-updated
+        [lastUpdated]="lastUpdated"
+        [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
+        [refreshing]="refreshing">
+      </last-updated>
+
+      <ng-container *ngIf="!autoRefreshService.refreshPage">
+        <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
+          <mat-icon>autorenew</mat-icon>
+        </button>
+      </ng-container>
+      <ng-container *ngIf="autoRefreshService.refreshPage">
+        <button mat-button (click)="setAutoRefresh(false)" data-testid="pause-auto-reload">
+          <mat-icon>pause_circle_outline</mat-icon>
+        </button>
+      </ng-container>
+    </div>
   </div>
 
+  <!-- Row 3: Info Card -->
   <div
     [ngClass]="{
       'ro-3': true,
@@ -115,30 +218,16 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }"
-  >
+    }">
     <div class="co co-100">
       <mat-card class="project-info">
         <mat-card-content>
           Hashtopolis is available on
-          <a
-            href="https://github.com/hashtopolis"
-            target="_blank"
-            rel="noopener"
-            >Github</a
+          <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">Github</a
           >. To get information about how to use it, please visit the
-          <a
-            href="https://github.com/hashtopolis/server/wiki"
-            target="_blank"
-            rel="noopener"
-            >Wiki</a
-          >
+          <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
           or
-          <a
-            href="https://discord.com/invite/S2NTxbz"
-            target="_blank"
-            rel="noopener"
-            >Discord</a
+          <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a
           >.
         </mat-card-content>
       </mat-card>

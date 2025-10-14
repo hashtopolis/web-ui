@@ -1,38 +1,41 @@
+import { HashListFormat } from '@constants/hashlist.config';
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { HashListFormat } from '../_constants/hashlist.config';
-import { Hashlist } from '../_models/hashlist.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JHashlist } from '@models/hashlist.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
-
+  private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
   }
-
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'hashType,hashlists',
-      filter: `format=${HashListFormat.SUPERHASHLIST}`
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+
+    let params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('hashlists').addFilter({
+      field: 'format',
+      operator: FilterType.EQUAL,
+      value: HashListFormat.SUPERHASHLIST
+    });
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create());
 
     this.subscriptions.push(
       hashLists$
@@ -40,19 +43,25 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hashlist>) => {
-          const rows: Hashlist[] = [];
-          response.values.forEach((value: Hashlist) => {
-            const hashlist = value;
-            hashlist.hashTypeDescription = hashlist.hashType.description;
-            rows.push(hashlist);
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const superHashlists = serializer.deserialize<JHashlist[]>(responseData);
+
+          const rows: JHashlist[] = [];
+          superHashlists.forEach((value) => {
+            const superHashlist = value;
+            superHashlist.hashTypeDescription = superHashlist.hashType.description;
+            rows.push(superHashlist);
           });
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(rows);
         })
     );
@@ -61,5 +70,10 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

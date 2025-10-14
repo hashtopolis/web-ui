@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-alert',
-  templateUrl: './alert.component.html'
+    selector: 'app-alert',
+    templateUrl: './alert.component.html',
+    standalone: false
 })
 export class AlertComponent {
   @Input() message: string;

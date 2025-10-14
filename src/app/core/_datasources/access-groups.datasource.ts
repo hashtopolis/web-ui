@@ -1,30 +1,31 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '../_models/access-group.model';
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JAccessGroup } from '@models/access-group.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'userMembers,agentMembers'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers');
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+
+    const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params.create());
 
     this.subscriptions.push(
       accessGroups$
@@ -32,14 +33,19 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
-          const accessGroups: AccessGroup[] = response.values;
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
-          this.setData(accessGroups);
+        .subscribe((response: ResponseWrapper) => {
+          const responseBody = { data: response.data, included: response.included };
+
+          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
+
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(accessgroups);
         })
     );
   }
@@ -47,5 +53,10 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

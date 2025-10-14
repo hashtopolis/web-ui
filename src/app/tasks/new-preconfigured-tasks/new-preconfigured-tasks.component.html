@@ -50,27 +50,27 @@
       </form>
     </grid-main>
   </div>
-  <div fxFlex="40" fxFlex.lt-md="100">
+  <div fxFlex="50" fxFlex.lt-md="100">
     <mat-accordion multi>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Wordlists</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <app-files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Rules</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <app-files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Other</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <app-files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

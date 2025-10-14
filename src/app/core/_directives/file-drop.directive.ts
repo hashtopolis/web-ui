@@ -17,7 +17,8 @@ import {
 */
 
 @Directive({
-  selector: '[fileDrop]'
+    selector: '[fileDrop]',
+    standalone: false
 })
 export class FileDropDirective {
 

@@ -1,29 +1,30 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Notification } from '../_models/notification.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JNotification } from '@models/notification.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class NotificationsDataSource extends BaseDataSource<Notification> {
-  loadAll(): void {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class NotificationsDataSource extends BaseDataSource<JNotification> {
+  private _currentFilter: Filter = null;
+
+  loadAll(query?: Filter): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
     }
 
-    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this);
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+
+    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params.create());
 
     this.subscriptions.push(
       notifications$
@@ -31,14 +32,17 @@ export class NotificationsDataSource extends BaseDataSource<Notification> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Notification>) => {
-          const notifications: Notification[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+          const responseData = { data: response.data, included: response.included };
+          const notifications = this.serializer.deserialize<JNotification[]>(responseData);
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(notifications);
         })
     );
@@ -47,5 +51,10 @@ export class NotificationsDataSource extends BaseDataSource<Notification> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

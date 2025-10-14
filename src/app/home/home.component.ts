@@ -1,41 +1,38 @@
-import {
-  CalendarComponent,
-  TitleComponent,
-  TooltipComponent,
-  VisualMapComponent
-} from 'echarts/components';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { CanvasRenderer } from 'echarts/renderers';
-import { HeatmapChart } from 'echarts/charts';
-import * as echarts from 'echarts/core';
+import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
+
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../core/_services/main.config';
-import { LocalStorageService } from '../core/_services/storage/local-storage.service';
-import { UIConfig } from '../core/_models/config-ui.model';
-import { UISettingsUtilityClass } from '../shared/utils/config';
-import { Subscription } from 'rxjs';
-import { ListResponseWrapper } from '../core/_models/response.model';
-import { Agent } from '../core/_models/agent.model';
-import { Task } from '../core/_models/task.model';
-import { SuperTask } from '../core/_models/supertask.model';
-import { Hash } from '../core/_models/hash.model';
-import {
-  formatDate,
-  formatUnixTimestamp,
-  unixTimestampInPast
-} from '../shared/utils/datetime';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { TaskType } from '@models/task.model';
+
+import { PermissionService } from '@services/permission/permission.service';
+import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { UIConfig } from '@src/app/core/_models/config-ui.model';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit, OnDestroy {
+  /**
+   * Utility class for UI settings retrieval and updates.
+   */
   util: UISettingsUtilityClass;
 
   /** Flags for responsive design */
@@ -45,11 +42,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   screenL = false;
   screenXL = false;
 
-  /** DarkMode */
-  protected uiSettings: UISettingsUtilityClass;
+  /** Whether dark mode is enabled */
   isDarkMode = false;
 
-  /** Counters for dashboard statistics */
+  /** Dashboard statistics counters */
   activeAgents = 0;
   totalAgents = 0;
   totalTasks = 0;
@@ -58,344 +54,339 @@ export class HomeComponent implements OnInit, OnDestroy {
   completedSupertasks = 0;
   totalSupertasks = 0;
 
-  lastUpdated: string;
+  /** Last data load timestamp */
+  lastUpdated!: Date;
 
-  private maxResults = environment.config.prodApiMaxResults;
+  /** Loading state */
+  loading = false;
+
+  /** Refreshing state */
+  refreshing = false;
+
+  /** User permission flags */
+  canReadAgents = false;
+  canReadTasks = false;
+  canReadCracks = false;
+
+  refreshFlash = false;
+
+  /**
+   * Heatmap chart data as array of tuples: [date string, count].
+   * Example: [['2025-07-01', 5], ['2025-07-02', 7], ...]
+   */
+  heatmapData: [string, number][] = [];
+
+  private uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription[] = [];
   private pageReloadTimeout: NodeJS.Timeout;
-  private crackedChart: echarts.ECharts;
 
+  /** Auto-refresh subscription */
+  private autoRefreshSubscription?: Subscription;
+
+  /**
+   * HomeComponent constructor.
+   * Sets up breakpoint observers for responsive layout and reads initial theme mode.
+   *
+   * @param gs GlobalService for API calls.
+   * @param autoRefreshService AutoRefreshService to manage auto-refresh logic.
+   * @param service LocalStorageService to manage UI config.
+   * @param breakpointObserver BreakpointObserver to detect screen sizes.
+   * @param permissionService PermissionService to check user permissions.
+   */
   constructor(
     private gs: GlobalService,
+    protected autoRefreshService: AutoRefreshService,
     private service: LocalStorageService<UIConfig>,
-    private snackBar: MatSnackBar,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private permissionService: PermissionService
   ) {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
-    // Observe screen breakpoints for responsive design
+
+    // Observe screen size breakpoints for responsive behavior
     this.breakpointObserver
-      .observe([
-        Breakpoints.XSmall,
-        Breakpoints.Small,
-        Breakpoints.Medium,
-        Breakpoints.Large,
-        Breakpoints.XLarge
-      ])
+      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge])
       .subscribe((result) => {
         const breakpoints = result.breakpoints;
 
-        this.screenXS = false;
-        this.screenS = false;
-        this.screenM = false;
-        this.screenL = false;
-        this.screenXL = false;
-
-        if (breakpoints[Breakpoints.XSmall]) {
-          this.screenXS = true;
-        } else if (breakpoints[Breakpoints.Small]) {
-          this.screenS = true;
-        } else if (breakpoints[Breakpoints.Medium]) {
-          this.screenM = true;
-        } else if (breakpoints[Breakpoints.Large]) {
-          this.screenL = true;
-        } else if (breakpoints[Breakpoints.XLarge]) {
-          this.screenXL = true;
-        }
+        this.screenXS = breakpoints[Breakpoints.XSmall] || false;
+        this.screenS = breakpoints[Breakpoints.Small] || false;
+        this.screenM = breakpoints[Breakpoints.Medium] || false;
+        this.screenL = breakpoints[Breakpoints.Large] || false;
+        this.screenXL = breakpoints[Breakpoints.XLarge] || false;
       });
   }
 
+  /**
+   * Angular lifecycle hook: initializes permissions, UI utilities,
+   * loads initial data, and sets up auto-refresh if enabled.
+   */
   ngOnInit(): void {
-    this.util = new UISettingsUtilityClass(this.service);
-    this.initChart();
-    this.initData();
-    this.onAutorefresh();
+    // Initialize permissions
+    this.canReadAgents = this.permissionService.hasPermissionSync(Perm.Agent.READ);
+    this.canReadTasks = this.permissionService.hasPermissionSync(Perm.Task.READ);
+    this.canReadCracks = this.permissionService.hasPermissionSync(Perm.Hash.READ);
+
+    this.loadData();
+    // Start auto-refresh if enabled.
+
+    if (this.autoRefreshService.refreshPage) {
+      this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => this.loadData(true));
+      this.subscriptions.push(this.autoRefreshSubscription);
+      this.autoRefreshService.startAutoRefresh({ immediate: false });
+    }
   }
 
+  /**
+   * Angular lifecycle hook: unsubscribes all subscriptions and clears any active timeout.
+   */
   ngOnDestroy(): void {
+    this.unsubscribeAll();
+    this.autoRefreshService.stopAutoRefresh();
+    if (this.pageReloadTimeout) {
+      clearTimeout(this.pageReloadTimeout);
+    }
+  }
+
+  /**
+   * Unsubscribes from all active subscriptions to prevent memory leaks.
+   */
+  unsubscribeAll() {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
   }
 
   /**
-   * Get the autorefresh interval setting.
+   * Loads dashboard data with loading state
+   * @param isRefresh Whether this is a refresh action (true) or initial load (false)
    */
-  get refreshInterval(): number {
-    return this.util.getSetting<number>('refreshInterval');
-  }
-
-  /**
-   * Check if autorefresh of the page is enabled.
-   */
-  get refreshPage(): boolean {
-    return this.util.getSetting<boolean>('refreshPage');
-  }
-
-  /**
-   * Automatically refresh the page based on the configured interval.
-   */
-  onAutorefresh() {
-    const timeout = this.refreshInterval;
-    if (this.refreshPage) {
-      this.pageReloadTimeout = setTimeout(() => {
-        this.initData();
-        this.onAutorefresh();
-      }, timeout * 1000);
+  private loadData(isRefresh = false): void {
+    if (isRefresh) {
+      this.refreshing = true;
+    } else {
+      this.loading = true;
     }
-  }
 
-  /**
-   * Toggle the autoreload setting and refresh the data.
-   *
-   * @param flag - New autoreload flag.
-   */
-  setAutoreload(flag: boolean) {
-    const updatedSettings = this.util.updateSettings({ refreshPage: flag });
-    let message = '';
-
-    if (updatedSettings) {
-      if (flag) {
-        message = 'Autoreload is enabled';
-      } else {
-        message = 'Autoreload is paused';
-        clearTimeout(this.pageReloadTimeout);
+    this.initData$().subscribe({
+      next: () => {},
+      error: (err) => console.error('Failed to load dashboard data:', err),
+      complete: () => {
+        this.lastUpdated = new Date();
+        if (isRefresh) {
+          this.refreshing = false;
+          this.flashDashboard(); // Flash effect on refresh
+        } else {
+          this.loading = false;
+        }
       }
-      this.snackBar.open(message, 'Close');
-    }
-    this.initData();
-    this.onAutorefresh();
+    });
   }
 
   /**
-   * Initialize dashboard data.
+   * Fetches all dashboard data depending on user permissions using forkJoin for parallel execution.
+   * @returns Observable<void> completing when all requested data is loaded or errored
    */
-  initData(): void {
-    this.getAgents();
-    this.getTasks();
-    this.getSuperTasks();
-    this.getCracks();
+  private initData$(): Observable<void> {
+    const observables: Observable<void>[] = [];
+
+    if (this.canReadAgents) observables.push(this.getAgents$());
+    if (this.canReadTasks) observables.push(this.getTasks$(), this.getSuperTasks$());
+    if (this.canReadCracks) observables.push(this.getCracks$(), this.updateHeatmapData$());
+
+    if (observables.length === 0) return of(undefined);
+
+    return forkJoin(observables).pipe(map(() => undefined));
   }
 
   /**
-   * Get the list of active agents.
-   */
-  private getAgents(): void {
-    const params = { maxResults: this.maxResults };
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.AGENTS, params)
-        .subscribe((response: ListResponseWrapper<Agent>) => {
-          this.totalAgents = response.total | 0;
-          // Filter by Active agents
-          const activeAgents = response.values.filter(
-            (agent) => agent.isActive
-          );
-          this.activeAgents = activeAgents.length | 0;
-        })
-    );
-  }
-
-  /**
-   * Get the list of tasks.
-   */
-  private getTasks(): void {
-    const params = {
-      maxResults: this.maxResults,
-      expand: 'tasks',
-      filter: 'isArchived=false,taskType=0'
-    };
-
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER, params)
-        .subscribe((response: ListResponseWrapper<Task>) => {
-          this.totalTasks = response.values.length | 0;
-          // Filter and count completed tasks
-          let completedTasksCount = 0;
-          response.values.forEach((taskWrapper) => {
-            const completedTasks = taskWrapper['tasks'].filter(
-              (task) =>
-                task.keyspaceProgress === task.keyspace && task.keyspace > 0
-            );
-            completedTasksCount += completedTasks.length;
-          });
-
-          // Set the count of completed tasks
-          this.completedTasks = completedTasksCount || 0;
-        })
-    );
-  }
-
-  /**
-   * Get the list of supertasks.
-   */
-  private getSuperTasks(): void {
-    const params = {
-      maxResults: this.maxResults,
-      expand: 'tasks',
-      filter: 'isArchived=false,taskType=1'
-    };
-
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER, params)
-        .subscribe((response: ListResponseWrapper<SuperTask>) => {
-          this.totalSupertasks = response.total || 0;
-          // Filter and count completed supertasks
-          let completedSTCount = 0;
-          response.values.forEach((taskWrapper) => {
-            const totalTasks = taskWrapper['tasks'].length;
-            let completedTasksCount = 0;
-
-            taskWrapper['tasks'].forEach((task) => {
-              console.log(task);
-              if (
-                task.keyspaceProgress === task.keyspace &&
-                task.keyspace > 0
-              ) {
-                completedTasksCount++;
-              }
-            });
-
-            if (completedTasksCount === totalTasks) {
-              completedSTCount++;
-            }
-          });
-          // Set the count of completed supertasks
-          this.completedSupertasks = completedSTCount || 0;
-        })
-    );
-  }
-
-  /**
-   * Get the list of cracked hashes from the last seven days.
-   */
-  private getCracks(): void {
-    const timestampInPast = unixTimestampInPast(7);
-    const params = {
-      maxResults: this.maxResults,
-      filter: 'isCracked=true'
-    };
-
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.HASHES, params)
-        .subscribe((response: ListResponseWrapper<Hash>) => {
-          const lastsevenObject = response.values.filter(
-            (u) => u.isCracked == true && u.timeCracked > timestampInPast
-          );
-          this.totalCracks = lastsevenObject.length | 0;
-          this.updateChart(response.values);
-        })
-    );
-  }
-
-  /**
-   * Count the occurrences of items in an array.
+   * Enables or disables the auto-reload functionality and displays
+   * a corresponding success message.
    *
-   * @param arr - The array to count occurrences in.
-   * @returns An object with the occurrences of each item.
+   * @param flag True to enable autoreload, false to pause it.
    */
-  countOccurrences(arr: string[]): { [key: string]: number } {
-    return arr.reduce((counts, date) => {
-      counts[date] = (counts[date] || 0) + 1;
+  protected setAutoRefresh(flag: boolean): void {
+    // Unsubscribe existing
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+      this.autoRefreshSubscription = undefined;
+    }
+    this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
+    if (flag) {
+      const sub = this.autoRefreshService.refresh$.subscribe(() => {
+        // Only reload if no load/refresh is in progress
+        if (!this.loading && !this.refreshing) {
+          this.loadData(true);
+        }
+      });
+      this.subscriptions.push(sub);
+    }
+  }
+
+  /**
+   * Fetches the number of active and total agents.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private getAgents$(): Observable<void> {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'isActive', operator: FilterType.EQUAL, value: true })
+      .addIncludeTotal(true)
+      .create();
+
+    return this.gs.getAll(SERV.AGENTS_COUNT, params).pipe(
+      map((response: ResponseWrapper) => {
+        this.totalAgents = response.meta.total_count;
+        this.activeAgents = response.meta.count;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch agents:', err);
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Fetches total and completed tasks count.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private getTasks$(): Observable<void> {
+    const paramsTotalTasks = new RequestParamBuilder()
+      .addInclude('tasks')
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
+      .create();
+
+    const paramsCompletedTasks = new RequestParamBuilder()
+      .addInclude('tasks')
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
+      .create();
+
+    return forkJoin([
+      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
+        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count)),
+        catchError((err) => {
+          console.error('Failed to fetch total tasks:', err);
+          return of(undefined);
+        })
+      ),
+      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
+        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count)),
+        catchError((err) => {
+          console.error('Failed to fetch completed tasks:', err);
+          return of(undefined);
+        })
+      )
+    ]).pipe(map(() => undefined));
+  }
+
+  /**
+   * Fetches total and completed supertasks count.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private getSuperTasks$(): Observable<void> {
+    const paramsTotalSupertasks = new RequestParamBuilder()
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
+      .create();
+
+    const paramsCompletedSupertasks = new RequestParamBuilder()
+      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
+      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
+      .addInclude('tasks')
+      .create();
+
+    return forkJoin([
+      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
+        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count)),
+        catchError((err) => {
+          console.error('Failed to fetch total supertasks:', err);
+          return of(undefined);
+        })
+      ),
+      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
+        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count)),
+        catchError((err) => {
+          console.error('Failed to fetch completed supertasks:', err);
+          return of(undefined);
+        })
+      )
+    ]).pipe(map(() => undefined));
+  }
+
+  /**
+   * Fetches cracks count for the past 7 days and updates the heatmap data.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private getCracks$(): Observable<void> {
+    const timestampInPast = unixTimestampInPast(7);
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'timeCracked', operator: FilterType.GREATER, value: timestampInPast })
+      .create();
+
+    return this.gs.getAll(SERV.HASHES_COUNT, params).pipe(
+      map((res: ResponseWrapper) => {
+        this.totalCracks = res.meta.count;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch cracks count:', err);
+        return of(undefined);
+      }),
+      map(() => undefined)
+    );
+  }
+
+  /**
+   * Loads cracked hashes and prepares heatmap data as date/count pairs.
+   * Updates the lastUpdated timestamp.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private updateHeatmapData$(): Observable<void> {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: 1 })
+      .create();
+
+    return this.gs.getAll(SERV.HASHES, params).pipe(
+      map((res: ResponseWrapper) => {
+        const hashes = new JsonAPISerializer().deserialize<JHash[]>({
+          data: res.data,
+          included: res.included
+        });
+
+        const formattedDates: string[] = hashes.map((h) => formatUnixTimestamp(h.timeCracked, 'yyyy-MM-dd'));
+        const dateCounts = this.countOccurrences(formattedDates);
+
+        this.heatmapData = Object.entries(dateCounts).map(([date, count]) => [date, count]);
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch hash heatmap data:', err);
+        return of(undefined);
+      }),
+      map(() => undefined)
+    );
+  }
+
+  /**
+   * Triggers a brief flash effect on the dashboard to indicate data refresh.
+   * @private
+   */
+  private flashDashboard(): void {
+    this.refreshFlash = true;
+    setTimeout(() => {
+      this.refreshFlash = false;
+    }, 500); // duration of the flash in ms
+  }
+
+  /**
+   * Counts occurrences of each string in the given array.
+   *
+   * @param arr Array of strings (e.g., dates)
+   * @returns Object with keys as strings and values as their counts
+   */
+  private countOccurrences(arr: string[]): { [key: string]: number } {
+    return arr.reduce((counts, item) => {
+      counts[item] = (counts[item] || 0) + 1;
       return counts;
     }, {});
-  }
-
-  /**
-   * Initialize the heatmap chart.
-   */
-  initChart(): void {
-    echarts.use([
-      TitleComponent,
-      CalendarComponent,
-      TooltipComponent,
-      VisualMapComponent,
-      HeatmapChart,
-      CanvasRenderer
-    ]);
-    const isDarkTheme = this.isDarkMode ? 'dark' : '';
-    const chartDom = document.getElementById('pcard');
-    this.crackedChart = echarts.init(chartDom, isDarkTheme);
-  }
-
-  /**
-   * Update the heatmap chart.
-   *
-   * @param data - Hash data used for the chart.
-   */
-  updateChart(data: Hash[]): void {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-
-    // Extract and format cracked dates
-    const formattedDates: string[] = data.map((item) =>
-      formatUnixTimestamp(item.timeCracked, 'yyyy-MM-dd')
-    );
-
-    // Count occurrences of each date
-    const dateCounts: { [key: string]: number } =
-      this.countOccurrences(formattedDates);
-
-    // Convert date counts to the required format
-    const countsExtended = Object.keys(dateCounts).map((date) => [
-      date,
-      dateCounts[date]
-    ]);
-
-    // DarkMode
-    const backgroundColor = this.isDarkMode ? '#212121' : '';
-
-    const option = {
-      darkMode: true,
-      title: {},
-      tooltip: {
-        position: 'top',
-        formatter: function (p) {
-          const format = echarts.time.format(
-            p.data[0],
-            '{dd}-{MM}-{yyyy}',
-            false
-          );
-          return format + ': ' + p.data[1];
-        }
-      },
-      backgroundColor: backgroundColor,
-      visualMap: {
-        min: 0,
-        max: 300,
-        type: 'piecewise',
-        orient: 'horizontal',
-        left: 'center',
-        top: 65
-      },
-      calendar: {
-        top: 120,
-        left: 30,
-        right: 30,
-        cellSize: ['auto', 13],
-        range: currentYear,
-        itemStyle: {
-          borderWidth: 0.5
-        },
-        yearLabel: { show: false }
-      },
-      series: {
-        type: 'heatmap',
-        coordinateSystem: 'calendar',
-        data: countsExtended,
-        label: {
-          show: true,
-          formatter: function (params) {
-            return currentDate.getDate() === params.data[0] ? 'X' : '';
-          }
-        }
-      }
-    };
-
-    this.crackedChart.setOption(option);
-    this.lastUpdated = formatDate(new Date(), this.util.getSetting('timefmt'));
   }
 }

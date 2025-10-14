@@ -16,7 +16,8 @@ import {
 **/
 
 @Pipe({
-  name: 'split'
+    name: 'split',
+    standalone: false
 })
 export class SplitPipe implements PipeTransform {
 

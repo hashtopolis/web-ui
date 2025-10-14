@@ -1,87 +1,101 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AccountSettingsComponent } from './acc-settings.component';
-import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+// eslint-disable-next-line sort-imports
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataTablesModule } from 'angular-datatables';
+import { Observable, of } from 'rxjs';
+import { SERV } from 'src/app/core/_services/main.config';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { Params } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { findEl, setFieldValue } from 'src/app/spec-helpers/element.spec-helper';
-import { DebugElement } from '@angular/core';
-import { SERV } from 'src/app/core/_services/main.config';
+
+import { CommonModule } from '@angular/common';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { Params } from '@angular/router';
+
+import { AlertService } from '@services/shared/alert.service';
+
+import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
-  const userSettingsResponse = {
-    "_expandable": "accessGroups",
-    "_id": 1,
-    "_self": "/api/v2/ui/users/1",
-    "email": "user@test.com",
-    "globalPermissionGroup": {
-      "_id": 1,
-      "_self": "/api/v2/ui/globalpermissiongroups/1",
-      "id": 1,
-      "name": "Administrator",
-      "permissions": {}
-    },
-    "globalPermissionGroupId": 1,
-    "id": 1,
-    "isComputedPassword": true,
-    "isValid": true,
-    "lastLoginDate": 1695811400,
-    "name": "admin",
-    "otp1": "",
-    "otp2": "",
-    "otp3": "",
-    "otp4": "",
-    "registeredSince": 1695810913,
-    "sessionLifetime": 3600,
-    "yubikey": "0"
-  }
+  let alertSpy: jasmine.SpyObj<AlertService>;
 
-  // Define a partial mock service to simulate service calls.
+  const userResponse = {
+    type: 'user',
+    id: 1,
+    attributes: {
+      name: 'admin',
+      email: 'admin@localhost',
+      isValid: true,
+      isComputedPassword: true,
+      lastLoginDate: 1752647017,
+      registeredSince: 1744086356,
+      sessionLifetime: 3600,
+      globalPermissionGroupId: 1,
+      yubikey: '0',
+      otp1: '',
+      otp2: '',
+      otp3: '',
+      otp4: ''
+    }
+  };
+
+  // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // Simulate the 'get' method to return an empty observable.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    get(_methodUrl: string, _id: number, _routerParams?: Params): Observable<any> {
-      if (_methodUrl === SERV.USERS) {
-        return of(userSettingsResponse)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
+      if (_serviceConfig.URL === SERV.USERS.URL) {
+        return of({ data: userResponse });
       }
-      return of([])
+      return of([]);
     },
-    // Simulate the 'create' method to return an empty observable.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    create(_methodUrl: string, _object: any): Observable<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    create(serviceConfig, _object: any): Observable<any> {
       return of({});
     },
-
-    userId: 1
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    update(_serviceConfig, id, _object: any): Observable<any> {
+      return of({});
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    chelper(_serviceConfig, option: string, _payload: any): Observable<any> {
+      return of({});
+    },
+    userId: '1'
+  };
 
   beforeEach(() => {
+    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+
     TestBed.configureTestingModule({
+      declarations: [AccountSettingsComponent],
       imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         FontAwesomeModule,
         DataTablesModule,
         ComponentsModule,
         PipesModule,
         NgbModule,
-        RouterTestingModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatIconModule,
+        MatButtonModule
       ],
       providers: [
         provideAnimations(),
@@ -89,8 +103,12 @@ describe('AccountSettingsComponent', () => {
           provide: GlobalService,
           useValue: mockService
         },
-      ],
-      declarations: [AccountSettingsComponent],
+        {
+          provide: AlertService,
+          useValue: alertSpy
+        },
+        provideHttpClient(withInterceptorsFromDi())
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AccountSettingsComponent);
@@ -98,113 +116,243 @@ describe('AccountSettingsComponent', () => {
     fixture.detectChanges();
   });
 
-
-  // --- Test Methods ---
-
-
-  it('should create the component', () => {
+  it('creates the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize the form with default values', () => {
-    const formValue = component.form.getRawValue();
+  describe('Main form tests', () => {
+    it('initializes the form with default values', () => {
+      const formValue = component.form.getRawValue();
+      expect(formValue.name).toBe(userResponse.attributes.name);
+      expect(formValue.email).toBe(userResponse.attributes.email);
+      expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
+    });
 
-    // Ensure that the initial form values are as expected
-    expect(formValue.name).toBe(userSettingsResponse.globalPermissionGroup.name);
-    expect(formValue.registeredSince).toBe('27/09/2023 12:35:13');
-    expect(formValue.email).toBe(userSettingsResponse.email);
-    expect(formValue.oldpassword).toBe('');
-    expect(formValue.newpassword).toBe('');
-    expect(formValue.confirmpass).toBe('');
+    it('validates email as required', () => {
+      const emailControl = component.form.get('email');
+      emailControl?.patchValue(null);
+      component.form.updateValueAndValidity();
+      expect(emailControl?.hasError('required')).toBeTrue();
+    });
+
+    it('validates email format', () => {
+      const emailControl = component.form.get('email');
+
+      emailControl?.patchValue('invalid-email');
+      component.form.updateValueAndValidity();
+      expect(emailControl.hasError('email')).toBeTrue();
+
+      emailControl?.patchValue('test@example.com');
+      component.form.updateValueAndValidity();
+      expect(emailControl.hasError('email')).toBeFalse();
+    });
+
+    it('enables form submission when form is valid', () => {
+      component.form.patchValue({ email: 'test@example.com' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBe(true);
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      const nativeBtn = btn.nativeElement.querySelector('button');
+      expect(nativeBtn?.disabled).toBeFalse();
+    });
+
+    it('disables form submission when form is invalid', () => {
+      component.form.patchValue({ email: 'invalid-email' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBe(false);
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      const nativeBtn = btn.nativeElement.querySelector('button');
+      expect(nativeBtn?.disabled).toBeTrue();
+    });
+
+    it('submits form with valid email', () => {
+      spyOn(component['gs'], 'update').and.returnValue(of({}));
+
+      component.form.patchValue({ email: 'test@example.com' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      const btnDebugEl = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      btnDebugEl.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component['gs'].update).toHaveBeenCalledWith(
+        SERV.USERS,
+        Number(component['gs'].userId),
+        component.form.value
+      );
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
+    });
+
+    it('does not submit form with invalid email', () => {
+      const updateSpy = spyOn(component['gs'], 'update');
+      component.form.patchValue({ email: 'invalid-email' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      const btnDebugEl = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      btnDebugEl.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBeFalse();
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
+    });
   });
 
-  it('should validate email as required', () => {
-    const emailControl = component.form.get('email');
+  describe('Password change form tests', () => {
+    it('initializes the password form with empty default values', () => {
+      const formValue = component.changepasswordFormGroup.getRawValue();
+      expect(formValue.oldPassword).toBe('');
+      expect(formValue.newPassword).toBe('');
+      expect(formValue.confirmNewPassword).toBe('');
+    });
 
-    // Set an empty email value
-    emailControl.setValue('');
-    expect(emailControl.hasError('required')).toBe(true);
+    it('validates all password fields as required', () => {
+      const form = component.changepasswordFormGroup;
 
-    setFieldValue(fixture, 'input-email', 'test@example.com');
-    expect(emailControl.hasError('required')).toBe(false);
-  });
+      // Clear all values
+      form.patchValue({
+        oldPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      });
 
+      form.markAllAsTouched();
+      form.updateValueAndValidity();
+      fixture.detectChanges();
 
-  it('should validate email format', () => {
-    const emailControl = component.form.get('email');
+      const oldPasswordControl = form.get('oldPassword');
+      const newPasswordControl = form.get('newPassword');
+      const confirmPasswordControl = form.get('confirmNewPassword');
 
-    // Set an invalid email format
-    setFieldValue(fixture, 'input-email', 'invalid-email');
-    expect(emailControl.hasError('email')).toBe(true);
+      expect(oldPasswordControl?.hasError('required')).toBeTrue();
+      expect(newPasswordControl?.hasError('required')).toBeTrue();
+      expect(confirmPasswordControl?.hasError('required')).toBeTrue();
+    });
 
-    // Set a valid email format
-    setFieldValue(fixture, 'input-email', 'test@example.com');
-    expect(emailControl.hasError('email')).toBe(false);
-  });
+    it('validates password length', () => {
+      const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
+      const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
 
+      // Too short
+      newPasswordControl.patchValue('123');
+      confirmPasswordControl.patchValue('123');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-  it('should validate password length', () => {
-    const newPasswordControl = component.form.get('newpassword');
-    const confirmPasswordControl = component.form.get('confirmpass');
+      expect(newPasswordControl.hasError('minlength')).toBeTrue();
+      expect(confirmPasswordControl.hasError('minlength')).toBeTrue();
 
-    // Set a password with length less than PWD_MIN
-    setFieldValue(fixture, 'input-newpassword', '123');
-    setFieldValue(fixture, 'input-confirmpass', '123');
-    expect(newPasswordControl.hasError('minlength')).toBe(true);
-    expect(confirmPasswordControl.hasError('minlength')).toBe(true);
+      // Exactly min
+      newPasswordControl.patchValue('1234');
+      confirmPasswordControl.patchValue('1234');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-    // Set a password with length equal to PWD_MIN
-    setFieldValue(fixture, 'input-newpassword', '1234');
-    setFieldValue(fixture, 'input-confirmpass', '1234');
-    expect(newPasswordControl.hasError('minlength')).toBe(false);
-    expect(confirmPasswordControl.hasError('minlength')).toBe(false);
+      expect(newPasswordControl.hasError('minlength')).toBeFalse();
+      expect(confirmPasswordControl.hasError('minlength')).toBeFalse();
 
-    // Set a password with length greater than PWD_MAX
-    setFieldValue(fixture, 'input-newpassword', '1234567890123');
-    setFieldValue(fixture, 'input-confirmpass', '1234567890123');
-    expect(newPasswordControl.hasError('maxlength')).toBe(true);
-    expect(confirmPasswordControl.hasError('maxlength')).toBe(true);
+      // Too long
+      newPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
+      confirmPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-    // Set a password with length equal to PWD_MAX
-    setFieldValue(fixture, 'input-newpassword', '123456789012');
-    setFieldValue(fixture, 'input-confirmpass', '123456789012');
-    expect(newPasswordControl.hasError('maxlength')).toBe(false);
-    expect(confirmPasswordControl.hasError('maxlength')).toBe(false);
-  });
+      expect(newPasswordControl.hasError('maxlength')).toBeTrue();
+      expect(confirmPasswordControl.hasError('maxlength')).toBeTrue();
 
-  it('should validate password match', () => {
-    // Set different passwords
-    setFieldValue(fixture, 'input-newpassword', 'password123');
-    setFieldValue(fixture, 'input-confirmpass', 'password456');
+      // Exactly max
+      newPasswordControl.patchValue('Password12!#');
+      confirmPasswordControl.patchValue('Password12!#');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-    expect(component.form.hasError('mismatch')).toBe(true);
+      expect(newPasswordControl.hasError('maxlength')).toBeFalse();
+      expect(confirmPasswordControl.hasError('maxlength')).toBeFalse();
+    });
 
-    // Set matching passwords
-    setFieldValue(fixture, 'input-newpassword', 'password123');
-    setFieldValue(fixture, 'input-confirmpass', 'password123');
+    it('validates password match', () => {
+      // Set different passwords
+      component.changepasswordFormGroup.patchValue({
+        newPassword: 'password1234',
+        confirmNewPassword: 'P4ssw0rd1234'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(true);
 
-    expect(component.form.hasError('mismatch')).toBe(false);
-  });
+      // Set matching passwords
+      component.changepasswordFormGroup.patchValue({
+        newPassword: 'password1234',
+        confirmNewPassword: 'password1234'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
+    });
 
-  it('should enable form submission when form is valid', () => {
-    const btn: DebugElement = findEl(fixture, 'button-submit')
+    it('Submits password form and resets on success', fakeAsync(() => {
+      // Arrange
+      const chelperSpy = spyOn(component['gs'], 'chelper').and.returnValue(
+        of({ meta: { 'Change password': 'Password changed successfully' } })
+      );
+      const resetSpy = spyOn(component, 'resetPasswordForm');
 
-    // Initially, the form should be invalid, and the submit button should be disabled
-    expect(component.form.valid).toBe(false);
-    expect(btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('true')
+      // Fill valid form values
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'oldPass123',
+        newPassword: 'newPass456',
+        confirmNewPassword: 'newPass456'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
 
-    // Set valid values for the form
-    setFieldValue(fixture, 'input-name', 'admin');
-    setFieldValue(fixture, 'input-registered-since', '27/09/2023 12:35:13');
-    setFieldValue(fixture, 'input-email', 'test@example.com');
-    setFieldValue(fixture, 'input-password', 'summer123');
-    setFieldValue(fixture, 'input-newpassword', 'password123');
-    setFieldValue(fixture, 'input-confirmpass', 'password123');
+      // Click the submit button
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
+      expect(btn).toBeTruthy();
+      btn.nativeElement.click();
 
-    fixture.detectChanges();
+      tick(); // flush observable
+      fixture.detectChanges();
 
-    // The form should now be valid, and the submit button should be enabled
-    expect(component.form.valid).toBe(true);
-    expect(btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false')
+      // Assert
+      expect(chelperSpy).toHaveBeenCalledOnceWith(SERV.HELPER, 'changeOwnPassword', {
+        oldPassword: 'oldPass123',
+        newPassword: 'newPass456',
+        confirmPassword: 'newPass456'
+      });
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalledOnceWith('Password changed successfully');
+      expect(resetSpy).toHaveBeenCalled();
+      expect(component.isUpdatingPassLoading).toBeFalse();
+    }));
+
+    it('Does not submit password form if invalid', () => {
+      const chelperSpy = spyOn(component['gs'], 'chelper');
+      const resetSpy = spyOn(component, 'resetPasswordForm');
+
+      // Make the form invalid by patching passwords not matching
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'oldpassword',
+        newPassword: 'newpassword',
+        confirmNewPassword: 'NewPassword'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+
+      // Click the submit button
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
+      expect(btn).toBeTruthy();
+      btn.nativeElement.click();
+
+      // Service should not be called
+      expect(chelperSpy).not.toHaveBeenCalled();
+      // Alert should not be called
+      expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
+      // Reset should not be called
+      expect(resetSpy).not.toHaveBeenCalled();
+      // isUpdatingPassLoading should remain false (no submission started)
+      expect(component.isUpdatingPassLoading).toBeFalse();
+    });
   });
 });
