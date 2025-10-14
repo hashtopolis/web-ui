@@ -130,7 +130,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    return [
       {
         id: TasksAgentsTableCol.ID,
         dataKey: 'id',
@@ -237,8 +237,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         export: async (agent: JAgent) => this.getChunkDataValue(agent, 'searched') + ''
       }
     ];
-
-    return tableColumns;
   }
 
   editableSaved(editable: HTTableEditable<JAgent>): void {

@@ -254,7 +254,7 @@ export class ReportBuilderComponent implements OnInit {
       const pageSettings = this.templates[this.templateName]?.['settings'];
       const headerLogo = pageSettings['img_logo'];
       const backgroundImg = pageSettings['img_background'];
-      let bg = {}; // Initialize bg as an object
+      const bg = {}; // Initialize bg as an object
 
       // Page header
       const headerText = this.templates[this.templateName]?.settings['info_header_text'];
@@ -270,8 +270,6 @@ export class ReportBuilderComponent implements OnInit {
       if (backgroundImg.enable) {
         backgroundImg.image = await this.getBase64ImageFromURL(imagePath + backgroundImg.img_path);
         delete backgroundImg.img_path;
-
-        bg = { background: { ...backgroundImg } };
       }
 
       const project = {
