@@ -47,7 +47,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   set hashlistId(value: number) {
     if (value !== this._hashlistId) {
       this._hashlistId = value;
-      this.ngOnInit();
     }
   }
   get hashlistId(): number {

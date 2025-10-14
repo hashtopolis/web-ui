@@ -39,7 +39,6 @@ export class TasksFilesTableComponent extends BaseTableComponent implements OnIn
   set editIndex(value: number) {
     if (value !== this._editIndex) {
       this._editIndex = value;
-      this.ngOnInit();
     }
   }
   get editIndex(): number {
