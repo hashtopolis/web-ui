@@ -32,22 +32,29 @@
         (click)="onMenuItemClick(item)"
         [class.text-critical]="item.red"
       >
-        <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
-          <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        <div class="menu-item-content">
+         <span>
+            <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
+              <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+            </div>
+            <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
+              <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+            </div>
+            <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
+              <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+            </div>
+            <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
+              <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+            </div>
+            <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
+              <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+            </div>
+            {{ item.label }}
+         </span>
+          <span *ngIf="item.showAddButton" class="menu-item-add-btn">
+            <fa-icon [icon]="faSquarePlus" matTooltip="{{item.tooltipAddButton}}" aria-hidden="true" (click)="onAddMenuItemClick(item); $event.stopPropagation();"></fa-icon>
+          </span>
         </div>
-        <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        {{ item.label }}
       </button>
       <mat-divider *ngIf="!last"></mat-divider>
     </ng-container>

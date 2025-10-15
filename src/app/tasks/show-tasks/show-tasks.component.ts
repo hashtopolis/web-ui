@@ -15,7 +15,7 @@ export class ShowTasksComponent {
   pageTitle = 'Tasks';
 
   constructor(private titleService: AutoTitleService) {
-    titleService.set(['Show Tasks']);
+    titleService.set(['Tasks']);
   }
 
   toggleIsArchived(event: MatSlideToggleChange): void {
