@@ -4,6 +4,7 @@ export const HeaderMenuAction = {
 
 export const HeaderMenuLabel = {
   AGENTS: 'Agents',
+  AGENTS_DASHBOARD: 'Agents Dashboard',
   SHOW_AGENTS: 'Agents Overview',
   AGENT_STATUS: 'Agent Status',
   TASKS: 'Tasks',

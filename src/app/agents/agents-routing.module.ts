@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MyRoute } from '@models/routes.model';
 
 import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
+import { AgentsDashboardComponent } from '@src/app/agents/agents-dashboard/agents-dashboard.component';
 import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
 import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
@@ -42,6 +43,16 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-agents',
           breadcrumb: 'Show Agent',
+          permission: Perm.Agent.READ
+        },
+        canActivate: [CheckPerm]
+      },
+      {
+        path: 'dashboard',
+        component: AgentsDashboardComponent,
+        data: {
+          kind: 'dashboard',
+          breadcrumb: 'Agents Dashboard',
           permission: Perm.Agent.READ
         },
         canActivate: [CheckPerm]

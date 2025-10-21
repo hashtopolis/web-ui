@@ -1,0 +1,128 @@
+/* File: src/app/agents/agents-dashboard-tile/agents-dashboard-tile.component.scss */
+:host {
+  --kachel-bg: #ffffff;
+  --kachel-border: #e0e6ed;
+  --kachel-border-width: 1px;
+  --kachel-shadow: rgba(0,0,0,0.08);
+  --text-color: #333;
+  --header-color: #2c3e50;
+  --status-green: #28a745;
+  --status-yellow: #ffc107;
+  --status-red: #dc3545;
+  --disabled-bg: #f5f5f5;
+  --disabled-border: #dcdcdc;
+  --disabled-text: #9aa0a6;
+  --error-bg: #fff5f5;
+  --error-shadow: rgba(220,53,69,0.12);
+  display: block;
+}
+
+.kachel {
+  --kachel-border-width: 1px;
+  --status-height: 34px;
+  background-color: var(--kachel-bg);
+  border: var(--kachel-border-width) solid var(--kachel-border);
+  border-radius: 10px;
+  padding: 15px;
+  width: 280px;
+  box-shadow: 0 6px 18px var(--kachel-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s, border-color 0.25s;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-color);
+  position: relative;                /* Referenz für absolute Status-Bar */
+  overflow: visible;                 /* Status-Bar darf außerhalb sichtbar sein */
+  display: block;
+  font-size: 0.95em;
+  padding-top: calc(var(--status-height) + 12px); /* Platz für die Status-Bar */
+}
+
+/* Fehlerzustand: Border-Breite per Variable */
+.kachel.fehlerhaft {
+  --kachel-border-width: 3px;
+  background-color: var(--error-bg);
+  border-color: var(--status-red);
+  box-shadow: 0 6px 18px var(--error-shadow);
+  cursor: default;
+}
+.kachel.fehlerhaft .kachel-header i { color: var(--status-red) !important; }
+.kachel.fehlerhaft h2 { color: var(--status-red); }
+
+/* Status-Bar: oben absolut, transparenter Container, Items haben eigene Hintergründe */
+.status-bar {
+  position: absolute;
+  top: calc(-1 * var(--kachel-border-width));         /* bündig zur äußeren Kante */
+  left: calc(-1 * var(--kachel-border-width));
+  right: calc(-1 * var(--kachel-border-width));
+  display: flex;
+  height: var(--status-height);
+  align-items: stretch;
+  background: transparent;                            /* keine weiße Fläche unter den Items */
+  overflow: visible;
+  z-index: 20;                                        /* über Header legen */
+  pointer-events: none;                               /* Container nicht klickbar, Items selbst schon */
+  padding: 0;
+}
+
+/* einzelne Badge-Items */
+.status-item {
+  flex: 1 1 0;
+  text-align: center;
+  padding: 6px 8px;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;                               /* Items wieder klickbar falls nötig */
+  margin: 0;
+}
+
+/* Runde Ecken nur außen (damit keine weiße Zwischenräume entstehen) */
+.status-bar .status-item:first-child {
+  border-top-left-radius: 10px;
+}
+.status-bar .status-item:last-child {
+  border-top-right-radius: 10px;
+}
+
+/* Farben für Status */
+.status-item.ok { background-color: var(--status-green); color: #fff; }
+.status-item.warning { background-color: var(--status-yellow); color: #000; }
+.status-item.critical,
+.status-item.error,
+.status-item.disabled { background-color: var(--status-red); color: #fff; }
+
+/* Header über der Status-Bar-inhaltsebene platzieren */
+.kachel-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 6px 6px 6px;
+  border-bottom: 1px solid var(--kachel-border);
+  position: relative;
+  z-index: 10; /* unter der Status-Bar, aber über evtl. Hintergrund-Overlays */
+}
+
+.kachel-header i { font-size: 1.6em; color: #3498db; margin-right: 12px; width: 28px; text-align: center; }
+.kachel.disabled .kachel-header i { color: var(--disabled-text) !important; }
+.kachel h2 { margin: 0; color: var(--header-color); font-size: 1.15em; font-weight: 700; }
+
+.kachel-body p { display: flex; align-items: center; margin: 8px 0 0 0; font-size: 0.95em; color: var(--text-color); }
+.kachel-body p i { margin-right: 8px; color: #7f8c8d; font-size: 1em; width: 20px; text-align: center; }
+
+.kachel::after { content: ""; position: absolute; bottom: -20px; left: 8px; right: 8px; height: 20px; border-radius: 0 0 8px 8px; pointer-events: none; opacity: 0.12; }
+
+[data-theme="dark"] .kachel { box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
+[data-theme="dark"] .kachel h2 { color: var(--header-color); }
+[data-theme="dark"] .status-item.warning { color: #000; }
+
+.kachel.disabled {
+  background-color: var(--disabled-bg);
+  border: var(--kachel-border-width) solid var(--disabled-border);
+  cursor: default;
+}
+.kachel.disabled .kachel-header h2 { color: var(--disabled-text); }

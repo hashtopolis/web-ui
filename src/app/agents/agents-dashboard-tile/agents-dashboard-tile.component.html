@@ -1,0 +1,29 @@
+<a [href]="'#agent-' + agent.name"
+   class="kachel"
+   [ngClass]="{'fehlerhaft': agent.status === 'error', 'disabled': agent.status === 'disabled'}">
+
+  <div class="status-bar">
+    <div class="status-item" [ngClass]="agent.status">
+      <i class="fas" [ngClass]="{'fa-check-circle': agent.status === 'ok', 'fa-exclamation-circle': agent.status === 'warning', 'fa-exclamation-triangle': agent.status === 'critical' || agent.status === 'error', 'fa-ban': agent.status === 'disabled'}"></i>
+      {{ agent.status | uppercase }}
+    </div>
+
+    <div class="status-item" [ngClass]="loadStatus">
+      <i class="fas fa-chart-line"></i> Load: {{ agent.load }}%
+    </div>
+
+    <div class="status-item" [ngClass]="tempStatus">
+      <i class="fas" [ngClass]="{'fa-thermometer-full': agent.temp >= 70, 'fa-thermometer-half': agent.temp > 30 && agent.temp < 70, 'fa-thermometer-empty': agent.temp <= 30}"></i>
+      Temp: {{ agent.temp }}°C
+    </div>
+  </div>
+
+  <div class="kachel-header">
+    <i [class]="agent.icon"></i>
+    <h2>{{ agent.name }}</h2>
+  </div>
+
+  <div class="kachel-body">
+    <p><i class="fas fa-calendar-alt"></i> Last Activity: <strong>{{ agent.lastActivity }}</strong></p>
+  </div>
+</a>

@@ -148,13 +148,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     const agentActions = [
       {
-        label: HeaderMenuLabel.SHOW_AGENTS,
-        routerLink: ['agents', 'show-agents'],
-        showAddButton: true,
-        routerLinkAdd: ['agents', 'new-agent'],
-        tooltipAddButton: 'New Agent'
+        label: HeaderMenuLabel.AGENTS_DASHBOARD,
+        routerLink: ['agents', 'dashboard'],
+        showAddButton: false,
+        routerLinkAdd: [],
+        tooltipAddButton: ''
       }
     ];
+
+    agentActions.push({
+      label: HeaderMenuLabel.SHOW_AGENTS,
+      routerLink: ['agents', 'show-agents'],
+      showAddButton: true,
+      routerLinkAdd: ['agents', 'new-agent'],
+      tooltipAddButton: 'New Agent'
+    });
 
     // Reqire AgentStat.READ permission for 'agent-status' menu item to display
     const canReadAgentStats = this.permissionService.hasPermissionSync(Perm.AgentStat.READ);

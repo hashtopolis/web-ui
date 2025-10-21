@@ -29,6 +29,7 @@
     "@angular/router": "^19.2.6",
     "@fortawesome/angular-fontawesome": "^1.0.0",
     "@fortawesome/fontawesome": "^1.1.8",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@fortawesome/fontawesome-free-brands": "^5.0.13",
     "@fortawesome/fontawesome-free-regular": "^5.0.13",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",

@@ -1,0 +1,20 @@
+<!--<app-table>-->
+<!--  <app-page-title title="Agents Dashboard"></app-page-title>-->
+<!--  <app-agents-dashboard-tile *ngFor="let agent of agents" [agent]="agent" [loadStatus]="getLoadStatus(agent.load)" [tempStatus]="getTempStatus(agent.temp)"></app-agents-dashboard-tile>-->
+<!--</app-table>-->
+
+<div>
+  <app-table>
+    <app-page-title title="Agents Dashboard"></app-page-title>
+
+    <div class="kachel-container">
+      <app-agents-dashboard-tile
+        *ngFor="let agent of agents"
+        [agent]="agent"
+        [loadStatus]="getLoadStatus(agent.load)"
+        [tempStatus]="getTempStatus(agent.temp)">
+      </app-agents-dashboard-tile>
+    </div>
+
+  </app-table>
+</div>
