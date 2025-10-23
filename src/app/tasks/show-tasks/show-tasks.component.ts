@@ -21,6 +21,5 @@ export class ShowTasksComponent {
   toggleIsArchived(event: MatSlideToggleChange): void {
     this.table.setIsArchived(event.checked);
     this.pageTitle = event.checked ? 'Tasks (archived)' : 'Tasks';
-    this.table.reload();
   }
 }
