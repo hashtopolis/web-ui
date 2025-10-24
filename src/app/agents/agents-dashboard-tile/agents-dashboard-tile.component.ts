@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AgentData } from '../agents-dashboard/agents-dashboard.component';
+import { Component, Input } from '@angular/core';
 
+import { JAgent } from '@models/agent.model';
 
 @Component({
   selector: 'app-agents-dashboard-tile',
@@ -11,7 +11,16 @@ import { AgentData } from '../agents-dashboard/agents-dashboard.component';
   styleUrls: ['./agents-dashboard-tile.component.scss']
 })
 export class AgentsDashboardTileComponent {
-  @Input() agent!: AgentData;
-  @Input() loadStatus: string = 'ok'; // Status-Klasse für Load
-  @Input() tempStatus: string = 'ok'; // Status-Klasse für Temp
+  @Input() agent: JAgent;
+  @Input() agentIcon: string;
+  @Input() lastActivity: string;
+  @Input() cpuLoad: number;
+  @Input() gpuLoad: number;
+  @Input() gpuTemp: number;
+  @Input() cpuLoadStatusClass: string = 'ok';
+  @Input() gpuLoadStatusClass: string = 'ok';
+  @Input() gpuTempStatusClass: string = 'ok';
+  @Input() agentStatusTileClass: string[];
+  @Input() agentStatusClass: string;
+  @Input() agentStatusContent: string;
 }

@@ -9,6 +9,7 @@
   --status-green: #28a745;
   --status-yellow: #ffc107;
   --status-red: #dc3545;
+  --status-blue: #42d4f4;
   --disabled-bg: #f5f5f5;
   --disabled-border: #dcdcdc;
   --disabled-text: #9aa0a6;
@@ -24,7 +25,7 @@
   border: var(--kachel-border-width) solid var(--kachel-border);
   border-radius: 10px;
   padding: 15px;
-  width: 280px;
+  width: 310px;
   box-shadow: 0 6px 18px var(--kachel-shadow);
   transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s, border-color 0.25s;
   cursor: pointer;
@@ -67,16 +68,16 @@
 /* einzelne Badge-Items */
 .status-item {
   flex: 1 1 0;
-  text-align: center;
-  padding: 6px 8px;
-  font-size: 0.75em;
+  //text-align: center;
+  padding: 6px 5px;
+  font-size: 0.70em;
   font-weight: 700;
   color: #fff;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 2px;
   pointer-events: auto;                               /* Items wieder klickbar falls nötig */
   margin: 0;
 }
@@ -95,13 +96,14 @@
 .status-item.critical,
 .status-item.error,
 .status-item.disabled { background-color: var(--status-red); color: #fff; }
+.status-item.idle { background-color: var(--status-blue); color: #fff; }
 
 /* Header über der Status-Bar-inhaltsebene platzieren */
 .kachel-header {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-  padding: 8px 6px 6px 6px;
+  padding: 8px 6px 12px 6px;
   border-bottom: 1px solid var(--kachel-border);
   position: relative;
   z-index: 10; /* unter der Status-Bar, aber über evtl. Hintergrund-Overlays */
@@ -126,3 +128,7 @@
   cursor: default;
 }
 .kachel.disabled .kachel-header h2 { color: var(--disabled-text); }
+
+.kachel-body p strong {
+  margin-left: 6px;
+}

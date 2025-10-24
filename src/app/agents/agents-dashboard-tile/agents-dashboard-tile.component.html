@@ -1,29 +1,34 @@
-<a [href]="'#agent-' + agent.name"
-   class="kachel"
-   [ngClass]="{'fehlerhaft': agent.status === 'error', 'disabled': agent.status === 'disabled'}">
+<a [href]="'#/agents/show-agents/' + agent.id + '/edit'"
+   class="kachel" [ngClass]="agentStatusTileClass">
 
   <div class="status-bar">
-    <div class="status-item" [ngClass]="agent.status">
-      <i class="fas" [ngClass]="{'fa-check-circle': agent.status === 'ok', 'fa-exclamation-circle': agent.status === 'warning', 'fa-exclamation-triangle': agent.status === 'critical' || agent.status === 'error', 'fa-ban': agent.status === 'disabled'}"></i>
-      {{ agent.status | uppercase }}
+    <div class="status-item" [ngClass]="agentStatusClass">
+      <i class="fas" [ngClass]="{'fa-check-circle': agentStatusContent === 'ok', 'fa-exclamation-circle': agentStatusContent === 'warning', 'fa-exclamation-triangle': agentStatusContent === 'critical' || agentStatusContent === 'error', 'fa-ban': agentStatusContent === 'disabled'}"></i>
+        {{ agentStatusContent | uppercase }}
     </div>
 
-    <div class="status-item" [ngClass]="loadStatus">
-      <i class="fas fa-chart-line"></i> Load: {{ agent.load }}%
+    <div class="status-item" [ngClass]="cpuLoadStatusClass">
+      <i class="fas fa-chart-line"></i>
+      CPU:&nbsp;{{ cpuLoad }}&nbsp;%
     </div>
 
-    <div class="status-item" [ngClass]="tempStatus">
-      <i class="fas" [ngClass]="{'fa-thermometer-full': agent.temp >= 70, 'fa-thermometer-half': agent.temp > 30 && agent.temp < 70, 'fa-thermometer-empty': agent.temp <= 30}"></i>
-      Temp: {{ agent.temp }}°C
+    <div class="status-item" [ngClass]="gpuLoadStatusClass" *ngIf="!agent.cpuOnly">
+      <i class="fas fa-chart-line"></i>
+      GPU:&nbsp;{{ gpuLoad }}&nbsp;%
+    </div>
+
+    <div class="status-item" [ngClass]="gpuTempStatusClass" *ngIf="!agent.cpuOnly">
+      <i class="fas" [ngClass]="{'fa-thermometer-full': gpuTemp >= 70, 'fa-thermometer-half': gpuTemp > 30 && gpuTemp < 70, 'fa-thermometer-empty': gpuTemp <= 30}"></i>
+      GPU:&nbsp;{{ gpuTemp }}&nbsp;°C
     </div>
   </div>
 
   <div class="kachel-header">
-    <i [class]="agent.icon"></i>
-    <h2>{{ agent.name }}</h2>
+    <i class="fas" [ngClass]="agentIcon"></i>
+    <h2>{{ agent.agentName.length > 26 ? `${agent.agentName.substring(0, 26)}...` : agent.agentName }}</h2>
   </div>
 
   <div class="kachel-body">
-    <p><i class="fas fa-calendar-alt"></i> Last Activity: <strong>{{ agent.lastActivity }}</strong></p>
+    <p><i class="fas fa-calendar-alt"></i> Last Activity: <strong>{{ lastActivity }}</strong></p>
   </div>
 </a>
