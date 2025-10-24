@@ -1,5 +1,5 @@
 <a [href]="'#/agents/show-agents/' + agent.id + '/edit'"
-   class="kachel" [ngClass]="agentStatusTileClass">
+   class="tile" [ngClass]="agentStatusTileClass">
 
   <div class="status-bar">
     <div class="status-item" [ngClass]="agentStatusClass">
@@ -23,12 +23,12 @@
     </div>
   </div>
 
-  <div class="kachel-header">
+  <div class="tile-header">
     <i class="fas" [ngClass]="agentIcon"></i>
     <h2>{{ agent.agentName.length > 26 ? `${agent.agentName.substring(0, 26)}...` : agent.agentName }}</h2>
   </div>
 
-  <div class="kachel-body">
+  <div class="tile-body">
     <p><i class="fas fa-calendar-alt"></i> Last Activity: <strong>{{ lastActivity }}</strong></p>
   </div>
 </a>

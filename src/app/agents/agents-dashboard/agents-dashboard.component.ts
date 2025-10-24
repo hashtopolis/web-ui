@@ -179,7 +179,7 @@ export class AgentsDashboardComponent implements OnInit {
     } else if (agent.agentSpeed == 0) {
       classes.push('idle');
     } else if (this.getAgentStatus(agent) === 'error') {
-      classes.push('fehlerhaft');
+      classes.push('error');
     }
 
     return classes;

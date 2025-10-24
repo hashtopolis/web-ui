@@ -1,27 +1,23 @@
-/* scss (Datei: `src/app/agents/agents-dashboard/agents-dashboard.component.scss`) */
-.kachel-container {
+.tile-container {
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
   justify-content: center;
-  align-items: flex-start;    /* wichtig: Items am oberen Rand ausrichten */
-  align-content: flex-start;  /* damit die Reihen korrekt gestapelt werden */
+  align-items: flex-start;    /* Align items at the top edge */
+  align-content: flex-start;  /* so that the rows are stacked correctly */
   padding: 10px;
 }
 
-/* scss (Datei: `src/app/agents/agents-dashboard-tile/agents-dashboard-tile.component.scss`) */
-.kachel {
-  /* bereits vorhandene Regeln ... */
-  box-sizing: border-box;   /* sicherstellen, dass padding in die Breite/Höhe gerechnet wird */
-  margin-bottom: 24px;      /* Platz für ::after / Schatten / negative Bereiche */
-  padding-bottom: 8px;      /* optional: zusätzlichen Innenabstand, wenn nötig */
+.tile {
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  padding-bottom: 8px;
 }
 
-/* falls du die pseudo-Element-Position anpassen willst (optional) */
-.kachel::after {
+.tile::after {
   content: "";
   position: absolute;
-  bottom: -20px; /* falls beibehalten, dann margin-bottom oben passend einstellen */
+  bottom: -20px;
   left: 8px;
   right: 8px;
   height: 20px;
