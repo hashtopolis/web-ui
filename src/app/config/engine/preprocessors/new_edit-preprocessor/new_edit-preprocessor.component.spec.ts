@@ -55,9 +55,7 @@ describe('NewEditPreprocessorComponent', () => {
    * @param buttonText Button text
    */
   function expectPageTitleAndButton(title: string, buttonText: string) {
-    const buttonDebugEl = fixture.debugElement.query(
-      By.css('[data-testid="submit-button-newPreprocessor"]')
-    );
+    const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
     expect(buttonDebugEl.nativeElement.textContent).toContain(buttonText);
 
     const subtitleEl = fixture.nativeElement.querySelector('app-page-subtitle');
@@ -234,8 +232,6 @@ describe('NewEditPreprocessorComponent', () => {
 
     expectPageTitleAndButton('Edit Preprocessor', 'Update');
   });
-
-
 
   it('should call create and navigate on valid form if no id is present in route', async () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
