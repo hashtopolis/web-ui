@@ -1,5 +1,6 @@
 @if (tableColumn.routerLink) {
-  @for (link of tableColumn.routerLink(element) | async trackBy: trackByFn; track link) {
+  @for (link of (tableColumn.routerLink(element) | async); track trackByFn($index, link)) {
+
     @if (link.label || link.routerLink) {
       <!-- If routerLink is set, render as link <a> -->
       @if (link.routerLink) {
