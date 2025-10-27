@@ -1,4 +1,3 @@
-import { generateCandidates } from 'wordpolis';
 
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormControl } from '@angular/forms';
@@ -10,6 +9,7 @@ import {
   GenerateWordListFormGroup
 } from '@src/app/shared/wordlist-generator/wordlist-generator.form';
 import { ui } from '@src/app/shared/wordlist-generator/wordlist-generator.ui';
+import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
 
 /**
  * Component for generating a wordlist based on user-provided parameters.
@@ -140,7 +140,7 @@ export class WordlistGeneratorComponent implements OnInit {
       };
 
       try {
-        generateCandidates(names, specialdates, sparetext, options);
+        Wordpolis.generateCandidates(names, specialdates, sparetext, options);
       } catch (error) {
         console.error(ui.submitError, error);
         this.alert.showErrorMessage(ui.submitError);

@@ -49,6 +49,21 @@ describe('NewEditPreprocessorComponent', () => {
     fixture.detectChanges(); // triggers ngOnInit and loads permissions
   });
 
+  /**
+   * Helper to check page title and button text
+   * @param title Title text
+   * @param buttonText Button text
+   */
+  function expectPageTitleAndButton(title: string, buttonText: string) {
+    const buttonDebugEl = fixture.debugElement.query(
+      By.css('[data-testid="submit-button-newPreprocessor"]')
+    );
+    expect(buttonDebugEl.nativeElement.textContent).toContain(buttonText);
+
+    const subtitleEl = fixture.nativeElement.querySelector('app-page-subtitle');
+    expect(subtitleEl.textContent).toContain(title);
+  }
+
   it('should create component and form', () => {
     expect(component).toBeTruthy();
     expect(component.newEditPreprocessorForm).toBeTruthy();
@@ -191,11 +206,10 @@ describe('NewEditPreprocessorComponent', () => {
     expect(errors).toBeNull();
   });
 
-  it('should be the page title "New Preprocessor" and the button name "Create" in the New-Modus', () => {
+  it('should display the page title "New Preprocessor" and button name "Create" in New mode', () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
-
-    // simulate new-modus (no id)
     activatedRoute.snapshot.paramMap.get = () => null;
+
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -203,16 +217,11 @@ describe('NewEditPreprocessorComponent', () => {
     expect(component.pageTitle).toBe('New Preprocessor');
     expect(component.submitButtonText).toBe('Create');
 
-    const buttonDebugElNew = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
-    expect(buttonDebugElNew.componentInstance.name).toBe('Create');
-    const subtitleElNew = fixture.nativeElement.querySelector('app-page-subtitle');
-    expect(subtitleElNew.getAttribute('ng-reflect-subtitle')).toBe('New Preprocessor');
+    expectPageTitleAndButton('New Preprocessor', 'Create');
   });
 
-  it('should display the page title "Edit Preprocessor" and the button name "Update" at Route /config/engine/preprocessors/9/edit', () => {
+  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
-
-    // simulate edit-modus route with id=9
     activatedRoute.snapshot.paramMap.get = () => '9';
     mockGlobalService.get.and.returnValue(of({ data: {}, included: [] }));
 
@@ -223,11 +232,10 @@ describe('NewEditPreprocessorComponent', () => {
     expect(component.pageTitle).toBe('Edit Preprocessor');
     expect(component.submitButtonText).toBe('Update');
 
-    const buttonDebugElEdit = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
-    expect(buttonDebugElEdit.componentInstance.name).toBe('Update');
-    const subtitleElEdit = fixture.nativeElement.querySelector('app-page-subtitle');
-    expect(subtitleElEdit.getAttribute('ng-reflect-subtitle')).toBe('Edit Preprocessor');
+    expectPageTitleAndButton('Edit Preprocessor', 'Update');
   });
+
+
 
   it('should call create and navigate on valid form if no id is present in route', async () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);

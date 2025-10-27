@@ -121,6 +121,9 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles", "node_modules", "."]
+            },
             "assets": [
               "src/node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles/styles.scss",
