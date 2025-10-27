@@ -1,5 +1,5 @@
 // wordpolis-wrapper.ts
-import * as WordpolisOriginal from 'wordpolis';
+import * as WordpolisOriginal from 'wordpolis'
 
 /**
  * Wrapper for the Wordpolis module.
@@ -24,4 +24,4 @@ import * as WordpolisOriginal from 'wordpolis';
  */
 export const Wordpolis = {
   generateCandidates: WordpolisOriginal.generateCandidates
-};
+}

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'
 
-import { LoadingService } from '@services/shared/loading.service';
-import { ThemeService } from '@services/shared/theme.service';
+import { LoadingService } from '@services/shared/loading.service'
+import { ThemeService } from '@services/shared/theme.service'
 
-import { environment } from '@src/environments/environment';
+import { environment } from '@src/environments/environment'
 
 @Component({
   selector: 'app-loading-spinner',
@@ -30,21 +30,21 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class LoadingSpinnerComponent {
-  headerConfig = environment.config.header;
-  isLoading = true;
+  headerConfig = environment.config.header
+  isLoading = true
 
   constructor(
     private theme: ThemeService,
     public ls: LoadingService
   ) {
-    this.ls.showSpinner.subscribe(this.stateSpinner.bind(this));
+    this.ls.showSpinner.subscribe(this.stateSpinner.bind(this))
   }
 
   public currentTheme(): string {
-    return this.theme.current;
+    return this.theme.current
   }
 
   stateSpinner = (state: boolean): void => {
-    this.isLoading = state;
-  };
+    this.isLoading = state
+  }
 }

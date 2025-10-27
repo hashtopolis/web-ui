@@ -1,6 +1,6 @@
-import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp } from '@fortawesome/free-solid-svg-icons'
 
-import { Component, DOCUMENT, HostListener, Inject } from '@angular/core';
+import { Component, DOCUMENT, HostListener, Inject } from '@angular/core'
 
 @Component({
   selector: 'app-scroll-top',
@@ -8,32 +8,32 @@ import { Component, DOCUMENT, HostListener, Inject } from '@angular/core';
   standalone: false
 })
 export class ScrollYTopComponent {
-  windowScrolled: boolean;
-  faChevronUp = faChevronUp;
+  windowScrolled: boolean
+  faChevronUp = faChevronUp
 
   constructor(@Inject(DOCUMENT) private document: Document) {}
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
     if (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop > 100) {
-      this.windowScrolled = true;
+      this.windowScrolled = true
     } else if (
       (this.windowScrolled && window.scrollY) ||
       document.documentElement.scrollTop ||
       document.body.scrollTop < 10
     ) {
-      this.windowScrolled = false;
+      this.windowScrolled = false
     }
   }
 
   scrollToTop() {
-    (function smoothscroll() {
-      const currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+    ;(function smoothscroll() {
+      const currentScroll = document.documentElement.scrollTop || document.body.scrollTop
       if (currentScroll > 0) {
-        window.requestAnimationFrame(smoothscroll);
-        scrollBy(0, 5);
-        window.scrollTo(0, currentScroll - currentScroll / 8);
+        window.requestAnimationFrame(smoothscroll)
+        scrollBy(0, 5)
+        window.scrollTo(0, currentScroll - currentScroll / 8)
       }
-    })();
+    })()
   }
 }

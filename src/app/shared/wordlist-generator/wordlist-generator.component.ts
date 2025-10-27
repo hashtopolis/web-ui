@@ -1,14 +1,14 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core'
+import { AbstractControl, FormArray, FormControl } from '@angular/forms'
 
-import { AlertService } from '@services/shared/alert.service';
+import { AlertService } from '@services/shared/alert.service'
 
 import {
   GenerateWordListForm,
   GenerateWordListFormGroup
-} from '@src/app/shared/wordlist-generator/wordlist-generator.form';
-import { ui } from '@src/app/shared/wordlist-generator/wordlist-generator.ui';
-import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
+} from '@src/app/shared/wordlist-generator/wordlist-generator.form'
+import { ui } from '@src/app/shared/wordlist-generator/wordlist-generator.ui'
+import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
 
 /**
  * Component for generating a wordlist based on user-provided parameters.
@@ -22,13 +22,13 @@ import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
 })
 export class WordlistGeneratorComponent implements OnInit {
   /** Reactive form group for wordlist generation. */
-  form: GenerateWordListFormGroup;
+  form: GenerateWordListFormGroup
 
   /** Indicates if the form was submitted. Used for validation feedback. */
-  submitted = false;
+  submitted = false
 
   /** UI text and configuration imported const in seperated ts file. */
-  ui = ui;
+  ui = ui
 
   /**
    * Constructor.
@@ -45,14 +45,14 @@ export class WordlistGeneratorComponent implements OnInit {
    * Initializes the form on component load.
    */
   ngOnInit(): void {
-    this.buildForm();
+    this.buildForm()
   }
 
   /**
    * Builds and initializes the wordlist form.
    */
   buildForm(): void {
-    this.form = new GenerateWordListFormGroup();
+    this.form = new GenerateWordListFormGroup()
   }
 
   /**
@@ -60,7 +60,7 @@ export class WordlistGeneratorComponent implements OnInit {
    * @returns {FormArray} The FormArray containing name controls.
    */
   get names(): FormArray {
-    return this.form.get('names') as FormArray;
+    return this.form.get('names') as FormArray
   }
 
   /**
@@ -68,7 +68,7 @@ export class WordlistGeneratorComponent implements OnInit {
    * @returns {FormArray} The FormArray containing attribute controls.
    */
   get sparetext(): FormArray {
-    return this.form.get('sparetext') as FormArray;
+    return this.form.get('sparetext') as FormArray
   }
 
   /**
@@ -76,8 +76,8 @@ export class WordlistGeneratorComponent implements OnInit {
    * @param controlName Name of the FormArray control.
    */
   addControl(controlName: keyof GenerateWordListForm) {
-    this.form.addControlToArray(controlName);
-    this.cdr.detectChanges();
+    this.form.addControlToArray(controlName)
+    this.cdr.detectChanges()
   }
 
   /**
@@ -86,8 +86,8 @@ export class WordlistGeneratorComponent implements OnInit {
    * @param index
    */
   removeItem(controlName: keyof GenerateWordListForm, index: number) {
-    this.form.removeControlFromArray(controlName, index);
-    this.cdr.detectChanges();
+    this.form.removeControlFromArray(controlName, index)
+    this.cdr.detectChanges()
   }
 
   /**
@@ -96,7 +96,7 @@ export class WordlistGeneratorComponent implements OnInit {
    * @returns {FormControl} The cast FormControl.
    */
   getFormControl(control: AbstractControl): FormControl {
-    return control as FormControl;
+    return control as FormControl
   }
 
   /**
@@ -105,9 +105,9 @@ export class WordlistGeneratorComponent implements OnInit {
    * Displays errors via the alert service if generation fails.
    */
   onSubmit(): void {
-    this.submitted = true;
+    this.submitted = true
     if (this.form.valid) {
-      const formData = this.form.value;
+      const formData = this.form.value
 
       const {
         names,
@@ -123,7 +123,7 @@ export class WordlistGeneratorComponent implements OnInit {
         isSimilarConsonant,
         isSimilarSpecialChars,
         filename
-      } = formData;
+      } = formData
 
       const options = {
         useSpecialchars: useSpecCharacters,
@@ -136,15 +136,15 @@ export class WordlistGeneratorComponent implements OnInit {
         isSimilarConsonant: isSimilarConsonant,
         isSimilarSpecialchars: isSimilarSpecialChars,
         filename: filename
-      };
+      }
 
       try {
-        Wordpolis.generateCandidates(names, specialdates, sparetext, options);
+        Wordpolis.generateCandidates(names, specialdates, sparetext, options)
       } catch (error) {
-        console.error(ui.submitError, error);
-        this.alert.showErrorMessage(ui.submitError);
+        console.error(ui.submitError, error)
+        this.alert.showErrorMessage(ui.submitError)
       } finally {
-        this.submitted = false;
+        this.submitted = false
       }
     }
   }
