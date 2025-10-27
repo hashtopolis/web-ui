@@ -1,7 +1,6 @@
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'grid-form-input',
@@ -29,11 +28,7 @@ import { Router } from '@angular/router';
 export class GridFormInputComponent {
   faInfoCircle = faInfoCircle;
 
-  @Input() name?: any;
-  @Input() labelclass?: any;
-  @Input() tooltip?: any;
-
-  tooltio: any;
-
-  constructor(private router: Router) {}
+  @Input() name?: string;
+  @Input() labelclass?: string;
+  @Input() tooltip?: string;
 }

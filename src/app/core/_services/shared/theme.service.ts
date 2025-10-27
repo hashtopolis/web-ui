@@ -66,9 +66,9 @@ export class ThemeService {
 
   constructor(
     rendererFactory: RendererFactory2,
-    @Inject(DOCUMENT) document: any,
-    @Inject(THEME_LOADER) loadHandler: any,
-    @Inject(THEME_SAVER) saveHandler: any
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(THEME_LOADER) private loadHandler: ThemeLoader,
+    @Inject(THEME_SAVER) private saveHandler: ThemeSaver
   ) {
     (loadHandler as ThemeLoader)().subscribe((theme) => this._theme.next(theme));
 
@@ -77,9 +77,6 @@ export class ThemeService {
     this.style = document.createElement('link');
     this.style.rel = 'stylesheet';
     document.head.appendChild(this.style);
-
-    if (localStorage.getItem('theme') !== undefined) {
-    }
 
     this._theme.subscribe((theme) => {
       if (theme) {
