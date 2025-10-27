@@ -1,6 +1,6 @@
 import { Subscription, firstValueFrom } from 'rxjs';
 
-import { NgIf } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -32,10 +32,9 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
     FormsModule,
     GridModule,
     InputModule,
-    NgIf,
     PageTitleModule,
     ReactiveFormsModule
-  ],
+],
   templateUrl: './new_edit-preprocessor.component.html'
 })
 export class NewEditPreprocessorComponent implements OnInit {

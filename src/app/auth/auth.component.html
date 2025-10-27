@@ -6,10 +6,10 @@
           [src]="
             isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
           "
-          [alt]="headerConfig.brand.name"
-          [width]="90"
-          [height]="90"
-          alt="Hashtopolis"
+        [alt]="headerConfig.brand.name"
+        [width]="90"
+        [height]="90"
+        alt="Hashtopolis"
       /></a>
     </div>
     <mat-card-content>
@@ -19,13 +19,15 @@
           <mat-label>Username</mat-label>
           <mat-icon matPrefix>account_circle</mat-icon>
           <input
-                matInput
-                type="text"
-                placeholder="User Name"
-                formControlName="username"
-                aria-describedby="username-error"
-                />
-          <mat-error *ngIf="loginForm.controls['username'].errors?.required">Username is required</mat-error>
+            matInput
+            type="text"
+            placeholder="User Name"
+            formControlName="username"
+            aria-describedby="username-error"
+            />
+          @if (loginForm.controls['username'].errors?.required) {
+            <mat-error>Username is required</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="card-login-field">
@@ -38,7 +40,7 @@
             formControlName="password"
             (keydown.enter)="$event.preventDefault(); onSubmit()"
             aria-describedby="password-error"
-          />
+            />
           <button
             mat-icon-button
             matSuffix
@@ -46,19 +48,23 @@
             (click)="isVisible = !isVisible"
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="isVisible"
-          >
+            >
             <mat-icon>{{
               isVisible ? 'visibility_off' : 'visibility'
             }}</mat-icon>
           </button>
-          <mat-error *ngIf="loginForm.controls['password'].errors?.required">Password is required</mat-error>
+          @if (loginForm.controls['password'].errors?.required) {
+            <mat-error>Password is required</mat-error>
+          }
         </mat-form-field>
 
         <grid-buttons>
           <button-submit [name]="'Login'" data-testid="submit-button"></button-submit>
-          <div *ngIf="isLoading">
-            <mat-spinner diameter="24" color="accent"></mat-spinner>
-          </div>
+          @if (isLoading) {
+            <div>
+              <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+          }
         </grid-buttons>
 
         <div class="forgot-password-link">

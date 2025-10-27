@@ -4,9 +4,11 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, Simple
     selector: 'app-pass-match',
     template: `
   <div>
-    <p class="text-left mb-0" *ngIf="confirmPassword?.length">{{ message }}</p>
+    @if (confirmPassword?.length) {
+      <p class="text-left mb-0">{{ message }}</p>
+    }
   </div>
-`,
+  `,
     standalone: false
 })
 export class PassMatchComponent implements OnChanges {

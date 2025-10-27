@@ -9,19 +9,21 @@ import { FormGroup } from '@angular/forms';
 <div class="form-group">
   <div class="form-outline form-input-custom">
     <label class="form-label {{labelclass}}" for={{name}} >{{name}}</label>
-    <fa-icon
-      placement="bottom"
-      ngbTooltip='{{tooltip}}'
-      container="body"
-      [icon]="faInfoCircle"
-      aria-hidden="true"
-      class="gray-light-ico display-col"
-      *ngIf="tooltip">
-    </fa-icon>
+    @if (tooltip) {
+      <fa-icon
+        placement="bottom"
+        ngbTooltip='{{tooltip}}'
+        container="body"
+        [icon]="faInfoCircle"
+        aria-hidden="true"
+        class="gray-light-ico display-col"
+        >
+      </fa-icon>
+    }
     <div #content><ng-content></ng-content></div>
   </div>
 </div>
-  `,
+`,
     standalone: false
 })
 export class GridFormInputComponent {

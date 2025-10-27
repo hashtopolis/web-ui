@@ -1,5 +1,5 @@
-import { Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable, InjectionToken, Renderer2, RendererFactory2, DOCUMENT } from '@angular/core';
+
 import { BehaviorSubject, fromEvent, Observable, of, Subject } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 

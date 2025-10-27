@@ -1,8 +1,10 @@
 <div>
-  <span *ngIf="hasErrors" [style.color]="hasErrors ? 'red' : null" class="error-blacklisted ">
-    Please remove the characters that are on the blacklist.
-    <br />
-    <b>BlackListed Chars: {{ blacklistedChars.join(', ') }}</b>
-    <br />
-  </span>
+  @if (hasErrors) {
+    <span [style.color]="hasErrors ? 'red' : null" class="error-blacklisted ">
+      Please remove the characters that are on the blacklist.
+      <br />
+      <b>BlackListed Chars: {{ blacklistedChars.join(', ') }}</b>
+      <br />
+    </span>
+  }
 </div>

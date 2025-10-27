@@ -1,6 +1,6 @@
-import { Component, OnInit, Inject, HostListener } from '@angular/core';
+import { Component, OnInit, Inject, HostListener, DOCUMENT } from '@angular/core';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { DOCUMENT } from '@angular/common';
+
 
 @Component({
     selector: 'app-scroll-top',

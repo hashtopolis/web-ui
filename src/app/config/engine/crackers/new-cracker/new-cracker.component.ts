@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { NgIf } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,9 +25,8 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
     GridModule,
     InputModule,
     PageTitleModule,
-    ReactiveFormsModule,
-    NgIf
-  ],
+    ReactiveFormsModule
+],
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {

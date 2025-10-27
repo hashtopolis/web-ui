@@ -8,27 +8,28 @@
       <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
     </div>
 
-    <div class="custom-hashlist-container" *ngIf="!isLoadingHashtypes; else loadingTemplate">
-      <input-multiselect
-        [isLoading]="isLoadingHashtypes"
-        [placeholder]="'Hashtypes...'"
-        [items]="selectHashtypes"
-        [label]="'Select or search Hashtype'"
-        [isRequired]="true"
-        formControlName="hashTypeId"
-        [multiselectEnabled]="false"
-        [mergeIdAndName]="true"
-      ></input-multiselect>
-      <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
-        <mat-icon>help</mat-icon>
-      </button>
-    </div>
-    <ng-template #loadingTemplate>
+    @if (!isLoadingHashtypes) {
+      <div class="custom-hashlist-container">
+        <input-multiselect
+          [isLoading]="isLoadingHashtypes"
+          [placeholder]="'Hashtypes...'"
+          [items]="selectHashtypes"
+          [label]="'Select or search Hashtype'"
+          [isRequired]="true"
+          formControlName="hashTypeId"
+          [multiselectEnabled]="false"
+          [mergeIdAndName]="true"
+        ></input-multiselect>
+        <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+          <mat-icon>help</mat-icon>
+        </button>
+      </div>
+    } @else {
       <div class="loading-spinner">
         <mat-spinner diameter="32"></mat-spinner>
         <span>Loading Hashtypes...</span>
       </div>
-    </ng-template>
+    }
 
     <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
@@ -47,19 +48,18 @@
       </div>
     </div>
 
-    <div *ngIf="+brainenabled === 1"><hr>
-
-      <h5>Hashcat Brain Enabled</h5>
-
-      <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
-
-      <fixed-alert
+    @if (+brainenabled === 1) {
+      <div><hr>
+        <h5>Hashcat Brain Enabled</h5>
+        <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
+        <fixed-alert
       message="Note: When brain is enabled, it'll create a network server. If used wrongly,
       it could cause bottlenecks or collapse the network server. You can disable
       this setting in Config > Server > General Settings."
       ></fixed-alert>
       <hr>
     </div>
+}
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <div fxLayout="column">
@@ -70,37 +70,49 @@
       </div>
     </div>
 
-    <div *ngIf="sourceType === 'paste'">
+    @if (sourceType === 'paste') {
+<div>
       <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
-        <div *ngIf="isCreatingLoading">
+        @if (isCreatingLoading) {
+<div>
           <mat-spinner diameter="24" color="accent"></mat-spinner>
         </div>
+}
       </grid-buttons>
     </div>
+}
 
-    <div *ngIf="sourceType === 'import'">
+    @if (sourceType === 'import') {
+<div>
       <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
       <br>
       <br>
 
       <!-- Show progress bar during hashlist upload -->
-      <div *ngIf="uploadProgress > 0">
+      @if (uploadProgress > 0) {
+<div>
         <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
       </div>
+}
 
       <!-- Display message upon completion of upload -->
-      <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div><br>
+      @if (uploadProgress === 100) {
+<div><p><b>Upload completed!</b></p></div>
+}<br>
 
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
-        <div *ngIf="isCreatingLoading">
+        @if (isCreatingLoading) {
+<div>
           <mat-spinner diameter="24" color="accent"></mat-spinner>
         </div>
+}
       </grid-buttons>
     </div>
+}
   </form>
 </grid-main>

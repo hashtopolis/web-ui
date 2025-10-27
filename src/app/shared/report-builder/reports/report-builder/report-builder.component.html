@@ -1,35 +1,39 @@
-<grid-main *ngIf="isLoaded">
-  <app-page-title title="Report Builder" [subbutton]="false"></app-page-title>
-  <form *ngIf="reportForm" [formGroup]="reportForm">
-    <div fxLayoutGap="10px">
-      <hr>
-      <input-check title="Cover Page" formControlName="cover_page"></input-check>
-      <input-check title="Letter Head" formControlName="cover_page_letter_head"></input-check>
-      <div fxLayoutGap="10px">
-        <input-text title="Title" formControlName="title"></input-text>
-        <input-text title="Location" formControlName="location_date"></input-text>
-        <input-text title="Project Name" formControlName="project_name"></input-text>
-        <input-text title="Reference" formControlName="reference"></input-text>
-      </div>
-      <input-text-area title="Project Description" formControlName="project_description"></input-text-area>
-      <div fxLayoutGap="10px">
-        <input-text title="Info Cover Body 1" formControlName="info_cover_body_1"></input-text>
-        <input-text title="Info Cover Body 2" formControlName="info_cover_body_2"></input-text>
-        <input-text title="Info Cover Body 3" formControlName="info_cover_body_3"></input-text>
-        <input-text title="Info Cover Body 4" formControlName="info_cover_body_4"></input-text>
-        <input-text title="Info Cover Body 5" formControlName="info_cover_body_5"></input-text>
-      </div>
-      <div fxLayoutGap="10px">
-        <input-text title="Info footer 1" formControlName="info_cover_footer_1"></input-text>
-        <input-text title="Info footer 2" formControlName="info_cover_footer_2"></input-text>
-        <input-text title="Info footer 3" formControlName="info_cover_footer_3"></input-text>
-      </div>
-      <hr>
-      <input-text title="Header text" formControlName="info_header_text"></input-text>
-      <hr>
-      <input-text title="Owner Password" formControlName="ownerpassword"></input-text>
-      <input-text title="User Password" formControlName="userpassword"></input-text>
-    </div>
-    <button-submit [name]="'Render PDF'" (click)="onSubmit()"></button-submit>
-  </form>
-</grid-main>
+@if (isLoaded) {
+  <grid-main>
+    <app-page-title title="Report Builder" [subbutton]="false"></app-page-title>
+    @if (reportForm) {
+      <form [formGroup]="reportForm">
+        <div fxLayoutGap="10px">
+          <hr>
+            <input-check title="Cover Page" formControlName="cover_page"></input-check>
+            <input-check title="Letter Head" formControlName="cover_page_letter_head"></input-check>
+            <div fxLayoutGap="10px">
+              <input-text title="Title" formControlName="title"></input-text>
+              <input-text title="Location" formControlName="location_date"></input-text>
+              <input-text title="Project Name" formControlName="project_name"></input-text>
+              <input-text title="Reference" formControlName="reference"></input-text>
+            </div>
+            <input-text-area title="Project Description" formControlName="project_description"></input-text-area>
+            <div fxLayoutGap="10px">
+              <input-text title="Info Cover Body 1" formControlName="info_cover_body_1"></input-text>
+              <input-text title="Info Cover Body 2" formControlName="info_cover_body_2"></input-text>
+              <input-text title="Info Cover Body 3" formControlName="info_cover_body_3"></input-text>
+              <input-text title="Info Cover Body 4" formControlName="info_cover_body_4"></input-text>
+              <input-text title="Info Cover Body 5" formControlName="info_cover_body_5"></input-text>
+            </div>
+            <div fxLayoutGap="10px">
+              <input-text title="Info footer 1" formControlName="info_cover_footer_1"></input-text>
+              <input-text title="Info footer 2" formControlName="info_cover_footer_2"></input-text>
+              <input-text title="Info footer 3" formControlName="info_cover_footer_3"></input-text>
+            </div>
+            <hr>
+              <input-text title="Header text" formControlName="info_header_text"></input-text>
+              <hr>
+                <input-text title="Owner Password" formControlName="ownerpassword"></input-text>
+                <input-text title="User Password" formControlName="userpassword"></input-text>
+              </div>
+              <button-submit [name]="'Render PDF'" (click)="onSubmit()"></button-submit>
+            </form>
+          }
+        </grid-main>
+      }

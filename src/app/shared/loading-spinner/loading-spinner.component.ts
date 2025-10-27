@@ -8,19 +8,25 @@ import { LoadingService } from 'src/app/core/_services/shared/loading.service';
 @Component({
     selector: 'app-loading-spinner',
     template: `
-<div class="logo_spinner_container" *ngIf="isLoading">
-  <div class="logo_spinner_box">
-    <div class="loading-dots">
-      <div class="dot dot1"></div>
-      <div class="dot dot2"></div>
-      <div class="dot dot3"></div>
-      <div class="dot dot4"></div>
+@if (isLoading) {
+  <div class="logo_spinner_container">
+    <div class="logo_spinner_box">
+      <div class="loading-dots">
+        <div class="dot dot1"></div>
+        <div class="dot dot2"></div>
+        <div class="dot dot3"></div>
+        <div class="dot dot4"></div>
+      </div>
     </div>
+    @if (currentTheme() !== 'dark') {
+      <img class="logoImage" [src]="this.headerConfig.brand.logo" alt="">
+    }
+    @if (currentTheme() === 'dark') {
+      <img class="logoImage" [src]="this.headerConfig.brand.logored" alt="">
+    }
   </div>
-  <img class="logoImage" *ngIf="currentTheme() !== 'dark'" [src]="this.headerConfig.brand.logo" alt="">
-  <img class="logoImage" *ngIf="currentTheme() === 'dark'" [src]="this.headerConfig.brand.logored" alt="">
-</div>
-  `,
+}
+`,
     standalone: false
 })
 export class LoadingSpinnerComponent {

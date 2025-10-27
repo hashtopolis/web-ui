@@ -1,15 +1,23 @@
 
-<div *ngFor="let c of breadcrumbs">
-  <div *ngIf="c.label?.length > 0">
-      <a routerLink="/" class="btn-outline-gray-600"><fa-icon [icon]="faHomeAlt" aria-hidden="true"></fa-icon></a>
-      <span *ngFor="let breadcrumb of breadcrumbs; let last = last">
-          <small>
+@for (c of breadcrumbs; track c) {
+  <div>
+    @if (c.label?.length > 0) {
+      <div>
+        <a routerLink="/" class="btn-outline-gray-600"><fa-icon [icon]="faHomeAlt" aria-hidden="true"></fa-icon></a>
+        @for (breadcrumb of breadcrumbs; track breadcrumb; let last = $last) {
+          <span>
+            <small>
               <a [routerLink]="breadcrumb.url" class="btn-outline-gray-600" style="text-decoration: none">{{ breadcrumb.label }}</a>
-          </small>
-          <span *ngIf="!last"><small> {{ deliminator }} </small></span>
-      </span>
+            </small>
+            @if (!last) {
+              <span><small> {{ deliminator }} </small></span>
+            }
+          </span>
+        }
+      </div>
+    }
   </div>
-</div>
+}
 
 
 

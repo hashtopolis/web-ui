@@ -1,6 +1,6 @@
 import { Subscription, interval } from 'rxjs';
 
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
@@ -35,7 +35,7 @@ import { formatDate } from '@src/app/shared/utils/datetime';
   selector: 'last-updated',
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
-  imports: [CommonModule, MatProgressSpinner],
+  imports: [MatProgressSpinner],
   providers: [
     {
       provide: UISettingsUtilityClass,
