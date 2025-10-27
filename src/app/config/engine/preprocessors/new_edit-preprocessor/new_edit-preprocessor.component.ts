@@ -1,6 +1,5 @@
 import { Subscription, firstValueFrom } from 'rxjs';
 
-
 import { Component, OnInit } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,15 +25,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 @Component({
   selector: 'app-new-preprocessor',
-  imports: [
-    ButtonsModule,
-    FlexModule,
-    FormsModule,
-    GridModule,
-    InputModule,
-    PageTitleModule,
-    ReactiveFormsModule
-],
+  imports: [ButtonsModule, FlexModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
   templateUrl: './new_edit-preprocessor.component.html'
 })
 export class NewEditPreprocessorComponent implements OnInit {

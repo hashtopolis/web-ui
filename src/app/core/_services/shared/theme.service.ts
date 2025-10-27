@@ -1,7 +1,7 @@
-import { Inject, Injectable, InjectionToken, Renderer2, RendererFactory2, DOCUMENT } from '@angular/core';
-
-import { BehaviorSubject, fromEvent, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, fromEvent, of } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
+
+import { DOCUMENT, Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
 
 export type DetectedTheme = 'dark' | 'light';
 export type ThemeLoader = () => Observable<string | null>;

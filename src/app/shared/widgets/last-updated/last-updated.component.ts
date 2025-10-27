@@ -1,6 +1,5 @@
 import { Subscription, interval } from 'rxjs';
 
-
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
