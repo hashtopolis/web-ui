@@ -1,9 +1,9 @@
-import { environment } from '@env/environment';
-
 import { Component } from '@angular/core';
 
 import { LoadingService } from '@services/shared/loading.service';
 import { ThemeService } from '@services/shared/theme.service';
+
+import { environment } from '@src/environments/environment';
 
 @Component({
   selector: 'app-loading-spinner',
