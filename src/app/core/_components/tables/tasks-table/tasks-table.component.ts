@@ -190,7 +190,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
             return '';
           }
         },
-        export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.activeAgents + ''
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.activeAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
