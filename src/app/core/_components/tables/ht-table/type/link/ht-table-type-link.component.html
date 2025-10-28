@@ -1,41 +1,36 @@
-<ng-container *ngIf="tableColumn.routerLink">
-  <ng-container *ngFor="let link of tableColumn.routerLink(element) | async trackBy: trackByFn">
-    <ng-container *ngIf="link.label || link.routerLink">
+@if (tableColumn.routerLink) {
+  @for (link of (tableColumn.routerLink(element) | async); track trackByFn($index, link)) {
 
+    @if (link.label || link.routerLink) {
       <!-- If routerLink is set, render as link <a> -->
-      <ng-container *ngIf="link.routerLink; else plainText">
+      @if (link.routerLink) {
         <a (click)="onLinkClicked();" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
-          <ng-container *ngIf="link.label; else fallbackLabel">
+          @if (link.label) {
             {{ link.label }}
-          </ng-container>
-          <ng-template #fallbackLabel>
+          } @else {
             {{ element[tableColumn.dataKey] }}
-          </ng-template>
-          <ng-container *ngIf="link.icon?.faIcon">
+          }
+          @if (link.icon?.faIcon) {
             <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
-          </ng-container>
+          }
         </a>
-      </ng-container>
-
-      <!-- If no routerLink, render as plain text <span> -->
-      <ng-template #plainText>
+      } @else {
         <div [matTooltip]="link.tooltip ?? ''">
-    <span>
-      <ng-container *ngIf="link.label; else fallbackPlain">
-        {{ link.label }}
-      </ng-container>
-      <ng-template #fallbackPlain>
-        {{ element[tableColumn.dataKey] }}
-      </ng-template>
-      <ng-container *ngIf="link.icon?.faIcon">
-        <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
-      </ng-container>
-    </span>
+          <span>
+            @if (link.label) {
+              {{ link.label }}
+            } @else {
+              {{ element[tableColumn.dataKey] }}
+            }
+            @if (link.icon?.faIcon) {
+              <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
+            }
+          </span>
         </div>
-      </ng-template>
-
-    </ng-container>
-  </ng-container>
-</ng-container>
+      }
+      <!-- If no routerLink, render as plain text <span> -->
+    }
+  }
+}
 
 

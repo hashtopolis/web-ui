@@ -409,20 +409,27 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectButtonToBeDisabled = (): void => {
-    const btn: DebugElement = findEl(fixture, 'button-create');
-    expect(btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('true');
+    const btn: HTMLButtonElement = findEl(fixture, 'button-create').nativeElement.querySelector('button');
+    expect(btn.disabled).toBeTrue();
   };
 
   const expectButtonToBeEnabled = (): void => {
-    const btn: DebugElement = findEl(fixture, 'button-create');
-    expect(btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value).toEqual('false');
+    const btn: HTMLButtonElement = findEl(fixture, 'button-create').nativeElement.querySelector('button');
+    expect(btn.disabled).toBeFalse();
   };
 
   const expectHiddenOnAction = (action: string): void => {
     spyOn(mockService, 'getAll');
     setAction(action);
     expect(mockService.getAll).not.toHaveBeenCalled();
-    expect(fixture.debugElement.query(By.css('select-action-filter'))).toBeFalsy();
+    const actionFilter = fixture.debugElement.query(By.css('select-action-filter'));
+    expect(actionFilter).toBeNull();
+  };
+
+  const setAction = (action: string): void => {
+    const actionControl = component.form.get('action');
+    actionControl.patchValue(action);
+    fixture.detectChanges();
   };
 
   const getOptions = async (action: string) => {
@@ -478,11 +485,5 @@ describe('NewNotificationComponent', () => {
       const option = await options[i].getText();
       expect(option).toBe(userValues.data[i].attributes.name);
     }
-  };
-
-  const setAction = (action: string): void => {
-    const actionControl = component.form.get('action');
-    actionControl.patchValue(action);
-    fixture.detectChanges();
   };
 });

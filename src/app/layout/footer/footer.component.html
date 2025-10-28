@@ -1,20 +1,20 @@
 <footer>
   <mat-card>
     <mat-card-content>
-      <ng-container *ngIf="gitInfo">
+      @if (gitInfo) {
         <mat-icon>copyright</mat-icon>2016-{{year}} {{ this.footerConfig.copyright }}
         &nbsp;-&nbsp;
         #<span [matTooltip]="gitInfo.lastCommitTime">{{ gitInfo.shortSHA }}</span>
         &nbsp;-&nbsp;
-      </ng-container>
+      }
       <a href="{{this.footerConfig.footer_link_one.link}}" target="_blank" rel="noopener">{{
-        this.footerConfig.footer_link_one.name }}</a>
+      this.footerConfig.footer_link_one.name }}</a>
       &nbsp;-&nbsp;
       <a href="{{this.footerConfig.footer_link_two.link}}" target="_blank" rel="noopener">{{
-        this.footerConfig.footer_link_two.name }}</a>
+      this.footerConfig.footer_link_two.name }}</a>
       &nbsp;-&nbsp;
       <a href="{{this.footerConfig.footer_link_three.link}}" target="_blank" rel="noopener">{{
-          this.footerConfig.footer_link_three.name }}</a>
+      this.footerConfig.footer_link_three.name }}</a>
     </mat-card-content>
   </mat-card>
 </footer>

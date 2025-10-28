@@ -4,13 +4,15 @@
   </div>
   <div class="simulate-form-field-flex">
     <div class="simulate-form-field-infix">
-      <div *ngFor="let item of items">
-      <span class="simulate-form-field-content" [innerHTML]=" item.name"></span>
-        <!-- <a *ngIf="routerLink" [routerLink]="getLink(item._id,'edit')" [class.active]="isActive()">
+      @for (item of items; track item) {
+        <div>
+          <span class="simulate-form-field-content" [innerHTML]=" item.name"></span>
+          <!-- <a *ngIf="routerLink" [routerLink]="getLink(item._id,'edit')" [class.active]="isActive()">
           Link
         </a> -->
       </div>
-    </div>
+    }
   </div>
+</div>
 </div>
 

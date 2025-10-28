@@ -6,8 +6,12 @@
       <mat-label>Update Global Permission Name</mat-label>
       <input matInput type="text" formControlName="name"/>
       <button mat-icon-button matSuffix>
-        <mat-icon *ngIf="!processing">save</mat-icon>
-        <mat-spinner *ngIf="processing" diameter="20" color="accent"></mat-spinner>
+        @if (!processing) {
+          <mat-icon>save</mat-icon>
+        }
+        @if (processing) {
+          <mat-spinner diameter="20" color="accent"></mat-spinner>
+        }
       </button>
     </mat-form-field>
   </form>
@@ -15,8 +19,10 @@
 <app-table>
   <access-permission-groups-user-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-user-table>
 </app-table>
-<app-table *ngIf="editedGPG?.userMembers">
-  <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
-  <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
-</app-table>
+@if (editedGPG?.userMembers) {
+  <app-table>
+    <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
+    <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
+  </app-table>
+}
 

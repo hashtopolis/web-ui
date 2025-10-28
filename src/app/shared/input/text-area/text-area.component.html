@@ -1,15 +1,16 @@
 <mat-form-field class="custom-textarea">
   <mat-label>{{ title }}
-    <mat-icon
-      matTooltip="{{ tooltip }}"
-      matTooltipPosition="below"
-      matTooltipClass="tooltip-custom-style"
-      matTooltipShowDelay="500"
-      aria-hidden="true"
-      *ngIf="tooltip"
-    >
-      info
-    </mat-icon>
+    @if (tooltip) {
+      <mat-icon
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        matTooltipShowDelay="500"
+        aria-hidden="true"
+        >
+        info
+      </mat-icon>
+    }
 
   </mat-label>
   <textarea
@@ -19,9 +20,11 @@
     [(ngModel)]="value"
     (ngModelChange)="onChange(value)"
     cdkTextareaAutosize
-     [required]="isRequired"
-     class="custom-textarea"
+    [required]="isRequired"
+    class="custom-textarea"
   ></textarea>
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
   <mat-error>{{ title }} is required</mat-error>
 </mat-form-field>

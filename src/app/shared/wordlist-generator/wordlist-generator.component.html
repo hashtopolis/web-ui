@@ -11,24 +11,28 @@
               <mat-form-field>
                 <mat-label>{{ ui.names.inputLabel }} 1</mat-label>
                 <input [formControl]="getFormControl(names.controls[0])" [placeholder]="ui.names.inputPlaceholder"
-                       matInput />
+                  matInput />
                 <mat-icon [matTooltip]="ui.names.hint" color="primary" matSuffix>help</mat-icon>
               </mat-form-field>
               <button (click)="addControl('names')" color="primary" mat-icon-button type="button">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
-            <div *ngFor="let control of names.controls.slice(1); let i = index">
-              <mat-form-field>
-                <mat-label>{{ ui.names.inputLabel }} {{ i + 2 }}</mat-label>
-                <input [formControl]="getFormControl(control)" [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
-                       matInput />
-              </mat-form-field>
-              <button (click)="removeItem('names', i + 1 )" *ngIf="names.controls.length > 1" color="warn" mat-icon-button
-                      type="button">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
+            @for (control of names.controls.slice(1); track control; let i = $index) {
+              <div>
+                <mat-form-field>
+                  <mat-label>{{ ui.names.inputLabel }} {{ i + 2 }}</mat-label>
+                  <input [formControl]="getFormControl(control)" [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
+                    matInput />
+                </mat-form-field>
+                @if (names.controls.length > 1) {
+                  <button (click)="removeItem('names', i + 1 )" color="warn" mat-icon-button
+                    type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
+            }
           </div>
 
           <!-- Special Attributes FormArray -->
@@ -37,24 +41,28 @@
               <mat-form-field>
                 <mat-label>{{ ui.sparetext.inputLabel }} 1</mat-label>
                 <input [formControl]="getFormControl(sparetext.controls[0])" [placeholder]="ui.sparetext.inputPlaceholder"
-                       matInput />
+                  matInput />
                 <mat-icon [matTooltip]="ui.sparetext.hint" color="primary" matSuffix>help</mat-icon>
               </mat-form-field>
               <button (click)="addControl('sparetext')" color="primary" mat-icon-button type="button">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
-            <div *ngFor="let control of sparetext.controls.slice(1); let i = index">
-              <mat-form-field>
-                <mat-label>{{ ui.sparetext.inputLabel }} {{ i + 2 }}</mat-label>
-                <input [formControl]="getFormControl(control)" [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
-                       matInput />
-              </mat-form-field>
-              <button (click)="removeItem('sparetext', i + 1)" *ngIf="sparetext.controls.length > 1" color="warn" mat-icon-button
-                      type="button">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
+            @for (control of sparetext.controls.slice(1); track control; let i = $index) {
+              <div>
+                <mat-form-field>
+                  <mat-label>{{ ui.sparetext.inputLabel }} {{ i + 2 }}</mat-label>
+                  <input [formControl]="getFormControl(control)" [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
+                    matInput />
+                </mat-form-field>
+                @if (sparetext.controls.length > 1) {
+                  <button (click)="removeItem('sparetext', i + 1)" color="warn" mat-icon-button
+                    type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
+            }
           </div>
 
           <!-- Special Date -->
@@ -62,7 +70,7 @@
             <mat-form-field>
               <mat-label>{{ ui.specialDate.inputLabel }}</mat-label>
               <input [formControlName]="ui.specialDate.formControlName" [matDatepicker]="datepicker" [name]="ui.specialDate.inputName"
-                     [placeholder]="ui.specialDate.inputPlaceholder" matInput />
+                [placeholder]="ui.specialDate.inputPlaceholder" matInput />
               <mat-icon [matTooltip]="ui.specialDate.hint" color="primary" matSuffix>help</mat-icon>
               <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
               <mat-datepicker #datepicker></mat-datepicker>
@@ -71,9 +79,11 @@
           </div>
         </div>
         <div class="w-100">
-          <mat-error *ngIf="submitted && form.errors?.atLeastOneRequired">
-            {{ ui.formError }}
-          </mat-error>
+          @if (submitted && form.errors?.atLeastOneRequired) {
+            <mat-error>
+              {{ ui.formError }}
+            </mat-error>
+          }
         </div>
         <!-- Additional Options -->
         <mat-accordion>
@@ -88,16 +98,18 @@
               <mat-form-field style="width: 200px;">
                 <mat-label>{{ ui.additionalOptions.fileName.inputLabel }}</mat-label>
                 <input [formControlName]="ui.additionalOptions.fileName.formControlName" [name]="ui.additionalOptions.fileName.inputName"
-                       [placeholder]="ui.additionalOptions.fileName.inputPlaceholder"
-                       matInput />
+                  [placeholder]="ui.additionalOptions.fileName.inputPlaceholder"
+                  matInput />
                 <mat-icon [matTooltip]="ui.additionalOptions.fileName.hint" color="primary" matSuffix>help</mat-icon>
                 <mat-error>{{ ui.additionalOptions.fileName.inputLabel }} is required</mat-error>
               </mat-form-field>
 
               <div>
-                <div *ngFor="let checkbox of ui.additionalOptions.checkboxes">
-                  <mat-checkbox [formControlName]="checkbox.control">{{ checkbox.label }}</mat-checkbox>
-                </div>
+                @for (checkbox of ui.additionalOptions.checkboxes; track checkbox) {
+                  <div>
+                    <mat-checkbox [formControlName]="checkbox.control">{{ checkbox.label }}</mat-checkbox>
+                  </div>
+                }
               </div>
             </div>
           </mat-expansion-panel>

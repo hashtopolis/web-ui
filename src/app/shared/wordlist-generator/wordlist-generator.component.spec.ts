@@ -1,5 +1,3 @@
-import * as Wordpolis from 'wordpolis';
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,6 +15,7 @@ import { AlertService } from '@services/shared/alert.service';
 
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
+import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
 
 // Mock AlertService
 class MockAlertService {

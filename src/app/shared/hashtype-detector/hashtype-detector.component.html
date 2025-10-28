@@ -15,22 +15,24 @@
         </form>
       </div>
 
-      <mat-table *ngIf="type && type !== false" class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
+      @if (type && type !== false) {
+        <mat-table class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
+          @for (column of displayedColumns; track column) {
+            <ng-container [matColumnDef]="column">
+              <mat-header-cell *matHeaderCellDef> {{ column }} </mat-header-cell>
+              <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
+            </ng-container>
+          }
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+      }
 
-        <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-          <mat-header-cell *matHeaderCellDef> {{ column }} </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
-        </ng-container>
-
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-
-        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-
-      </mat-table>
-
-      <div *ngIf="type === false">
-        <p>Error. No hash type found.</p>
-      </div>
+      @if (type === false) {
+        <div>
+          <p>Error. No hash type found.</p>
+        </div>
+      }
     </div>
   </form>
 </mat-dialog-content>
