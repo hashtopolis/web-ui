@@ -7,6 +7,7 @@
   --header-color: #2c3e50;
   --status-green: #28a745;
   --status-yellow: #ffc107;
+  --status-orange: #e35d27;
   --status-red: #dc3545;
   --status-blue: #42d4f4;
   --disabled-bg: #f5f5f5;
@@ -15,6 +16,33 @@
   --error-bg: #fff5f5;
   --error-shadow: rgba(220,53,69,0.12);
   display: block;
+}
+
+:host-context([data-theme="dark"]) {
+  --tile-bg: #263238;
+  --tile-border: #2a2f35;
+  --tile-border-width: 1px;
+  --tile-shadow: rgba(0,0,0,0.45);
+  --text-color: #d7e0ea;
+  --header-color: #cfe8ff;
+  --status-green: #28a745;
+  --status-yellow: #f0b429;
+  --status-orange: #e3754c;
+  --status-red: #e05656;
+  --status-blue: #2aa7d6;
+  --disabled-bg: #0f1112;
+  --disabled-border: #222629;
+  --disabled-text: #7f868b;
+  --error-bg: #2b1212;
+  --error-shadow: rgba(220,53,69,0.2);
+}
+
+:host-context([data-theme="dark"]) .tile {
+  box-shadow: 0 8px 20px var(--tile-shadow);
+}
+
+:host-context([data-theme="dark"]) .status-item.warning {
+  color: #000;
 }
 
 .tile {
@@ -91,7 +119,7 @@
 /* Colors for status */
 .status-item.ok { background-color: var(--status-green); color: #fff; }
 .status-item.warning { background-color: var(--status-yellow); color: #000; }
-.status-item.critical,
+.status-item.critical { background-color: var(--status-orange); color: #fff; }
 .status-item.error,
 .status-item.disabled { background-color: var(--status-red); color: #fff; }
 .status-item.idle { background-color: var(--status-blue); color: #fff; }
@@ -115,10 +143,6 @@
 .tile-body p i { margin-right: 8px; color: #7f8c8d; font-size: 1em; width: 20px; text-align: center; }
 
 .tile::after { content: ""; position: absolute; bottom: -20px; left: 8px; right: 8px; height: 20px; border-radius: 0 0 8px 8px; pointer-events: none; opacity: 0.12; }
-
-[data-theme="dark"] .tile { box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
-[data-theme="dark"] .tile h2 { color: var(--header-color); }
-[data-theme="dark"] .status-item.warning { color: #000; }
 
 .tile.disabled {
   background-color: var(--disabled-bg);
