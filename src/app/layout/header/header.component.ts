@@ -62,7 +62,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.authService.user.subscribe((user: AuthUser) => {
         if (user) {
-          this.username = user._username;
+          this.username = user.canonicalUsername;
         }
       })
     );
@@ -149,7 +149,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const agentActions = [
       {
         label: HeaderMenuLabel.SHOW_AGENTS,
-        routerLink: ['agents', 'show-agents']
+        routerLink: ['agents', 'show-agents'],
+        showAddButton: true,
+        routerLinkAdd: ['agents', 'new-agent'],
+        tooltipAddButton: 'New Agent'
       }
     ];
 
@@ -158,7 +161,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (canReadAgentStats) {
       agentActions.push({
         label: HeaderMenuLabel.AGENT_STATUS,
-        routerLink: ['agents', 'agent-status']
+        routerLink: ['agents', 'agent-status'],
+        showAddButton: false,
+        routerLinkAdd: [],
+        tooltipAddButton: ''
       });
     }
 
@@ -183,15 +189,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const taskActions = [
       {
         label: HeaderMenuLabel.SHOW_TASKS,
-        routerLink: ['tasks', 'show-tasks']
+        routerLink: ['tasks', 'show-tasks'],
+        showAddButton: true,
+        routerLinkAdd: ['tasks', 'new-task'],
+        tooltipAddButton: 'New Task'
       },
       {
         label: HeaderMenuLabel.PRECONFIGURED_TASKS,
-        routerLink: ['tasks', 'preconfigured-tasks']
+        routerLink: ['tasks', 'preconfigured-tasks'],
+        showAddButton: true,
+        routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
+        tooltipAddButton: 'New Preconfigured Task'
       },
       {
         label: HeaderMenuLabel.SUPERTASKS,
-        routerLink: ['tasks', 'supertasks']
+        routerLink: ['tasks', 'supertasks'],
+        showAddButton: true,
+        routerLinkAdd: ['tasks', 'new-supertasks'],
+        tooltipAddButton: 'New Supertask'
       },
       {
         label: HeaderMenuLabel.IMPORT_SUPERTASK,
@@ -228,11 +243,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const actions = [
       {
         label: HeaderMenuLabel.SHOW_HASHLISTS,
-        routerLink: ['hashlists', 'hashlist']
+        routerLink: ['hashlists', 'hashlist'],
+        showAddButton: true,
+        routerLinkAdd: ['hashlists', 'new-hashlist'],
+        tooltipAddButton: 'New Hashlist'
       },
       {
         label: HeaderMenuLabel.SUPERHASHLISTS,
-        routerLink: ['hashlists', 'superhashlist']
+        routerLink: ['hashlists', 'superhashlist'],
+        showAddButton: true,
+        routerLinkAdd: ['hashlists', 'new-superhashlist'],
+        tooltipAddButton: 'New Superhashlist'
       }
     ];
 
@@ -241,11 +262,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push(
         {
           label: HeaderMenuLabel.SEARCH_HASH,
-          routerLink: ['hashlists', 'search-hash']
+          routerLink: ['hashlists', 'search-hash'],
+          showAddButton: false,
+          routerLinkAdd: [],
+          tooltipAddButton: ''
         },
         {
           label: HeaderMenuLabel.SHOW_CRACKS,
-          routerLink: ['hashlists', 'show-cracks']
+          routerLink: ['hashlists', 'show-cracks'],
+          showAddButton: false,
+          routerLinkAdd: [],
+          tooltipAddButton: ''
         }
       );
     }
@@ -274,15 +301,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
         [
           {
             label: HeaderMenuLabel.WORDLISTS,
-            routerLink: ['files', 'wordlist']
+            routerLink: ['files', 'wordlist'],
+            showAddButton: true,
+            routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
+            tooltipAddButton: 'New Wordlist'
           },
           {
             label: HeaderMenuLabel.RULES,
-            routerLink: ['files', 'rules']
+            routerLink: ['files', 'rules'],
+            showAddButton: true,
+            routerLinkAdd: ['files', 'rules', 'new-rule'],
+            tooltipAddButton: 'New Rule'
           },
           {
             label: HeaderMenuLabel.OTHER,
-            routerLink: ['files', 'other']
+            routerLink: ['files', 'other'],
+            showAddButton: true,
+            routerLinkAdd: ['files', 'other', 'new-other'],
+            tooltipAddButton: 'New File'
           }
         ]
       ]
