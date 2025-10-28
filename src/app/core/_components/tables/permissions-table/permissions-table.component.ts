@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 
@@ -28,7 +28,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './permissions-table.component.html',
   standalone: false
 })
-export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
   selectedFilterColumn: string;
@@ -39,6 +39,10 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     this.dataSource = new PermissionsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

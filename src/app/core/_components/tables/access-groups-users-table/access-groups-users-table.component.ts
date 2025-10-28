@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs/operators';
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
@@ -29,7 +29,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
   templateUrl: './access-groups-users-table.component.html',
   standalone: false
 })
-export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() accessgroupId = 0;
   @Output() usersRemoved = new EventEmitter<void>(); // Event to notify parent about removed user(s)
 
@@ -47,6 +47,10 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       this.dataSource.setAccessGroupExpand(this.include);
     }
     this.contextMenuService = new AccessGroupsUserContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

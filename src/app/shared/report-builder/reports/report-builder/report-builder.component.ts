@@ -349,7 +349,6 @@ export class ReportBuilderComponent implements OnInit {
       };
 
       pdfMake.createPdf(project).open();
-      this.ngOnInit();
     } catch (error) {
       console.error('Error rendering PDF:', error);
     }

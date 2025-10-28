@@ -1,22 +1,22 @@
 <mat-form-field [ngStyle]="{width: width}">
   <mat-label>
-    <ng-container *ngIf="!isLoading; else loadingLabel">
+    @if (!isLoading) {
       {{ title }}
-      <mat-icon
-        *ngIf="tooltip"
-        matTooltip="{{ tooltip }}"
-        matTooltipPosition="below"
-        matTooltipClass="tooltip-custom-style"
-        container="body"
-        aria-hidden="true"
-      >
-        info
-      </mat-icon>
-    </ng-container>
-    <ng-template #loadingLabel>
+      @if (tooltip) {
+        <mat-icon
+          matTooltip="{{ tooltip }}"
+          matTooltipPosition="below"
+          matTooltipClass="tooltip-custom-style"
+          container="body"
+          aria-hidden="true"
+          >
+          info
+        </mat-icon>
+      }
+    } @else {
       <mat-spinner diameter="16" class="spinner-inline" color="primary"></mat-spinner>
       <span>Loading...</span>
-    </ng-template>
+    }
   </mat-label>
 
   <mat-select
@@ -26,17 +26,25 @@
     (selectionChange)="onChangeValue($event.value)"
     [required]="!isLoading && isRequired"
     [disabled]="isLoading || disabled"
-  >
-    <mat-option [value]="0" *ngIf="isBlankOptionDisabled">
-      {{ blankOptionText || 'Disabled' }}
-    </mat-option>
+    >
+    @if (isBlankOptionDisabled) {
+      <mat-option [value]="0">
+        {{ blankOptionText || 'Disabled' }}
+      </mat-option>
+    }
 
-    <mat-option *ngFor="let item of items" [value]="item.id">
-      {{ item.name }}
-    </mat-option>
+    @for (item of items; track item) {
+      <mat-option [value]="item.id">
+        {{ item.name }}
+      </mat-option>
+    }
   </mat-select>
 
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="ngModel.invalid && ngModel.touched">{{ title }} is required</mat-error>
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+  @if (ngModel.invalid && ngModel.touched) {
+    <mat-error>{{ title }} is required</mat-error>
+  }
 
 </mat-form-field>

@@ -2,7 +2,7 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -17,7 +17,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './logs-table.component.html',
   standalone: false
 })
-export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
   selectedFilterColumn: string;
@@ -27,6 +27,10 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
     this.tableColumns = this.getColumns();
     this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

@@ -1,8 +1,10 @@
-<div *ngIf="isLoading; else content">
-  <mat-spinner *ngIf="isLoading" diameter="16" class="spinner"></mat-spinner>
-</div>
-
-<ng-template #content>
+@if (isLoading) {
+  <div>
+    @if (isLoading) {
+      <mat-spinner diameter="16" class="spinner"></mat-spinner>
+    }
+  </div>
+} @else {
   <mat-form-field class="custom-chip-grid">
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid
@@ -12,17 +14,18 @@
       name="selectedItems"
       [required]="isRequired"
       aria-label="Items selection"
-    >
-      <mat-chip-row *ngFor="let item of selectedItems" (removed)="remove(item)">
-        <div matTooltip="{{ item.name }}">
-          {{ item.id }}
-          <span>{{ item.name?.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
-        </div>
-        <button matChipRemove [attr.aria-label]="'remove ' + item">
-          <mat-icon>cancel</mat-icon>
-        </button>
-      </mat-chip-row>
-
+      >
+      @for (item of selectedItems; track item) {
+        <mat-chip-row (removed)="remove(item)">
+          <div matTooltip="{{ item.name }}">
+            {{ item.id }}
+            <span>{{ item.name?.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
+          </div>
+          <button matChipRemove [attr.aria-label]="'remove ' + item">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
     </mat-chip-grid>
     <input
       matInput
@@ -33,16 +36,19 @@
       (input)="onSearchInputChange()"
       [(ngModel)]="searchTerm"
       placeholder="{{ placeholder }}"
-    />
-
+      />
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteSelect($event.option.value)">
-      <mat-option *ngFor="let item of filteredItems | async" [value]="item">
-        <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
-      </mat-option>
+      @for (item of filteredItems | async; track item) {
+        <mat-option [value]="item">
+          <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
+        </mat-option>
+      }
     </mat-autocomplete>
-
-    <mat-error *ngIf="chipGridValidation.length === 0">
-      This field is required.
-    </mat-error>
+    @if (chipGridValidation.length === 0) {
+      <mat-error>
+        This field is required.
+      </mat-error>
+    }
   </mat-form-field>
-</ng-template>
+}
+

@@ -9,6 +9,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 })
 export class ShowAgentsComponent {
   constructor(private titleService: AutoTitleService) {
-    this.titleService.set(['Show Agents']);
+    this.titleService.set(['Agents Overview']);
   }
 }

@@ -40,6 +40,10 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     this.dataSource = new SuperTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
+  }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

@@ -276,4 +276,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  protected readonly Array = Array;
 }

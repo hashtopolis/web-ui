@@ -1,8 +1,9 @@
-import { catchError, finalize, of } from 'rxjs';
+import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -23,21 +24,36 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
     this._isChunksLive = number;
   }
 
-  loadAll(query?: Filter): void {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
+  async loadAll(query?: Filter): Promise<void> {
+    let chunkTime = this.uiService.getUIsettings('chunktime').value;
     this.loading = true;
-    // Store the current filter if provided
+
     if (query) {
       this._currentFilter = query;
     }
 
-    // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
+
     let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent').addFilter({
       field: 'taskId',
       operator: FilterType.EQUAL,
       value: this._taskId
     });
+
+    if (!this._isChunksLive) {
+      if (this._taskId) {
+        const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.TASKS, this._taskId));
+        const task = new JsonAPISerializer().deserialize<JTask>({
+          data: response.data,
+          included: response.included
+        });
+        chunkTime = task.chunkTime;
+      }
+      chunkParams
+        .addFilter({ field: 'progress', value: 10000, operator: FilterType.LESSER })
+        .addFilter({ field: 'solveTime', value: Date.now() / 1000 - chunkTime, operator: FilterType.GREATER });
+    }
+
     chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);
 
     this.service
@@ -53,22 +69,14 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
           included: responseBody.included
         });
 
-        const chunksToShow: JChunk[] = [];
-        chunks.forEach((chunk: JChunk) => {
+        const chunksToShow: JChunk[] = chunks.map((chunk: JChunk) => {
           if (chunk.agent) {
             chunk.agentName = chunk.agent.agentName;
           }
           if (chunk.task) {
             chunk.taskName = chunk.task.taskName;
           }
-          if (this._isChunksLive) {
-            chunksToShow.push(chunk);
-          } else if (
-            Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime &&
-            chunk.progress < 10000
-          ) {
-            chunksToShow.push(chunk);
-          }
+          return chunk;
         });
 
         const length = response.meta.page.total_elements;
@@ -84,8 +92,9 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
   reload(): void {
     this.clearSelection();
-    this.loadAll();
+    this.loadAll().then();
   }
+
   clearFilter(): void {
     this._currentFilter = null;
     this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);

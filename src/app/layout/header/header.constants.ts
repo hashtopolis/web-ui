@@ -4,10 +4,10 @@ export const HeaderMenuAction = {
 
 export const HeaderMenuLabel = {
   AGENTS: 'Agents',
-  SHOW_AGENTS: 'Show Agents',
+  SHOW_AGENTS: 'Agents Overview',
   AGENT_STATUS: 'Agent Status',
   TASKS: 'Tasks',
-  SHOW_TASKS: 'Show Tasks',
+  SHOW_TASKS: 'Tasks',
   PRECONFIGURED_TASKS: 'Preconfigured Tasks',
   SUPERTASKS: 'Supertasks',
   IMPORT_SUPERTASK: 'Supertask Builder',

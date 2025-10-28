@@ -290,7 +290,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.dataSource.sortingColumn) {
       this.matSort.sort({
-        id: this.dataSource.sortingColumn.id,
+        id: this.dataSource.sortingColumn.dataKey,
         start: this.dataSource.sortingColumn.direction,
         disableClear: false
       });
@@ -430,25 +430,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Determines the position of the sorting arrow for the specified column.
-   * If the column is currently sorted, returns the position based on the saved sorting order.
-   * If the column is not sorted, returns null.
-   *
-   * @param {any} tableColumn - The column to determine the sorting arrow position for.
-   * @returns {'before' | 'after' | null} The position of the sorting arrow.
-   *   - 'before': The arrow should be displayed before the column label.
-   *   - 'after': The arrow should be displayed after the column label.
-   *   - null: No sorting arrow should be displayed for the column.
-   */
-  setColumnSorting(tableColumn: any): 'before' | 'after' {
-    if (this.dataSource.sortingColumn && this.dataSource.sortingColumn.id === tableColumn.id) {
-      return this.dataSource.sortingColumn.direction === 'asc' ? 'before' : 'after';
-    } else {
-      return null; // or set a default arrow position if no saved sorting
-    }
-  }
-
-  /**
    * Applies a filter to the table based on user input.
    */
   /*   applyFilter() {
@@ -555,12 +536,18 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
-    this.dataSource.reset(true);
+    this.dataSource.reset(false);
+    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+    this.dataSource.pageSize = tableSettings['page'];
+    this.dataSource.pageAfter = tableSettings['start'];
+    this.dataSource.pageBefore = tableSettings['before'];
+    this.dataSource.index = tableSettings['index'];
+    this.dataSource.totalItems = tableSettings['totalItems'];
     this.dataSource.reload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.filterQueryFormGroup.get('textFilter').setValue('', { emitEvent: false});
   }
   clearSearchBox(): void {
     this.filterQueryFormGroup.get('textFilter').setValue('');

@@ -1,4 +1,8 @@
 <div class="text-container">
-  <div *ngIf="!expanded">{{ abbr }}</div>
-  <div *ngIf="expanded">{{ text }}</div>
+  @if (!expanded) {
+    <div>{{ abbr }}</div>
+  }
+  @if (expanded) {
+    <div>{{ text }}</div>
+  }
 </div>

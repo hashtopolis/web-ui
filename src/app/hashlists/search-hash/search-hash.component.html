@@ -3,11 +3,15 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
     <input-text-area title="Search Hashes" formControlName="hashes" [required]="true"></input-text-area>
     <button-submit [name]="'Search'" [disabled]="!form.valid"></button-submit>
-    <div *ngIf="isCreatingLoading">
-      <mat-spinner diameter="24" color="accent"></mat-spinner>
-    </div>
+    @if (isCreatingLoading) {
+      <div>
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      </div>
+    }
   </form>
 </app-table>
-<app-table *ngIf="searchResults && searchResults.length > 0">
-  <search-hash-table [search]="searchResults"></search-hash-table>
-</app-table>
+@if (searchResults && searchResults.length > 0) {
+  <app-table>
+    <search-hash-table [search]="searchResults"></search-hash-table>
+  </app-table>
+}

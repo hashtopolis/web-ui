@@ -1,14 +1,18 @@
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
   <div fxFlex="60" fxFlex.lt-md="100">
     <grid-main>
-        <div>
-          <app-page-subtitle *ngIf="whichView === 'create'" [subtitle]="'New Preconfigured Tasks'"></app-page-subtitle>
-          <div *ngIf="whichView === 'edit' || whichView === 'task'">
+      <div>
+        @if (whichView === 'create') {
+          <app-page-subtitle [subtitle]="'New Preconfigured Tasks'"></app-page-subtitle>
+        }
+        @if (whichView === 'edit' || whichView === 'task') {
+          <div>
             <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From {{whichView === 'edit' ? 'Pretask' : 'Task'}} ID {{editedIndex}})</small></h2>
             <br>
-          </div>
+            </div>
+          }
         </div>
-      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
           <div>
 
             <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
@@ -16,8 +20,8 @@
 
           </div>
           <div>
-              <input-text-area title="Command line" formControlName="attackCmd"></input-text-area>
-              <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
+            <input-text-area title="Command line" formControlName="attackCmd"></input-text-area>
+            <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
           </div>
           <mat-accordion>
             <mat-expansion-panel>
@@ -26,52 +30,54 @@
                   <span><b>Advanced Settings</b></span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-                <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-                    <input-number title="Chunk size" formControlName="chunkTime" tooltip="Measure is in seconds time"></input-number>
-                    <input-number title="Status timer" formControlName="statusTimer" tooltip="Measure is in seconds time"></input-number>
-                    <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype" tooltip="Only applies to Hashcat. If binary type generic is selected this benchmark option will be ignored"></input-select>
-                    <input-select title="Binary type" formControlName="crackerBinaryTypeId" [items]="selectCrackertype" tooltip="The task will run using the binary type selected."></input-select>
-                    <input-check title="CPU only" formControlName="isCpuTask" tooltip="The task will work only with CPU agents assigned"></input-check>
-                    <input-check title="Small task" formControlName="isSmall" tooltip="Only one agent gets assigned to it"></input-check>
+                <input-number title="Chunk size" formControlName="chunkTime" tooltip="Measure is in seconds time"></input-number>
+                <input-number title="Status timer" formControlName="statusTimer" tooltip="Measure is in seconds time"></input-number>
+                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype" tooltip="Only applies to Hashcat. If binary type generic is selected this benchmark option will be ignored"></input-select>
+                <input-select title="Binary type" formControlName="crackerBinaryTypeId" [items]="selectCrackertype" tooltip="The task will run using the binary type selected."></input-select>
+                <input-check title="CPU only" formControlName="isCpuTask" tooltip="The task will work only with CPU agents assigned"></input-check>
+                <input-check title="Small task" formControlName="isSmall" tooltip="Only one agent gets assigned to it"></input-check>
 
-                </div>
-          </mat-expansion-panel>
-        </mat-accordion>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
 
-        <grid-buttons>
-          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-          <button-submit [name]="'Create'"></button-submit>
-          <div *ngIf="isCreatingLoading">
-            <mat-spinner diameter="24" color="accent"></mat-spinner>
-          </div>
-        </grid-buttons>
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'"></button-submit>
+            @if (isCreatingLoading) {
+              <div>
+                <mat-spinner diameter="24" color="accent"></mat-spinner>
+              </div>
+            }
+          </grid-buttons>
 
-      </form>
-    </grid-main>
+        </form>
+      </grid-main>
+    </div>
+    <div fxFlex="50" fxFlex.lt-md="100">
+      <mat-accordion multi>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <span><b>Wordlists</b></span>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <span><b>Rules</b></span>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <span><b>Other</b></span>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
   </div>
-  <div fxFlex="50" fxFlex.lt-md="100">
-    <mat-accordion multi>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <span><b>Wordlists</b></span>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <span><b>Rules</b></span>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <span><b>Other</b></span>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </div>
-</div>

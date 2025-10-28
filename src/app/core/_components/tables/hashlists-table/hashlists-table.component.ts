@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -30,7 +30,7 @@ import { formatPercentage } from '@src/app/shared/utils/util';
   templateUrl: './hashlists-table.component.html',
   standalone: false
 })
-export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
@@ -46,6 +46,10 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -64,6 +68,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+
   handleBackendSqlFilter(event: string) {
     if (event && event.trim().length > 0) {
       this.filter(event);
@@ -229,7 +234,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.dataSource.reset(true);
     this.dataSource.setIsArchived(isArchived);
+    this.dataSource.loadAll();
   }
 
   private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {

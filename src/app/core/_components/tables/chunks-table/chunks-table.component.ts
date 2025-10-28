@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
@@ -25,7 +25,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class ChunksTableComponent extends BaseTableComponent implements OnInit {
+export class ChunksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   // Input property to specify an agent ID for filtering chunks.
   @Input() agentId: number;
 
@@ -44,8 +44,13 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       this.dataSource.setAgentId(this.agentId);
     }
     this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {

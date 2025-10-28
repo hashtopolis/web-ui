@@ -3,11 +3,11 @@
     [title]="'Supertask Builder'"
   ></app-page-title>
 
-<horizontalnav [menuItems]="menuItems"></horizontalnav>
-<!-- Body -->
-<grid-main>
-  <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
-  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+  <horizontalnav [menuItems]="menuItems"></horizontalnav>
+  <!-- Body -->
+  <grid-main>
+    <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
       <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -24,14 +24,16 @@
       </div>
       <input-text-area title="Insert Masks" formControlName="masks"></input-text-area>
 
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'"></button-submit>
-      <div *ngIf="isLoading">
-        <mat-spinner diameter="24" color="accent"></mat-spinner>
-      </div>
-    </grid-buttons>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'"></button-submit>
+        @if (isLoading) {
+          <div>
+            <mat-spinner diameter="24" color="accent"></mat-spinner>
+          </div>
+        }
+      </grid-buttons>
 
-  </form>
-</grid-main>
+    </form>
+  </grid-main>
 </app-table>

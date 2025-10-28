@@ -1,7 +1,7 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -32,7 +32,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _editIndex: number;
 
   @Input() fileType: FileType = 0;
@@ -40,7 +40,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   set editIndex(value: number) {
     if (value !== this._editIndex) {
       this._editIndex = value;
-      this.ngOnInit();
     }
   }
   get editIndex(): number {
@@ -84,6 +83,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     if (this.editIndex) {
       this.dataSource.setEditValues(this.editIndex, this.editType);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

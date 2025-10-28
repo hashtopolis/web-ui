@@ -1,0 +1,19 @@
+.menu-item-content {
+  display: flex;
+  align-items: center;
+}
+
+.menu-item-add-btn {
+  margin-left: auto;
+  padding-left: 20px;
+  cursor: pointer;
+
+  fa-icon {
+    transition: filter 0.2s, color 0.2s;
+  }
+
+  &:hover fa-icon {
+    filter: brightness(1.3);
+    color: #607d8b;
+  }
+}

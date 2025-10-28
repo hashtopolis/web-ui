@@ -1,6 +1,6 @@
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
@@ -28,6 +28,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'action-menu',
   templateUrl: './action-menu.component.html',
+  styleUrls: ['./action-menu.component.scss'],
   standalone: false
 })
 export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -71,6 +72,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   faPaperplane = faPaperPlane;
   faGlobe = faGlobe;
   faBook = faBook;
+  faSquarePlus = faSquarePlus;
 
   isDarkMode = false;
   faIconColor = 'white';
@@ -211,6 +213,21 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
         data: this.data
       });
       this.closeMenuIfOpen();
+    }
+  }
+
+  /**
+   * Handles a click on the add menu item.
+   * Navigates internally or externally based on menuItem properties,
+   * or emits an event for custom handling.
+   * Closes the menu afterward.
+   * @param menuItem The clicked ActionMenuItem
+   */
+  onAddMenuItemClick(menuItem: ActionMenuItem): void {
+    if (menuItem.routerLinkAdd && !menuItem.external) {
+      this.router.navigate(menuItem.routerLinkAdd).then(() => {
+        this.closeMenuIfOpen();
+      });
     }
   }
 

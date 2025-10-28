@@ -1,6 +1,6 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
@@ -28,7 +28,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './cracks-table.component.html',
   standalone: false
 })
-export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
   selectedFilterColumn: string;
@@ -37,6 +37,10 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     this.tableColumns = this.getColumns();
     this.dataSource = new CracksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll().then(() => {});
   }
 

@@ -1,4 +1,4 @@
-<ng-container *ngIf="openOnMouseEnter">
+@if (openOnMouseEnter) {
   <button
     mat-button
     #menuTrigger="matMenuTrigger"
@@ -11,50 +11,72 @@
     (focus)="preventFocus($event)"
     [disabled]="disabled"
     [class.active]="isActive"
-  >
-    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
-    <ng-container *ngIf="label">
+    >
+    @if (icon) {
+      <mat-icon>{{ icon }}</mat-icon>
+    }
+    @if (label) {
       {{ label }}
-    </ng-container>
+    }
   </button>
-
   <mat-menu
     #actionMenu="matMenu"
     [hasBackdrop]="false"
     (mouseenter)="onMenuMouseEnter()"
     (mouseleave)="onMenuMouseLeave($event)"
-  >
-
-  <ng-container *ngFor="let section of actionMenuItems; let last = last">
-      <button
-        mat-menu-item
-        *ngFor="let item of section"
-        (click)="onMenuItemClick(item)"
-        [class.text-critical]="item.red"
-      >
-        <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
-          <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
-          <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
-        </div>
-        {{ item.label }}
-      </button>
-      <mat-divider *ngIf="!last"></mat-divider>
-    </ng-container>
+    >
+    @for (section of actionMenuItems; track section; let last = $last) {
+      @for (item of section; track item) {
+        <button
+          mat-menu-item
+          (click)="onMenuItemClick(item)"
+          [class.text-critical]="item.red"
+          >
+          <div class="menu-item-content">
+            <span>
+              @if (iconContainsDiscord(item.icon)) {
+                <div style="display: inline; padding-right: 6px">
+                  <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+                </div>
+              }
+              @if (iconContainsGithub(item.icon)) {
+                <div style="display: inline; padding-right: 10px">
+                  <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+                </div>
+              }
+              @if (iconContainsPaperplane(item.icon)) {
+                <div style="display: inline; padding-right: 10px">
+                  <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+                </div>
+              }
+              @if (iconContainsGlobe(item.icon)) {
+                <div style="display: inline; padding-right: 10px">
+                  <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+                </div>
+              }
+              @if (iconContainsBook(item.icon)) {
+                <div style="display: inline; padding-right: 10px">
+                  <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+                </div>
+              }
+              {{ item.label }}
+            </span>
+            @if (item.showAddButton) {
+              <span class="menu-item-add-btn">
+                <fa-icon [icon]="faSquarePlus" matTooltip="{{item.tooltipAddButton}}" aria-hidden="true" (click)="onAddMenuItemClick(item); $event.stopPropagation();"></fa-icon>
+              </span>
+            }
+          </div>
+        </button>
+      }
+      @if (!last) {
+        <mat-divider></mat-divider>
+      }
+    }
   </mat-menu>
-</ng-container>
+}
 
-<ng-container *ngIf="!openOnMouseEnter">
+@if (!openOnMouseEnter) {
   <button
     mat-button
     [ngClass]="cls"
@@ -63,24 +85,31 @@
     (click)="$event.stopPropagation()"
     [disabled]="disabled"
     [class.active]="isActive"
-  >
-    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
-    <ng-container *ngIf="label">
+    >
+    @if (icon) {
+      <mat-icon>{{ icon }}</mat-icon>
+    }
+    @if (label) {
       {{ label }}
-    </ng-container>
+    }
   </button>
   <mat-menu #actionMenu="matMenu">
-    <ng-container *ngFor="let section of actionMenuItems; let last = last">
-      <button
-        mat-menu-item
-        *ngFor="let item of section"
-        (click)="onMenuItemClick(item)"
-        [class.text-critical]="item.red"
-      >
-        <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
-        {{ item.label }}
-      </button>
-      <mat-divider *ngIf="!last"></mat-divider>
-    </ng-container>
+    @for (section of actionMenuItems; track section; let last = $last) {
+      @for (item of section; track item) {
+        <button
+          mat-menu-item
+          (click)="onMenuItemClick(item)"
+          [class.text-critical]="item.red"
+          >
+          @if (item.icon) {
+            <mat-icon [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
+          }
+          {{ item.label }}
+        </button>
+      }
+      @if (!last) {
+        <mat-divider></mat-divider>
+      }
+    }
   </mat-menu>
-</ng-container>
+}

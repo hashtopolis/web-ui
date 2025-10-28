@@ -121,11 +121,6 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Refresh the data and the DataTable
-  onRefresh() {
-    this.ngOnInit();
-  }
-
   /**
    * Fetches Hashes from the server
    * Subscribes to the API response and updates the hashes list.
@@ -194,7 +189,6 @@ export class HashesComponent implements OnInit, OnDestroy {
       queryParamsHandling: 'merge'
     });
     this.onDisplaying(name, type);
-    this.ngOnInit();
   }
 
   // Update display or filter options

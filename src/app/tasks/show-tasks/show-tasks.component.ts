@@ -15,12 +15,11 @@ export class ShowTasksComponent {
   pageTitle = 'Tasks';
 
   constructor(private titleService: AutoTitleService) {
-    titleService.set(['Show Tasks']);
+    titleService.set(['Tasks']);
   }
 
   toggleIsArchived(event: MatSlideToggleChange): void {
     this.table.setIsArchived(event.checked);
     this.pageTitle = event.checked ? 'Tasks (archived)' : 'Tasks';
-    this.table.reload();
   }
 }

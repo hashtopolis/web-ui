@@ -93,7 +93,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedAgentIndex = +params['id'];
-      this.ngOnInit();
     });
   }
 

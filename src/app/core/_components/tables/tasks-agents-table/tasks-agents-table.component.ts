@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
@@ -38,7 +38,7 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   templateUrl: './tasks-agents-table.component.html',
   standalone: false
 })
-export class TasksAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class TasksAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';
@@ -48,7 +48,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   set taskId(value: number) {
     if (value !== this._taskId) {
       this._taskId = value;
-      this.ngOnInit();
     }
   }
   get taskId(): number {
@@ -80,6 +79,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.reload();
   }
 

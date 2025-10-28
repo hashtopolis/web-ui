@@ -214,6 +214,5 @@ export class AppComponent implements OnInit, AfterViewInit {
   closeModal() {
     this.showingModal = false;
     this.modalService.dismissAll();
-    this.ngOnInit();
   }
 }

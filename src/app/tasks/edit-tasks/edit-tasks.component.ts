@@ -3,17 +3,16 @@ import { Subscription, finalize } from 'rxjs';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { SpeedStat } from '@models/speed-stat.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -23,7 +22,6 @@ import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
@@ -56,7 +54,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   tkeyspace: number;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
-  @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
   //Time calculation
@@ -69,50 +66,34 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   chunkview: number;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: number;
 
   private routeSub: Subscription;
 
   constructor(
     private titleService: AutoTitleService,
-    private uiService: UIConfigService,
     private route: ActivatedRoute,
     private alertService: AlertService,
     private gs: GlobalService,
-    private fs: FileSizePipe,
     private router: Router,
     private serializer: JsonAPISerializer,
     private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
-    this.onInitialize();
   }
 
   ngOnInit() {
-    this.buildForm();
-    this.initForm();
-    this.assignChunksInit();
-  }
-
-  ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-  }
-
-  onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedTaskIndex = +params['id'];
       this.editMode = params['id'] != null;
 
-      this.ngOnInit();
+      this.buildForm();
+      this.initForm();
+      this.assignChunksInit();
     });
   }
 
-  /**
-   * Reload data
-   */
-  refresh(): void {
-    this.onInitialize();
-    this.agentsTable.reload();
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   buildForm() {
@@ -175,23 +156,23 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     if (this.editMode) {
       const params = new RequestParamBuilder()
         .addInclude('hashlist')
-        .addInclude('speeds')
         .addInclude('crackerBinary')
         .addInclude('crackerBinaryType')
-        .addInclude('files')
+        .addInclude('assignedAgents')
         .create();
 
       this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const task = this.serializer.deserialize<JTask>(responseBody);
+        const task = this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
 
         this.originalValue = task;
         this.searched = task.searched;
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
-        // Assigned Agents init
-        this.assingAgentInit();
+
+        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+        this.getTaskSpeeds(task.assignedAgents.length);
+
         // Hashlist Description and Type
         if (task.hashlist) {
           this.hashlistinform = task.hashlist;
@@ -209,6 +190,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         }
         this.tkeyspace = task.keyspace;
         this.tusepreprocessor = task.preprocessorId;
+
         this.updateForm.setValue({
           taskId: task.id,
           forcePipe: task.forcePipe === true ? 'Yes' : 'No',
@@ -238,27 +220,31 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * The below functions are related with assign, manage and delete agents
    *
    **/
-  assingAgentInit() {
-    // TODO possibly we could turn this in a single helper request to the backend if we create a helper endpoint
-    // That retrieves available agents. Or even better, we might be able to use the agents, in the datasource of
-    // the assigned agents table. And use those IDs to filter for available agents.
+  assingAgentInit(assignedAgentIds: Array<number>) {
+    const params = new RequestParamBuilder();
+    if (assignedAgentIds.length > 0) {
+      params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
+    }
+
+    this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
+      const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
+      this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
+    });
+  }
+
+  reloadAgentAssignment() {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
+      const responseBodyAssignments = {
+        data: responseAssignments.data,
+        included: responseAssignments.included
+      };
       const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
-
-      const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
-
-      const params = new RequestParamBuilder();
-      if (agentAssignmentsAgentIds.length > 0) {
-        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
-      }
-
-      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-        const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
-      });
+      const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
+        (agentAssignment) => agentAssignment.agentId
+      );
+      this.assingAgentInit(agentAssignmentsAgentIds);
     });
   }
 
@@ -272,7 +258,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .create(SERV.AGENT_ASSIGN, payload)
         .pipe(
           finalize(() => {
-            this.assingAgentInit();
+            this.reloadAgentAssignment();
             this.agentsTable.reload();
           })
         )
@@ -283,42 +269,14 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * This function calculates Keyspace searched, Time Spent and Estimated Time
-   *
-   **/
-  timeCalc(chunks: JChunk[]) {
-    const cprogress = [];
-    const timespent = [];
-    const current = 0;
-    for (let i = 0; i < chunks.length; i++) {
-      cprogress.push(chunks[i].checkpoint - chunks[i].skip);
-      if (chunks[i].dispatchTime > current) {
-        timespent.push(chunks[i].solveTime - chunks[i].dispatchTime);
-      } else if (chunks[i].solveTime > current) {
-        timespent.push(chunks[i].solveTime - current);
-      }
-    }
-    if (cprogress.length > 0) {
-      this.cprogress = cprogress.reduce((a, i) => a + i);
-    }
-    if (timespent.length > 0) {
-      this.ctimespent = timespent.reduce((a, i) => a + i);
-    }
-  }
-
   assignChunksInit() {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = true;
           break;
       }
     });
@@ -330,6 +288,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.ctimespent = taskDetailData['timeSpent'];
         this.currenspeed = taskDetailData['currentSpeed'];
         this.estimatedTime = taskDetailData['estimatedTime'];
+        this.cprogress = taskDetailData['cprogress'];
       });
   }
 
@@ -352,6 +311,38 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       } else {
         this.alertService.showInfoMessage('Purge was cancelled');
       }
+    });
+  }
+
+  /**
+   * Get task speeds for speed diagram.
+   *
+   * Time range is roughly limited to one hour for a maximum of 10 agents.
+   * If we have more than 10 agents, the period will be decreased (e.g. 30 minutes for 20 agents)
+   * Estimation is a new speed entry per agent every 5 seconds: (60 seconds * 60) / 5 = 720
+   *
+   * The resulting array must ve reversed to have it sorted ascending by time
+   *
+   * @param assignedAgentsCount - number of assigned agents to the task
+   * @private
+   */
+  private getTaskSpeeds(assignedAgentsCount: number): void {
+    const limitPerAgent = 720;
+    const maxAgents = 10;
+    const requestLimit = Math.min(limitPerAgent * (assignedAgentsCount + 1), limitPerAgent * maxAgents);
+
+    const speedParams = new RequestParamBuilder()
+      .addFilter({
+        field: 'taskId',
+        value: this.editedTaskIndex,
+        operator: FilterType.EQUAL
+      })
+      .addSorting({ dataKey: 'speedId', direction: 'desc', isSortable: true })
+      .setPageSize(requestLimit);
+
+    this.gs.getAll(SERV.SPEEDS, speedParams.create()).subscribe((response: ResponseWrapper) => {
+      const speeds = this.serializer.deserialize<SpeedStat[]>({ data: response.data, included: response.included });
+      this.originalValue.speeds = [...speeds].reverse();
     });
   }
 }
