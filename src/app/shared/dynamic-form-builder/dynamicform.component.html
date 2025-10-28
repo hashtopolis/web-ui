@@ -2,149 +2,133 @@
   <app-page-title [title]="title"></app-page-title>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
     <div gdAlignColumns="start stretch">
-      <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
-      @for (field of formMetadata; track field) {
-        <div>
-          @if (field.type !== 'hidden') {
-            <div>
-              @if (field.isTitle) {
-                <h3>{{ field.label }}</h3>
-              }
-              @if (!field.isTitle) {
-                @if (field.type !== 'checkbox') {
-                  <div>
-                    <mat-form-field class="matfield-full-width">
-                      <mat-label>
-                        {{ field.label }}
-                        @if (field.tooltip) {
-                          <mat-icon
-                            matTooltip="{{ field.tooltip }}"
-                            matTooltipPosition="below"
-                            matTooltipClass="tooltip-custom-style"
-                            container="body"
-                            aria-hidden="true"
-                            >
-                            info
-                          </mat-icon>
-                        }
-                      </mat-label>
-                      @switch (field.type) {
-                        @case ('number') {
-                          <input
-                            matInput
-                            type="number"
-                            [formControlName]="field.name"
-                            />
-                        }
-                        @case ('text') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                            />
-                        }
-                        @case ('password') {
-                          <input
-                            matInput
-                            type="password"
-                            [formControlName]="field.name"
-                            />
-                        }
-                        @case ('textarea') {
-                          <textarea
-                            matInput
-                            [formControlName]="field.name"
-                          ></textarea>
-                        }
-                        @case ('email') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                            />
-                        }
-                        @case ('url') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                            />
-                        }
-                        @case ('select') {
-                          <mat-select [formControlName]="field.name">
-                            @for (option of field.selectOptions; track option) {
-                              <mat-option
-                                [value]="option.value"
-                                >{{ option.label }}</mat-option
-                                >
-                              }
-                            </mat-select>
-                          }
-                          @case ('selectd') {
-                            <mat-select [formControlName]="field.name">
-                              @for (option of field.selectOptions$; track option) {
-                                <mat-option
-                                  [value]="option.id"
-                                  >{{ option.name }}</mat-option
-                                  >
-                                }
-                              </mat-select>
-                              @if (isLoadingSelect) {
-                                <mat-spinner diameter="16"></mat-spinner>
-                              }
-                            }
-                          }
-                          @if (form.get(field.name).hasError('required')) {
-                            <mat-error>
-                              {{ field.label }} is required
-                            </mat-error>
-                          }
-                          @if (form.get(field.name).hasError('invalidUrl')) {
-                            <mat-error>
-                              Invalid URL format
-                            </mat-error>
-                          }
-                        </mat-form-field>
-                      </div>
-                    }
-                    @if (field.type === 'checkbox') {
-                      <div>
-                        <mat-checkbox [formControlName]="field.name">{{
-                          field.label
-                        }}</mat-checkbox>
-                      </div>
-                    }
-                  }
-                </div>
-              }
+    <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
+      <div *ngFor="let field of formMetadata">
+        <div *ngIf="field.type !== 'hidden'">
+          <ng-container *ngIf="field.isTitle">
+            <h3>{{ field.label }}</h3>
+          </ng-container>
+          <ng-container *ngIf="!field.isTitle">
+            <div *ngIf="field.type !== 'checkbox'">
+              <mat-form-field class="matfield-full-width">
+                <mat-label>
+                  {{ field.label }}
+                  <mat-icon
+                    matTooltip="{{ field.tooltip }}"
+                    matTooltipPosition="below"
+                    matTooltipClass="tooltip-custom-style"
+                    container="body"
+                    aria-hidden="true"
+                    *ngIf="field.tooltip"
+                  >
+                    info
+                  </mat-icon>
+                </mat-label>
+                <ng-container [ngSwitch]="field.type">
+                  <ng-container *ngSwitchCase="'number'">
+                    <input
+                      matInput
+                      type="number"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'text'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'password'">
+                    <input
+                      matInput
+                      type="password"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'textarea'">
+                    <textarea
+                      matInput
+                      [formControlName]="field.name"
+                    ></textarea>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'email'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'url'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'select'">
+                    <mat-select [formControlName]="field.name">
+                      <mat-option
+                        *ngFor="let option of (Array.isArray(field.selectOptions) ? field.selectOptions : [])"
+                        [value]="option.value"
+                      >
+                        {{ option.label }}
+                      </mat-option>
+
+                    </mat-select>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'selectd'">
+                    <mat-select [formControlName]="field.name">
+                      <mat-option
+                        *ngFor="let option of (Array.isArray(field.selectOptions$) ? field.selectOptions$ : [])"
+                        [value]="option.id"
+                      >
+                        {{ option.name }}
+                      </mat-option>
+
+                    </mat-select>
+                    <mat-spinner *ngIf="isLoadingSelect" diameter="16"></mat-spinner>
+                  </ng-container>
+                </ng-container>
+                <mat-error *ngIf="form.get(field.name).hasError('required')">
+                  {{ field.label }} is required
+                </mat-error>
+                <mat-error *ngIf="form.get(field.name).hasError('invalidUrl')">
+                  Invalid URL format
+                </mat-error>
+
+              </mat-form-field>
             </div>
-          }
-          <grid-buttons>
-            @if (isCreateMode) {
-              <button-submit
-                name="Cancel"
-                [disabled]="false"
-                type="cancel"
-              ></button-submit>
-            }
-            @if (!isCreateMode && showDeleteButton) {
-              <button-submit
-                name="Delete"
-                [disabled]="false"
-                type="delete"
-                (click)="onDelete()"
-                >Delete</button-submit
-                >
-              }
-              <button-submit
-                [name]="buttonText"
-                [disabled]="!formIsValid()"
-              ></button-submit>
-              @if (isSubmitting) {
-                <mat-spinner diameter="24"></mat-spinner>
-              }
-            </grid-buttons>
-          </div>
-        <!-- </grid-autocol> -->
-      </form>
-    </grid-main>
+            <div *ngIf="field.type === 'checkbox'">
+              <mat-checkbox [formControlName]="field.name">{{
+                field.label
+              }}</mat-checkbox>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <grid-buttons>
+        <button-submit
+        name="Cancel"
+        [disabled]="false"
+        type="cancel"
+        *ngIf="isCreateMode"
+      ></button-submit>
+      <button-submit
+        name="Delete"
+        [disabled]="false"
+        type="delete"
+        *ngIf="!isCreateMode && showDeleteButton"
+        (click)="onDelete()"
+        >Delete</button-submit
+      >
+      <button-submit
+        [name]="buttonText"
+        [disabled]="!formIsValid()"
+      ></button-submit>
+      <mat-spinner *ngIf="isSubmitting" diameter="24"></mat-spinner>
+      </grid-buttons>
+    </div>
+    <!-- </grid-autocol> -->
+  </form>
+</grid-main>
