@@ -22,6 +22,7 @@ export enum TaskType {
 export interface JTask extends BaseModel {
   taskName: string;
   attackCmd: string;
+  activeAgents: number;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
@@ -52,6 +53,7 @@ export interface JTask extends BaseModel {
   searched: string;
   speeds: SpeedStat[];
   chunkData?: ChunkData;
+  status: number;
 }
 
 /**
