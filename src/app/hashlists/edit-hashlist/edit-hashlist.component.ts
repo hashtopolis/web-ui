@@ -13,6 +13,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { RoleService } from '@services/roles/role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
@@ -67,6 +68,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * @param {AlertService} alert - Service for displaying alerts.
    * @param {GlobalService} gs - Service for global application functionality.
    * @param {Router} router - Angular router service for navigation.
+   * @param roleService
    */
   constructor(
     private unsavedChangesService: UnsavedChangesService,
@@ -77,11 +79,13 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    protected roleService: RoleService
   ) {
     this.getInitialization();
     this.buildForm();
     this.titleService.set(['Edit Hashlist']);
+    this.roleService.setRoleGroup('editHashList');
   }
 
   /**
@@ -120,16 +124,20 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   loadData() {
-    const accedgroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
+    if (this.roleService.hasRole('readGroups')) {
+      const accessGroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
+        const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
       });
-      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+      this.unsubscribeService.add(accessGroupSubscription$);
+    } else {
       this.isLoading = false;
-      this.changeDetectorRef.detectChanges();
-    });
-    this.unsubscribeService.add(accedgroupSubscription$);
+    }
   }
 
   /**
@@ -137,7 +145,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * If the form is valid, it updates the hashlist using the provided data.
    * @returns {void}
    */
-  onSubmit() {
+  onSubmit(): void {
     if (this.updateForm.valid) {
       const createSubscription$ = this.gs
         .update(SERV.HASHLISTS, this.editedHashlistIndex, this.updateForm.value['updateData'])
@@ -156,7 +164,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Fetches hashlist data, initializes form controls, and updates the form group.
    * @returns {void}
    */
-  private updateFormValues() {
+  private updateFormValues(): void {
     const updateSubscription$ = this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
         include: ['tasks,hashlists,hashType']
@@ -212,77 +220,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       });
 
     this.unsubscribeService.add(helperExportedWordlistSubscription$);
-  }
-
-  //Report data
-  prepareReport() {
-    let sum = 0;
-    const workflow = [];
-    let preCommand;
-    const files = [];
-    this.editedHashlist.tasks.forEach((item) => {
-      if (item.keyspace && typeof item.keyspace === 'number') {
-        sum += item.keyspace;
-      }
-      if (item.preprocessorCommand) {
-        preCommand.push({
-          subtitle: `Preprocessor Command: ${item.preprocessorCommand}`
-        });
-      }
-
-      // Extract file names using regular expressions
-      const fileNames = item.attackCmd.match(/\b\w+\.\w+\b/g);
-
-      if (fileNames && fileNames.length > 0) {
-        fileNames.forEach((fileName) => {
-          files.push({
-            text: `File: ${fileName}`,
-            margin: [0, 0, 0, 5]
-          });
-        });
-      }
-      workflow.push({
-        subtitle: `Command: ${item.attackCmd}`,
-        ...preCommand,
-        ul: [
-          {
-            text: `Keyspace: ${item.keyspace} (Progress: ${((item.keyspaceProgress / item.keyspace) * 100).toFixed(
-              2
-            )}%)`,
-            margin: [0, 0, 0, 5]
-          },
-          {
-            text: `Cracked entries: ${item.taskId}`,
-            margin: [0, 0, 0, 5]
-          },
-          ...files
-        ]
-      });
-    });
-
-    const report = [
-      {
-        title: 'Input Fields',
-        table: {
-          tableColumns: ['Name', 'Notes', 'Hash Mode', 'Hash Count', 'Retrieved', 'Total Keyspace explored'],
-          tableValues: [
-            this.editedHashlist.name,
-            this.editedHashlist.notes,
-            this.editedHashlist.hashType.hashTypeId,
-            this.editedHashlist.hashCount,
-            this.editedHashlist.cracked,
-            sum
-          ]
-        }
-      },
-      { break: 1 },
-      {
-        title: 'WorkFlow Completed'
-      },
-      { break: 1 },
-      ...workflow
-    ];
-    return report;
   }
 
   canDeactivate(): boolean {

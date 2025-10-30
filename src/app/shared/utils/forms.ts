@@ -50,22 +50,24 @@ export function extractIds(dataArray: any[], idKey: string): number[] {
  * @returns An array of transformed select options to be used in the form.
  */
 export function transformSelectOptions(apiOptions: object[], fieldMapping: FieldMapping) {
-  return apiOptions.map((apiOption) => {
-    const transformedOption: SelectOption = { id: undefined, name: undefined };
+  if (apiOptions) {
+    return apiOptions.map((apiOption) => {
+      const transformedOption: SelectOption = { id: undefined, name: undefined };
+      for (const formField of Object.keys(fieldMapping)) {
+        const apiField = fieldMapping[formField];
 
-    for (const formField of Object.keys(fieldMapping)) {
-      const apiField = fieldMapping[formField];
-
-      if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-        transformedOption[formField] = apiOption[apiField];
-      } else {
-        // Handle the case where the API field doesn't exist in the response
-        transformedOption[formField] = null; // or set a default value
+        if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
+          transformedOption[formField] = apiOption[apiField];
+        } else {
+          // Handle the case where the API field doesn't exist in the response
+          transformedOption[formField] = null; // or set a default value
+        }
       }
-    }
 
-    return transformedOption;
-  });
+      return transformedOption;
+    });
+  }
+  return [];
 }
 
 /**
@@ -113,9 +115,7 @@ function componentToHex(c) {
 
 export function randomColor() {
   const rgb = hslToRgb(Math.random(), 0.6, Math.random() * 0.4 + 0.4);
-  return `#${componentToHex(rgb[0])}${componentToHex(rgb[1])}${componentToHex(
-    rgb[2]
-  )}`;
+  return `#${componentToHex(rgb[0])}${componentToHex(rgb[1])}${componentToHex(rgb[2])}`;
 }
 
 /**
@@ -170,9 +170,7 @@ export function removeFakePath(originalPath: string): string {
   }
 
   // Remove fake path prefix if it exists
-  return originalPath.startsWith(fakePathPrefix)
-    ? originalPath.slice(fakePathPrefix.length)
-    : originalPath;
+  return originalPath.startsWith(fakePathPrefix) ? originalPath.slice(fakePathPrefix.length) : originalPath;
 }
 
 /**

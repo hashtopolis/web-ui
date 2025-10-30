@@ -10,7 +10,7 @@ import { PermissionService } from '@services/permission/permission.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
@@ -236,29 +236,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   getHashlistsMenu(): MainMenuItem {
     const canReadHashlists = this.permissionService.hasPermissionSync(Perm.Hashlist.READ);
-    if (!canReadHashlists) {
+    const canReadSuperHashlists = this.permissionService.hasPermissionSync(Perm.SuperHashlist.READ);
+    const canReadHashes = this.permissionService.hasPermissionSync(Perm.Hash.READ);
+
+    if (!canReadHashlists && !canReadSuperHashlists && !canReadSuperHashlists) {
       return { display: false, label: HeaderMenuLabel.HASHLISTS, actions: [] };
     }
 
-    const actions = [
-      {
+    const actions: Array<ActionMenuItem> = [];
+
+    if (canReadHashlists) {
+      actions.push({
         label: HeaderMenuLabel.SHOW_HASHLISTS,
         routerLink: ['hashlists', 'hashlist'],
-        showAddButton: true,
+        showAddButton: this.permissionService.hasPermissionSync(Perm.Hashlist.CREATE),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
         tooltipAddButton: 'New Hashlist'
-      },
-      {
+      });
+    }
+
+    if (canReadSuperHashlists) {
+      actions.push({
         label: HeaderMenuLabel.SUPERHASHLISTS,
         routerLink: ['hashlists', 'superhashlist'],
-        showAddButton: true,
+        showAddButton: this.permissionService.hasPermissionSync(Perm.SuperHashlist.CREATE),
         routerLinkAdd: ['hashlists', 'new-superhashlist'],
         tooltipAddButton: 'New Superhashlist'
-      }
-    ];
+      });
+    }
 
-    const canReadHash = this.permissionService.hasPermissionSync(Perm.Hash.READ);
-    if (canReadHash) {
+    if (canReadHashes) {
       actions.push(
         {
           label: HeaderMenuLabel.SEARCH_HASH,
