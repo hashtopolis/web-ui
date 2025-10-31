@@ -241,17 +241,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Hashlists' menu.
    */
   getHashlistsMenu(): MainMenuItem {
-    const canReadHashlists = this.hashListRoleService.hasRole('read');
-    const canReadSuperHashlists = this.superHashListRoleService.hasRole('read');
-    const canReadHashes = this.hashRoleService.hasRole('read');
-
-    if (!canReadHashlists && !canReadSuperHashlists && !canReadSuperHashlists) {
-      return { display: false, label: HeaderMenuLabel.HASHLISTS, actions: [] };
-    }
-
     const actions: Array<ActionMenuItem> = [];
 
-    if (canReadHashlists) {
+    if (this.hashListRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SHOW_HASHLISTS,
         routerLink: ['hashlists', 'hashlist'],
@@ -261,7 +253,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (canReadSuperHashlists) {
+    if (this.superHashListRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SUPERHASHLISTS,
         routerLink: ['hashlists', 'superhashlist'],
@@ -271,7 +263,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (canReadHashes) {
+    if (this.hashRoleService.hasRole('read')) {
       actions.push(
         {
           label: HeaderMenuLabel.SEARCH_HASH,
@@ -291,7 +283,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.HASHLISTS,
       actions: [actions]
     };
