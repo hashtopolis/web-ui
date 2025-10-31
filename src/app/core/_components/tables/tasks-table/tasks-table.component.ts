@@ -128,11 +128,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.STATUS,
         dataKey: 'keyspaceProgress',
-        render: (wrapper: JTaskWrapper) => this.renderSpeed(wrapper),
         icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => {
-          const status = this.getTaskStatus(wrapper);
+          const status = wrapper.tasks[0]?.status;
           switch (status) {
             case TaskStatus.RUNNING:
               return 'Running';
@@ -183,16 +182,21 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.AGENTS,
         dataKey: 'agents',
-        render: (wrapper: JTaskWrapper) => this.renderAgents(wrapper),
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) => this.getNumAgents(wrapper) + ''
+        render: (wrapper: JTaskWrapper) => {
+          if (wrapper.taskType === TaskType.TASK) {
+            return wrapper.tasks[0]?.activeAgents + ''
+          } else {
+            return '';
+          }
+        },
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.activeAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
-
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
       {
@@ -489,26 +493,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   renderDispatchedSearched(wrapper: JTaskWrapper): SafeHtml {
     const html = this.getDispatchedSearchedString(wrapper);
-    return this.sanitize(html);
-  }
-
-  getNumAgents(wrapper: JTaskWrapper): number {
-    return wrapper.taskType === TaskType.TASK && wrapper.chunkData ? wrapper.chunkData.agents.length : 0;
-  }
-
-  renderAgents(wrapper: JTaskWrapper): SafeHtml {
-    const numAgents = this.getNumAgents(wrapper);
-    return this.sanitize(`${numAgents}`);
-  }
-
-  renderSpeed(wrapper: JTaskWrapper): SafeHtml {
-    let html = '';
-    if (wrapper.taskType === TaskType.TASK) {
-      const chunkData: ChunkData = wrapper.chunkData;
-      if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
-        html = `${convertCrackingSpeed(chunkData.speed)}`;
-      }
-    }
     return this.sanitize(html);
   }
 

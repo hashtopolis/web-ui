@@ -1,10 +1,9 @@
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper } from '@models/task.model';
+import { JTaskWrapper } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -68,41 +67,14 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             data: response.data,
             included: response.included
           });
-          if (taskWrappers) {
-            const length = response.meta.page.total_elements;
-            const nextLink = response.links.next;
-            const prevLink = response.links.prev;
-            const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-            const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-            if (taskWrappers.length > 0) {
-              const chunkParams = new RequestParamBuilder().addFilter({
-                field: 'taskId',
-                operator: FilterType.IN,
-                value: taskWrappers.filter((x) => x?.tasks[0] != null).map((wrapper) => wrapper.tasks[0].id)
-              });
-              this.subscriptions.push(
-                this.service
-                  .getAll(SERV.CHUNKS, chunkParams.create())
-                  .pipe(finalize(() => this.setData(taskWrappers)))
-                  .subscribe((chunkResponse: ResponseWrapper) => {
-                    const chunks = this.serializer.deserialize<JChunk[]>({
-                      data: chunkResponse.data,
-                      included: chunkResponse.included
-                    });
-                    taskWrappers.forEach((taskWrapper) => {
-                      const task: JTask = taskWrapper.tasks[0];
-                      if (task != null) {
-                        taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
-                      }
-                    });
-                  })
-              );
-            } else {
-              this.setData(taskWrappers);
-            }
-          }
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(taskWrappers);
         })
     );
   }
