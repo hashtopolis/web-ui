@@ -1,5 +1,4 @@
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -23,7 +22,7 @@ import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -42,18 +41,16 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   // Edit variables
   editedHashlistIndex: number;
-  editedHashlist: any; // Change to Model
+  editedHashlist: JHashlist; // Change to Model
   hashtype: JHashtype;
-  type: any; // Hashlist or SuperHashlist
+  type: number; // Hashlist or SuperHashlist
 
   // Lists of Selected inputs
-  selectAccessgroup: any[];
+  selectAccessgroup: Array<SelectOption>;
 
   // To Remove for use tabes
   @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
 
   /**
    * Constructor for the YourComponent class.
