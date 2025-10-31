@@ -7,6 +7,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { RoleService } from '@services/roles/role.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -46,7 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private storage: LocalStorageService<UIConfig>,
     private themes: ThemeService,
     private permissionService: PermissionService,
-    private easterEggService: EasterEggService
+    private easterEggService: EasterEggService,
+    private roleService: RoleService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -235,9 +237,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Hashlists' menu.
    */
   getHashlistsMenu(): MainMenuItem {
-    const canReadHashlists = this.permissionService.hasPermissionSync(Perm.Hashlist.READ);
-    const canReadSuperHashlists = this.permissionService.hasPermissionSync(Perm.SuperHashlist.READ);
-    const canReadHashes = this.permissionService.hasPermissionSync(Perm.Hash.READ);
+    const canReadHashlists = this.roleService.hasRole('hashList', 'read');
+    const canReadSuperHashlists = this.roleService.hasRole('superHashList', 'read');
+    const canReadHashes = this.roleService.hasRole('hash', 'read');
 
     if (!canReadHashlists && !canReadSuperHashlists && !canReadSuperHashlists) {
       return { display: false, label: HeaderMenuLabel.HASHLISTS, actions: [] };
@@ -249,7 +251,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push({
         label: HeaderMenuLabel.SHOW_HASHLISTS,
         routerLink: ['hashlists', 'hashlist'],
-        showAddButton: this.permissionService.hasPermissionSync(Perm.Hashlist.CREATE),
+        showAddButton: this.roleService.hasRole('hashList', 'create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
         tooltipAddButton: 'New Hashlist'
       });
@@ -259,7 +261,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push({
         label: HeaderMenuLabel.SUPERHASHLISTS,
         routerLink: ['hashlists', 'superhashlist'],
-        showAddButton: this.permissionService.hasPermissionSync(Perm.SuperHashlist.CREATE),
+        showAddButton: this.roleService.hasRole('superHashList', 'create'),
         routerLinkAdd: ['hashlists', 'new-superhashlist'],
         tooltipAddButton: 'New Superhashlist'
       });

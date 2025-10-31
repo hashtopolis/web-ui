@@ -85,7 +85,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.getInitialization();
     this.buildForm();
     this.titleService.set(['Edit Hashlist']);
-    this.roleService.setRoleGroup('editHashList');
   }
 
   /**
@@ -124,7 +123,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   loadData() {
-    if (this.roleService.hasRole('readGroups')) {
+    if (this.hasRole('groups')) {
       const accessGroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
         const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
           data: response.data,
@@ -229,5 +228,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       this.unsavedChangesService.setUnsavedChanges(true);
     }
     return !hasUnsavedChanges;
+  }
+
+  hasRole(roleName: string): boolean {
+    return this.roleService.hasRole('hashList', roleName);
   }
 }

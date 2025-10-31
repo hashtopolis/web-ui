@@ -49,9 +49,8 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
           const superHashlists = serializer.deserialize<JHashlist[]>(responseData);
 
           const rows: JHashlist[] = [];
-          superHashlists.forEach((value) => {
-            const superHashlist = value;
-            superHashlist.hashTypeDescription = superHashlist.hashType.description;
+          superHashlists.forEach((superHashlist) => {
+            superHashlist.hashTypeDescription = superHashlist.hashType?.description;
             rows.push(superHashlist);
           });
 

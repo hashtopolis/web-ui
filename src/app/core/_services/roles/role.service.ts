@@ -15,34 +15,34 @@ type RequiredRoles = Record<string, Record<string, Array<PermissionValues>>>;
 })
 export class RoleService {
   private requiredRoles: RequiredRoles = {
-    editHashList: {
-      readTasks: [Perm.TaskWrapper.READ],
-      updateHashList: [Perm.Hashlist.UPDATE],
-      readGroups: [Perm.GroupAccess.READ],
-      createWordList: [Perm.Hash.READ, Perm.File.CREATE]
+    hashList: {
+      create: [Perm.Hashlist.CREATE, Perm.Hashtype.READ],
+      read: [Perm.Hashlist.READ],
+      update: [Perm.Hashlist.UPDATE],
+      tasks: [Perm.TaskWrapper.READ],
+      groups: [Perm.GroupAccess.READ],
+      wordlist: [Perm.Hash.READ, Perm.File.CREATE]
+    },
+    superHashList: {
+      read: [Perm.Hashlist.READ, Perm.SuperHashlist.READ],
+      create: [Perm.SuperHashlist.CREATE, Perm.Hashlist.CREATE, Perm.Hashlist.READ]
+    },
+    hash: {
+      read: [Perm.Hash.READ]
     }
   };
-
-  private roleGroup: string;
 
   constructor(private permissionService: PermissionService) {}
 
   /**
-   * Set the component's group name
-   * @param roleGroup
-   */
-  setRoleGroup(roleGroup: string) {
-    this.roleGroup = roleGroup;
-  }
-
-  /**
    * Check, if the user has all permissions required for the given role
    *
+   * @param groupName - name of group
    * @param roleName - name of the role inside roleGroup to check
    * @return true: all permissions granted, false: at least one missing permission for the role
    */
-  hasRole(roleName: string): boolean {
-    for (const entry of this.requiredRoles[this.roleGroup][roleName]) {
+  hasRole(groupName: string, roleName: string): boolean {
+    for (const entry of this.requiredRoles[groupName][roleName]) {
       if (!this.permissionService.hasPermissionSync(entry)) {
         return false;
       }
