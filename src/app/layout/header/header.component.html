@@ -1,35 +1,37 @@
-<mat-toolbar class="hashtopolis-toolbar" *ngIf="isAuthentificated">
-  <div class="logo-container">
-    <a routerLink="/"
-      ><img
+@if (isAuthentificated) {
+  <mat-toolbar class="hashtopolis-toolbar">
+    <div class="logo-container">
+      <a routerLink="/"
+        ><img
         [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
         [alt]="headerConfig.brand.name"
         [width]="headerConfig.brand.width"
         [height]="headerConfig.brand.height"
         alt="Hashtopolis"
-    /></a>
-  </div>
-
-  {{ this.headerConfig.brand.name }}
-  <span class="menu-spacer"></span>
-  <ng-container *ngFor="let menuItem of mainMenu">
-    <action-menu
-      *ngIf="menuItem.display"
-      [label]="menuItem.label"
-      [icon]="menuItem.icon"
-      [actionMenuItems]="menuItem.actions"
-      [enableHoverClose]="true"
-      [openOnMouseEnter]="true"
-      (menuItemClicked)="menuItemClicked($event)"
-    ></action-menu>
-  </ng-container>
-  <button
-    mat-icon-button
-    (click)="toggleTheme()"
-    [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-  >
-    <mat-icon>
-      {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
-    </mat-icon>
-  </button>
-</mat-toolbar>
+      /></a>
+    </div>
+    {{ this.headerConfig.brand.name }}
+    <span class="menu-spacer"></span>
+    @for (menuItem of mainMenu; track menuItem) {
+      @if (menuItem.display) {
+        <action-menu
+          [label]="menuItem.label"
+          [icon]="menuItem.icon"
+          [actionMenuItems]="menuItem.actions"
+          [enableHoverClose]="true"
+          [openOnMouseEnter]="true"
+          (menuItemClicked)="menuItemClicked($event)"
+        ></action-menu>
+      }
+    }
+    <button
+      mat-icon-button
+      (click)="toggleTheme()"
+      [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+      <mat-icon>
+        {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
+      </mat-icon>
+    </button>
+  </mat-toolbar>
+}

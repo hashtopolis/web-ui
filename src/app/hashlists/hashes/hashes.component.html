@@ -1,19 +1,27 @@
 <grid-main>
 
-  <h2 class="h5 mb-4" *ngIf="whichView === 'chunks' || whichView === 'tasks' || whichView === 'hashlists'">
-    Hashes of
-    <ng-container [ngSwitch]="whichView">
-      <ng-container *ngSwitchCase="'chunks'"> chunk </ng-container>
-      <ng-container *ngSwitchCase="'tasks'"> task </ng-container>
-      <ng-container *ngSwitchCase="'hashlists'"> hashlist </ng-container>
-    </ng-container>
-    <a [routerLink]="getRouterLink()">{{ titleName }}</a>
-  </h2>
+  @if (whichView === 'chunks' || whichView === 'tasks' || whichView === 'hashlists') {
+    <h2 class="h5 mb-4">
+      Hashes of
+      @switch (whichView) {
+        @case ('chunks') {
+          chunk
+        }
+        @case ('tasks') {
+          task
+        }
+        @case ('hashlists') {
+          hashlist
+        }
+      }
+      <a [routerLink]="getRouterLink()">{{ titleName }}</a>
+    </h2>
+  }
   <app-hexconvertor></app-hexconvertor>
 </grid-main>
 <!-- Hashes -->
 <app-table>
- <hashes-table [id]="editedIndex" [dataType]="whichView" [filterParam]="filterParam"></hashes-table>
+  <hashes-table [id]="editedIndex" [dataType]="whichView" [filterParam]="filterParam"></hashes-table>
 </app-table>
 
 

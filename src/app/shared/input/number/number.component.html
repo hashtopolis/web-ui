@@ -12,11 +12,19 @@
       [required]="isRequired"
       [class.is-invalid]="error"
       [disabled]="disabled"
-    >
+      >
   </div>
-  <mat-error *ngIf="inputField.errors && (inputField.dirty || inputField.touched)">
-    <span *ngIf="inputField.errors.required">{{ title }} is required</span>
-    <span *ngIf="inputField.errors.min">Value cannot be less than {{ min }}</span>
-    <span *ngIf="inputField.errors.max">Value cannot be greater than {{ max }}</span>
-  </mat-error>
+  @if (inputField.errors && (inputField.dirty || inputField.touched)) {
+    <mat-error>
+      @if (inputField.errors.required) {
+        <span>{{ title }} is required</span>
+      }
+      @if (inputField.errors.min) {
+        <span>Value cannot be less than {{ min }}</span>
+      }
+      @if (inputField.errors.max) {
+        <span>Value cannot be greater than {{ max }}</span>
+      }
+    </mat-error>
+  }
 </mat-form-field>

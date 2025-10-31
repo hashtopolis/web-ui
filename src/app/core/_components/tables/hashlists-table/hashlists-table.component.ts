@@ -234,7 +234,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.dataSource.reset(true);
     this.dataSource.setIsArchived(isArchived);
+    this.dataSource.loadAll();
   }
 
   private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {

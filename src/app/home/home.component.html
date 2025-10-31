@@ -36,21 +36,19 @@
             <mat-icon>dns</mat-icon>
           </div>
           <h3>Agents</h3>
-          <ng-container *ngIf="canReadAgents; else noPermAgents">
+          @if (canReadAgents) {
             <span class="value" [class.refreshflash]="refreshFlash">
-              <ng-container *ngIf="loading; else agentsValue">
+              @if (loading) {
                 <ng-container *ngTemplateOutlet="spinner"></ng-container>
-              </ng-container>
-              <ng-template #agentsValue>
+              } @else {
                 {{ activeAgents.toLocaleString() }} / {{ totalAgents.toLocaleString() }}
-              </ng-template>
+              }
             </span>
-          </ng-container>
-          <ng-template #noPermAgents>
+          } @else {
             <ng-container
               *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm'}">
             </ng-container>
-          </ng-template>
+          }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Active / Total Agents
@@ -67,19 +65,17 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Tasks</h3>
-          <ng-container *ngIf="canReadTasks; else noPermTasks">
+          @if (canReadTasks) {
             <span class="value" [class.refreshflash]="refreshFlash">
-              <ng-container *ngIf="loading; else tasksValue">
+              @if (loading) {
                 <ng-container *ngTemplateOutlet="spinner"></ng-container>
-              </ng-container>
-              <ng-template #tasksValue>
+              } @else {
                 {{ completedTasks.toLocaleString() }} / {{ totalTasks.toLocaleString() }}
-              </ng-template>
+              }
             </span>
-          </ng-container>
-          <ng-template #noPermTasks>
+          } @else {
             <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm'}"></ng-container>
-          </ng-template>
+          }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Tasks
@@ -96,19 +92,17 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Supertasks</h3>
-          <ng-container *ngIf="canReadTasks; else noPermSupertasks">
+          @if (canReadTasks) {
             <span class="value" [class.refreshflash]="refreshFlash">
-              <ng-container *ngIf="loading; else supertasksValue">
+              @if (loading) {
                 <ng-container *ngTemplateOutlet="spinner"></ng-container>
-              </ng-container>
-              <ng-template #supertasksValue>
+              } @else {
                 {{ completedSupertasks.toLocaleString() }} / {{ totalSupertasks.toLocaleString() }}
-              </ng-template>
+              }
             </span>
-          </ng-container>
-          <ng-template #noPermSupertasks>
+          } @else {
             <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm'}"></ng-container>
-          </ng-template>
+          }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Supertasks
@@ -125,19 +119,17 @@
             <mat-icon>lock_open</mat-icon>
           </div>
           <h3>Cracks</h3>
-          <ng-container *ngIf="canReadCracks; else noPermCracks">
+          @if (canReadCracks) {
             <span class="value" [class.refreshflash]="refreshFlash">
-              <ng-container *ngIf="loading; else cracksValue">
+              @if (loading) {
                 <ng-container *ngTemplateOutlet="spinner"></ng-container>
-              </ng-container>
-              <ng-template #cracksValue>
+              } @else {
                 {{ totalCracks.toLocaleString() }}
-              </ng-template>
+              }
             </span>
-          </ng-container>
-          <ng-template #noPermCracks>
+          } @else {
             <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm'}"></ng-container>
-          </ng-template>
+          }
           <span class="label">
             <mat-icon>event_available</mat-icon>
             Last 7 days
@@ -160,53 +152,50 @@
     <div class="co co-100">
       <div class="app-echarts" style="height: 250px;">
         <!-- No permission template always defined -->
-        <ng-template #noPermChart>
-          <div class="no-permission heatmap-no-permission" data-test-id="heatmap-no-perm" style="text-align:center; margin-top:1rem;">
-            No permission to view chart data
-          </div>
-        </ng-template>
 
         <!-- Chart or spinner -->
-        <ng-container *ngIf="canReadCracks; else noPermChart">
-          <ng-container *ngIf="loading; else heatmapChart">
+        @if (canReadCracks) {
+          @if (loading) {
             <ng-container *ngTemplateOutlet="spinner"></ng-container>
-          </ng-container>
-
-          <ng-template #heatmapChart>
-            <ng-container *ngIf="heatmapData?.length; else emptyHeatmap">
+          } @else {
+            @if (heatmapData?.length) {
               <app-heatmap-chart
                 [class.refreshflash]="refreshFlash"
                 [data]="heatmapData"
                 [isDarkMode]="isDarkMode">
               </app-heatmap-chart>
-            </ng-container>
-            <ng-template #emptyHeatmap>
+            } @else {
               <div class="no-permission heatmap-no-permission" style="text-align:center; margin-top:1rem;">
                 No data to display
               </div>
-            </ng-template>
-          </ng-template>
-        </ng-container>
+            }
+          }
+        } @else {
+          <div class="no-permission heatmap-no-permission" data-test-id="heatmap-no-perm" style="text-align:center; margin-top:1rem;">
+            No permission to view chart data
+          </div>
+        }
       </div>
     </div>
-    <div *ngIf="canReadCracks" class="chart-controls">
-      <last-updated
-        [lastUpdated]="lastUpdated"
-        [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
-        [refreshing]="refreshing">
-      </last-updated>
-
-      <ng-container *ngIf="!autoRefreshService.refreshPage">
-        <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
-          <mat-icon>autorenew</mat-icon>
-        </button>
-      </ng-container>
-      <ng-container *ngIf="autoRefreshService.refreshPage">
-        <button mat-button (click)="setAutoRefresh(false)" data-testid="pause-auto-reload">
-          <mat-icon>pause_circle_outline</mat-icon>
-        </button>
-      </ng-container>
-    </div>
+    @if (canReadCracks) {
+      <div class="chart-controls">
+        <last-updated
+          [lastUpdated]="lastUpdated"
+          [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
+          [refreshing]="refreshing">
+        </last-updated>
+        @if (!autoRefreshService.refreshPage) {
+          <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
+            <mat-icon>autorenew</mat-icon>
+          </button>
+        }
+        @if (autoRefreshService.refreshPage) {
+          <button mat-button (click)="setAutoRefresh(false)" data-testid="pause-auto-reload">
+            <mat-icon>pause_circle_outline</mat-icon>
+          </button>
+        }
+      </div>
+    }
   </div>
 
   <!-- Row 3: Info Card -->
@@ -224,13 +213,13 @@
         <mat-card-content>
           Hashtopolis is available on
           <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">Github</a
-          >. To get information about how to use it, please visit the
-          <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
-          or
-          <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a
-          >.
-        </mat-card-content>
-      </mat-card>
+            >. To get information about how to use it, please visit the
+            <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
+            or
+            <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a
+              >.
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </div>
-  </div>
-</div>

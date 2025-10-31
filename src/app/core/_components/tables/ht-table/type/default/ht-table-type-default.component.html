@@ -1,16 +1,14 @@
-<ng-container *ngIf="!tableColumn.routerLink && !tableColumn.editable && !tableColumn.checkbox">
+@if (!tableColumn.routerLink && !tableColumn.editable && !tableColumn.checkbox) {
   <!-- Check if a async function is defined for the column -->
-  <ng-container *ngIf="tableColumn.async">
+  @if (tableColumn.async) {
     <div [innerHtml]="(tableColumn.async(element) | async) || '-'"></div>
-  </ng-container>
+  }
   <!-- Check if a render function is defined for the column -->
-  <ng-container *ngIf="!tableColumn.async && tableColumn.render">
+  @if (!tableColumn.async && tableColumn.render) {
     <div [innerHtml]="tableColumn.render(element)"></div>
-  </ng-container>
+  }
   <!-- Default rendering if no render function is defined -->
-  <ng-container
-    *ngIf="!tableColumn.async && !tableColumn.render && !tableColumn.icon"
-  >
+  @if (!tableColumn.async && !tableColumn.render && !tableColumn.icon) {
     {{ element[tableColumn.dataKey] }}
-  </ng-container>
-</ng-container>
+  }
+}

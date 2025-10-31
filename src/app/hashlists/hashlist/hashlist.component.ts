@@ -21,6 +21,5 @@ export class HashlistComponent {
   toggleIsArchived(event: MatSlideToggleChange): void {
     this.table.setIsArchived(event.checked);
     this.pageTitle = event.checked ? 'Hashlists (archived)' : 'Hashlists';
-    this.table.reload();
   }
 }

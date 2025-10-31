@@ -1,12 +1,13 @@
-<app-dynamic-form
-                *ngIf="isloaded"
-                [title]="title"
-                [formMetadata]="formMetadata"
-                [formValues]="formValues"
-                [form]="form"
-                [isCreateMode]="isCreate"
-                [buttonText]="isCreate ? 'Create' : 'Update'"
-                (formSubmit)="onFormSubmit($event)"
-                (deleteAction)="onDeleteAction()"
-                >
-</app-dynamic-form>
+@if (isloaded) {
+  <app-dynamic-form
+    [title]="title"
+    [formMetadata]="formMetadata"
+    [formValues]="formValues"
+    [form]="form"
+    [isCreateMode]="isCreate"
+    [buttonText]="isCreate ? 'Create' : 'Update'"
+    (formSubmit)="onFormSubmit($event)"
+    (deleteAction)="onDeleteAction()"
+    >
+  </app-dynamic-form>
+}

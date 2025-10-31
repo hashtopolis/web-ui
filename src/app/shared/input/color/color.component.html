@@ -13,21 +13,22 @@
           (ngModelChange)="onChange(value)"
           [value]="getDisplayColor()"
           [style.background]="getDisplayColor()"
-        />
+          />
         <span class="color-value">{{ getDisplayColor() }}</span>
       </mat-form-field>
     </div>
 
-    <button
-      *ngIf="randomColor"
-      mat-icon-button
-      matTooltip="Randomize Color"
-      type="button"
-      class="random-color-btn"
-      title="Randomize Color"
-      (click)="generateRandomColor()"
-    >
-      <mat-icon>casino</mat-icon>
-    </button>
+    @if (randomColor) {
+      <button
+        mat-icon-button
+        matTooltip="Randomize Color"
+        type="button"
+        class="random-color-btn"
+        title="Randomize Color"
+        (click)="generateRandomColor()"
+        >
+        <mat-icon>casino</mat-icon>
+      </button>
+    }
   </div>
 </div>

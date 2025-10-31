@@ -1,14 +1,18 @@
 <mat-form-field class="form-group" appearance="fill">
   <mat-label>{{ title }}</mat-label>
   <input
-      matInput
-      [matDatepicker]="picker"
-      (dateChange)="onChange(value)"
-      [(ngModel)]="value"
-      #datePickerContent="ngModel"
-          >
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+    matInput
+    [matDatepicker]="picker"
+    (dateChange)="onChange(value)"
+    [(ngModel)]="value"
+    #datePickerContent="ngModel"
+    >
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
   <mat-datepicker #picker></mat-datepicker>
-  <div *ngIf="error">Invalid date.</div>
+  @if (error) {
+    <div>Invalid date.</div>
+  }
 </mat-form-field>

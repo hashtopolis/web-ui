@@ -1,35 +1,29 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChange } from '@angular/core'
 
 @Component({
-    selector: 'app-pass-match',
-    template: `
-  <div>
-    <p class="text-left mb-0" *ngIf="confirmPassword?.length">{{ message }}</p>
-  </div>
-`,
-    standalone: false
+  selector: 'app-pass-match',
+  template: `
+    <div>
+      @if (confirmPassword?.length) {
+        <p class="text-left mb-0">{{ message }}</p>
+      }
+    </div>
+  `,
+  standalone: false
 })
 export class PassMatchComponent implements OnChanges {
+  @Input() public newPassword: string
+  @Input() public confirmPassword: string
 
-  @Input() public newPassword: string;
-  @Input() public confirmPassword: string;
-
-  message: string;
+  message: string
 
   ngOnChanges(changes: { [propName: string]: SimpleChange }): void {
-
-    const confirmpass = changes['confirmPassword'].currentValue;
+    const confirmpass = changes['confirmPassword'].currentValue
 
     if (confirmpass) {
-
-      this.message = (confirmpass === this.newPassword) ? 'Match' : 'No Match';
-
-    }else{
-
-      this.message = '';
-
+      this.message = confirmpass === this.newPassword ? 'Match' : 'No Match'
+    } else {
+      this.message = ''
     }
-
   }
-
 }

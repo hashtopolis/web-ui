@@ -1,12 +1,14 @@
 <div class="page-title-wrapper">
   <h2 class="h4">{{ title }}</h2>
-  <ng-container *ngIf="subbutton">
+  @if (subbutton) {
     <button mat-flat-button color="primary" (click)="navigate()">
       <mat-icon>add</mat-icon>
       {{ buttontitle }}
     </button>
-  </ng-container>
+  }
 </div>
-<div *ngIf="usetoggle" class="btn-toolbar mb-2 mb-md-0">
-  <div #content><ng-content></ng-content></div>
-</div>
+@if (usetoggle) {
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div #content><ng-content></ng-content></div>
+  </div>
+}

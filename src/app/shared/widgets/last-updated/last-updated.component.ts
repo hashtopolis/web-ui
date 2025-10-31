@@ -1,15 +1,14 @@
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval } from 'rxjs'
 
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
+import { MatProgressSpinner } from '@angular/material/progress-spinner'
 
-import { UIConfig } from '@models/config-ui.model';
+import { UIConfig } from '@models/config-ui.model'
 
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service'
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatDate } from '@src/app/shared/utils/datetime';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config'
+import { formatDate } from '@src/app/shared/utils/datetime'
 
 /**
  * Component to display the last updated time and a countdown to the next refresh.
@@ -35,7 +34,7 @@ import { formatDate } from '@src/app/shared/utils/datetime';
   selector: 'last-updated',
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
-  imports: [CommonModule, MatProgressSpinner],
+  imports: [MatProgressSpinner],
   providers: [
     {
       provide: UISettingsUtilityClass,
@@ -46,19 +45,19 @@ import { formatDate } from '@src/app/shared/utils/datetime';
 })
 export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** The actual last time data was loaded */
-  @Input() lastUpdated!: Date;
+  @Input() lastUpdated!: Date
 
   /** Timestamp (ms) of the next scheduled refresh */
-  @Input() nextRefreshTimestamp!: number;
+  @Input() nextRefreshTimestamp!: number
 
   /** Whether a refresh is currently in progress */
-  @Input() refreshing = false;
+  @Input() refreshing = false
 
   /** Display string for countdown in mm:ss format */
-  nextUpdateDisplay: string | null = null;
+  nextUpdateDisplay: string | null = null
 
   /** Subscription for interval timer */
-  private timerSubscription?: Subscription;
+  private timerSubscription?: Subscription
 
   /** Injected utility for UI settings */
   constructor(
@@ -68,62 +67,62 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Returns the formatted last updated time according to UI settings */
   get lastUpdatedDisplay(): string {
-    return formatDate(this.lastUpdated, this.util.getSetting('timefmt'));
+    return formatDate(this.lastUpdated, this.util.getSetting('timefmt'))
   }
 
   /** Initialize the countdown timer */
   ngOnInit(): void {
-    this.startCountdown();
+    this.startCountdown()
   }
 
   /** Handle changes to input properties */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['nextRefreshTimestamp'] && changes['nextRefreshTimestamp'].currentValue) {
-      this.updateCountdown(); // recalc immediately
-      this.startCountdown(); // restart interval with the new timestamp
+      this.updateCountdown() // recalc immediately
+      this.startCountdown() // restart interval with the new timestamp
     }
   }
 
   /** Start or restart the countdown interval */
   private startCountdown(): void {
-    this.timerSubscription?.unsubscribe();
-    this.updateCountdown(); // ensure UI is correct on init
+    this.timerSubscription?.unsubscribe()
+    this.updateCountdown() // ensure UI is correct on init
 
     this.timerSubscription = interval(250).subscribe(() => {
-      this.updateCountdown();
+      this.updateCountdown()
 
       // stop interval once countdown reaches 00:00
       if (this.nextUpdateDisplay === '00:00') {
-        this.timerSubscription?.unsubscribe();
+        this.timerSubscription?.unsubscribe()
       }
-    });
+    })
   }
 
   /** Update countdown display based on the next refresh timestamp */
   private updateCountdown(): void {
     if (!this.nextRefreshTimestamp || this.refreshing) {
-      this.nextUpdateDisplay = null;
-      this.cd.detectChanges();
-      return;
+      this.nextUpdateDisplay = null
+      this.cd.detectChanges()
+      return
     }
 
-    const diffMs = this.nextRefreshTimestamp - Date.now();
+    const diffMs = this.nextRefreshTimestamp - Date.now()
     if (diffMs <= 0) {
-      this.nextUpdateDisplay = '00:00';
-      this.cd.markForCheck();
-      return;
+      this.nextUpdateDisplay = '00:00'
+      this.cd.markForCheck()
+      return
     }
 
-    const totalSec = Math.ceil(diffMs / 1000); // ceil keeps the last second visible
-    const minutes = Math.floor(totalSec / 60);
-    const seconds = totalSec % 60;
+    const totalSec = Math.ceil(diffMs / 1000) // ceil keeps the last second visible
+    const minutes = Math.floor(totalSec / 60)
+    const seconds = totalSec % 60
 
-    this.nextUpdateDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    this.cd.detectChanges();
+    this.nextUpdateDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    this.cd.detectChanges()
   }
 
   /** Clean up the interval subscription */
   ngOnDestroy(): void {
-    this.timerSubscription?.unsubscribe();
+    this.timerSubscription?.unsubscribe()
   }
 }

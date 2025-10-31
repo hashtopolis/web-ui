@@ -1,15 +1,23 @@
 <div class="dialog-title mat-elevation-z4 text-primary-300">
-  <mat-icon *ngIf="data.icon" class="dialog-icon">{{ data.icon }}</mat-icon>
+  @if (data.icon) {
+    <mat-icon class="dialog-icon">{{ data.icon }}</mat-icon>
+  }
   <span class="dialog-title-text">{{ data.title || 'Confirm' }}</span>
 </div>
 <div mat-dialog-content>
-  <ul *ngIf="data.listAttribute && data.rows.length > 0">
-    <li *ngFor="let row of data.rows">
-      {{ row[data.listAttribute]
-      }}
-    </li>
-  </ul>
-  <p *ngIf="data.body">{{ data.body }}</p>
+  @if (data.listAttribute && data.rows.length > 0) {
+    <ul>
+      @for (row of data.rows; track row) {
+        <li>
+          {{ row[data.listAttribute]
+          }}
+        </li>
+      }
+    </ul>
+  }
+  @if (data.body) {
+    <p>{{ data.body }}</p>
+  }
 </div>
 <div mat-dialog-actions align="end">
   <button mat-flat-button (click)="onNoClick()">
@@ -20,7 +28,7 @@
     cdkFocusInitial
     [mat-dialog-close]="{ data: data.rows, action: data.action }"
     [color]="data.warn ? 'warn' : 'primary'"
-  >
+    >
     {{ data.okLabel ? data.okLabel : 'Continue' }}
   </button>
 </div>

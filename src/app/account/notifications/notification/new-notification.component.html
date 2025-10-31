@@ -4,7 +4,9 @@
 
     <div fxLayout="column">
       <input-select title="Trigger Action" formControlName="action" [items]="allowedActions" data-testid="select-action" [isRequired]="true"></input-select>
-      <input-select title="Value" formControlName="actionFilter" [items]="filters" data-testid="select-action-filter" *ngIf="active"></input-select>
+      @if (active) {
+        <input-select title="Value" formControlName="actionFilter" [items]="filters" data-testid="select-action-filter"></input-select>
+      }
       <input-select title="Notification" formControlName="notification" [items]="notifications" data-testid="select-notification" [isRequired]="true"></input-select>
       <input-text title="Receiver" formControlName="receiver" data-testid="input-receiver" [isRequired]="true"></input-text>
       <input-check title="Status" formControlName="isActive" data-testid="input-is-active"></input-check>
@@ -13,9 +15,11 @@
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
       <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
-      <div *ngIf="isCreatingLoading">
-        <mat-spinner diameter="24" color="accent"></mat-spinner>
-      </div>
+      @if (isCreatingLoading) {
+        <div>
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
+      }
     </grid-buttons>
 
   </form>

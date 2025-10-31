@@ -24,8 +24,10 @@
       ></button-submit>
     </grid-buttons>
 
-    <span *ngIf="newCrackerForm.invalid && newCrackerForm.touched" class="help-block"
-    >Please complete all required fields!</span>
+    @if (newCrackerForm.invalid && newCrackerForm.touched) {
+      <span class="help-block"
+      >Please complete all required fields!</span>
+    }
   </form>
 
 </grid-main>
