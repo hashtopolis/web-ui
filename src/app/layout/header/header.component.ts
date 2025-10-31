@@ -7,7 +7,9 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
-import { RoleService } from '@services/roles/role.service';
+import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
+import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -32,23 +34,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   private themeSub: Subscription;
 
-  isHovering = false;
-  hoverTimeout: ReturnType<typeof setTimeout>;
-
   // Before showing header check Authentification
   private userSub: Subscription;
-  isAuthentificated = false;
+  isAuthenticated = false;
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
   private destroy$ = new Subject<void>();
+
   constructor(
     private authService: AuthService,
     private storage: LocalStorageService<UIConfig>,
     private themes: ThemeService,
     private permissionService: PermissionService,
     private easterEggService: EasterEggService,
-    private roleService: RoleService
+    private hashListRoleService: HashListRoleService,
+    private superHashListRoleService: SuperHashListRoleService,
+    private hashRoleService: HashRoleService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -56,7 +58,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isAuth(): void {
     this.userSub = this.authService.user.subscribe((user) => {
-      this.isAuthentificated = !!user;
+      this.isAuthenticated = !!user;
     });
   }
 
@@ -97,7 +99,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   easterEggFlag: boolean = false;
+
   private activateSecretFeature(): void {
     // Add your secret feature here
     if (this.easterEggFlag) {
@@ -237,9 +241,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Hashlists' menu.
    */
   getHashlistsMenu(): MainMenuItem {
-    const canReadHashlists = this.roleService.hasRole('hashList', 'read');
-    const canReadSuperHashlists = this.roleService.hasRole('superHashList', 'read');
-    const canReadHashes = this.roleService.hasRole('hash', 'read');
+    const canReadHashlists = this.hashListRoleService.hasRole('read');
+    const canReadSuperHashlists = this.superHashListRoleService.hasRole('read');
+    const canReadHashes = this.hashRoleService.hasRole('read');
 
     if (!canReadHashlists && !canReadSuperHashlists && !canReadSuperHashlists) {
       return { display: false, label: HeaderMenuLabel.HASHLISTS, actions: [] };
@@ -251,7 +255,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push({
         label: HeaderMenuLabel.SHOW_HASHLISTS,
         routerLink: ['hashlists', 'hashlist'],
-        showAddButton: this.roleService.hasRole('hashList', 'create'),
+        showAddButton: this.hashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
         tooltipAddButton: 'New Hashlist'
       });
@@ -261,7 +265,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push({
         label: HeaderMenuLabel.SUPERHASHLISTS,
         routerLink: ['hashlists', 'superhashlist'],
-        showAddButton: this.roleService.hasRole('superHashList', 'create'),
+        showAddButton: this.superHashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-superhashlist'],
         tooltipAddButton: 'New Superhashlist'
       });

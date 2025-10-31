@@ -2,7 +2,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 
 import { Component } from '@angular/core';
 
-import { RoleService } from '@services/roles/role.service';
+import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
 
 @Component({
   selector: 'app-superhashlist',
@@ -14,9 +14,9 @@ export class SuperhashlistComponent {
 
   constructor(
     private titleService: AutoTitleService,
-    private roleService: RoleService
+    private roleService: SuperHashListRoleService
   ) {
     this.titleService.set(['Show SuperHashlist']);
-    this.showCreateButton = this.roleService.hasRole('superHashList', 'create');
+    this.showCreateButton = this.roleService.hasRole('create');
   }
 }

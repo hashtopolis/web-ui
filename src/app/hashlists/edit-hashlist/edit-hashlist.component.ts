@@ -13,7 +13,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RoleService } from '@services/roles/role.service';
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
@@ -80,7 +80,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    protected roleService: RoleService
+    protected roleService: HashListRoleService
   ) {
     this.getInitialization();
     this.buildForm();
@@ -123,7 +123,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   loadData() {
-    if (this.hasRole('groups')) {
+    if (this.roleService.hasRole('groups')) {
       const accessGroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
         const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
           data: response.data,
@@ -228,9 +228,5 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       this.unsavedChangesService.setUnsavedChanges(true);
     }
     return !hasUnsavedChanges;
-  }
-
-  hasRole(roleName: string): boolean {
-    return this.roleService.hasRole('hashList', roleName);
   }
 }

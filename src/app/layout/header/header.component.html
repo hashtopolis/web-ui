@@ -1,8 +1,8 @@
-@if (isAuthentificated) {
+@if (isAuthenticated) {
   <mat-toolbar class="hashtopolis-toolbar">
     <div class="logo-container">
       <a routerLink="/"
-        ><img
+      ><img
         [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
         [alt]="headerConfig.brand.name"
         [width]="headerConfig.brand.width"
@@ -28,7 +28,7 @@
       mat-icon-button
       (click)="toggleTheme()"
       [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-      >
+    >
       <mat-icon>
         {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
       </mat-icon>
