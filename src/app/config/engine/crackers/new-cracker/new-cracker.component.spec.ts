@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
@@ -18,11 +19,13 @@ describe('NewCrackerComponent', () => {
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
+  let mockRoleService: jasmine.SpyObj<CrackerBinaryRoleService>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockRoleService = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
 
     await TestBed.configureTestingModule({
       imports: [NewCrackerComponent],
@@ -30,6 +33,7 @@ describe('NewCrackerComponent', () => {
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: Router, useValue: mockRouter },
         { provide: AlertService, useValue: mockAlertService },
+        { provide: CrackerBinaryRoleService, useValue: mockRoleService },
         provideHttpClient()
       ]
     }).compileComponents();
@@ -69,6 +73,7 @@ describe('NewCrackerComponent', () => {
       typeName: 'TestCracker',
       isChunkingAvailable: true
     });
+
     component.newCrackerForm.updateValueAndValidity();
 
     // Simulate successful create
@@ -119,6 +124,7 @@ describe('NewCrackerComponent', () => {
       typeName: '',
       isChunkingAvailable: undefined
     });
+    mockRoleService.hasRole.and.returnValue(true);
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
 
