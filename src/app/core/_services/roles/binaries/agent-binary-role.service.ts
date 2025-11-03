@@ -1,5 +1,5 @@
 /**
- * Role service definition for files
+ * Role service definition for agent binaries
  */
 import { Perm } from '@constants/userpermissions.config';
 
@@ -11,14 +11,11 @@ import { RoleService } from '@services/roles/base/role.service';
 @Injectable({
   providedIn: 'root'
 })
-export class FileRoleService extends RoleService {
+export class AgentBinaryRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.File.READ],
-      create: [Perm.File.CREATE],
-      update: [Perm.File.UPDATE],
-      delete: [Perm.File.DELETE],
-      groups: [Perm.GroupAccess.READ]
+      read: [Perm.AgentBinary.READ],
+      create: [Perm.AgentBinary.CREATE]
     });
   }
 }

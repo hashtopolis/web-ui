@@ -7,7 +7,10 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
-import { FileRoleService } from '@services/roles/file/file-role.service';
+import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
+import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
+import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { FileRoleService } from '@services/roles/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
@@ -52,7 +55,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private hashListRoleService: HashListRoleService,
     private superHashListRoleService: SuperHashListRoleService,
     private hashRoleService: HashRoleService,
-    private fileRoleService: FileRoleService
+    private fileRoleService: FileRoleService,
+    private crackerBinaryRoleService: CrackerBinaryRoleService,
+    private agentBinaryRoleService: AgentBinaryRoleService,
+    private preprocessorRoleService: PreprocessorRoleService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -459,32 +465,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Binaries' menu.
    */
   getBinariesMenu(): MainMenuItem {
-    // Require at least one of CrackerBinary.READ, AgentBinary.READ, or Prepro.READ permissions for menu to display
-    const canReadCrackerBinary = this.permissionService.hasPermissionSync(Perm.CrackerBinary.READ);
-    const canReadAgentBinary = this.permissionService.hasPermissionSync(Perm.AgentBinary.READ);
-    const canReadPreprocessors = this.permissionService.hasPermissionSync(Perm.Prepro.READ);
+    const actions: Array<ActionMenuItem> = [];
 
-    if (!canReadCrackerBinary && !canReadAgentBinary && !canReadPreprocessors) {
-      return { display: false, label: HeaderMenuLabel.BINARIES, actions: [] };
-    }
-
-    const actions = [];
-
-    if (canReadCrackerBinary) {
+    if (this.crackerBinaryRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.CRACKERS,
         routerLink: ['config', 'engine', 'crackers']
       });
     }
 
-    if (canReadPreprocessors) {
+    if (this.preprocessorRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.PREPROCESSORS,
         routerLink: ['config', 'engine', 'preprocessors']
       });
     }
 
-    if (canReadAgentBinary) {
+    if (this.agentBinaryRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.AGENT_BINARIES,
         routerLink: ['config', 'engine', 'agent-binaries']
@@ -492,7 +489,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.BINARIES,
       actions: [actions]
     };

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { FileType } from '@models/file.model';
 
-import { FileRoleService } from '@services/roles/file/file-role.service';
+import { FileRoleService } from '@services/roles/file-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
