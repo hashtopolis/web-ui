@@ -19,12 +19,25 @@ export abstract class RoleService {
   ) {}
 
   /**
+   * Check, if the rolename exists in the role object
+   * @param key - name of role to check
+   * @return true, if the role exists
+   * @private
+   */
+  private hasRoleEntry(key: keyof RoleMapping): boolean {
+    return Array.isArray(this.roles[key]) && this.roles[key].length > 0;
+  }
+
+  /**
    * Check, if the user has all permissions required for the given role
    *
    * @param roleName - name of the role to check
    * @return true: all permissions granted, false: at least one missing permission for the role
    */
   hasRole(roleName: string): boolean {
+    if (!this.hasRoleEntry(roleName)) {
+      return false;
+    }
     for (const entry of this.roles[roleName]) {
       if (!this.permissionService.hasPermissionSync(entry)) {
         return false;
