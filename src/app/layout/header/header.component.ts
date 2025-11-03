@@ -7,6 +7,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { FileRoleService } from '@services/roles/file/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
@@ -50,7 +51,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private easterEggService: EasterEggService,
     private hashListRoleService: HashListRoleService,
     private superHashListRoleService: SuperHashListRoleService,
-    private hashRoleService: HashRoleService
+    private hashRoleService: HashRoleService,
+    private fileRoleService: FileRoleService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -294,39 +296,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Files' menu.
    */
   getFilesMenu(): MainMenuItem {
-    // Require File.READ permission for menu to display
-    const canRead = this.permissionService.hasPermissionSync(Perm.File.READ);
-    if (!canRead) {
-      return { display: false, label: HeaderMenuLabel.FILES, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.fileRoleService.hasRole('read')) {
+      const canCreateFiles = this.fileRoleService.hasRole('create');
+      actions.push(
+        {
+          label: HeaderMenuLabel.WORDLISTS,
+          routerLink: ['files', 'wordlist'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
+          tooltipAddButton: 'New Wordlist'
+        },
+        {
+          label: HeaderMenuLabel.RULES,
+          routerLink: ['files', 'rules'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'rules', 'new-rule'],
+          tooltipAddButton: 'New Rule'
+        },
+        {
+          label: HeaderMenuLabel.OTHER,
+          routerLink: ['files', 'other'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'other', 'new-other'],
+          tooltipAddButton: 'New File'
+        }
+      );
     }
+
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.FILES,
-      actions: [
-        [
-          {
-            label: HeaderMenuLabel.WORDLISTS,
-            routerLink: ['files', 'wordlist'],
-            showAddButton: true,
-            routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
-            tooltipAddButton: 'New Wordlist'
-          },
-          {
-            label: HeaderMenuLabel.RULES,
-            routerLink: ['files', 'rules'],
-            showAddButton: true,
-            routerLinkAdd: ['files', 'rules', 'new-rule'],
-            tooltipAddButton: 'New Rule'
-          },
-          {
-            label: HeaderMenuLabel.OTHER,
-            routerLink: ['files', 'other'],
-            showAddButton: true,
-            routerLinkAdd: ['files', 'other', 'new-other'],
-            tooltipAddButton: 'New File'
-          }
-        ]
-      ]
+      actions: [actions]
     };
   }
 
