@@ -86,8 +86,12 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
           .subscribe((response: ResponseWrapper) => {
             const responseData = { data: response.data, included: response.included };
             const hashlists = this.serializer.deserialize<JHashlist[]>(responseData).map((element) => {
-              element.hashTypeDescription = element.hashType.description;
-              element.hashTypeId = element.hashType.id;
+              if (element.hashType) {
+                element.hashTypeDescription = element.hashType.description;
+                element.hashTypeId = element.hashType.id;
+              } else {
+                element.hashTypeDescription = '';
+              }
               return element;
             });
 
