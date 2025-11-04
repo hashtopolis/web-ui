@@ -22,6 +22,7 @@ import { ContextMenuService } from '@services/context-menu/base/context-menu.ser
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -70,7 +71,8 @@ export class BaseTableComponent {
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
     public dialog: MatDialog,
-    protected permissionService: PermissionService
+    protected permissionService: PermissionService,
+    readonly roleService: TasksRoleService
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();

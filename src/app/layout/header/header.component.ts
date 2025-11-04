@@ -14,6 +14,7 @@ import { FileRoleService } from '@services/roles/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -52,6 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private themes: ThemeService,
     private permissionService: PermissionService,
     private easterEggService: EasterEggService,
+    private tasksRoleService: TasksRoleService,
     private hashListRoleService: HashListRoleService,
     private superHashListRoleService: SuperHashListRoleService,
     private hashRoleService: HashRoleService,
@@ -194,42 +196,54 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns a MainMenuItem for the 'Tasks' menu
    */
   getTasksMenu(): MainMenuItem {
+    const taskActions: Array<ActionMenuItem> = [];
+
+    if (this.tasksRoleService.hasRole('read')) {
+      taskActions.push({
+        label: HeaderMenuLabel.SHOW_TASKS,
+        routerLink: ['tasks', 'show-tasks'],
+        showAddButton: this.tasksRoleService.hasRole('create'),
+        routerLinkAdd: ['tasks', 'new-task'],
+        tooltipAddButton: 'New Task'
+      });
+    }
+
     // Require TaskWrapper.READ permission for menu to display
-    const canReadTasks = this.permissionService.hasPermissionSync(Perm.TaskWrapper.READ);
-    if (!canReadTasks) {
+    const canReadPreTasks = this.permissionService.hasPermissionSync(Perm.Pretask.READ);
+    const canReadSupertasks = this.permissionService.hasPermissionSync(Perm.SuperTask.READ);
+    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
+
+    if (!canReadPreTasks && !canReadSupertasks && !canReadChunks) {
       return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
     }
 
-    const taskActions = [
-      {
-        label: HeaderMenuLabel.SHOW_TASKS,
-        routerLink: ['tasks', 'show-tasks'],
-        showAddButton: true,
-        routerLinkAdd: ['tasks', 'new-task'],
-        tooltipAddButton: 'New Task'
-      },
-      {
+    if (canReadPreTasks) {
+      taskActions.push({
         label: HeaderMenuLabel.PRECONFIGURED_TASKS,
         routerLink: ['tasks', 'preconfigured-tasks'],
-        showAddButton: true,
+        showAddButton: this.permissionService.hasPermissionSync(Perm.Pretask.CREATE),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
         tooltipAddButton: 'New Preconfigured Task'
-      },
-      {
-        label: HeaderMenuLabel.SUPERTASKS,
-        routerLink: ['tasks', 'supertasks'],
-        showAddButton: true,
-        routerLinkAdd: ['tasks', 'new-supertasks'],
-        tooltipAddButton: 'New Supertask'
-      },
-      {
-        label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
-      }
-    ];
+      });
+    }
+
+    if (canReadSupertasks) {
+      taskActions.push(
+        {
+          label: HeaderMenuLabel.SUPERTASKS,
+          routerLink: ['tasks', 'supertasks'],
+          showAddButton: this.permissionService.hasPermissionSync(Perm.SuperTask.CREATE),
+          routerLinkAdd: ['tasks', 'new-supertasks'],
+          tooltipAddButton: 'New Supertask'
+        },
+        {
+          label: HeaderMenuLabel.IMPORT_SUPERTASK,
+          routerLink: ['tasks', 'import-supertasks', 'masks']
+        }
+      );
+    }
 
     // Require Chunk.READ permission for chunk activity menu item to display
-    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
     if (canReadChunks) {
       taskActions.push({
         label: HeaderMenuLabel.CHUNK_ACTIVITY,
@@ -238,7 +252,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: taskActions.length > 0,
       label: HeaderMenuLabel.TASKS,
       actions: [taskActions]
     };
