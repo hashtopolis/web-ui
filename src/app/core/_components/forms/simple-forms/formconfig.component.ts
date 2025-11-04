@@ -12,6 +12,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { InfoMetadataForm, MetadataFormField, MetadataService } from '@services/metadata.service';
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -84,6 +85,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
    * @param serializer - JsonAPISerializer to serialize/deserialize json:api objects
+   * @param notificationRoleService - role service for notifications
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -93,7 +95,8 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private notificationRoleService: NotificationsRoleService
   ) {
     // Subscribe to route data to initialize component data
     this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
@@ -112,18 +115,19 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   /**
    * Horizontal menu and redirection links.
    */
-  menuItems: HorizontalNav[] = [
-    { label: 'Agent', routeName: 'config/agent' },
-    { label: 'Task/Chunk', routeName: 'config/task-chunk' },
-    { label: 'Hashes/Cracks/Hashlist', routeName: 'config/hch' },
-    { label: 'Notifications', routeName: 'config/notifications' },
-    { label: 'General', routeName: 'config/general-settings' }
-  ];
+  protected menuItems: HorizontalNav[] = [];
 
   /**
    * Angular lifecycle hook: ngOnInit
    */
   ngOnInit(): void {
+    this.menuItems.push({ label: 'Agent', routeName: 'config/agent' });
+    this.menuItems.push({ label: 'Task/Chunk', routeName: 'config/task-chunk' });
+    this.menuItems.push({ label: 'Hashes/Cracks/Hashlist', routeName: 'config/hch' });
+    if (this.notificationRoleService.hasRole('read')) {
+      this.menuItems.push({ label: 'Notifications', routeName: 'config/notifications' });
+    }
+    this.menuItems.push({ label: 'General', routeName: 'config/general-settings' });
     this.loadEdit();
   }
 
