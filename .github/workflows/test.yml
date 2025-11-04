@@ -2,7 +2,7 @@ name: Angular CI
 
 on:
   pull_request:
-    branches: [ "master", "dev" ]  # trigger build on PR to dev/master
+    branches: [ "master" ]  # trigger build on PR to master
 
 jobs:
   code-check:
