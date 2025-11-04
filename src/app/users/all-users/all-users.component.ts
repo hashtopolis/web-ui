@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { UserRoleService } from '@services/roles/user/user-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
@@ -8,7 +9,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class AllUsersComponent {
-  constructor(private titleService: AutoTitleService) {
+  protected showCreateButton: boolean = false;
+
+  constructor(
+    private titleService: AutoTitleService,
+    private userRoleService: UserRoleService
+  ) {
     this.titleService.set(['Show Users']);
+    this.showCreateButton = this.userRoleService.hasRole('create');
   }
 }
