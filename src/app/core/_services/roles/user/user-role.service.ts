@@ -15,7 +15,9 @@ export class UserRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
       read: [Perm.User.READ],
-      create: [Perm.User.CREATE, Perm.GroupAccess.READ]
+      create: [Perm.User.CREATE, Perm.RightGroup.READ],
+      update: [Perm.User.UPDATE, Perm.RightGroup.READ],
+      delete: [Perm.User.DELETE]
     });
   }
 }
