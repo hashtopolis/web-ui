@@ -30,6 +30,7 @@ export class ConfigRoleWrapperService {
   hasHealthCheckRole(roleName: string): boolean {
     return this.healthCheckRoleService.hasRole(roleName);
   }
+
   hasLogRole(roleName: string): boolean {
     return this.logRoleService.hasRole(roleName);
   }
