@@ -21,7 +21,7 @@
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
       <button-submit data-testid="submit-button-newPreprocessor" [name]="submitButtonText"
-                     [disabled]="!newEditPreprocessorForm.valid || !roleService.hasRole('update')"></button-submit>
+                     [disabled]="!newEditPreprocessorForm.valid || (isEditMode ? !roleService.hasRole('update') : !roleService.hasRole('create'))"></button-submit>
     </grid-buttons>
 
     @if (newEditPreprocessorForm.invalid && newEditPreprocessorForm.touched) {
