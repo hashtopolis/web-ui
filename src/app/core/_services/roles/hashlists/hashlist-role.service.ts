@@ -14,7 +14,7 @@ import { RoleService } from '@services/roles/base/role.service';
 export class HashListRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      create: [Perm.Hashlist.CREATE, Perm.Hashtype.READ],
+      create: [Perm.Hashlist.CREATE, Perm.Hashtype.READ, Perm.GroupAccess.READ],
       read: [Perm.Hashlist.READ],
       update: [Perm.Hashlist.UPDATE],
       tasks: [Perm.TaskWrapper.READ],
