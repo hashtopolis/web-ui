@@ -2,15 +2,15 @@
   @switch (fileType) {
     @case (FileType.WORDLIST) {
       <app-page-title title="Wordlist Files" buttontitle="New Wordlist" buttonlink="/files/wordlist/new-wordlist"
-      [subbutton]="true"></app-page-title>
+                      [subbutton]="showCreateButton"></app-page-title>
     }
     @case (FileType.RULES) {
       <app-page-title title="Rule Files" buttontitle="New Rule" buttonlink="/files/rules/new-rule"
-      [subbutton]="true"></app-page-title>
+                      [subbutton]="showCreateButton"></app-page-title>
     }
     @case (FileType.OTHER) {
       <app-page-title title="Other Files" buttontitle="New File" buttonlink="/files/other/new-other"
-      [subbutton]="true"></app-page-title>
+                      [subbutton]="showCreateButton"></app-page-title>
     }
   }
   <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
