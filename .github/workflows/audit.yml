@@ -1,10 +1,9 @@
 name: npm audit
 
 on:
-  pull_request:           # on every PR to master/dev
+  pull_request:           # on every PR to master
     branches:
       - master
-      - dev
   schedule:
     - cron: '0 3 * * *'   # every day at 3am
 
