@@ -10,6 +10,7 @@ import { PermissionService } from '@services/permission/permission.service';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { ConfigRoleWrapperService } from '@services/roles/config/config-role-wrapper.service';
 import { FileRoleService } from '@services/roles/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
@@ -58,7 +59,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private fileRoleService: FileRoleService,
     private crackerBinaryRoleService: CrackerBinaryRoleService,
     private agentBinaryRoleService: AgentBinaryRoleService,
-    private preprocessorRoleService: PreprocessorRoleService
+    private preprocessorRoleService: PreprocessorRoleService,
+    private configRoleWrapper: ConfigRoleWrapperService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -430,33 +432,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Config' menu.
    */
   getConfigMenu(): MainMenuItem {
-    const canRead = this.permissionService.hasPermissionSync(Perm.Config.READ);
-    if (!canRead) {
-      return { display: false, label: HeaderMenuLabel.CONFIG, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.configRoleWrapper.hasSettingsRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.SETTINGS,
+        routerLink: ['config', 'agent']
+      });
+    }
+    if (this.configRoleWrapper.hasHashTypesRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HASHTYPES,
+        routerLink: ['config', 'hashtypes']
+      });
+    }
+    if (this.configRoleWrapper.hasHealthCheckRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HEALTH_CHECKS,
+        routerLink: ['config', 'health-checks']
+      });
+    }
+    if (this.configRoleWrapper.hasLogRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.LOG,
+        routerLink: ['config', 'log']
+      });
     }
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.CONFIG,
-      actions: [
-        [
-          {
-            label: HeaderMenuLabel.SETTINGS,
-            routerLink: ['config', 'agent']
-          },
-          {
-            label: HeaderMenuLabel.HASHTYPES,
-            routerLink: ['config', 'hashtypes']
-          },
-          {
-            label: HeaderMenuLabel.HEALTH_CHECKS,
-            routerLink: ['config', 'health-checks']
-          },
-          {
-            label: HeaderMenuLabel.LOG,
-            routerLink: ['config', 'log']
-          }
-        ]
-      ]
+      actions: [actions]
     };
   }
 
