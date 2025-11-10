@@ -185,7 +185,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.tasks[0]?.activeAgents + ''
+            return wrapper.tasks[0]?.activeAgents + '';
           } else {
             return '';
           }
