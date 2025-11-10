@@ -9,6 +9,7 @@ import { FilterType } from '@models/request-params.model';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
 
 import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
@@ -64,7 +65,8 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     readonly titleService: AutoTitleService,
-    private unsubscribeService: UnsubscribeService
+    private unsubscribeService: UnsubscribeService,
+    protected roleService: AccessGroupRoleService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -136,23 +138,23 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Load all users currently not part of the accessGroup as options for select input
    */
   async loadSelectUsers() {
-    this.isUsersLoading = true;
-    const ids = this.accessGroup.userMembers.map((user) => user.id);
-
-    // Only include filter, if there are userMembers
-    const requestParamBuilder = new RequestParamBuilder();
-    if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
-    }
-    const requestParams = requestParamBuilder.create();
-
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
-      const users = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
-      });
-      this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
+      this.isUsersLoading = true;
+      if (this.accessGroup.userMembers) {
+        const ids = this.accessGroup.userMembers.map((user) => user.id);
+        const requestParamBuilder = new RequestParamBuilder();
+        if (ids.length > 0) {
+          requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
+        }
+        const requestParams = requestParamBuilder.create();
+
+        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
+        const users = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
+      }
     } catch (error) {
       console.error('Failed to load user data: ', error);
     } finally {
@@ -164,22 +166,24 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Load all agents currently not part of the accessGroup as options for select input
    */
   async loadSelectAgents() {
-    this.isAgentsLoading = true;
-    const ids = this.accessGroup.agentMembers.map((agent) => agent.id);
-
-    // Only include filter, if there are agentMembers
-    const requestParamBuilder = new RequestParamBuilder();
-    if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
-    }
-    const requestParams = requestParamBuilder.create();
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-      const agents = new JsonAPISerializer().deserialize<JAgent[]>({
-        data: response.data,
-        included: response.included
-      });
-      this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
+      this.isAgentsLoading = true;
+      if (this.accessGroup.agentMembers) {
+        const ids = this.accessGroup.agentMembers.map((agent) => agent.id);
+
+        // Only include filter, if there are agentMembers
+        const requestParamBuilder = new RequestParamBuilder();
+        if (ids.length > 0) {
+          requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
+        }
+        const requestParams = requestParamBuilder.create();
+        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
+        const agents = new JsonAPISerializer().deserialize<JAgent[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
+      }
     } catch (error) {
       console.error('Failed to load user data: ', error);
     } finally {

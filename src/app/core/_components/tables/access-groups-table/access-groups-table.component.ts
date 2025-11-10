@@ -92,18 +92,20 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'nusers',
         isSortable: false,
         render: (accessGroup: JAccessGroup) => {
-          return accessGroup.userMembers.length.toString();
+          return accessGroup.userMembers ? accessGroup.userMembers.length.toString() : '-';
         },
-        export: async (accessGroup: JAccessGroup) => accessGroup.userMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.userMembers ? accessGroup.userMembers.length.toString() : '-'
       },
       {
         id: AccessGroupsTableCol.NAGENTS,
         dataKey: 'nagents',
         isSortable: false,
         render: (accessGroup: JAccessGroup) => {
-          return accessGroup.agentMembers.length.toString();
+          return accessGroup.agentMembers ? accessGroup.agentMembers.length.toString() : '-';
         },
-        export: async (accessGroup: JAccessGroup) => accessGroup.agentMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.agentMembers ? accessGroup.agentMembers.length.toString() : '-'
       }
     ];
   }
