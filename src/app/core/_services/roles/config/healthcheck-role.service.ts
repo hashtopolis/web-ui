@@ -14,7 +14,8 @@ import { RoleService } from '@services/roles/base/role.service';
 export class HealthCheckRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.HealthCheck.READ]
+      read: [Perm.HealthCheck.READ],
+      create: [Perm.HealthCheck.CREATE, Perm.AgentBinary.READ]
     });
   }
 }
