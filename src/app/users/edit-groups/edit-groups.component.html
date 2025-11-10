@@ -38,7 +38,7 @@
       }
     </form>
   }
-  @if (roleService.hasRole('readAgent')) {
+  @if (roleService.hasRole('readAgents')) {
     <h5>Add Agents</h5>
     <form [formGroup]="addAgentsForm">
       @if (!isAgentsLoading) {
@@ -74,7 +74,7 @@
     ></access-groups-users-table>
   </app-table>
 }
-@if (editedAccessGroupIndex && roleService.hasRole('readAgent')) {
+@if (editedAccessGroupIndex && roleService.hasRole('readAgents')) {
   <app-table>
     <app-page-subtitle subtitle="Agent Members"></app-page-subtitle>
     <app-access-groups-agents-table
