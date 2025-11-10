@@ -19,7 +19,7 @@ export class AccessGroupRoleService extends RoleService {
       delete: [Perm.GroupAccess.DELETE],
       update: [Perm.GroupAccess.UPDATE],
       readUser: [Perm.User.READ],
-      readAgents: [Perm.Agent.READ]
+      readAgent: [Perm.Agent.READ]
     });
   }
 }
