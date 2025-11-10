@@ -21,6 +21,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 
 import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
 import { ACTION, NOTIF } from '@src/app/core/_constants/notifications.config';
@@ -32,6 +33,7 @@ let loader: HarnessLoader;
 describe('NewNotificationComponent', () => {
   let component: NewNotificationComponent;
   let fixture: ComponentFixture<NewNotificationComponent>;
+  let mockRoleService: jasmine.SpyObj<NotificationsRoleService>;
 
   // Sample data for agents, tasks, hashlist, and users
   const agentValues: ResponseWrapper = {
@@ -235,6 +237,8 @@ describe('NewNotificationComponent', () => {
   };
 
   beforeEach(async () => {
+    mockRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+
     await TestBed.configureTestingModule({
       declarations: [NewNotificationComponent],
       imports: [
@@ -251,10 +255,8 @@ describe('NewNotificationComponent', () => {
       ],
       providers: [
         provideAnimations(),
-        {
-          provide: GlobalService,
-          useValue: mockService
-        },
+        { provide: GlobalService, useValue: mockService },
+        { provide: NotificationsRoleService, useValue: mockRoleService },
         provideHttpClient(withInterceptorsFromDi())
       ]
     }).compileComponents();
@@ -262,6 +264,7 @@ describe('NewNotificationComponent', () => {
     fixture = TestBed.createComponent(NewNotificationComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
+    mockRoleService.hasRole.and.returnValue(true);
     fixture.detectChanges();
   });
 

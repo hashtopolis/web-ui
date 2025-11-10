@@ -13,11 +13,20 @@ import { JTask } from '@models/task.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { Filter } from '@src/app/account/notifications/notifications.component';
-import { ACTION, ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
+import {
+  ACTION,
+  AGENT_ACTIONS,
+  HASHLIST_ACTIONS,
+  LOG_ACTIONS,
+  NOTIFARRAY,
+  TASK_ACTIONS,
+  USER_ACTIONS
+} from '@src/app/core/_constants/notifications.config';
 
 @Component({
   selector: 'app-new-notification',
@@ -35,10 +44,8 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   form: FormGroup;
   filters: Filter[];
   active = false;
-  allowedActions = ACTIONARRAY.map((action) => ({
-    id: action,
-    name: action
-  }));
+  allowedActions: Array<{ id: string; name: string }> = [];
+
   maxResults: string | number;
   notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
   subscriptions: Subscription[] = [];
@@ -67,7 +74,8 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     private titleService: AutoTitleService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private roleService: NotificationsRoleService
   ) {
     this.titleService.set(['New Notification']);
   }
@@ -76,6 +84,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Initializes the form for creating a new notification.
    */
   ngOnInit(): void {
+    this.buildAllowedActions();
     this.createForm();
   }
 
@@ -182,6 +191,28 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
           this.router.navigate(['/account/notifications']);
         })
       );
+    }
+  }
+
+  /**
+   * Build action drop down entries depending on user roles
+   * @private
+   */
+  private buildAllowedActions(): void {
+    if (this.roleService.hasRole('createAgentNotification')) {
+      this.allowedActions.push(...AGENT_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createTaskNotification')) {
+      this.allowedActions.push(...TASK_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createHashListNotification')) {
+      this.allowedActions.push(...HASHLIST_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createUserNotification')) {
+      this.allowedActions.push(...USER_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createLogNotification')) {
+      this.allowedActions.push(...LOG_ACTIONS.map((action) => ({ id: action, name: action })));
     }
   }
 }
