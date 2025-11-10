@@ -170,7 +170,7 @@ export class AccessPermissionGroupsUserTableComponent
         )
         .subscribe(() => {
           this.alertService.showSuccessMessage(
-            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
+            `Changed permission in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
           );
           this.reload();
         })
