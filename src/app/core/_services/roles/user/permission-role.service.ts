@@ -1,5 +1,5 @@
 /**
- * Role service definition for users
+ * Role service definition for permission groups
  */
 import { Perm } from '@constants/userpermissions.config';
 
