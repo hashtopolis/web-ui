@@ -15,11 +15,8 @@ import { JUser } from '@models/user.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
@@ -77,10 +74,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           const agentIds = agents.map((agent) => agent.id);
 
           const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-          const [users, agentStats] = await Promise.all([
-            this.loadUserData(userIds),
-            this.loadAgentStats(agentIds)
-          ]);
+          const [users, agentStats] = await Promise.all([this.loadUserData(userIds), this.loadAgentStats(agentIds)]);
 
           agents.forEach((agent: JAgent) => {
             agent.user = users.find((user: JUser) => user.id === agent.userId);

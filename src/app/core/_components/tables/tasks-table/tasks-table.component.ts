@@ -32,7 +32,7 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({

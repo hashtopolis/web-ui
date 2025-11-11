@@ -156,9 +156,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         isSortable: false,
         export: async (agent: JAgent) => {
           if (agent.chunks.length > 0) {
-            return agent.chunks[0].speed + ''
+            return agent.chunks[0].speed + '';
           } else {
-            return "-";
+            return '-';
           }
         }
       },
