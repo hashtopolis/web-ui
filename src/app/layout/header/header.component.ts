@@ -10,11 +10,13 @@ import { PermissionService } from '@services/permission/permission.service';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { ConfigRoleWrapperService } from '@services/roles/config/config-role-wrapper.service';
 import { FileRoleService } from '@services/roles/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -60,7 +62,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private fileRoleService: FileRoleService,
     private crackerBinaryRoleService: CrackerBinaryRoleService,
     private agentBinaryRoleService: AgentBinaryRoleService,
-    private preprocessorRoleService: PreprocessorRoleService
+    private preprocessorRoleService: PreprocessorRoleService,
+    private configRoleWrapper: ConfigRoleWrapperService,
+    private userRoleWrapperService: UserRoleWrapperService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -401,31 +405,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Users' menu.
    */
   getUsersMenu(): MainMenuItem {
-    // Require User.READ permission for menu to display
-    const canReadUsers = this.permissionService.hasPermissionSync(Perm.User.READ);
-    if (!canReadUsers) {
-      return { display: false, label: HeaderMenuLabel.USERS, actions: [] };
-    }
+    const actions: Array<ActionMenuItem> = [];
 
-    const actions = [
-      {
+    if (this.userRoleWrapperService.hasUserRole('read')) {
+      actions.push({
         label: HeaderMenuLabel.ALL_USERS,
         routerLink: ['users', 'all-users']
-      }
-    ];
-
-    // Require RightGroup.READ permission for 'Global Permissions' menu item
-    const canReadRightGroup = this.permissionService.hasPermissionSync(Perm.RightGroup.READ);
-    if (canReadRightGroup) {
+      });
+    }
+    if (this.userRoleWrapperService.hasPermissionRole('read')) {
       actions.push({
         label: HeaderMenuLabel.GLOBAL_PERMISSIONS,
         routerLink: ['users', 'global-permissions-groups']
       });
     }
-
-    // Require AccessGroup.READ permission for 'Access Groups' menu item
-    const canReadAccessGroup = this.permissionService.hasPermissionSync(Perm.GroupAccess.READ);
-    if (canReadAccessGroup) {
+    if (this.userRoleWrapperService.hasAccessGroupRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ACCESS_GROUPS,
         routerLink: ['users', 'access-groups']
@@ -433,7 +427,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.USERS,
       actions: [actions]
     };
@@ -444,33 +438,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Config' menu.
    */
   getConfigMenu(): MainMenuItem {
-    const canRead = this.permissionService.hasPermissionSync(Perm.Config.READ);
-    if (!canRead) {
-      return { display: false, label: HeaderMenuLabel.CONFIG, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.configRoleWrapper.hasSettingsRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.SETTINGS,
+        routerLink: ['config', 'agent']
+      });
+    }
+    if (this.configRoleWrapper.hasHashTypesRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HASHTYPES,
+        routerLink: ['config', 'hashtypes']
+      });
+    }
+    if (this.configRoleWrapper.hasHealthCheckRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HEALTH_CHECKS,
+        routerLink: ['config', 'health-checks']
+      });
+    }
+    if (this.configRoleWrapper.hasLogRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.LOG,
+        routerLink: ['config', 'log']
+      });
     }
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.CONFIG,
-      actions: [
-        [
-          {
-            label: HeaderMenuLabel.SETTINGS,
-            routerLink: ['config', 'agent']
-          },
-          {
-            label: HeaderMenuLabel.HASHTYPES,
-            routerLink: ['config', 'hashtypes']
-          },
-          {
-            label: HeaderMenuLabel.HEALTH_CHECKS,
-            routerLink: ['config', 'health-checks']
-          },
-          {
-            label: HeaderMenuLabel.LOG,
-            routerLink: ['config', 'log']
-          }
-        ]
-      ]
+      actions: [actions]
     };
   }
 
