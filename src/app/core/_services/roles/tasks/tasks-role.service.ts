@@ -16,7 +16,14 @@ export class TasksRoleService extends RoleService {
     super(permissionService, {
       create: [Perm.Task.CREATE, Perm.TaskWrapper.CREATE, Perm.Hashlist.READ, Perm.AgentBinary.READ],
       read: [Perm.Task.READ, Perm.TaskWrapper.READ],
-      update: [Perm.Task.UPDATE, Perm.TaskWrapper.UPDATE]
+      edit: [Perm.Task.UPDATE, Perm.TaskWrapper.UPDATE],
+      editTaskInfoHashlist: [Perm.Hashlist.READ, Perm.Hashtype.READ],
+      editTaskInfoCracker: [Perm.CrackerBinary.READ, Perm.CrackerBinaryType.READ],
+      editTaskAgents: [Perm.Agent.READ, Perm.AgentAssignment.READ],
+      editTaskAssignAgents: [Perm.AgentAssignment.CREATE, Perm.AgentAssignment.DELETE],
+      editTaskFiles: [Perm.File.READ],
+      editTaskSpeed: [Perm.Speed.READ],
+      editTaskChunks: [Perm.Chunk.READ, Perm.Agent.READ]
     });
   }
 }
