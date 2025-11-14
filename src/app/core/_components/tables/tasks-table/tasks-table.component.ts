@@ -32,7 +32,7 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
@@ -185,7 +185,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.tasks[0]?.activeAgents + ''
+            return wrapper.tasks[0]?.activeAgents + '';
           } else {
             return '';
           }
