@@ -409,10 +409,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (agent && agent.chunkId) {
+    if (agent && agent.chunks && agent.chunks.length > 0) {
+      const chunkID = agent.chunks[0].id;
       links.push({
-        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
-        label: agent.chunkId
+        routerLink: ['/tasks', 'chunks', chunkID, 'view'],
+        label: chunkID
       });
     }
     return of(links);
