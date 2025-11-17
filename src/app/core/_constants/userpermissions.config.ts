@@ -24,6 +24,10 @@ export enum AgentAssignment {
   UPDATE = 'permAgentAssignmentUpdate'
 }
 
+export enum AgentError {
+  READ = 'permAgentErrorRead'
+}
+
 // // VOUCHER
 export enum Voucher {
   CREATE = 'permRegVoucherCreate',
@@ -182,6 +186,7 @@ export class Perm {
   static readonly Agent = Agent;
   static readonly AgentStat = AgentStat;
   static readonly AgentAssignment = AgentAssignment;
+  static readonly AgentError = AgentError;
   static readonly Voucher = Voucher;
   static readonly Task = Task;
   static readonly Pretask = Pretask;

@@ -7,6 +7,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
@@ -55,6 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private permissionService: PermissionService,
     private easterEggService: EasterEggService,
     private hashListRoleService: HashListRoleService,
+    private agentRoleService: AgentRoleService,
     private superHashListRoleService: SuperHashListRoleService,
     private hashRoleService: HashRoleService,
     private fileRoleService: FileRoleService,
@@ -158,26 +160,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Agents' menu.
    */
   getAgentsMenu(): MainMenuItem {
-    const canReadAgents = this.permissionService.hasPermissionSync(Perm.Agent.READ);
-    // Require Agent.READ permission for menu to display
-    if (!canReadAgents) {
-      return { display: false, label: HeaderMenuLabel.AGENTS, actions: [] };
-    }
+    const actions: Array<ActionMenuItem> = [];
 
-    const agentActions = [
-      {
+    if (this.agentRoleService.hasRole('read')) {
+      actions.push({
         label: HeaderMenuLabel.SHOW_AGENTS,
         routerLink: ['agents', 'show-agents'],
-        showAddButton: true,
+        showAddButton: this.agentRoleService.hasRole('create'),
         routerLinkAdd: ['agents', 'new-agent'],
         tooltipAddButton: 'New Agent'
-      }
-    ];
+      });
+    }
 
-    // Reqire AgentStat.READ permission for 'agent-status' menu item to display
-    const canReadAgentStats = this.permissionService.hasPermissionSync(Perm.AgentStat.READ);
-    if (canReadAgentStats) {
-      agentActions.push({
+    if (this.agentRoleService.hasRole('readStat')) {
+      actions.push({
         label: HeaderMenuLabel.AGENT_STATUS,
         routerLink: ['agents', 'agent-status'],
         showAddButton: false,
@@ -189,7 +185,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return {
       display: true,
       label: HeaderMenuLabel.AGENTS,
-      actions: [agentActions]
+      actions: [actions]
     };
   }
 
