@@ -66,7 +66,7 @@ export enum Chunk {
 }
 // // Speed
 export enum Speed {
-  READ = 'permChunkRead'
+  READ = 'permSpeedRead'
 }
 // // HASH-LIST
 export enum Hashlist {
