@@ -376,8 +376,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     ];
 
-    const canReadNotifications = this.permissionService.hasPermissionSync(Perm.Notif.READ);
-    if (canReadNotifications) {
+    if (this.configRoleWrapper.hasNotificationRole('read')) {
       actions.push({
         label: 'Notifications',
         routerLink: ['account', 'notifications']

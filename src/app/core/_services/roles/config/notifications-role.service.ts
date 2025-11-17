@@ -14,7 +14,13 @@ import { RoleService } from '@services/roles/base/role.service';
 export class NotificationsRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.Notif.READ]
+      read: [Perm.Notif.READ],
+      create: [Perm.Notif.CREATE],
+      createAgentNotification: [Perm.Notif.CREATE, Perm.Agent.READ],
+      createTaskNotification: [Perm.Notif.CREATE, Perm.Task.READ],
+      createHashListNotification: [Perm.Notif.CREATE, Perm.Hashlist.READ],
+      createUserNotification: [Perm.Notif.CREATE, Perm.User.READ],
+      createLogNotification: [Perm.Notif.CREATE, Perm.Logs.READ]
     });
   }
 }
