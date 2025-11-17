@@ -110,7 +110,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.assignChunksInit();
     });
 
-    if (this.editedTaskIndex) {
+    if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
       this.loadTaskProgressImage();
     }
   }
