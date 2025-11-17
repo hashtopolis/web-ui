@@ -1,8 +1,10 @@
 import { Subscription, finalize } from 'rxjs';
 
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
@@ -23,6 +25,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ConfigService } from '@services/shared/config.service';
 
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
@@ -70,6 +73,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   isReadOnly = false;
 
+  taskProgressImageUrl: SafeUrl | null = null;
+  private rawTaskProgressObjectUrl: string | null = null;
+
   private routeSub: Subscription;
 
   constructor(
@@ -80,7 +86,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     private router: Router,
     private serializer: JsonAPISerializer,
     private confirmDialog: ConfirmDialogService,
-    protected roleService: TasksRoleService
+    protected roleService: TasksRoleService,
+    private cs: ConfigService,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer
   ) {
     this.titleService.set(['Edit Task']);
   }
@@ -100,10 +109,19 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.initForm();
       this.assignChunksInit();
     });
+
+    if (this.editedTaskIndex) {
+      this.loadTaskProgressImage();
+    }
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+
+    if (this.rawTaskProgressObjectUrl) {
+      URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
+      this.rawTaskProgressObjectUrl = null;
+    }
   }
 
   buildForm() {
@@ -180,9 +198,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
 
-
         if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-           this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+          this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
         }
 
         if (this.roleService.hasRole('editTaskSpeed')) {
@@ -190,7 +207,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         }
 
         // Hashlist Description and Type
-        if (task.hashlist) {
+        if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
           this.hashlistinform = task.hashlist;
           if (this.hashlistinform) {
             this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
@@ -225,6 +242,39 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           }
         });
       });
+    }
+  }
+
+  /**
+   * Load task progress image from backend
+   * @private
+   */
+  private loadTaskProgressImage(): void {
+    const url = this.cs.getEndpoint() + SERV.HELPER.URL + '/getTaskProgressImage?task=' + this.editedTaskIndex;
+
+    try {
+      if (this.rawTaskProgressObjectUrl) {
+        URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
+        this.rawTaskProgressObjectUrl = null;
+        this.taskProgressImageUrl = null;
+      }
+
+      this.http.get(url, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          if (!blob || blob.size === 0) {
+            this.taskProgressImageUrl = null;
+            return;
+          }
+          const objectUrl = URL.createObjectURL(blob);
+          this.rawTaskProgressObjectUrl = objectUrl;
+          this.taskProgressImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+        },
+        error: () => {
+          this.taskProgressImageUrl = null;
+        }
+      });
+    } catch (e) {
+      console.error(e);
     }
   }
 

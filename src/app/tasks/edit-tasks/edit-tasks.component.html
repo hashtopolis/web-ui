@@ -138,8 +138,10 @@
   <div class="card shadow">
     <div class="card-body table-responsive" style="overflow-x: auto;">
       <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
-      <task-visual [view]="'task'" [tkeyspace]="tkeyspace" [cprogress]="cprogress" [taskid]="editedTaskIndex"
-      [taskWrapperId]="taskWrapperId" [tusepreprocessor]="tusepreprocessor"></task-visual>
+      <img [hidden]="!taskProgressImageUrl"
+           [src]="taskProgressImageUrl"
+           alt="Task progress image"
+           style="max-width: 100%; height: auto;" />
       <mat-card style="margin-top: 20px">
         <mat-card-content class="info-message justify-content-center">
           <h4 style="margin-top: 0;">Description</h4>
