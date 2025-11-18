@@ -64,6 +64,10 @@ export enum Chunk {
   READ = 'permChunkRead',
   UPDATE = 'permChunkUpdate'
 }
+// // Speed
+export enum Speed {
+  READ = 'permSpeedRead'
+}
 // // HASH-LIST
 export enum Hashlist {
   CREATE = 'permHashlistCreate',
@@ -188,6 +192,7 @@ export class Perm {
   static readonly SuperTask = SuperTask;
   static readonly TaskWrapper = TaskWrapper;
   static readonly Chunk = Chunk;
+  static readonly Speed = Speed;
   static readonly Hashlist = Hashlist;
   static readonly SuperHashlist = SuperHashlist;
   static readonly Hash = Hash;

@@ -24,7 +24,6 @@ import { SumPipe } from '@src/app/core/_pipes/sum-object.pipe';
 import { TaskCrackedPipe } from '@src/app/core/_pipes/task-cracked.pipe';
 import { TaskDispatchedPipe } from '@src/app/core/_pipes/task-dispatched.pipe';
 import { TaskSearchedPipe } from '@src/app/core/_pipes/task-searched.pipe';
-import { TaskTimeSpentPipe } from '@src/app/core/_pipes/task-timespent.pipe';
 import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
 
 @NgModule({
@@ -32,7 +31,6 @@ import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
     HealthCheckStatusPipe,
     TaskDispatchedPipe,
     ReplaceStringPipe,
-    TaskTimeSpentPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
@@ -60,7 +58,6 @@ import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
     HealthCheckStatusPipe,
     TaskDispatchedPipe,
     ReplaceStringPipe,
-    TaskTimeSpentPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,

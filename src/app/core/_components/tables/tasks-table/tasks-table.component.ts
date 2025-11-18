@@ -99,7 +99,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setFilterQuery(filterQuery);
   }
   getColumns(): HTTableColumn[] {
-    return [
+    const columns: HTTableColumn[] = [];
+
+    columns.push(
       {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
@@ -161,9 +163,21 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
-        icon: (wrapper: JTaskWrapper) => this.renderHashlistIcon(wrapper.hashlist),
+        icon: (wrapper: JTaskWrapper) => {
+          if (wrapper.hashlist) {
+            this.renderHashlistIcon(wrapper.hashlist);
+          } else {
+            return undefined;
+          }
+        },
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
+        export: async (wrapper: JTaskWrapper) => {
+          if (wrapper.hashlist) {
+            return wrapper.hashlist.name + '';
+          } else {
+            return wrapper.hashlistId + ' -';
+          }
+        }
       },
       {
         id: TaskTableCol.DISPATCHED_SEARCHED,
@@ -200,32 +214,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
       {
-        id: TaskTableCol.PRIORITY,
-        dataKey: 'priority',
-        editable: (wrapper: JTaskWrapper) => {
-          return {
-            data: wrapper,
-            value: wrapper.priority + '',
-            action: TaskTableEditableAction.CHANGE_PRIORITY
-          };
-        },
-        isSortable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
-      },
-      {
-        id: TaskTableCol.MAX_AGENTS,
-        dataKey: 'maxAgents',
-        editable: (wrapper: JTaskWrapper) => {
-          return {
-            data: wrapper,
-            value: wrapper.maxAgents + '',
-            action: TaskTableEditableAction.CHANGE_MAX_AGENTS
-          };
-        },
-        isSortable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
-      },
-      {
         id: TaskTableCol.PREPROCESSOR,
         dataKey: 'preprocessorId',
         render: (wrapper: JTaskWrapper) =>
@@ -250,7 +238,57 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
       }
-    ];
+    );
+
+    if (this.roleService.hasRole('update')) {
+      columns.push(
+        {
+          id: TaskTableCol.PRIORITY,
+          dataKey: 'priority',
+          editable: (wrapper: JTaskWrapper) => {
+            return {
+              data: wrapper,
+              value: wrapper.priority + '',
+              action: TaskTableEditableAction.CHANGE_PRIORITY
+            };
+          },
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
+        },
+        {
+          id: TaskTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          editable: (wrapper: JTaskWrapper) => {
+            return {
+              data: wrapper,
+              value: wrapper.maxAgents + '',
+              action: TaskTableEditableAction.CHANGE_MAX_AGENTS
+            };
+          },
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+        }
+      );
+    } else {
+      columns.push(
+        {
+          id: TaskTableCol.PRIORITY,
+          dataKey: 'priority',
+          render: (wrapper: JTaskWrapper) => wrapper.priority + '',
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
+        },
+        {
+          id: TaskTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          render: (wrapper: JTaskWrapper) => wrapper.maxAgents + '',
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+        }
+      );
+    }
+
+    return columns;
   }
 
   //Evaluate which row class should be set
@@ -789,7 +827,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         label: wrapper.hashlist.name,
         routerLink: ['/hashlists', 'hashlist', wrapper.hashlist.id, 'edit']
       });
+    } else {
+      links.push({
+        label: wrapper.hashlistId + ' -',
+        routerLink: ['/hashlists', 'hashlist', wrapper.hashlistId, 'edit']
+      });
     }
+
     return of(links);
   }
 

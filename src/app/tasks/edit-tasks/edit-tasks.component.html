@@ -12,11 +12,9 @@
     </div>
 
     <div formGroupName="updateData" fxLayoutGap="10px">
-
       <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
       <!-- <blacklist-attack [value]="updateForm.get('attackCmd').value"></blacklist-attack> -->
       <input-text-area title="Notes" formControlName="notes"></input-text-area>
-
     </div>
 
     <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -30,15 +28,17 @@
 
     </div>
 
-    <grid-buttons>
-      <button-submit name="Purge" (click)="purgeTask()"></button-submit>
-      <button-submit name="Update" (click)="onSubmit()"></button-submit>
-      @if (isUpdatingLoading) {
-        <div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
+    @if (roleService.hasRole("edit")) {
+      <grid-buttons>
+        <button-submit name="Purge" (click)="purgeTask()"></button-submit>
+        <button-submit name="Update" (click)="onSubmit()"></button-submit>
+        @if (isUpdatingLoading) {
+          <div>
+            <mat-spinner diameter="24" color="accent"></mat-spinner>
+          </div>
+        }
+      </grid-buttons>
+    }
   </form>
   <!-- Task Information -->
   <mat-accordion>
@@ -65,55 +65,72 @@
 
         <!-- Calculations -->
 
-        @if (ctimespent) {
-          <simulate-form-field label="Time spent"
-          message="{{ editedTaskIndex | ttimespent: false : false | async | sectotime}}"></simulate-form-field>
-        } @else {
-          <simulate-form-field label="Time spent" message="---"></simulate-form-field>
-        }
+        @if(roleService.hasRole("editTaskChunks")) {
+          @if (ctimespent) {
+            <simulate-form-field label="Time spent"
+            message="{{ ctimespent | sectotime}}"></simulate-form-field>
+          } @else {
+            <simulate-form-field label="Time spent" message="---"></simulate-form-field>
+          }
 
-        @if ( estimatedTime !== 0) {
-          <simulate-form-field label="E.T."
-          message="{{ estimatedTime }}"></simulate-form-field>
-        } @else {
-          <simulate-form-field label="E.T." message="---"></simulate-form-field>
-        }
+          @if ( estimatedTime !== 0) {
+            <simulate-form-field label="E.T."
+            message="{{ estimatedTime }}"></simulate-form-field>
+          } @else {
+            <simulate-form-field label="E.T." message="---"></simulate-form-field>
+          }
 
-
-        @if (currenspeed !== 0) {
-          <simulate-form-field label="Speed"
-          message="{{ currenspeed | hashRate }}"></simulate-form-field>
-        } @else {
-          <simulate-form-field label="Speed" message="---"></simulate-form-field>
+          @if (currenspeed !== 0) {
+            <simulate-form-field label="Speed"
+            message="{{ currenspeed | hashRate }}"></simulate-form-field>
+          } @else {
+            <simulate-form-field label="Speed" message="---"></simulate-form-field>
+          }
         }
 
         <!-- Hashlist and Cracker Information -->
+        @if(roleService.hasRole("editTaskInfoHashlist")) {
+          @if (hashlistinform) {
+          <simulate-form-field
+            [label]="hashlistinform?.format === 0 ? 'Hashlist' : hashlistinform?.format === 3 ? 'SuperHashlist' : 'Hashlist not found' "
+            message="{{ hashlistinform?.name }} / {{ hashlistDescrip }}"
+          [routerLink]="'/hashlists/hashlist/'+hashlistinform?.id+'/edit'"></simulate-form-field>
+          } @else {
+            <simulate-form-field
+              label='Hashlist'
+              message="---"></simulate-form-field>
+          }
+        }
 
-        <simulate-form-field
-          [label]="hashlistinform?.format === 0 ? 'Hashlist' : hashlistinform?.format === 3 ? 'SuperHashlist' : 'Hashlist not found' "
-          message="{{ hashlistinform?.name }} / {{ hashlistDescrip }}"
-        [routerLink]="'/hashlists/hashlist/'+hashlistinform?.id+'/edit'"></simulate-form-field>
+        @if (roleService.hasRole("editTaskInfoCracker")) {
+          @if (crackerinfo) {
+            <simulate-form-field label="Cracker Information"
+              message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"
+            [routerLink]="'/config/engine/crackers/'+crackerinfo['id']+'/edit'">
 
-        @if (crackerinfo) {
-          <simulate-form-field label="Cracker Information"
-            message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"
-          [routerLink]="'/config/engine/crackers/'+crackerinfo['id']+'/edit'"></simulate-form-field>
-        } @else {
-          <simulate-form-field label="Cracker Information" message="Unavailable"></simulate-form-field>
+            </simulate-form-field>
+          } @else {
+            <simulate-form-field label="Cracker Information"
+                                 message="---">
+
+            </simulate-form-field>
+          }
         }
 
       </form>
     </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <span><b>Files</b></span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <app-tasks-files-table #table name="filesTable" [isSelectable]="false" [editIndex]="editedTaskIndex"
-      [editType]="0"></app-tasks-files-table>
-    </mat-expansion-panel>
+    @if (roleService.hasRole('editTaskFiles')) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span><b>Files</b></span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-tasks-files-table #table name="filesTable" [isSelectable]="false" [editIndex]="editedTaskIndex"
+        [editType]="0"></app-tasks-files-table>
+      </mat-expansion-panel>
+    }
   </mat-accordion>
 </grid-main>
 <!-- Graph Visual  -->
@@ -121,8 +138,10 @@
   <div class="card shadow">
     <div class="card-body table-responsive" style="overflow-x: auto;">
       <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
-      <task-visual [view]="'task'" [tkeyspace]="tkeyspace" [cprogress]="cprogress" [taskid]="editedTaskIndex"
-      [taskWrapperId]="taskWrapperId" [tusepreprocessor]="tusepreprocessor"></task-visual>
+      <img [hidden]="!taskProgressImageUrl"
+           [src]="taskProgressImageUrl"
+           alt="Task progress image"
+           style="max-width: 100%; height: auto;" />
       <mat-card style="margin-top: 20px">
         <mat-card-content class="info-message justify-content-center">
           <h4 style="margin-top: 0;">Description</h4>
@@ -146,55 +165,60 @@
   </div>
 }
 <!-- Assigned Agents -->
-@if (editedTaskIndex) {
+@if (editedTaskIndex && roleService.hasRole("editTaskAgents")) {
   <app-table>
     <app-page-subtitle subtitle="Assigned agents"></app-page-subtitle>
-    <form [formGroup]="createForm">
-      <mat-form-field>
-        <mat-label>Assign Agents</mat-label>
-        <mat-select formControlName="agentId">
-          @for (aval of availAgents; track aval) {
-            <mat-option [value]="aval.id">
-              {{ aval.agentName }}
-            </mat-option>
+    @if (roleService.hasRole("editTaskAssignAgents")) {
+      <form [formGroup]="createForm">
+        <mat-form-field>
+          <mat-label>Assign Agents</mat-label>
+          <mat-select formControlName="agentId">
+            @for (aval of availAgents; track aval) {
+              <mat-option [value]="aval.id">
+                {{ aval.agentName }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (availAgents.length === 0) {
+            <mat-hint>No agents available</mat-hint>
           }
-        </mat-select>
-        @if (availAgents.length === 0) {
-          <mat-hint>No agents available</mat-hint>
-        }
-        @if (availAgents.length > 0) {
-          <mat-hint>{{ availAgents.length }} agent(s) available</mat-hint>
-        }
-        <!-- Add button -->
-        <button (click)="assignAgent()" [attr.aria-label]="'Assign new Agent'"
-          [disabled]="!createForm.get('agentId')?.value" mat-icon-button matSuffix>
-          <mat-icon>add</mat-icon>
-        </button>
-        <!-- Reload button -->
-        <button mat-icon-button matSuffix (click)="reloadAgentAssignment()" [attr.aria-label]="'Reload Table'">
-          <mat-icon>autorenew</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
+          @if (availAgents.length > 0) {
+            <mat-hint>{{ availAgents.length }} agent(s) available</mat-hint>
+          }
+          <!-- Add button -->
+          <button (click)="assignAgent()" [attr.aria-label]="'Assign new Agent'"
+            [disabled]="!createForm.get('agentId')?.value" mat-icon-button matSuffix>
+            <mat-icon>add</mat-icon>
+          </button>
+          <!-- Reload button -->
+          <button mat-icon-button matSuffix (click)="reloadAgentAssignment()" [attr.aria-label]="'Reload Table'">
+            <mat-icon>autorenew</mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    }
     <tasks-agents-table #assignedAgentsTable name="assignedAgentsTable" datatype="agents-assign" [taskId]="editedTaskIndex"
     [assignAgents]="true" (assignedAgentsChanged)="reloadAgentAssignment()"></tasks-agents-table>
   </app-table>
 }
 <!-- Task speed -->
+@if (roleService.hasRole("editTaskSpeed")) {
 <app-table>
   <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
   <app-task-speed-graph [speeds]="originalValue?.speeds"></app-task-speed-graph>
 </app-table>
+}
 
 <!-- Dispatched Chunks -->
-<app-table>
-  <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
-  <mat-button-toggle-group style="margin: 0;" [(ngModel)]="chunkview" (change)="onChunkViewChange($event)"
-    appearance="standard" exclusive>
-    <mat-button-toggle [value]="0">Live Chunks</mat-button-toggle>
-    <mat-button-toggle [value]="1">All Chunks</mat-button-toggle>
-  </mat-button-toggle-group>
-  <br /><br />
-  <app-tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></app-tasks-chunks-table>
-
-</app-table>
+@if (roleService.hasRole("editTaskChunks")) {
+  <app-table>
+    <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
+    <mat-button-toggle-group style="margin: 0;" [(ngModel)]="chunkview" (change)="onChunkViewChange($event)"
+      appearance="standard" exclusive>
+      <mat-button-toggle [value]="0">Live Chunks</mat-button-toggle>
+      <mat-button-toggle [value]="1">All Chunks</mat-button-toggle>
+    </mat-button-toggle-group>
+    <br /><br />
+    <app-tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></app-tasks-chunks-table>
+  </app-table>
+}

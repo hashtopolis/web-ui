@@ -4,6 +4,8 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component, ViewChild } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+
 @Component({
   selector: 'app-show-tasks',
   templateUrl: './show-tasks.component.html',
@@ -13,9 +15,14 @@ export class ShowTasksComponent {
   @ViewChild('table') table: TasksTableComponent;
 
   pageTitle = 'Tasks';
+  showCreateButton: boolean = true;
 
-  constructor(private titleService: AutoTitleService) {
+  constructor(
+    private titleService: AutoTitleService,
+    readonly roleService: TasksRoleService
+  ) {
     titleService.set(['Tasks']);
+    this.showCreateButton = this.roleService.hasRole('create');
   }
 
   toggleIsArchived(event: MatSlideToggleChange): void {

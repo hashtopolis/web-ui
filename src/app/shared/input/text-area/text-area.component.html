@@ -21,6 +21,7 @@
     (ngModelChange)="onChange(value)"
     cdkTextareaAutosize
     [required]="isRequired"
+    [disabled]="disabled"
     class="custom-textarea"
   ></textarea>
   @if (hint) {
