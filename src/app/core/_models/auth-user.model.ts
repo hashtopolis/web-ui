@@ -5,9 +5,10 @@
  * @prop _username  Name of user
  */
 export interface AuthData {
-  _expires: Date;
+  _expires: Date | string;
   _token: string;
-  _username: string;
+  userId: number;
+  canonicalUsername: string;
 }
 
 /**
@@ -18,7 +19,8 @@ export class AuthUser implements AuthData {
   constructor(
     public _token: string,
     public _expires: Date,
-    public _username: string
+    public userId: number,
+    public canonicalUsername: string
   ) {}
 
   /**
