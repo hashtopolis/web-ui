@@ -25,7 +25,7 @@
     #ngModel="ngModel"
     (selectionChange)="onChangeValue($event.value)"
     [required]="!isLoading && isRequired"
-    [disabled]="isLoading || disabled"
+    [disabled]="disabled"
     >
     @if (isBlankOptionDisabled) {
       <mat-option [value]="0">

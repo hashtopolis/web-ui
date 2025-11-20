@@ -24,8 +24,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _currentFilter: Filter = null;
   private agentStatsRequired: boolean = false;
 
-  // Agent stats intervall to define the max time period agent stats will be retrieved, current preset to 24h
-  private AGENTSTATS_INTERVALL: number = 3600000 * 24;
+  // Agent stats interval to define the max time period agent stats will be retrieved, current preset to 24h
+  private AGENTSTATS_INTERVAL: number = 3600000 * 24;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
@@ -205,7 +205,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         .addFilter({
           field: 'time',
           operator: FilterType.GREATER,
-          value: Math.floor((Date.now() - this.AGENTSTATS_INTERVALL) / 1000)
+          value: Math.floor((Date.now() - this.AGENTSTATS_INTERVAL) / 1000)
         });
       const response: ResponseWrapper = await firstValueFrom(
         this.service.getAll(SERV.AGENTS_STATS, agentStatParams.create())

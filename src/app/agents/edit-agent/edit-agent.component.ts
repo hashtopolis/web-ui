@@ -16,6 +16,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -80,7 +81,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    protected agentRoleService: AgentRoleService
   ) {
     this.onInitialize();
     this.buildEmptyForms();
@@ -104,7 +106,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     await this.loadCurrentAssignment();
     this.loadSelectTasks();
     this.loadSelectUsers();
-    this.assignChunksInit(this.editedAgentIndex);
+    if (this.agentRoleService.hasRole('readChunk')) {
+      this.assignChunksInit(this.editedAgentIndex);
+    }
     this.initForm();
   }
   /**
@@ -120,8 +124,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private buildEmptyForms(): void {
-    this.updateForm = getEditAgentForm();
-    this.updateAssignForm = getUpdateAssignmentForm();
+    this.updateForm = getEditAgentForm(!this.agentRoleService.hasRole('update'));
+    this.updateAssignForm = getUpdateAssignmentForm(!this.agentRoleService.hasRole('updateAssignment'));
   }
 
   /**
@@ -145,17 +149,21 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadSelectTasks(): void {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .create();
-    const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+    if (this.agentRoleService.hasRole('readAssignment')) {
+      const requestParams = new RequestParamBuilder()
+        .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
+        .create();
+      const loadTasksSubscription$ = this.gs
+        .getAll(SERV.TASKS, requestParams)
+        .subscribe((response: ResponseWrapper) => {
+          const responseBody = { data: response.data, included: response.included };
+          const tasks = this.serializer.deserialize<JTask[]>(responseBody);
 
-      const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0); //Remove completed tasks
-      this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
-    });
-    this.unsubscribeService.add(loadTasksSubscription$);
+          const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0); //Remove completed tasks
+          this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
+        });
+      this.unsubscribeService.add(loadTasksSubscription$);
+    }
   }
 
   /**
@@ -178,22 +186,24 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private async loadCurrentAssignment() {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({
-        field: 'agentId',
-        operator: FilterType.EQUAL,
-        value: this.editedAgentIndex
-      })
-      .create();
-    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
-    const assignments = this.serializer.deserialize<JAgentAssignment[]>({
-      data: response.data,
-      included: response.included
-    });
-    if (assignments.length) {
-      this.assignNew = !!assignments?.[0]['taskId'];
-      this.assignId = assignments?.[0]['id'];
-      this.currentAssignment = assignments?.[0];
+    if (this.agentRoleService.hasRole('readAssignment')) {
+      const requestParams = new RequestParamBuilder()
+        .addFilter({
+          field: 'agentId',
+          operator: FilterType.EQUAL,
+          value: this.editedAgentIndex
+        })
+        .create();
+      const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
+      const assignments = this.serializer.deserialize<JAgentAssignment[]>({
+        data: response.data,
+        included: response.included
+      });
+      if (assignments.length) {
+        this.assignNew = !!assignments?.[0]['taskId'];
+        this.assignId = assignments?.[0]['id'];
+        this.currentAssignment = assignments?.[0];
+      }
     }
   }
 
