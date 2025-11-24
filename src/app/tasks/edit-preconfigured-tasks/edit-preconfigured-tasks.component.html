@@ -28,14 +28,16 @@
 
         </div>
 
-        <grid-buttons>
-          <button-submit [name]="'Update'"></button-submit>
-          @if (isUpdatingLoading) {
-            <div>
-              <mat-spinner diameter="24" color="accent"></mat-spinner>
-            </div>
-          }
-        </grid-buttons>
+        @if (roleService.hasRole("edit")) {
+          <grid-buttons>
+            <button-submit [name]="'Update'"></button-submit>
+            @if (isUpdatingLoading) {
+              <div>
+                <mat-spinner diameter="24" color="accent"></mat-spinner>
+              </div>
+            }
+          </grid-buttons>
+        }
 
       </form>
 

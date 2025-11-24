@@ -15,6 +15,7 @@ import { FileRoleService } from '@services/roles/file-role.service';
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
@@ -56,6 +57,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private permissionService: PermissionService,
     private easterEggService: EasterEggService,
     private tasksRoleService: TasksRoleService,
+    private pretasksRoleService: PreconfiguredTasksRoleService,
     private hashListRoleService: HashListRoleService,
     private superHashListRoleService: SuperHashListRoleService,
     private hashRoleService: HashRoleService,
@@ -212,23 +214,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Require TaskWrapper.READ permission for menu to display
-    const canReadPreTasks = this.permissionService.hasPermissionSync(Perm.Pretask.READ);
-    const canReadSupertasks = this.permissionService.hasPermissionSync(Perm.SuperTask.READ);
-    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
-
-    if (!canReadPreTasks && !canReadSupertasks && !canReadChunks) {
-      return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
-    }
-
-    if (canReadPreTasks) {
+    if (this.pretasksRoleService.hasRole('read')) {
       taskActions.push({
         label: HeaderMenuLabel.PRECONFIGURED_TASKS,
         routerLink: ['tasks', 'preconfigured-tasks'],
-        showAddButton: this.permissionService.hasPermissionSync(Perm.Pretask.CREATE),
+        showAddButton: this.pretasksRoleService.hasRole('create'),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
         tooltipAddButton: 'New Preconfigured Task'
       });
+    }
+
+    // Require TaskWrapper.READ permission for menu to display
+    const canReadSupertasks = this.permissionService.hasPermissionSync(Perm.SuperTask.READ);
+    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
+
+    if (!canReadSupertasks && !canReadChunks) {
+      return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
     }
 
     if (canReadSupertasks) {
