@@ -155,7 +155,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
         export: async (agent: JAgent) => {
-          if (agent.chunks.length > 0) {
+          if (agent.chunks && agent.chunks.length > 0) {
             return agent.chunks[0].speed + '';
           } else {
             return '-';
@@ -260,9 +260,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const chunk = agent.chunks[0];
-    if (chunk) {
-      return this.sanitize(convertCrackingSpeed(chunk.speed));
+    if (agent.chunks) {
+      const chunk = agent.chunks[0];
+      if (chunk) {
+        return this.sanitize(convertCrackingSpeed(chunk.speed));
+      }
     }
     return this.sanitize('-');
   }
@@ -407,10 +409,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (agent && agent.chunkId) {
+    if (agent && agent.chunks && agent.chunks.length > 0) {
+      const chunkID = agent.chunks[0].id;
       links.push({
-        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
-        label: agent.chunkId
+        routerLink: ['/tasks', 'chunks', chunkID, 'view'],
+        label: chunkID
       });
     }
     return of(links);

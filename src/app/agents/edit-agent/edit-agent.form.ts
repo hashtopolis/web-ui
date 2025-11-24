@@ -28,24 +28,24 @@ export interface UpdateAssignmentForm {
  * Get empty EditAgentForm
  * @returns Empty Instance of EditAgentForm
  */
-export const getEditAgentForm = () => {
+export const getEditAgentForm = (readonly: boolean = false) => {
   return new FormGroup<EditAgentForm>({
-    isActive: new FormControl(false, [Validators.required]),
-    userId: new FormControl(undefined),
-    agentName: new FormControl('', [Validators.required]),
-    token: new FormControl(''),
-    cpuOnly: new FormControl(undefined),
-    cmdPars: new FormControl(''),
-    ignoreErrors: new FormControl(undefined),
-    isTrusted: new FormControl(false)
+    isActive: new FormControl({ value: false, disabled: readonly }, [Validators.required]),
+    userId: new FormControl({ value: undefined, disabled: readonly }),
+    agentName: new FormControl({ value: '', disabled: readonly }, [Validators.required]),
+    token: new FormControl({ value: '', disabled: readonly }),
+    cpuOnly: new FormControl({ value: undefined, disabled: readonly }),
+    cmdPars: new FormControl({ value: '', disabled: readonly }),
+    ignoreErrors: new FormControl({ value: undefined, disabled: readonly }),
+    isTrusted: new FormControl({ value: false, disabled: readonly })
   });
 };
 
 /**
  * Get empty instance of updateAssignmentForm
  */
-export const getUpdateAssignmentForm = () => {
+export const getUpdateAssignmentForm = (readonly: boolean = false) => {
   return new FormGroup<UpdateAssignmentForm>({
-    taskId: new FormControl(undefined)
+    taskId: new FormControl({ value: undefined, disabled: readonly })
   });
 };

@@ -6,7 +6,7 @@
         <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
         <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
         <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
-        <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
+        <div [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
           <input-select
             title="Assignment"
             formControlName="taskId"
@@ -14,7 +14,7 @@
             [isBlankOptionDisabled]="assignNew"
             [blankOptionText]="'Unassign'"
           ></input-select>
-        </form>
+        </div>
         <input-select title="Cracker errors" formControlName="ignoreErrors" [items]="selectIgnorerrors"></input-select>
         <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
         <input-check title="CPU only" formControlName="cpuOnly"></input-check>
@@ -58,11 +58,13 @@
                 message="{{ this.renderDevices(showagent['devices']) }}"
               ></simulate-form-field>
             }
-            <simulate-form-field-multi
-              label="Member of access groups"
-              [items]="selectUserAgps"
-              routerLink="/users/access-groups/"
-            ></simulate-form-field-multi>
+            @if(agentRoleService.hasRole("readAccessGroup")) {
+              <simulate-form-field-multi
+                label="Member of access groups"
+                [items]="selectUserAgps"
+                routerLink="/users/access-groups/"
+              ></simulate-form-field-multi>
+            }
           </div>
         }
         @if (timespent) {
@@ -74,46 +76,54 @@
       </mat-expansion-panel>
     </mat-accordion>
 
-    <grid-buttons>
-      <button-submit [name]="'Update'"></button-submit>
-      @if (isUpdatingLoading) {
-        <div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
+    @if(this.agentRoleService.hasRole("update")) {
+      <grid-buttons>
+        <button-submit [name]="'Update'"></button-submit>
+        @if (isUpdatingLoading) {
+          <div>
+            <mat-spinner diameter="24" color="accent"></mat-spinner>
+          </div>
+        }
+      </grid-buttons>
+    }
   </form>
 </grid-main>
-<app-table>
-  <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
-  @if (showagent) {
-    <div class="row">
-      <div class="col col-12">
-        <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+
+@if (showagent && agentRoleService.hasRole("readStat")) {
+  <app-table>
+    <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
+      <div class="row">
+        <div class="col col-12">
+          <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+        </div>
       </div>
-    </div>
-    <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
-    <div class="row">
-      <div class="col col-12">
-        <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+      <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
+      <div class="row">
+        <div class="col col-12">
+          <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+        </div>
       </div>
-    </div>
-    <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
-    <div class="row">
-      <div class="col col-12">
-        <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+      <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
+      <div class="row">
+        <div class="col col-12">
+          <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+        </div>
       </div>
-    </div>
-  }
-</app-table>
+  </app-table>
+}
 
 <!-- ToDO API Errors table -->
-<app-table>
-  <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
-  <app-agent-error-table [agentId]="this.editedAgentIndex"></app-agent-error-table>
-</app-table>
+@if (agentRoleService.hasRole("readError")) {
+  <app-table>
+    <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
+    <app-agent-error-table [agentId]="this.editedAgentIndex"></app-agent-error-table>
+  </app-table>
+}
 <!-- Dispatched Chunks -->
-<app-table>
-  <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
-  <app-chunks-table [agentId]="this.editedAgentIndex"></app-chunks-table>
-</app-table>
+@if (agentRoleService.hasRole("readChunk")) {
+  <app-table>
+    <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
+    <app-chunks-table [agentId]="this.editedAgentIndex"></app-chunks-table>
+  </app-table>
+}
+
