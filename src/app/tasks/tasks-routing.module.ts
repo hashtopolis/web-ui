@@ -3,11 +3,16 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+
 import { NewSupertasksComponent } from '@components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
 
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { PendingChangesGuard } from '@src/app/core/_guards/pendingchanges.guard';
-import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { ChunksComponent } from '@src/app/tasks/chunks/chunks.component';
 import { EditPreconfiguredTasksComponent } from '@src/app/tasks/edit-preconfigured-tasks/edit-preconfigured-tasks.component';
 import { EditSupertasksComponent } from '@src/app/tasks/edit-supertasks/edit-supertasks.component';
@@ -20,7 +25,10 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
 import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
 import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
+
+const taskRoleServiceClass = TasksRoleService;
+const supertaskRoleServiceClass = SupertasksRoleService;
+const pretaskRoleServiceClass = PreconfiguredTasksRoleService;
 
 const routes: MyRoute[] = [
   {
@@ -33,9 +41,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-tasks',
           breadcrumb: 'Show tasks',
-          permission: Perm.Task.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-tasks-archived',
@@ -43,9 +52,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-tasks-archived',
           breadcrumb: 'Show Archived Tasks',
-          permission: Perm.Task.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-tasks/:id/edit',
@@ -53,9 +63,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-task',
           breadcrumb: 'Edit Task',
-          permission: Perm.Task.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-tasks/:id/edit/show-all-chunks',
@@ -63,9 +74,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-task-cAll',
           breadcrumb: 'Edit Task > Show All chunks',
-          permission: Perm.Task.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-task',
@@ -73,9 +85,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-task',
           breadcrumb: 'New task',
-          permission: Perm.Task.CREATE
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm],
+        canActivate: [CheckRole],
         canDeactivate: [PendingChangesGuard]
       },
       {
@@ -84,9 +97,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'copy-task',
           breadcrumb: 'Copy Task',
-          permission: Perm.Task.CREATE
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-tasks/:id/copypretask',
@@ -94,9 +108,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'copy-pretask',
           breadcrumb: 'Copy Task',
-          permission: Perm.Task.CREATE
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'preconfigured-tasks',
@@ -104,9 +119,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'preconfigured-tasks',
           breadcrumb: 'Preconfigured tasks',
-          permission: Perm.Pretask.READ
+          roleServiceClass: pretaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-preconfigured-tasks',
@@ -114,9 +130,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-preconfigured-tasks',
           breadcrumb: 'New Preconfigured tasks',
-          permission: Perm.Pretask.CREATE
+          roleServiceClass: pretaskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'preconfigured-tasks/:id/edit',
@@ -124,9 +141,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-preconfigured-tasks',
           breadcrumb: 'Edit Preconfigured tasks',
-          permission: Perm.Pretask.READ
+          roleServiceClass: pretaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm],
+        canActivate: [CheckRole],
         canDeactivate: [PendingChangesGuard]
       },
       {
@@ -135,9 +153,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'copy-preconfigured-tasks',
           breadcrumb: 'Copy Preconfigured tasks',
-          permission: Perm.Pretask.CREATE
+          roleServiceClass: pretaskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'preconfigured-tasks/:id/copytask',
@@ -145,9 +164,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'copy-tasks',
           breadcrumb: 'Copy Task to Preconfigured task',
-          permission: Perm.Pretask.CREATE
+          roleServiceClass: pretaskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'supertasks',
@@ -155,9 +175,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'supertasks',
           breadcrumb: 'Supertasks',
-          permission: Perm.SuperTask.READ
+          roleServiceClass: supertaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: ':id/applyhashlist',
@@ -165,9 +186,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'applyhashlist',
           breadcrumb: 'Apply hashlist',
-          permission: Perm.Task.CREATE
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-supertasks',
@@ -175,9 +197,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-supertasks',
           breadcrumb: 'New Supertasks',
-          permission: Perm.SuperTask.CREATE
+          roleServiceClass: supertaskRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: ':id/edit',
@@ -185,9 +208,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-supertasks',
           breadcrumb: 'Edit Supertasks',
-          permission: Perm.SuperTask.READ
+          roleServiceClass: supertaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'import-supertasks/masks',
@@ -195,9 +219,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'masks',
           breadcrumb: 'Import Masks',
-          permission: Perm.SuperTask.READ
+          roleServiceClass: supertaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'import-supertasks/wrbulk',
@@ -205,9 +230,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'wrbulk',
           breadcrumb: 'Import Wordlist/Rules Bulk',
-          permission: Perm.SuperTask.READ
+          roleServiceClass: supertaskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'chunks',
@@ -215,9 +241,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'chunks',
           breadcrumb: 'Chunks',
-          permission: Perm.Chunk.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'chunks/:id/view',
@@ -225,9 +252,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'chunks-view',
           breadcrumb: 'Chunks > View Chunk',
-          permission: Perm.Chunk.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'chunks/show-all-chunks',
@@ -235,9 +263,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'chunks-cAll',
           breadcrumb: 'Chunks > Show All chunks',
-          permission: Perm.Chunk.READ
+          roleServiceClass: taskRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       }
     ]
   }
