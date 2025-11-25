@@ -3,7 +3,7 @@
     title="Agents Overview"
     buttontitle="New Agent"
     buttonlink="/agents/new-agent"
-    [subbutton]="true"
+    [subbutton]="this.agentRoleService.hasRole('create')"
   ></app-page-title>
   <agents-table name="agentsTable"></agents-table>
 </app-table>
