@@ -6,12 +6,10 @@ import { MyRoute } from '@models/routes.model';
 import { SERV } from '@services/main.config';
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
 import { PermissionRoleService } from '@services/roles/user/permission-role.service';
-import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { UserRoleService } from '@services/roles/user/user-role.service';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
@@ -39,7 +37,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.USERS,
           breadcrumb: 'New User',
-          roleServiceClass: UserRoleService,
+          roleServiceClass: userRoleServiceClass,
           roleName: 'create'
         },
         canActivate: [CheckRole]
@@ -50,7 +48,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit',
           breadcrumb: 'Edit User',
-          roleServiceClass: UserRoleService,
+          roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
         canActivate: [CheckRole]
@@ -61,7 +59,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'all-users',
           breadcrumb: 'All Users',
-          roleServiceClass: UserRoleService,
+          roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
         canActivate: [CheckRole]
