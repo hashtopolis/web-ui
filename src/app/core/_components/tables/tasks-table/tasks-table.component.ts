@@ -150,15 +150,20 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHTYPE,
         dataKey: 'hashtype',
         isSortable: false,
+
         render: (wrapper: JTaskWrapper) => {
-          const hashType = wrapper.hashType;
-          return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
+          const type = wrapper.hashType;
+
+          return type ? `${type.id} - ${type.description}` : '';
         },
+
         export: async (wrapper: JTaskWrapper) => {
-          const hashType = wrapper.hashType;
-          return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
+          const type = wrapper.hashType;
+
+          return type ? `${type.id} - ${type.description}` : '';
         }
       },
+
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
@@ -822,18 +827,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderHashlistLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (wrapper && wrapper.hashlist) {
+
+    if (wrapper) {
+      const id = wrapper.hashlist?.id ?? wrapper.hashlistId;
+      const name = wrapper.hashlist?.name?.trim();
+
       links.push({
-        label: wrapper.hashlist.name,
-        routerLink: ['/hashlists', 'hashlist', wrapper.hashlist.id, 'edit']
-      });
-    } else {
-      links.push({
-        label: wrapper.hashlistId + ' -',
-        routerLink: ['/hashlists', 'hashlist', wrapper.hashlistId, 'edit']
+        routerLink: ['/hashlists', 'hashlist', id, 'edit'],
+        label: name || String(id)
       });
     }
-
     return of(links);
   }
 
