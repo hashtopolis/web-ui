@@ -15,7 +15,7 @@ export class TasksRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
       create: [Perm.Task.CREATE, Perm.TaskWrapper.CREATE, Perm.Hashlist.READ, Perm.AgentBinary.READ],
-      read: [Perm.Task.READ, Perm.TaskWrapper.READ],
+      read: [Perm.Task.READ, Perm.TaskWrapper.READ, Perm.Chunk.READ],
       edit: [Perm.Task.UPDATE, Perm.TaskWrapper.UPDATE],
       editTaskInfoHashlist: [Perm.Hashlist.READ, Perm.Hashtype.READ],
       editTaskInfoCracker: [Perm.CrackerBinary.READ, Perm.CrackerBinaryType.READ],

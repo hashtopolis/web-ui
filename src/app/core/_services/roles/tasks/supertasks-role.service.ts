@@ -1,5 +1,5 @@
 /**
- * Role service definition for cracker binaries
+ * Role service definition for tasks
  */
 import { Perm } from '@constants/userpermissions.config';
 
@@ -11,12 +11,13 @@ import { RoleService } from '@services/roles/base/role.service';
 @Injectable({
   providedIn: 'root'
 })
-export class CrackerBinaryRoleService extends RoleService {
+export class SupertasksRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.CrackerBinary.READ, Perm.CrackerBinaryType.READ],
-      create: [Perm.CrackerBinary.CREATE, Perm.CrackerBinaryType.CREATE],
-      update: [Perm.CrackerBinary.UPDATE, Perm.CrackerBinaryType.UPDATE]
+      create: [Perm.SuperTask.CREATE, Perm.Pretask.READ],
+      read: [Perm.SuperTask.READ, Perm.Pretask.READ],
+      edit: [Perm.SuperTask.READ, Perm.Pretask.READ],
+      delete: [Perm.SuperTask.DELETE]
     });
   }
 }

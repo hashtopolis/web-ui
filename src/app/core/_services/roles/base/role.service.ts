@@ -19,6 +19,18 @@ export abstract class RoleService {
   ) {}
 
   /**
+   * Extracts the scope name from the subclass name.
+   * Example:
+   *   AgentRoleService → "Agent"
+   *   TaskRoleService  → "Task"
+   */
+  get scopeName(): string {
+    const raw = this.constructor.name; // e.g. "_AgentRoleService"
+    const cleaned = raw.replace(/^_+/, ''); // remove leading underscores
+    return cleaned.replace(/RoleService$/, ''); // strip suffix → "Agent"
+  }
+
+  /**
    * Check, if the rolename exists in the role object
    * @param key - name of role to check
    * @return true, if the role exists
