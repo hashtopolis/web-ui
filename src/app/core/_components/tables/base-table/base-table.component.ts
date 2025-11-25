@@ -245,7 +245,7 @@ export class BaseTableComponent {
     if (chunk) {
       links.push({
         routerLink: ['/agents', 'show-agents', chunk.agentId, 'edit'],
-        label: chunk.agentName
+        label: chunk.agentName?.trim() || String(chunk.agentId)
       });
     }
     return of(links);
