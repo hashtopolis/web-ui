@@ -1,23 +1,25 @@
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
-import { FilterType } from 'src/app/core/_models/request-params.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { Subject, firstValueFrom } from 'rxjs';
 
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { yesNo } from '../../core/_constants/general.config';
-import { SERV } from '../../core/_services/main.config';
+import { yesNo } from '@src/app/core/_constants/general.config';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -46,6 +48,15 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   pretask: any = [];
   files: any; //Add Model
 
+  // TABLES CODE
+  @ViewChild(DataTableDirective, { static: false })
+  dtElement: DataTableDirective;
+
+  dtTrigger: Subject<any> = new Subject<any>();
+  dtOptions: any = {};
+
+  private httpNoInterceptors: HttpClient;
+
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
@@ -53,28 +64,36 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private http: HttpClient,
+    private cs: ConfigService,
+    httpBackend: HttpBackend
   ) {
-    this.getInitialization();
     this.buildForm();
     this.titleService.set(['Edit Preconfigured Tasks']);
   }
 
   /**
-   * Initializes the form based on route parameters.
-   */
-  getInitialization() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedPretaskIndex = +params['id'];
-      this.updateFormValues();
-    });
-  }
-
-  /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    this.loadData();
+  async ngOnInit(): Promise<void> {
+    this.editedPretaskIndex = +this.route.snapshot.params['id'];
+
+    try {
+      await this.loadPretask();
+      this.loadData();
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
   }
 
   /**
@@ -86,7 +105,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the empty form.
    */
   buildForm(): void {
     this.updateForm = new FormGroup({
@@ -102,6 +121,48 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         maxAgents: new FormControl(''),
         isCpuTask: new FormControl(''),
         isSmall: new FormControl('')
+      })
+    });
+  }
+
+  /**
+   * Carga el pretask desde la API y rellena el formulario.
+   * Lanza error si el recurso no existe (404 / 403).
+   */
+  private async loadPretask(): Promise<void> {
+    const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
+
+    const response = await firstValueFrom<ResponseWrapper>(this.httpNoInterceptors.get<ResponseWrapper>(url));
+
+    const pretask = this.serializer.deserialize<JPretask>({
+      data: response.data,
+      included: response.included
+    });
+
+    this.pretask = pretask;
+
+    this.updateForm = new FormGroup({
+      pretaskId: new FormControl({
+        value: pretask.id,
+        disabled: true
+      }),
+      statusTimer: new FormControl({
+        value: pretask.statusTimer,
+        disabled: true
+      }),
+      useNewBench: new FormControl({
+        value: pretask.useNewBench,
+        disabled: true
+      }),
+      updateData: new FormGroup({
+        taskName: new FormControl(pretask.taskName, Validators.required),
+        attackCmd: new FormControl(pretask.attackCmd, Validators.required),
+        chunkTime: new FormControl(pretask.chunkTime),
+        color: new FormControl(pretask.color),
+        priority: new FormControl(pretask.priority),
+        maxAgents: new FormControl(pretask.maxAgents),
+        isCpuTask: new FormControl(pretask.isCpuTask, Validators.required),
+        isSmall: new FormControl(pretask.isSmall, Validators.required)
       })
     });
   }
@@ -143,7 +204,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    * Handles form submission, edit Pretask
    * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
    */
-  onSubmit() {
+  onSubmit(): void {
     if (this.updateForm.valid) {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
@@ -156,70 +217,4 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       this.unsubscribeService.add(updateSubscription$);
     }
   }
-
-  /**
-   * Updates the form values based on the data fetched from the server.
-   * This method retrieves the pre-task data from the server and updates the form controls accordingly.
-   */
-  private updateFormValues() {
-    const params = new RequestParamBuilder().create();
-
-    const loadSubscription$ = this.gs
-      .get(SERV.PRETASKS, this.editedPretaskIndex, params)
-      .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const pretask = this.serializer.deserialize<JPretask>(responseBody);
-
-        this.pretask = pretask;
-        this.updateForm = new FormGroup({
-          pretaskId: new FormControl({
-            value: pretask.id,
-            disabled: true
-          }),
-          statusTimer: new FormControl({
-            value: pretask.statusTimer,
-            disabled: true
-          }),
-          useNewBench: new FormControl({
-            value: pretask.useNewBench,
-            disabled: true
-          }),
-          updateData: new FormGroup({
-            taskName: new FormControl(pretask.taskName, Validators.required),
-            attackCmd: new FormControl(pretask.attackCmd, Validators.required),
-            chunkTime: new FormControl(pretask.chunkTime),
-            color: new FormControl(pretask.color),
-            priority: new FormControl(pretask.priority),
-            maxAgents: new FormControl(pretask.maxAgents),
-            isCpuTask: new FormControl(pretask.isCpuTask, Validators.required),
-            isSmall: new FormControl(pretask.isSmall, Validators.required)
-          })
-        });
-        this.unsubscribeService.add(loadSubscription$);
-      });
-  }
-
-  // TABLES CODE
-
-  // Table Files
-  @ViewChild(DataTableDirective, { static: false })
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  // // @HostListener allows us to also guard against browser refresh, close, etc.
-  // @HostListener('window:beforeunload', ['$event'])
-  // unloadNotification($event: any) {
-  //   if (!this.canDeactivate()) {
-  //     $event.returnValue = 'IE and Edge Message';
-  //   }
-  // }
-
-  // canDeactivate(): Observable<boolean> | boolean {
-  //   if (this.updateForm.valid) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 }

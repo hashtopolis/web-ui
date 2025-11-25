@@ -1,79 +1,116 @@
 <div class="row g-3">
-  <div class="col-md-7">
-    @if (!isLoading) {
+  @if (!isLoading) {
+    <div class="col-md-7">
       <grid-main>
-        <app-page-title [title]="type === 3 ? 'Edit SuperHashlist': 'Edit HashList'" [subbutton]="false"></app-page-title>
+        <app-page-title
+          [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'"
+          [subbutton]="false">
+        </app-page-title>
+
         <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
           <input-text title="ID" formControlName="hashlistId"></input-text>
+
           <div formGroupName="updateData" fxLayoutGap="10px">
             <input-text title="Name" formControlName="name"></input-text>
             <div>
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
             </div>
             <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-select title="Access group" formControlName="accessGroupId"
-              [items]="selectAccessgroup"></input-select>
+              <input-select
+                title="Access group"
+                formControlName="accessGroupId"
+                [items]="selectAccessgroup">
+              </input-select>
               <input-check title="Secret Data" formControlName="isSecret"></input-check>
             </div>
           </div>
+
           <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <simulate-form-field label="Hash Type"
-            message="{{ hashtype?.id }} - {{ hashtype?.description }}"></simulate-form-field>
-            <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
+            <simulate-form-field
+              label="Hash Type"
+              message="{{ hashtype?.id }} - {{ hashtype?.description }}">
             </simulate-form-field>
+
+            <simulate-form-field
+              label="Using hashcat brain"
+              [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
+            </simulate-form-field>
+
             <input-text title="Format" formControlName="format"></input-text>
             <input-text title="Hashes" formControlName="hashCount"></input-text>
             <input-text title="Cracked" formControlName="cracked"></input-text>
             <input-text title="Remaining" formControlName="remaining"></input-text>
           </div>
+
           <grid-buttons>
             <button-submit [name]="'Update'"></button-submit>
           </grid-buttons>
         </form>
+
         <!-- If its cracked or partially cracked then show additional actions -->
         <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
+
         <div fxLayout="row" fxLayoutGap="5px">
           <grid-buttons>
-            <button-submit [name]="'Import pre-cracked hashes'" (click)="importCrackedHashes()"></button-submit>
+            <button-submit
+              [name]="'Import pre-cracked hashes'"
+              (click)="importCrackedHashes()">
+            </button-submit>
+
             @if (editedHashlist?.cracked > 0) {
-              <button-submit [name]="'Generate Wordlist'"
-              (click)="exportWordlist()"></button-submit>
+              <button-submit
+                [name]="'Generate Wordlist'"
+                (click)="exportWordlist()">
+              </button-submit>
             }
+
             @if (editedHashlist?.cracked > 0) {
-              <button-submit [name]="'Export Left Hashes'"
-              (click)="exportLeftHashes()"></button-submit>
+              <button-submit
+                [name]="'Export Left Hashes'"
+                (click)="exportLeftHashes()">
+              </button-submit>
             }
           </grid-buttons>
         </div>
+
         @if (editedHashlist?.cracked > 0) {
-          <br>
-          }
-          @if (editedHashlist?.cracked > 0) {
-            <mat-accordion>
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <span><b>Report Builder</b></span>
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
-              </mat-expansion-panel>
-            </mat-accordion>
-          }
-        </grid-main>
-      }
+          <br />
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <span><b>Report Builder</b></span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
+            </mat-expansion-panel>
+          </mat-accordion>
+        }
+      </grid-main>
     </div>
-  </div>
-  <div class="col-md-5">
-    @if (type === 3) {
+
+    <div class="col-md-5">
+      @if (type === 3) {
+        <app-table>
+          <app-page-subtitle
+            [subtitle]="'Included Hashlists within the Superhashlist'">
+          </app-page-subtitle>
+          <app-superhashlist-hashlist-table
+            #table
+            name="hashlistsInShTable"
+            [shashlistId]="editedHashlistIndex">
+          </app-superhashlist-hashlist-table>
+        </app-table>
+      }
+
       <app-table>
-        <app-page-subtitle [subtitle]="'Included Hashlists within the Superhashlist'"></app-page-subtitle>
-        <app-superhashlist-hashlist-table #table name="hashlistsInShTable"
-        [shashlistId]="editedHashlistIndex"></app-superhashlist-hashlist-table>
+        <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
+        <app-tasks-table
+          name="hashlistTasksTable"
+          [hashlistId]="editedHashlistIndex">
+        </app-tasks-table>
       </app-table>
-    }
-    <app-table>
-      <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-      <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex"></app-tasks-table>
-    </app-table>
-  </div>
+    </div>
+  }
+</div>
