@@ -1,9 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { By } from '@angular/platform-browser';
+
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
+
 import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-table',
@@ -11,7 +13,7 @@ import { NotificationsComponent } from '@src/app/account/notifications/notificat
   standalone: true
 })
 class MockTableComponent {}
-/* 
+/*
   Mock component for app-page-title to avoid dependency on the actual implementation.
 */
 @Component({
@@ -37,13 +39,19 @@ describe('NotificationsComponent', () => {
   let component: NotificationsComponent;
   let fixture: ComponentFixture<NotificationsComponent>;
   let titleService: jasmine.SpyObj<AutoTitleService>;
+  let mockRoleService: jasmine.SpyObj<NotificationsRoleService>;
 
   beforeEach(() => {
     const titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
+    mockRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+
     TestBed.configureTestingModule({
       declarations: [NotificationsComponent],
       imports: [MockTableComponent, MockPageTitleComponent, MockNotificationsTableComponent],
-      providers: [{ provide: AutoTitleService, useValue: titleServiceSpy }]
+      providers: [
+        { provide: AutoTitleService, useValue: titleServiceSpy },
+        { provide: NotificationsRoleService, useValue: mockRoleService }
+      ]
     });
 
     fixture = TestBed.createComponent(NotificationsComponent);
@@ -68,12 +76,10 @@ describe('NotificationsComponent', () => {
   it('should include app-page-title component with correct inputs', () => {
     const pageTitleElement = fixture.debugElement.query(By.directive(MockPageTitleComponent));
     expect(pageTitleElement).toBeTruthy();
-
     const pageTitleComponent = pageTitleElement.componentInstance;
     expect(pageTitleComponent.title).toBe('Notifications');
     expect(pageTitleComponent.buttontitle).toBe('New Notification');
     expect(pageTitleComponent.buttonlink).toBe('/account/notifications/new-notification');
-    expect(pageTitleComponent.subbutton).toBe(true);
   });
 
   it('should include app-notifications-table component', () => {

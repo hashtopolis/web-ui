@@ -117,7 +117,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
    */
   private renderAgentLinkFromHealthCheck(healthCheck: JHealthCheckAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (healthCheck) {
+    if (healthCheck && healthCheck.agent) {
       links.push({
         routerLink: ['/agents', 'show-agents', healthCheck.agentId, 'edit'],
         label: healthCheck.agent.agentName

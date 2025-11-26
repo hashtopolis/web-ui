@@ -4,6 +4,8 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component, ViewChild } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
+
 @Component({
   selector: 'app-hashlist',
   templateUrl: './hashlist.component.html',
@@ -13,9 +15,14 @@ export class HashlistComponent {
   @ViewChild('table') table: HashlistsTableComponent;
 
   pageTitle = 'Hashlists';
+  showCreateButton: boolean = true;
 
-  constructor(readonly titleService: AutoTitleService) {
+  constructor(
+    readonly titleService: AutoTitleService,
+    readonly roleService: HashListRoleService
+  ) {
     titleService.set(['Show Hashlists']);
+    this.showCreateButton = this.roleService.hasRole('create');
   }
 
   toggleIsArchived(event: MatSlideToggleChange): void {

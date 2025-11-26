@@ -12,6 +12,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 
@@ -43,7 +44,9 @@ export class NewEditPreprocessorComponent implements OnInit {
   loading = false;
 
   isLoading = true;
+
   private httpNoInterceptors: HttpClient;
+
   /**
    * Array to hold subscriptions for cleanup on component destruction.
    */
@@ -55,7 +58,8 @@ export class NewEditPreprocessorComponent implements OnInit {
     private router: Router,
     private alert: AlertService,
     private cs: ConfigService,
-    httpBackend: HttpBackend
+    httpBackend: HttpBackend,
+    protected roleService: PreprocessorRoleService
   ) {
     this.newEditPreprocessorForm = getNewEditPreprocessorForm();
     this.httpNoInterceptors = new HttpClient(httpBackend);

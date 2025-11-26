@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { FileType } from '@models/file.model';
 
+import { FileRoleService } from '@services/roles/file-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
@@ -15,15 +16,19 @@ export class FilesComponent implements OnInit {
   FileType = FileType;
   name = 'filesTable';
 
+  protected showCreateButton: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
-    private titleService: AutoTitleService
+    private titleService: AutoTitleService,
+    private fileRolesService: FileRoleService
   ) {
     titleService.set(['Show Files']);
   }
 
   ngOnInit(): void {
     this.loadFiles();
+    this.showCreateButton = this.fileRolesService.hasRole('create');
     switch (this.fileType) {
       case 0:
         this.name = 'filesWordlistTable';

@@ -3,11 +3,11 @@ import { of, throwError } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
@@ -19,11 +19,13 @@ describe('NewEditPreprocessorComponent', () => {
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
+  let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create', 'get', 'update']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockRoleService = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
 
     await TestBed.configureTestingModule({
       imports: [NewEditPreprocessorComponent],
@@ -31,6 +33,7 @@ describe('NewEditPreprocessorComponent', () => {
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: Router, useValue: mockRouter },
         { provide: AlertService, useValue: mockAlertService },
+        { provide: PreprocessorRoleService, useValue: mockRoleService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -158,6 +161,7 @@ describe('NewEditPreprocessorComponent', () => {
       skipCommand: '--skip',
       limitCommand: '--limit'
     });
+    mockRoleService.hasRole.and.returnValue(true);
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 

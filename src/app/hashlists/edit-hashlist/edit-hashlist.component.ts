@@ -1,7 +1,7 @@
 import { DataTableDirective } from 'angular-datatables';
 import { Subject, firstValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
@@ -24,7 +25,7 @@ import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -43,18 +44,19 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   // Edit variables
   editedHashlistIndex: number;
-  editedHashlist: JHashlist | undefined;
+  editedHashlist: JHashlist | undefined; // Change to Model
   hashtype: JHashtype | undefined;
   type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: any[] = [];
+  selectAccessgroup: Array<SelectOption> = [];
 
   // To Remove for use tables
   @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+
   private httpNoInterceptors: HttpClient;
 
   /**
@@ -71,7 +73,8 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     private gs: GlobalService,
     private router: Router,
     private cs: ConfigService,
-    httpBackend: HttpBackend
+    httpBackend: HttpBackend,
+    protected roleService: HashListRoleService
   ) {
     this.updateForm = getEditHashlistForm();
     this.titleService.set(['Edit Hashlist']);
@@ -85,13 +88,10 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.editedHashlistIndex = +this.route.snapshot.params['id'];
 
     try {
-      // 1) Cargar hashlist; si no existe o 403 lanzará HttpErrorResponse
       await this.loadHashlist();
 
-      // 2) Cargar access groups (select de Access group)
       await this.loadData();
 
-      // 3) Solo si todo ha ido bien pintamos la pantalla
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
@@ -100,8 +100,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         this.router.navigateByUrl('/forbidden');
         return;
       }
-
-      // 404, 500 “No hashlist found …”, etc → tratamos como not found
       this.router.navigateByUrl('/not-found');
       return;
     }
@@ -116,7 +114,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   }
 
   private async loadHashlist(): Promise<void> {
-    const base = this.gs['cs'].getEndpoint() + SERV.HASHLISTS.URL;
+    const base = this.cs.getEndpoint() + SERV.HASHLISTS.URL;
     const url = `${base}/${this.editedHashlistIndex}`;
 
     // Mismos includes que antes
@@ -156,6 +154,11 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   private async loadData(): Promise<void> {
+    // Respetamos la lógica de roles del master
+    if (!this.roleService.hasRole('groups')) {
+      return;
+    }
+
     const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_GROUPS));
 
     const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
@@ -200,7 +203,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.unsubscribeService.add(helperExportedLeftSubscription$);
   }
 
-  exportWordlist() {
+  exportWordlist(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedWordlistSubscription$ = this.gs
       .chelper(SERV.HELPER, 'exportWordlist', payload)

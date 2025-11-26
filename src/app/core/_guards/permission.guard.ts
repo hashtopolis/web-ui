@@ -1,64 +1,68 @@
 import { Observable, catchError, map, of } from 'rxjs';
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Type, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
 
-import { PermissionService } from '@services/permission/permission.service';
+import { RoleService } from '@services/roles/base/role.service';
 import { AlertService } from '@services/shared/alert.service';
-
-import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PermissionGuard {
-  constructor(
-    private alert: AlertService,
-    private permissionService: PermissionService
-  ) {}
+  constructor(private alert: AlertService) {}
 
   /**
-   * Format human readable response from the permission enum values
-   * @param perm Permission string value, e.g. "permAgentCreate"
-   * @private
+   * Convert role and domain names into a human-readable format
+   * @param domain The domain name (e.g., "Agents", "Tasks")
+   * @param role The role name in camel case (e.g., "create")
+   * @return A human-readable string (e.g., "create Agents")
    */
-  private formatPermissionName(perm: PermissionValues): string {
-    type PermKey = keyof typeof Perm;
+  private humanizeRoleName(domain: string, role: string): string {
+    const action = role
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .toLowerCase();
 
-    for (const resourceKey of Object.keys(Perm) as PermKey[]) {
-      const resourceEnum = Perm[resourceKey];
-      for (const actionKey in resourceEnum) {
-        if (resourceEnum[actionKey as keyof typeof resourceEnum] === perm) {
-          const actionFormatted = actionKey.charAt(0).toUpperCase() + actionKey.slice(1).toLowerCase();
-          return `${actionFormatted} ${resourceKey}`;
-        }
-      }
-    }
-    // fallback to raw string if no match found
-    return perm;
+    return `${action} ${domain}s`;
   }
 
+  /**
+   * Check if the user has the required role to activate the route
+   * @param route The activated route snapshot
+   * @return An observable that emits true if access is granted, false otherwise
+   */
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const requiredPermission = route.data['permission'] as PermissionValues;
-    return this.permissionService.hasPermission(requiredPermission).pipe(
-      map((has) => {
-        if (has) {
+    const roleName = route.data['roleName'] as string;
+    const roleServiceClass = route.data['roleServiceClass'] as Type<RoleService>;
+
+    if (!roleName || !roleServiceClass) {
+      console.error('PermissionGuard: Missing roleName or roleServiceClass in route data');
+      return of(false);
+    }
+
+    // Instantiate the correct subclass of RoleService
+    const service = inject(roleServiceClass);
+
+    return of(service.hasRole(roleName)).pipe(
+      map((ok) => {
+        if (ok) {
           return true;
         }
 
-        const formattedPermission = this.formatPermissionName(requiredPermission);
-        const message = `You are not allowed to ${formattedPermission.toLowerCase()}`;
-        this.alert.showErrorMessage(`Access denied: ${message}. Please contact your Administrator.`);
+        const readable = this.humanizeRoleName(service.scopeName, roleName);
+
+        this.alert.showErrorMessage(`Access denied: You do not have the required role "${readable}".`);
+
         return false;
       }),
       catchError(() => {
-        this.alert.showErrorMessage(`Access denied: Unexpected error while checking permissions.`);
+        this.alert.showErrorMessage(`Access denied: Unexpected error while checking roles.`);
         return of(false);
       })
     );
   }
 }
 
-export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean> => {
-  return inject(PermissionGuard).canActivate(route);
-};
+export const CheckRole: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean> =>
+  inject(PermissionGuard).canActivate(route);

@@ -16,11 +16,13 @@
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
             </div>
             <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-select
-                title="Access group"
-                formControlName="accessGroupId"
-                [items]="selectAccessgroup">
-              </input-select>
+              @if (roleService.hasRole('groups')) {
+                <input-select
+                  title="Access group"
+                  formControlName="accessGroupId"
+                  [items]="selectAccessgroup">
+                </input-select>
+              }
               <input-check title="Secret Data" formControlName="isSecret"></input-check>
             </div>
           </div>
@@ -43,7 +45,7 @@
           </div>
 
           <grid-buttons>
-            <button-submit [name]="'Update'"></button-submit>
+            <button-submit [name]="'Update'" [disabled]="!roleService.hasRole('update')"></button-submit>
           </grid-buttons>
         </form>
 
@@ -54,26 +56,29 @@
           <grid-buttons>
             <button-submit
               [name]="'Import pre-cracked hashes'"
-              (click)="importCrackedHashes()">
+              (click)="importCrackedHashes()"
+              [disabled]="!roleService.hasRole('update')">
             </button-submit>
 
             @if (editedHashlist?.cracked > 0) {
               <button-submit
                 [name]="'Generate Wordlist'"
-                (click)="exportWordlist()">
+                (click)="exportWordlist()"
+                [disabled]="!roleService.hasRole('wordlist')">
               </button-submit>
             }
 
             @if (editedHashlist?.cracked > 0) {
               <button-submit
                 [name]="'Export Left Hashes'"
-                (click)="exportLeftHashes()">
+                (click)="exportLeftHashes()"
+                [disabled]="!roleService.hasRole('wordlist')">
               </button-submit>
             }
           </grid-buttons>
         </div>
 
-        @if (editedHashlist?.cracked > 0) {
+        @if (editedHashlist?.cracked > 0 && roleService.hasRole('tasks')) {
           <br />
           <mat-accordion>
             <mat-expansion-panel>
@@ -104,13 +109,15 @@
         </app-table>
       }
 
-      <app-table>
-        <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-        <app-tasks-table
-          name="hashlistTasksTable"
-          [hashlistId]="editedHashlistIndex">
-        </app-tasks-table>
-      </app-table>
+      @if (roleService.hasRole('tasks')) {
+        <app-table>
+          <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
+          <app-tasks-table
+            name="hashlistTasksTable"
+            [hashlistId]="editedHashlistIndex">
+          </app-tasks-table>
+        </app-table>
+      }
     </div>
   }
 </div>

@@ -32,7 +32,7 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
@@ -99,7 +99,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setFilterQuery(filterQuery);
   }
   getColumns(): HTTableColumn[] {
-    return [
+    const columns: HTTableColumn[] = [];
+
+    columns.push(
       {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
@@ -128,11 +130,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.STATUS,
         dataKey: 'keyspaceProgress',
-        render: (wrapper: JTaskWrapper) => this.renderSpeed(wrapper),
         icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => {
-          const status = this.getTaskStatus(wrapper);
+          const status = wrapper.tasks[0]?.status;
           switch (status) {
             case TaskStatus.RUNNING:
               return 'Running';
@@ -149,22 +150,39 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHTYPE,
         dataKey: 'hashtype',
         isSortable: false,
+
         render: (wrapper: JTaskWrapper) => {
-          const hashType = wrapper.hashType;
-          return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
+          const type = wrapper.hashType;
+
+          return type ? `${type.id} - ${type.description}` : '';
         },
+
         export: async (wrapper: JTaskWrapper) => {
-          const hashType = wrapper.hashType;
-          return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
+          const type = wrapper.hashType;
+
+          return type ? `${type.id} - ${type.description}` : '';
         }
       },
+
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
-        icon: (wrapper: JTaskWrapper) => this.renderHashlistIcon(wrapper.hashlist),
+        icon: (wrapper: JTaskWrapper) => {
+          if (wrapper.hashlist) {
+            this.renderHashlistIcon(wrapper.hashlist);
+          } else {
+            return undefined;
+          }
+        },
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
+        export: async (wrapper: JTaskWrapper) => {
+          if (wrapper.hashlist) {
+            return wrapper.hashlist.name + '';
+          } else {
+            return wrapper.hashlistId + ' -';
+          }
+        }
       },
       {
         id: TaskTableCol.DISPATCHED_SEARCHED,
@@ -183,43 +201,22 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.AGENTS,
         dataKey: 'agents',
-        render: (wrapper: JTaskWrapper) => this.renderAgents(wrapper),
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) => this.getNumAgents(wrapper) + ''
+        render: (wrapper: JTaskWrapper) => {
+          if (wrapper.taskType === TaskType.TASK) {
+            return wrapper.tasks[0]?.activeAgents + '';
+          } else {
+            return '';
+          }
+        },
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.activeAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
-
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
-      },
-      {
-        id: TaskTableCol.PRIORITY,
-        dataKey: 'priority',
-        editable: (wrapper: JTaskWrapper) => {
-          return {
-            data: wrapper,
-            value: wrapper.priority + '',
-            action: TaskTableEditableAction.CHANGE_PRIORITY
-          };
-        },
-        isSortable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
-      },
-      {
-        id: TaskTableCol.MAX_AGENTS,
-        dataKey: 'maxAgents',
-        editable: (wrapper: JTaskWrapper) => {
-          return {
-            data: wrapper,
-            value: wrapper.maxAgents + '',
-            action: TaskTableEditableAction.CHANGE_MAX_AGENTS
-          };
-        },
-        isSortable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
       },
       {
         id: TaskTableCol.PREPROCESSOR,
@@ -246,7 +243,57 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
       }
-    ];
+    );
+
+    if (this.tasksRoleService.hasRole('update')) {
+      columns.push(
+        {
+          id: TaskTableCol.PRIORITY,
+          dataKey: 'priority',
+          editable: (wrapper: JTaskWrapper) => {
+            return {
+              data: wrapper,
+              value: wrapper.priority + '',
+              action: TaskTableEditableAction.CHANGE_PRIORITY
+            };
+          },
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
+        },
+        {
+          id: TaskTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          editable: (wrapper: JTaskWrapper) => {
+            return {
+              data: wrapper,
+              value: wrapper.maxAgents + '',
+              action: TaskTableEditableAction.CHANGE_MAX_AGENTS
+            };
+          },
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+        }
+      );
+    } else {
+      columns.push(
+        {
+          id: TaskTableCol.PRIORITY,
+          dataKey: 'priority',
+          render: (wrapper: JTaskWrapper) => wrapper.priority + '',
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
+        },
+        {
+          id: TaskTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          render: (wrapper: JTaskWrapper) => wrapper.maxAgents + '',
+          isSortable: true,
+          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+        }
+      );
+    }
+
+    return columns;
   }
 
   //Evaluate which row class should be set
@@ -489,26 +536,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   renderDispatchedSearched(wrapper: JTaskWrapper): SafeHtml {
     const html = this.getDispatchedSearchedString(wrapper);
-    return this.sanitize(html);
-  }
-
-  getNumAgents(wrapper: JTaskWrapper): number {
-    return wrapper.taskType === TaskType.TASK && wrapper.chunkData ? wrapper.chunkData.agents.length : 0;
-  }
-
-  renderAgents(wrapper: JTaskWrapper): SafeHtml {
-    const numAgents = this.getNumAgents(wrapper);
-    return this.sanitize(`${numAgents}`);
-  }
-
-  renderSpeed(wrapper: JTaskWrapper): SafeHtml {
-    let html = '';
-    if (wrapper.taskType === TaskType.TASK) {
-      const chunkData: ChunkData = wrapper.chunkData;
-      if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
-        html = `${convertCrackingSpeed(chunkData.speed)}`;
-      }
-    }
     return this.sanitize(html);
   }
 
@@ -800,10 +827,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderHashlistLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (wrapper && wrapper.hashlist) {
+
+    if (wrapper) {
+      const id = wrapper.hashlist?.id ?? wrapper.hashlistId;
+      const name = wrapper.hashlist?.name?.trim();
+
       links.push({
-        label: wrapper.hashlist.name,
-        routerLink: ['/hashlists', 'hashlist', wrapper.hashlist.id, 'edit']
+        routerLink: ['/hashlists', 'hashlist', id, 'edit'],
+        label: name || String(id)
       });
     }
     return of(links);

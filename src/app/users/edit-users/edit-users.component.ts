@@ -13,6 +13,8 @@ import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { PermissionRoleService } from '@services/roles/user/permission-role.service';
+import { UserRoleService } from '@services/roles/user/user-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
@@ -63,7 +65,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    private confirmDialog: ConfirmDialogService
+    private confirmDialog: ConfirmDialogService,
+    protected userRoleService: UserRoleService,
+    protected permissionRoleService: PermissionRoleService
   ) {
     this.onInitialize();
     this.buildForm();

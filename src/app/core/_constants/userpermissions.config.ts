@@ -24,6 +24,10 @@ export enum AgentAssignment {
   UPDATE = 'permAgentAssignmentUpdate'
 }
 
+export enum AgentError {
+  READ = 'permAgentErrorRead'
+}
+
 // // VOUCHER
 export enum Voucher {
   CREATE = 'permRegVoucherCreate',
@@ -63,6 +67,10 @@ export enum Chunk {
   DELETE = 'permChunkDelete',
   READ = 'permChunkRead',
   UPDATE = 'permChunkUpdate'
+}
+// // Speed
+export enum Speed {
+  READ = 'permSpeedRead'
 }
 // // HASH-LIST
 export enum Hashlist {
@@ -182,12 +190,14 @@ export class Perm {
   static readonly Agent = Agent;
   static readonly AgentStat = AgentStat;
   static readonly AgentAssignment = AgentAssignment;
+  static readonly AgentError = AgentError;
   static readonly Voucher = Voucher;
   static readonly Task = Task;
   static readonly Pretask = Pretask;
   static readonly SuperTask = SuperTask;
   static readonly TaskWrapper = TaskWrapper;
   static readonly Chunk = Chunk;
+  static readonly Speed = Speed;
   static readonly Hashlist = Hashlist;
   static readonly SuperHashlist = SuperHashlist;
   static readonly Hash = Hash;

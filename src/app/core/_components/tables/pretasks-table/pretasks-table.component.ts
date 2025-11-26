@@ -152,14 +152,18 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'pretaskFiles',
         isSortable: false,
         render: (pretask: JPretask) => {
-          const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
-            if (file && typeof file.size === 'number' && !isNaN(file.size)) {
-              return sum + file.size;
-            } else {
-              return sum;
-            }
-          }, 0);
-          return formatFileSize(totalFileSize, 'short');
+          if (pretask.pretaskFiles) {
+            const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
+              if (file && typeof file.size === 'number' && !isNaN(file.size)) {
+                return sum + file.size;
+              } else {
+                return sum;
+              }
+            }, 0);
+            return formatFileSize(totalFileSize, 'short');
+          } else {
+            return '';
+          }
         },
         export: async (pretask: JPretask) => {
           const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
@@ -171,34 +175,56 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           }, 0);
           return formatFileSize(totalFileSize, 'short');
         }
-      },
-      {
-        id: PretasksTableCol.PRIORITY,
-        dataKey: 'priority',
-        editable: (pretask: JPretask) => {
-          return {
-            data: pretask,
-            value: pretask.priority + '',
-            action: PretasksTableEditableAction.CHANGE_PRIORITY
-          };
-        },
-        isSortable: true,
-        export: async (pretask: JPretask) => pretask.priority.toString()
-      },
-      {
-        id: PretasksTableCol.MAX_AGENTS,
-        dataKey: 'maxAgents',
-        editable: (pretask: JPretask) => {
-          return {
-            data: pretask,
-            value: pretask.maxAgents + '',
-            action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
-          };
-        },
-        isSortable: true,
-        export: async (pretask: JPretask) => pretask.maxAgents.toString()
       }
     ];
+
+    if (this.preconfiguredTasksRoleService.hasRole('update')) {
+      tableColumns.push(
+        {
+          id: PretasksTableCol.PRIORITY,
+          dataKey: 'priority',
+          editable: (pretask: JPretask) => {
+            return {
+              data: pretask,
+              value: pretask.priority + '',
+              action: PretasksTableEditableAction.CHANGE_PRIORITY
+            };
+          },
+          isSortable: true,
+          export: async (pretask: JPretask) => pretask.priority.toString()
+        },
+        {
+          id: PretasksTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          editable: (pretask: JPretask) => {
+            return {
+              data: pretask,
+              value: pretask.maxAgents + '',
+              action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
+            };
+          },
+          isSortable: true,
+          export: async (pretask: JPretask) => pretask.maxAgents.toString()
+        }
+      );
+    } else {
+      tableColumns.push(
+        {
+          id: PretasksTableCol.PRIORITY,
+          dataKey: 'priority',
+          render: (pretask: JPretask) => pretask.priority + '',
+          isSortable: true,
+          export: async (pretask: JPretask) => pretask.priority + ''
+        },
+        {
+          id: PretasksTableCol.MAX_AGENTS,
+          dataKey: 'maxAgents',
+          render: (pretask: JPretask) => pretask.maxAgents + '',
+          isSortable: true,
+          export: async (pretask: JPretask) => pretask.maxAgents + ''
+        }
+      );
+    }
 
     if (this.supertTaskId !== 0) {
       tableColumns.push({
@@ -344,14 +370,18 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   override renderSecretIcon(pretask: JPretask): HTTableIcon {
-    const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
-    if (secretFilesCount > 0) {
-      return {
-        name: 'lock',
-        tooltip: `Secret: ${secretFilesCount} ${secretFilesCount > 1 ? 'files' : 'file'}`
-      };
+    if (pretask.pretaskFiles) {
+      const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
+      if (secretFilesCount > 0) {
+        return {
+          name: 'lock',
+          tooltip: `Secret: ${secretFilesCount} ${secretFilesCount > 1 ? 'files' : 'file'}`
+        };
+      }
+      return { name: '' };
+    } else {
+      return { name: '' };
     }
-    return { name: '' };
   }
 
   private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {

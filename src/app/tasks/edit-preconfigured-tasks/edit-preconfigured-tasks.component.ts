@@ -14,6 +14,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
@@ -45,8 +46,8 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   // Edit Options
   editedPretaskIndex: number;
 
-  pretask: any = [];
-  files: any; //Add Model
+  /** Read-only mode based on roles */
+  isReadOnly = false;
 
   // TABLES CODE
   @ViewChild(DataTableDirective, { static: false })
@@ -55,6 +56,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
+  /** HttpClient without interceptors to avoid global error dialog */
   private httpNoInterceptors: HttpClient;
 
   constructor(
@@ -65,18 +67,23 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router,
     private serializer: JsonAPISerializer,
-    private http: HttpClient,
     private cs: ConfigService,
-    httpBackend: HttpBackend
+    httpBackend: HttpBackend,
+    protected roleService: PreconfiguredTasksRoleService
   ) {
-    this.buildForm();
     this.titleService.set(['Edit Preconfigured Tasks']);
+    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.buildForm();
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
+    this.isReadOnly = !this.roleService.hasRole('edit');
+
+    this.buildForm();
+
     this.editedPretaskIndex = +this.route.snapshot.params['id'];
 
     try {
@@ -113,22 +120,18 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       statusTimer: new FormControl({ value: '', disabled: true }),
       useNewBench: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
-        taskName: new FormControl(''),
-        attackCmd: new FormControl(''),
-        chunkTime: new FormControl(''),
-        color: new FormControl(''),
-        priority: new FormControl(''),
-        maxAgents: new FormControl(''),
-        isCpuTask: new FormControl(''),
-        isSmall: new FormControl('')
+        taskName: new FormControl({ value: '', disabled: this.isReadOnly }),
+        attackCmd: new FormControl({ value: '', disabled: this.isReadOnly }),
+        chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
+        color: new FormControl({ value: '', disabled: this.isReadOnly }),
+        priority: new FormControl({ value: '', disabled: this.isReadOnly }),
+        maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
       })
     });
   }
 
-  /**
-   * Carga el pretask desde la API y rellena el formulario.
-   * Lanza error si el recurso no existe (404 / 403).
-   */
   private async loadPretask(): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
 
@@ -138,8 +141,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       data: response.data,
       included: response.included
     });
-
-    this.pretask = pretask;
 
     this.updateForm = new FormGroup({
       pretaskId: new FormControl({
@@ -155,20 +156,20 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         disabled: true
       }),
       updateData: new FormGroup({
-        taskName: new FormControl(pretask.taskName, Validators.required),
-        attackCmd: new FormControl(pretask.attackCmd, Validators.required),
+        taskName: new FormControl(pretask.taskName, this.isReadOnly ? [] : [Validators.required]),
+        attackCmd: new FormControl(pretask.attackCmd, this.isReadOnly ? [] : [Validators.required]),
         chunkTime: new FormControl(pretask.chunkTime),
         color: new FormControl(pretask.color),
         priority: new FormControl(pretask.priority),
         maxAgents: new FormControl(pretask.maxAgents),
-        isCpuTask: new FormControl(pretask.isCpuTask, Validators.required),
-        isSmall: new FormControl(pretask.isSmall, Validators.required)
+        isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
+        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required])
       })
     });
   }
 
   /**
-   * Loads data, specifically Pretasks, for the component.
+   * Loads data, specifically Pretasks/files, for the component.
    */
   loadData(): void {
     const params = new RequestParamBuilder()
@@ -179,8 +180,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
       const pretasks = this.serializer.deserialize<JPretask[]>(responseBody);
-
-      this.files = pretasks;
       this.dtTrigger.next(void 0);
     });
 
@@ -205,7 +204,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
    */
   onSubmit(): void {
-    if (this.updateForm.valid) {
+    if (this.updateForm.valid && !this.isReadOnly) {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])

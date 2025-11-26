@@ -3,11 +3,11 @@
     [title]="pageTitle"
     buttontitle="New Hashlist"
     buttonlink="/hashlists/new-hashlist"
-    [subbutton]="true"
+    [subbutton]="showCreateButton"
   ></app-page-title>
   <mat-slide-toggle (change)="toggleIsArchived($event)">
     Show Archived
   </mat-slide-toggle>
-  <br /><br />
+  <br/><br/>
   <app-hashlists-table #table name="hashlistsTable"></app-hashlists-table>
 </app-table>
