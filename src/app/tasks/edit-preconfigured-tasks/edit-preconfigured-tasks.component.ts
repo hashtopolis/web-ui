@@ -173,12 +173,15 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const params = new RequestParamBuilder()
-      .addFilter({ field: 'pretaskId', operator: FilterType.EQUAL, value: this.editedPretaskIndex })
+      .addFilter({
+        field: 'pretaskId',
+        operator: FilterType.EQUAL,
+        value: this.editedPretaskIndex
+      })
       .addInclude('pretaskFiles')
       .create();
 
-    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
+    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe(() => {
       this.dtTrigger.next(void 0);
     });
 
