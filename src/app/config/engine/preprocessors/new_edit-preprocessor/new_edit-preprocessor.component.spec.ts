@@ -57,11 +57,28 @@ describe('NewEditPreprocessorComponent', () => {
    * @param title Title text
    * @param buttonText Button text
    */
+  /**
+   * Helper to check page title and button text
+   * @param title Title text
+   * @param buttonText Button text
+   */
   function expectPageTitleAndButton(title: string, buttonText: string) {
-    const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
-    expect(buttonDebugEl.nativeElement.textContent).toContain(buttonText);
+    const hostElement: HTMLElement = fixture.nativeElement;
 
-    const subtitleEl = fixture.nativeElement.querySelector('app-page-subtitle');
+    const buttonEl = hostElement.querySelector('[data-testid="submit-button-newPreprocessor"]') as HTMLElement | null;
+
+    expect(buttonEl).withContext('Submit button not found').not.toBeNull();
+    if (!buttonEl) {
+      return;
+    }
+    expect(buttonEl.textContent).toContain(buttonText);
+
+    const subtitleEl = hostElement.querySelector('app-page-subtitle') as HTMLElement | null;
+
+    expect(subtitleEl).withContext('Subtitle not found').not.toBeNull();
+    if (!subtitleEl) {
+      return;
+    }
     expect(subtitleEl.textContent).toContain(title);
   }
 
@@ -222,13 +239,20 @@ describe('NewEditPreprocessorComponent', () => {
     expectPageTitleAndButton('New Preprocessor', 'Create');
   });
 
-  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', () => {
+  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', async () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
+
     activatedRoute.snapshot.paramMap.get = () => '9';
+
+    mockRoleService.hasRole.and.returnValue(true);
+
     mockGlobalService.get.and.returnValue(of({ data: {}, included: [] }));
 
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(component.pageTitle).toBe('Edit Preprocessor');

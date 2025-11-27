@@ -53,8 +53,8 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
+  dtTrigger: Subject<unknown> = new Subject<unknown>();
+  dtOptions: unknown = {};
 
   /** HttpClient without interceptors to avoid global error dialog */
   private httpNoInterceptors: HttpClient;
@@ -179,7 +179,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
-      const pretasks = this.serializer.deserialize<JPretask[]>(responseBody);
       this.dtTrigger.next(void 0);
     });
 

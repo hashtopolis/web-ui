@@ -55,7 +55,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
-  dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger: Subject<unknown> = new Subject<unknown>();
 
   private httpNoInterceptors: HttpClient;
 

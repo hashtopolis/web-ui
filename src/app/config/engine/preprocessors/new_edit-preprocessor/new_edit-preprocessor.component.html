@@ -63,10 +63,7 @@
         <button-submit
           data-testid="submit-button-newPreprocessor"
           [name]="submitButtonText"
-          [disabled]="
-            !newEditPreprocessorForm.valid ||
-            (isEditMode ? !roleService.hasRole('update') : !roleService.hasRole('create'))
-          "
+          [disabled]="!newEditPreprocessorForm.valid"
         ></button-submit>
       </grid-buttons>
 
