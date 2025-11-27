@@ -52,7 +52,7 @@ export class HttpResInterceptor implements HttpInterceptor {
     } else if (error.status === 404 && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
     } else if (error.status === 0) {
-      const frontendBaseURL = window.location.href.split("/").slice(0, 3).join("/");
+      const frontendBaseURL = window.location.href.split('/').slice(0, 3).join('/');
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
         req.url
       )}) and try again. Also the following options must be set in the .env file: HASHTOPOLIS_APIV2_ENABLE=1 and HASHTOPOLIS_FRONTEND_URLS must include the used Hashtopolis frontend: ${frontendBaseURL} `;
