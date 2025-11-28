@@ -84,7 +84,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.authService.user.subscribe((user: AuthUser) => {
         if (user) {
-          this.username = user._username;
+          this.username = user.canonicalUsername;
         }
       })
     );

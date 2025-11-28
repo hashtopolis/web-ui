@@ -10,6 +10,7 @@ export interface ActionMenuItem {
   red?: boolean;
   routerLink?: string[];
   external?: boolean;
+
   showAddButton?: boolean;
   routerLinkAdd?: string[];
   tooltipAddButton?: string;
