@@ -1,11 +1,11 @@
-import { Subscription, finalize } from 'rxjs';
+import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
@@ -49,24 +49,26 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 
+  // loading gate to avoid painting the screen before data is ready
+  isLoading = true;
+
   color = '';
   tusepreprocessor: number;
   hashlistDescrip: string;
-  hashlistinform: JHashlist;
+  hashlistinform: JHashlist | undefined;
   availAgents: JAgent[] = [];
-  crackerinfo: JCrackerBinary;
+  crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
-  //Time calculation
+  // Time calculation
   cprogress: number; // Keyspace searched
   ctimespent: number; // Time Spent
   estimatedTime: number; // Estimated time till task is finished
   searched: string;
 
-  // Chunk View
   chunkview: number;
   isactive = 0;
   currenspeed = 0;
@@ -76,7 +78,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   taskProgressImageUrl: SafeUrl | null = null;
   private rawTaskProgressObjectUrl: string | null = null;
 
-  private routeSub: Subscription;
+  private routeSub: Subscription | undefined;
+  private httpNoInterceptors: HttpClient;
 
   constructor(
     private titleService: AutoTitleService,
@@ -89,29 +92,85 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     protected roleService: TasksRoleService,
     private cs: ConfigService,
     private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    httpBackend: HttpBackend
   ) {
     this.titleService.set(['Edit Task']);
+    this.httpNoInterceptors = new HttpClient(httpBackend);
   }
 
-  ngOnInit() {
-    if (this.roleService.hasRole('edit')) {
-      this.isReadOnly = false;
-    } else {
-      this.isReadOnly = true;
-    }
+  async ngOnInit(): Promise<void> {
+    this.isReadOnly = !this.roleService.hasRole('edit');
 
-    this.route.params.subscribe((params: Params) => {
-      this.editedTaskIndex = +params['id'];
-      this.editMode = params['id'] != null;
+    this.editedTaskIndex = +this.route.snapshot.params['id'];
+    this.editMode = Number.isFinite(this.editedTaskIndex);
 
-      this.buildForm();
-      this.initForm();
+    this.buildForm();
+
+    try {
+      const task = await this.loadTask();
+
+      this.originalValue = task;
+      this.searched = task.searched;
+      this.color = task.color;
+      this.crackerinfo = task.crackerBinary;
+      this.taskWrapperId = task.taskWrapperId;
+      this.tkeyspace = task.keyspace;
+      this.tusepreprocessor = task.preprocessorId;
+
+      if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
+        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+      }
+
+      if (this.roleService.hasRole('editTaskSpeed')) {
+        this.getTaskSpeeds(task.assignedAgents.length);
+      }
+
+      if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
+        this.hashlistinform = task.hashlist;
+        this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
+          const hashtype = this.serializer.deserialize<JHashtype>({ data: response.data, included: response.included });
+          this.hashlistDescrip = hashtype.description;
+        });
+      }
+
+      this.updateForm.setValue({
+        taskId: task.id,
+        forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+        skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
+        keyspace: task.keyspace,
+        keyspaceProgress: task.keyspaceProgress,
+        crackerBinaryId: task.crackerBinaryId,
+        chunkSize: task.chunkSize,
+        updateData: {
+          taskName: task.taskName,
+          attackCmd: task.attackCmd,
+          notes: task.notes,
+          color: task.color,
+          chunkTime: Number(task.chunkTime),
+          statusTimer: task.statusTimer,
+          priority: task.priority,
+          maxAgents: task.maxAgents,
+          isCpuTask: task.isCpuTask,
+          isSmall: task.isSmall
+        }
+      });
+
       this.assignChunksInit();
-    });
 
-    if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
-      this.loadTaskProgressImage();
+      if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
+        this.loadTaskProgressImage();
+      }
+
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+      this.router.navigateByUrl('/not-found');
+      return;
     }
   }
 
@@ -124,7 +183,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  buildForm() {
+  private buildForm(): void {
     this.updateForm = new FormGroup({
       taskId: new FormControl({ value: '', disabled: true }),
       forcePipe: new FormControl({ value: '', disabled: true }),
@@ -146,16 +205,32 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
       })
     });
+
     this.createForm = new FormGroup({
-      agentId: new FormControl()
+      agentId: new FormControl<number | null>(null)
     });
   }
 
-  onSubmit() {
-    if (this.updateForm.valid) {
+  private async loadTask(): Promise<JTask> {
+    const includes = ['hashlist', 'crackerBinary', 'crackerBinaryType', 'assignedAgents'];
+
+    const base = this.cs.getEndpoint() + SERV.TASKS.URL;
+    const url = `${base}/${this.editedTaskIndex}`;
+
+    const params: { [k: string]: string } = { include: includes.join(',') };
+
+    const response = await firstValueFrom<ResponseWrapper>(
+      this.httpNoInterceptors.get<ResponseWrapper>(url, { params })
+    );
+
+    return this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
+  }
+
+  onSubmit(): void {
+    if (this.updateForm.valid && !this.isReadOnly) {
       // Check if attackCmd has been modified
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
-        const message: string =
+        const message =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
         this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
           if (confirmed) {
@@ -170,7 +245,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateTask() {
+  private updateTask(): void {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
       this.isUpdatingLoading = false;
@@ -178,71 +253,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.alertService.showSuccessMessage('Task data has been updated successfully.');
       });
     });
-  }
-
-  private initForm() {
-    if (this.editMode) {
-      const params = new RequestParamBuilder()
-        .addInclude('hashlist')
-        .addInclude('crackerBinary')
-        .addInclude('crackerBinaryType')
-        .addInclude('assignedAgents')
-        .create();
-
-      this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
-        const task = this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
-
-        this.originalValue = task;
-        this.searched = task.searched;
-        this.color = task.color;
-        this.crackerinfo = task.crackerBinary;
-        this.taskWrapperId = task.taskWrapperId;
-
-        if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-          this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
-        }
-
-        if (this.roleService.hasRole('editTaskSpeed')) {
-          this.getTaskSpeeds(task.assignedAgents.length);
-        }
-
-        // Hashlist Description and Type
-        if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
-          this.hashlistinform = task.hashlist;
-          if (this.hashlistinform) {
-            this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
-              const responseBody = { data: response.data, included: response.included };
-              const hashtype = this.serializer.deserialize<JHashtype>(responseBody);
-              this.hashlistDescrip = hashtype.description;
-            });
-          }
-        }
-        this.tkeyspace = task.keyspace;
-        this.tusepreprocessor = task.preprocessorId;
-
-        this.updateForm.setValue({
-          taskId: task.id,
-          forcePipe: task.forcePipe === true ? 'Yes' : 'No',
-          skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
-          keyspace: task.keyspace,
-          keyspaceProgress: task.keyspaceProgress,
-          crackerBinaryId: task.crackerBinaryId,
-          chunkSize: task.chunkSize,
-          updateData: {
-            taskName: task.taskName,
-            attackCmd: task.attackCmd,
-            notes: task.notes,
-            color: task.color,
-            chunkTime: Number(task.chunkTime),
-            statusTimer: task.statusTimer,
-            priority: task.priority,
-            maxAgents: task.maxAgents,
-            isCpuTask: task.isCpuTask,
-            isSmall: task.isSmall
-          }
-        });
-      });
-    }
   }
 
   /**
@@ -280,9 +290,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   /**
    * The below functions are related with assign, manage and delete agents
-   *
-   **/
-  assingAgentInit(assignedAgentIds: Array<number>) {
+   */
+  private assingAgentInit(assignedAgentIds: Array<number>): void {
     const params = new RequestParamBuilder();
     if (assignedAgentIds.length > 0) {
       params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
@@ -294,7 +303,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  reloadAgentAssignment() {
+  reloadAgentAssignment(): void {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
@@ -310,7 +319,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  assignAgent() {
+  assignAgent(): void {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
@@ -331,7 +340,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  assignChunksInit() {
+  private assignChunksInit(): void {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'edit-task':
@@ -358,12 +367,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.chunkview = event.value;
   }
 
-  /**
-   * Helper functions
-   *
-   **/
-
-  purgeTask() {
+  purgeTask(): void {
     this.confirmDialog.confirmYesNo('Purge Task', 'Do you really want to purge the task').subscribe((confirmed) => {
       if (confirmed) {
         const payload = { taskId: this.editedTaskIndex };
@@ -383,7 +387,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * If we have more than 10 agents, the period will be decreased (e.g. 30 minutes for 20 agents)
    * Estimation is a new speed entry per agent every 5 seconds: (60 seconds * 60) / 5 = 720
    *
-   * The resulting array must ve reversed to have it sorted ascending by time
+   * The resulting array must be reversed to have it sorted ascending by time
    *
    * @param assignedAgentsCount - number of assigned agents to the task
    * @private

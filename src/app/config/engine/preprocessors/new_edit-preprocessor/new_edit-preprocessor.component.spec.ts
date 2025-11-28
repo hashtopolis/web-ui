@@ -57,12 +57,35 @@ describe('NewEditPreprocessorComponent', () => {
    * @param title Title text
    * @param buttonText Button text
    */
+  /**
+   * Helper to check page title and button text
+   * @param title Title text
+   * @param buttonText Button text
+   */
   function expectPageTitleAndButton(title: string, buttonText: string) {
-    const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
-    expect(buttonDebugEl.nativeElement.textContent).toContain(buttonText);
+    const hostElement: HTMLElement = fixture.nativeElement;
 
-    const subtitleEl = fixture.nativeElement.querySelector('app-page-subtitle');
-    expect(subtitleEl.textContent).toContain(title);
+    // 1) Intentar localizar por data-testid (nuevo modo)
+    let buttonEl = hostElement.querySelector('[data-testid="submit-button-newPreprocessor"]') as HTMLElement | null;
+
+    // 2) Fallback: cualquier botón de submit (por si en modo Edit no hay data-testid)
+    if (!buttonEl) {
+      buttonEl = hostElement.querySelector('button[type="submit"]') as HTMLElement | null;
+    }
+
+    expect(buttonEl).withContext('Submit button not found').not.toBeNull();
+
+    if (buttonEl) {
+      expect(buttonEl.textContent).toContain(buttonText);
+    }
+
+    const subtitleEl = hostElement.querySelector('app-page-subtitle') as HTMLElement | null;
+
+    expect(subtitleEl).withContext('Subtitle not found').not.toBeNull();
+
+    if (subtitleEl) {
+      expect(subtitleEl.textContent).toContain(title);
+    }
   }
 
   it('should create component and form', () => {
@@ -222,13 +245,22 @@ describe('NewEditPreprocessorComponent', () => {
     expectPageTitleAndButton('New Preprocessor', 'Create');
   });
 
-  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', () => {
+  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', async () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
+
     activatedRoute.snapshot.paramMap.get = () => '9';
+
+    mockRoleService.hasRole.and.returnValue(true);
     mockGlobalService.get.and.returnValue(of({ data: {}, included: [] }));
 
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await fixture.whenStable();
+
+    (component as unknown as { isLoading: boolean }).isLoading = false;
+
     fixture.detectChanges();
 
     expect(component.pageTitle).toBe('Edit Preprocessor');

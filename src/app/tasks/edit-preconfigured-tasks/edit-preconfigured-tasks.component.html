@@ -1,51 +1,67 @@
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
-  <div fxFlex="60" fxFlex.lt-md="100">
-    <grid-main>
-      <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
-      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+  @if (!isLoading) {
+    <div fxFlex="60" fxFlex.lt-md="100">
+      <grid-main>
+        <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
 
-        <input-text title="ID" formControlName="pretaskId"></input-text>
+        <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+          <input-text title="ID" formControlName="pretaskId"></input-text>
 
-        <div formGroupName="updateData">
+          <div formGroupName="updateData">
+            <input-text title="Name" formControlName="taskName"></input-text>
+            <input-color title="Color" formControlName="color"></input-color>
+            <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+          </div>
 
-          <input-text title="Name" formControlName="taskName"></input-text>
-          <input-color title="Color" formControlName="color"></input-color>
-          <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+          <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <input-number title="Priority" formControlName="priority"></input-number>
+            <input-number title="Max agents" formControlName="maxAgents"></input-number>
+            <input-number
+              title="Measure is in seconds time."
+              formControlName="chunkTime"
+            ></input-number>
+            <input-select
+              title="The task will work only with CPU agents assigned"
+              formControlName="isCpuTask"
+              [items]="selectYesno"
+            ></input-select>
+            <input-select
+              title="Small task"
+              formControlName="isSmall"
+              [items]="selectYesno"
+            ></input-select>
+          </div>
 
-        </div>
-        <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Priority" formControlName="priority"></input-number>
-          <input-number title="Max agents" formControlName="maxAgents"></input-number>
-          <input-number title="Measure is in seconds time." formControlName="chunkTime"></input-number>
-          <input-select title="The task will work only with CPU agents assigned" formControlName="isCpuTask" [items]="selectYesno"></input-select>
-          <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <input-text title="Benchmark Type" formControlName="useNewBench"></input-text>
+            <input-text title="Status timer" formControlName="statusTimer"></input-text>
+          </div>
 
-        </div>
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          @if (roleService.hasRole('edit')) {
+            <grid-buttons>
+              <button-submit [name]="'Update'"></button-submit>
+              @if (isUpdatingLoading) {
+                <div>
+                  <mat-spinner diameter="24" color="accent"></mat-spinner>
+                </div>
+              }
+            </grid-buttons>
+          }
+        </form>
+      </grid-main>
+    </div>
 
-          <input-text title="Benchmark Type" formControlName="useNewBench"></input-text>
-          <input-text title="Status timer" formControlName="statusTimer"></input-text>
-
-        </div>
-
-        @if (roleService.hasRole("edit")) {
-          <grid-buttons>
-            <button-submit [name]="'Update'"></button-submit>
-            @if (isUpdatingLoading) {
-              <div>
-                <mat-spinner diameter="24" color="accent"></mat-spinner>
-              </div>
-            }
-          </grid-buttons>
-        }
-
-      </form>
-
-    </grid-main>
-  </div>
-  <div fxFlex="50" fxFlex.lt-md="100">
-    <app-table>
-      <app-files-table #table name="filesTableInPreTasks" [showExport]="false"  [isSelectable]="false"  [editIndex]="editedPretaskIndex" [editType]="1"></app-files-table>
-    </app-table>
-  </div>
+    <div fxFlex="50" fxFlex.lt-md="100">
+      <app-table>
+        <app-files-table
+          #table
+          name="filesTableInPreTasks"
+          [showExport]="false"
+          [isSelectable]="false"
+          [editIndex]="editedPretaskIndex"
+          [editType]="1"
+        ></app-files-table>
+      </app-table>
+    </div>
+  }
 </div>

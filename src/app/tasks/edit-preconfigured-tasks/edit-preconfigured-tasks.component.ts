@@ -1,20 +1,26 @@
-import { yesNo } from '@constants/general.config';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { DataTableDirective } from 'angular-datatables';
+import { Subject, firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { yesNo } from '@src/app/core/_constants/general.config';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -40,7 +46,18 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   // Edit Options
   editedPretaskIndex: number;
 
+  /** Read-only mode based on roles */
   isReadOnly = false;
+
+  // TABLES CODE
+  @ViewChild(DataTableDirective, { static: false })
+  dtElement: DataTableDirective;
+
+  dtTrigger: Subject<unknown> = new Subject<unknown>();
+  dtOptions: unknown = {};
+
+  /** HttpClient without interceptors to avoid global error dialog */
+  private httpNoInterceptors: HttpClient;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -50,27 +67,40 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router,
     private serializer: JsonAPISerializer,
+    private cs: ConfigService,
+    httpBackend: HttpBackend,
     protected roleService: PreconfiguredTasksRoleService
   ) {
     this.titleService.set(['Edit Preconfigured Tasks']);
+    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.buildForm();
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    if (this.roleService.hasRole('edit')) {
-      this.isReadOnly = false;
-    } else {
-      this.isReadOnly = true;
-    }
-
-    this.route.params.subscribe((params: Params) => {
-      this.editedPretaskIndex = +params['id'];
-    });
+  async ngOnInit(): Promise<void> {
+    this.isReadOnly = !this.roleService.hasRole('edit');
 
     this.buildForm();
-    this.initForm();
+
+    this.editedPretaskIndex = +this.route.snapshot.params['id'];
+
+    try {
+      await this.loadPretask();
+      this.loadData();
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
   }
 
   /**
@@ -82,7 +112,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the empty form.
    */
   buildForm(): void {
     this.updateForm = new FormGroup({
@@ -102,44 +132,81 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     });
   }
 
+  private async loadPretask(): Promise<void> {
+    const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
+
+    const response = await firstValueFrom<ResponseWrapper>(this.httpNoInterceptors.get<ResponseWrapper>(url));
+
+    const pretask = this.serializer.deserialize<JPretask>({
+      data: response.data,
+      included: response.included
+    });
+
+    this.updateForm = new FormGroup({
+      pretaskId: new FormControl({
+        value: pretask.id,
+        disabled: true
+      }),
+      statusTimer: new FormControl({
+        value: pretask.statusTimer,
+        disabled: true
+      }),
+      useNewBench: new FormControl({
+        value: pretask.useNewBench,
+        disabled: true
+      }),
+      updateData: new FormGroup({
+        taskName: new FormControl(pretask.taskName, this.isReadOnly ? [] : [Validators.required]),
+        attackCmd: new FormControl(pretask.attackCmd, this.isReadOnly ? [] : [Validators.required]),
+        chunkTime: new FormControl(pretask.chunkTime),
+        color: new FormControl(pretask.color),
+        priority: new FormControl(pretask.priority),
+        maxAgents: new FormControl(pretask.maxAgents),
+        isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
+        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required])
+      })
+    });
+  }
+
   /**
-   * Loads data, specifically Pretasks, for the component.
+   * Loads data, specifically Pretasks/files, for the component.
    */
-  initForm(): void {
-    const params = new RequestParamBuilder().create();
+  loadData(): void {
+    const params = new RequestParamBuilder()
+      .addFilter({
+        field: 'pretaskId',
+        operator: FilterType.EQUAL,
+        value: this.editedPretaskIndex
+      })
+      .addInclude('pretaskFiles')
+      .create();
 
-    const loadSubscription$ = this.gs
-      .get(SERV.PRETASKS, this.editedPretaskIndex, params)
-      .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const pretask = this.serializer.deserialize<JPretask>(responseBody);
+    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe(() => {
+      this.dtTrigger.next(void 0);
+    });
 
-        this.updateForm.setValue({
-          pretaskId: pretask.id,
-          statusTimer: pretask.statusTimer,
-          useNewBench: pretask.useNewBench,
-          updateData: {
-            taskName: pretask.taskName,
-            attackCmd: pretask.attackCmd,
-            chunkTime: pretask.chunkTime,
-            color: pretask.color,
-            priority: pretask.priority,
-            maxAgents: pretask.maxAgents,
-            isCpuTask: pretask.isCpuTask,
-            isSmall: pretask.isSmall
-          }
-        });
+    this.unsubscribeService.add(loadtableSubscription$);
 
-        this.unsubscribeService.add(loadSubscription$);
-      });
+    this.dtOptions = {
+      dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+        [10, 25, 50, 100, 250, -1],
+        [10, 25, 50, 100, 250, 'All']
+      ],
+      stateSave: true,
+      select: true,
+      buttons: []
+    };
   }
 
   /**
    * Handles form submission, edit Pretask
    * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
    */
-  onSubmit() {
-    if (this.updateForm.valid) {
+  onSubmit(): void {
+    if (this.updateForm.valid && !this.isReadOnly) {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])

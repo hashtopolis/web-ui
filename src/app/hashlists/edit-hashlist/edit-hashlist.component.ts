@@ -1,8 +1,10 @@
 import { DataTableDirective } from 'angular-datatables';
+import { Subject, firstValueFrom } from 'rxjs';
 
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JHashlist } from '@models/hashlist.model';
@@ -15,6 +17,7 @@ import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ConfigService } from '@services/shared/config.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
@@ -36,36 +39,28 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  /** Form group for the new File. */
+  /** Form group for the Hashlist. */
   updateForm: FormGroup;
 
   // Edit variables
   editedHashlistIndex: number;
-  editedHashlist: JHashlist; // Change to Model
-  hashtype: JHashtype;
-  type: number; // Hashlist or SuperHashlist
+  editedHashlist: JHashlist | undefined; // Change to Model
+  hashtype: JHashtype | undefined;
+  type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: Array<SelectOption>;
+  selectAccessgroup: Array<SelectOption> = [];
 
-  // To Remove for use tabes
+  // To Remove for use tables
   @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
+  dtTrigger: Subject<unknown> = new Subject<unknown>();
+
+  private httpNoInterceptors: HttpClient;
+
   /**
-   * Constructor for the YourComponent class.
-   * Initializes and injects required services and dependencies.
-   * Calls necessary methods to set up the component.
-   * @param unsavedChangesService
-   * @param {UnsubscribeService} unsubscribeService - Service for managing subscriptions.
-   * @param {ChangeDetectorRef} changeDetectorRef - Reference to the Angular change detector.
-   * @param {AutoTitleService} titleService - Service for managing page titles.
-   * @param {StaticArrayPipe} format - Angular pipe for formatting static arrays.
-   * @param {ActivatedRoute} route - The activated route, representing the route associated with this component.
-   * @param {AlertService} alert - Service for displaying alerts.
-   * @param {GlobalService} gs - Service for global application functionality.
-   * @param {Router} router - Angular router service for navigation.
-   * @param roleService
+   * Constructor for the component.
    */
   constructor(
     private unsavedChangesService: UnsavedChangesService,
@@ -77,28 +72,37 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
+    private cs: ConfigService,
+    httpBackend: HttpBackend,
     protected roleService: HashListRoleService
   ) {
-    this.getInitialization();
-    this.buildForm();
+    this.updateForm = getEditHashlistForm();
     this.titleService.set(['Edit Hashlist']);
-  }
-
-  /**
-   * Initializes the form based on route parameters.
-   */
-  getInitialization() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedHashlistIndex = +params['id'];
-      this.updateFormValues();
-    });
+    this.httpNoInterceptors = new HttpClient(httpBackend);
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    this.loadData();
+  async ngOnInit(): Promise<void> {
+    this.editedHashlistIndex = +this.route.snapshot.params['id'];
+
+    try {
+      await this.loadHashlist();
+
+      await this.loadData();
+
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
   }
 
   /**
@@ -109,37 +113,66 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.unsubscribeService.unsubscribeAll();
   }
 
-  /**
-   * Builds the form for creating a new Hashlist.
-   */
-  buildForm(): void {
-    this.updateForm = getEditHashlistForm();
+  private async loadHashlist(): Promise<void> {
+    const base = this.cs.getEndpoint() + SERV.HASHLISTS.URL;
+    const url = `${base}/${this.editedHashlistIndex}`;
+
+    // Mismos includes que antes
+    const params: { [k: string]: string } = { include: 'tasks,hashlists,hashType' };
+
+    const response = await firstValueFrom<ResponseWrapper>(
+      this.httpNoInterceptors.get<ResponseWrapper>(url, { params })
+    );
+
+    const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
+      data: response.data,
+      included: response.included
+    });
+
+    this.editedHashlist = hashlist;
+    this.type = hashlist.format;
+    this.hashtype = hashlist.hashType;
+
+    this.updateForm.setValue({
+      hashlistId: hashlist.id,
+      accessGroupId: hashlist.accessGroupId,
+      useBrain: hashlist.useBrain,
+      format: this.format.transform(hashlist.format, 'formats'),
+      hashCount: hashlist.hashCount,
+      cracked: hashlist.cracked,
+      remaining: hashlist.hashCount - hashlist.cracked,
+      updateData: {
+        name: hashlist.name,
+        notes: hashlist.notes,
+        isSecret: hashlist.isSecret,
+        accessGroupId: hashlist.accessGroupId
+      }
+    });
   }
 
   /**
    * Loads data, specifically access groups, for the component.
    */
-  loadData() {
-    if (this.roleService.hasRole('groups')) {
-      const accessGroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
-        const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-          data: response.data,
-          included: response.included
-        });
-        this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-        this.isLoading = false;
-        this.changeDetectorRef.detectChanges();
-      });
-      this.unsubscribeService.add(accessGroupSubscription$);
-    } else {
-      this.isLoading = false;
+  private async loadData(): Promise<void> {
+    // Respetamos la lógica de roles del master
+    if (!this.roleService.hasRole('groups')) {
+      return;
     }
+
+    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_GROUPS));
+
+    const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+      data: response.data,
+      included: response.included
+    });
+
+    this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
    * Handles the form submission.
    * If the form is valid, it updates the hashlist using the provided data.
-   * @returns {void}
    */
   onSubmit(): void {
     if (this.updateForm.valid) {
@@ -155,50 +188,13 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     }
   }
 
-  /**
-   * Updates the form values based on the hashlist data retrieved from the server.
-   * Fetches hashlist data, initializes form controls, and updates the form group.
-   * @returns {void}
-   */
-  private updateFormValues(): void {
-    const updateSubscription$ = this.gs
-      .get(SERV.HASHLISTS, this.editedHashlistIndex, {
-        include: ['tasks,hashlists,hashType']
-      })
-      .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
-        this.editedHashlist = hashlist;
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
-        this.updateForm.setValue({
-          hashlistId: hashlist.id,
-          accessGroupId: hashlist.accessGroupId,
-          useBrain: hashlist.useBrain,
-          format: this.format.transform(hashlist.format, 'formats'),
-          hashCount: hashlist.hashCount,
-          cracked: hashlist.cracked,
-          remaining: hashlist.hashCount - hashlist.cracked,
-          updateData: {
-            name: hashlist.name,
-            notes: hashlist.notes,
-            isSecret: hashlist.isSecret,
-            accessGroupId: hashlist.accessGroupId
-          }
-        });
-      });
-    this.unsubscribeService.add(updateSubscription$);
-  }
-
   // Actions; Import Cracked Hashes, Export left Hashes and Generate Wordlist
 
-  importCrackedHashes() {
+  importCrackedHashes(): void {
     this.router.navigate(['/hashlists/hashlist/' + this.editedHashlistIndex + '/import-cracked-hashes']);
   }
 
-  exportLeftHashes() {
+  exportLeftHashes(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedLeftSubscription$ = this.gs.chelper(SERV.HELPER, 'exportLeftHashes', payload).subscribe(() => {
       this.alert.showSuccessMessage('Exported Left Hashes');
@@ -207,7 +203,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.unsubscribeService.add(helperExportedLeftSubscription$);
   }
 
-  exportWordlist() {
+  exportWordlist(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedWordlistSubscription$ = this.gs
       .chelper(SERV.HELPER, 'exportWordlist', payload)
