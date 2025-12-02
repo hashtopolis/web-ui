@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JSuperTask } from '@models/supertask.model';
 
@@ -29,7 +29,7 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
   templateUrl: './supertasks-table.component.html',
   standalone: false
 })
-export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
   selectedFilterColumn: string;
@@ -41,7 +41,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
   }
-  
+
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
@@ -91,8 +91,8 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
         isSortable: false,
-        render: (supertask: JSuperTask) => supertask.pretasks.length,
-        export: async (supertask: JSuperTask) => supertask.pretasks.length.toString()
+        render: (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length : ''),
+        export: async (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length.toString() : '')
       }
     ];
   }
