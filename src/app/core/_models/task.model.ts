@@ -16,6 +16,9 @@ export enum TaskType {
   SUPERTASK = 1
 }
 
+/**
+ * Common attributes shared between tasks and task wrappers
+ */
 export interface TaskAttributes extends BaseModel {
   taskName?: string;
   priority: number;

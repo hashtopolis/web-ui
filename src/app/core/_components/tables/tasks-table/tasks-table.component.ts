@@ -266,12 +266,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           editable: (wrapper: JTaskWrapper) => {
             return {
               data: wrapper,
-              value: wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
+              value: wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
               action: TaskTableEditableAction.CHANGE_MAX_AGENTS
             };
           },
           isSortable: false,
-          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+          export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.maxAgents + ''
         }
       );
     } else {
@@ -286,9 +286,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'maxAgents',
-          render: (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
+          render: (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
           isSortable: false,
-          export: async (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
+          export: async (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
         }
       );
     }
@@ -733,6 +733,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     let serv: ServiceConfig;
 
     if (wrapper.taskType === TaskType.TASK) {
+      if (!wrapper.tasks || wrapper.tasks.length === 0) {
+        this.alertService.showErrorMessage(
+          "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
+        );
+      }
       task = wrapper.tasks[0];
       serv = SERV.TASKS;
     } else {
@@ -776,6 +781,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     let serv: ServiceConfig;
 
     if (wrapper.taskType === TaskType.TASK) {
+      if (!wrapper.tasks || wrapper.tasks.length === 0) {
+        this.alertService.showErrorMessage(
+          "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
+        );
+      }
       task = wrapper.tasks[0];
       serv = SERV.TASKS;
     } else {
