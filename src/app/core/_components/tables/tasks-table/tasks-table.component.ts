@@ -5,10 +5,10 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { ChunkData } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTask, JTaskWrapper, TaskAttributes, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
-import { SERV } from '@services/main.config';
+import { SERV, ServiceConfig } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -266,11 +266,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           editable: (wrapper: JTaskWrapper) => {
             return {
               data: wrapper,
-              value: wrapper.maxAgents + '',
+              value: wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
               action: TaskTableEditableAction.CHANGE_MAX_AGENTS
             };
           },
-          isSortable: true,
+          isSortable: false,
           export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
         }
       );
@@ -286,9 +286,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'maxAgents',
-          render: (wrapper: JTaskWrapper) => wrapper.maxAgents + '',
-          isSortable: true,
-          export: async (wrapper: JTaskWrapper) => wrapper.maxAgents + ''
+          render: (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
+          isSortable: false,
+          export: async (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0].maxAgents + '' : wrapper.maxAgents + '',
         }
       );
     }
@@ -729,13 +729,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     } catch (error) {
       // Do nothing
     }
+    let task: TaskAttributes;
+    let serv: ServiceConfig;
 
-    if (!val || wrapper.priority == val) {
+    if (wrapper.taskType === TaskType.TASK) {
+      task = wrapper.tasks[0];
+      serv = SERV.TASKS;
+    } else {
+      task = wrapper;
+      serv = SERV.TASKS_WRAPPER;
+    }
+
+    if (!val || task.priority == val) {
       this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
-    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper.id, {
+    const request$ = this.gs.update(serv, task.id, {
       priority: val
     });
     this.subscriptions.push(
@@ -748,7 +758,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${wrapper.tasks[0].id}!`);
+          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${task.id}!`);
           this.reload();
         })
     );
@@ -762,13 +772,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     } catch (error) {
       // Do nothing
     }
+    let task: TaskAttributes;
+    let serv: ServiceConfig;
 
-    if (!val || wrapper.maxAgents == val) {
+    if (wrapper.taskType === TaskType.TASK) {
+      task = wrapper.tasks[0];
+      serv = SERV.TASKS;
+    } else {
+      task = wrapper;
+      serv = SERV.TASKS_WRAPPER;
+    }
+
+    if (!val || task.maxAgents == val) {
       this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
-    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper.id, {
+    const request$ = this.gs.update(serv, task.id, {
       maxAgents: val
     });
     this.subscriptions.push(
@@ -782,7 +802,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         )
         .subscribe(() => {
           this.alertService.showSuccessMessage(
-            `Changed number of max agents to ${val} on Task #${wrapper.tasks[0].id}!`
+            `Changed number of max agents to ${val} on Task #${task.id}!`
           );
           this.reload();
         })
