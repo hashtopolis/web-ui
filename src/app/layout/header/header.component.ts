@@ -17,6 +17,7 @@ import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
@@ -24,13 +25,11 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
 import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 import { MainMenuItem } from '@src/app/layout/header/header.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
-import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 
 @Component({
   selector: 'app-header',
@@ -189,7 +188,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.AGENTS,
       actions: [actions]
     };
@@ -223,19 +222,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     if (this.supertaksRoleService.hasRole('read')) {
-      taskActions.push(
-        {
-          label: HeaderMenuLabel.SUPERTASKS,
-          routerLink: ['tasks', 'supertasks'],
-          showAddButton: this.supertaksRoleService.hasRole('create'),
-          routerLinkAdd: ['tasks', 'new-supertasks'],
-          tooltipAddButton: 'New Supertask'
-        },
-        {
-          label: HeaderMenuLabel.IMPORT_SUPERTASK,
-          routerLink: ['tasks', 'import-supertasks', 'masks']
-        }
-      );
+      taskActions.push({
+        label: HeaderMenuLabel.SUPERTASKS,
+        routerLink: ['tasks', 'supertasks'],
+        showAddButton: this.supertaksRoleService.hasRole('create'),
+        routerLinkAdd: ['tasks', 'new-supertasks'],
+        tooltipAddButton: 'New Supertask'
+      });
+    }
+
+    if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
+      taskActions.push({
+        label: HeaderMenuLabel.IMPORT_SUPERTASK,
+        routerLink: ['tasks', 'import-supertasks', 'masks']
+      });
     }
 
     // Require TaskWrapper.READ permission for menu to display

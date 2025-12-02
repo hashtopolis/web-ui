@@ -19,7 +19,8 @@ export class SupertasksRoleService extends RoleService {
       edit: [Perm.SuperTask.UPDATE, Perm.Pretask.READ],
       delete: [Perm.SuperTask.DELETE],
       editSupertaskPreTasks: [Perm.Pretask.READ],
-      editSupertaskApplyHashlist: [Perm.Hashlist.READ, Perm.Task.READ, Perm.CrackerBinaryType.READ]
+      editSupertaskApplyHashlist: [Perm.Hashlist.READ, Perm.Task.READ, Perm.CrackerBinaryType.READ],
+      createSupertaskBuilder: [Perm.SuperTask.CREATE, Perm.Pretask.CREATE, Perm.CrackerBinaryType.READ, Perm.File.READ]
     });
   }
 }
