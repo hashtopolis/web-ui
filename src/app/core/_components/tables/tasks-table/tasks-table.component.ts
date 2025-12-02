@@ -286,9 +286,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'maxAgents',
-          render: (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
+          render: (wrapper: JTaskWrapper) =>
+            wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
           isSortable: false,
-          export: async (wrapper: JTaskWrapper) => wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
+          export: async (wrapper: JTaskWrapper) =>
+            wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + ''
         }
       );
     }
@@ -811,9 +813,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(
-            `Changed number of max agents to ${val} on Task #${task.id}!`
-          );
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${task.id}!`);
           this.reload();
         })
     );
