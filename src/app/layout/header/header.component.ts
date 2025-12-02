@@ -30,6 +30,7 @@ import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header
 import { MainMenuItem } from '@src/app/layout/header/header.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 
 @Component({
   selector: 'app-header',
@@ -59,6 +60,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private easterEggService: EasterEggService,
     private tasksRoleService: TasksRoleService,
     private pretasksRoleService: PreconfiguredTasksRoleService,
+    private supertaksRoleService: SupertasksRoleService,
     private hashListRoleService: HashListRoleService,
     private agentRoleService: AgentRoleService,
     private superHashListRoleService: SuperHashListRoleService,
@@ -220,20 +222,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Require TaskWrapper.READ permission for menu to display
-    const canReadSupertasks = this.permissionService.hasPermissionSync(Perm.SuperTask.READ);
-    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
-
-    if (!canReadSupertasks && !canReadChunks) {
-      return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
-    }
-
-    if (canReadSupertasks) {
+    if (this.supertaksRoleService.hasRole('read')) {
       taskActions.push(
         {
           label: HeaderMenuLabel.SUPERTASKS,
           routerLink: ['tasks', 'supertasks'],
-          showAddButton: this.permissionService.hasPermissionSync(Perm.SuperTask.CREATE),
+          showAddButton: this.supertaksRoleService.hasRole('create'),
           routerLinkAdd: ['tasks', 'new-supertasks'],
           tooltipAddButton: 'New Supertask'
         },
@@ -244,13 +238,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
       );
     }
 
+    // Require TaskWrapper.READ permission for menu to display
+
+    // const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
+
+    // if (!canReadChunks) {
+    //   return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
+    // }
+
     // Require Chunk.READ permission for chunk activity menu item to display
-    if (canReadChunks) {
-      taskActions.push({
-        label: HeaderMenuLabel.CHUNK_ACTIVITY,
-        routerLink: ['tasks', 'chunks']
-      });
-    }
+    // if (canReadChunks) {
+    taskActions.push({
+      label: HeaderMenuLabel.CHUNK_ACTIVITY,
+      routerLink: ['tasks', 'chunks']
+    });
+    // }
 
     return {
       display: taskActions.length > 0,

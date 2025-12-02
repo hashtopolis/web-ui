@@ -14,10 +14,12 @@ import { RoleService } from '@services/roles/base/role.service';
 export class SupertasksRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      create: [Perm.SuperTask.CREATE, Perm.Pretask.READ],
-      read: [Perm.SuperTask.READ, Perm.Pretask.READ],
-      edit: [Perm.SuperTask.READ, Perm.Pretask.READ],
-      delete: [Perm.SuperTask.DELETE]
+      create: [Perm.SuperTask.CREATE],
+      read: [Perm.SuperTask.READ],
+      edit: [Perm.SuperTask.UPDATE, Perm.Pretask.READ],
+      delete: [Perm.SuperTask.DELETE],
+      editSupertaskPreTasks: [Perm.Pretask.READ],
+      editSupertaskApplyHashlist: [Perm.Hashlist.READ, Perm.Task.READ, Perm.CrackerBinaryType.READ]
     });
   }
 }
