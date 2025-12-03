@@ -2,7 +2,15 @@ import { Observable, Subject, combineLatest, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  ViewChild,
+  forwardRef
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
@@ -52,7 +60,10 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
+  ) {
     super();
     this.filteredItems = combineLatest([
       this.searchInputSubject.pipe(
@@ -131,6 +142,13 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
     this.addChip({ id: value, name: value });
     event.chipInput.clear();
     this.searchTerm = '';
+    if (this.selectInput) {
+      try {
+        this.selectInput.value = '';
+      } catch {
+        // noop
+      }
+    }
   }
 
   // When selecting from autocomplete
@@ -138,6 +156,14 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
     this.addChip(selected);
     this.searchTerm = '';
     this.searchInputSubject.next(this.searchTerm);
+    if (this.selectInput) {
+      try {
+        this.selectInput.value = '';
+      } catch {
+        // ignore
+      }
+    }
+    this.cdr.markForCheck();
   }
 
   /**
@@ -235,6 +261,15 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
 
     // Update the filteredItems observable
     this.searchInputSubject.next(this.searchTerm);
+
+    if (this.selectInput) {
+      try {
+        this.selectInput.value = '';
+      } catch {
+        // ignore
+      }
+    }
+    this.cdr.markForCheck();
 
     // Notify about the change
     this.onChangeValue(this.selectedItems);
