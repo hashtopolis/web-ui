@@ -186,18 +186,13 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       // If the server fails while resolving included relations (500+),
       // try once more without the `include` params so the primary resource can still load.
       if (httpErr?.status && httpErr.status >= 500) {
-        try {
-          const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
+        const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-          const responseBody = { data: response.data, included: response.included };
-          const agent = this.serializer.deserialize<JAgent>(responseBody);
-          this.showagent = agent;
-          this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-          return;
-        } catch (innerErr) {
-          // bubble up the error to be handled by the caller
-          throw innerErr;
-        }
+        const responseBody = { data: response.data, included: response.included };
+        const agent = this.serializer.deserialize<JAgent>(responseBody);
+        this.showagent = agent;
+        this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        return;
       }
 
       // Non-500 errors are rethrown and will be handled by the caller
