@@ -1,6 +1,6 @@
 import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
 
@@ -27,7 +27,6 @@ export class GlobalService {
    * Get logged user id
    * @returns  id
    **/
-
   get userId() {
     return this.as.userId;
   }
@@ -75,7 +74,10 @@ export class GlobalService {
           // Create multiple requests based on the total number of items
           for (let i = 0; i < numRequests; i++) {
             const startsAt = i * maxResults;
-            const partialParams = setParameter({ ...queryParams, page: { after: startsAt } });
+            const partialParams = setParameter({
+              ...queryParams,
+              page: { after: startsAt }
+            });
             requests.push(
               this.http.get(this.cs.getEndpoint() + serviceConfig.URL, {
                 params: partialParams
@@ -103,18 +105,38 @@ export class GlobalService {
 
   /**
    * Get a single object from backend by its ID
-   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
-   * @param id            ID of object to get
-   * @param routerParams  Optional request parameters (e.g. filters, includes)
+   * Overloads keep backwards compatibility and allow passing custom headers.
    */
-  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<any> {
+  // Overload 1 (compat)
+  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<any>;
+  // Overload 2 (with headers)
+  get(
+    serviceConfig: ServiceConfig,
+    id: number,
+    routerParams: RequestParams | undefined,
+    httpOptions: { headers?: HttpHeaders }
+  ): Observable<any>;
+  // Implementation
+  get(
+    serviceConfig: ServiceConfig,
+    id: number,
+    routerParams?: RequestParams,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
-    return this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, {
-      params: queryParams
-    });
+
+    const options: { params?: Params; headers?: HttpHeaders } = {};
+    if (Object.keys(queryParams).length) {
+      options.params = queryParams;
+    }
+    if (httpOptions?.headers) {
+      options.headers = httpOptions.headers;
+    }
+
+    return this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, options);
   }
 
   /**
@@ -124,25 +146,29 @@ export class GlobalService {
    * @param filename      Filname to use for the downloaded file
    */
   getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
-    this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, { responseType: 'blob' }).subscribe({
-      next: (response: Blob) => {
-        // Generate Blob-URL
-        const blob = new Blob([response], { type: response.type });
-        const url = window.URL.createObjectURL(blob);
+    this.http
+      .get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, {
+        responseType: 'blob'
+      })
+      .subscribe({
+        next: (response: Blob) => {
+          // Generate Blob-URL
+          const blob = new Blob([response], { type: response.type });
+          const url = window.URL.createObjectURL(blob);
 
-        // Create a temporary ‘a’ element for download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
+          // Create a temporary ‘a’ element for download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          a.click();
 
-        // Release the URL of the blob again
-        window.URL.revokeObjectURL(url);
-      },
-      error: (error) => {
-        console.error('Fehler beim Download der Datei:', error);
-      }
-    });
+          // Release the URL of the blob again
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => {
+          console.error('Fehler beim Download der Datei:', error);
+        }
+      });
   }
 
   /**
@@ -169,7 +195,7 @@ export class GlobalService {
       retryWhen(errors => {
           return errors
                   .pipe(
-                    tap(() => console.log("Retrying...")),
+                    tap(() => console.log("Retrying..."))),
                     delay(2000), // Add a delay before retry delete
                     take(3)  // Retry max 3 times
                   );
@@ -211,7 +237,11 @@ export class GlobalService {
     const objectdata = [];
 
     for (const object of objects) {
-      objectdata.push({ id: object.id, type: serviceConfig.RESOURCE, attributes: attributes });
+      objectdata.push({
+        id: object.id,
+        type: serviceConfig.RESOURCE,
+        attributes: attributes
+      });
     }
     const data = { data: objectdata };
     return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));

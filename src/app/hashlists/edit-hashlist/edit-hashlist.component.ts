@@ -73,6 +73,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     private gs: GlobalService,
     private router: Router,
     private cs: ConfigService,
+    private http: HttpClient,
     httpBackend: HttpBackend,
     protected roleService: HashListRoleService
   ) {
@@ -100,7 +101,19 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         this.router.navigateByUrl('/forbidden');
         return;
       }
-      this.router.navigateByUrl('/not-found');
+
+      if (status === 404) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // For other errors (500 etc.) show a friendly message instead of redirecting
+      // so the user knows the server failed. Keep the loading flag disabled.
+      // eslint-disable-next-line no-console
+      console.error('Error loading hashlist:', e);
+      const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
+      this.alert.showErrorMessage(msg);
+      this.isLoading = false;
       return;
     }
   }
@@ -120,34 +133,67 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     // Mismos includes que antes
     const params: { [k: string]: string } = { include: 'tasks,hashlists,hashType' };
 
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.httpNoInterceptors.get<ResponseWrapper>(url, { params })
-    );
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
+      const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
+        data: response.data,
+        included: response.included
+      });
 
-    const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-      data: response.data,
-      included: response.included
-    });
+      this.editedHashlist = hashlist;
+      this.type = hashlist.format;
+      this.hashtype = hashlist.hashType;
 
-    this.editedHashlist = hashlist;
-    this.type = hashlist.format;
-    this.hashtype = hashlist.hashType;
+      this.updateForm.setValue({
+        hashlistId: hashlist.id,
+        accessGroupId: hashlist.accessGroupId,
+        useBrain: hashlist.useBrain,
+        format: this.format.transform(hashlist.format, 'formats'),
+        hashCount: hashlist.hashCount,
+        cracked: hashlist.cracked,
+        remaining: hashlist.hashCount - hashlist.cracked,
+        updateData: {
+          name: hashlist.name,
+          notes: hashlist.notes,
+          isSecret: hashlist.isSecret,
+          accessGroupId: hashlist.accessGroupId
+        }
+      });
+      return;
+    } catch (err: unknown) {
+      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
+        // Retry without includes if server failed resolving relationships
+        // eslint-disable-next-line no-console
+        console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
+        const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
+          data: responseFallback.data,
+          included: responseFallback.included
+        });
 
-    this.updateForm.setValue({
-      hashlistId: hashlist.id,
-      accessGroupId: hashlist.accessGroupId,
-      useBrain: hashlist.useBrain,
-      format: this.format.transform(hashlist.format, 'formats'),
-      hashCount: hashlist.hashCount,
-      cracked: hashlist.cracked,
-      remaining: hashlist.hashCount - hashlist.cracked,
-      updateData: {
-        name: hashlist.name,
-        notes: hashlist.notes,
-        isSecret: hashlist.isSecret,
-        accessGroupId: hashlist.accessGroupId
+        this.editedHashlist = hashlist;
+        this.type = hashlist.format;
+        this.hashtype = hashlist.hashType;
+
+        this.updateForm.setValue({
+          hashlistId: hashlist.id,
+          accessGroupId: hashlist.accessGroupId,
+          useBrain: hashlist.useBrain,
+          format: this.format.transform(hashlist.format, 'formats'),
+          hashCount: hashlist.hashCount,
+          cracked: hashlist.cracked,
+          remaining: hashlist.hashCount - hashlist.cracked,
+          updateData: {
+            name: hashlist.name,
+            notes: hashlist.notes,
+            isSecret: hashlist.isSecret,
+            accessGroupId: hashlist.accessGroupId
+          }
+        });
+        return;
       }
-    });
+      throw err;
+    }
   }
 
   /**

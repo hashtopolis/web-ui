@@ -1,5 +1,6 @@
 import { Subscription } from 'rxjs';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -160,12 +161,30 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-    const editSubscription = this.gs
-      .get(this.serviceConfig, this.editedIndex)
-      .subscribe((response: ResponseWrapper) => {
+    const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
+      next: (response: ResponseWrapper) => {
         this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
         this.isloaded = true; // Data is loaded and ready for form rendering
-      });
+      },
+      error: (err: unknown) => {
+        const status = err instanceof HttpErrorResponse ? err.status : undefined;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other server errors show a friendly message
+        // eslint-disable-next-line no-console
+        console.error('Error loading form data:', err);
+        const msg = status ? `Error loading data (server returned ${status}).` : 'Error loading data.';
+        this.alert.showErrorMessage(msg);
+        this.isloaded = false;
+      }
+    });
 
     this.unsubscribeService.add(editSubscription);
   }

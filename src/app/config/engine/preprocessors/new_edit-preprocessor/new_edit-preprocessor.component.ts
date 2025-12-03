@@ -58,6 +58,7 @@ export class NewEditPreprocessorComponent implements OnInit {
     private router: Router,
     private alert: AlertService,
     private cs: ConfigService,
+    private http: HttpClient,
     httpBackend: HttpBackend,
     protected roleService: PreprocessorRoleService
   ) {
@@ -86,7 +87,18 @@ export class NewEditPreprocessorComponent implements OnInit {
           return;
         }
 
-        void this.router.navigateByUrl('/not-found');
+        if (status === 404) {
+          void this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other server errors show an error message instead of redirecting
+        // so the user knows the server failed. Keep the loading flag disabled.
+        // eslint-disable-next-line no-console
+        console.error('Error loading preprocessor:', e);
+        const msg = status ? `Error loading preprocessor (server returned ${status}).` : 'Error loading preprocessor.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
         return;
       }
     }
@@ -101,7 +113,7 @@ export class NewEditPreprocessorComponent implements OnInit {
   private async loadPreprocessor(preprocessorId: number): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PREPROCESSORS.URL}/${preprocessorId}`;
 
-    const response = await firstValueFrom<ResponseWrapper>(this.httpNoInterceptors.get<ResponseWrapper>(url));
+    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
     const preprocessor = new JsonAPISerializer().deserialize<JPreprocessor>({
       data: response.data,

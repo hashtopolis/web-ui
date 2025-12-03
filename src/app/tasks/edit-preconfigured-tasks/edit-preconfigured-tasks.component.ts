@@ -68,6 +68,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     private router: Router,
     private serializer: JsonAPISerializer,
     private cs: ConfigService,
+    private http: HttpClient,
     httpBackend: HttpBackend,
     protected roleService: PreconfiguredTasksRoleService
   ) {
@@ -92,13 +93,23 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
-
       if (status === 403) {
         this.router.navigateByUrl('/forbidden');
         return;
       }
 
-      this.router.navigateByUrl('/not-found');
+      if (status === 404) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // For other errors (500 etc.) show a friendly message instead of redirecting
+      // so the user knows the server failed. Keep the loading flag disabled.
+      // eslint-disable-next-line no-console
+      console.error('Error loading pretask:', e);
+      const msg = status ? `Error loading pretask (server returned ${status}).` : 'Error loading pretask.';
+      this.alert.showErrorMessage(msg);
+      this.isLoading = false;
       return;
     }
   }
@@ -135,7 +146,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   private async loadPretask(): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
 
-    const response = await firstValueFrom<ResponseWrapper>(this.httpNoInterceptors.get<ResponseWrapper>(url));
+    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
     const pretask = this.serializer.deserialize<JPretask>({
       data: response.data,

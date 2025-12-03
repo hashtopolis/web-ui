@@ -169,7 +169,23 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.router.navigateByUrl('/forbidden');
         return;
       }
-      this.router.navigateByUrl('/not-found');
+      // Only navigate to not-found when the backend explicitly returns 404.
+      // For other server errors (500 etc.) show an error message so the
+      // user knows something went wrong on the server instead of silently
+      // redirecting to the 404 page.
+      if (status === 404) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // Log and show a user-friendly error for unexpected server errors
+      // (500, 502, etc.). Keep the loading flag disabled so the UI can
+      // present an appropriate state.
+      // eslint-disable-next-line no-console
+      console.error('Error loading task:', e);
+      const msg = status ? `Error loading task (server returned ${status}).` : 'Error loading task.';
+      this.alertService.showErrorMessage(msg);
+      this.isLoading = false;
       return;
     }
   }
@@ -219,11 +235,21 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     const params: { [k: string]: string } = { include: includes.join(',') };
 
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.httpNoInterceptors.get<ResponseWrapper>(url, { params })
-    );
-
-    return this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
+      return this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
+    } catch (err: unknown) {
+      // If backend fails with server error (500+), try a fallback request without includes.
+      // This helps when the server chokes resolving included relationships but the main
+      // resource exists — the UI can still open the edit form with the primary data.
+      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
+        // eslint-disable-next-line no-console
+        console.warn('loadTask(): primary request failed, retrying without includes', err);
+        const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+        return this.serializer.deserialize<JTask>({ data: responseFallback.data, included: responseFallback.included });
+      }
+      throw err;
+    }
   }
 
   onSubmit(): void {

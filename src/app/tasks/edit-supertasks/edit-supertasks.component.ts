@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -130,9 +131,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   loadData(): void {
     const params = new RequestParamBuilder().addInclude('pretasks').create();
 
-    const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
-      .subscribe((response: ResponseWrapper) => {
+    const loadSTSubscription$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex, params).subscribe({
+      next: (response: ResponseWrapper) => {
         const responseData = { data: response.data, included: response.included };
         const supertask = this.serializer.deserialize<JSuperTask>(responseData);
         this.editName = supertask.supertaskName;
@@ -158,7 +158,67 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           this.changeDetectorRef.detectChanges();
         });
         this.unsubscribeService.add(loadPTSubscription$);
-      });
+      },
+      error: (err: unknown) => {
+        const status = err instanceof HttpErrorResponse ? err.status : undefined;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For server errors try a fallback request without includes to at least load primary data
+        if (err instanceof HttpErrorResponse && status && status >= 500) {
+          // eslint-disable-next-line no-console
+          console.warn('loadData(): request with includes failed, retrying without includes', err);
+          const retry$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex).subscribe({
+            next: (response2: ResponseWrapper) => {
+              const responseData2 = { data: response2.data, included: response2.included };
+              const supertask2 = this.serializer.deserialize<JSuperTask>(responseData2);
+              this.editName = supertask2.supertaskName;
+              this.assignPretasks = supertask2.pretasks;
+              this.viewForm = new FormGroup({
+                supertaskId: new FormControl({ value: supertask2.id, disabled: true }),
+                supertaskName: new FormControl({ value: supertask2.supertaskName, disabled: true })
+              });
+              // still try to load pretasks list for selection
+              const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
+                const responseData = { data: responsePT.data, included: responsePT.included };
+                const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
+                const availablePretasks = this.getAvailablePretasks(supertask2.pretasks, pretasks);
+                this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
+                this.isLoading = false;
+                this.changeDetectorRef.detectChanges();
+              });
+              this.unsubscribeService.add(loadPTSubscription$);
+            },
+            error: (err2: unknown) => {
+              // Show friendly message for other server errors
+              // eslint-disable-next-line no-console
+              console.error('Error loading supertask:', err2);
+              const msg =
+                err2 instanceof HttpErrorResponse && err2.status
+                  ? `Error loading supertask (server returned ${err2.status}).`
+                  : 'Error loading supertask.';
+              this.alert.showErrorMessage(msg);
+              this.isLoading = false;
+            }
+          });
+          this.unsubscribeService.add(retry$);
+          return;
+        }
+
+        // For any other errors show a friendly message
+        // eslint-disable-next-line no-console
+        console.error('Error loading supertask:', err);
+        const msg = status ? `Error loading supertask (server returned ${status}).` : 'Error loading supertask.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
+      }
+    });
     this.unsubscribeService.add(loadSTSubscription$);
   }
 

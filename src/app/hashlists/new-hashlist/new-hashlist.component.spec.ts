@@ -139,7 +139,7 @@ describe('NewHashlistComponent', () => {
   beforeEach(() => {
     gsSpy.getAll.withArgs(SERV.ACCESS_GROUPS).and.returnValue(of(mockAccessGroups));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
-    gsSpy.get.withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
+    (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
       afterClosed: () => of(true)
     } as MatDialogRef<unknown>);
