@@ -12,6 +12,7 @@ import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
@@ -21,8 +22,7 @@ import { PretasksTableComponent } from '@components/tables/pretasks-table/pretas
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
-declare let options: any;
-declare let defaultOptions: any;
+declare let options;
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -39,7 +39,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   viewForm: FormGroup; //Supertask details
 
   /** List of PreTasks. */
-  selectPretasks: any[];
+  selectPretasks;
 
   // Edit
   private _editedSTIndex: number;
@@ -58,7 +58,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  assignPretasks: any;
+  assignPretasks: JPretask[] = [];
   editName: string;
 
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
@@ -72,7 +72,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router,
     private serializer: JsonAPISerializer,
-    private confirmDialog: ConfirmDialogService
+    private confirmDialog: ConfirmDialogService,
+    protected roleService: SupertasksRoleService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -130,7 +131,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const params = new RequestParamBuilder().addInclude('pretasks').create();
-
     const loadSTSubscription$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex, params).subscribe({
       next: (response: ResponseWrapper) => {
         const responseData = { data: response.data, included: response.included };
@@ -147,17 +147,19 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             disabled: true
           })
         });
-        const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
 
-          const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
+        if (this.roleService.hasRole('editSupertaskPreTasks')) {
+          const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
+            const responseDataPT = { data: responsePT.data, included: responsePT.included };
+            const pretasks = this.serializer.deserialize<JPretask[]>(responseDataPT);
+            const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
 
-          this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
-          this.isLoading = false;
-          this.changeDetectorRef.detectChanges();
-        });
-        this.unsubscribeService.add(loadPTSubscription$);
+            this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
+            this.isLoading = false;
+            this.changeDetectorRef.detectChanges();
+          });
+          this.unsubscribeService.add(loadPTSubscription$);
+        }
       },
       error: (err: unknown) => {
         const status = err instanceof HttpErrorResponse ? err.status : undefined;
@@ -185,15 +187,15 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
                 supertaskName: new FormControl({ value: supertask2.supertaskName, disabled: true })
               });
               // still try to load pretasks list for selection
-              const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
-                const responseData = { data: responsePT.data, included: responsePT.included };
-                const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
+              const loadPTSubscription2$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
+                const responseDataPT2 = { data: responsePT.data, included: responsePT.included };
+                const pretasks = this.serializer.deserialize<JPretask[]>(responseDataPT2);
                 const availablePretasks = this.getAvailablePretasks(supertask2.pretasks, pretasks);
                 this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
                 this.isLoading = false;
                 this.changeDetectorRef.detectChanges();
               });
-              this.unsubscribeService.add(loadPTSubscription$);
+              this.unsubscribeService.add(loadPTSubscription2$);
             },
             error: (err2: unknown) => {
               // Show friendly message for other server errors
@@ -326,7 +328,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           const keyspace_size = parseFloat(keyspace_size_raw.replace(/[^0-9.-]/g, ''));
 
           // Set default options for the attack
-          options = defaultOptions;
           options.ruleFiles = [];
           options.posArgs = [];
           options.unrecognizedFlag = [];

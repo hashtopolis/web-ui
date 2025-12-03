@@ -1,62 +1,97 @@
-// http-res.interceptor.ts
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, catchError, finalize, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
+import { AuthService } from '@services/access/auth.service';
 import { AlertService } from '@services/shared/alert.service';
+import { LoadingService } from '@services/shared/loading.service';
+
+import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component';
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
-  constructor(private alerts: AlertService) {}
+  constructor(
+    private authService: AuthService,
+    private dialog: MatDialog,
+    private loadingService: LoadingService,
+    private alertService: AlertService
+  ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const skipDialog: boolean = req.headers.has('X-Skip-Error-Dialog');
-
+    this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
-      catchError((err: unknown) => {
-        if (err instanceof HttpErrorResponse) {
-          if (!skipDialog) {
-            const msg = this.mapErrorMessage(err);
-            this.alerts.showErrorMessage(msg);
-          }
-        }
-        return throwError(() => err);
-      })
+      catchError((error: HttpErrorResponse) => this.handleError(req, error)),
+      finalize(() => this.loadingService.handleRequest())
     );
   }
 
-  private mapErrorMessage(err: HttpErrorResponse): string {
-    if (err.status === 0) {
-      return 'Network error. Please check your connection.';
+  /**
+   * Handles HTTP errors by categorizing them and setting appropriate error messages.
+   * Displays an error modal with the message and status code.
+   *
+   * @param req The HTTP request that resulted in an error.
+   * @param error The HTTP error response received.
+   * @returns An observable that errors out with the error message.
+   */
+  private handleError(req: HttpRequest<unknown>, error: HttpErrorResponse): Observable<never> {
+    let errmsg = '';
+    const status = error?.status || 0;
+    let showAlert: boolean = false;
+
+    if (error.status === 401) {
+      errmsg = 'Invalid credentials. Please try again.';
+    } else if (error.status === 403) {
+      if (error.error?.title) {
+        errmsg = error.error.title;
+      } else {
+        errmsg = `You don't have permissions. Please contact your Administrator.`;
+      }
+      showAlert = true;
+    } else if (error.status === 404 && !req.url.includes('config.json')) {
+      errmsg = `The requested URL was not found.`;
+    } else if (error.status === 0) {
+      const frontendBaseURL = window.location.href.split('/').slice(0, 3).join('/');
+      errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
+        req.url
+      )}) and try again. Also the following options must be set in the .env file: HASHTOPOLIS_APIV2_ENABLE=1 and HASHTOPOLIS_FRONTEND_URLS must include the used Hashtopolis frontend: ${frontendBaseURL} `;
+    } else {
+      errmsg = error.error?.title || 'An unknown error occurred.';
     }
 
-    const backendMessage =
-      typeof err.error === 'string'
-        ? err.error
-        : typeof (err.error as { message?: unknown })?.message === 'string'
-          ? String((err.error as { message?: unknown }).message)
-          : undefined;
-
-    switch (err.status) {
-      case 400:
-        return backendMessage ?? 'Bad request.';
-      case 401:
-        return backendMessage ?? 'Unauthorized. Please sign in again.';
-      case 403:
-        return backendMessage ?? 'Forbidden. You do not have access.';
-      case 404:
-        return backendMessage ?? 'The requested resource was not found.';
-      case 409:
-        return backendMessage ?? 'Conflict. The resource was modified elsewhere.';
-      case 422:
-        return backendMessage ?? 'Unprocessable entity. Please check your input.';
-      default:
-        if (err.status >= 500) {
-          return backendMessage ?? 'Server error. Please try again later.';
-        }
-        return backendMessage ?? err.message ?? 'Unexpected error occurred.';
+    if (showAlert) {
+      this.alertService.showErrorMessage(errmsg);
+    } else {
+      this.displayErrorModal(status, errmsg);
     }
+    return throwError(() => new Error(errmsg));
+  }
+
+  /**
+   * Extracts the IP address and port from a URL.
+   *
+   * @param url The URL to extract the IP address and port from.
+   * @returns The extracted IP address and port in the format "hostname:port".
+   */
+  private extractIpAndPort(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      return `${urlObj.hostname}:${urlObj.port}`;
+    } catch {
+      return 'unknown IP and port';
+    }
+  }
+
+  /**
+   * Displays an error modal with the given status and message.
+   *
+   * @param status  The HTTP status code of the error.
+   * @param message The error message to display.
+   */
+  private displayErrorModal(status: number, message: string): void {
+    this.dialog.open(ErrorModalComponent, {
+      data: { status, message }
+    });
   }
 }
