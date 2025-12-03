@@ -1,8 +1,9 @@
 import { firstValueFrom } from 'rxjs';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
@@ -55,28 +56,28 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /** Select Options. */
   selectUsers: SelectOption[] = [];
   selectIgnorerrors = IGNORE_ERROR_CHOICES;
-  selectUserAgps: SelectOption[];
+  selectUserAgps: SelectOption[] = [];
 
   /** Assign Tasks */
-  assignTasks: SelectOption[];
-  assignNew: boolean;
-  assignId: number;
+  assignTasks: SelectOption[] = [];
+  assignNew = false;
+  assignId: number | null = null;
 
   // Edit Index
   editedAgentIndex: number;
   showagent: JAgent;
 
   // Calculations
-  timespent: number;
-  getchunks: JChunk[];
+  timespent = 0;
+  getchunks: JChunk[] = [];
 
-  currentAssignment: JAgentAssignment;
+  currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
-    private uiService: UIConfigService,
+    private uiService: UIConfigService, // eslint-disable-line @typescript-eslint/no-unused-vars
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
@@ -90,33 +91,68 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initializes the component by extracting and setting the agent ID,
+   * Initializes the component by extracting and setting the agent ID.
+   * If the id is missing or invalid, redirect to 404.
    */
-  onInitialize() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedAgentIndex = +params['id'];
-    });
+  private onInitialize(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.editedAgentIndex = idParam ? +idParam : NaN;
+
+    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+      this.router.navigate(['/not-found']);
+    }
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
-  async ngOnInit() {
-    await this.loadAgent();
-    await this.loadCurrentAssignment();
-    this.loadSelectTasks();
-    this.loadSelectUsers();
-    if (this.agentRoleService.hasRole('readChunk')) {
-      this.assignChunksInit(this.editedAgentIndex);
+  async ngOnInit(): Promise<void> {
+    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+      return;
     }
-    this.initForm();
+
+    try {
+      await this.loadAgent();
+      await this.loadCurrentAssignment();
+      this.loadSelectTasks();
+      this.loadSelectUsers();
+
+      if (this.agentRoleService.hasRole('readChunk')) {
+        this.assignChunksInit(this.editedAgentIndex);
+      }
+
+      this.initForm();
+    } catch (error) {
+      this.handleLoadError(error);
+      return;
+    } finally {
+      this.isLoading = false;
+    }
   }
+
   /**
    * Lifecycle hook called before the component is destroyed.
    * Unsubscribes from all subscriptions to prevent memory leaks.
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
+  }
+
+  /**
+   * Centralized handler for 404 / 403 / other load errors.
+   */
+  private handleLoadError(error: unknown): void {
+    const httpError = error as HttpErrorResponse;
+    const status = httpError?.status;
+
+    if (status === 404) {
+      this.router.navigate(['/not-found']);
+    } else if (status === 403) {
+      // ajusta la ruta si en tu app es distinta (por ejemplo '/forbidden')
+      this.router.navigate(['/forbidden']);
+    } else {
+      this.alert.showErrorMessage('Error loading agent details');
+    }
   }
 
   /**
@@ -132,16 +168,41 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Load agent including its agentStats and accessGroups from server to draw stat graphs
    * @private
    */
-  private async loadAgent() {
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-        include: ['agentStats', 'accessGroups']
-      })
-    );
-    const responseBody = { data: response.data, included: response.included };
-    const agent = this.serializer.deserialize<JAgent>(responseBody);
-    this.showagent = agent;
-    this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+  private async loadAgent(): Promise<void> {
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
+          include: ['agentStats', 'accessGroups']
+        })
+      );
+
+      const responseBody = { data: response.data, included: response.included };
+      const agent = this.serializer.deserialize<JAgent>(responseBody);
+      this.showagent = agent;
+      this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+    } catch (err) {
+      const httpErr = err as HttpErrorResponse;
+
+      // If the server fails while resolving included relations (500+),
+      // try once more without the `include` params so the primary resource can still load.
+      if (httpErr?.status && httpErr.status >= 500) {
+        try {
+          const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
+
+          const responseBody = { data: response.data, included: response.included };
+          const agent = this.serializer.deserialize<JAgent>(responseBody);
+          this.showagent = agent;
+          this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+          return;
+        } catch (innerErr) {
+          // bubble up the error to be handled by the caller
+          throw innerErr;
+        }
+      }
+
+      // Non-500 errors are rethrown and will be handled by the caller
+      throw err;
+    }
   }
 
   /**
@@ -149,28 +210,31 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadSelectTasks(): void {
-    if (this.agentRoleService.hasRole('readAssignment')) {
-      const requestParams = new RequestParamBuilder()
-        .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-        .create();
-      const loadTasksSubscription$ = this.gs
-        .getAll(SERV.TASKS, requestParams)
-        .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const tasks = this.serializer.deserialize<JTask[]>(responseBody);
-
-          const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0); //Remove completed tasks
-          this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
-        });
-      this.unsubscribeService.add(loadTasksSubscription$);
+    if (!this.agentRoleService.hasRole('readAssignment')) {
+      return;
     }
+
+    const requestParams = new RequestParamBuilder()
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
+      .create();
+
+    const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+
+      // Remove completed tasks
+      const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0);
+      this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
+    });
+
+    this.unsubscribeService.add(loadTasksSubscription$);
   }
 
   /**
    * Load all users for the select element
    * @private
    */
-  private loadSelectUsers() {
+  private loadSelectUsers(): void {
     const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
       this.selectUsers = transformSelectOptions(
@@ -178,6 +242,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         DEFAULT_FIELD_MAPPING
       );
     });
+
     this.unsubscribeService.add(loadUsersSubscription$);
   }
 
@@ -185,25 +250,35 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Loads assignment from server
    * @private
    */
-  private async loadCurrentAssignment() {
-    if (this.agentRoleService.hasRole('readAssignment')) {
-      const requestParams = new RequestParamBuilder()
-        .addFilter({
-          field: 'agentId',
-          operator: FilterType.EQUAL,
-          value: this.editedAgentIndex
-        })
-        .create();
-      const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
-      const assignments = this.serializer.deserialize<JAgentAssignment[]>({
-        data: response.data,
-        included: response.included
-      });
-      if (assignments.length) {
-        this.assignNew = !!assignments?.[0]['taskId'];
-        this.assignId = assignments?.[0]['id'];
-        this.currentAssignment = assignments?.[0];
-      }
+  private async loadCurrentAssignment(): Promise<void> {
+    if (!this.agentRoleService.hasRole('readAssignment')) {
+      return;
+    }
+
+    const requestParams = new RequestParamBuilder()
+      .addFilter({
+        field: 'agentId',
+        operator: FilterType.EQUAL,
+        value: this.editedAgentIndex
+      })
+      .create();
+
+    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
+
+    const assignments = this.serializer.deserialize<JAgentAssignment[]>({
+      data: response.data,
+      included: response.included
+    });
+
+    if (assignments.length) {
+      const firstAssignment = assignments[0];
+      this.assignNew = !!firstAssignment.taskId;
+      this.assignId = firstAssignment.id;
+      this.currentAssignment = firstAssignment;
+    } else {
+      this.currentAssignment = null;
+      this.assignId = null;
+      this.assignNew = false;
     }
   }
 
@@ -211,7 +286,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Initializes the forms with data retrieved from the server.
    * @private
    */
-  private initForm() {
+  private initForm(): void {
+    if (!this.showagent) {
+      return;
+    }
+
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
       userId: this.showagent.userId,
@@ -222,9 +301,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       ignoreErrors: this.showagent.ignoreErrors,
       isTrusted: this.showagent.isTrusted
     });
+
     if (this.currentAssignment) {
       this.updateAssignForm.setValue({
         taskId: this.currentAssignment.taskId
+      });
+    } else {
+      this.updateAssignForm.reset({
+        taskId: null
       });
     }
   }
@@ -233,12 +317,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Calculates the total time spent based on an array of chunks.
    * @param chunks - An array of chunks containing solveTime and dispatchTime properties.
    */
-  timeCalc(chunks: JChunk[]) {
-    const tspent = [];
-    for (let i = 0; i < chunks.length; i++) {
-      tspent.push(Math.max(chunks[i].solveTime, chunks[i].dispatchTime) - chunks[i].dispatchTime);
-    }
-    this.timespent = tspent.reduce((a, i) => a + i);
+  timeCalc(chunks: JChunk[]): void {
+    const tspent = chunks.map((chunk) => Math.max(chunk.solveTime, chunk.dispatchTime) - chunk.dispatchTime);
+    this.timespent = tspent.reduce((a, i) => a + i, 0);
   }
 
   /**
@@ -246,20 +327,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @param  agentID - The ID of the agent.
    */
   assignChunksInit(agentID: number): void {
-    // Retrieve chunks associated with the agent
     const chunkRequestParams = new RequestParamBuilder()
       .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agentID })
       .create();
-    this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
 
-      // Retrieve tasks information
-      this.gs.getAll(SERV.TASKS).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+    const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
+      const chunksBody = { data: response.data, included: response.included };
+      const chunks = this.serializer.deserialize<JChunk[]>(chunksBody);
 
-        // Assign taskName of tasks associated with the chunks
+      const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
+        const tasksBody = { data: tasksResponse.data, included: tasksResponse.included };
+        const tasks = this.serializer.deserialize<JTask[]>(tasksBody);
+
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);
           if (matchedTask) {
@@ -268,32 +347,44 @@ export class EditAgentComponent implements OnInit, OnDestroy {
           return chunk;
         });
 
-        // Calculate and update timespent
         if (this.getchunks.length) {
           this.timeCalc(this.getchunks);
         }
       });
+
+      this.unsubscribeService.add(tasksSub$);
     });
+
+    this.unsubscribeService.add(chunksSub$);
   }
 
   /**
    * Handles the form submission for updating an agent.
    */
-  onSubmit() {
-    if (this.updateForm.valid) {
-      if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-        this.onUpdateAssign(this.updateAssignForm.value.taskId);
-      }
-      this.isUpdatingLoading = true;
-      const onSubmitSubscription$ = this.gs
-        .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
-        .subscribe(() => {
-          this.alert.showSuccessMessage('Agent saved');
-          this.isUpdatingLoading = false;
-          this.router.navigate(['agents/show-agents']);
-        });
-      this.unsubscribeService.add(onSubmitSubscription$);
+  onSubmit(): void {
+    if (this.updateForm.invalid) {
+      return;
     }
+
+    if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
+      this.onUpdateAssign(this.updateAssignForm.value.taskId);
+    }
+
+    this.isUpdatingLoading = true;
+
+    const onSubmitSubscription$ = this.gs.update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value).subscribe({
+      next: () => {
+        this.alert.showSuccessMessage('Agent saved');
+        this.isUpdatingLoading = false;
+        this.router.navigate(['agents/show-agents']);
+      },
+      error: () => {
+        this.isUpdatingLoading = false;
+        this.alert.showErrorMessage('Error updating agent');
+      }
+    });
+
+    this.unsubscribeService.add(onSubmitSubscription$);
   }
 
   /**
@@ -301,7 +392,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Assigns the agent to the provided taskID or removes a current assignment
    * @param taskId The task ID.
    */
-  onUpdateAssign(taskId: number): void {
+  onUpdateAssign(taskId: number | null): void {
     let request$;
 
     if (taskId) {
@@ -321,20 +412,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   }
 
   // Render devices using count by device type
-  renderDevices(devices: string) {
-    const deviceList = devices.split('\n');
+  renderDevices(devices: string): string {
+    const deviceList = devices.split('\n').filter((d) => !!d.trim());
     const deviceCountMap: { [key: string]: number } = {};
 
-    // Count occurrences of each device
     deviceList.forEach((device) => {
-      if (deviceCountMap[device]) {
-        deviceCountMap[device]++;
-      } else {
-        deviceCountMap[device] = 1;
-      }
+      deviceCountMap[device] = (deviceCountMap[device] || 0) + 1;
     });
 
-    // Format with HTML line breaks and return the formatted devices as string
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
       .join('<br>');
