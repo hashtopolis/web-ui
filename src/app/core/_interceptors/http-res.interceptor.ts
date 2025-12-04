@@ -20,9 +20,17 @@ export class HttpResInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // If request contains this header, don't show modal/snackbar for errors
+    const skipDialog: boolean = req.headers.has('X-Skip-Error-Dialog');
+
     this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(req, error)),
+      catchError((error: HttpErrorResponse) => {
+        if (skipDialog) {
+          return throwError(() => error);
+        }
+        return this.handleError(req, error);
+      }),
       finalize(() => this.loadingService.handleRequest())
     );
   }
@@ -65,7 +73,10 @@ export class HttpResInterceptor implements HttpInterceptor {
     } else {
       this.displayErrorModal(status, errmsg);
     }
-    return throwError(() => new Error(errmsg));
+
+    // Re-throw the original HttpErrorResponse so callers/components
+    // can inspect the status and perform routing (e.g. navigate to /not-found).
+    return throwError(() => error);
   }
 
   /**
