@@ -1,4 +1,4 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -13,7 +13,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
@@ -75,7 +75,14 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
-        //routerLink: (wrapper: JTask) => this.renderTaskLink(wrapper),
+        routerLink: (task: JTask) =>
+          of([
+            {
+              label: task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task.taskName,
+              routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
+              tooltip: task?.attackCmd ?? ''
+            } as HTTableRouterLink
+          ]),
         isSortable: true,
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
