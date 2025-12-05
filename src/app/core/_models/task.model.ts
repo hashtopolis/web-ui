@@ -17,10 +17,18 @@ export enum TaskType {
 }
 
 /**
+ * Common attributes shared between tasks and task wrappers
+ */
+export interface TaskAttributes extends BaseModel {
+  taskName?: string;
+  priority: number;
+  maxAgents: number;
+}
+
+/**
  * Interface definition for a cracking task
  */
-export interface JTask extends BaseModel {
-  taskName: string;
+export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
   activeAgents: number;
   chunkTime: number;
@@ -28,8 +36,6 @@ export interface JTask extends BaseModel {
   keyspace: number;
   keyspaceProgress: number;
   files?: JFile[];
-  priority: number;
-  maxAgents: number;
   color: null | string;
   isSmall: boolean;
   isCpuTask: boolean;
@@ -59,7 +65,7 @@ export interface JTask extends BaseModel {
 /**
  * Interface definition for a task wrapper (wrapper object for cracking tasks and supertasks)
  */
-export interface JTaskWrapper extends BaseModel {
+export interface JTaskWrapper extends BaseModel, TaskAttributes {
   accessGroupId: number;
   accessGroup?: JAccessGroup;
   accessGroupName?: string;
@@ -68,12 +74,9 @@ export interface JTaskWrapper extends BaseModel {
   hashlist?: JHashlist;
   hashType?: JHashtype;
   isArchived: boolean;
-  maxAgents: number;
-  priority: number;
   taskType: TaskType;
   taskWrapperId: number;
   taskWrapperName: string;
   tasks?: JTask[];
-  taskName?: string;
   chunkData?: ChunkData;
 }
