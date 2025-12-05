@@ -14,7 +14,8 @@ import { RoleService } from '@services/roles/base/role.service';
 export class PermissionRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.RightGroup.READ]
+      read: [Perm.RightGroup.READ],
+      create: [Perm.RightGroup.CREATE]
     });
   }
 }
