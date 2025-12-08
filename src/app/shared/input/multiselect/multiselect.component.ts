@@ -219,7 +219,6 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
   private _filter(value: string | SelectOption): SelectOption[] {
     // If a SelectOption is passed by accident, convert to string
     const searchString = typeof value === 'string' ? value : (value.name ?? '');
-
     const filterValue = searchString.toLowerCase();
 
     const results: SelectOption[] = [];
@@ -290,9 +289,8 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
    * @returns {SelectOption[]} - The array of unselected items.
    */
   private getUnselectedItems(): SelectOption[] {
-    var results: SelectOption[] = [];
+    const results: SelectOption[] = [];
     for (const item of this.items) {
-      const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       if (!this.selectedItems.includes(item)) {
         results.push(item);
         if (results.length === this.maxItems) {
