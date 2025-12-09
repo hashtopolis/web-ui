@@ -108,7 +108,8 @@ export interface customCellColorInput {
 }
 
 export interface SortingColumn {
+  id?: number;
   dataKey: string;
-  direction: SortDirection;
+  direction: SortDirection | string;
   isSortable: boolean;
 }

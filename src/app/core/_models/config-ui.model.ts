@@ -152,10 +152,10 @@ export const uiConfigDefault: UIConfig = {
         CracksTableCol.TYPE
       ],
       order: {
-        id: CracksTableCol.ID,
-        dataKey: '',
+        id: CracksTableCol.FOUND,
+        dataKey: 'timeCracked',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
