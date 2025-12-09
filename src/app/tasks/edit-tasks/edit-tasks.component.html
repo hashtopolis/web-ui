@@ -78,7 +78,7 @@
 
             @if ( estimatedTime !== 0) {
               <simulate-form-field label="E.T."
-                                   message="{{ estimatedTime }}">
+                                   message="{{ estimatedTime | sectotime }}">
               </simulate-form-field>
             } @else {
               <simulate-form-field label="E.T." message="---"></simulate-form-field>
