@@ -24,9 +24,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _currentFilter: Filter = null;
   private agentStatsRequired: boolean = false;
 
-  // Agent stats interval to define the max time period agent stats will be retrieved, current preset to 24h
-  private AGENTSTATS_INTERVAL: number = 3600000 * 24;
-
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
@@ -48,11 +45,16 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    const agentParams = new RequestParamBuilder()
+    var agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
-      .addInclude('assignments');
+      .addInclude('assignments')
+      .addInclude('user');
+    
+      if (this.agentStatsRequired) {
+        agentParams = agentParams.addInclude('agentStats');
+      }
 
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
@@ -71,20 +73,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         });
 
         if (agents && agents.length > 0) {
-          const agentIds = agents.map((agent) => agent.id);
-
-          const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-          const [users, agentStats] = await Promise.all([this.loadUserData(userIds), this.loadAgentStats(agentIds)]);
-
           agents.forEach((agent: JAgent) => {
-            agent.user = users.find((user: JUser) => user.id === agent.userId);
             if (agent.tasks && agent.tasks.length > 0) {
               agent.taskId = agent.tasks[0].id;
               agent.task = agent.tasks[0];
               agent.taskName = agent.task.taskName;
-            }
-            if (this.agentStatsRequired) {
-              agent.agentStats = agentStats.filter((entry) => entry.agentId === agent.id);
             }
           });
         }
@@ -171,7 +164,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   /**
    * Load user data from backend given an array of user IDs
    * @param userIds - array of user ids
-   * @return promise containing an array of user objects matching the fiven IDs
+   * @return promise containing an array of user objects matching the given IDs
    * @private
    */
   private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
@@ -187,53 +180,5 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       users = this.serializer.deserialize<JUser[]>(responseBody);
     }
     return users;
-  }
-
-  /**
-   * Load related agent statistics for the last 24h
-   * @param agentIds
-   * @private
-   */
-  private async loadAgentStats(agentIds: Array<number>): Promise<JAgentStat[]> {
-    if (this.agentStatsRequired) {
-      const agentStatParams = new RequestParamBuilder()
-        .addFilter({
-          field: 'agentId',
-          operator: FilterType.IN,
-          value: agentIds
-        })
-        .addFilter({
-          field: 'time',
-          operator: FilterType.GREATER,
-          value: Math.floor((Date.now() - this.AGENTSTATS_INTERVAL) / 1000)
-        });
-      const response: ResponseWrapper = await firstValueFrom(
-        this.service.getAll(SERV.AGENTS_STATS, agentStatParams.create())
-      );
-      const responseBody = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JAgentStat[]>(responseBody);
-    }
-
-    return [];
-  }
-
-  /**
-   * Get current agent cracking speed from all asssigned chunks
-   * @param agent - agent instance to get cracking speed for
-   * @param chunks - collection of all available chunks
-   * @return current agent's cracking speed
-   * @private
-   */
-  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
-    let chunkSpeed: number = 0;
-    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
-      if (
-        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
-        chunk.progress < 10000
-      ) {
-        chunkSpeed += chunk.speed;
-      }
-    }
-    return chunkSpeed;
   }
 }

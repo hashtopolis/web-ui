@@ -113,7 +113,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     try {
       await this.loadAgent();
-      await this.loadCurrentAssignment();
       this.loadSelectTasks();
       this.loadSelectUsers();
 
@@ -169,10 +168,15 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private async loadAgent(): Promise<void> {
+    const includes = ['agentStats', 'accessGroups'];
+
+    if (this.agentRoleService.hasRole('readAssignment')) {
+      includes.push('assignments');
+    }
     try {
       const response = await firstValueFrom<ResponseWrapper>(
         this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-          include: ['agentStats', 'accessGroups']
+          include: includes
         })
       );
 
@@ -180,6 +184,19 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       const agent = this.serializer.deserialize<JAgent>(responseBody);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+      if (this.agentRoleService.hasRole('readAssignment')) {
+        const assignments = this.serializer.deserialize<JAgentAssignment[]>(responseBody);
+        if (assignments.length) {
+          const firstAssignment = assignments[0];
+          this.assignNew = !!firstAssignment.taskId;
+          this.assignId = firstAssignment.id;
+          this.currentAssignment = firstAssignment;
+        } else {
+          this.currentAssignment = null;
+          this.assignId = null;
+          this.assignNew = false;
+        }
+      }
     } catch (err) {
       const httpErr = err as HttpErrorResponse;
 
@@ -239,42 +256,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     });
 
     this.unsubscribeService.add(loadUsersSubscription$);
-  }
-
-  /**
-   * Loads assignment from server
-   * @private
-   */
-  private async loadCurrentAssignment(): Promise<void> {
-    if (!this.agentRoleService.hasRole('readAssignment')) {
-      return;
-    }
-
-    const requestParams = new RequestParamBuilder()
-      .addFilter({
-        field: 'agentId',
-        operator: FilterType.EQUAL,
-        value: this.editedAgentIndex
-      })
-      .create();
-
-    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
-
-    const assignments = this.serializer.deserialize<JAgentAssignment[]>({
-      data: response.data,
-      included: response.included
-    });
-
-    if (assignments.length) {
-      const firstAssignment = assignments[0];
-      this.assignNew = !!firstAssignment.taskId;
-      this.assignId = firstAssignment.id;
-      this.currentAssignment = firstAssignment;
-    } else {
-      this.currentAssignment = null;
-      this.assignId = null;
-      this.assignNew = false;
-    }
   }
 
   /**
