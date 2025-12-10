@@ -21,8 +21,9 @@
               <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
               @if (redirect === 'wordlist') {
                 <div>
-                  <button mat-icon-button (click)="showHelp()" matTooltip="Simple Wordlist Generator">
+                  <button type="button" mat-stroked-button color="accent" (click)="showHelp()" matTooltip="Simple Wordlist Generator" aria-label="Simple Wordlist Generator">
                     <mat-icon>build_circle</mat-icon>
+                    <span>Wordlist generator</span>
                   </button>
                 </div>
               }
