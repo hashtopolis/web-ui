@@ -45,16 +45,15 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    var agentParams = new RequestParamBuilder()
+    let agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
       .addInclude('user');
-    
-      if (this.agentStatsRequired) {
-        agentParams = agentParams.addInclude('agentStats');
-      }
+    if (this.agentStatsRequired) {
+      agentParams = agentParams.addInclude('agentStats');
+    }
 
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 

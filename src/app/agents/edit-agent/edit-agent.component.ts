@@ -185,9 +185,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
-        const assignments = this.serializer.deserialize<JAgentAssignment[]>(responseBody);
-        if (assignments.length) {
-          const firstAssignment = assignments[0];
+        if (agent.assignments.length) {
+          const firstAssignment = agent.assignments[0];
           this.assignNew = !!firstAssignment.taskId;
           this.assignId = firstAssignment.id;
           this.currentAssignment = firstAssignment;
