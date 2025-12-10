@@ -13,6 +13,10 @@ import { SERV } from '@services/main.config';
 import { AlertService } from '@services/shared/alert.service';
 
 import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
+import { JConfig } from '@src/app/core/_models/configs.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -24,6 +28,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   form: FormGroup<VoucherForm>;
   agentURL: string;
   newVoucherSubscription: Subscription;
+  allowMultiVoucher = false;
 
   @ViewChild('table') table: VouchersTableComponent;
 
@@ -50,7 +55,35 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentURL = path + '/api' + environment.config.agentURL;
+    this.loadVoucherDeletionSetting();
     this.updateVoucher();
+  }
+
+  private loadVoucherDeletionSetting(): void {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'item', operator: FilterType.EQUAL, value: 'voucherDeletion' })
+      .create();
+
+    this.gs.getAll(SERV.CONFIGS, params).subscribe({
+      next: (response) => {
+        try {
+          const configs = new JsonAPISerializer().deserialize<JConfig[]>({
+            data: response?.data,
+            included: response?.included
+          });
+          const setting = configs?.find((config) => config.item === 'voucherDeletion');
+          const rawValue = setting?.value ?? '';
+          const normalized = String(rawValue).toLowerCase();
+          this.allowMultiVoucher = normalized === '1' || normalized === 'true';
+        } catch (error) {
+          console.error('Error parsing voucherDeletion setting', error);
+          this.allowMultiVoucher = false;
+        }
+      },
+      error: () => {
+        this.allowMultiVoucher = false;
+      }
+    });
   }
 
   updateVoucher(): void {
