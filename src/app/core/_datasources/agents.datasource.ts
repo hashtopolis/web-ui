@@ -5,9 +5,7 @@
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentStat } from '@models/agent-stats.model';
 import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
@@ -19,7 +17,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
-  private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
   private _currentFilter: Filter = null;
   private agentStatsRequired: boolean = false;
