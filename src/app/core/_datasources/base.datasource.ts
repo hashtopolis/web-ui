@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, SortDirection } from '@angular/material/sort';
+import { MatSort } from '@angular/material/sort';
 
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
@@ -17,7 +17,7 @@ import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.servic
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
@@ -35,7 +35,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
-  public sortingColumn: { dataKey: string; direction: SortDirection; isSortable: boolean };
+  public sortingColumn: SortingColumn;
   public pageAfter = undefined;
   public pageBefore = undefined;
   public index = 0;

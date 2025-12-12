@@ -54,11 +54,12 @@ describe('NewAgentComponent', () => {
     clipboardSpy = jasmine.createSpyObj('Clipboard', ['copy']);
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
     configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create']);
+    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     // Provide default stub for configService.getEndpoint()
     configServiceSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
+    globalServiceSpy.getAll.and.returnValue(of({ data: [], included: [] }));
 
     await TestBed.configureTestingModule({
       declarations: [NewAgentComponent, MockAgentBinariesTableComponent, MockVouchersTableComponent],
