@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -47,7 +47,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   set editedSTIndex(value: number) {
     if (value !== this._editedSTIndex) {
       this._editedSTIndex = value;
-      this.refresh(); // Reload the Pretask-Select-Component
     }
   }
   get editedSTIndex(): number {
@@ -58,7 +57,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  assignPretasks: JPretask[] = [];
   editName: string;
 
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
@@ -75,24 +73,15 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     private confirmDialog: ConfirmDialogService,
     protected roleService: SupertasksRoleService
   ) {
-    this.onInitialize();
     this.buildForm();
     this.titleService.set(['Edit SuperTasks']);
-  }
-
-  /**
-   * Initializes the component by extracting and setting the user ID,
-   */
-  onInitialize() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedSTIndex = +params['id'];
-    });
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
   ngOnInit(): void {
+    this.editedSTIndex = +this.route.snapshot.params['id'];
     this.loadData();
   }
 
@@ -136,7 +125,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         const responseData = { data: response.data, included: response.included };
         const supertask = this.serializer.deserialize<JSuperTask>(responseData);
         this.editName = supertask.supertaskName;
-        this.assignPretasks = supertask.pretasks;
         this.viewForm = new FormGroup({
           supertaskId: new FormControl({
             value: supertask.id,
@@ -181,7 +169,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
               const responseData2 = { data: response2.data, included: response2.included };
               const supertask2 = this.serializer.deserialize<JSuperTask>(responseData2);
               this.editName = supertask2.supertaskName;
-              this.assignPretasks = supertask2.pretasks;
               this.viewForm = new FormGroup({
                 supertaskId: new FormControl({ value: supertask2.id, disabled: true }),
                 supertaskName: new FormControl({ value: supertask2.supertaskName, disabled: true })
@@ -230,7 +217,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   refresh(): void {
     this.isLoading = true;
-    this.onInitialize();
     this.loadData();
   }
 
