@@ -245,7 +245,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       }
     );
 
-    if (this.tasksRoleService.hasRole('update')) {
+    if (this.tasksRoleService.hasRole('edit')) {
       columns.push(
         {
           id: TaskTableCol.PRIORITY,
