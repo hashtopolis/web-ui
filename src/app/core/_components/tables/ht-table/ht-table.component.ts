@@ -16,7 +16,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
@@ -289,9 +289,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
     }
     if (this.dataSource.sortingColumn) {
+      // Use the stored column `id` (stringified) for the matSort header id if present.
+      // This aligns the visual sort indicator (mat-sort-header) with the stored table settings
+      // while the backend request still uses `dataKey` for the actual sort param.
+      const sortId =
+        this.dataSource.sortingColumn.id !== undefined && this.dataSource.sortingColumn.id !== null
+          ? this.dataSource.sortingColumn.id + ''
+          : this.dataSource.sortingColumn.dataKey;
+
       this.matSort.sort({
-        id: this.dataSource.sortingColumn.dataKey,
-        start: this.dataSource.sortingColumn.direction,
+        id: sortId,
+        start: this.dataSource.sortingColumn.direction as SortDirection,
         disableClear: false
       });
     }
@@ -547,7 +555,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter').setValue('', { emitEvent: false});
+    this.filterQueryFormGroup.get('textFilter').setValue('', { emitEvent: false });
   }
   clearSearchBox(): void {
     this.filterQueryFormGroup.get('textFilter').setValue('');
