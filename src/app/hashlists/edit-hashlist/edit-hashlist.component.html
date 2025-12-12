@@ -60,6 +60,12 @@
               [disabled]="!roleService.hasRole('update')">
             </button-submit>
 
+            <button-submit
+              [name]="'Show Hashes'"
+              (click)="goToHashes()"
+              [disabled]="!roleService.hasRole('read')">
+            </button-submit>
+
             @if (editedHashlist?.cracked > 0) {
               <button-submit
                 [name]="'Generate Wordlist'"

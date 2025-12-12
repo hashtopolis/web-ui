@@ -260,6 +260,13 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.unsubscribeService.add(helperExportedWordlistSubscription$);
   }
 
+  /**
+   * Navigate to the hashes view for this hashlist.
+   */
+  goToHashes(): void {
+    this.router.navigate(['/hashlists', 'hashes', 'hashlists', this.editedHashlistIndex]);
+  }
+
   canDeactivate(): boolean {
     const hasUnsavedChanges = this.updateForm.dirty;
 
