@@ -49,6 +49,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
   private searchInputSubject = new Subject<string>();
+  private maxItems = 50;
   filteredItems: Observable<SelectOption[]>;
   searchTerm = '';
 
@@ -218,13 +219,19 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
   private _filter(value: string | SelectOption): SelectOption[] {
     // If a SelectOption is passed by accident, convert to string
     const searchString = typeof value === 'string' ? value : (value.name ?? '');
-
     const filterValue = searchString.toLowerCase();
 
-    return this.items.filter((item: SelectOption) => {
+    const results: SelectOption[] = [];
+    for (const item of this.items) {
       const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
-      return nameToSearch.includes(filterValue);
-    });
+      if (nameToSearch.includes(filterValue)) {
+        results.push(item);
+        if (results.length === this.maxItems) {
+          break;
+        }
+      }
+    }
+    return results;
   }
 
   /**
@@ -282,7 +289,16 @@ export class InputMultiSelectComponent extends AbstractInputComponent<number | n
    * @returns {SelectOption[]} - The array of unselected items.
    */
   private getUnselectedItems(): SelectOption[] {
-    return this.items.filter((item) => !this.selectedItems.includes(item));
+    const results: SelectOption[] = [];
+    for (const item of this.items) {
+      if (!this.selectedItems.includes(item)) {
+        results.push(item);
+        if (results.length === this.maxItems) {
+          break;
+        }
+      }
+    }
+    return results;
   }
 
   /**
