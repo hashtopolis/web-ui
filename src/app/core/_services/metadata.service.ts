@@ -587,7 +587,7 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating a new Hashtype.
   newhashtype = [
     {
-      name: 'hashTypeId',
+      name: 'id',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
@@ -625,7 +625,7 @@ export class MetadataService {
   //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
   edithashtype = [
     {
-      name: 'hashTypeId',
+      name: 'id',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
