@@ -14,7 +14,8 @@ import { RoleService } from '@services/roles/base/role.service';
 export class HashTypesRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      read: [Perm.Hashtype.READ]
+      read: [Perm.Hashtype.READ],
+      create: [Perm.Hashtype.CREATE]
     });
   }
 }
