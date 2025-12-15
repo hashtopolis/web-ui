@@ -3,7 +3,7 @@
     [title]="'Hashtypes'"
     [buttontitle]="'New Hashtype'"
     [buttonlink]="'/config/hashtypes/new'"
-    [subbutton]="true"
+    [subbutton]="hashtypesRoleService.hasRole('create')"
   ></app-page-title>
   <app-hashtypes-table></app-hashtypes-table>
 </app-table>
