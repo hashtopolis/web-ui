@@ -554,7 +554,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEditSubtasks(taskWrapper: JTaskWrapper): void {
     const dialogRef = this.dialog.open(ModalSubtasksComponent, {
-      width: '100%',
+      width: '80vw',
+      maxWidth: '80vw',
       data: {
         supertaskId: taskWrapper.id,
         supertaskName: taskWrapper.taskWrapperName
