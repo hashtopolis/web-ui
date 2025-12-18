@@ -60,6 +60,14 @@
               [disabled]="!roleService.hasRole('update')">
             </button-submit>
 
+            @if (editedHashlist?.cracked > 0) {
+              <button-submit
+                [name]="'Export hashes for pre-crack'"
+                (click)="exortPreCrackedHashes()"
+                [disabled]="!roleService.hasRole('read')">
+              </button-submit>
+            }
+
             <button-submit
               [name]="'Show Hashes'"
               (click)="goToHashes()"

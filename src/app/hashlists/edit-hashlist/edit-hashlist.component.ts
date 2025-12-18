@@ -249,6 +249,17 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     this.unsubscribeService.add(helperExportedLeftSubscription$);
   }
 
+  exortPreCrackedHashes(): void {
+    const payload = { hashlistId: this.editedHashlistIndex };
+    const helperExportedPreCrackedHashesSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+      .subscribe(() => {
+        this.alert.showSuccessMessage('Cracked hashes from hashlist exported');
+      });
+
+    this.unsubscribeService.add(helperExportedPreCrackedHashesSubscription$);
+  }
+
   exportWordlist(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedWordlistSubscription$ = this.gs
