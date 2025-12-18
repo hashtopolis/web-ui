@@ -3,7 +3,6 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
 import { TaskSuperTaskContextMenuService } from '@services/context-menu/tasks/task-supertask-menu.service';
@@ -23,8 +22,6 @@ import {
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
-
-import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -137,7 +134,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   openDialog(data: DialogData<JTask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
-      width: '450px'
+      width: '100px'
     });
 
     this.subscriptions.push(
@@ -160,7 +157,6 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JTask[]>): void {
     this.exportService.handleExportAction<JTask>(
       event,
@@ -168,36 +164,6 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       TasksSupertasksDataSourceTableColumnLabel,
       'hashtopolis-tasks-supertaks'
     );
-  }
-
-  rowActionClicked(event: ActionMenuEvent<JTask>): void {
-    switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
-      case RowActionMenuAction.COPY_TO_TASK:
-        this.rowActionCopyToTask(event.data);
-        break;
-      case RowActionMenuAction.COPY_TO_PRETASK:
-        this.rowActionCopyToPretask(event.data);
-        break;
-      case RowActionMenuAction.ARCHIVE:
-        this.rowActionArchive(event.data);
-        break;
-      case RowActionMenuAction.UNARCHIVE:
-        this.rowActionUnarchive(event.data);
-        break;
-      case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `Deleting Tasks ${event.data.taskName} ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break;
-    }
   }
 
   bulkActionClicked(event: ActionMenuEvent<JTask[]>): void {
@@ -277,20 +243,17 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   private getDispatchedSearchedString(task: JTask): string {
     if (task.keyspace > 0) {
-      const chunkData: ChunkData = task.chunkData;
-      const disp = convertToLocale(chunkData.dispatched * 100);
-      const sear = convertToLocale(chunkData.searched * 100);
-      return `${disp}% / ${sear}%`;
+      return `${task.dispatched}% / ${task.searched}%`;
     }
     return '';
   }
 
   private getNumAgents(task: JTask): number {
-    return task.chunkData ? task.chunkData.agents.length : 0;
+    return task.activeAgents;
   }
 
   private renderAgents(task: JTask): SafeHtml {
-    const numAgents = this.getNumAgents(task);
+    const numAgents = task.activeAgents;
     return this.sanitize(`${numAgents}`);
   }
 
