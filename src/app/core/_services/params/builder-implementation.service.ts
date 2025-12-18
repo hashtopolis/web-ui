@@ -105,7 +105,8 @@ export class RequestParamBuilder implements IParamBuilder {
   addSorting(sortingColumn: any): IParamBuilder {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
       const direction = sortingColumn.direction === 'asc' ? '' : '-';
-      this.params.sortOrder = this.addToArray<string>(this.params.sortOrder, `${direction}${sortingColumn.dataKey}`);
+      const parent = sortingColumn.parent ? `${sortingColumn.parent}.` : '';
+      this.params.sortOrder = this.addToArray<string>(this.params.sortOrder, `${direction}${parent}${sortingColumn.dataKey}`);
     }
     return this;
   }

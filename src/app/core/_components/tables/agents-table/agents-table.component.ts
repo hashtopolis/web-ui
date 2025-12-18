@@ -125,10 +125,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       },
       {
         id: AgentsTableCol.STATUS,
-        dataKey: 'status',
+        dataKey: 'isActive',
         icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
-        isSortable: false,
+        isSortable: true,
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
