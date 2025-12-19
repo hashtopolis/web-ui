@@ -1,6 +1,6 @@
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 
 /**
  * Builder class fpr request parameters, implements the IParamBuilder interface
@@ -45,7 +45,6 @@ export class RequestParamBuilder implements IParamBuilder {
     this.params.pageSize = pageSize;
     return this;
   }
-
 
   /**
    * Sets the page befopre
@@ -105,7 +104,11 @@ export class RequestParamBuilder implements IParamBuilder {
   addSorting(sortingColumn: any): IParamBuilder {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
       const direction = sortingColumn.direction === 'asc' ? '' : '-';
-      this.params.sortOrder = this.addToArray<string>(this.params.sortOrder, `${direction}${sortingColumn.dataKey}`);
+      const parent = sortingColumn.parent ? `${sortingColumn.parent}.` : '';
+      this.params.sortOrder = this.addToArray<string>(
+        this.params.sortOrder,
+        `${direction}${parent}${sortingColumn.dataKey}`
+      );
     }
     return this;
   }
