@@ -41,7 +41,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    let params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk').addFilter({
+    let params = new RequestParamBuilder().addInitial(this).addInclude('chunk').addFilter({
       field: 'isCracked',
       operator: FilterType.EQUAL,
       value: true
