@@ -1,4 +1,4 @@
-FROM node:25.2-trixie AS hashtopolis-web-ui-base
+FROM node:24.12-trixie AS hashtopolis-web-ui-base
 ENV PUPPETEER_SKIP_DOWNLOAD='true'
 EXPOSE 4200
 
