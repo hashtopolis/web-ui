@@ -1,4 +1,4 @@
-FROM node:22.14.0-bookworm AS hashtopolis-web-ui-base
+FROM node:25.2-trixie AS hashtopolis-web-ui-base
 ENV PUPPETEER_SKIP_DOWNLOAD='true'
 EXPOSE 4200
 
@@ -52,7 +52,7 @@ ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "development" ]
 
 # PRODUCTION Image
 # ----BEGIN----
-FROM nginx:bookworm AS hashtopolis-web-ui-prod
+FROM nginx:trixie AS hashtopolis-web-ui-prod
 COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
 COPY --from=hashtopolis-web-ui-build /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY ./nginx/header.conf /etc/nginx/conf.d/header.conf
