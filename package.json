@@ -60,7 +60,7 @@
     "hashtype-detector": "^0.0.6",
     "jquery": "^3.7.0",
     "jsona": "^1.12.1",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.0.0",
     "jszip": "^3.10.1",
     "lightstep-tracer": "^0.35.0-no-protobuf",
     "moment": "^2.29.4",

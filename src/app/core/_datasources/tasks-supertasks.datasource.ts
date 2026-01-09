@@ -3,9 +3,8 @@ import { catchError, finalize, of } from 'rxjs';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper } from '@models/task.model';
+import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -21,14 +20,10 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   loadAll(): void {
     this.loading = true;
 
-    console.log('TasksSupertasksDataSource.loadAll() - sortingColumn:', this.sortingColumn);
-
     const params = new RequestParamBuilder()
       .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
       .create();
-
-    console.log('TasksSupertasksDataSource.loadAll() - params:', params);
 
     const subtasks$ = this.service.getAll(SERV.TASKS, params);
 
