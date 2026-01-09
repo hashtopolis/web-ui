@@ -21,13 +21,16 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   loadAll(): void {
     this.loading = true;
 
+    console.log('TasksSupertasksDataSource.loadAll() - sortingColumn:', this.sortingColumn);
+
     const params = new RequestParamBuilder()
-      .setPageSize(this.pageSize)
-      .addInclude('tasks')
+      .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
       .create();
 
-    const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
+    console.log('TasksSupertasksDataSource.loadAll() - params:', params);
+
+    const subtasks$ = this.service.getAll(SERV.TASKS, params);
 
     this.subscriptions.push(
       subtasks$
@@ -36,7 +39,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>({
+          const subtasks = this.serializer.deserialize<JTask[]>({
             data: response.data,
             included: response.included
           });
@@ -47,7 +50,6 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-          const subtasks = taskWrappers[0].tasks;
           if (subtasks.length > 0) {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
@@ -69,6 +71,8 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
                   });
                 })
             );
+          } else {
+            this.setData(subtasks);
           }
         })
     );
