@@ -21,6 +21,9 @@
       ],
       "@constants/*": [
         "./src/app/core/_constants/*"
+      ],
+      "@interceptors/*": [
+        "./src/app/core/_interceptors/*"
       ]
     },
     "outDir": "./dist/out-tsc",
