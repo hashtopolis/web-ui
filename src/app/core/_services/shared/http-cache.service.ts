@@ -136,7 +136,16 @@ export class HttpCacheService {
       return true;
     }
 
-    // Fallback heuristic: body is object or array
-    return typeof res.body === 'object' && res.body !== null;
+    // Fallback heuristic: body is object or array, but not Blob/File/ArrayBuffer
+    if (typeof res.body !== 'object' || res.body === null) {
+      return false;
+    }
+
+    // Exclude binary types
+    if (res.body instanceof Blob || res.body instanceof ArrayBuffer) {
+      return false;
+    }
+
+    return true;
   }
 }
