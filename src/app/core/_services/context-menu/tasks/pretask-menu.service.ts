@@ -7,7 +7,10 @@ import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-a
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class PreTaskContextMenuService extends ContextMenuService {
-  constructor(override permissionService: PermissionService) {
+  constructor(
+    override permissionService: PermissionService,
+    private addOption = false
+  ) {
     super(permissionService);
   }
 
@@ -20,12 +23,16 @@ export class PreTaskContextMenuService extends ContextMenuService {
     const deleteCondition: ContextMenuCondition = { key: 'editst', value: false };
     const unassignCondition: ContextMenuCondition = { key: 'editst', value: true };
 
+    if (this.addOption) {
+      this.addCtxAddItem(RowActionMenuLabel.ADD_PRETASK_TO_SUPERTASK, RowActionMenuAction.ADD, permUpdate);
+    }
     this.addCtxEditItem(RowActionMenuLabel.EDIT_PRETASK, RowActionMenuAction.EDIT, permUpdate);
     this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_TASK, RowActionMenuAction.COPY_TO_TASK, permCopyTask);
     this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_PRETASK, RowActionMenuAction.COPY_TO_PRETASK, permCopyPreTask);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_PRETASK, permDelete, deleteCondition);
     this.addCtxDeleteItem(RowActionMenuLabel.UNASSIGN_PRETASK, permDelete, unassignCondition);
 
+    this.addBulkAddItem(BulkActionMenuLabel.ADD_PRETASK_TO_SUPERTASK, permUpdate);
     this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_PRETASKS, permDelete);
 
     return this;
