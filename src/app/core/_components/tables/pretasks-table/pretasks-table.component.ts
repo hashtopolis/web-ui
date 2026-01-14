@@ -364,8 +364,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  
-
   /**
    * Bulk add to supertask action, handled by parent edit-supertasks.component.ts to be able to refresh both pretask
    * tables after adding the pretasks
@@ -617,7 +615,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         // Extract keyspace size from the table cell
         const keyspace_size = $(this).find('td:nth-child(4)').text();
         let seconds = null;
-        let runtime = null;
+        let runtime: string;
 
         // Set default options for the attack
         options = defaultOptions;
@@ -628,7 +626,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         // Check if keyspace size is available
         if (keyspace_size === null || !keyspace_size) {
           unknown_runtime_included = 1;
-          runtime = 'Unknown';
         } else if (options.attackType === 3) {
           // Calculate seconds based on benchmarka3 for attackType 3
           seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
