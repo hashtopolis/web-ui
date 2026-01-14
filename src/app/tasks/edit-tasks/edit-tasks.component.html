@@ -182,41 +182,29 @@
 
       @if (roleService.hasRole("editTaskAssignAgents")) {
         <form [formGroup]="createForm">
-          <mat-form-field>
-            <mat-label>Assign Agents</mat-label>
-            <mat-select formControlName="agentId">
-              @for (aval of availAgents; track aval) {
-                <mat-option [value]="aval.id">
-                  {{ aval.agentName }}
-                </mat-option>
-              }
-            </mat-select>
-
-            @if (availAgents.length === 0) {
-              <mat-hint>No agents available</mat-hint>
-            }
-
-            @if (availAgents.length > 0) {
-              <mat-hint>{{ availAgents.length }} agent(s) available</mat-hint>
-            }
-
-            <!-- Add button -->
-            <button (click)="assignAgent()"
-                    [attr.aria-label]="'Assign new Agent'"
-                    [disabled]="!createForm.get('agentId')?.value"
-                    mat-icon-button
-                    matSuffix>
+          <div class="custom-agent-container">
+            <input-multiselect
+              [isLoading]="isLoadingAgents"
+              [placeholder]="'Select agents to assign...'"
+              [items]="selectAgents"
+              [label]="'Select or search Agent'"
+              [isRequired]="false"
+              formControlName="agentId"
+              [multiselectEnabled]="false"
+              [mergeIdAndName]="true"
+            ></input-multiselect>
+            <button mat-icon-button 
+                    matTooltip="Assign Agent" 
+                    (click)="assignAgent()"
+                    [disabled]="!createForm.get('agentId')?.value">
               <mat-icon>add</mat-icon>
             </button>
-
-            <!-- Reload button -->
             <button mat-icon-button
-                    matSuffix
-                    (click)="reloadAgentAssignment()"
-                    [attr.aria-label]="'Reload Table'">
+                    matTooltip="Reload agents"
+                    (click)="reloadAgentAssignment()">
               <mat-icon>autorenew</mat-icon>
             </button>
-          </mat-form-field>
+          </div>
         </form>
       }
 
