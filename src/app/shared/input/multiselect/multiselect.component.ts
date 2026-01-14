@@ -1,4 +1,4 @@
-import { Observable, Subject, combineLatest, of } from 'rxjs';
+import { Observable, Subject, combineLatest } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -321,10 +321,9 @@ export class InputMultiSelectComponent
       this.itemsSubject.next(this.availableItems);
       this.searchTerm = '';
       this.searchInputSubject.next(this.searchTerm);
-    } else {
-      // Fall back to base behavior for now
-      super.writeValue(newValue as any);
+      this.value = this.multiselectEnabled ? [] : null;
     }
+    // If there's a value, the component already manages it internally via selectedItems
   }
 
   /**
