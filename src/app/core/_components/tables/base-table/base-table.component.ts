@@ -299,6 +299,23 @@ export class BaseTableComponent {
     }
     return of(links);
   }
+
+  /* Render edit link for subtask
+   * @param model - agent or chunk to render tasl link for
+   * @param idLink - if true, the task ID will be used as label, otherwise the task name
+   * @return observable object containing a router link array
+   */
+  renderTaskLinkSubtasks(model: JTask, idLink: boolean = false): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      links.push({
+        routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
+        label: idLink ? model.id.toString() : model.taskName.toString()
+      });
+    }
+    return of(links);
+  }
+
   /**
    * Render a valid or invalid icon for the given user
    * @param user - user th get icon for
