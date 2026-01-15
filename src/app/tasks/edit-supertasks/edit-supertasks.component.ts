@@ -60,6 +60,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   editName: string;
 
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
+  @ViewChild('superTasksPretaskNotContainedTable') superTasksPretasksNotContainedTable: PretasksTableComponent;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -255,6 +256,46 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
+    }
+  }
+
+  /**
+   * Handle add-pretask requests coming from PretasksTableComponent.
+   * Posts multiple relationships and refreshes the UI.
+   */
+  onPretaskAdd(pretasks: JPretask[]): void {
+    if (!pretasks?.length || !this.editedSTIndex) return;
+
+    const body = {
+      data: pretasks.map((pretask) => ({
+        type: RelationshipType.PRETASKS,
+        id: pretask.id
+      }))
+    };
+
+    const add$ = this.gs
+      .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, body)
+      .subscribe({
+        next: () => {
+          this.alert.showSuccessMessage(`${pretasks.length} pretask(s) added to Supertask`);
+          this.refresh(); // reload select / data in parent
+          this.onPretaskChanged();
+        },
+        error: (err) => {
+          this.alert.showErrorMessage('Failed to add pretask(s).');
+          console.error('Failed to add pretasks:', err);
+        }
+      });
+
+    this.unsubscribeService.add(add$);
+  }
+
+  onPretaskChanged(): void {
+    try {
+      this.superTasksPretasksTable?.reload();
+      this.superTasksPretasksNotContainedTable?.reload();
+    } catch {
+      // silent if viewchild not present yet
     }
   }
 

@@ -1,6 +1,6 @@
 <ht-table #table [name]="name" dataType="pretasks" [columnLabels]="columnLabels" [dataSource]="dataSource"
   [tableColumns]="tableColumns" [isSelectable]="true" [contextMenuService]="contextMenuService"
-  [isFilterable]="isFilterable" [isPageable]="false" [isDetailPage]="isDetail" (editableSaved)="editableSaved($event)"
+  [isFilterable]="isFilterable" [isPageable]="true" [isDetailPage]="isDetail" (editableSaved)="editableSaved($event)"
   (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)" (backendSqlFilter)="handleBackendSqlFilter($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event" />
