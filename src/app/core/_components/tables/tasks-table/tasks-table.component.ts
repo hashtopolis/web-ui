@@ -276,7 +276,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
               action: TaskTableEditableAction.CHANGE_MAX_AGENTS
             };
           },
-          isSortable: false,
+          isSortable: true,
           export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.maxAgents + ''
         }
       );
