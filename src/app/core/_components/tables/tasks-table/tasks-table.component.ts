@@ -748,7 +748,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       serv = SERV.TASKS_WRAPPER;
     }
 
-    if (!val || task.priority == val) {
+    if (task.priority == val) {
       this.alertService.showInfoMessage('Nothing changed');
       return;
     }
@@ -796,7 +796,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       serv = SERV.TASKS_WRAPPER;
     }
 
-    if (!val || task.maxAgents == val) {
+    if (task.maxAgents == val) {
       this.alertService.showInfoMessage('Nothing changed');
       return;
     }
