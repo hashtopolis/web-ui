@@ -92,6 +92,7 @@ export interface HTTableColumn {
   routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
   icon?: (data: BaseModel) => HTTableIcon;
   isCopy?: boolean;
+  parent?: string; //parent is to build relation sort query in format "task.taskName"
 }
 
 /** Column def for selectable checkbox */
@@ -112,4 +113,5 @@ export interface SortingColumn {
   dataKey: string;
   direction: SortDirection | string;
   isSortable: boolean;
+  parent?: string; // Parent is in order to build sort queries for relationships
 }
