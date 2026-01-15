@@ -1,4 +1,4 @@
-import { ContextMenuCondition, ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -9,7 +9,12 @@ import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions
 export class PreTaskContextMenuService extends ContextMenuService {
   constructor(
     override permissionService: PermissionService,
-    private addOption = false
+
+    /* Flag indicating whether the "Add Pretask to Supertask" option should be included */
+    private addOption = false,
+
+    /* Flag indicating whether the "Unassign Pretask from Supertask" option should be included */
+    private unassignOption = false
   ) {
     super(permissionService);
   }
@@ -20,21 +25,21 @@ export class PreTaskContextMenuService extends ContextMenuService {
     const permCopyTask: Array<PermissionValues> = [Perm.Pretask.READ, Perm.Task.CREATE];
     const permCopyPreTask: Array<PermissionValues> = [Perm.Pretask.READ, Perm.Pretask.CREATE];
 
-    const deleteCondition: ContextMenuCondition = { key: 'editst', value: false };
-    const unassignCondition: ContextMenuCondition = { key: 'editst', value: true };
-
     if (this.addOption) {
       this.addCtxAddItem(RowActionMenuLabel.ADD_PRETASK_TO_SUPERTASK, RowActionMenuAction.ADD, permUpdate);
+      this.addBulkAddItem(BulkActionMenuLabel.ADD_PRETASK_TO_SUPERTASK, permUpdate);
     }
+
     this.addCtxEditItem(RowActionMenuLabel.EDIT_PRETASK, RowActionMenuAction.EDIT, permUpdate);
     this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_TASK, RowActionMenuAction.COPY_TO_TASK, permCopyTask);
     this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_PRETASK, RowActionMenuAction.COPY_TO_PRETASK, permCopyPreTask);
-    this.addCtxDeleteItem(RowActionMenuLabel.DELETE_PRETASK, permDelete, deleteCondition);
-    this.addCtxDeleteItem(RowActionMenuLabel.UNASSIGN_PRETASK, permDelete, unassignCondition);
-
-    this.addBulkAddItem(BulkActionMenuLabel.ADD_PRETASK_TO_SUPERTASK, permUpdate);
-    this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_PRETASKS, permDelete);
-
+    if (this.unassignOption) {
+      this.addCtxDeleteItem(RowActionMenuLabel.UNASSIGN_PRETASK, permDelete);
+      this.addBulkDeleteItem(BulkActionMenuLabel.UNASSIGN_PRETASKS, permDelete);
+    } else {
+      this.addCtxDeleteItem(RowActionMenuLabel.DELETE_PRETASK, permDelete);
+      this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_PRETASKS, permDelete);
+    }
     return this;
   }
 }

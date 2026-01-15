@@ -50,6 +50,7 @@ declare let defaultOptions: AttackOptions;
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _supertTaskId: number;
   private _reverseQuery = false;
+  private _unassignOption = false;
   isDetail = false;
 
   // Input property to specify a supertask ID for filtering pretasks.
@@ -76,6 +77,23 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
   get reverseQuery(): boolean {
     return this._reverseQuery;
+  }
+
+  @Input()
+  set unassignOption(value: boolean) {
+    if (value !== this._unassignOption) {
+      this._unassignOption = value;
+    }
+  }
+  get unassignOption(): boolean {
+    return this._unassignOption;
+  }
+
+  /**
+   * Determines if the row/bulk delete action should perform deletion of the pretask or unassignment from the supertask
+   */
+  get isDelete(): boolean {
+    return !this.unassignOption;
   }
 
   // Estimate runtime attack
@@ -105,7 +123,8 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
     this.contextMenuService = new PreTaskContextMenuService(
       this.permissionService,
-      this._reverseQuery
+      this._reverseQuery,
+      this._unassignOption
     ).addContextMenu();
   }
 
@@ -322,22 +341,23 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       case RowActionMenuAction.COPY_TO_PRETASK:
         this.rowActionCopyToPretask(event.data);
         break;
-      case RowActionMenuAction.DELETE:
+      case RowActionMenuAction.DELETE: {
         this.openDialog({
           rows: [event.data],
           title: `${
-            this.supertTaskId !== 0
-              ? `Unassigning Pretask ${event.data.taskName} ...`
-              : `Deleting Pretask ${event.data.taskName} ...`
+            this.isDelete
+              ? `Deleting Pretask ${event.data.taskName} ...`
+              : `Unassigning Pretask ${event.data.taskName} ...`
           }`,
           icon: 'warning',
           body: `Are you sure you want to ${
-            this.supertTaskId !== 0 ? `unassign it?` : `delete it? Note that this action cannot be undone.`
-          } `,
+            this.isDelete ? `delete it? Note that this action cannot be undone.` : `unassign it from the supertask?`
+          }`,
           warn: true,
           action: event.menuItem.action
         });
         break;
+      }
     }
   }
 
@@ -350,17 +370,25 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       case BulkActionMenuAction.ADD:
         this.bulkActionAddToSupertask(event.data);
         break;
-      case BulkActionMenuAction.DELETE:
+      case BulkActionMenuAction.DELETE: {
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} pretasks ...`,
+          title: `${
+            this.isDelete
+              ? `Deleting ${event.data.length} pretasks ...`
+              : `Unassigning ${event.data.length} pretasks ...`
+          }`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above pretasks? Note that this action cannot be undone.`,
+          body: `${
+            this.isDelete
+              ? `Are you sure you want to delete them? Note that this action cannot be undone.`
+              : `Are you sure you want to unassign them from the supertask?`
+          }`,
           warn: true,
-          listAttribute: 'taskName',
           action: event.menuItem.action
         });
         break;
+      }
     }
   }
 
@@ -380,28 +408,23 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    * @private
    */
   private bulkActionDelete(pretasks: JPretask[]): void {
-    if (this.supertTaskId === 0) {
+    if (this.isDelete) {
       this.subscriptions.push(
         this.gs
           .bulkDelete(SERV.PRETASKS, pretasks)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion: ', error);
-              return [];
+              return of([]);
             })
           )
           .subscribe(() => {
-            this.alertService.showSuccessMessage(`Successfully deleted pretasks!`);
-            this.dataSource.reload();
+            this.alertService.showSuccessMessage(`Successfully deleted ${pretasks.length} pretasks!`);
+            this.pretasksChanged.emit();
           })
       );
     } else {
-      const pretaskData = [];
-
-      pretasks.forEach((pretask) => {
-        pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
-      });
-
+      const pretaskData = pretasks.map((pretask) => ({ type: RelationshipType.PRETASKS, id: pretask.id }));
       const responseBody = { data: pretaskData };
 
       this.subscriptions.push(
@@ -410,12 +433,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
-              return [];
+              return of([]);
             })
           )
           .subscribe(() => {
-            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
-            this.reload();
+            this.alertService.showSuccessMessage(`Successfully unassigned ${pretasks.length} pretasks!`);
+            this.pretasksChanged.emit();
           })
       );
     }
@@ -542,7 +565,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    * @private
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    if (this.supertTaskId === 0) {
+    if (this.isDelete) {
       this.subscriptions.push(
         this.gs
           .delete(SERV.PRETASKS, pretasks[0].id)
@@ -565,7 +588,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
-              console.error('Error during deletion:', error);
+              console.error('Error during unassigning:', error);
               return [];
             })
           )
@@ -588,11 +611,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   private rowActionCopyToTask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
+    void this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
   }
 
   private rowActionCopyToPretask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
+    void this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
   }
 
   private rowActionEdit(pretask: JPretask): void {

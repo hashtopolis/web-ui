@@ -68,7 +68,7 @@
   <app-table>
     <app-page-title [title]="'Preconfigured tasks part of this supertask'"></app-page-title>
     <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
-                        (pretasksChanged)="onPretaskChanged()"></app-pretasks-table>
+                        [unassignOption]=true (pretasksChanged)="onPretaskChanged()"></app-pretasks-table>
   </app-table>
 
   <app-table>
