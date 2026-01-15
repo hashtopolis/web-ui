@@ -313,6 +313,26 @@ progress::-webkit-progress-value {
   }
 }
 
+.custom-agent-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  gap: 12px;
+  max-width: 520px; /* Keep the controls compact, up to the + icon */
+  width: fit-content;
+  
+  input-multiselect {
+    flex: 0 0 320px; /* Reserve room for the buttons without stretching */
+    max-width: 320px;
+    min-width: 240px; /* Keep it usable on narrow screens */
+  }
+
+  .custom-chip-grid {
+    width: 320px;
+    max-width: 320px;
+    min-width: 240px;
+  }
+}
+
 .color-picker-field {
   flex: 1; /* Allow the mat-form-field to grow and take available space */
   margin-right: 16px; /* Adjust the margin between the field and the button */
