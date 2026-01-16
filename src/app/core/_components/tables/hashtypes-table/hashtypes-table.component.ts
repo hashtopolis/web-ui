@@ -39,6 +39,8 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     this.dataSource = new HashtypesDataSource(this.injector);
     this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

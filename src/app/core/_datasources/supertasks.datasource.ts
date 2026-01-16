@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
@@ -23,12 +25,18 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-    const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params.create());
+
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params.create(), httpOptions);
 
     this.subscriptions.push(
       supertasks$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

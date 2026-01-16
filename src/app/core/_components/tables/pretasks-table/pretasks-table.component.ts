@@ -126,6 +126,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this._reverseQuery,
       this._unassignOption
     ).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

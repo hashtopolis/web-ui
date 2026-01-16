@@ -1,7 +1,41 @@
+/* stylelint-disable selector-pseudo-element-no-unknown */
 .paginator-footer {
   display: flex;
   justify-content: space-between; // left + right
   align-items: center;
   margin-top: 4px;
+}
+
+// Filter error state styling
+.filter-error {
+  .mat-mdc-form-field-focus-overlay {
+    background-color: rgba(244, 67, 54, 0.1) !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    border-color: #f44336 !important;
+  }
+
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading,
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch,
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: #f44336 !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    mat-error {
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+}
+
+.filter-error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: -8px;
+  padding-left: 16px;
+  display: block;
 }
 

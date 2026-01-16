@@ -1,5 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JHealthCheck } from '@models/health-check.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -23,12 +25,18 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this).addInclude('hashType');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params.create());
+
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params.create(), httpOptions);
 
     this.subscriptions.push(
       forkJoin([healthChecks$])
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe(([response]: [ResponseWrapper]) => {

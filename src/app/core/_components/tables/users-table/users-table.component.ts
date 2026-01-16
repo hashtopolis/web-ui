@@ -42,6 +42,8 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new UsersContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngOnDestroy(): void {

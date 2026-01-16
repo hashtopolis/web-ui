@@ -2,7 +2,7 @@ import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Injector, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, NgZone, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -84,6 +84,43 @@ export class BaseTableComponent {
     if (this.table) {
       this.table.reload();
     }
+  }
+
+  /**
+   * Generic method to setup filter error subscription.
+   * Call this in ngOnInit of child table components to automatically handle filter errors.
+   * @param dataSource - The datasource with filterError$ observable
+   */
+  protected setupFilterErrorSubscription(dataSource: any): void {
+    const ngZone = this.injector.get<NgZone>(NgZone);
+
+    // Subscribe to filter errors from the datasource
+    this.subscriptions.push(
+      dataSource.filterError$.subscribe((error: string) => {
+        if (!error) {
+          return;
+        }
+
+        // Run outside Angular to avoid triggering change detection on every retry
+        ngZone.runOutsideAngular(() => {
+          // Keep trying until table is available (max 20 attempts with 100ms interval)
+          let attempts = 0;
+          const maxAttempts = 20;
+          const retryInterval = setInterval(() => {
+            attempts++;
+            if (this.table) {
+              // Run back in Angular zone for the actual update
+              ngZone.run(() => {
+                this.table.setFilterError(error);
+              });
+              clearInterval(retryInterval);
+            } else if (attempts >= maxAttempts) {
+              clearInterval(retryInterval);
+            }
+          }, 100);
+        });
+      })
+    );
   }
 
   renderStatusIcon(model: JAgent | JNotification): HTTableIcon {

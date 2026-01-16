@@ -42,6 +42,8 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

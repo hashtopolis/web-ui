@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
@@ -56,6 +56,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
+  /**
+   * Subject to emit filter errors to parent components
+   */
+  public filterError$ = new Subject<string>();
   /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
@@ -146,6 +150,28 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_collectionViewer: CollectionViewer): Observable<T[]> {
     return this.dataSubject.asObservable();
+  }
+
+  /**
+   * Helper method to handle HTTP filter errors and emit them to the UI
+   * This centralizes error handling for filter validation across all datasources
+   *
+   * @param error - The HTTP error response
+   */
+  protected handleFilterError(error: any): void {
+    // Handle filter validation errors gracefully
+    if (error?.error?.title) {
+      this.filterError$.next(error.error.title);
+    } else if (error?.status === 403) {
+      this.filterError$.next('Access forbidden. Please check your permissions.');
+    } else if (error?.status === 400) {
+      const message = error?.error?.title || 'Invalid filter parameter';
+      this.filterError$.next(message);
+    } else if (error?.status) {
+      // Fallback: emit error for any HTTP error status
+      const message = error?.statusText || error?.message || 'Filter error occurred';
+      this.filterError$.next(message);
+    }
   }
 
   /**

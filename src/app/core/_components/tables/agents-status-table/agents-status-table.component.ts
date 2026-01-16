@@ -51,6 +51,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

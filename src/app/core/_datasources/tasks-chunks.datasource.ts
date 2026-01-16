@@ -1,5 +1,7 @@
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -42,12 +44,24 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
     if (!this._isChunksLive) {
       if (this._taskId) {
-        const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.TASKS, this._taskId));
-        const task = new JsonAPISerializer().deserialize<JTask>({
-          data: response.data,
-          included: response.included
-        });
-        chunkTime = task.chunkTime;
+        const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+        try {
+          const response = await firstValueFrom<ResponseWrapper>(
+            this.service.get(SERV.TASKS, this._taskId, undefined, httpOptions).pipe(
+              catchError((error) => {
+                this.handleFilterError(error);
+                throw error;
+              })
+            )
+          );
+          const task = new JsonAPISerializer().deserialize<JTask>({
+            data: response.data,
+            included: response.included
+          });
+          chunkTime = task.chunkTime;
+        } catch {
+          // Error already handled via handleFilterError
+        }
       }
       chunkParams.addFilter({ field: 'progress', value: 10000, operator: FilterType.LESSER }).addFilter({
         field: 'solveTime',
@@ -58,10 +72,16 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
     chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);
 
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
     this.service
-      .getAll(SERV.CHUNKS, chunkParams.create())
+      .getAll(SERV.CHUNKS, chunkParams.create(), httpOptions)
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return of([]);
+        }),
         finalize(() => (this.loading = false))
       )
       .subscribe((response: ResponseWrapper) => {

@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -25,11 +27,15 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
 
-    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create(), httpOptions);
     this.subscriptions.push(
       hashtypes$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

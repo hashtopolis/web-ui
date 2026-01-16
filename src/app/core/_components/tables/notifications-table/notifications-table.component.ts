@@ -40,6 +40,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     this.dataSource = new NotificationsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new NotificationsContextMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
     this.dataSource.loadAll();
   }
 

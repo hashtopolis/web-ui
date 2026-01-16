@@ -1,4 +1,4 @@
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -48,16 +48,27 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     });
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params.create()));
-    const length = response.meta.page.total_elements;
-    const nextLink = response.links.next;
-    const prevLink = response.links.prev;
-    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+    try {
+      const response: ResponseWrapper = await firstValueFrom(
+        this.service.getAll(SERV.HASHES, params.create()).pipe(
+          catchError((error) => {
+            this.handleFilterError(error);
+            throw error;
+          })
+        )
+      );
+      const length = response.meta.page.total_elements;
+      const nextLink = response.links.next;
+      const prevLink = response.links.prev;
+      const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+      const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-    const serializer = new JsonAPISerializer();
-    return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
+      this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+      const serializer = new JsonAPISerializer();
+      return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
+    } catch {
+      return [];
+    }
   }
 
   /**
@@ -66,8 +77,19 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    * @return Promise of task
    */
   async loadTask(taskId: number) {
-    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.TASKS, taskId));
-    return new JsonAPISerializer().deserialize<JTask>({ data: response.data, included: response.included });
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.service.get(SERV.TASKS, taskId).pipe(
+          catchError((error) => {
+            this.handleFilterError(error);
+            throw error;
+          })
+        )
+      );
+      return new JsonAPISerializer().deserialize<JTask>({ data: response.data, included: response.included });
+    } catch {
+      return null;
+    }
   }
 
   reload() {

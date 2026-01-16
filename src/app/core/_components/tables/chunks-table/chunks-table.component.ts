@@ -44,6 +44,8 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
       this.dataSource.setAgentId(this.agentId);
     }
     this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

@@ -41,6 +41,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
 
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentdownloadURL = path + environment.config.agentdownloadURL;

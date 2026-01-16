@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JAgentBinary } from '@models/agent-binary.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,11 +27,17 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
 
-    const agentBinaries$ = this.service.getAll(SERV.AGENT_BINARY, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const binaries$ = this.service.getAll(SERV.AGENT_BINARY, params.create(), httpOptions);
+
     this.subscriptions.push(
-      agentBinaries$
+      binaries$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
