@@ -1,8 +1,6 @@
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { HttpHeaders } from '@angular/common/http';
-
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task.model';
@@ -59,7 +57,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    //const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
     this.subscriptions.push(
       wrappers$
