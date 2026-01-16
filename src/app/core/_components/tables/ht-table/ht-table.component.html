@@ -89,20 +89,29 @@
 
           <!-- Filter input -->
           <form [formGroup]="filterQueryFormGroup">
-            <mat-form-field style="min-width: 200px">
-              <input
-                matInput
-                appDebounce
-                formControlName="textFilter"
-                [debounceTime]="500"
-                (debounceInput)="emitFilterValue()"
-                (keyup.enter)="emitFilterValue()"
-                placeholder="Filter"
-                />
-              <button mat-icon-button matSuffix type="button" (click)="clearSearchBox()">
-                <mat-icon>clear</mat-icon>
-              </button>
-            </mat-form-field>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <mat-form-field style="min-width: 200px" [class.filter-error]="filterError">
+                <input
+                  matInput
+                  appDebounce
+                  formControlName="textFilter"
+                  [debounceTime]="500"
+                  (debounceInput)="emitFilterValue()"
+                  (keyup.enter)="emitFilterValue()"
+                  placeholder="Filter"
+                  [attr.aria-invalid]="filterError ? 'true' : 'false'"
+                  [attr.aria-describedby]="filterError ? 'filter-error-message' : null"
+                  />
+                <button mat-icon-button matSuffix type="button" (click)="clearSearchBox()">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </mat-form-field>
+              @if (filterError) {
+                <div id="filter-error-message" class="filter-error-message">
+                  {{ filterError }}
+                </div>
+              }
+            </div>
           </form>
         </div>
       }

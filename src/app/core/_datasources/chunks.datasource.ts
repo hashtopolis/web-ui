@@ -1,5 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -32,15 +34,17 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
-    /*     if (query) {
-      params.addFilter(query);
-    } */
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-    const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
+
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const chunks$ = this.service.getAll(SERV.CHUNKS, params.create(), httpOptions);
 
     forkJoin([chunks$])
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return of([]);
+        }),
         finalize(() => (this.loading = false))
       )
       .subscribe(([response]: [ResponseWrapper]) => {

@@ -85,6 +85,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
     this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

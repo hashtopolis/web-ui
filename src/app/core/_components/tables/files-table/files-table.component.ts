@@ -83,6 +83,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     if (this.editIndex) {
       this.dataSource.setEditValues(this.editIndex, this.editType);
     }
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

@@ -5,6 +5,7 @@
 
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { FileType, JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -54,14 +55,20 @@ export class FilesDataSource extends BaseDataSource<JFile> {
     this.loading = true;
 
     let files$;
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
     const paramsBuilder = new RequestParamBuilder();
 
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
-        files$ = this.service.get(SERV.TASKS, this.editIndex, paramsBuilder.addInclude('files').create());
+        files$ = this.service.get(SERV.TASKS, this.editIndex, paramsBuilder.addInclude('files').create(), httpOptions);
       } else if (this.editType === 1) {
-        files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
+        files$ = this.service.get(
+          SERV.PRETASKS,
+          this.editIndex,
+          paramsBuilder.addInclude('pretaskFiles').create(),
+          httpOptions
+        );
       }
     } else {
       let params = paramsBuilder
@@ -75,13 +82,18 @@ export class FilesDataSource extends BaseDataSource<JFile> {
       // Use stored filter if no new filter is provided
       const activeFilter = query || this._currentFilter;
       params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-      files$ = this.service.getAll(SERV.FILES, params.create());
+      files$ = this.service.getAll(SERV.FILES, params.create(), httpOptions);
     }
+
+    // Create headers to skip error dialog for filter validation errors already created above
 
     this.subscriptions.push(
       files$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
