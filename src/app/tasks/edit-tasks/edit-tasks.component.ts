@@ -30,7 +30,9 @@ import { ConfigService } from '@services/shared/config.service';
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
+import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -57,6 +59,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: JAgent[] = [];
+  selectAgents: SelectOption[] = [];
+  isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
 
@@ -318,6 +322,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * The below functions are related with assign, manage and delete agents
    */
   private assingAgentInit(assignedAgentIds: Array<number>): void {
+    this.isLoadingAgents = true;
     const params = new RequestParamBuilder();
     if (assignedAgentIds.length > 0) {
       params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
@@ -326,6 +331,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
       const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
       this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
+      this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
+      this.isLoadingAgents = false;
     });
   }
 
@@ -359,9 +366,17 @@ export class EditTasksComponent implements OnInit, OnDestroy {
             this.agentsTable.reload();
           })
         )
-        .subscribe(() => {
-          this.createForm.reset();
-          this.alertService.showSuccessMessage('Agent assigned!');
+        .subscribe({
+          next: () => {
+            this.createForm.reset();
+            this.alertService.showSuccessMessage('Agent assigned!');
+          },
+          error: (err: HttpErrorResponse) => {
+            // If backend rejects the assignment, clear selection so the user knows it wasn't added
+            this.createForm.reset();
+            const msg = err?.error?.message ?? 'Agent cannot be assigned to this task.';
+            this.alertService.showErrorMessage(msg);
+          }
         });
     }
   }

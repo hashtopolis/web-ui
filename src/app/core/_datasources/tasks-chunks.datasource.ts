@@ -63,9 +63,11 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
           // Error already handled via handleFilterError
         }
       }
-      chunkParams
-        .addFilter({ field: 'progress', value: 10000, operator: FilterType.LESSER })
-        .addFilter({ field: 'solveTime', value: Date.now() / 1000 - chunkTime, operator: FilterType.GREATER });
+      chunkParams.addFilter({ field: 'progress', value: 10000, operator: FilterType.LESSER }).addFilter({
+        field: 'solveTime',
+        value: Math.round(Date.now() / 1000 - chunkTime),
+        operator: FilterType.GREATER
+      });
     }
 
     chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);

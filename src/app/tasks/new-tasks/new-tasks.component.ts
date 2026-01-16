@@ -126,10 +126,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
       this.determineView(data['kind']);
+      this.buildForm();
+      this.loadData();
     });
-
-    this.buildForm();
-    this.loadData();
   }
 
   /**
@@ -229,9 +228,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         if (!this.selectHashlists.length) {
           this.alert.showErrorMessage('You need to create a Hashlist to continue creating a Task');
-        }
-        if (this.copyMode) {
-          this.checkHashlisId();
         }
         this.changeDetectorRef.detectChanges();
       });
@@ -344,27 +340,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         this.form.get('crackerBinaryTypeId').patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
-  }
-
-  /**
-   * OnCopy check that hashlisId exist, as could be deleted from loaded hashlists
-   *
-   */
-  checkHashlisId() {
-    const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
-
-    if (!exists) {
-      switch (this.copyType) {
-        case 0:
-          this.alert.showErrorMessage('Hashlist ID not found!');
-          break;
-        case 1:
-          this.alert.showErrorMessage('Please select a hashlist before submitting');
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   /**

@@ -31,6 +31,7 @@ import { AppRoutingModule } from '@src/app/app-routing.module';
 import { AppComponent } from '@src/app/app.component';
 import { AuthModule } from '@src/app/auth/auth.module';
 import { AuthInterceptorService } from '@src/app/core/_interceptors/auth-interceptor.service';
+import { HttpCacheInterceptor } from '@src/app/core/_interceptors/http-cache.interceptor';
 import { HttpResInterceptor } from '@src/app/core/_interceptors/http-res.interceptor';
 import { configReducer } from '@src/app/core/_store/config.reducer';
 import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
@@ -88,6 +89,11 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpCacheInterceptor,
       multi: true
     },
     {
