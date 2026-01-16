@@ -139,7 +139,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() isCmdTask = false;
 
   /** Selected checkbox Cmd files */
-  @Input() isCmdFiles: CheckboxFiles;
+  @Input() isCmdFiles: CheckboxFiles | number[];
 
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
