@@ -118,13 +118,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
         render: (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? 'Task' : '<b>SuperTask</b>'),
-        export: async (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + '')
+        export: async (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + ''),
+        isSortable: true
       },
       {
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
-        isSortable: false,
+        isSortable: true,
+        parent: 'task',
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
       {
@@ -167,6 +169,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
+        parent: 'hashlist',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapper) => {
           if (wrapper.hashlist) {
@@ -175,7 +178,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
             return undefined;
           }
         },
-        isSortable: false,
+        isSortable: true,
         export: async (wrapper: JTaskWrapper) => {
           if (wrapper.hashlist) {
             return wrapper.hashlist.name + '';
@@ -213,9 +216,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
-        dataKey: 'accessGroupName',
+        dataKey: 'groupName',
+        parent: 'accessGroup',
+        isSortable: true,
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
-        isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
       {
@@ -230,16 +234,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_SMALL,
         dataKey: 'isSmall',
+        parent: 'task',
         icon: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
-        isSortable: false,
+        isSortable: true,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
       },
       {
         id: TaskTableCol.IS_CPU_TASK,
         dataKey: 'isCpuTask',
+        parent: 'task',
         icon: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
-        isSortable: false,
+        isSortable: true,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
       }
@@ -270,7 +276,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
               action: TaskTableEditableAction.CHANGE_MAX_AGENTS
             };
           },
-          isSortable: false,
+          isSortable: true,
           export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.maxAgents + ''
         }
       );
