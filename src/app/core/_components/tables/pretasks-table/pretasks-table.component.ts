@@ -49,6 +49,8 @@ declare let defaultOptions: AttackOptions;
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _supertTaskId: number;
+  private _reverseQuery = false;
+  private _unassignOption = false;
   isDetail = false;
 
   // Input property to specify a supertask ID for filtering pretasks.
@@ -66,11 +68,45 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
+  // Input property to specify if the query should be reversed (Return all pretasks NOT in current supertask).
+  @Input()
+  set reverseQuery(value: boolean) {
+    if (value !== this._reverseQuery) {
+      this._reverseQuery = value;
+    }
+  }
+  get reverseQuery(): boolean {
+    return this._reverseQuery;
+  }
+
+  @Input()
+  set unassignOption(value: boolean) {
+    if (value !== this._unassignOption) {
+      this._unassignOption = value;
+    }
+  }
+  get unassignOption(): boolean {
+    return this._unassignOption;
+  }
+
+  /**
+   * Determines if the row/bulk delete action should perform deletion of the pretask or unassignment from the supertask
+   */
+  get isDelete(): boolean {
+    return !this.unassignOption;
+  }
+
   // Estimate runtime attack
   @Input() benchmarkA0 = 0;
   @Input() benchmarkA3 = 0;
 
   @Output() pretasksChanged = new EventEmitter<void>();
+
+  /**
+   * Emitted when user requests to add one or multiple pretasks to a supertask.
+   * Parent component should handle the API call and UI refresh.
+   */
+  @Output() pretaskAdd = new EventEmitter<JPretask[]>();
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
@@ -83,13 +119,18 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (this.supertTaskId) {
       this.isDetail = true;
       this.dataSource.setSuperTaskId(this.supertTaskId);
+      this.dataSource.setReverseQuery(this.reverseQuery);
     }
-    this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new PreTaskContextMenuService(
+      this.permissionService,
+      this._reverseQuery,
+      this._unassignOption
+    ).addContextMenu();
   }
 
   ngAfterViewInit(): void {
     // Wait until paginator is defined
-    this.dataSource.loadAll();
+    void this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
@@ -100,10 +141,10 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      void this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
       return;
     } else {
-      this.dataSource.loadAll(); // Reload all data if input is empty
+      void this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   handleBackendSqlFilter(event: string) {
@@ -267,8 +308,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     );
   }
 
-  // --- Action functions ---
-
+  // --- Action handler ---
+  /**
+   * Handler for export action menu clicks.
+   * @param event ActionMenuEvent containing selected menu item and data (list of pretasks)
+   */
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
     this.exportService.handleExportAction<JPretask>(
       event,
@@ -278,8 +322,16 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     );
   }
 
+  /**
+   * Handler for row action menu clicks.
+   * @param event ActionMenuEvent containing selected menu item and data (pretask)
+   */
   rowActionClicked(event: ActionMenuEvent<JPretask>): void {
     switch (event.menuItem.action) {
+      case RowActionMenuAction.ADD:
+        this.rowActionAddToSupertask(event.data);
+
+        break;
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
@@ -289,67 +341,90 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       case RowActionMenuAction.COPY_TO_PRETASK:
         this.rowActionCopyToPretask(event.data);
         break;
-      case RowActionMenuAction.DELETE:
+      case RowActionMenuAction.DELETE: {
         this.openDialog({
           rows: [event.data],
           title: `${
-            this.supertTaskId !== 0
-              ? `Unassigning Pretask ${event.data.taskName} ...`
-              : `Deleting Pretask ${event.data.taskName} ...`
+            this.isDelete
+              ? `Deleting Pretask ${event.data.taskName} ...`
+              : `Unassigning Pretask ${event.data.taskName} ...`
           }`,
           icon: 'warning',
           body: `Are you sure you want to ${
-            this.supertTaskId !== 0 ? `unassign it?` : `delete it? Note that this action cannot be undone.`
-          } `,
+            this.isDelete ? `delete it? Note that this action cannot be undone.` : `unassign it from the supertask?`
+          }`,
           warn: true,
           action: event.menuItem.action
         });
         break;
-    }
-  }
-
-  bulkActionClicked(event: ActionMenuEvent<JPretask[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.DELETE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} pretasks ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above pretasks? Note that this action cannot be undone.`,
-          warn: true,
-          listAttribute: 'taskName',
-          action: event.menuItem.action
-        });
-        break;
+      }
     }
   }
 
   /**
-   * @todo Implement error handling.
+   * Handler for bulk action menu clicks.
+   * @param event ActionMenuEvent containing selected menu item and data (list of pretasks)
+   */
+  bulkActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+    switch (event.menuItem.action) {
+      case BulkActionMenuAction.ADD:
+        this.bulkActionAddToSupertask(event.data);
+        break;
+      case BulkActionMenuAction.DELETE: {
+        this.openDialog({
+          rows: event.data,
+          title: `${
+            this.isDelete
+              ? `Deleting ${event.data.length} pretasks ...`
+              : `Unassigning ${event.data.length} pretasks ...`
+          }`,
+          icon: 'warning',
+          body: `${
+            this.isDelete
+              ? `Are you sure you want to delete them? Note that this action cannot be undone.`
+              : `Are you sure you want to unassign them from the supertask?`
+          }`,
+          warn: true,
+          action: event.menuItem.action
+        });
+        break;
+      }
+    }
+  }
+
+  /**
+   * Bulk add to supertask action, handled by parent edit-supertasks.component.ts to be able to refresh both pretask
+   * tables after adding the pretasks
+   * @param pretasks List of pretasks to add to supertask
+   * @private
+   */
+  private bulkActionAddToSupertask(pretasks: JPretask[]): void {
+    this.pretaskAdd.emit(pretasks);
+  }
+
+  /**
+   * Bulk delete action
+   * @param pretasks List of pretasks to delete
+   * @private
    */
   private bulkActionDelete(pretasks: JPretask[]): void {
-    if (this.supertTaskId === 0) {
+    if (this.isDelete) {
       this.subscriptions.push(
         this.gs
           .bulkDelete(SERV.PRETASKS, pretasks)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion: ', error);
-              return [];
+              return of([]);
             })
           )
           .subscribe(() => {
-            this.alertService.showSuccessMessage(`Successfully deleted pretasks!`);
-            this.dataSource.reload();
+            this.alertService.showSuccessMessage(`Successfully deleted ${pretasks.length} pretasks!`);
+            this.pretasksChanged.emit();
           })
       );
     } else {
-      const pretaskData = [];
-
-      pretasks.forEach((pretask) => {
-        pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
-      });
-
+      const pretaskData = pretasks.map((pretask) => ({ type: RelationshipType.PRETASKS, id: pretask.id }));
       const responseBody = { data: pretaskData };
 
       this.subscriptions.push(
@@ -358,12 +433,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
-              return [];
+              return of([]);
             })
           )
           .subscribe(() => {
-            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
-            this.reload();
+            this.alertService.showSuccessMessage(`Successfully unassigned ${pretasks.length} pretasks!`);
+            this.pretasksChanged.emit();
           })
       );
     }
@@ -485,10 +560,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   /**
-   * @todo Implement error handling.
+   * Row delete action
+   * @param pretasks pretask to delete
+   * @private
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    if (this.supertTaskId === 0) {
+    if (this.isDelete) {
       this.subscriptions.push(
         this.gs
           .delete(SERV.PRETASKS, pretasks[0].id)
@@ -500,7 +577,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           )
           .subscribe(() => {
             this.alertService.showSuccessMessage('Successfully deleted pretask!');
-            this.reload();
+            this.pretasksChanged.emit();
           })
       );
     } else {
@@ -511,25 +588,34 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
-              console.error('Error during deletion:', error);
+              console.error('Error during unassigning:', error);
               return [];
             })
           )
           .subscribe(() => {
             this.alertService.showSuccessMessage('Successfully unassigned pretask!');
-            this.reload();
-            this.pretasksChanged.emit(); // Signals change that the Pretask ComboBox is being updated
+            this.pretasksChanged.emit();
           })
       );
     }
   }
 
+  /**
+   * Row add to supertask action, handled by parent edit-supertasks.component.ts to be able to refresh both pretask
+   * tables after adding the pretask
+   * @param pretask Pretask to add to supertask
+   * @private
+   */
+  private rowActionAddToSupertask(pretask: JPretask) {
+    this.pretaskAdd.emit([pretask]);
+  }
+
   private rowActionCopyToTask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
+    void this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
   }
 
   private rowActionCopyToPretask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
+    void this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
   }
 
   private rowActionEdit(pretask: JPretask): void {
@@ -552,7 +638,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         // Extract keyspace size from the table cell
         const keyspace_size = $(this).find('td:nth-child(4)').text();
         let seconds = null;
-        let runtime = null;
+        let runtime: string;
 
         // Set default options for the attack
         options = defaultOptions;
@@ -563,7 +649,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         // Check if keyspace size is available
         if (keyspace_size === null || !keyspace_size) {
           unknown_runtime_included = 1;
-          runtime = 'Unknown';
         } else if (options.attackType === 3) {
           // Calculate seconds based on benchmarka3 for attackType 3
           seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));

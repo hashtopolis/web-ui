@@ -76,6 +76,15 @@ export abstract class ContextMenuService {
     this.createMenuItem(label, 0, action, RowActionMenuAction.EDIT, permissions, condition);
   }
 
+  protected addCtxAddItem(
+    label: string,
+    action: string,
+    permissions: Array<PermissionValues>,
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(label, 0, action, RowActionMenuIcon.ADD, permissions, condition);
+  }
+
   /**
    * Add a new deactivation entry to context menu
    * @param label - label of the entry
@@ -101,6 +110,25 @@ export abstract class ContextMenuService {
       0,
       BulkActionMenuAction.DEACTIVATE,
       RowActionMenuIcon.DEACTIVATE,
+      permissions,
+      { key: '', value: false },
+      false,
+      false
+    );
+  }
+
+  /**
+   * Add a new add entry to context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @protected
+   */
+  protected addBulkAddItem(label: string, permissions: Array<PermissionValues>) {
+    this.createMenuItem(
+      label,
+      0,
+      BulkActionMenuAction.ADD,
+      RowActionMenuIcon.ADD,
       permissions,
       { key: '', value: false },
       false,

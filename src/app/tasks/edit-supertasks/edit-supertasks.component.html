@@ -10,35 +10,12 @@
         <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
       }
       @if (roleService.hasRole("editSupertaskApplyHashlist")) {
-        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']"
-                       (click)="onSubmit()"></button-submit>
+        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']">
+        </button-submit>
       }
     </div>
   </form>
-  @if (roleService.hasRole("edit")) {
-    <hr>
-    <h5>Add Pretasks</h5>
-    <form [formGroup]="updateForm">
-      @if (!isLoading) {
-        <div fxLayout="column" fxLayoutAlign="start start">
-          <input-multiselect [isLoading]="isLoading" [placeholder]="'Pretasks...'" [items]="selectPretasks" [isRequired]="true"
-                             [label]="'Select or search Pretasks'" [mergeIdAndName]="true" formControlName="pretasks"
-                             style="flex: 1;"></input-multiselect>
-          <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
-            <button-submit [name]="'Add'" (click)="onSubmit()"></button-submit>
-            <button mat-icon-button (click)="refresh()">
-              <mat-icon>refresh</mat-icon>
-            </button>
-          </div>
-        </div>
-      } @else {
-        <div class="loading-spinner">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Loading Pretasks...</span>
-        </div>
-      }
-    </form>
-  }
+
 </grid-main>
 <!-- Benckmark calculation -->
 @if (isLoading && roleService.hasRole("editSupertaskPreTasks"))  {
@@ -89,8 +66,14 @@
 @if(roleService.hasRole("editSupertaskPreTasks")) {
   <!--Table Pretasks-->
   <app-table>
-    <app-page-title [title]="'Preconfigured Tasks'"></app-page-title>
+    <app-page-title [title]="'Preconfigured tasks part of this supertask'"></app-page-title>
     <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
-                        (pretasksChanged)="refresh()"></app-pretasks-table>
+                        [unassignOption]=true (pretasksChanged)="onPretaskChanged()"></app-pretasks-table>
+  </app-table>
+
+  <app-table>
+    <app-page-title [title]="'Preconfigured tasks not part of this supertask'"></app-page-title>
+    <app-pretasks-table #superTasksPretaskNotContainedTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [reverseQuery]=true
+                        (pretasksChanged)="onPretaskChanged()" (pretaskAdd)="onPretaskAdd($event)"></app-pretasks-table>
   </app-table>
 }

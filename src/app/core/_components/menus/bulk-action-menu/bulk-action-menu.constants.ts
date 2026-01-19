@@ -1,8 +1,9 @@
 export const BulkActionMenuLabel = {
+  ADD_PRETASK_TO_SUPERTASK: 'Add to supertask',
   DELETE_AGENTS: 'Delete Agents',
   DELETE_ERRORS: 'Delete Errors',
   DELETE_NOTIFICATIONS: 'Delete Notification',
-  DELETE_PRETASKS: 'Delete PreTasks',
+  DELETE_PRETASKS: 'Delete Pretasks',
   DELETE_TASKS: 'Delete Tasks',
   DELETE_SUPERTASKS: 'Delete Supertasks',
   DELETE_HASHLISTS: 'Delete Hashlists',
@@ -29,10 +30,12 @@ export const BulkActionMenuLabel = {
   UNASSIGN_AGENTS: 'Unassign agents',
   REMOVE_ACCESSGROUP_AGENTS: 'Remove agents',
   REMOVE_ACCESSGROUP_USERS: 'Remove users',
-  ARCHIVE_PRETASKS: 'Archive PreTasks'
+  ARCHIVE_PRETASKS: 'Archive Pretasks',
+  UNASSIGN_PRETASKS: 'Unassign Pretasks'
 };
 
 export const BulkActionMenuAction = {
+  ADD: 'bulk-add',
   DELETE: 'bulk-delete',
   ACTIVATE: 'bulk-activate',
   DEACTIVATE: 'bulk-deactivate',
@@ -41,6 +44,7 @@ export const BulkActionMenuAction = {
 };
 
 export const BulkActionMenuIcon = {
+  ADD: 'bulk-add',
   DELETE: 'delete',
   ARCHIVE: 'archive',
   ACTIVATE: 'check_circle',
