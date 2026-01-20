@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,12 +27,17 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
     let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create(), httpOptions);
 
     this.subscriptions.push(
       permissions$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

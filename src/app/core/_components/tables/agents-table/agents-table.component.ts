@@ -80,6 +80,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

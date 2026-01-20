@@ -27,6 +27,8 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
     this.tableColumns = this.getColumns();
     this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

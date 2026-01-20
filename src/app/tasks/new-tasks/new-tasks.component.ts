@@ -32,7 +32,7 @@ import {
 import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { AttackCommandData, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -300,7 +300,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Retrieves the form data containing attack command and files.
    * @returns An object with attack command and files.
    */
-  protected getFormData() {
+  protected getFormData(): AttackCommandData {
     if (!this.formReady) return { attackCmd: '', files: [], preprocessorCommand: '' };
     return {
       attackCmd: this.form.get('attackCmd').value,
