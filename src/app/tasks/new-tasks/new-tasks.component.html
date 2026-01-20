@@ -2,94 +2,97 @@
   <div fxFlex="70" fxFlex.lt-md="100">
     <grid-main>
       <app-page-subtitle [subtitle]="'New Task'"></app-page-subtitle>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (form) {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-        <input-color title="Color" formControlName="color"></input-color>
+          <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+          <input-color title="Color" formControlName="color"></input-color>
 
-        @if (!isLoading) {
-          <div fxLayout="column" fxLayoutAlign="start start">
-            @if ((copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)) {
-              <input-multiselect
-                [isLoading]="isLoading"
-                [placeholder]="'Hashlist...'"
-                [items]="selectHashlists"
-                [label]="'Select or search Hashlist'"
-                [mergeIdAndName]="true"
-                [multiselectEnabled]="false"
-                formControlName="hashlistId"
-                [initialHashlistId]="isCopyHashlistId"
-                [isRequired]="true"
-              ></input-multiselect>
-            }
+          @if (!isLoading) {
+            <div fxLayout="column" fxLayoutAlign="start start">
+              @if ((copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)) {
+                <input-multiselect
+                  [isLoading]="isLoading"
+                  [placeholder]="'Hashlist...'"
+                  [items]="selectHashlists"
+                  [label]="'Select or search Hashlist'"
+                  [mergeIdAndName]="true"
+                  [multiselectEnabled]="false"
+                  formControlName="hashlistId"
+                  [initialHashlistId]="isCopyHashlistId"
+                  [isRequired]="true"
+                ></input-multiselect>
+              }
+            </div>
+          } @else {
+            <div class="loading-spinner">
+              <mat-spinner diameter="32"></mat-spinner>
+              <span>Loading Hashlists...</span>
+            </div>
+          }
+
+          <div>
+            <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
+            <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+              <mat-icon>help</mat-icon>
+            </button>
+            <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
           </div>
-        } @else {
-          <div class="loading-spinner">
-            <mat-spinner diameter="32"></mat-spinner>
-            <span>Loading Hashlists...</span>
+
+          <input-text-area title="Notes" formControlName="notes"></input-text-area>
+
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
+            <input-number title="Max agents" formControlName="maxAgents"></input-number>
           </div>
-        }
 
-        <div>
-          <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
-          <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
-            <mat-icon>help</mat-icon>
-          </button>
-          <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
-        </div>
-
-        <input-text-area title="Notes" formControlName="notes"></input-text-area>
-
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
-          <input-number title="Max agents" formControlName="maxAgents"></input-number>
-        </div>
-
-        <mat-accordion>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <span><b>Advanced Settings</b></span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
-              <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
-              <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
-              <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
-              <input-number title="if yes, chunk size:" formControlName="chunkSize"></input-number>
-              <input-number title="Chunk size" formControlName="chunkTime"></input-number>
-              <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-              <input-number title="Chunk size" formControlName="chunkTime"></input-number>
-              <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
-              <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
-              <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
-            </div>
-            <hr><br>
-            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
-              <input-select title="Binary type version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
-            </div>
-            <hr/>
-            <div fxLayoutGap="10px">
-              <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
-              <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-        @if (!form.valid && form.touched) {
-          <span class="help-block" >Please complete all the form!</span>
-          }<br>
-          <grid-buttons>
-            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
-            @if (isCreatingLoading) {
-              <div>
-                <mat-spinner diameter="24" color="accent"></mat-spinner>
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <span><b>Advanced Settings</b></span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
+                <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
+                <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
+                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
+                <input-number title="if yes, chunk size:" formControlName="chunkSize"></input-number>
+                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
+                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+                <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
+                <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
+                <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
               </div>
-            }
-          </grid-buttons>
-        </form>
+              <hr><br>
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <input-select title="Binary type to run task" formControlName="crackerBinaryTypeId" [items]="selectCrackertype"></input-select>
+                <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions"></input-select>
+
+              </div>
+              <hr/>
+              <div fxLayoutGap="10px">
+                <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
+                <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+          @if (!form.valid && form.touched) {
+            <span class="help-block" >Please complete all the form!</span>
+            }<br>
+            <grid-buttons>
+              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+              <button-submit [name]="'Create'"></button-submit>
+              @if (isCreatingLoading) {
+                <div>
+                  <mat-spinner diameter="24" color="accent"></mat-spinner>
+                </div>
+              }
+            </grid-buttons>
+          </form>
+      }
       </grid-main>
     </div>
     <div fxFlex="50" fxFlex.lt-md="100">

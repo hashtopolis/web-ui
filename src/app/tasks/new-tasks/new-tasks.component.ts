@@ -1,3 +1,5 @@
+import { firstValueFrom } from 'rxjs';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -78,6 +80,8 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   fileTypeRules: FileType = 1;
   fileTypeOther: FileType = 2;
 
+  private formReady = false;
+
   /**
    * Constructor for the Component.
    * Initializes and sets up necessary services, properties, and components.
@@ -123,12 +127,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   /**
    * Initialize the component based on the data kind.
    */
-  ngOnInit(): void {
-    this.route.data.subscribe((data) => {
-      this.determineView(data['kind']);
-      this.buildForm();
-      this.loadData();
-    });
+  async ngOnInit(): Promise<void> {
+    const data = await firstValueFrom(this.route.data);
+    this.buildForm();
+    await this.loadSelectOptions();
+    this.determineView(data['kind']);
   }
 
   /**
@@ -173,7 +176,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   private setupForCopy(copyType: number): void {
     this.whichView = 'edit';
     this.copyType = copyType;
-    this.initForm(copyType === 0);
+    void this.initForm(copyType === 0);
   }
 
   /**
@@ -182,107 +185,123 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
+    this.formReady = true;
 
-    // Subscribe to cracker binary changes and add to unsubscribe service
-    const crackerBinarySubscription = this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
-      this.handleChangeBinary(newvalue);
+    const crackerTypeSubscription = this.form.get('crackerBinaryTypeId').valueChanges.subscribe((newTypeId) => {
+      this.handleChangeBinary(newTypeId);
     });
-    this.unsubscribeService.add(crackerBinarySubscription);
+    this.unsubscribeService.add(crackerTypeSubscription);
 
-    /**
-     * Handle preprocessor ID changes
-     * - If 'null' is selected, use 0 for further processing
-     * - Only update value when necessary to avoid recursive calls
-     */
+    // Subscribe to preprocessor changes and add to unsubscribe service
     const preprocessorSubscription = this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
-      if (newvalue === 'null') {
-        // Only update if the value isn't already 0
-        if (this.form.get('preprocessorId').value !== 0) {
-          this.form.get('preprocessorId').setValue(0, { emitEvent: false });
-        }
-      } else if (newvalue !== this.form.get('preprocessorId').value) {
-        // Only update if the value has actually changed
-        // Use setValue with emitEvent: false to prevent recursive calls
-        this.form.get('preprocessorId').setValue(newvalue, { emitEvent: false });
-      }
+      this.handleChangePreprocessor(newvalue);
     });
     this.unsubscribeService.add(preprocessorSubscription);
   }
 
   /**
-   * Loads data for hashslists and crackers types.
+   * Loads all select options required for the form.
    */
-  loadData() {
-    // Load Hahslists Select Options
-    const filter = new Array<Filter>({ field: 'isArchived', operator: FilterType.EQUAL, value: false });
-    const loadHashlistsSubscription$ = this.gs
-      .getAll(SERV.HASHLISTS, {
-        filter: filter
-      })
-      .subscribe((response: ResponseWrapper) => {
-        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
-          data: response.data,
-          included: response.included
-        });
-        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
-        this.isLoading = false;
-        if (!this.selectHashlists.length) {
-          this.alert.showErrorMessage('You need to create a Hashlist to continue creating a Task');
-        }
-        this.changeDetectorRef.detectChanges();
-      });
-    this.unsubscribeService.add(loadHashlistsSubscription$);
+  async loadSelectOptions(): Promise<void> {
+    await Promise.all([
+      this.loadHashlistSelectOptions(),
+      this.loadCrackerSelectOptions(),
+      this.loadPreprocessorSelectOptions()
+    ]);
+  }
 
-    // Load Cracker Types and Crackers Select Options
-    const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
+  /**
+   * Loads hashlists select options.
+   */
+  private async loadHashlistSelectOptions(): Promise<void> {
+    const filter: Filter[] = [{ field: 'isArchived', operator: FilterType.EQUAL, value: false }];
+    try {
+      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.HASHLISTS, { filter }));
+      const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
         data: response.data,
         included: response.included
       });
-
-      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-      let id = '';
-      if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
-        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id;
-      } else {
-        id = this.selectCrackertype.slice(-1)[0]['id'];
+      this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
+      this.isLoading = false;
+      if (!this.selectHashlists.length) {
+        this.alert.showErrorMessage('You need to create a Hashlist to continue creating a Task');
       }
+      this.changeDetectorRef.detectChanges();
+    } catch (error) {
+      console.error('Error loading hashlist select options', error);
+      this.alert.showErrorMessage('Failed to load hashlists');
+    }
+  }
+
+  /**
+   * Loads cracker type and version select options.
+   */
+  private async loadCrackerSelectOptions(): Promise<void> {
+    try {
+      const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES));
+      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
+        data: typeResponse.data,
+        included: typeResponse.included
+      });
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+
+      let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
+      if (!typeId && this.selectCrackertype.length > 0) {
+        typeId = this.selectCrackertype.slice(-1)[0].id;
+      }
+      if (!typeId) {
+        console.warn('No cracker type found');
+        return;
+      }
+
       const requestParams = new RequestParamBuilder()
-        .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
+        .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: typeId })
         .create();
-      const loadCrackersSubscription$ = this.gs
-        .getAll(SERV.CRACKERS, requestParams)
-        .subscribe((response: ResponseWrapper) => {
-          const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
-            data: response.data,
-            included: response.included
-          });
-          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-          const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-          this.form.get('crackerBinaryTypeId').patchValue(lastItem);
-        });
-      this.unsubscribeService.add(loadCrackersSubscription$);
-    });
 
-    this.unsubscribeService.add(loadCrackerTypesSubscription$);
+      const versionResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
 
-    // Load Preprocessor Select Options
-    const loadPreprocessorsSubscription$ = this.gs.getAll(SERV.PREPROCESSORS).subscribe((response: ResponseWrapper) => {
+      const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
+        data: versionResponse.data,
+        included: versionResponse.included
+      });
+
+      this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+
+      const lastItemId = this.selectCrackerversions.slice(-1)[0]?.id;
+      if (typeId) this.form.get('crackerBinaryTypeId').patchValue(typeId, { emitEvent: false });
+      if (lastItemId) this.form.get('crackerBinaryId').patchValue(lastItemId, { emitEvent: false });
+
+      this.changeDetectorRef.detectChanges();
+    } catch (error) {
+      console.error('Error loading cracker options', error);
+      this.alert.showErrorMessage('Failed to load cracker types or versions');
+    }
+  }
+
+  /**
+   * Loads preprocessor select options.
+   */
+  private async loadPreprocessorSelectOptions(): Promise<void> {
+    try {
+      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.PREPROCESSORS));
       const preprocessors = new JsonAPISerializer().deserialize<JPreprocessor[]>({
         data: response.data,
         included: response.included
       });
       this.selectPreprocessor = transformSelectOptions(preprocessors, DEFAULT_FIELD_MAPPING);
       this.changeDetectorRef.detectChanges();
-    });
-    this.unsubscribeService.add(loadPreprocessorsSubscription$);
+    } catch (error) {
+      console.error('Error loading preprocessor options', error);
+      this.alert.showErrorMessage('Failed to load preprocessors');
+    }
   }
 
   /**
    * Retrieves the form data containing attack command and files.
    * @returns An object with attack command and files.
    */
-  getFormData() {
+  protected getFormData() {
+    if (!this.formReady) return { attackCmd: '', files: [], preprocessorCommand: '' };
     return {
       attackCmd: this.form.get('attackCmd').value,
       files: this.form.get('files').value,
@@ -294,7 +313,8 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Check if the current form has preprocessor enabled, otherwise dont show on table
    * @returns {boolean} True if the form is for a preprocessor task, false otherwise.
    */
-  isPreprocessor(): boolean {
+  protected isPreprocessor(): boolean {
+    if (!this.formReady) return false;
     const preprocessorId = this.form.get('preprocessorId').value;
     return preprocessorId !== 0 && preprocessorId !== 'null';
   }
@@ -303,7 +323,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event: TaskSelectFile): void {
+  protected onUpdateForm(event: TaskSelectFile): void {
     if (event.type === 'CMD') {
       this.form.patchValue({
         attackCmd: event.attackCmd,
@@ -320,14 +340,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Handle the change of cracker binary type and update the available cracker versions.
    * @param {string} id - The identifier of the selected cracker binary type.
    */
-  handleChangeBinary(id: string) {
+  private handleChangeBinary(id: string) {
     const requestParams = new RequestParamBuilder()
-      .addFilter({
-        field: 'crackerBinaryTypeId',
-        operator: FilterType.EQUAL,
-        value: id
-      })
+      .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
+
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, requestParams)
       .subscribe((response: ResponseWrapper) => {
@@ -336,76 +353,106 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           included: response.included
         });
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-        const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+
+        // Select the last version by default
+        const lastVersionId = this.selectCrackerversions.slice(-1)[0]?.id;
+        if (lastVersionId) {
+          this.form.get('crackerBinaryId').patchValue(lastVersionId, { emitEvent: false });
+        }
       });
+
     this.unsubscribeService.add(onChangeBinarySubscription$);
+  }
+
+  /**
+   * Handle the change of preprocessor ID and update the form value accordingly.
+   * - If 'null' is selected, use 0 for further processing
+   * - Only update value when necessary to avoid recursive calls
+   * @param newId
+   */
+  private handleChangePreprocessor(newId: string) {
+    if (newId === 'null') {
+      // Only update if the value isn't already 0
+      if (this.form.get('preprocessorId').value !== 0) {
+        this.form.get('preprocessorId').setValue(0, { emitEvent: false });
+      }
+    } else if (newId !== this.form.get('preprocessorId').value) {
+      // Only update if the value has actually changed
+      // Use setValue with emitEvent: false to prevent recursive calls
+      this.form.get('preprocessorId').setValue(newId, { emitEvent: false });
+    }
   }
 
   /**
    * Initialize the form based on the copied data.
    * @param isTask Determines whether the copied data is a Task or Pretask.
    */
-  private initForm(isTask: boolean) {
-    if (this.copyMode) {
-      const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
-      const includedResources = isTask
-        ? ['hashlist', 'speeds', 'crackerBinary', 'crackerBinaryType', 'files']
-        : ['pretaskFiles'];
+  private async initForm(isTask: boolean): Promise<void> {
+    if (!this.copyMode) return;
 
-      const requestParamBuilder = new RequestParamBuilder();
-      includedResources.forEach((resource) => {
-        requestParamBuilder.addInclude(resource);
+    const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
+    const includedResources = isTask
+      ? ['hashlist', 'speeds', 'crackerBinary', 'crackerBinaryType', 'files']
+      : ['pretaskFiles'];
+
+    const requestParamBuilder = new RequestParamBuilder();
+    includedResources.forEach((resource) => requestParamBuilder.addInclude(resource));
+    const requestParams = requestParamBuilder.create();
+
+    try {
+      // Fetch the task asynchronously
+      const response: ResponseWrapper = await firstValueFrom(this.gs.get(endpoint, this.editedIndex, requestParams));
+      const task = new JsonAPISerializer().deserialize<JTask | JPretask>({
+        data: response.data,
+        included: response.included
       });
-      const requestParams = requestParamBuilder.create();
+      // Prepare files array
+      const arrFiles: Array<JFile> = [];
+      const filesField = isTask ? 'files' : 'pretaskFiles';
+      this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
 
-      this.gs.get(endpoint, this.editedIndex, requestParams).subscribe((response: ResponseWrapper) => {
-        const task = new JsonAPISerializer().deserialize<JTask | JPretask>({
-          data: response.data,
-          included: response.included
-        });
-
-        const arrFiles: Array<JFile> = [];
-        const filesField = isTask ? 'files' : 'pretaskFiles';
-        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
-        if (task[filesField]) {
-          for (let i = 0; i < task[filesField].length; i++) {
-            arrFiles.push(task[filesField][i]['id']);
-          }
-          this.copyFiles = arrFiles;
+      if (task[filesField]) {
+        for (let i = 0; i < task[filesField].length; i++) {
+          arrFiles.push(task[filesField][i]['id']);
         }
-        this.form.setValue({
-          taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
-          notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
-          hashlistId: this.isCopyHashlistId,
-          attackCmd: task['attackCmd'],
-          maxAgents: task['maxAgents'],
-          chunkTime: task['chunkTime'],
-          priority: task['priority'],
-          color: task['color'],
-          isCpuTask: task['isCpuTask'],
-          crackerBinaryTypeId: task['crackerBinaryTypeId'],
-          isSmall: task['isSmall'],
-          useNewBench: task['useNewBench'],
-          skipKeyspace: isTask ? task['skipKeyspace'] : 0,
-          crackerBinaryId: isTask ? task['crackerBinaryId'] : 1,
-          isArchived: false,
-          staticChunks: isTask ? task['staticChunks'] : 0,
-          chunkSize: isTask ? task['chunkSize'] : this.chunkSize,
-          forcePipe: isTask ? task['forcePipe'] : false,
-          preprocessorId: isTask ? task['preprocessorId'] : 0,
-          preprocessorCommand: isTask ? task['preprocessorCommand'] : '',
-          files: arrFiles,
-          statusTimer: task['statusTimer']
-        });
+        this.copyFiles = arrFiles;
+      }
+
+      // Patch the form after fetching the task
+      this.form.patchValue({
+        taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
+        notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
+        hashlistId: this.isCopyHashlistId,
+        attackCmd: task['attackCmd'],
+        maxAgents: task['maxAgents'],
+        chunkTime: task['chunkTime'],
+        priority: task['priority'],
+        color: task['color'],
+        isCpuTask: task['isCpuTask'],
+        crackerBinaryTypeId: task['crackerBinaryTypeId'],
+        isSmall: task['isSmall'],
+        useNewBench: task['useNewBench'],
+        skipKeyspace: isTask ? task['skipKeyspace'] : 0,
+        crackerBinaryId: isTask ? task['crackerBinaryId'] : 1,
+        isArchived: false,
+        staticChunks: isTask ? task['staticChunks'] : 0,
+        chunkSize: isTask ? task['chunkSize'] : this.chunkSize,
+        forcePipe: isTask ? task['forcePipe'] : false,
+        preprocessorId: isTask ? task['preprocessorId'] : 0,
+        preprocessorCommand: isTask ? task['preprocessorCommand'] : '',
+        files: arrFiles,
+        statusTimer: task['statusTimer']
       });
+    } catch (error) {
+      console.error('Error initializing form with task data:', error);
+      this.alert.showErrorMessage('Failed to load task for copying.');
     }
   }
 
   /**
    * Submits the form data and creates a new Task.
    */
-  onSubmit() {
+  protected onSubmit() {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe(() => {
@@ -427,7 +474,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   }
 
   // Modal Information
-  openHelpDialog(): void {
+  protected openHelpDialog(): void {
     this.dialog.open(CheatsheetComponent, { width: '100%' });
   }
 }
