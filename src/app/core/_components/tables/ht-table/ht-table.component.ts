@@ -473,7 +473,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   isSelected(row: any): boolean {
     if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
-      return this.isCmdFiles.includes(row._id);
+      return this.isCmdFiles.includes(row.id);
     } else {
       return this.dataSource.isSelected(row);
     }
