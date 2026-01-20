@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JNotification } from '@models/notification.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -24,12 +26,17 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
 
-    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params.create());
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
+    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params.create(), httpOptions);
 
     this.subscriptions.push(
       notifications$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

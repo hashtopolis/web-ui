@@ -39,6 +39,8 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PreProContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngOnDestroy(): void {

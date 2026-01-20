@@ -69,6 +69,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setIsArchived(this.isArchived);
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

@@ -3,6 +3,8 @@
  */
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JPreprocessor } from '@models/preprocessor.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -26,12 +28,17 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
 
-    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params.create(), httpOptions);
 
     this.subscriptions.push(
       preprocessors$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
