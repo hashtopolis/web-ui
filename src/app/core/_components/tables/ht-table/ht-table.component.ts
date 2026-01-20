@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Subscription } from 'rxjs';
 
 import {
