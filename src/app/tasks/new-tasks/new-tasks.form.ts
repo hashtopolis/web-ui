@@ -71,3 +71,12 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     files: new FormControl([])
   });
 };
+
+/**
+ * Data structure for attack command preparation
+ */
+export interface AttackCommandData {
+  attackCmd: string;
+  preprocessorCommand?: string;
+  files: number[];
+}

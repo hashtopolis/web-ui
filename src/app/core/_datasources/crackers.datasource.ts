@@ -1,5 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JCrackerBinaryType } from '@models/cracker-binary.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -24,11 +26,17 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
 
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params.create(), httpOptions);
+
     this.subscriptions.push(
       crackers$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

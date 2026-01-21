@@ -56,10 +56,16 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
+    // Create headers to skip error dialog for filter validation errors
+    //const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
     this.subscriptions.push(
       wrappers$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

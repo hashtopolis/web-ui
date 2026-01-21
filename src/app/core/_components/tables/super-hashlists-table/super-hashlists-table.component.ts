@@ -41,6 +41,8 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {

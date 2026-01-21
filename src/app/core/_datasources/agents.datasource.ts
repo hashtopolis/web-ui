@@ -4,6 +4,8 @@
  */
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -54,10 +56,16 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
     this.service
-      .getAll(SERV.AGENTS, agentParams.create())
+      .getAll(SERV.AGENTS, agentParams.create(), httpOptions)
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return of([]);
+        }),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
@@ -171,9 +179,20 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         operator: FilterType.IN,
         value: userIds
       });
-      const response = await firstValueFrom(this.service.getAll(SERV.USERS, userParams.create()));
-      const responseBody = { data: response.data, included: response.included };
-      users = this.serializer.deserialize<JUser[]>(responseBody);
+      try {
+        const response = await firstValueFrom(
+          this.service.getAll(SERV.USERS, userParams.create()).pipe(
+            catchError((error) => {
+              this.handleFilterError(error);
+              throw error;
+            })
+          )
+        );
+        const responseBody = { data: response.data, included: response.included };
+        users = this.serializer.deserialize<JUser[]>(responseBody);
+      } catch {
+        // Error already handled via handleFilterError
+      }
     }
     return users;
   }

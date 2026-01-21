@@ -1,6 +1,8 @@
 import { HashListFormat } from '@constants/hashlist.config';
 import { catchError, finalize, of } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
+
 import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -35,12 +37,17 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
     });
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create(), httpOptions);
 
     this.subscriptions.push(
       hashLists$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([]);
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

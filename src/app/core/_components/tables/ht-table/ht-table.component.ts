@@ -139,7 +139,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() isCmdTask = false;
 
   /** Selected checkbox Cmd files */
-  @Input() isCmdFiles: CheckboxFiles;
+  @Input() isCmdFiles: CheckboxFiles | number[];
 
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
@@ -223,6 +223,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   filterQueryFormGroup = new FormGroup({
     textFilter: new FormControl('')
   });
+  filterError: string | null = null;
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
@@ -449,7 +450,38 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   } */
   emitFilterValue(): void {
+    this.filterError = null; // Clear any previous error
     this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
+  }
+
+  setFilterError(error: string): void {
+    // Parse error message - if it's about invalid integer, show user-friendly message
+    let displayError = error;
+    if (error && error.includes('not valid integer')) {
+      displayError = 'Only numeric values allowed';
+    } else if (error && error.includes('not valid')) {
+      displayError = 'Invalid filter value';
+    }
+
+    this.filterError = displayError;
+
+    // Mark the form control as invalid to trigger error display
+    const control = this.filterQueryFormGroup.get('textFilter');
+    if (control) {
+      control.setErrors({ filterError: displayError });
+      control.markAsTouched(); // Ensure the error is visible
+    }
+    this.cd.markForCheck();
+  }
+
+  clearFilterError(): void {
+    this.filterError = null;
+    // Clear the form control errors
+    const control = this.filterQueryFormGroup.get('textFilter');
+    if (control) {
+      control.setErrors(null);
+    }
+    this.cd.markForCheck();
   }
   /**
    * Clears a filter to the table based on user input.
@@ -559,6 +591,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   clearSearchBox(): void {
     this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.clearFilterError();
   }
   /**
    * Handles the page change event, including changes in page size and page index.
