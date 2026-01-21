@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ServerActionsComponent } from '@src/app/config/server-actions/server-actions.component';
@@ -8,7 +9,8 @@ describe('ServerActionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServerActionsComponent]
+      imports: [ServerActionsComponent],
+      providers: [provideHttpClient()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ServerActionsComponent);
