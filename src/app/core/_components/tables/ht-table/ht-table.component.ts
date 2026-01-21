@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Subscription } from 'rxjs';
 
 import {
@@ -505,7 +507,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   isSelected(row: any): boolean {
     if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
-      return this.isCmdFiles.includes(row._id);
+      return this.isCmdFiles.includes(row.id);
     } else {
       return this.dataSource.isSelected(row);
     }
