@@ -100,6 +100,19 @@ const routes: MyRoute[] = [
         canActivate: [CheckRole]
       },
       {
+        path: 'server-actions',
+        component: FormConfigComponent,
+        data: {
+          kind: 'server-actions',
+          type: 'edit',
+          serviceConfig: SERV.CONFIGS,
+          breadcrumb: 'Server Actions',
+          roleServiceClass: SettingsRoleService,
+          roleName: 'read'
+        },
+        canActivate: [CheckRole]
+      },
+      {
         path: 'hashtypes',
         component: HashtypesComponent,
         data: {

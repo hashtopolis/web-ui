@@ -1,4 +1,9 @@
 <grid-main>
+  <!-- Show own content only for server actions -->
+  @if (isServerAction) {
+    <app-server-actions></app-server-actions>
+  }
+
   <app-page-title [title]="title"></app-page-title>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
     <div gdAlignColumns="start stretch">
@@ -122,10 +127,13 @@
         (click)="onDelete()"
         >Delete</button-submit
       >
-      <button-submit
-        [name]="buttonText"
-        [disabled]="!formIsValid()"
-      ></button-submit>
+        <!-- If the Server Actions component is displayed, the button must not be displayed.-->
+        @if (!isServerAction) {
+          <button-submit
+            [name]="buttonText"
+            [disabled]="!formIsValid()"
+          ></button-submit>
+        }
       <mat-spinner *ngIf="isSubmitting" diameter="24"></mat-spinner>
       </grid-buttons>
     </div>

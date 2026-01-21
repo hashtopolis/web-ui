@@ -299,8 +299,12 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  chelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
-    return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+  chelper(serviceConfig: ServiceConfig, option: string, arr?: any): Observable<any> {
+    if (arr) {
+      return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+    } else {
+      return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, {});
+    }
   }
 
   /**
