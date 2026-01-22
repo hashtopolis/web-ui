@@ -247,6 +247,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Fetches total and completed tasks count.
+   * Archived tasks are excluded.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getTasks$(): Observable<void> {
@@ -259,6 +260,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const paramsCompletedTasks = new RequestParamBuilder()
       .addInclude('tasks')
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .create();
 
