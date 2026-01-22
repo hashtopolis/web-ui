@@ -17,51 +17,6 @@
   </form>
 
 </grid-main>
-<!-- Benckmark calculation -->
-@if (isLoading && roleService.hasRole("editSupertaskPreTasks"))  {
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <span><b>Attack Runtime Estimation</b></span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <p>
-        The benchmark number to enter below is the total amount of hashes per second per attack type of all the agents
-        combined that will run the supertask.
-      </p>
-      <p>
-        For example, if you have two agents running -a0 attacks and three agents running -a3 attacks, and each -a0 agent
-        processes 100 hashes per second, and each -a3 agent processes 150 hashes per second, you would enter 200 for
-        "Benchmark for -a0 attacks" and 450 for "Benchmark for -a3 attacks".
-      </p>
-      <p>
-        Note: For this tool to work correctly, ensure that the columns "Estimated Keyspace" and "Attack Runtime" are
-        displayed in your application.
-      </p>
-      <br>
-      <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Benchmark for -a0 attacks" formControlName="benchmarka0"></input-number>
-          <input-number title="Benchmark for -a3 attacks" formControlName="benchmarka3"></input-number>
-        </div>
-        <button-submit [name]="'Calculate Runtime'"></button-submit>
-        @if (etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0) {
-          <div>
-            &nbsp;
-            <tr>
-              <th>
-                Estimated total runtime of supertask:
-              </th>
-              <td class="runtimeOfSupertask">
-              </td>
-            </tr>
-          </div>
-        }
-      </form>
-    </mat-expansion-panel>
-  </mat-accordion>
-}
 
 @if(roleService.hasRole("editSupertaskPreTasks")) {
   <!--Table Pretasks-->
