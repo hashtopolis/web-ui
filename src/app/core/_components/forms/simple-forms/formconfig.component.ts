@@ -75,6 +75,8 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   // Subscription for managing asynchronous data retrieval
   private mySubscription: Subscription;
 
+  public isServerAction = false;
+
   /**
    * Constructor for the FormComponent.
    * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
@@ -101,12 +103,15 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     // Subscribe to route data to initialize component data
     this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
       const formKind = data.kind;
+      this.isServerAction = formKind === 'server-actions';
       this.serviceConfig = data.serviceConfig; // Get the API path from route data
       // Load metadata and form information
-      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
-      this.formMetadata = this.metadataService.getFormMetadata(formKind);
-      this.title = this.globalMetadata['title'];
-      this.titleService.set([this.title]);
+      if (!this.isServerAction) {
+        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+        this.formMetadata = this.metadataService.getFormMetadata(formKind);
+        this.title = this.globalMetadata['title'];
+        this.titleService.set([this.title]);
+      }
     });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
@@ -128,6 +133,8 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       this.menuItems.push({ label: 'Notifications', routeName: 'config/notifications' });
     }
     this.menuItems.push({ label: 'General', routeName: 'config/general-settings' });
+    this.menuItems.push({ label: 'Server Actions', routeName: 'config/server-actions' });
+
     this.loadEdit();
   }
 
