@@ -103,7 +103,7 @@ export class AuthService {
       }
 
       const tokenExpiration = expires.getTime() - Date.now();
-      this.getRefreshToken(tokenExpiration);
+      this.autologOut(tokenExpiration);
 
       const permissionService = this.injector.get(PermissionService);
       permissionService.loadPermissions().subscribe({
@@ -272,6 +272,11 @@ export class AuthService {
     }, expirationDuration);
   }
 
+  /**
+   * Sets a timeout to refresh the token before it expires.
+   * Currently not used, as currently only access token with 2 hours expiry is implemented server side.
+   * @param expirationDuration
+   */
   getRefreshToken(expirationDuration: number) {
     this.tokenExpiration = setTimeout(() => {
       const userData = this.storage.getItem(AuthService.STORAGE_KEY);
@@ -414,7 +419,7 @@ export class AuthService {
     this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
 
     const tokenExpiration = expires.getTime() - Date.now();
-    this.getRefreshToken(tokenExpiration);
+    this.autologOut(tokenExpiration);
   }
 
   private handleError(errorRes: HttpErrorResponse) {
