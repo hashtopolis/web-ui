@@ -7,6 +7,8 @@
       (click)="onChangeType('import', 'tab1')" matTooltip="Upload using local file">upload_file</mat-icon>
       <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2"
       (click)="onChangeType('url', 'tab2')" matTooltip="Upload using link">insert_link</mat-icon>
+      <mat-icon class="files-theme" [class.active]="viewMode === 'tab3'" rel="tab3"
+                (click)="onChangeType('url', 'tab3')" matTooltip="Import from server import directory">cloud_download</mat-icon>
     </ul>
   </div>
   <div class="tab-slider--container">
@@ -76,6 +78,109 @@
           </form>
         </div>
       }
+      @case ('tab3') {
+        <div id="tab3" class="tab-slider--body">
+          <h4>Import from server import directory</h4>
+
+          @if (serverFiles.length > 0) {
+            <form [formGroup]="form" fxLayout="column">
+              <!-- Access Group -->
+              <input-select
+                title="Access group"
+                formControlName="accessGroupId"
+                [items]="selectAccessgroup"
+                [isRequired]="true">
+              </input-select>
+
+              <!-- Secret flag -->
+              <input-check
+                title="Secret Data"
+                formControlName="isSecret">
+              </input-check>
+
+              <h5>
+                Select files to import
+                <mat-checkbox
+                  name="selectAll"
+                  (change)="toggleSelectAll($event)"
+                  [checked]="selectedServerFiles.size === serverFiles.length">
+                  Select All
+                </mat-checkbox>
+              </h5>
+              <!-- Server files checkboxes -->
+              <div fxLayout="column" fxLayoutGap="5px" style="margin-top: 10px;">
+                @for (file of serverFiles; track file.file) {
+                  <mat-checkbox
+                    name="{{ file.file }}"
+                    (change)="toggleServerFile($event, file)"
+                    [checked]="selectedServerFiles.has(file.file)"
+                  >
+                    {{ file.file }} ({{ file.size | number }} bytes)
+                  </mat-checkbox>
+                }
+              </div>
+
+              <!-- Buttons -->
+              <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px" style="margin-top: 10px;">
+                <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+                <button-submit
+                  [name]="'Import'"
+                  (click)="onSubmitServerImport();"
+                  data-testid="button-submit-upload"
+                  [disabled]="selectedServerFiles.size === 0 || isCreatingLoading">
+                </button-submit>
+                @if (isCreatingLoading) {
+                  <div>
+                    <mat-spinner diameter="24" color="accent"></mat-spinner>
+                  </div>
+                }
+              </grid-buttons>
+            </form>
+          }
+          @if (serverFiles.length === 0) {
+            <p>No files found in the server import directory.</p>
+          }
+        </div>
+
+        <hr>
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>help_outline</mat-icon>
+                How server import works
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <p>
+              When working with large files such as <b>wordlists</b>, <b>rules</b>, or <b>hashlists</b>,
+              uploading them through the web interface may fail due to file size limits or connection
+              timeouts.
+            </p>
+
+            <p>
+              To avoid these limitations, Hashtopolis allows you to import files directly from the
+              server’s <b>import directory</b>. This method is recommended for large files and provides
+              a faster, more reliable import process.
+            </p>
+
+            <p><b>How it works:</b></p>
+            <ol>
+              <li>Copy the file to the Hashtopolis import folder on the server.</li>
+              <li>Select the file from the list above to import it into Hashtopolis.</li>
+            </ol>
+
+            <p>
+              If you are using the default Docker Compose setup, copy files with:
+            </p>
+
+            <pre>
+docker cp &lt;filename&gt; hashtopolis-backend:/usr/local/share/hashtopolis/import/
+      </pre>
+          </mat-expansion-panel>
+        </mat-accordion>
+      }
+
     }
   </div>
 </grid-main>

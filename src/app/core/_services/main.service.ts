@@ -294,17 +294,21 @@ export class GlobalService {
 
   /**
    * Helper Create function
-   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param serviceConfig the service config of the API endpoint
    * @param option - method used. ie. /abort /reset /importFile
-   * @param arr - fields to be updated
-   * @returns Object
+   * @param arr - fields to be updated (optional)
+   * @param method - HTTP method: 'POST' (default) or 'GET'
+   * @returns Observable<any>
    **/
-  chelper(serviceConfig: ServiceConfig, option: string, arr?: any): Observable<any> {
-    if (arr) {
-      return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
-    } else {
-      return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, {});
+  chelper(serviceConfig: ServiceConfig, option: string, arr?: any, method: 'POST' | 'GET' = 'POST'): Observable<any> {
+    const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
+
+    if (method === 'GET') {
+      return this.http.get(url, { params: arr || {} });
     }
+
+    // default POST
+    return this.http.post(url, arr || {});
   }
 
   /**

@@ -2,10 +2,12 @@ import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
+import { ServerImportFile } from '@models/file.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -53,6 +55,12 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   selectedFiles: FileList | null = null;
   fileName: string;
   uploadProgress = 0;
+
+  // List of files available on the server in the import directory
+  serverFiles: ServerImportFile[] = [];
+
+  // Selected server files for import
+  selectedServerFiles: Set<string> = new Set();
 
   // Unsubcribe files
   private fileUnsubscribe = new Subject();
@@ -164,6 +172,23 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Loads the list of files available on the server in the import directory.
+   */
+  async loadServerFiles(): Promise<void> {
+    try {
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      // The response has response.meta
+      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.changeDetectorRef.detectChanges();
+    } catch (error) {
+      console.error('Error fetching server import files:', error);
+      this.alert.showErrorMessage('Could not load files from server import directory.');
+    }
+  }
+
+  /**
    * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the form submission for creating a new file.
    * Checks form validity and submits the form data to create a new file.
@@ -227,7 +252,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the change of file upload type.
    * Updates the view mode and resets form values based on the selected type.
    *
@@ -235,10 +259,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {string} view - The selected view mode.
    */
   onChangeType(type: string, view: string): void {
-    /**
-     * Update the view mode based on the selected type.
-     * Reset form values related to file upload.
-     */
     this.viewMode = view;
     this.form.patchValue({
       filename: '',
@@ -246,6 +266,11 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: type,
       sourceData: ''
     });
+
+    // Load server import directory files only when switching to tab3
+    if (view === 'tab3' && this.serverFiles.length === 0) {
+      void this.loadServerFiles();
+    }
   }
 
   /**
@@ -292,6 +317,79 @@ export class NewFilesComponent implements OnInit, OnDestroy {
             this.isCreatingLoading = false;
           }
         });
+    }
+  }
+
+  /**
+   * Handles the submission of selected server files for import.
+   * @protected
+   */
+  protected async onSubmitServerImport() {
+    if (this.selectedServerFiles.size === 0) return;
+    if (this.submitted) return;
+    if (this.form.invalid) return;
+
+    this.isCreatingLoading = true;
+    this.submitted = true;
+
+    try {
+      const requests = Array.from(this.selectedServerFiles).map((file) => {
+        // Build form data for each server file
+        const payload = {
+          filename: file,
+          isSecret: this.form.value.isSecret || false,
+          fileType: this.filterType,
+          accessGroupId: this.form.value.accessGroupId,
+          sourceType: 'import', // IMPORTANT: tells backend to pick it from server import dir
+          sourceData: file // some backends require this too
+        };
+
+        // POST to SERV.FILES endpoint like a normal new file
+        return firstValueFrom(this.gs.create(SERV.FILES, payload));
+      });
+
+      // Wait for all imports
+      await Promise.all(requests);
+
+      this.alert.showSuccessMessage('Server files imported successfully!');
+      // Reload server files
+      await this.loadServerFiles();
+      this.selectedServerFiles.clear();
+    } catch (error) {
+      console.error('Error importing server files:', error);
+      this.alert.showErrorMessage('Could not import selected files.');
+    } finally {
+      this.isCreatingLoading = false;
+      this.submitted = false;
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+
+  /**
+   * Toggles the selection of a server file for import.
+   * @param $event The checkbox change event.
+   * @param file The server import file to toggle.
+   * @protected
+   */
+  protected toggleServerFile($event: MatCheckboxChange, file: ServerImportFile) {
+    if ($event.checked) {
+      this.selectedServerFiles.add(file.file);
+    } else {
+      this.selectedServerFiles.delete(file.file);
+    }
+  }
+
+  /**
+   * Toggles all server files selection.
+   * @param event MatCheckboxChange event
+   */
+  toggleSelectAll(event: MatCheckboxChange) {
+    if (event.checked) {
+      // Add all file names to the Set
+      this.serverFiles.forEach((file) => this.selectedServerFiles.add(file.file));
+    } else {
+      // Clear all selections
+      this.selectedServerFiles.clear();
     }
   }
 }
