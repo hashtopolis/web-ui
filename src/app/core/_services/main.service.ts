@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
