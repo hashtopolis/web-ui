@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG: Config = {
   header: {
     brand: {
       logo: 'assets/img/logo_rainbow_eyes.svg',
-      logored: 'assets/img/logo_red.png',
+      logored: 'assets/img/logo_red.svg',
       name: '',
       height: '60',
       width: '60',
