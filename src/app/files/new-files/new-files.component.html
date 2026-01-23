@@ -115,7 +115,7 @@
                     (change)="toggleServerFile($event, file)"
                     [checked]="selectedServerFiles.has(file.file)"
                   >
-                    {{ file.file }} ({{ file.size | number }} bytes)
+                    {{ file.file }} ({{ formatFileSize(file.size, 'short') }})
                   </mat-checkbox>
                 }
               </div>

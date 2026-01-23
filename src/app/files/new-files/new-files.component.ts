@@ -21,6 +21,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 /**
@@ -32,6 +33,9 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   standalone: false
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
+  /** Helper */
+  formatFileSize = formatFileSize;
+
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
