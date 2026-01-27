@@ -238,12 +238,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddUsers() {
     if (this.addUsersForm.valid) {
       this.isUpdatingLoading = true;
-      const users = this.addUsersForm.get('userIds').value.map((id) => {
-        return {
-          type: RelationshipType.USERMEMBERS,
-          id: id
-        };
-      });
+      const users = this.addUsersForm.get('userIds').value.map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
@@ -251,6 +246,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
           })
         );
         this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
+
+        // Reset the form control after successful add
+        this.addUsersForm.get('userIds')?.reset();
+
         this.refresh(); // Reload the select component
         this.userTable.reload();
       } catch (error) {
@@ -269,12 +268,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddAgents() {
     this.isUpdatingLoading = true;
     if (this.addAgentsForm.valid) {
-      const agents = this.addAgentsForm.get('agentIds').value.map((id) => {
-        return {
-          type: RelationshipType.AGENTMEMBER,
-          id: id
-        };
-      });
+      const agents = this.addAgentsForm.get('agentIds').value.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {
@@ -282,6 +276,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
           })
         );
         this.alert.showSuccessMessage(`Successfully added ${agents.length} user${agents.length > 1 ? 's' : ''}`);
+
+        // Reset the form control after successful add
+        this.addAgentsForm.get('agentIds')?.reset();
+
         this.refresh(); // Reload the select component
         this.agentTable.reload();
       } catch (error) {

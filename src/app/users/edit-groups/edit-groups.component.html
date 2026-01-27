@@ -22,12 +22,12 @@
       @if (!isUsersLoading) {
         <div fxLayout="column" fxLayoutAlign="start start">
           <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Users...'" [items]="selectUsers"
-                             [label]="'Select or search Users'" [isRequired]="true"
+                             [label]="'Select or search Users'"
                              [mergeIdAndName]="true" formControlName="userIds" style="flex: 1;">
           </input-multiselect>
           <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
             <button-submit [name]="'Add'" (click)="onAddUsers()"
-                           [disabled]="!roleService.hasRole('update')"></button-submit>
+                           [disabled]="!addUsersForm.valid || !roleService.hasRole('update')"></button-submit>
           </div>
         </div>
       } @else {
@@ -45,11 +45,11 @@
         <div fxLayout="column" fxLayoutAlign="start start">
           <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Agents...'" [items]="selectAgents"
                              [label]="'Select or search Agents'" [mergeIdAndName]="true" formControlName="agentIds"
-                             [isRequired]="true" style="flex: 1;">
+                             style="flex: 1;">
           </input-multiselect>
           <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
             <button-submit [name]="'Add'" (click)="onAddAgents()"
-                           [disabled]="!roleService.hasRole('update')"></button-submit>
+                           [disabled]="!addAgentsForm.valid || !roleService.hasRole('update')"></button-submit>
           </div>
           <button style="margin-top: 10px;" mat-icon-button (click)="refresh()">
             <mat-icon>refresh</mat-icon>
