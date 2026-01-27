@@ -10,7 +10,6 @@ export interface EditAgentForm {
   isActive: FormControl<boolean>;
   userId: FormControl<number>;
   agentName: FormControl<string>;
-  token: FormControl<string>;
   cpuOnly: FormControl<number>;
   cmdPars: FormControl<string>;
   ignoreErrors: FormControl<number>;
@@ -33,7 +32,6 @@ export const getEditAgentForm = (readonly: boolean = false) => {
     isActive: new FormControl({ value: false, disabled: readonly }, [Validators.required]),
     userId: new FormControl({ value: undefined, disabled: readonly }),
     agentName: new FormControl({ value: '', disabled: readonly }, [Validators.required]),
-    token: new FormControl({ value: '', disabled: readonly }),
     cpuOnly: new FormControl({ value: undefined, disabled: readonly }),
     cmdPars: new FormControl({ value: '', disabled: readonly }),
     ignoreErrors: new FormControl({ value: undefined, disabled: readonly }),
