@@ -33,3 +33,11 @@ export interface TaskSelectFile {
   otherFiles: number[];
   type: string;
 }
+
+/**
+ * Interface definition for a file available for server import as returned by API helper method GET /importFile
+ */
+export interface ServerImportFile {
+  file: string;
+  size: number;
+}
