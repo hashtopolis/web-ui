@@ -56,7 +56,6 @@ export class AuthService {
    */
   autoLogin() {
     const raw = this.storage.getItem(AuthService.STORAGE_KEY);
-    console.trace('[autoLogin] raw storage value:', raw, 'typeof:', typeof raw);
     if (!raw) return;
 
     const userData = raw as StoredAuthData;

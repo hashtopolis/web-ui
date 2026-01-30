@@ -35,7 +35,6 @@ export class PermissionService {
    */
   loadPermissions(): Observable<Permission> {
     const cached = this.storage.getItem(this.STORAGE_KEY);
-    console.trace('[PermissionService] loadPermissions() called', 'cached =', cached);
     if (cached) {
       this.currentPermissions = cached;
       this.permissions$.next(cached);
