@@ -116,13 +116,17 @@ export class AuthService {
   }
 
   logIn(username: string, password: string) {
+    // Send credentials via basic authorization header. Encode using Buffer with 'utf8' to correctly
+    // handle non-Latin characters and to produce a correctly padded base64 string.
+    const basic = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+
     return this.http
       .post<AuthResponseData>(
         this.cs.getEndpoint() + this.endpoint + '/token',
-        { username: username, password: password },
+        null, // credentials are sent via Authorization header only
         {
           headers: new HttpHeaders({
-            Authorization: 'Basic ' + window.btoa(username + ':' + password)
+            Authorization: 'Basic ' + basic
           })
         }
       )
