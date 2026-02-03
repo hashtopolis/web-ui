@@ -356,8 +356,17 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
         // Select the last version by default
         const lastVersionId = this.selectCrackerversions.slice(-1)[0]?.id;
+        const crackerCtrl = this.form.get('crackerBinaryId');
+
         if (lastVersionId) {
-          this.form.get('crackerBinaryId').patchValue(lastVersionId, { emitEvent: false });
+          crackerCtrl.patchValue(lastVersionId, { emitEvent: false });
+          crackerCtrl.setErrors(null);
+        } else {
+          crackerCtrl.patchValue(lastVersionId, { emitEvent: true });
+          crackerCtrl.setErrors({ required: true });
+          crackerCtrl.markAsTouched();
+          crackerCtrl.markAsDirty();
+          this.changeDetectorRef.detectChanges();
         }
       });
 
