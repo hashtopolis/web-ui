@@ -14,103 +14,141 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default defineConfig([globalIgnores(["projects/**/*"]), {
-    files: ["**/*.ts"],
+export default defineConfig([
+  globalIgnores(['projects/**/*']),
+  {
+    files: ['**/*.ts'],
 
     extends: compat.extends(
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates",
-        "plugin:prettier/recommended",
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@angular-eslint/recommended',
+      'plugin:@angular-eslint/template/process-inline-templates',
+      'plugin:prettier/recommended'
     ),
 
     plugins: {
-        import: fixupPluginRules(_import),
+      import: fixupPluginRules(_import)
     },
 
     rules: {
-        "@angular-eslint/prefer-standalone": "off",
+      '@angular-eslint/prefer-standalone': 'off',
 
-        "no-console": ["error", {
-            allow: ["warn", "error"],
-        }],
+      'no-console': [
+        'error',
+        {
+          allow: ['warn', 'error']
+        }
+      ],
 
-        "no-restricted-imports": ["error", {
-            patterns: [{
-                group: ["./*", "../*"],
-                message: "Relative imports are forbidden. Please use path aliases (e.g., '@models', '@services').",
-            }],
-        }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./*', '../*'],
+              message: "Relative imports are forbidden. Please use path aliases (e.g., '@models', '@services')."
+            }
+          ]
+        }
+      ],
 
-        "prettier/prettier": ["error"],
+      'prettier/prettier': ['error'],
 
-        "@angular-eslint/directive-selector": ["error", {
-            type: "attribute",
-            prefix: "app",
-            style: "camelCase",
-        }],
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase'
+        }
+      ],
 
-        "@angular-eslint/component-selector": ["error", {
-            type: "element",
-            prefix: "",
-            style: "kebab-case",
-        }],
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'element',
+          prefix: '',
+          style: 'kebab-case'
+        }
+      ],
 
-        "sort-imports": ["error", {
-            ignoreCase: false,
-            ignoreDeclarationSort: true,
-            ignoreMemberSort: false,
-            memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
-            allowSeparatedGroups: true,
-        }],
+      'sort-imports': [
+        'error',
+        {
+          ignoreCase: false,
+          ignoreDeclarationSort: true,
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: true
+        }
+      ],
 
-        "import/order": ["error", {
-            groups: ["builtin", "external", "internal", ["sibling", "parent", "index"]],
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', ['sibling', 'parent', 'index']],
 
-            pathGroups: [{
-                pattern: "@angular/**",
-                group: "external",
-                position: "after",
-            }, {
-                pattern: "@models/**",
-                group: "internal",
-                position: "before",
-            }, {
-                pattern: "@services/**",
-                group: "internal",
-                position: "after",
-            }, {
-                pattern: "@components/**",
-                group: "internal",
-                position: "after",
-            }, {
-                pattern: "@datasources/**",
-                group: "internal",
-                position: "after",
-            }, {
-                pattern: "@src/**",
-                group: "sibling",
-                position: "after",
-            }],
-
-            pathGroupsExcludedImportTypes: ["builtin"],
-
-            alphabetize: {
-                order: "asc",
-                caseInsensitive: true,
+          pathGroups: [
+            {
+              pattern: '@angular/**',
+              group: 'external',
+              position: 'after'
             },
+            {
+              pattern: '@models/**',
+              group: 'internal',
+              position: 'before'
+            },
+            {
+              pattern: '@services/**',
+              group: 'internal',
+              position: 'after'
+            },
+            {
+              pattern: '@components/**',
+              group: 'internal',
+              position: 'after'
+            },
+            {
+              pattern: '@datasources/**',
+              group: 'internal',
+              position: 'after'
+            },
+            {
+              pattern: '@src/**',
+              group: 'sibling',
+              position: 'after'
+            }
+          ],
 
-            "newlines-between": "always",
-        }],
-    },
-}, {
-    files: ["**/*.html"],
+          pathGroupsExcludedImportTypes: ['builtin'],
+
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true
+          },
+
+          'newlines-between': 'always'
+        }
+      ]
+    }
+  },
+  {
+    files: ['**/*.html'],
 
     extends: compat.extends(
-        "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility",
+      'plugin:@angular-eslint/template/recommended',
+      'plugin:@angular-eslint/template/accessibility'
     ),
 
-    rules: {},
-}]);
+    rules: {}
+  },
+  // === Disable prefer-inject for services ===
+  {
+    files: ['**/*.service.ts'],
+    rules: {
+      '@angular-eslint/prefer-inject': 'off'
+    }
+  },
+]);
