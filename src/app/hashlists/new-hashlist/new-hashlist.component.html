@@ -43,8 +43,8 @@
         <input-text title="Separator" formControlName="separator"></input-text>
       </div>
       <div fxLayout="column" style="position: relative; top: -10px;">
-        <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
         <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
+        <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
       </div>
     </div>
 
@@ -53,13 +53,13 @@
         <h5>Hashcat Brain Enabled</h5>
         <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
         <fixed-alert
-      message="Note: When brain is enabled, it'll create a network server. If used wrongly,
+          message="Note: When brain is enabled, it'll create a network server. If used wrongly,
       it could cause bottlenecks or collapse the network server. You can disable
       this setting in Config > Server > General Settings."
-      ></fixed-alert>
-      <hr>
-    </div>
-}
+        ></fixed-alert>
+        <hr>
+      </div>
+    }
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <div fxLayout="column">
@@ -71,48 +71,48 @@
     </div>
 
     @if (sourceType === 'paste') {
-<div>
-      <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
-        @if (isCreatingLoading) {
-<div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-}
-      </grid-buttons>
-    </div>
-}
+      <div>
+        <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'"></button-submit>
+          @if (isCreatingLoading) {
+            <div>
+              <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+          }
+        </grid-buttons>
+      </div>
+    }
 
     @if (sourceType === 'import') {
-<div>
-      <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
-      <br>
-      <br>
+      <div>
+        <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+        <br>
+        <br>
 
-      <!-- Show progress bar during hashlist upload -->
-      @if (uploadProgress > 0) {
-<div>
-        <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+        <!-- Show progress bar during hashlist upload -->
+        @if (uploadProgress > 0) {
+          <div>
+            <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+          </div>
+        }
+
+        <!-- Display message upon completion of upload -->
+        @if (uploadProgress === 100) {
+          <div><p><b>Upload completed!</b></p></div>
+        }<br>
+
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
+          @if (isCreatingLoading) {
+            <div>
+              <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+          }
+        </grid-buttons>
       </div>
-}
-
-      <!-- Display message upon completion of upload -->
-      @if (uploadProgress === 100) {
-<div><p><b>Upload completed!</b></p></div>
-}<br>
-
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
-        @if (isCreatingLoading) {
-<div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-}
-      </grid-buttons>
-    </div>
-}
+    }
   </form>
 </grid-main>
