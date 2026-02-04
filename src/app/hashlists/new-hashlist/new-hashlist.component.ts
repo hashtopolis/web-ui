@@ -3,7 +3,7 @@
  */
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -36,6 +36,15 @@ import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } fr
   standalone: false
 })
 export class NewHashlistComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private uploadService = inject(UploadTUSService);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+
   /** Flag indicating whether data is still loading. */
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
@@ -69,16 +78,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   // Unsubcribe
   private fileUnsubscribe = new Subject();
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private uploadService: UploadTUSService,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {
+  constructor() {
     this.buildForm();
     this.titleService.set(['New Hashlist']);
   }
