@@ -253,7 +253,7 @@ describe('NewHashlistComponent', () => {
       gsSpy.create.and.returnValue(of({}));
       component.form.patchValue({
         name: 'Test Hashlist',
-        hashTypeId: '2500',
+        hashTypeId: '0',
         accessGroupId: 1,
         format: 0,
         sourceType: 'paste',
