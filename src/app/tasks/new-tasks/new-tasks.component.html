@@ -69,7 +69,7 @@
               <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <input-select title="Binary type to run task" formControlName="crackerBinaryTypeId" [items]="selectCrackertype"></input-select>
-                <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions"></input-select>
+                <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
 
               </div>
               <hr/>
@@ -80,11 +80,12 @@
             </mat-expansion-panel>
           </mat-accordion>
           @if (!form.valid && form.touched) {
+            <br>
             <span class="help-block" >Please complete all the form!</span>
             }<br>
             <grid-buttons>
               <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-              <button-submit [name]="'Create'"></button-submit>
+              <button-submit [name]="'Create'" [disabled]="!form.valid" ></button-submit>
               @if (isCreatingLoading) {
                 <div>
                   <mat-spinner diameter="24" color="accent"></mat-spinner>

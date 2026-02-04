@@ -69,7 +69,7 @@ export class AuthService {
 
     const loadedUser = new AuthUser(token, expires, userId, canonicalUsername);
 
-    if (loadedUser._token) {
+    if (loadedUser._token && expires > new Date()) {
       this.user.next(loadedUser);
       this._authUser$.next(loadedUser);
 
@@ -110,6 +110,8 @@ export class AuthService {
         next: () => {},
         error: (err) => console.error('Failed to load permissions on autoLogin:', err)
       });
+    } else {
+      this.logOut();
     }
   }
 
@@ -183,14 +185,14 @@ export class AuthService {
 
   get token(): string {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    return userData ? userData._token : 'notoken';
+    return userData ? userData._token : null;
   }
 
   private _authUser$ = new BehaviorSubject<AuthUser | null>(null);
   authUser$ = this._authUser$.asObservable();
 
   private decodeJwt<T = JwtPayload>(token: string): T | null {
-    if (!token || token === 'notoken') return null;
+    if (!token) return null;
     try {
       const b64 = token.split('.')[1];
       const norm = b64.replace(/-/g, '+').replace(/_/g, '/');
@@ -270,103 +272,6 @@ export class AuthService {
     this.tokenExpiration = setTimeout(() => {
       this.logOut();
     }, expirationDuration);
-  }
-
-  /**
-   * Sets a timeout to refresh the token before it expires.
-   * Currently not used, as currently only access token with 2 hours expiry is implemented server side.
-   * @param expirationDuration
-   */
-  getRefreshToken(expirationDuration: number) {
-    this.tokenExpiration = setTimeout(() => {
-      const userData = this.storage.getItem(AuthService.STORAGE_KEY);
-      if (!userData) {
-        this.logOut();
-        return;
-      }
-
-      this.http
-        .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
-          headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
-        })
-        .pipe(
-          tap((response) => {
-            if (response?.token) {
-              const updatedUser: AuthData = {
-                _token: response.token,
-                _expires: new Date(response.expires * 1000),
-                userId: userData.userId,
-                canonicalUsername: userData.canonicalUsername
-              };
-              this.user.next(updatedUser);
-              this.storage.setItem(AuthService.STORAGE_KEY, updatedUser, 0);
-
-              const ms =
-                updatedUser._expires instanceof Date
-                  ? updatedUser._expires.getTime() - Date.now()
-                  : new Date(updatedUser._expires).getTime() - Date.now();
-              this.getRefreshToken(ms);
-            } else {
-              this.logOut();
-            }
-          }),
-          catchError((err) => {
-            console.error('Refresh failed:', err);
-            this.logOut();
-            return throwError(() => err);
-          })
-        )
-        .subscribe();
-    }, expirationDuration);
-  }
-
-  refreshToken() {
-    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    if (!userData) {
-      this.logOut();
-      return throwError(() => new Error('No user in storage'));
-    }
-
-    return this.http
-      .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${userData._token}`
-        })
-      })
-      .pipe(
-        tap((response: AuthResponseData) => {
-          if (response && response.token) {
-            const expires = new Date(response.expires * 1000);
-
-            const updatedUser: AuthData = {
-              _token: response.token,
-              _expires: expires,
-              userId: userData.userId,
-              canonicalUsername: userData.canonicalUsername
-            };
-            this.user.next(updatedUser);
-            this.storage.setItem(AuthService.STORAGE_KEY, updatedUser, 0);
-
-            const authUser = new AuthUser(
-              updatedUser._token,
-              expires,
-              updatedUser.userId,
-              updatedUser.canonicalUsername
-            );
-            this._authUser$.next(authUser);
-
-            const ms = expires.getTime() - Date.now();
-            this.getRefreshToken(ms);
-          } else {
-            this.logOut();
-          }
-        }),
-        catchError((error) => {
-          console.error('An error occurred while refreshing token:', error);
-          this.logOut();
-          return throwError(() => error);
-        })
-      );
   }
 
   logOut() {
