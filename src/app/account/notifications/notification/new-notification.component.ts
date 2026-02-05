@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
-import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
@@ -46,7 +45,6 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  triggerAction: string;
   form: FormGroup;
   filters: Filter[];
   active = false;
