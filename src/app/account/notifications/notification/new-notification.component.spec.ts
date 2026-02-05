@@ -287,7 +287,6 @@ describe('NewNotificationComponent', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    setFieldValue(fixture, 'select-action-filter', '1');
     setFieldValue(fixture, 'input-receiver', 'test-receiver');
     expectButtonToBeDisabled();
   });
@@ -296,7 +295,6 @@ describe('NewNotificationComponent', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    setFieldValue(fixture, 'select-action-filter', '1');
     setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
     expectButtonToBeDisabled();
   });
@@ -329,20 +327,12 @@ describe('NewNotificationComponent', () => {
     await expectAgentOptionsOnAction(ACTION.DELETE_AGENT);
   });
 
-  it('displays task filters when action is NEW_TASK', async () => {
-    await expectTaskOptionsOnAction(ACTION.NEW_TASK);
-  });
-
   it('displays task filters when action is TASK_COMPLETE', async () => {
     await expectTaskOptionsOnAction(ACTION.TASK_COMPLETE);
   });
 
   it('displays task filters when action is DELETE_TASK', async () => {
     await expectTaskOptionsOnAction(ACTION.DELETE_TASK);
-  });
-
-  it('displays no filters when action is NEW_HASHLIST', async () => {
-    await expectHiddenOnAction(ACTION.NEW_HASHLIST);
   });
 
   it('displays hashlist filters when action is DELETE_HASHLIST', async () => {
@@ -355,10 +345,6 @@ describe('NewNotificationComponent', () => {
 
   it('displays hashlist filters when action is HASHLIST_CRACKED_HASH', async () => {
     await expectHashlistOptionsOnAction(ACTION.HASHLIST_CRACKED_HASH);
-  });
-
-  it('displays user filters when action is USER_CREATED', async () => {
-    await expectUserOptionsOnAction(ACTION.USER_CREATED);
   });
 
   it('displays user filters when action is USER_DELETED', async () => {
@@ -393,6 +379,25 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
 
     expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, jasmine.any(Object));
+  });
+
+  it('should show actionFilter only for actions with filters', async () => {
+    const allActions = Object.values(ACTION); // all possible actions
+    const actionsWithFilters = component.actionsWithFilters; // use the component's list
+
+    for (const action of allActions) {
+      const shouldShow = actionsWithFilters.includes(action);
+      setAction(action); // select the trigger action
+      fixture.detectChanges();
+
+      const actionFilterDe = fixture.debugElement.query(By.css('[data-testid="select-action-filter"]'));
+
+      if (shouldShow) {
+        expect(actionFilterDe).toBeTruthy();
+      } else {
+        expect(actionFilterDe).toBeNull();
+      }
+    }
   });
 
   // --- Helper functions ---
