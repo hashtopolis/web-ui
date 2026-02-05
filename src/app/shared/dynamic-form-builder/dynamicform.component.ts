@@ -68,6 +68,8 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() buttonText: string;
 
+  @Input() isServerAction = false;
+
   /**
    * Event emitter for submitting the form. Emits the form values when the form is submitted.
    * Parent components can subscribe to this event to handle form submissions.

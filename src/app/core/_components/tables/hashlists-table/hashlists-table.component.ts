@@ -35,6 +35,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   dataSource: HashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string;
+  private viewReady = false;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -42,14 +43,19 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+
     this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
+
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {
     // Wait until paginator is defined
+    this.viewReady = true;
     this.dataSource.loadAll();
   }
 
@@ -70,6 +76,11 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   handleBackendSqlFilter(event: string) {
+    // Clear any previous filter errors when starting a new filter
+    if (this.table) {
+      this.table.clearFilterError();
+    }
+
     if (event && event.trim().length > 0) {
       this.filter(event);
     } else {

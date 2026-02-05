@@ -270,7 +270,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       isActive: this.showagent.isActive,
       userId: this.showagent.userId,
       agentName: this.showagent.agentName,
-      token: this.showagent.token,
       cpuOnly: this.showagent.cpuOnly,
       cmdPars: this.showagent.cmdPars,
       ignoreErrors: this.showagent.ignoreErrors,

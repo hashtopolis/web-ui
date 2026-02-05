@@ -1,9 +1,9 @@
 /**
  * This module contains the component class to create a new hashlist
  */
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -36,6 +36,15 @@ import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } fr
   standalone: false
 })
 export class NewHashlistComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private uploadService = inject(UploadTUSService);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+
   /** Flag indicating whether data is still loading. */
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
@@ -64,19 +73,12 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   fileName: string;
   uploadProgress = 0;
 
+  saltSubscription = new Subscription();
+
   // Unsubcribe
   private fileUnsubscribe = new Subject();
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private uploadService: UploadTUSService,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {
+  constructor() {
     this.buildForm();
     this.titleService.set(['New Hashlist']);
   }
@@ -86,6 +88,32 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
+
+    const isSaltedCtrl = this.form.get('isSalted');
+    const isHexSaltCtrl = this.form.get('isHexSalt');
+    const separatorCtrl = this.form.get('separator');
+
+    // Disable separator if not salted
+    if (isSaltedCtrl?.value) {
+      separatorCtrl?.enable();
+      isHexSaltCtrl?.enable();
+    } else {
+      separatorCtrl?.disable();
+      isHexSaltCtrl?.disable();
+    }
+
+    // Check for changes and enable/disable
+    this.saltSubscription.add(
+      isSaltedCtrl!.valueChanges.subscribe((val: boolean) => {
+        if (val) {
+          separatorCtrl?.enable();
+          isHexSaltCtrl?.enable();
+        } else {
+          separatorCtrl?.disable();
+          isHexSaltCtrl?.disable();
+        }
+      })
+    );
   }
 
   /**
@@ -96,6 +124,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.unsubscribeService.unsubscribeAll();
     this.fileUnsubscribe.next(false);
     this.fileUnsubscribe.complete();
+    this.saltSubscription.unsubscribe();
   }
 
   /**
@@ -214,6 +243,22 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       if (!sourceData || sourceData.trim() === '') {
         this.alert.showErrorMessage('Please paste your hashes.');
         return; // stop submission
+      } else if (this.form.get('isSalted').value) {
+        if (!this.form.get('separator').value) {
+          this.alert.showErrorMessage('Salt separator cannot be empty when hashes are salted!');
+          return; // stop submission
+        } else {
+          const hashLines = sourceData.split('\n');
+          for (const line of hashLines) {
+            const parts = line.split(this.form.get('separator').value);
+            if (parts.length < 2) {
+              this.alert.showErrorMessage(
+                `Each line must contain a hash and a salt separated by '${this.form.get('separator').value}'.`
+              );
+              return; // stop submission
+            }
+          }
+        }
       }
     } else {
       this.alert.showErrorMessage('Unknown source type selected.');
@@ -228,7 +273,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
 
       try {
-        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
         this.alert.showSuccessMessage('New HashList created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {

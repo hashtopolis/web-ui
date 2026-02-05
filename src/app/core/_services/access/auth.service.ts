@@ -69,7 +69,7 @@ export class AuthService {
 
     const loadedUser = new AuthUser(token, expires, userId, canonicalUsername);
 
-    if (loadedUser._token) {
+    if (loadedUser._token && expires > new Date()) {
       this.user.next(loadedUser);
       this._authUser$.next(loadedUser);
 
@@ -103,24 +103,30 @@ export class AuthService {
       }
 
       const tokenExpiration = expires.getTime() - Date.now();
-      this.getRefreshToken(tokenExpiration);
+      this.autologOut(tokenExpiration);
 
       const permissionService = this.injector.get(PermissionService);
       permissionService.loadPermissions().subscribe({
         next: () => {},
         error: (err) => console.error('Failed to load permissions on autoLogin:', err)
       });
+    } else {
+      this.logOut();
     }
   }
 
   logIn(username: string, password: string) {
+    // Send credentials via basic authorization header. Encode using Buffer with 'utf8' to correctly
+    // handle non-Latin characters and to produce a correctly padded base64 string.
+    const basic = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+
     return this.http
       .post<AuthResponseData>(
         this.cs.getEndpoint() + this.endpoint + '/token',
-        { username: username, password: password },
+        null, // credentials are sent via Authorization header only
         {
           headers: new HttpHeaders({
-            Authorization: 'Basic ' + window.btoa(username + ':' + password)
+            Authorization: 'Basic ' + basic
           })
         }
       )
@@ -183,14 +189,14 @@ export class AuthService {
 
   get token(): string {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    return userData ? userData._token : 'notoken';
+    return userData ? userData._token : null;
   }
 
   private _authUser$ = new BehaviorSubject<AuthUser | null>(null);
   authUser$ = this._authUser$.asObservable();
 
   private decodeJwt<T = JwtPayload>(token: string): T | null {
-    if (!token || token === 'notoken') return null;
+    if (!token) return null;
     try {
       const b64 = token.split('.')[1];
       const norm = b64.replace(/-/g, '+').replace(/_/g, '/');
@@ -272,98 +278,6 @@ export class AuthService {
     }, expirationDuration);
   }
 
-  getRefreshToken(expirationDuration: number) {
-    this.tokenExpiration = setTimeout(() => {
-      const userData = this.storage.getItem(AuthService.STORAGE_KEY);
-      if (!userData) {
-        this.logOut();
-        return;
-      }
-
-      this.http
-        .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
-          headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
-        })
-        .pipe(
-          tap((response) => {
-            if (response?.token) {
-              const updatedUser: AuthData = {
-                _token: response.token,
-                _expires: new Date(response.expires * 1000),
-                userId: userData.userId,
-                canonicalUsername: userData.canonicalUsername
-              };
-              this.user.next(updatedUser);
-              this.storage.setItem(AuthService.STORAGE_KEY, updatedUser, 0);
-
-              const ms =
-                updatedUser._expires instanceof Date
-                  ? updatedUser._expires.getTime() - Date.now()
-                  : new Date(updatedUser._expires).getTime() - Date.now();
-              this.getRefreshToken(ms);
-            } else {
-              this.logOut();
-            }
-          }),
-          catchError((err) => {
-            console.error('Refresh failed:', err);
-            this.logOut();
-            return throwError(() => err);
-          })
-        )
-        .subscribe();
-    }, expirationDuration);
-  }
-
-  refreshToken() {
-    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    if (!userData) {
-      this.logOut();
-      return throwError(() => new Error('No user in storage'));
-    }
-
-    return this.http
-      .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${userData._token}`
-        })
-      })
-      .pipe(
-        tap((response: AuthResponseData) => {
-          if (response && response.token) {
-            const expires = new Date(response.expires * 1000);
-
-            const updatedUser: AuthData = {
-              _token: response.token,
-              _expires: expires,
-              userId: userData.userId,
-              canonicalUsername: userData.canonicalUsername
-            };
-            this.user.next(updatedUser);
-            this.storage.setItem(AuthService.STORAGE_KEY, updatedUser, 0);
-
-            const authUser = new AuthUser(
-              updatedUser._token,
-              expires,
-              updatedUser.userId,
-              updatedUser.canonicalUsername
-            );
-            this._authUser$.next(authUser);
-
-            const ms = expires.getTime() - Date.now();
-            this.getRefreshToken(ms);
-          } else {
-            this.logOut();
-          }
-        }),
-        catchError((error) => {
-          console.error('An error occurred while refreshing token:', error);
-          this.logOut();
-          return throwError(() => error);
-        })
-      );
-  }
-
   logOut() {
     this.user.next(null);
     this.router.navigate(['/auth']);
@@ -414,7 +328,7 @@ export class AuthService {
     this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
 
     const tokenExpiration = expires.getTime() - Date.now();
-    this.getRefreshToken(tokenExpiration);
+    this.autologOut(tokenExpiration);
   }
 
   private handleError(errorRes: HttpErrorResponse) {

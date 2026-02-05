@@ -1,4 +1,6 @@
-import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Disables the any error for this file, because it is too tedious to fix all any types now.
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -44,9 +46,14 @@ export class GlobalService {
    * If a value is specified for maxResults, it will be utilized; otherwise, the system will default to the maxResults defined in the configuration and load the data in chunks of the specified maxResults.
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param routerParams  Optional request parameters (e.g. filters, includes)
+   * @param httpOptions   Optional HTTP options (e.g., custom headers)
    * @returns An observable that emits the API response.
    */
-  getAll(serviceConfig: ServiceConfig, routerParams?: RequestParams): Observable<any> {
+  getAll(
+    serviceConfig: ServiceConfig,
+    routerParams?: RequestParams,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<any> {
     let queryParams: Params = {};
     let fixedMaxResults: boolean;
 
@@ -61,7 +68,12 @@ export class GlobalService {
       fixedMaxResults = true;
     }
 
-    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL, { params: queryParams }).pipe(
+    const options: { params?: Params; headers?: HttpHeaders } = { params: queryParams };
+    if (httpOptions?.headers) {
+      options.headers = httpOptions.headers;
+    }
+
+    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL, options).pipe(
       switchMap((response: any) => {
         const total = response.total || 0;
         const maxResults = this.maxResults;
@@ -78,11 +90,11 @@ export class GlobalService {
               ...queryParams,
               page: { after: startsAt }
             });
-            requests.push(
-              this.http.get(this.cs.getEndpoint() + serviceConfig.URL, {
-                params: partialParams
-              })
-            );
+            const partialOptions: { params?: Params; headers?: HttpHeaders } = { params: partialParams };
+            if (httpOptions?.headers) {
+              partialOptions.headers = httpOptions.headers;
+            }
+            requests.push(this.http.get(this.cs.getEndpoint() + serviceConfig.URL, partialOptions));
           }
 
           // Use forkJoin to combine the original response with additional responses
@@ -98,7 +110,9 @@ export class GlobalService {
       }),
       catchError((error) => {
         console.error('Error in switchMap:', error);
-        return of({ values: [] }); // Handle errors in switchMap and return a default response
+        // Re-throw the error so downstream handlers (datasource) can catch it
+        // Don't silently convert to empty response
+        return throwError(() => error);
       })
     );
   }
@@ -282,13 +296,21 @@ export class GlobalService {
 
   /**
    * Helper Create function
-   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param serviceConfig the service config of the API endpoint
    * @param option - method used. ie. /abort /reset /importFile
-   * @param arr - fields to be updated
-   * @returns Object
+   * @param arr - fields to be updated (optional)
+   * @param method - HTTP method: 'POST' (default) or 'GET'
+   * @returns Observable<any>
    **/
-  chelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
-    return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+  chelper(serviceConfig: ServiceConfig, option: string, arr?: any, method: 'POST' | 'GET' = 'POST'): Observable<any> {
+    const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
+
+    if (method === 'GET') {
+      return this.http.get(url, { params: arr || {} });
+    }
+
+    // default POST
+    return this.http.post(url, arr || {});
   }
 
   /**

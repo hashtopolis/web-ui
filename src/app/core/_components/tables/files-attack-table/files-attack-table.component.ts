@@ -13,6 +13,14 @@ import { FilesDataSource } from '@datasources/files.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
+import { AttackCommandData } from '@src/app/tasks/new-tasks/new-tasks.form';
+
+interface PrepareAttackResult {
+  attackCmd: string;
+  files: number[];
+  otherFiles: number[];
+  type: string;
+}
 
 @Component({
   selector: 'app-files-attack-table',
@@ -27,13 +35,9 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   @Input() bulkWordlistRule = false;
   @Input() showExport = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
-  @Input() formData: {
-    attackCmd: string;
-    preprocessorCommand?: string;
-    files: any;
-  };
+  @Input() formData: AttackCommandData;
 
-  @Output() updateFormEvent = new EventEmitter<any>();
+  @Output() updateFormEvent = new EventEmitter<PrepareAttackResult>();
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   selectedFilterColumn: string;
@@ -110,7 +114,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     this.updateFormEvent.emit(transformed);
   }
 
-  onPrepareAttack(form: any, event: CheckboxChangeEvent): object {
+  onPrepareAttack(form: any, event: CheckboxChangeEvent) {
     let currentCmd;
     if (event.columnType === 'CMD') {
       currentCmd = form.attackCmd;
@@ -143,14 +147,19 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
         newFileIds.splice(fileIdIndex, 1);
       }
     } else {
-      // Add -r and filename to the command
-      if (event.row.fileType === 1) {
-        newCmdArray.push('-r');
+      const fileIndex = newCmdArray.indexOf(fileName);
+
+      // Only add if filename is NOT already in the command
+      if (fileIndex === -1) {
+        if (event.row.fileType === 1) {
+          // Add -r only if it doesn't already precede this file
+          newCmdArray.push('-r');
+        }
+
+        newCmdArray.push(fileName);
       }
 
-      newCmdArray.push(fileName);
-
-      // Add fileId to the array
+      // Add fileId only if not already present
       if (!newFileIds.includes(fileId)) {
         newFileIds.push(fileId);
       }

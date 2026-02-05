@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
@@ -22,6 +22,12 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class AuthComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private configService = inject(ConfigService);
+  private authService = inject(AuthService);
+  private alertService = inject(AlertService);
+
   /** Form group for the new SuperHashlist. */
   loginForm: FormGroup;
 
@@ -35,13 +41,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   /** on loggin loading */
   isLoading = false;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private storage: LocalStorageService<UIConfig>,
-    private configService: ConfigService,
-    private authService: AuthService,
-    private alertService: AlertService
-  ) {
+  constructor() {
     this.headerConfig = environment.config.header;
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';

@@ -82,38 +82,30 @@ export const formatPercentage = (value: number, total: number): string => {
  */
 export const formatFileSize = (
   sizeInBytes: number,
-  suffix: 'short' | 'long' | 'none',
-  baseSize = 1024,
-  threshold = 1024
+  suffix: 'short' | 'long' | 'none' = 'short',
+  baseSize = 1024
 ): string => {
+  if (sizeInBytes < 1) return '0 B';
+
   const fileSizeUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const fileSizeUnitsLong = [
     'Bytes',
     'Kilobytes',
     'Megabytes',
     'Gigabytes',
-    'Pettabytes',
+    'Terabytes',
+    'Petabytes',
     'Exabytes',
     'Zettabytes',
     'Yottabytes'
   ];
-  let units: string[] = [];
 
-  if (suffix === 'short') {
-    units = fileSizeUnits;
-  } else if (suffix === 'long') {
-    units = fileSizeUnitsLong;
-  }
+  const units = suffix === 'long' ? fileSizeUnitsLong : fileSizeUnits;
 
-  if (sizeInBytes < 1) {
-    return '0 B';
-  }
-
-  const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
-  const power = Math.min(Math.round(Math.log(scale) / Math.log(baseSize)), units.length - 1);
+  const power = Math.min(Math.floor(Math.log(sizeInBytes) / Math.log(baseSize)), units.length - 1);
   const size = sizeInBytes / Math.pow(baseSize, power);
-  const unit = units ? units[power] : '';
-  return `${convertToLocale(size)} ${unit}`;
+
+  return `${convertToLocale(size)} ${units[power]}`;
 };
 
 /**

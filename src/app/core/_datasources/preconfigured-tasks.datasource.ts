@@ -1,5 +1,7 @@
 // typescript
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
@@ -91,24 +93,48 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @private
    */
   private async loadPretasks(params: RequestParams): Promise<JPretask[]> {
-    const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, params));
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.service.getAll(SERV.PRETASKS, params, httpOptions).pipe(
+          catchError((error) => {
+            this.handleFilterError(error);
+            throw error;
+          })
+        )
+      );
 
-    const length = response.meta.page.total_elements;
-    const nextLink = response.links.next;
-    const prevLink = response.links.prev;
-    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+      const length = response.meta.page.total_elements;
+      const nextLink = response.links.next;
+      const prevLink = response.links.prev;
+      const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+      const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-    const responseData = { data: response.data, included: response.included };
-    return this.serializer.deserialize<JPretask[]>(responseData);
+      this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+      const responseData = { data: response.data, included: response.included };
+      return this.serializer.deserialize<JPretask[]>(responseData);
+    } catch {
+      return [];
+    }
   }
 
   private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask> {
-    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.SUPER_TASKS, superTaskId, params));
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.service.get(SERV.SUPER_TASKS, superTaskId, params, httpOptions).pipe(
+          catchError((error) => {
+            this.handleFilterError(error);
+            throw error;
+          })
+        )
+      );
 
-    const responseData = { data: response.data, included: response.included };
-    return this.serializer.deserialize<JSuperTask>(responseData);
+      const responseData = { data: response.data, included: response.included };
+      return this.serializer.deserialize<JSuperTask>(responseData);
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -124,19 +150,30 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         .addInclude('pretaskFiles')
         .addFilter({ field: 'pretaskId', operator: filterOperator, value: pretaskIds })
         .create();
-
-      const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
-
-      // set pagination info (same as loadPretasks)
-      const length = response.meta?.page?.total_elements ?? 0;
-      const nextLink = response.links?.next;
-      const prevLink = response.links?.prev;
-      const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
-      const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
-      this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-
-      const responseData = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JPretask[]>(responseData);
+      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+      try {
+        const response = await firstValueFrom<ResponseWrapper>(
+          this.service.getAll(SERV.PRETASKS, paramsPretaskFiles, httpOptions).pipe(
+            catchError((error) => {
+              this.handleFilterError(error);
+              throw error;
+            })
+          )
+        );
+        
+        // set pagination info (same as loadPretasks)
+        const length = response.meta?.page?.total_elements ?? 0;
+        const nextLink = response.links?.next;
+        const prevLink = response.links?.prev;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+        
+        const responseData = { data: response.data, included: response.included };
+        return this.serializer.deserialize<JPretask[]>(responseData);
+      } catch {
+        return [];
+      }
     }
     return [];
   }
