@@ -2,29 +2,33 @@
   <mat-label>{{ title }}</mat-label>
   <div [class.is-invalid]="error">
     <input
-      #inputField="ngModel"
+      #inputField
       matInput type="number"
       [min]="min"
       [max]="max"
       [id]="inputId"
-      [(ngModel)]="value"
-      (change)="onChange(value)"
+      [value]="value"
+      (input)="onValueChange($event)"
+      (blur)="onTouched()"
       [required]="isRequired"
       [class.is-invalid]="error"
       [disabled]="disabled"
       >
   </div>
-  @if (inputField.errors && (inputField.dirty || inputField.touched)) {
-    <mat-error>
-      @if (inputField.errors.required) {
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+      @if (errors['required']) {
         <span>{{ title }} is required</span>
       }
-      @if (inputField.errors.min) {
+      @if (errors['min']) {
         <span>Value cannot be less than {{ min }}</span>
       }
-      @if (inputField.errors.max) {
+      @if (errors['max']) {
         <span>Value cannot be greater than {{ max }}</span>
       }
-    </mat-error>
+      @if (errors['pattern']) {
+        <span>Please enter a valid number</span>
+      }
+    </mat-hint>
   }
 </mat-form-field>

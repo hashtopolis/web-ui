@@ -423,6 +423,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

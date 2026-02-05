@@ -130,6 +130,9 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
           this.processing = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 }

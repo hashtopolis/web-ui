@@ -21,8 +21,7 @@
 
   <mat-select
     #inputField
-    [(ngModel)]="value"
-    #ngModel="ngModel"
+    [value]="value"
     (selectionChange)="onChangeValue($event.value)"
     [required]="!isLoading && isRequired"
     [disabled]="disabled"
@@ -43,8 +42,8 @@
   @if (hint) {
     <mat-hint>{{ hint }}</mat-hint>
   }
-  @if (ngModel.invalid && ngModel.touched) {
-    <mat-error>{{ title }} is required</mat-error>
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
   }
 
 </mat-form-field>

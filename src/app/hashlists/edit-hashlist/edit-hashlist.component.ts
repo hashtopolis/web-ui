@@ -231,6 +231,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
           this.router.navigate([path]);
         });
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

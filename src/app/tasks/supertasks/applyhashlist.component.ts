@@ -252,6 +252,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

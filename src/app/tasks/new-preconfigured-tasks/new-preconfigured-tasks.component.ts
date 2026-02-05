@@ -117,8 +117,8 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('files').value
+      attackCmd: this.createForm?.get('attackCmd')?.value ?? '',
+      files: this.createForm?.get('files')?.value ?? []
     };
   }
 
@@ -178,6 +178,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.createForm.markAllAsTouched();
+      this.createForm.updateValueAndValidity();
     }
   }
 }

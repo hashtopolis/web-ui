@@ -272,6 +272,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       } else {
         this.updateTask();
       }
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

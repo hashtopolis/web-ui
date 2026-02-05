@@ -1,4 +1,4 @@
-<mat-checkbox [(ngModel)]="value" (change)="onChange(value)" (blur)="onTouched()" [disabled]="disabled">
+<mat-checkbox [checked]="value" (change)="onValueChange($event)" (blur)="onTouched()" [disabled]="disabled">
   {{ title }}
   @if (tooltip) {
     <mat-icon

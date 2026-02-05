@@ -194,7 +194,13 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           this.submitted = false;
           console.error('Error creating file:', error);
         }
+      } else {
+        this.form.markAllAsTouched();
+        this.form.updateValueAndValidity();
       }
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

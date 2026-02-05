@@ -244,6 +244,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       // Emit the form values to the parent component
       this.formSubmit.emit(this.form.value);
       this.isSubmitting = false;
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

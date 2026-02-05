@@ -7,6 +7,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Injector,
   Input,
   OnChanges,
   SimpleChanges,
@@ -79,10 +80,10 @@ export class InputMultiSelectComponent
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
   constructor(
-    private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    injector: Injector,
+    private sanitizer: DomSanitizer
   ) {
-    super();
+    super(injector);
     this.filteredItems = combineLatest([
       this.searchInputSubject.pipe(startWith('')),
       this.itemsSubject.pipe(startWith(this.availableItems))
@@ -227,7 +228,11 @@ export class InputMultiSelectComponent
    *
    * @returns {void}
    */
-  onSearchInputChange(): void {
+  onSearchInputChange(event?: Event): void {
+    if (event) {
+      const target = event.target as HTMLInputElement;
+      this.searchTerm = target.value;
+    }
     this.searchInputSubject.next(this.searchTerm);
   }
 
@@ -311,7 +316,7 @@ export class InputMultiSelectComponent
     return results;
   }
 
-  override writeValue(newValue: SelectOption | SelectOption[] | null): void {
+  override writeValue(newValue: number | number[] | null): void {
     // Reset visual selection to reflect external form writes (e.g., reset())
     if (!newValue || (Array.isArray(newValue) && newValue.length === 0)) {
       this.selectedItems = [];
@@ -322,8 +327,23 @@ export class InputMultiSelectComponent
       this.searchTerm = '';
       this.searchInputSubject.next(this.searchTerm);
       this.value = this.multiselectEnabled ? [] : null;
+    } else {
+      // Convert number/number[] to SelectOption/SelectOption[]
+      const ids = Array.isArray(newValue) ? newValue : [newValue];
+      const selectedOptions = ids
+        .map((id) => this._items.find((item) => Number(item.id) === Number(id)))
+        .filter((item): item is SelectOption => item !== undefined);
+
+      this.selectedItems = selectedOptions;
+      this.chipGridValidation = [...this.selectedItems];
+
+      // Remove selected items from available
+      const selectedIds = new Set(ids.map((id) => Number(id)));
+      this.availableItems = this._items.filter((item) => !selectedIds.has(Number(item.id)));
+      this.itemsSubject.next(this.availableItems);
+
+      this.value = this.multiselectEnabled ? ids : ids[0];
     }
-    // If there's a value, the component already manages it internally via selectedItems
   }
 
   /**

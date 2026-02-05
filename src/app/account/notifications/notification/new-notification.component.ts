@@ -191,6 +191,9 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
           this.router.navigate(['/account/notifications']);
         })
       );
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

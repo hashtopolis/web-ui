@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -36,8 +36,8 @@ export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  constructor() {
-    super();
+  constructor(injector: Injector) {
+    super(injector);
   }
 
   onChangeValue(value) {

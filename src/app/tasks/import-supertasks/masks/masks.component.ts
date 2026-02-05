@@ -206,6 +206,9 @@ export class MasksComponent implements OnInit, OnDestroy {
       } finally {
         this.isLoading = false; // Hide spinner regardless of success or error
       }
+    } else {
+      this.createForm.markAllAsTouched();
+      this.createForm.updateValueAndValidity();
     }
   }
 

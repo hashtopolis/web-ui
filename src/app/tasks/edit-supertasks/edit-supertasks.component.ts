@@ -256,6 +256,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

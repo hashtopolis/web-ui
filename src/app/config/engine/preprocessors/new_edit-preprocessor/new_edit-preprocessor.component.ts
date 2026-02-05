@@ -134,7 +134,11 @@ export class NewEditPreprocessorComponent implements OnInit {
    * Create / update preprocessor upon form submission and redirect on success
    */
   async onSubmit(): Promise<void> {
-    if (this.newEditPreprocessorForm.invalid) return;
+    if (this.newEditPreprocessorForm.invalid) {
+      this.newEditPreprocessorForm.markAllAsTouched();
+      this.newEditPreprocessorForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     const payload = {

@@ -338,6 +338,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
       return;
     }
 
