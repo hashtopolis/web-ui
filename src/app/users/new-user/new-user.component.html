@@ -37,6 +37,10 @@
         </div>
       }
     </grid-buttons>
+      @if (newUserForm.invalid && newUserForm.touched) {
+        <span class="help-block"
+        >Please complete all required fields!</span>
+      }
   </div>
   </form>
 </grid-main>
