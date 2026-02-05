@@ -1,12 +1,11 @@
 import { Subscription } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
-import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
@@ -34,13 +33,18 @@ import {
   standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private roleService = inject(NotificationsRoleService);
+
   static readonly SUBMITLABEL = 'Save Notification';
   static readonly SUBTITLE = 'Create Notification';
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  triggerAction: string;
   form: FormGroup;
   filters: Filter[];
   active = false;
@@ -70,13 +74,20 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     [ACTION.LOG_ERROR]: null
   };
 
-  constructor(
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private roleService: NotificationsRoleService
-  ) {
+  actionsWithFilters = [
+    ACTION.AGENT_ERROR,
+    ACTION.OWN_AGENT_ERROR,
+    ACTION.DELETE_AGENT,
+    ACTION.TASK_COMPLETE,
+    ACTION.DELETE_TASK,
+    ACTION.DELETE_HASHLIST,
+    ACTION.HASHLIST_ALL_CRACKED,
+    ACTION.HASHLIST_CRACKED_HASH,
+    ACTION.USER_DELETED,
+    ACTION.USER_LOGIN_FAILED
+  ];
+
+  constructor() {
     this.titleService.set(['New Notification']);
   }
 
@@ -123,6 +134,14 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * @param {string} action - The selected action.
    */
   changeAction(action: string): void {
+    // only enable filter if action requires it
+    if (!this.actionsWithFilters.includes(action)) {
+      this.active = false;
+      this.filters = [];
+      this.form.get('actionFilter').setValue('');
+      return;
+    }
+
     const path = this.actionToServiceMap[action];
     if (path) {
       this.active = true;
@@ -133,28 +152,20 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
             data: response.data,
             included: response.included
           });
+
           const _filters: Filter[] = [];
           for (let i = 0; i < resource.length; i++) {
             if (path === SERV.AGENTS) {
               const agent = resource[i] as JAgent;
-              _filters.push({
-                id: agent.id,
-                name: agent.agentName
-              });
+              _filters.push({ id: agent.id, name: agent.agentName });
             }
             if (path === SERV.TASKS) {
               const task = resource[i] as JTask;
-              _filters.push({
-                id: task.id,
-                name: task.taskName
-              });
+              _filters.push({ id: task.id, name: task.taskName });
             }
             if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const hashlist = resource[i] as JHashlist;
-              _filters.push({
-                id: hashlist.id,
-                name: hashlist.name
-              });
+              const obj = resource[i] as BaseModel;
+              _filters.push({ id: obj.id, name: obj['name'] });
             }
           }
           this.filters = _filters;

@@ -275,6 +275,12 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
+    if (!notification.objectId) {
+      // Plain text placeholder, no link
+      links.push({ label: 'N/A', routerLink: null });
+      return of(links);
+    }
+
     switch (notification.action) {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
