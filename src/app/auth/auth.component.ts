@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
@@ -21,12 +21,13 @@ import { environment } from '@src/environments/environment';
   templateUrl: './auth.component.html',
   standalone: false
 })
-export class AuthComponent implements OnInit, OnDestroy {
+export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private unsubscribeService = inject(UnsubscribeService);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private configService = inject(ConfigService);
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
+  private host = inject(ElementRef);
 
   /** Form group for the new SuperHashlist. */
   loginForm: FormGroup;
@@ -54,6 +55,20 @@ export class AuthComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupConfig();
     this.configService.getEndpoint();
+  }
+
+  /**
+   * Lifecycle hook called after the component's view has been fully initialized.
+   * Sets focus to the username input field for better user experience.
+   * Uses a timeout to ensure that the view is fully rendered before trying to access the input element.
+   */
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const input = this.host.nativeElement.querySelector(
+        'input[formControlName="username"]'
+      ) as HTMLInputElement | null;
+      input?.focus();
+    });
   }
 
   private setupConfig(): void {
