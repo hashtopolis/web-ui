@@ -22,11 +22,11 @@
         <input-check title="CPU" formControlName="isCpuTask"></input-check>
         <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>
       </div>
-      <input-text-area title="Insert Masks" formControlName="masks"></input-text-area>
-
+      <br/>
+      <input-text-area title="Insert Masks" formControlName="masks" [isRequired]="true"></input-text-area>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
+        <button-submit [name]="'Create'" [disabled]="!createForm.valid"></button-submit>
         @if (isLoading) {
           <div>
             <mat-spinner diameter="24" color="accent"></mat-spinner>
