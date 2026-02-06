@@ -192,7 +192,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   onuploadFile(files: FileList | null): void {
     this.isCreatingLoading = true;
     // Represents the modified form data without the fake path prefix.
-    const newForm = { ...this.form.value };
+    const newForm = { ...this.form.getRawValue() };
 
     // Modify the sourceData key if it exists
     if (newForm.sourceData) {
