@@ -39,7 +39,11 @@ export class NewCrackerComponent {
    * Create new cracker upon form submission and redirect to cracker type table page on success
    */
   async onSubmit() {
-    if (this.newCrackerForm.invalid) return;
+    if (this.newCrackerForm.invalid) {
+      this.newCrackerForm.markAllAsTouched();
+      this.newCrackerForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     try {

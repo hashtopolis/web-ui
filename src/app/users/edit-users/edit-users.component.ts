@@ -184,6 +184,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully updated`));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

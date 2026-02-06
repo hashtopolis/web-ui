@@ -229,6 +229,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

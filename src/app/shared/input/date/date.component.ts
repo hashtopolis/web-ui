@@ -1,5 +1,5 @@
 import { AbstractInputComponent } from '../abstract-input';
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -16,19 +16,19 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-    selector: 'input-date',
-    templateUrl: './date.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputDateComponent),
-            multi: true
-        }
-    ],
-    standalone: false
+  selector: 'input-date',
+  templateUrl: './date.component.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputDateComponent),
+      multi: true
+    }
+  ],
+  standalone: false
 })
 export class InputDateComponent extends AbstractInputComponent<boolean> {
-  constructor() {
-    super();
+  constructor(injector: Injector) {
+    super(injector);
   }
 }

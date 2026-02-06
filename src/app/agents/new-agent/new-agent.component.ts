@@ -110,6 +110,9 @@ export class NewAgentComponent implements OnInit, OnDestroy {
         this.alertService.showSuccessMessage('New voucher successfully created!');
         this.table.reload();
       });
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

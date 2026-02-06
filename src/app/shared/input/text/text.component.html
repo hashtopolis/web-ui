@@ -17,21 +17,16 @@
     <mat-icon matPrefix>{{ icon }}</mat-icon>
   }
 
-  <!-- important: #inputField="ngModel" is required for validation -->
   <input
     matInput
-    [(ngModel)]="value"
-    #inputField="ngModel"
+    [value]="value"
+    #inputField
     [type]="resolvedInputType"
-    [email]="inputType === 'email' ? true : null"
     [required]="isRequired"
-    [pattern]="pattern"
     [disabled]="disabled"
-    [minlength]="minLength"
-    [maxlength]="maxLength"
     [id]="inputId"
     (blur)="onTouched()"
-    (ngModelChange)="onChange($event)"
+    (input)="onValueChange($event)"
     />
 
   <!-- Show password toggle if enabled -->
@@ -52,37 +47,37 @@
     <mat-hint>{{ hint }}</mat-hint>
   }
 
-  <!-- Error display based on native ngModel validation -->
-  @if (inputField.errors && (inputField.dirty || inputField.touched)) {
-    <mat-error>
-      @if (inputField.errors.required) {
+  <!-- Error display based on validation state -->
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+      @if (errors['required']) {
         <span>{{ title }} is required</span>
       }
-      @if (inputField.errors.email) {
+      @if (errors['email']) {
         <span>Please enter a valid {{ title?.toLowerCase() }}</span>
       }
-      @if (inputField.errors.url) {
+      @if (errors['url']) {
         <span>Please enter a valid {{ title?.toLowerCase() }}</span>
       }
-      @if (inputField.errors.minlength) {
+      @if (errors['minlength']) {
         <span>
-          Minimum length is {{ inputField.errors.minlength.requiredLength }}
+          Minimum length is {{ errors['minlength'].requiredLength }}
         </span>
       }
-      @if (inputField.errors.pattern) {
+      @if (errors['pattern']) {
         <span>
           Please enter a valid {{ title }}
         </span>
       }
-      @if (inputField.errors.maxlength) {
+      @if (errors['maxlength']) {
         <span>
-          Maximum length is {{ inputField.errors.maxlength.requiredLength }}
+          Maximum length is {{ errors['maxlength'].requiredLength }}
         </span>
       }
-      @if (inputField.errors?.passwordMismatch) {
+      @if (errors['passwordMismatch']) {
         <span>Passwords do not match</span>
       }
-    </mat-error>
+    </mat-hint>
   }
 
 </mat-form-field>

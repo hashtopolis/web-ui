@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -53,7 +53,13 @@ export class InputTextComponent extends AbstractInputComponent<string> {
     return this.inputType;
   }
 
-  constructor() {
-    super();
+  onValueChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.value = target.value;
+    this.onChange(this.value);
+  }
+
+  constructor(injector: Injector) {
+    super(injector);
   }
 }

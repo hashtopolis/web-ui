@@ -1,5 +1,5 @@
 import { AbstractInputComponent } from '../abstract-input';
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, Injector } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -15,19 +15,24 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-    selector: 'input-check',
-    templateUrl: './check.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputCheckComponent),
-            multi: true
-        }
-    ],
-    standalone: false
+  selector: 'input-check',
+  templateUrl: './check.component.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputCheckComponent),
+      multi: true
+    }
+  ],
+  standalone: false
 })
 export class InputCheckComponent extends AbstractInputComponent<boolean> {
-  constructor() {
-    super();
+  onValueChange(event: any): void {
+    this.value = event.checked;
+    this.onChange(this.value);
+  }
+
+  constructor(injector: Injector) {
+    super(injector);
   }
 }

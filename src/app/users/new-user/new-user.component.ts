@@ -67,7 +67,11 @@ export class NewUserComponent implements OnInit {
    * Create new user upon form submission and redirect to user table page on success
    */
   async onSubmit() {
-    if (this.newUserForm.invalid) return;
+    if (this.newUserForm.invalid) {
+      this.newUserForm.markAllAsTouched();
+      this.newUserForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     try {

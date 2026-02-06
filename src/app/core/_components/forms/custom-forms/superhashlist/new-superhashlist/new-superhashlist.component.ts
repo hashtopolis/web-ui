@@ -118,6 +118,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         });
 
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

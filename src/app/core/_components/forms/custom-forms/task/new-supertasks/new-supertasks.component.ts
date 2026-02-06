@@ -103,6 +103,9 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
       });
 
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

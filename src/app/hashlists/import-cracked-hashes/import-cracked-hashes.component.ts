@@ -121,6 +121,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       });
       this.isCreatingLoading = false;
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

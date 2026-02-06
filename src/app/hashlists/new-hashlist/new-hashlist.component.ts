@@ -225,6 +225,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   async onSubmit() {
     if (!this.form.valid) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
       return; // form invalid, stop early
     }
 

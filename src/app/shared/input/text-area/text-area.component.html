@@ -17,8 +17,9 @@
     matInput
     [class.is-invalid]="error"
     [id]="inputId"
-    [(ngModel)]="value"
-    (ngModelChange)="onChange(value)"
+    [value]="value"
+    (input)="onValueChange($event)"
+    (blur)="onTouched()"
     cdkTextareaAutosize
     [required]="isRequired"
     [disabled]="disabled"
@@ -27,5 +28,7 @@
   @if (hint) {
     <mat-hint>{{ hint }}</mat-hint>
   }
-  <mat-error>{{ title }} is required</mat-error>
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
+  }
 </mat-form-field>

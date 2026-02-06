@@ -157,6 +157,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
           this.isUpdatingLoading = false;
         })
       );
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

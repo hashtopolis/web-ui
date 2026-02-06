@@ -227,6 +227,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
           this.router.navigate(['tasks/preconfigured-tasks']);
         });
       this.unsubscribeService.add(updateSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 }

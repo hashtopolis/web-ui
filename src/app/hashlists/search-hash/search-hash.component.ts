@@ -88,6 +88,9 @@ export class SearchHashComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
         this.form.reset();
       }
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }
