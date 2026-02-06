@@ -8,7 +8,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -30,6 +30,25 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
   standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
+  /**
+   * @private unsubscribeService - The service responsible for managing subscriptions.
+   * @private changeDetectorRef - The reference to the Angular ChangeDetectorRef.
+   * @private titleService - The service responsible for setting the page title.
+   * @private alert - The service for displaying alert messages.
+   * @private gs - The service providing global functionality.
+   * @private router - The Angular Router service for navigation.
+   * @private serializer - The serializer service for API response.
+   */
+
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private uiService = inject(UIConfigService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+
   /**
    * Horizontal menu and redirection links.
    */
@@ -57,26 +76,11 @@ export class MasksComponent implements OnInit, OnDestroy {
   isLoading = false;
 
   /**
-   * @param {UnsubscribeService} unsubscribeService - The service responsible for managing subscriptions.
-   * @param {ChangeDetectorRef} changeDetectorRef - The reference to the Angular ChangeDetectorRef.
-   * @param {AutoTitleService} titleService - The service responsible for setting the page title.
-   * @param {AlertService} alert - The service for displaying alert messages.
-   * @param {GlobalService} gs - The service providing global functionality.
-   * @param {Router} router - The Angular Router service for navigation.
    * @returns {void}
    *
    * @ngModule AppModule
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
-  ) {
+  constructor() {
     this.buildForm();
   }
 
@@ -107,7 +111,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       optFlag: new FormControl(false),
       useNewBench: new FormControl(true),
       crackerBinaryId: new FormControl(1),
-      masks: new FormControl('')
+      masks: new FormControl('', [Validators.required])
     });
   }
 
