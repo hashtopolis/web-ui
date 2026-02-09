@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -97,18 +97,18 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * @param {MatDialog} dialog - The Angular Material Dialog service for creating dialogs.
    * @param {Router} router - The Angular Router service for navigation.
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private tooltipService: TooltipService,
-    private uiService: UIConfigService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private tooltipService = inject(TooltipService);
+  private uiService = inject(UIConfigService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+
+  constructor() {
     this.onInitialize();
     this.titleService.set(['New Task']);
   }

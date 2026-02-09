@@ -5,7 +5,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -25,25 +25,24 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class NewAgentComponent implements OnInit, OnDestroy {
-  form: FormGroup<VoucherForm>;
+  private titleService = inject(AutoTitleService);
+  private clipboard = inject(Clipboard);
+  private alertService = inject(AlertService);
+  private cs = inject(ConfigService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  form: FormGroup<VoucherForm> = new FormGroup<VoucherForm>({
+    voucher: new FormControl('', { nonNullable: true })
+  });
   agentURL: string;
   newVoucherSubscription: Subscription;
   allowMultiVoucher = false;
 
   @ViewChild('table') table: VouchersTableComponent;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private clipboard: Clipboard,
-    private alertService: AlertService,
-    private cs: ConfigService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  constructor() {
     this.titleService.set(['New Agent']);
-    this.form = new FormGroup<VoucherForm>({
-      voucher: new FormControl('', { nonNullable: true })
-    });
   }
 
   ngOnDestroy(): void {

@@ -27,12 +27,14 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   ],
   standalone: false
 })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class InputFileComponent extends AbstractInputComponent<any> {
   @Input() accept = '';
   @Input() multiple = false;
   @Output() filesSelected = new EventEmitter<FileList>();
   private fs = inject(FileSizePipe);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeValue(value: any) {
     this.value = value;
     this.onChange(value);

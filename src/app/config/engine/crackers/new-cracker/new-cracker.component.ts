@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,18 +22,13 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {
-  newCrackerForm: FormGroup<NewCrackerForm>;
-  loading: boolean;
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+  protected roleService = inject(CrackerBinaryRoleService);
 
-  constructor(
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService,
-    protected roleService: CrackerBinaryRoleService
-  ) {
-    this.newCrackerForm = getNewCrackerForm();
-    this.loading = false;
-  }
+  newCrackerForm: FormGroup<NewCrackerForm> = getNewCrackerForm();
+  loading: boolean = false;
 
   /**
    * Create new cracker upon form submission and redirect to cracker type table page on success

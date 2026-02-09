@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -42,15 +42,15 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private uiService: UIConfigService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private uiService = inject(UIConfigService);
+
+  constructor() {
     this.onInitialize();
     this.titleService.set(['New Preconfigured Tasks']);
   }

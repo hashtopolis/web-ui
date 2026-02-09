@@ -1,7 +1,7 @@
 import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -85,22 +85,22 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private routeSub: Subscription | undefined;
   private httpNoInterceptors: HttpClient;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alertService: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer,
-    private confirmDialog: ConfirmDialogService,
-    protected roleService: TasksRoleService,
-    private cs: ConfigService,
-    private http: HttpClient,
-    private sanitizer: DomSanitizer,
-    httpBackend: HttpBackend
-  ) {
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alertService = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  private confirmDialog = inject(ConfirmDialogService);
+  protected roleService = inject(TasksRoleService);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  private httpBackend = inject(HttpBackend);
+
+  constructor() {
     this.titleService.set(['Edit Task']);
-    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   async ngOnInit(): Promise<void> {
@@ -185,7 +185,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // Log and show a user-friendly error for unexpected server errors
       // (500, 502, etc.). Keep the loading flag disabled so the UI can
       // present an appropriate state.
-      // eslint-disable-next-line no-console
+
       console.error('Error loading task:', e);
       const msg = status ? `Error loading task (server returned ${status}).` : 'Error loading task.';
       this.alertService.showErrorMessage(msg);
@@ -247,7 +247,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // This helps when the server chokes resolving included relationships but the main
       // resource exists — the UI can still open the edit form with the primary data.
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
-        // eslint-disable-next-line no-console
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
         return this.serializer.deserialize<JTask>({ data: responseFallback.data, included: responseFallback.included });

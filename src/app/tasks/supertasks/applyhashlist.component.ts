@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -62,15 +62,15 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The service providing global functionality.
    * @param {Router} router - The Angular Router service for navigation.
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Apply Hashlist']);

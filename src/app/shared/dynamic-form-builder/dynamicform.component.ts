@@ -8,7 +8,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  inject
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 
@@ -38,11 +39,13 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() formMetadata: any[] = [];
 
   /**
    * Initial values for form fields (optional). If not provided, an empty object is used as the default.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() formValues: any = {};
 
   /**
@@ -74,6 +77,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * Event emitter for submitting the form. Emits the form values when the form is submitted.
    * Parent components can subscribe to this event to handle form submissions.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Output() formSubmit: EventEmitter<any> = new EventEmitter();
 
   /**
@@ -88,6 +92,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
 
   @Output() selectTypeChange: EventEmitter<number> = new EventEmitter<number>();
+
+  private gs = inject(GlobalService);
+  private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
 
   /**
    * A Subject used for managing the lifecycle and unsubscribing from observables when the component is destroyed.
@@ -113,17 +121,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   isSubmitting = false;
 
-  /**
-   * Constructor for the DynamicFormComponent.
-   * @param fb - The Angular FormBuilder for creating form controls and groups.
-   * @param gs - The GlobalService for handling global operations and API requests.
-   * @param cd - The Angular ChangeDetectorRef for triggering change detection manually.
-   */
-  constructor(
-    private fb: FormBuilder,
-    private gs: GlobalService,
-    private cd: ChangeDetectorRef
-  ) {}
+  constructor() {}
 
   // Util functions
   transformSelectOptions = transformSelectOptions;
@@ -222,7 +220,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             }
 
             // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
-            this.cd.detectChanges();
+            this.cdr.detectChanges();
           });
       });
     }
@@ -264,6 +262,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handles the onchange action.
    * Emits the change action to the parent component when the select option is selected.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange(value: any) {
     this.selectTypeChange.emit(value);
   }

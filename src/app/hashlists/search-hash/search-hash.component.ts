@@ -2,7 +2,7 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -16,6 +16,11 @@ import { MAX_SEARCH_LENGTH, MAX_SEARCH_SIZE } from '@components/tables/search-ha
 })
 @PageTitle(['Search Hash'])
 export class SearchHashComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  readonly titleService = inject(AutoTitleService);
+  private cdr = inject(ChangeDetectorRef);
+  private alertService = inject(AlertService);
+
   /** Form group for Search Hashes. */
   form: FormGroup;
 
@@ -26,13 +31,8 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    readonly titleService: AutoTitleService,
-    private cdr: ChangeDetectorRef,
-    private alertService: AlertService
-  ) {
-    titleService.set(['Search Hash']);
+  constructor() {
+    this.titleService.set(['Search Hash']);
   }
 
   ngOnInit(): void {

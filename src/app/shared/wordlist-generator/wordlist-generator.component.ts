@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormArray, FormControl } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -21,6 +21,9 @@ import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
   standalone: false
 })
 export class WordlistGeneratorComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private alert = inject(AlertService);
+
   /** Reactive form group for wordlist generation. */
   form: GenerateWordListFormGroup;
 
@@ -29,16 +32,6 @@ export class WordlistGeneratorComponent implements OnInit {
 
   /** UI text and configuration imported const in seperated ts file. */
   ui = ui;
-
-  /**
-   * Constructor.
-   * @param cdr ChangeDetectorRef for manual change detection on dynamic form updates.
-   * @param alert AlertService to display error messages to the user.
-   */
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private alert: AlertService
-  ) {}
 
   /**
    * Angular lifecycle hook.
