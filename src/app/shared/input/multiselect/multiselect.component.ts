@@ -5,14 +5,13 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Injector,
   Input,
   OnChanges,
   SimpleChanges,
   ViewChild,
-  forwardRef
+  forwardRef,
+  inject
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -79,11 +78,10 @@ export class InputMultiSelectComponent
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
-  constructor(
-    injector: Injector,
-    private sanitizer: DomSanitizer
-  ) {
-    super(injector);
+  private sanitizer = inject(DomSanitizer);
+
+  constructor() {
+    super();
     this.filteredItems = combineLatest([
       this.searchInputSubject.pipe(startWith('')),
       this.itemsSubject.pipe(startWith(this.availableItems))
@@ -139,6 +137,7 @@ export class InputMultiSelectComponent
 
       // Notify Angular forms
       this.onChangeValue(this.selectedItems);
+      this.onTouched();
     }
   }
 
@@ -154,6 +153,7 @@ export class InputMultiSelectComponent
       this.itemsSubject.next(this.availableItems);
 
       this.onChangeValue(this.selectedItems);
+      this.onTouched();
     }
   }
 
@@ -295,7 +295,7 @@ export class InputMultiSelectComponent
 
     // Notify about the change
     this.onChangeValue(this.selectedItems);
-    // this.onTouched();
+    this.onTouched();
   }
 
   /**

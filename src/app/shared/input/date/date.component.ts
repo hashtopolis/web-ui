@@ -1,18 +1,19 @@
-import { AbstractInputComponent } from '../abstract-input';
-import { Component, forwardRef, Injector } from '@angular/core';
+import { Component, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input Date Component.
  *
  * Usage Example:
  * ```html
-    input-date
-    title="Date created"
-    formControlName="name"
-    [error]="error?.created"
-    hint="DD/MM/YYYY" //Hint needs to be connected with localstorage and get date format from UISettings or Settings
-    ></input-date>
+ * <input-date
+ *   title="Date created"
+ *   formControlName="createdDate"
+ *   [error]="error?.created"
+ *   hint="DD/MM/YYYY"
+ * ></input-date>
  * ```
  */
 @Component({
@@ -27,8 +28,10 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
   standalone: false
 })
-export class InputDateComponent extends AbstractInputComponent<boolean> {
-  constructor(injector: Injector) {
-    super(injector);
+export class InputDateComponent extends AbstractInputComponent<Date | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDateChange(event: any): void {
+    this.value = event.value || null;
+    this.onChange(this.value);
   }
 }

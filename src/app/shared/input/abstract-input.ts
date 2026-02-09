@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Directive, DoCheck, ElementRef, Injector, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Directive,
+  DoCheck,
+  ElementRef,
+  Injector,
+  Input,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 
 @Directive()
@@ -33,7 +43,8 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
 
   onTouched = () => {};
 
-  protected cdr: ChangeDetectorRef;
+  protected cdr = inject(ChangeDetectorRef);
+  private injector = inject(Injector);
 
   // Track previous state for change detection
   private previousTouched = false;
@@ -41,11 +52,8 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
 
   // Public properties for template binding (instead of getters)
   hasError = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any = null;
-
-  constructor(private injector: Injector) {
-    this.cdr = this.injector.get(ChangeDetectorRef);
-  }
 
   // Lazy getter to avoid circular dependency
   get ngControl(): NgControl | null {

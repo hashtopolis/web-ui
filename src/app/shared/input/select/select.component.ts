@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, Injector } from '@angular/core';
+import { Component, forwardRef, inject, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -30,18 +30,16 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   standalone: false
 })
 export class InputSelectComponent extends AbstractInputComponent<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() items: any;
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  constructor(injector: Injector) {
-    super(injector);
-  }
-
   onChangeValue(value) {
     this.value = value;
     this.onChange(value);
+    this.onTouched();
   }
 }

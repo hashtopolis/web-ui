@@ -1,7 +1,7 @@
-import { Component, ElementRef, Input, ViewChild, forwardRef, Injector } from '@angular/core';
+import { Component, forwardRef, inject, Input } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { randomColor } from '@src/app/shared/utils/forms';
 
 /**
@@ -24,10 +24,6 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   @Input() defaultColor = '#FFFFFF';
   @Input() randomColor = true;
 
-  constructor(injector: Injector) {
-    super(injector);
-  }
-
   generateRandomColor() {
     this.value = randomColor();
     this.onChange(this.value);
@@ -39,5 +35,11 @@ export class InputColorComponent extends AbstractInputComponent<string> {
       this.value = this.defaultColor;
     }
     return this.value;
+  }
+
+  onValueChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.value = target.value;
+    this.onChange(this.value);
   }
 }

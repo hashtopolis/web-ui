@@ -1,4 +1,4 @@
-import { Component, Injector, forwardRef } from '@angular/core';
+import { Component, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -34,9 +34,5 @@ export class InputTextAreaComponent extends AbstractInputComponent<string> {
     const target = event.target as HTMLTextAreaElement;
     this.value = target.value;
     this.onChange(this.value);
-  }
-
-  constructor(injector: Injector) {
-    super(injector);
   }
 }

@@ -1,18 +1,30 @@
-<mat-form-field class="form-group" appearance="fill">
+<mat-form-field class="form-group" appearance="outline">
   <mat-label>{{ title }}</mat-label>
   <input
     matInput
     [matDatepicker]="picker"
-    (dateChange)="onChange(value)"
-    [(ngModel)]="value"
-    #datePickerContent="ngModel"
-    >
+    [value]="value"
+    (dateChange)="onDateChange($event)"
+    (blur)="onTouched()"
+    [required]="isRequired"
+    [disabled]="disabled"
+    [id]="inputId"
+    #inputField
+    />
   @if (hint) {
     <mat-hint>{{ hint }}</mat-hint>
   }
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
   <mat-datepicker #picker></mat-datepicker>
-  @if (error) {
-    <div>Invalid date.</div>
+  
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+      @if (errors['required']) {
+        <span>{{ title }} is required</span>
+      }
+      @if (errors['invalidDate']) {
+        <span>Please enter a valid date</span>
+      }
+    </mat-hint>
   }
 </mat-form-field>

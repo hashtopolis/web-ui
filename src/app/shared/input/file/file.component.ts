@@ -1,9 +1,8 @@
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-
-import { Component, EventEmitter, Injector, Input, Output, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { AbstractInputComponent } from '../abstract-input';
+import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input File Component.
@@ -32,18 +31,14 @@ export class InputFileComponent extends AbstractInputComponent<any> {
   @Input() accept = '';
   @Input() multiple = false;
   @Output() filesSelected = new EventEmitter<FileList>();
-  constructor(
-    injector: Injector,
-    private fs: FileSizePipe
-  ) {
-    super(injector);
-  }
+  private fs = inject(FileSizePipe);
 
-  onChangeValue(value) {
+  onChangeValue(value: any) {
     this.value = value;
     this.onChange(value);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleFileInput(event: any): void {
     const fileToUpload = event.target.files[0];
     const fileSize = fileToUpload.size;
@@ -51,5 +46,8 @@ export class InputFileComponent extends AbstractInputComponent<any> {
     $('.fileuploadspan').text(' ' + fileName + ' / Size: ' + this.fs.transform(fileSize, false));
     const files = event.target.files;
     this.filesSelected.emit(files);
+    this.value = files;
+    this.onChange(files);
+    this.onTouched();
   }
 }

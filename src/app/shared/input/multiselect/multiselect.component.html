@@ -33,6 +33,7 @@
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="onInputChipAdd($event)"
       (input)="onSearchInputChange($event)"
+      (blur)="onTouched()"
       [value]="searchTerm"
       placeholder="{{ placeholder }}"
       />

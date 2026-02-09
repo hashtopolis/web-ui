@@ -1,6 +1,7 @@
-import { AbstractInputComponent } from '../abstract-input';
-import { Component, forwardRef, Injector } from '@angular/core';
+import { Component, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input Check Component.
@@ -27,12 +28,9 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   standalone: false
 })
 export class InputCheckComponent extends AbstractInputComponent<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onValueChange(event: any): void {
     this.value = event.checked;
     this.onChange(this.value);
-  }
-
-  constructor(injector: Injector) {
-    super(injector);
   }
 }

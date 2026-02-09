@@ -9,9 +9,9 @@
           [placeholder]="getDisplayColor()"
           type="color"
           [id]="inputId"
-          [(ngModel)]="value"
-          (ngModelChange)="onChange(value)"
           [value]="getDisplayColor()"
+          (input)="onValueChange($event)"
+          (blur)="onTouched()"
           [style.background]="getDisplayColor()"
           [disabled]="disabled"
           />

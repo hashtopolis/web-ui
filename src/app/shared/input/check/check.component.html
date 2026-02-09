@@ -1,14 +1,30 @@
-<mat-checkbox [checked]="value" (change)="onValueChange($event)" (blur)="onTouched()" [disabled]="disabled">
-  {{ title }}
-  @if (tooltip) {
-    <mat-icon
-      matTooltip="{{ tooltip }}"
-      matTooltipPosition="below"
-      matTooltipClass="tooltip-custom-style"
-      container="body"
-      aria-hidden="true"
-      >
-      info
-    </mat-icon>
+<div class="checkbox-wrapper">
+  <mat-checkbox 
+    [checked]="value" 
+    (change)="onValueChange($event)" 
+    (blur)="onTouched()" 
+    [disabled]="disabled"
+    [id]="inputId"
+    >
+    {{ title }}
+    @if (tooltip) {
+      <mat-icon
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        container="body"
+        aria-hidden="true"
+        >
+        info
+      </mat-icon>
+    }
+  </mat-checkbox>
+  
+  @if (hasError && errors) {
+    <div class="error-message" style="color: var(--mat-form-field-error-text-color, #f44336); font-size: 0.75rem; margin-top: 4px;">
+      @if (errors['required']) {
+        <span>{{ title }} is required</span>
+      }
+    </div>
   }
-</mat-checkbox>
+</div>
