@@ -1,4 +1,4 @@
-<app-table>
+<app-table xmlns="http://www.w3.org/1999/html">
   <app-page-title
     [title]="'Supertask Builder'"
   ></app-page-title>
@@ -23,13 +23,14 @@
             <input-check title="Small Tasks" formControlName="isSmall"></input-check>
             <input-check title="CPU" formControlName="isCpuTask"></input-check>
           </div>
-          <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
+          <br/>
+          <input-text-area title="Base Command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
           <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
           <fixed-alert
           message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."></fixed-alert>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="!createForm.valid"></button-submit>
             @if (isLoading) {
               <div>
                 <mat-spinner diameter="24" color="accent"></mat-spinner>
