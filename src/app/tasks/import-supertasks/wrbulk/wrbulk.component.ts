@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -57,15 +57,15 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   /** Table custome label */
   customLabel = 'Base | Iterate';
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private uiService = inject(UIConfigService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+
+  constructor() {
     this.buildForm();
     this.titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
   }
@@ -240,6 +240,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       } finally {
         this.isLoading = false; // Hide spinner regardless of success or error
       }
+    } else {
+      this.createForm.markAllAsTouched();
+      this.createForm.updateValueAndValidity();
     }
   }
 

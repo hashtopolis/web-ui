@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -40,32 +40,22 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
   // Edit variables
   editedHashlistIndex: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hashtype: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type: any; // Hashlist or SuperHashlist
 
-  /**
-   * Initializes and injects required services and dependencies.
-   * Calls necessary methods to set up the component.
-   * @param {UnsubscribeService} unsubscribeService - Service for managing subscriptions.
-   * @param {AutoTitleService} titleService - Service for managing page titles.
-   * @param {StaticArrayPipe} format - Angular pipe for formatting static arrays.
-   * @param {ActivatedRoute} route - The activated route, representing the route associated with this component.
-   * @param {AlertService} alert - Service for displaying alerts.
-   * @param {GlobalService} gs - Service for global application functionality.
-   * @param {Router} router - Angular router service for navigation.
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private format: StaticArrayPipe,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
-    this.buildForm();
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private format = inject(StaticArrayPipe);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
 
-    titleService.set(['Import Cracked Hashes']);
+  constructor() {
+    this.buildForm();
+    this.titleService.set(['Import Cracked Hashes']);
   }
 
   /**
@@ -121,6 +111,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       });
       this.isCreatingLoading = false;
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

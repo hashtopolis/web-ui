@@ -2,7 +2,7 @@
  * This module contains form definitions for creating new files (dictionaries, rules, etc.)
  */
 
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
  * Interface definition for NewFilesForm
@@ -30,12 +30,12 @@ export interface PreparedFormData {
  */
 export const getNewFilesForm = () => {
   return new FormGroup<NewFilesForm>({
-    filename: new FormControl(''),
+    filename: new FormControl('', Validators.required),
     isSecret: new FormControl(true),
     fileType: new FormControl(null),
     accessGroupId: new FormControl(1),
     sourceType: new FormControl('import'),
     sourceData: new FormControl(''),
-    url: new FormControl('')
+    url: new FormControl('', Validators.required)
   });
 };

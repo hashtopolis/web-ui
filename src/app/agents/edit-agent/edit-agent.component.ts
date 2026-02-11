@@ -1,7 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -74,17 +74,17 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService, // eslint-disable-line @typescript-eslint/no-unused-vars
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer,
-    protected agentRoleService: AgentRoleService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private uiService = inject(UIConfigService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  protected agentRoleService = inject(AgentRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildEmptyForms();
     this.titleService.set(['Edit Agent']);
@@ -337,6 +337,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
       return;
     }
 

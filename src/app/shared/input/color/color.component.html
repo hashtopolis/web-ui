@@ -1,7 +1,7 @@
 <div class="custom-input-container">
   <div class="color-input-wrapper">
     <div class="color-input-container">
-      <mat-form-field>
+      <mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
         <mat-label>{{ title }}</mat-label>
         <input
           #selectInput
@@ -9,9 +9,11 @@
           [placeholder]="getDisplayColor()"
           type="color"
           [id]="inputId"
-          [(ngModel)]="value"
-          (ngModelChange)="onChange(value)"
           [value]="getDisplayColor()"
+          [class.ng-invalid]="hasError"
+          [class.ng-touched]="isTouched"
+          (input)="onValueChange($event)"
+          (blur)="onTouched()"
           [style.background]="getDisplayColor()"
           [disabled]="disabled"
           />

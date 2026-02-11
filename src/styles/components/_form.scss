@@ -8,8 +8,21 @@
   01- Highlight validation in red
 */
 
-input.ng-invalid.ng-touched {
-	border: 1.5px solid red;
+/* Material Form Field error styling - paint outline, label, and asterisk red */
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__leading,
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch,
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__trailing {
+  border-color: var(--mdc-theme-error, #f44336) !important;
+}
+
+mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label {
+  color: var(--mdc-theme-error, #f44336) !important;
+}
+
+/* Make the required asterisk red when there's an error */
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mat-mdc-form-field-required-marker,
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label--required::after {
+  color: var(--mdc-theme-error, #f44336) !important;
 }
 
 .requiredak:before {

@@ -4,16 +4,31 @@
     type="file"
     [accept]="accept"
     [multiple]="multiple"
-    [(ngModel)]="value"
-    (ngModelChange)="onChangeValue(value)"
     (change)="handleFileInput($event)"
+    [required]="isRequired"
     class="custom-file-input"
+    [id]="inputId"
     >
-  <button type="button" mat-stroked-button color="accent" (click)="inputField.click()" aria-label="Choose file to upload">
+  <button 
+    type="button" 
+    mat-stroked-button 
+    color="accent" 
+    (click)="inputField.click()" 
+    aria-label="Choose file to upload"
+    [disabled]="disabled"
+    >
     <mat-icon>attach_file</mat-icon>
     <span>Choose File</span>
   </button>
   <mat-hint class="mt-2">
     <span class="fileuploadspan custom-file-upload-size"></span>
   </mat-hint>
+  
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336); margin-top: 8px;">
+      @if (errors['required']) {
+        <span>{{ title || 'File' }} is required</span>
+      }
+    </mat-hint>
+  }
 </div>

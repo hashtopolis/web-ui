@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -31,30 +31,20 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   form: FormGroup;
 
   /** Select List of hashlists. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectHashlists: any;
 
-  /**
-   * Constructor of the NewSuperhashlistComponent.
-   *
-   * @param unsubscribeService - The service responsible for managing subscriptions.
-   * @param changeDetectorRef - Reference to the change detector to manually trigger change detection.
-   * @param titleService - Service for managing the title of the page.
-   * @param alert - Service for displaying alerts.
-   * @param globalService - Service for making global API requests.
-   * @param formBuilder - FormBuilder service for creating reactive forms.
-   * @param router - Angular Router service for navigation.
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private globalService: GlobalService,
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private globalService = inject(GlobalService);
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+
+  constructor() {
     this.buildForm();
-    titleService.set(['New SuperHashlist']);
+    this.titleService.set(['New SuperHashlist']);
   }
 
   /**
@@ -118,6 +108,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         });
 
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

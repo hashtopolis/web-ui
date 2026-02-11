@@ -3,7 +3,7 @@
  */
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -25,18 +25,14 @@ import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.fo
   standalone: false
 })
 export class NewUserComponent implements OnInit {
-  newUserForm: FormGroup<NewUserForm>;
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+
+  newUserForm: FormGroup<NewUserForm> = getNewUserForm();
   selectGlobalPermissionGroups: SelectOption[];
   loading = false;
   loadingPermissionGroups: boolean = false;
-
-  constructor(
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService
-  ) {
-    this.newUserForm = getNewUserForm();
-  }
 
   ngOnInit(): void {
     void this.loadPermissionGroups();
@@ -67,7 +63,11 @@ export class NewUserComponent implements OnInit {
    * Create new user upon form submission and redirect to user table page on success
    */
   async onSubmit() {
-    if (this.newUserForm.invalid) return;
+    if (this.newUserForm.invalid) {
+      this.newUserForm.markAllAsTouched();
+      this.newUserForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     try {
