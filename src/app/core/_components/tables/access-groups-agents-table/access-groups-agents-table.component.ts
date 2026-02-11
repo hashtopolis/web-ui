@@ -1,4 +1,4 @@
-import { catchError } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
@@ -32,6 +32,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'agentMembers';
+  selectedFilterColumn: string = 'agentName'; // Default filter column
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsAgentsTableColumnLabel);
@@ -56,17 +57,34 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     }
   }
 
-  filter(item: JAgent, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
+  handleFilter(filterValue: string): void {
+    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn);
+  }
+
+  onFilterColumnChanged(column: string): void {
+    this.selectedFilterColumn = column;
+    // Re-apply current filter with new column
+    const currentFilterValue = this.dataSource['currentFilterValue'] || '';
+    if (currentFilterValue) {
+      this.dataSource.filterData(currentFilterValue, column);
+    }
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsAgentsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
+        routerLink: (agent: JAgent) => {
+          return of([
+            {
+              routerLink: ['/agents', agent.id, 'edit'],
+              label: agent.id?.toString()
+            }
+          ]);
+        },
         isSortable: true,
-        render: (agent: JAgent) => agent.id,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.id + ''
       },
       {
@@ -74,6 +92,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.agentName
       }
     ];

@@ -1,8 +1,8 @@
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
-import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 
 import { AccessGroupsUserContextMenuService } from '@services/context-menu/users/access-groups-user-menu.service';
@@ -36,6 +36,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'userMembers';
+  selectedFilterColumn: string = 'name'; // Default filter column
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsUsersTableColumnLabel);
@@ -60,23 +61,41 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     }
   }
 
-  filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
+  handleFilter(filterValue: string): void {
+    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn);
+  }
+
+  onFilterColumnChanged(column: string): void {
+    this.selectedFilterColumn = column;
+    // Re-apply current filter with new column
+    const currentFilterValue = this.dataSource['currentFilterValue'] || '';
+    if (currentFilterValue) {
+      this.dataSource.filterData(currentFilterValue, column);
+    }
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsUsersTableCol.ID,
-        dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        dataKey: '_id',
+        routerLink: (user: JUser) => {
+          return of([
+            {
+              routerLink: ['/users', user.id, 'edit'],
+              label: user.id?.toString()
+            }
+          ]);
+        },
         isSortable: true,
+        isSearchable: true,
         export: async (user: JUser) => user.id + ''
       },
       {
         id: AccessGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
+        isSearchable: true,
         render: (user: JUser) => user.name,
         export: async (user: JUser) => user.name + ''
       },
