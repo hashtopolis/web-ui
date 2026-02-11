@@ -100,8 +100,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   createForm(): void {
     this.form = new FormGroup({
-      name: new FormControl({ value: '', disabled: true }),
-      registeredSince: new FormControl({ value: '', disabled: true }),
+      name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
+      registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       email: new FormControl('', [Validators.required, Validators.email])
     });
   }

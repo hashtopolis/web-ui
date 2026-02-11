@@ -1,4 +1,4 @@
-<mat-form-field>
+<mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>{{ title }}</mat-label>
   <div [class.is-invalid]="error">
     <input
@@ -12,6 +12,8 @@
       (blur)="onTouched()"
       [required]="isRequired"
       [class.is-invalid]="error"
+      [class.ng-invalid]="hasError"
+      [class.ng-touched]="isTouched"
       [disabled]="disabled"
       >
   </div>

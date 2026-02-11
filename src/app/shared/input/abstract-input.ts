@@ -52,6 +52,7 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
 
   // Public properties for template binding (instead of getters)
   hasError = false;
+  isTouched = false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any = null;
 
@@ -103,14 +104,25 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
       const currentInvalid = control.invalid;
 
       // Update error state properties for template binding
-      this.hasError = !!(control && control.invalid && (control.dirty || control.touched));
-      this.errors = control.errors || null;
+      const newHasError = !!(control && control.invalid && (control.dirty || control.touched));
+      const newIsTouched = currentTouched;
+      const newErrors = control.errors || null;
+
+      // Always update the properties
+      const hasChanges =
+        this.hasError !== newHasError ||
+        this.isTouched !== newIsTouched ||
+        currentTouched !== this.previousTouched ||
+        currentInvalid !== this.previousInvalid;
+
+      this.hasError = newHasError;
+      this.isTouched = newIsTouched;
+      this.errors = newErrors;
 
       // If state changed, trigger change detection
-      if (currentTouched !== this.previousTouched || currentInvalid !== this.previousInvalid) {
+      if (hasChanges) {
         this.previousTouched = currentTouched;
         this.previousInvalid = currentInvalid;
-
         // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
         setTimeout(() => {
           this.cdr.detectChanges();

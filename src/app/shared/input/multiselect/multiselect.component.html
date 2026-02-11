@@ -5,13 +5,15 @@
     }
   </div>
 } @else {
-  <mat-form-field class="custom-chip-grid">
+  <mat-form-field class="custom-chip-grid" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid
       #chipGridRef
       name="selectedItems"
       [required]="isRequired"
       aria-label="Items selection"
+      [class.ng-invalid]="hasError"
+      [class.ng-touched]="isTouched"
       >
       @for (item of selectedItems; track item) {
         <mat-chip-row (removed)="remove(item)">

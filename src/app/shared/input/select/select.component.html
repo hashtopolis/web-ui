@@ -1,4 +1,4 @@
-<mat-form-field [ngStyle]="{width: width}">
+<mat-form-field [ngStyle]="{width: width}" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>
     @if (!isLoading) {
       {{ title }}
@@ -23,8 +23,11 @@
     #inputField
     [value]="value"
     (selectionChange)="onChangeValue($event.value)"
+    (openedChange)="onOpenedChange($event)"
     [required]="!isLoading && isRequired"
     [disabled]="disabled"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     >
     @if (isBlankOptionDisabled) {
       <mat-option [value]="0">

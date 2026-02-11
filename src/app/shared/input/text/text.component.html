@@ -1,4 +1,4 @@
-<mat-form-field [ngStyle]="{ width: width }" appearance="outline">
+<mat-form-field [ngStyle]="{ width: width }" appearance="outline" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>
     {{ title }}
     @if (tooltip) {
@@ -25,6 +25,8 @@
     [required]="isRequired"
     [disabled]="disabled"
     [id]="inputId"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     (blur)="onTouched()"
     (input)="onValueChange($event)"
     />

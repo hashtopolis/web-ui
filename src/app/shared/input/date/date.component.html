@@ -1,9 +1,11 @@
-<mat-form-field class="form-group" appearance="outline">
+<mat-form-field class="form-group" appearance="outline" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>{{ title }}</mat-label>
   <input
     matInput
     [matDatepicker]="picker"
     [value]="value"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     (dateChange)="onDateChange($event)"
     (blur)="onTouched()"
     [required]="isRequired"

@@ -1,4 +1,4 @@
-<mat-form-field class="custom-textarea">
+<mat-form-field class="custom-textarea" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>{{ title }}
     @if (tooltip) {
       <mat-icon
@@ -16,6 +16,8 @@
   <textarea
     matInput
     [class.is-invalid]="error"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     [id]="inputId"
     [value]="value"
     (input)="onValueChange($event)"

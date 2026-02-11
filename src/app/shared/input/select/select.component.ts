@@ -43,4 +43,11 @@ export class InputSelectComponent extends AbstractInputComponent<any> {
     this.onChange(value);
     this.onTouched();
   }
+
+  onOpenedChange(opened: boolean) {
+    // When the select panel closes, mark as touched
+    if (!opened) {
+      this.onTouched();
+    }
+  }
 }
