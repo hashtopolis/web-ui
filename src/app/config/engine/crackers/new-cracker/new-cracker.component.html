@@ -3,7 +3,19 @@
 
   <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
     <div fxLayout="column" fxLayoutGap="16px">
-      <input-text width="256px" title="Type" formControlName="typeName" [isRequired]="true"></input-text>
+
+      <input-select width="256px"
+                                  title="Binary Type Name"
+                                  formControlName="typeName"
+                                  data-testid="input-select-binaryTypeName"
+                                  [isRequired]="true"
+                                  [items]="[
+                                    { id: 'Hashcat', name: 'Hashcat' },
+                                    { id: 'generic', name: 'Generic Cracker' }
+                                  ]"
+                                  style="width: 256px"
+                    ></input-select>
+
       <input-select width="256px"
                     title="Chunking Available"
                     formControlName="isChunkingAvailable"
