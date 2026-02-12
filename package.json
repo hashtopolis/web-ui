@@ -1,6 +1,10 @@
 {
   "name": "hashtopolis",
   "version": "0.0.0",
+  "engines": {
+    "node": "24.12.0",
+    "npm": "^11.6.2"
+  },
   "scripts": {
     "ng": "ng",
     "start": "node git-version.js && ng serve --host 0.0.0.0 --poll 500 && node git-version.js",
