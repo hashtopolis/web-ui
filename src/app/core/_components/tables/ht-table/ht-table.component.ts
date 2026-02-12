@@ -96,7 +96,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -286,7 +286,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Sorted header arrow and sorting initialization
-    this.dataSource.sortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    const savedSortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+
+    // Validate that the saved sorting column's dataKey exists in current table columns
+    // AND verify that the column is actually sortable (isSortable: true)
+    if (savedSortingColumn && savedSortingColumn.dataKey) {
+      const columnConfig = this.tableColumns.find((col) => col.dataKey === savedSortingColumn.dataKey);
+      if (columnConfig && columnConfig.isSortable) {
+        this.dataSource.sortingColumn = savedSortingColumn;
+      }
+    }
+
     if (!this.isDetailPage) {
       // Search item
       this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];

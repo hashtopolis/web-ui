@@ -67,7 +67,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     return [
       {
         id: VouchersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         render: (voucher: JVoucher) => voucher.id,
         isSortable: true,
         isSearchable: true
