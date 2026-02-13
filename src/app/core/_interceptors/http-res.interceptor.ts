@@ -1,7 +1,7 @@
 import { Observable, catchError, finalize, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '@services/access/auth.service';
@@ -12,12 +12,10 @@ import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
-  constructor(
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private loadingService: LoadingService,
-    private alertService: AlertService
-  ) {}
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private loadingService = inject(LoadingService);
+  private alertService = inject(AlertService);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // If request contains this header, don't show modal/snackbar for errors
@@ -59,6 +57,9 @@ export class HttpResInterceptor implements HttpInterceptor {
       showAlert = true;
     } else if (error.status === 404 && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
+    } else if (error.status === 409 && req.url.includes('crackertypes')) {
+      errmsg = error.error.title;
+      showAlert = true;
     } else if (error.status === 0) {
       const frontendBaseURL = window.location.href.split('/').slice(0, 3).join('/');
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(

@@ -50,7 +50,19 @@ describe('NewCrackerComponent', () => {
     expect(component.newCrackerForm).toBeTruthy();
   });
 
-  it('should have exactly two selectable options in input-select', () => {
+  it('should have exactly two selectable options in input-select-binaryTypeName', () => {
+    fixture.detectChanges();
+    const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-binaryTypeName"]'));
+    expect(selectDebugEl).toBeTruthy();
+
+    // Check property 'items' of InputSelectComponent
+    const inputSelectInstance = selectDebugEl.componentInstance;
+    expect(inputSelectInstance.items.length).toBe(2);
+    expect(inputSelectInstance.items[0].name).toBe('Hashcat');
+    expect(inputSelectInstance.items[1].name).toBe('Generic Cracker');
+  });
+
+  it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
     fixture.detectChanges();
     const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
     expect(selectDebugEl).toBeTruthy();
@@ -70,7 +82,7 @@ describe('NewCrackerComponent', () => {
 
   it('should call create and navigate on valid form', async () => {
     component.newCrackerForm.patchValue({
-      typeName: 'TestCracker',
+      typeName: 'Hashcat',
       isChunkingAvailable: true
     });
 
@@ -93,15 +105,19 @@ describe('NewCrackerComponent', () => {
 
   it('should show error if create fails', async () => {
     component.newCrackerForm.patchValue({
-      typeName: 'TestCrackerFail',
+      typeName: 'hashcat',
       isChunkingAvailable: false
     });
 
     // Simulate create failure
-    mockGlobalService.create.and.returnValue(throwError(() => new Error('Create failed')));
+    mockGlobalService.create.and.returnValue(
+      throwError(() => new Error('An error occurred while creating the Cracker type.'))
+    );
 
     await component.onSubmit();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error creating cracker type');
+    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(
+      'An error occurred while creating the Cracker type.'
+    );
   });
 
   it('should show required field error message if fields are empty', () => {

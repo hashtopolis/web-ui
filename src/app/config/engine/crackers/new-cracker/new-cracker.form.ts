@@ -19,7 +19,7 @@ export interface NewCrackerForm {
  */
 export const getNewCrackerForm = () => {
   return new FormGroup<NewCrackerForm>({
-    typeName: new FormControl('', [Validators.required]),
+    typeName: new FormControl('Hashcat', [Validators.required]),
     isChunkingAvailable: new FormControl(undefined, [Validators.required])
   });
 };

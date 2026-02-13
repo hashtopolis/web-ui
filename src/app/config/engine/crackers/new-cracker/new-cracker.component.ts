@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,15 +22,15 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+  protected roleService = inject(CrackerBinaryRoleService);
+
   newCrackerForm: FormGroup<NewCrackerForm>;
   loading: boolean;
 
-  constructor(
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService,
-    protected roleService: CrackerBinaryRoleService
-  ) {
+  constructor() {
     this.newCrackerForm = getNewCrackerForm();
     this.loading = false;
   }
@@ -52,9 +52,9 @@ export class NewCrackerComponent {
       this.alert.showSuccessMessage('Cracker type created!');
       void this.router.navigate(['config/engine/crackers']);
     } catch (err) {
-      const msg = 'Error creating cracker type';
-      console.error(msg, err);
-      this.alert.showErrorMessage(msg);
+      if (!err.error?.title) {
+        this.alert.showErrorMessage('An error occurred while creating the Cracker type.');
+      }
     } finally {
       this.loading = false;
     }
