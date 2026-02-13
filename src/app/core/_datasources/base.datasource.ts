@@ -32,7 +32,7 @@ import { environment } from '@src/environments/environment';
  */
 @Injectable()
 export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
-  public pageSize = 10;
+  public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: SortingColumn;
