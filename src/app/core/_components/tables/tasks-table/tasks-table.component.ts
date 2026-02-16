@@ -101,7 +101,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
   handleBackendSqlFilter(event: string) {
-    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn.dataKey, operator: FilterType.ICONTAINS, parent: this.selectedFilterColumn.parent };
+    const filterQuery: Filter = { 
+      value: event,
+      field: this.selectedFilterColumn.dataKey,
+      operator: FilterType.ICONTAINS,
+      parent: this.selectedFilterColumn.parent };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }

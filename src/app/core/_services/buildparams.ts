@@ -10,9 +10,7 @@
 import { HttpParams } from '@angular/common/http';
 import { Filter, type RequestParams } from '../_models/request-params.model';
 
-export function setParameter(
-  params: RequestParams
-): HttpParams {
+export function setParameter(params: RequestParams): HttpParams {
   let httpParams = new HttpParams();
 
   // Handle pagination parameters
@@ -33,7 +31,6 @@ export function setParameter(
 
   // Handle filter parameters
   const filters: Array<Filter> = params.filter;
-  console.log(filters);
   if (Array.isArray(filters)) {
     filters.forEach((filter) => {
       const parent = filter.parent ? `${filter.parent}.` : '';
