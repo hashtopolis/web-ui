@@ -51,9 +51,9 @@ export class NewCrackerComponent {
       this.alert.showSuccessMessage('Cracker type created!');
       void this.router.navigate(['config/engine/crackers']);
     } catch (err) {
-      const msg = 'Error creating cracker type';
-      console.error(msg, err);
-      this.alert.showErrorMessage(msg);
+      if (!err.error?.title) {
+        this.alert.showErrorMessage('An error occurred while creating the Cracker type.');
+      }
     } finally {
       this.loading = false;
     }

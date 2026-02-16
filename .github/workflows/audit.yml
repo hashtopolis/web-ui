@@ -1,12 +1,11 @@
 name: npm audit
 
 on:
-  pull_request:           # on every PR to master
+  pull_request: # on every PR to master
     branches:
       - master
   schedule:
-    - cron: '0 3 * * *'   # every day at 3am
-
+    - cron: '0 3 * * *' # every day at 3am
 
 jobs:
   scan:
@@ -19,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.12.0
+          node-version-file: .nvmrc
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - uses: oke-py/npm-audit-action@v3
@@ -27,4 +26,3 @@ jobs:
           audit_level: high
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create_issues: 'false'
-

@@ -2,7 +2,7 @@ name: Angular CI
 
 on:
   pull_request:
-    branches: [ "master" ]  # trigger build on PR to master
+    branches: ['master'] # trigger build on PR to master
 
 jobs:
   code-check:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.12.0
+          node-version-file: .nvmrc
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -42,7 +42,6 @@ jobs:
           echo "Linting files: $FILES"
           npx eslint $FILES
 
-
       - name: Run Prettier check on changed files
         if: steps.changed-files.outputs.all_changed_files != ''
         run: echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | xargs npx prettier --check
@@ -51,18 +50,14 @@ jobs:
     name: Run Tests & Build
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        node-version: [ 24.12.0 ]
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           cache: 'npm'
           cache-dependency-path: package-lock.json
 

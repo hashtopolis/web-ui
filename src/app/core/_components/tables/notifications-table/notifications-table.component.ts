@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JNotification } from '@models/notification.model';
 
@@ -29,7 +29,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './notifications-table.component.html',
   standalone: false
 })
-export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
   selectedFilterColumn: string;
@@ -41,6 +41,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new NotificationsContextMenuService(this.permissionService).addContextMenu();
     this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
