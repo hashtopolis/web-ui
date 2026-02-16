@@ -63,7 +63,12 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey,
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

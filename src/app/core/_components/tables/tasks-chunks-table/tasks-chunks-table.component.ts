@@ -143,7 +143,12 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey,
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
     } else {
       this.dataSource.loadAll().then();
     }
