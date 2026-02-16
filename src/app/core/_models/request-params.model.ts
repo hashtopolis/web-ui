@@ -30,6 +30,7 @@ export interface Filter {
   field: string;
   operator: FilterType;
   value: string | number | number[] | boolean | string[];
+  parent?: string;
 }
 
 /**

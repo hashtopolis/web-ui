@@ -28,7 +28,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -52,7 +52,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

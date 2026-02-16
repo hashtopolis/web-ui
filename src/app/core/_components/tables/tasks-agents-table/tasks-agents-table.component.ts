@@ -62,7 +62,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: HTTableColumn = {id: 0, dataKey: "all"};
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -90,7 +90,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
-    switch (selectedColumn) {
+    switch (selectedColumn.dataKey) {
       case 'all': {
         // Search across multiple relevant fields
         return (

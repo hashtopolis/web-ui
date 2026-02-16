@@ -40,7 +40,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   @Output() updateFormEvent = new EventEmitter<PrepareAttackResult>();
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   ngOnInit(): void {
     this.setColumnLabels(FilesAttackTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -63,7 +63,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

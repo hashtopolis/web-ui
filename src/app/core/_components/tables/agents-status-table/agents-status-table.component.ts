@@ -42,7 +42,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
@@ -72,7 +72,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

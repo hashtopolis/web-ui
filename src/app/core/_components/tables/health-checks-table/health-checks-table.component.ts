@@ -33,7 +33,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
@@ -60,7 +60,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

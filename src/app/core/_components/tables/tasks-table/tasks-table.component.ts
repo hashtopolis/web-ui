@@ -59,7 +59,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
@@ -89,14 +89,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   handleBackendSqlFilter(event: string) {
-    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    console.log(event);
+    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn.dataKey, operator: FilterType.ICONTAINS, parent: this.selectedFilterColumn.parent };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
@@ -129,6 +130,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
         isSortable: true,
         parent: 'task',
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
       {
@@ -266,6 +268,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
             };
           },
           isSortable: true,
+          isSearchable: true,
           export: async (wrapper: JTaskWrapper) => wrapper.priority + ''
         },
         {
@@ -279,6 +282,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
             };
           },
           isSortable: true,
+          isSearchable: true,
           export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.maxAgents + ''
         }
       );

@@ -26,7 +26,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   @Input() search: string[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
@@ -50,7 +50,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

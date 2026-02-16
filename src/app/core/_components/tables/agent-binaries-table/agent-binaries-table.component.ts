@@ -32,7 +32,7 @@ import { environment } from '@src/environments/environment';
 export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   agentdownloadURL: string;
 
   ngOnInit(): void {
@@ -60,7 +60,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

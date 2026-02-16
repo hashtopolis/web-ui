@@ -56,7 +56,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {
@@ -100,7 +100,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({ value: input, field: selectedColumn.dataKey, operator: FilterType.ICONTAINS, parent: selectedColumn.parent });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty

@@ -55,7 +55,7 @@ export class TasksFilesTableComponent extends BaseTableComponent implements OnIn
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: HTTableColumn = {id: 0, dataKey: "all"};
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {
@@ -102,7 +102,7 @@ export class TasksFilesTableComponent extends BaseTableComponent implements OnIn
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
-    switch (selectedColumn) {
+    switch (selectedColumn.dataKey) {
       case 'all': {
         // Search across multiple relevant fields
         return (

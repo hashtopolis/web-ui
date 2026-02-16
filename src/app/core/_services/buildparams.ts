@@ -33,9 +33,11 @@ export function setParameter(
 
   // Handle filter parameters
   const filters: Array<Filter> = params.filter;
+  console.log(filters);
   if (Array.isArray(filters)) {
     filters.forEach((filter) => {
-      httpParams = httpParams.set(`filter[${filter.field}__${filter.operator}]`, filter.value.toString());
+      const parent = filter.parent ? `${filter.parent}.` : '';
+      httpParams = httpParams.set(`filter[${parent}${filter.field}__${filter.operator}]`, filter.value.toString());
     });
   }
 
