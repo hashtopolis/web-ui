@@ -2,7 +2,7 @@ name: Angular CI
 
 on:
   pull_request:
-    branches: [ "master" ]  # trigger build on PR to master
+    branches: ['master'] # trigger build on PR to master
 
 jobs:
   code-check:
@@ -41,7 +41,6 @@ jobs:
           FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           echo "Linting files: $FILES"
           npx eslint $FILES
-
 
       - name: Run Prettier check on changed files
         if: steps.changed-files.outputs.all_changed_files != ''

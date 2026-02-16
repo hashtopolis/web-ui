@@ -1,4 +1,4 @@
-<mat-form-field [ngStyle]="{width: width}">
+<mat-form-field [ngStyle]="{width: width}" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>
     @if (!isLoading) {
       {{ title }}
@@ -21,11 +21,13 @@
 
   <mat-select
     #inputField
-    [(ngModel)]="value"
-    #ngModel="ngModel"
+    [value]="value"
     (selectionChange)="onChangeValue($event.value)"
+    (openedChange)="onOpenedChange($event)"
     [required]="!isLoading && isRequired"
     [disabled]="disabled"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     >
     @if (isBlankOptionDisabled) {
       <mat-option [value]="0">
@@ -43,8 +45,8 @@
   @if (hint) {
     <mat-hint>{{ hint }}</mat-hint>
   }
-  @if (ngModel.invalid && ngModel.touched) {
-    <mat-error>{{ title }} is required</mat-error>
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
   }
 
 </mat-form-field>

@@ -5,15 +5,15 @@
     }
   </div>
 } @else {
-  <mat-form-field class="custom-chip-grid">
+  <mat-form-field class="custom-chip-grid" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid
       #chipGridRef
-      [(ngModel)]="chipGridValidation"
-      #chipGridNgModel="ngModel"
       name="selectedItems"
       [required]="isRequired"
       aria-label="Items selection"
+      [class.ng-invalid]="hasError"
+      [class.ng-touched]="isTouched"
       >
       @for (item of selectedItems; track item) {
         <mat-chip-row (removed)="remove(item)">
@@ -34,8 +34,9 @@
       [matAutocomplete]="auto"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="onInputChipAdd($event)"
-      (input)="onSearchInputChange()"
-      [(ngModel)]="searchTerm"
+      (input)="onSearchInputChange($event)"
+      (blur)="onTouched()"
+      [value]="searchTerm"
       placeholder="{{ placeholder }}"
       />
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteSelect($event.option.value)">
@@ -45,10 +46,10 @@
         </mat-option>
       }
     </mat-autocomplete>
-    @if (chipGridValidation.length === 0) {
-      <mat-error>
+    @if (hasError && errors) {
+      <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
         This field is required.
-      </mat-error>
+      </mat-hint>
     }
   </mat-form-field>
 }

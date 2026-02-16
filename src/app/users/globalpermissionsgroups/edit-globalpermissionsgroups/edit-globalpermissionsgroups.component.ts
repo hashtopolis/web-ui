@@ -1,7 +1,7 @@
 /**
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 
@@ -21,6 +21,12 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
   standalone: false
 })
 export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+
   updateForm: FormGroup;
   processing = false;
 
@@ -28,13 +34,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   editedGPGIndex: number;
   editedGPG: JGlobalPermissionGroup;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService
-  ) {
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Edit Global Permissions']);
@@ -130,6 +130,9 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
           this.processing = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 }

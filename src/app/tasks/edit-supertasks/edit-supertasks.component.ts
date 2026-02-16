@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -60,18 +60,18 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
   @ViewChild('superTasksPretaskNotContainedTable') superTasksPretasksNotContainedTable: PretasksTableComponent;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer,
-    private confirmDialog: ConfirmDialogService,
-    protected roleService: SupertasksRoleService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  private confirmDialog = inject(ConfirmDialogService);
+  protected roleService = inject(SupertasksRoleService);
+
+  constructor() {
     this.buildForm();
     this.titleService.set(['Edit SuperTasks']);
   }
@@ -161,7 +161,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
         // For server errors try a fallback request without includes to at least load primary data
         if (err instanceof HttpErrorResponse && status && status >= 500) {
-          // eslint-disable-next-line no-console
           console.warn('loadData(): request with includes failed, retrying without includes', err);
           const retry$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex).subscribe({
             next: (response2: ResponseWrapper) => {
@@ -185,7 +184,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             },
             error: (err2: unknown) => {
               // Show friendly message for other server errors
-              // eslint-disable-next-line no-console
+
               console.error('Error loading supertask:', err2);
               const msg =
                 err2 instanceof HttpErrorResponse && err2.status
@@ -200,7 +199,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         }
 
         // For any other errors show a friendly message
-        // eslint-disable-next-line no-console
+
         console.error('Error loading supertask:', err);
         const msg = status ? `Error loading supertask (server returned ${status}).` : 'Error loading supertask.';
         this.alert.showErrorMessage(msg);
@@ -254,6 +253,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

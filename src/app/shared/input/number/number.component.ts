@@ -44,7 +44,10 @@ export class InputNumberComponent extends AbstractInputComponent<number> {
   @Input() min?: number;
   @Input() max?: number;
 
-  constructor() {
-    super();
+  onValueChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const numValue = target.value ? parseFloat(target.value) : null;
+    this.value = numValue;
+    this.onChange(this.value);
   }
 }

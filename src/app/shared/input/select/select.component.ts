@@ -29,19 +29,25 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   ],
   standalone: false
 })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class InputSelectComponent extends AbstractInputComponent<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() items: any;
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  constructor() {
-    super();
-  }
-
   onChangeValue(value) {
     this.value = value;
     this.onChange(value);
+    this.onTouched();
+  }
+
+  onOpenedChange(opened: boolean) {
+    // When the select panel closes, mark as touched
+    if (!opened) {
+      this.onTouched();
+    }
   }
 }

@@ -98,6 +98,8 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   onSubmit() {
     if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.loginForm.updateValueAndValidity();
       return;
     }
     const username = this.loginForm.value.username;

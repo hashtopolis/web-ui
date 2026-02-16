@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -32,25 +32,20 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectCrackertype: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectCrackerversions: any = [];
 
-  /**
-   * @param {UnsubscribeService} unsubscribeService - The service managing unsubscribing from observables.
-   * @param {AutoTitleService} titleService - The service for managing the title of the component.
-   * @param {AlertService} alert - The service for displaying alerts.
-   * @param {GlobalService} gs - The global service used for API calls and global functionalities.
-   * @param {Router} router - The Angular router service for navigation.
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.buildForm();
-    titleService.set(['New Health Check']);
+    this.titleService.set(['New Health Check']);
   }
 
   /**
@@ -143,6 +138,9 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

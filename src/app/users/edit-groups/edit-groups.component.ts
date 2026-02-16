@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -58,19 +58,19 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   @ViewChild('userTable') userTable: AccessGroupsUserTableComponent;
   @ViewChild('agentTable') agentTable: AccessGroupsAgentsTableComponent;
 
-  constructor(
-    private alert: AlertService,
-    private confirmDialog: ConfirmDialogService,
-    private gs: GlobalService,
-    private route: ActivatedRoute,
-    private router: Router,
-    readonly titleService: AutoTitleService,
-    private unsubscribeService: UnsubscribeService,
-    protected roleService: AccessGroupRoleService
-  ) {
+  private alert = inject(AlertService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private gs = inject(GlobalService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  readonly titleService = inject(AutoTitleService);
+  private unsubscribeService = inject(UnsubscribeService);
+  protected roleService = inject(AccessGroupRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit Access Group']);
+    this.titleService.set(['Edit Access Group']);
   }
 
   /**
@@ -229,6 +229,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

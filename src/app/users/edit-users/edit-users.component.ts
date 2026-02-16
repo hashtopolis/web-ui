@@ -1,6 +1,6 @@
 import { finalize } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -56,19 +56,19 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   editedUserIndex: number;
   editedUserName: string;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private datePipe: uiDatePipe,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private confirmDialog: ConfirmDialogService,
-    protected userRoleService: UserRoleService,
-    protected permissionRoleService: PermissionRoleService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private datePipe = inject(uiDatePipe);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private confirmDialog = inject(ConfirmDialogService);
+  protected userRoleService = inject(UserRoleService);
+  protected permissionRoleService = inject(PermissionRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Edit User']);
@@ -184,6 +184,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully updated`));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

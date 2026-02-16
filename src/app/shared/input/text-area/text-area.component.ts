@@ -30,7 +30,9 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   standalone: false
 })
 export class InputTextAreaComponent extends AbstractInputComponent<string> {
-  constructor() {
-    super();
+  onValueChange(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.value = target.value;
+    this.onChange(this.value);
   }
 }

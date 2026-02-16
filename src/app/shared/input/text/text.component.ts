@@ -53,7 +53,9 @@ export class InputTextComponent extends AbstractInputComponent<string> {
     return this.inputType;
   }
 
-  constructor() {
-    super();
+  onValueChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.value = target.value;
+    this.onChange(this.value);
   }
 }
