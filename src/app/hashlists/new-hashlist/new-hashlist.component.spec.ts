@@ -202,7 +202,7 @@ describe('NewHashlistComponent', () => {
         hashTypeId: '2500',
         accessGroupId: 1,
         format: 0,
-        sourceType: 'import',
+        sourceType: 'upload',
         sourceData: 'hashes'
       });
       component.form.updateValueAndValidity();
@@ -226,13 +226,13 @@ describe('NewHashlistComponent', () => {
       dataTransfer.items.add(file);
       component.selectedFiles = dataTransfer.files;
 
-      // Patch form with required values and sourceType 'import'
+      // Patch form with required values and sourceType 'upload'
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
         accessGroupId: 1,
         format: 0,
-        sourceType: 'import'
+        sourceType: 'upload'
       });
 
       uploadSpy.uploadFile.and.returnValue(of(0, 50, 100));
@@ -268,13 +268,13 @@ describe('NewHashlistComponent', () => {
     }));
   });
 
-  it('should NOT submit if sourceType is import and no file selected', () => {
+  it('should NOT submit if sourceType is upload and no file selected', () => {
     component.form.patchValue({
       name: 'Test Hashlist',
       hashTypeId: '2500',
       accessGroupId: 1,
       format: 0,
-      sourceType: 'import'
+      sourceType: 'upload'
     });
     component.selectedFiles = null; // No files selected
 

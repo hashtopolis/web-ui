@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JConfig } from '@models/configs.model';
+import { ServerImportFile } from '@models/file.model';
 import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -73,6 +74,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   fileName: string;
   uploadProgress = 0;
 
+  serverFiles: ServerImportFile[] = [];
+  serverFileOptions: SelectOption[] = [];
+  isLoadingServerFiles = false;
+  hasLoadedServerFiles = false;
+
   saltSubscription = new Subscription();
 
   // Unsubcribe
@@ -111,6 +117,20 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
         } else {
           separatorCtrl?.disable();
           isHexSaltCtrl?.disable();
+        }
+      })
+    );
+
+    this.saltSubscription.add(
+      this.form.get('sourceType').valueChanges.subscribe((sourceType: string) => {
+        if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+          void this.loadServerFiles();
+        }
+
+        if (sourceType !== 'upload') {
+          this.selectedFiles = null;
+          this.fileName = '';
+          this.uploadProgress = 0;
         }
       })
     );
@@ -190,6 +210,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * @param  files - The list of files to be uploaded.
    */
   onuploadFile(files: FileList | null): void {
+    if (!files || files.length === 0) {
+      this.alert.showErrorMessage('Please select a hash file to upload.');
+      return;
+    }
+
     this.isCreatingLoading = true;
     // Represents the modified form data without the fake path prefix.
     const newForm = { ...this.form.getRawValue() };
@@ -198,6 +223,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     if (newForm.sourceData) {
       newForm.sourceData = removeFakePath(newForm.sourceData);
     }
+
+    newForm.sourceType = 'import';
 
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
@@ -220,6 +247,25 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.fileName = files[0].name;
   }
 
+  async loadServerFiles(): Promise<void> {
+    this.isLoadingServerFiles = true;
+    this.changeDetectorRef.detectChanges();
+    try {
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
+      this.hasLoadedServerFiles = true;
+    } catch (error) {
+      console.error('Error fetching server import files:', error);
+      this.alert.showErrorMessage('Could not load files from server import directory.');
+    } finally {
+      this.isLoadingServerFiles = false;
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+
   /**
    * Create Hashlist in case without file upload
    */
@@ -233,7 +279,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     const sourceType = this.form.get('sourceType').value;
 
     // Validate required input based on sourceType
-    if (sourceType === 'import') {
+    if (sourceType === 'upload') {
       if (!this.selectedFiles || this.selectedFiles.length === 0) {
         this.alert.showErrorMessage('Please select a hash file to upload.');
         return; // stop submission
@@ -260,6 +306,18 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
           }
         }
       }
+    } else if (sourceType === 'import') {
+      const sourceData = this.form.get('sourceData').value;
+      if (!sourceData || sourceData.trim() === '') {
+        this.alert.showErrorMessage('Please select a file from the server import directory.');
+        return;
+      }
+    } else if (sourceType === 'url') {
+      const sourceData = this.form.get('sourceData').value;
+      if (!sourceData || sourceData.trim() === '') {
+        this.alert.showErrorMessage('Please provide a URL to download hashes from.');
+        return;
+      }
     } else {
       this.alert.showErrorMessage('Unknown source type selected.');
       return; // stop submission
@@ -272,6 +330,18 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       });
       this.isCreatingLoading = true;
 
+      try {
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
+        this.alert.showSuccessMessage('New HashList created');
+        this.router.navigate(['/hashlists/hashlist']);
+      } catch (error) {
+        console.error('Error creating Hashlist', error);
+        this.alert.showErrorMessage('Failed to create hashlist.');
+      } finally {
+        this.isCreatingLoading = false;
+      }
+    } else if (sourceType === 'import' || sourceType === 'url') {
+      this.isCreatingLoading = true;
       try {
         await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
         this.alert.showSuccessMessage('New HashList created');

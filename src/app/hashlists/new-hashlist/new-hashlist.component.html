@@ -85,7 +85,7 @@
       </div>
     }
 
-    @if (sourceType === 'import') {
+    @if (sourceType === 'upload') {
       <div>
         <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
         <br>
@@ -106,6 +106,56 @@
         <grid-buttons>
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
           <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
+          @if (isCreatingLoading) {
+            <div>
+              <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+          }
+        </grid-buttons>
+      </div>
+    }
+
+    @if (sourceType === 'import') {
+      <div>
+        @if (isLoadingServerFiles) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading files from server import directory...</span>
+          </div>
+        } @else {
+          <input-select
+            title="Server import file"
+            formControlName="sourceData"
+            [items]="serverFileOptions"
+            [isRequired]="true"
+          ></input-select>
+          @if (serverFileOptions.length === 0) {
+            <fixed-alert message="No files found in the server import directory."></fixed-alert>
+          }
+        }
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'" [disabled]="!form.valid || serverFileOptions.length === 0"></button-submit>
+          @if (isCreatingLoading) {
+            <div>
+              <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+          }
+        </grid-buttons>
+      </div>
+    }
+
+    @if (sourceType === 'url') {
+      <div>
+        <input-text
+          title="URL path"
+          formControlName="sourceData"
+          pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+          [isRequired]="true"
+        ></input-text>
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'" [disabled]="!form.valid"></button-submit>
           @if (isCreatingLoading) {
             <div>
               <mat-spinner diameter="24" color="accent"></mat-spinner>
