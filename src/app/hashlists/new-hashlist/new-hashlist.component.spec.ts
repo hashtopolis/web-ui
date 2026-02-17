@@ -241,7 +241,12 @@ describe('NewHashlistComponent', () => {
 
       tick();
 
-      expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, component.form.value, [
+      const expectedPayload = {
+        ...component.form.value,
+        sourceType: 'import'
+      };
+
+      expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, expectedPayload, [
         '/hashlists/hashlist'
       ]);
 
