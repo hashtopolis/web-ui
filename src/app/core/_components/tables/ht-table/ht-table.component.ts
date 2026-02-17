@@ -12,7 +12,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -223,11 +224,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     textFilter: new FormControl('')
   });
   filterError: string | null = null;
-  constructor(
-    public dialog: MatDialog,
-    private cd: ChangeDetectorRef,
-    private storage: LocalStorageService<UIConfig>
-  ) {}
+
+  public dialog = inject(MatDialog);
+  private cd = inject(ChangeDetectorRef);
+  private storage = inject(LocalStorageService<UIConfig>);
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -573,7 +573,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataSource.pageAfter = tableSettings['start'];
     this.dataSource.pageBefore = tableSettings['before'];
     this.dataSource.index = tableSettings['index'];
-    this.dataSource.totalItems = tableSettings['totalItems'];
+    // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     this.dataSource.reload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
