@@ -55,7 +55,7 @@ export class SERV {
   // USERS
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };
-  public static FORGOT = {URL: '/helper/resetUserPassword', RESOURCE: 'resetUserPassword'};
+  public static FORGOT = { URL: '/helper/resetUserPassword', RESOURCE: 'resetUserPassword' };
   // PROJECTS
   public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }
