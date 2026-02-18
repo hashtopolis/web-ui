@@ -9,6 +9,7 @@ import { ComponentsModule } from '../shared/components.module';
 import { AuthComponent } from './auth.component';
 import { CoreFormsModule } from '../shared/forms.module';
 import { AuthRoutingModule } from './auth-routing.module';
+import { SERV } from '@services/main.config';
 
 @NgModule({
   declarations: [AuthComponent],
@@ -21,7 +22,9 @@ import { AuthRoutingModule } from './auth-routing.module';
         component: FormComponent,
         data: {
           kind: 'authforgot',
-          type: 'create'
+          type: 'helper',
+          serviceConfig: SERV.FORGOT,
+          showDeleteButton: false
         }
       }
     ]),

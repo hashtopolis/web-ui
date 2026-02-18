@@ -10,7 +10,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
-import { ServiceConfig } from '@services/main.config';
+import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -31,6 +31,8 @@ export class FormComponent implements OnInit, OnDestroy {
 
   serviceConfig: ServiceConfig;
 
+  showDeleteButton: boolean;
+
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
    * This property determines whether the form is in the process of creating a new item or editing an existing one.
@@ -43,7 +45,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * When true, the form is fully loaded and can be displayed; otherwise, it's still being prepared.
    * @type {boolean}
    */
-  isloaded = false;
+  isloaded: boolean = false;
 
   /**
    * Flag that specifies whether the form is in "create" mode.
@@ -119,7 +121,7 @@ export class FormComponent implements OnInit, OnDestroy {
   ) {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
-      (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
+      (data: { kind: string; serviceConfig: ServiceConfig; type: string}) => {
         const formKind = data.kind;
         this.serviceConfig = data.serviceConfig; // Get the API path from route data
         this.type = data.type;
@@ -225,6 +227,13 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
+        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+      });
+
+      this.unsubscribeService.add(createSubscription);
+    } else if (this.type === 'helper') {
+      const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
         this.alert.showSuccessMessage(this.globalMetadata['submitok']);
         this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
       });
