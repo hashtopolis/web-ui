@@ -2,7 +2,7 @@ import { DataTableDirective } from 'angular-datatables';
 import { Subject, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -59,27 +59,27 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   private httpNoInterceptors: HttpClient;
 
+  private unsavedChangesService = inject(UnsavedChangesService);
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private format = inject(StaticArrayPipe);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  protected roleService = inject(HashListRoleService);
+
   /**
    * Constructor for the component.
    */
-  constructor(
-    private unsavedChangesService: UnsavedChangesService,
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private format: StaticArrayPipe,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private cs: ConfigService,
-    private http: HttpClient,
-    httpBackend: HttpBackend,
-    protected roleService: HashListRoleService
-  ) {
+  constructor() {
     this.updateForm = getEditHashlistForm();
     this.titleService.set(['Edit Hashlist']);
-    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   /**
@@ -109,7 +109,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
       // For other errors (500 etc.) show a friendly message instead of redirecting
       // so the user knows the server failed. Keep the loading flag disabled.
-      // eslint-disable-next-line no-console
+
       console.error('Error loading hashlist:', e);
       const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
       this.alert.showErrorMessage(msg);
@@ -163,7 +163,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     } catch (err: unknown) {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         // Retry without includes if server failed resolving relationships
-        // eslint-disable-next-line no-console
+
         console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
         const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
@@ -200,7 +200,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   private async loadData(): Promise<void> {
-    // Respetamos la lógica de roles del master
     if (!this.roleService.hasRole('groups')) {
       return;
     }
@@ -231,6 +230,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
           this.router.navigate([path]);
         });
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

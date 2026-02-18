@@ -40,7 +40,7 @@ export const getNewHashlistForm = () => {
     useBrain: new FormControl(false),
     brainFeatures: new FormControl(3),
     notes: new FormControl(''),
-    sourceType: new FormControl('import'),
+    sourceType: new FormControl('upload'),
     sourceData: new FormControl(''),
     hashCount: new FormControl(0),
     isArchived: new FormControl(false),

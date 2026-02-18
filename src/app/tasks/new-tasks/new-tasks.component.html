@@ -54,17 +54,22 @@
                 </mat-panel-title>
               </mat-expansion-panel-header>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-                <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
+                <input-number title="Chunk time" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
                 <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
-                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
-                <input-number title="if yes, chunk size:" formControlName="chunkSize"></input-number>
-                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
                 <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
                 <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
                 <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
+              </div>
+              <hr><br>
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
+                @if (form.get('staticChunks').value === 1) {
+                  <input-number title="Fixed size of chunks" formControlName="chunkSize" [tooltip]="tasktip.chunkSize"></input-number>
+                } @else if (form.get('staticChunks').value === 2) {
+                  <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
+                }
               </div>
               <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">

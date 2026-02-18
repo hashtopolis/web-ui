@@ -2,7 +2,7 @@ import { DataTableDirective } from 'angular-datatables';
 import { Subject, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -59,21 +59,21 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** HttpClient without interceptors to avoid global error dialog */
   private httpNoInterceptors: HttpClient;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer,
-    private cs: ConfigService,
-    private http: HttpClient,
-    httpBackend: HttpBackend,
-    protected roleService: PreconfiguredTasksRoleService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  protected roleService = inject(PreconfiguredTasksRoleService);
+
+  constructor() {
     this.titleService.set(['Edit Preconfigured Tasks']);
-    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
     this.buildForm();
   }
 
@@ -105,7 +105,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
       // For other errors (500 etc.) show a friendly message instead of redirecting
       // so the user knows the server failed. Keep the loading flag disabled.
-      // eslint-disable-next-line no-console
+
       console.error('Error loading pretask:', e);
       const msg = status ? `Error loading pretask (server returned ${status}).` : 'Error loading pretask.';
       this.alert.showErrorMessage(msg);
@@ -227,6 +227,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
           this.router.navigate(['tasks/preconfigured-tasks']);
         });
       this.unsubscribeService.add(updateSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 }

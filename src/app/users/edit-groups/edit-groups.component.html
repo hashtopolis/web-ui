@@ -16,57 +16,49 @@
     </grid-buttons>
 
   </form>
-  @if (roleService.hasRole('readUser')) {
-    <h5>Add Users</h5>
-    <form [formGroup]="addUsersForm">
-      @if (!isUsersLoading) {
-        <div fxLayout="column" fxLayoutAlign="start start">
-          <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Users...'" [items]="selectUsers"
-                             [label]="'Select or search Users'"
-                             [mergeIdAndName]="true" formControlName="userIds" style="flex: 1;">
-          </input-multiselect>
-          <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
-            <button-submit [name]="'Add'" (click)="onAddUsers()"
-                           [disabled]="!addUsersForm.valid || !roleService.hasRole('update')"></button-submit>
-          </div>
-        </div>
-      } @else {
-        <div class="loading-spinner">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Loading Users...</span>
-        </div>
-      }
-    </form>
-  }
-  @if (roleService.hasRole('readAgent')) {
-    <h5>Add Agents</h5>
-    <form [formGroup]="addAgentsForm">
-      @if (!isAgentsLoading) {
-        <div fxLayout="column" fxLayoutAlign="start start">
-          <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Agents...'" [items]="selectAgents"
-                             [label]="'Select or search Agents'" [mergeIdAndName]="true" formControlName="agentIds"
-                             style="flex: 1;">
-          </input-multiselect>
-          <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
-            <button-submit [name]="'Add'" (click)="onAddAgents()"
-                           [disabled]="!addAgentsForm.valid || !roleService.hasRole('update')"></button-submit>
-          </div>
-          <button style="margin-top: 10px;" mat-icon-button (click)="refresh()">
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </div>
-      } @else {
-        <div class="loading-spinner">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Loading Agents...</span>
-        </div>
-      }
-    </form>
-  }
 </grid-main>
 @if (editedAccessGroupIndex && roleService.hasRole('readUser')) {
   <app-table>
     <app-page-subtitle subtitle="User Members"></app-page-subtitle>
+    <div style="margin: 8px 0 12px 0;">
+      <button-submit
+        [name]="showAddUsersForm ? 'Close' : 'Add Users'"
+        (click)="toggleAddUsersForm()"
+        [disabled]="!roleService.hasRole('update')"
+      ></button-submit>
+    </div>
+
+    @if (showAddUsersForm) {
+      <form [formGroup]="addUsersForm" style="margin-bottom: 12px;">
+        @if (!isUsersLoading) {
+          <div fxLayout="column" fxLayoutAlign="start start">
+            <input-multiselect
+              [isLoading]="isUsersLoading"
+              [placeholder]="'Users...'"
+              [items]="selectUsers"
+              [label]="'Select or search Users'"
+              [mergeIdAndName]="true"
+              formControlName="userIds"
+              style="flex: 1;"
+            >
+            </input-multiselect>
+            <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+              <button-submit
+                [name]="'Add'"
+                (click)="onAddUsers()"
+                [disabled]="!addUsersForm.valid || !roleService.hasRole('update')"
+              ></button-submit>
+            </div>
+          </div>
+        } @else {
+          <div class="loading-spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading Users...</span>
+          </div>
+        }
+      </form>
+    }
+
     <access-groups-users-table
       #userTable
       [accessgroupId]="editedAccessGroupIndex"
@@ -77,6 +69,48 @@
 @if (editedAccessGroupIndex && roleService.hasRole('readAgent')) {
   <app-table>
     <app-page-subtitle subtitle="Agent Members"></app-page-subtitle>
+    <div style="margin: 8px 0 12px 0;" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+      <button-submit
+        [name]="showAddAgentsForm ? 'Close' : 'Add Agents'"
+        (click)="toggleAddAgentsForm()"
+        [disabled]="!roleService.hasRole('update')"
+      ></button-submit>
+      <button mat-icon-button (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (showAddAgentsForm) {
+      <form [formGroup]="addAgentsForm" style="margin-bottom: 12px;">
+        @if (!isAgentsLoading) {
+          <div fxLayout="column" fxLayoutAlign="start start">
+            <input-multiselect
+              [isLoading]="isAgentsLoading"
+              [placeholder]="'Agents...'"
+              [items]="selectAgents"
+              [label]="'Select or search Agents'"
+              [mergeIdAndName]="true"
+              formControlName="agentIds"
+              style="flex: 1;"
+            >
+            </input-multiselect>
+            <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+              <button-submit
+                [name]="'Add'"
+                (click)="onAddAgents()"
+                [disabled]="!addAgentsForm.valid || !roleService.hasRole('update')"
+              ></button-submit>
+            </div>
+          </div>
+        } @else {
+          <div class="loading-spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading Agents...</span>
+          </div>
+        }
+      </form>
+    }
+
     <app-access-groups-agents-table
       #agentTable
       [accessgroupId]="editedAccessGroupIndex"

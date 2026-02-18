@@ -1,6 +1,6 @@
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -83,17 +83,17 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - Service for accessing global application state.
    * @param {Router} router - Angular router service for navigating between views.
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private uploadService: UploadTUSService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private dialog: MatDialog,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private uploadService = inject(UploadTUSService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private dialog = inject(MatDialog);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.getLocation();
     this.buildForm();
     this.titleService.set([this.title]);
@@ -223,7 +223,13 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           this.submitted = false;
           console.error('Error creating file:', error);
         }
+      } else {
+        this.form.markAllAsTouched();
+        this.form.updateValueAndValidity();
       }
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

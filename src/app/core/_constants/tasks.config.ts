@@ -1,6 +1,6 @@
 export const staticChunking = [
   { id: 0, name: 'No' },
-  { id: 1, name: 'Fixed Chunk Size' },
+  { id: 1, name: 'Fixed chunk size' },
   { id: 2, name: 'Fixed number of chunks' }
 ];
 

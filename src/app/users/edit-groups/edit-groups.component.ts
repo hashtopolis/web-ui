@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -50,6 +50,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   isUpdatingLoading: boolean = false; // Show a spinner loading when form is being updated
   isUsersLoading: boolean = true; // Show a spinner while loading users for multiselect
 
+  showAddAgentsForm: boolean = false; // Toggle for add agents panel
+  showAddUsersForm: boolean = false; // Toggle for add users panel
+
   selectAgents: SelectOption[]; // Selectable agents to be added to the access group
   selectUsers: SelectOption[]; // Selectable users to be added to the access group
 
@@ -58,19 +61,19 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   @ViewChild('userTable') userTable: AccessGroupsUserTableComponent;
   @ViewChild('agentTable') agentTable: AccessGroupsAgentsTableComponent;
 
-  constructor(
-    private alert: AlertService,
-    private confirmDialog: ConfirmDialogService,
-    private gs: GlobalService,
-    private route: ActivatedRoute,
-    private router: Router,
-    readonly titleService: AutoTitleService,
-    private unsubscribeService: UnsubscribeService,
-    protected roleService: AccessGroupRoleService
-  ) {
+  private alert = inject(AlertService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private gs = inject(GlobalService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  readonly titleService = inject(AutoTitleService);
+  private unsubscribeService = inject(UnsubscribeService);
+  protected roleService = inject(AccessGroupRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit Access Group']);
+    this.titleService.set(['Edit Access Group']);
   }
 
   /**
@@ -213,6 +216,14 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
+  toggleAddUsersForm(): void {
+    this.showAddUsersForm = !this.showAddUsersForm;
+  }
+
+  toggleAddAgentsForm(): void {
+    this.showAddAgentsForm = !this.showAddAgentsForm;
+  }
+
   /**
    * Handles the form submission for updating access group data.
    * If the form is valid, it triggers the update process and navigates to the user list.
@@ -229,6 +240,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 
@@ -249,6 +263,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
 
         // Reset the form control after successful add
         this.addUsersForm.get('userIds')?.reset();
+        this.showAddUsersForm = false;
 
         this.refresh(); // Reload the select component
         this.userTable.reload();
@@ -266,8 +281,8 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Handles the form submission for adding new agents to the access group.
    */
   async onAddAgents() {
-    this.isUpdatingLoading = true;
     if (this.addAgentsForm.valid) {
+      this.isUpdatingLoading = true;
       const agents = this.addAgentsForm.get('agentIds').value.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
       try {
         await firstValueFrom(
@@ -275,15 +290,16 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             data: agents
           })
         );
-        this.alert.showSuccessMessage(`Successfully added ${agents.length} user${agents.length > 1 ? 's' : ''}`);
+        this.alert.showSuccessMessage(`Successfully added ${agents.length} agent${agents.length > 1 ? 's' : ''}`);
 
         // Reset the form control after successful add
         this.addAgentsForm.get('agentIds')?.reset();
+        this.showAddAgentsForm = false;
 
         this.refresh(); // Reload the select component
         this.agentTable.reload();
       } catch (error) {
-        const msg = `Failed to add user${agents.length > 1 ? 's' : ''} to access group`;
+        const msg = `Failed to add agent${agents.length > 1 ? 's' : ''} to access group`;
         console.error(msg, error);
         this.alert.showErrorMessage(msg);
       } finally {

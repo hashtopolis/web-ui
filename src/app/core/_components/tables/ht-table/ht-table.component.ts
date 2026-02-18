@@ -2,7 +2,19 @@
 // Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Subscription } from 'rxjs';
 
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -169,9 +181,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Default pagination index */
   @Input() defaultIndex = 0;
 
-  /** Default total items index */
-  @Input() defaultTotalItems = 0;
-
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
 
@@ -220,6 +229,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   filterError: string | null = null;
 
+  public dialog = inject(MatDialog);
+  private cd = inject(ChangeDetectorRef);
+  private storage = inject(LocalStorageService<UIConfig>);
+
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
@@ -230,7 +243,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.defaultStartPage = tableSettings['start'];
       this.defaultBeforePage = tableSettings['before'];
       this.defaultIndex = tableSettings['index'];
-      this.defaultTotalItems = tableSettings['totalItems'];
     }
 
     if (Array.isArray(displayedColumns)) {
@@ -264,13 +276,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // Get saved before page
       this.dataSource.pageBefore = this.defaultBeforePage;
       this.dataSource.index = this.defaultIndex;
-      this.dataSource.totalItems = this.defaultTotalItems;
-
-      this.dataSource.pageAfter = this.defaultStartPage;
-      // Get saved before page
-      this.dataSource.pageBefore = this.defaultBeforePage;
-      this.dataSource.index = this.defaultIndex;
-      this.dataSource.totalItems = this.defaultTotalItems;
+      // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     }
 
     // Sorted header arrow and sorting initialization
@@ -300,8 +306,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         start: undefined,
         before: undefined,
         page: this.dataSource.pageSize, // Store the new page size
-        index: this.dataSource.index, //store the new table index
-        totalItems: this.dataSource.totalItems
+        index: this.dataSource.index //store the new table index
       });
 
       // Update pagination configuration in the data source
@@ -572,7 +577,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataSource.pageAfter = tableSettings['start'];
     this.dataSource.pageBefore = tableSettings['before'];
     this.dataSource.index = tableSettings['index'];
-    this.dataSource.totalItems = tableSettings['totalItems'];
+    // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     this.dataSource.reload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
@@ -622,8 +627,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         start: pageAfter,
         before: pageBefore,
         page: event.pageSize, // Store the new page size
-        index: index, //store the new table index
-        totalItems: this.dataSource.totalItems
+        index: index //store the new table index
       });
     }
 

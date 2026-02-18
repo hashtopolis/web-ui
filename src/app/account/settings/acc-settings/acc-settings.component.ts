@@ -4,7 +4,7 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -69,13 +69,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   showPasswordForm: boolean = true;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private datePipe: uiDatePipe,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private titleService = inject(AutoTitleService);
+  private datePipe = inject(uiDatePipe);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.titleService.set(['Account Settings']);
   }
   /**
@@ -100,8 +100,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   createForm(): void {
     this.form = new FormGroup({
-      name: new FormControl({ value: '', disabled: true }),
-      registeredSince: new FormControl({ value: '', disabled: true }),
+      name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
+      registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       email: new FormControl('', [Validators.required, Validators.email])
     });
   }
@@ -157,6 +157,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
           this.isUpdatingLoading = false;
         })
       );
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

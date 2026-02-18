@@ -1,11 +1,12 @@
 import { of, throwError } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ValidationPatterns } from '@services/main.config';
+import { SERV, ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -20,6 +21,23 @@ describe('NewEditPreprocessorComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
   let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
+  let httpMock: HttpTestingController;
+
+  const preprocessorResponse = {
+    data: {
+      id: '9',
+      type: SERV.PREPROCESSORS.RESOURCE,
+      attributes: {
+        name: 'Test Preprocessor',
+        binaryName: 'test-preprocessor.bin',
+        url: 'https://example.com/preprocessor-1.0.0.7z',
+        keyspaceCommand: '--keyspace',
+        skipCommand: '--skip',
+        limitCommand: '--limit'
+      }
+    },
+    included: []
+  };
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create', 'get', 'update']);
@@ -41,9 +59,12 @@ describe('NewEditPreprocessorComponent', () => {
             paramMap: of({ get: () => null })
           }
         },
-        provideHttpClient()
+        provideHttpClient(),
+        provideHttpClientTesting()
       ]
     }).compileComponents();
+
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   beforeEach(() => {
@@ -51,6 +72,17 @@ describe('NewEditPreprocessorComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges(); // triggers ngOnInit and loads permissions
   });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function flushEditPreprocessorRequest() {
+    const req = httpMock.expectOne(
+      (request) => request.method === 'GET' && request.url.includes('/ui/preprocessors/9')
+    );
+    req.flush(preprocessorResponse);
+  }
 
   /**
    * Helper to check page title and button text
@@ -65,10 +97,8 @@ describe('NewEditPreprocessorComponent', () => {
   function expectPageTitleAndButton(title: string, buttonText: string) {
     const hostElement: HTMLElement = fixture.nativeElement;
 
-    // 1) Intentar localizar por data-testid (nuevo modo)
     let buttonEl = hostElement.querySelector('[data-testid="submit-button-newPreprocessor"]') as HTMLElement | null;
 
-    // 2) Fallback: cualquier botón de submit (por si en modo Edit no hay data-testid)
     if (!buttonEl) {
       buttonEl = hostElement.querySelector('button[type="submit"]') as HTMLElement | null;
     }
@@ -251,11 +281,10 @@ describe('NewEditPreprocessorComponent', () => {
     activatedRoute.snapshot.paramMap.get = () => '9';
 
     mockRoleService.hasRole.and.returnValue(true);
-    mockGlobalService.get.and.returnValue(of({ data: {}, included: [] }));
-
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    flushEditPreprocessorRequest();
 
     await fixture.whenStable();
 
@@ -302,11 +331,10 @@ describe('NewEditPreprocessorComponent', () => {
     // simulate edit-modus route with id=9
     activatedRoute.snapshot.paramMap.get = () => '9';
 
-    mockGlobalService.get.and.returnValue(of({ data: {}, included: [] }));
-
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    flushEditPreprocessorRequest();
 
     component.newEditPreprocessorForm.patchValue({
       name: 'Test Preprocessor',

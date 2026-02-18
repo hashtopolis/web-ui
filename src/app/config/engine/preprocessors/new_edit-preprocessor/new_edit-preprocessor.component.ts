@@ -1,7 +1,7 @@
 import { Subscription, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,25 +45,25 @@ export class NewEditPreprocessorComponent implements OnInit {
 
   isLoading = true;
 
-  private httpNoInterceptors: HttpClient;
-
   /**
    * Array to hold subscriptions for cleanup on component destruction.
    */
   subscriptions: Subscription[] = [];
 
-  constructor(
-    private route: ActivatedRoute,
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService,
-    private cs: ConfigService,
-    private http: HttpClient,
-    httpBackend: HttpBackend,
-    protected roleService: PreprocessorRoleService
-  ) {
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  protected roleService = inject(PreprocessorRoleService);
+
+  httpNoInterceptors: HttpClient;
+
+  constructor() {
     this.newEditPreprocessorForm = getNewEditPreprocessorForm();
-    this.httpNoInterceptors = new HttpClient(httpBackend);
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   async ngOnInit(): Promise<void> {
@@ -94,8 +94,7 @@ export class NewEditPreprocessorComponent implements OnInit {
 
         // For other server errors show an error message instead of redirecting
         // so the user knows the server failed. Keep the loading flag disabled.
-        // eslint-disable-next-line no-console
-        console.error('Error loading preprocessor:', e);
+
         const msg = status ? `Error loading preprocessor (server returned ${status}).` : 'Error loading preprocessor.';
         this.alert.showErrorMessage(msg);
         this.isLoading = false;
@@ -134,7 +133,11 @@ export class NewEditPreprocessorComponent implements OnInit {
    * Create / update preprocessor upon form submission and redirect on success
    */
   async onSubmit(): Promise<void> {
-    if (this.newEditPreprocessorForm.invalid) return;
+    if (this.newEditPreprocessorForm.invalid) {
+      this.newEditPreprocessorForm.markAllAsTouched();
+      this.newEditPreprocessorForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     const payload = {
@@ -154,9 +157,8 @@ export class NewEditPreprocessorComponent implements OnInit {
             void this.router.navigate(['config/engine/preprocessors']);
           })
         );
-      } catch (err) {
+      } catch {
         const msg = 'Error updating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;
@@ -166,9 +168,8 @@ export class NewEditPreprocessorComponent implements OnInit {
         await firstValueFrom(this.gs.create(SERV.PREPROCESSORS, payload));
         this.alert.showSuccessMessage('Preprocessor created!');
         void this.router.navigate(['config/engine/preprocessors']);
-      } catch (err) {
+      } catch {
         const msg = 'Error creating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;

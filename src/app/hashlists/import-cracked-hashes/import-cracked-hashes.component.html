@@ -21,16 +21,63 @@
             </simulate-form-field>
             <input-text title="Format" formControlName="format"></input-text>
           </div>
-          <div fxLayout="row" fxLayoutGap="1px" style="align-items: flex-start">
-            <input-text-area fxFlex="40" style="min-width: 0" title="Hashes" formControlName="hashes"></input-text-area>
-            <button
-              mat-icon-button
-              matTooltip="Be careful! Hashtopolis does NOT check if the precracked hash is correct!"
-              type="button"
-              >
-              <mat-icon color="primary">warning</mat-icon>
-            </button>
+          <div fxLayout="row wrap" fxLayoutGap="10px">
+            <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
+            @if (form.get('isSalted')?.value) {
+              <input-text title="Field separator" formControlName="separator"></input-text>
+            }
           </div>
+
+          @if (sourceType === 'paste') {
+            <div fxLayout="row" fxLayoutGap="1px" style="align-items: flex-start">
+              <input-text-area fxFlex="40" style="min-width: 0" title="Hashes" formControlName="hashes"></input-text-area>
+              <button
+                mat-icon-button
+                matTooltip="Be careful! Hashtopolis does NOT check if the precracked hash is correct!"
+                type="button"
+                >
+                <mat-icon color="primary">warning</mat-icon>
+              </button>
+            </div>
+          }
+
+          @if (sourceType === 'upload') {
+            <div>
+              <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+              @if (uploadProgress > 0) {
+                <div>
+                  <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+                </div>
+              }
+            </div>
+          }
+
+          @if (sourceType === 'import') {
+            <div>
+              @if (isLoadingServerFiles) {
+                <p>Loading files from server import directory...</p>
+              } @else {
+                <input-select
+                  title="Server import file"
+                  formControlName="sourceData"
+                  [items]="serverFileOptions"
+                  [isRequired]="true"
+                ></input-select>
+                @if (serverFileOptions.length === 0) {
+                  <fixed-alert message="No files found in the server import directory."></fixed-alert>
+                }
+              }
+            </div>
+          }
+
+          @if (sourceType === 'url') {
+            <input-text
+              title="URL path"
+              formControlName="sourceData"
+              pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+              [isRequired]="true"
+            ></input-text>
+          }
           <grid-buttons>
             <button-submit [name]="'Pre-crack hashes'"></button-submit>
             @if (isCreatingLoading) {
