@@ -55,7 +55,7 @@ export class TasksFilesTableComponent extends BaseTableComponent implements OnIn
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: HTTableColumn = {id: 0, dataKey: "all"};
+  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {

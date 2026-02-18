@@ -35,7 +35,7 @@ export class SuperHashlistsHashlistsTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: HTTableColumn = {id: 0, dataKey: "all"};
+  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistHashlistTableColumnLabel);

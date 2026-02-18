@@ -8,7 +8,8 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { Filter, type RequestParams } from '../_models/request-params.model';
+
+import { Filter, type RequestParams } from '@models/request-params.model';
 
 export function setParameter(params: RequestParams): HttpParams {
   let httpParams = new HttpParams();

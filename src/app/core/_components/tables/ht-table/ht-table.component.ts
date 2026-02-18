@@ -2,18 +2,7 @@
 // Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Subscription } from 'rxjs';
 
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -94,6 +83,10 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
+  dialog = inject(MatDialog);
+  private cd = inject(ChangeDetectorRef);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
   selectedFilterColumn: HTTableColumn;
@@ -226,11 +219,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     textFilter: new FormControl('')
   });
   filterError: string | null = null;
-  constructor(
-    public dialog: MatDialog,
-    private cd: ChangeDetectorRef,
-    private storage: LocalStorageService<UIConfig>
-  ) {}
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);

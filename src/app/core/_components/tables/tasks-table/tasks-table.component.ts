@@ -101,11 +101,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
   handleBackendSqlFilter(event: string) {
-    const filterQuery: Filter = { 
+    const filterQuery: Filter = {
       value: event,
       field: this.selectedFilterColumn.dataKey,
       operator: FilterType.ICONTAINS,
-      parent: this.selectedFilterColumn.parent };
+      parent: this.selectedFilterColumn.parent
+    };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
@@ -332,7 +333,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.SHOW_SUBTASKS:
-        // eslint-disable-next-line no-case-declarations
         this.rowActionEditSubtasks(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
