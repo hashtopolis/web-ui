@@ -1,15 +1,18 @@
-import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IsAuth } from '../core/_guards/auth.guard';
+
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { ComponentsModule } from '../shared/components.module';
-import { AuthComponent } from './auth.component';
-import { CoreFormsModule } from '../shared/forms.module';
-import { AuthRoutingModule } from './auth-routing.module';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
 import { SERV } from '@services/main.config';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+
+import { AuthRoutingModule } from '@src/app/auth/auth-routing.module';
+import { AuthComponent } from '@src/app/auth/auth.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
 
 @NgModule({
   declarations: [AuthComponent],
