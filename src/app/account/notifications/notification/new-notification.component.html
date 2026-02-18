@@ -5,7 +5,7 @@
     <div fxLayout="column">
       <input-select title="Trigger Action" formControlName="action" [items]="allowedActions" data-testid="select-action" [isRequired]="true"></input-select>
       @if (active) {
-        <input-select title="Value" formControlName="actionFilter" [items]="filters" data-testid="select-action-filter"></input-select>
+        <input-select title="Value" formControlName="actionFilter" [items]="filters" [isRequired]="actionFilterIsRequired" data-testid="select-action-filter"></input-select>
       }
       <input-select title="Notification" formControlName="notification" [items]="notifications" data-testid="select-notification" [isRequired]="true"></input-select>
       <input-text title="Receiver" formControlName="receiver" data-testid="input-receiver" [isRequired]="true"></input-text>

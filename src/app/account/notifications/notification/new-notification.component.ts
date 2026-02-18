@@ -48,6 +48,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   form: FormGroup;
   filters: Filter[];
   active = false;
+  actionFilterIsRequired = false;
   allowedActions: Array<{ id: string; name: string }> = [];
 
   maxResults: string | number;
@@ -138,13 +139,20 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     if (!this.actionsWithFilters.includes(action)) {
       this.active = false;
       this.filters = [];
-      this.form.get('actionFilter').setValue('');
+      this.actionFilterIsRequired = false;
+      this.resetActionFilter();
       return;
     }
 
     const path = this.actionToServiceMap[action];
     if (path) {
       this.active = true;
+      this.actionFilterIsRequired = true;
+
+      // set required validator now that control is visible
+      const ctrl = this.form.get('actionFilter');
+      ctrl.setValidators([Validators.required]);
+      ctrl.updateValueAndValidity();
 
       this.subscriptions.push(
         this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
@@ -173,7 +181,19 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       );
     } else {
       this.active = false;
+      this.actionFilterIsRequired = false;
+      this.resetActionFilter();
     }
+  }
+
+  /**
+   * Resets the action filter control by clearing validators, resetting the value, and updating validity.
+   */
+  resetActionFilter(): void {
+    const ctrl = this.form.get('actionFilter');
+    ctrl.clearValidators();
+    ctrl.setValue('');
+    ctrl.updateValueAndValidity();
   }
 
   /**
