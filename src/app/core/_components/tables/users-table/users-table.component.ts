@@ -73,7 +73,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     return [
       {
         id: UsersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (user: JUser) => user.id,
