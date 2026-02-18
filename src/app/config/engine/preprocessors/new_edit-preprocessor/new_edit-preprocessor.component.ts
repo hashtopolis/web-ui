@@ -95,7 +95,6 @@ export class NewEditPreprocessorComponent implements OnInit {
         // For other server errors show an error message instead of redirecting
         // so the user knows the server failed. Keep the loading flag disabled.
 
-        console.error('Error loading preprocessor:', e);
         const msg = status ? `Error loading preprocessor (server returned ${status}).` : 'Error loading preprocessor.';
         this.alert.showErrorMessage(msg);
         this.isLoading = false;
@@ -158,9 +157,8 @@ export class NewEditPreprocessorComponent implements OnInit {
             void this.router.navigate(['config/engine/preprocessors']);
           })
         );
-      } catch (err) {
+      } catch {
         const msg = 'Error updating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;
@@ -170,9 +168,8 @@ export class NewEditPreprocessorComponent implements OnInit {
         await firstValueFrom(this.gs.create(SERV.PREPROCESSORS, payload));
         this.alert.showSuccessMessage('Preprocessor created!');
         void this.router.navigate(['config/engine/preprocessors']);
-      } catch (err) {
+      } catch {
         const msg = 'Error creating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;

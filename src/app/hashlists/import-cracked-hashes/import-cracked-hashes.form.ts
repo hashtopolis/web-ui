@@ -9,6 +9,8 @@ export interface ImportCrackedHashesForm {
   isSalted: FormControl<boolean>;
   hashCount: FormControl<number>;
   separator: FormControl<string>;
+  sourceType: FormControl<string>;
+  sourceData: FormControl<string>;
   hashes: FormControl<string>;
 }
 
@@ -22,6 +24,8 @@ export const getImportCrackedHashesForm = () => {
     isSalted: new FormControl({ value: false, disabled: true }),
     hashCount: new FormControl({ value: 0, disabled: true }),
     separator: new FormControl(''),
+    sourceType: new FormControl('paste'),
+    sourceData: new FormControl(''),
     hashes: new FormControl('')
   });
 };
