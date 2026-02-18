@@ -97,10 +97,8 @@ describe('NewEditPreprocessorComponent', () => {
   function expectPageTitleAndButton(title: string, buttonText: string) {
     const hostElement: HTMLElement = fixture.nativeElement;
 
-    // 1) Intentar localizar por data-testid (nuevo modo)
     let buttonEl = hostElement.querySelector('[data-testid="submit-button-newPreprocessor"]') as HTMLElement | null;
 
-    // 2) Fallback: cualquier botón de submit (por si en modo Edit no hay data-testid)
     if (!buttonEl) {
       buttonEl = hostElement.querySelector('button[type="submit"]') as HTMLElement | null;
     }
