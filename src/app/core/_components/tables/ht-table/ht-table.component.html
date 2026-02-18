@@ -5,10 +5,10 @@
     <div class="table-footer-actions"
       style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
       @if (supportsAutoRefresh) {
-        <button (click)="dataSource.toggleAutoRefresh(!dataSource.autoRefreshEnabled)" mat-button>
-          <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
-          {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
-        </button>
+      <button (click)="dataSource.toggleAutoRefresh(!dataSource.autoRefreshEnabled)" mat-button>
+        <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
+        {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
+      </button>
       }
 
     </div>
@@ -21,41 +21,31 @@
     </div>
     <!-- bulk actions -->
     @if (isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()) {
-      <div class="table-action-wrapper">
-        @if (dataSource.loading$ | async) {
-          <button [disabled]="true" mat-button>
-            <mat-icon>adjust</mat-icon>
-            Bulk Actions
-          </button>
-        } @else {
-          <bulk-action-menu
-            #bulkMenu
-            [dataType]="dataType"
-            [isArchived]="isArchived"
-            [data]="dataSource.selection.selected"
-            [disabled]="!hasSelected()"
-            [contextMenuService]="contextMenuService"
-            (menuItemClicked)="bulkAction($event)"
-            />
-        }
-      </div>
+    <div class="table-action-wrapper">
+      @if (dataSource.loading$ | async) {
+      <button [disabled]="true" mat-button>
+        <mat-icon>adjust</mat-icon>
+        Bulk Actions
+      </button>
+      } @else {
+      <bulk-action-menu #bulkMenu [dataType]="dataType" [isArchived]="isArchived" [data]="dataSource.selection.selected"
+        [disabled]="!hasSelected()" [contextMenuService]="contextMenuService" (menuItemClicked)="bulkAction($event)" />
+      }
+    </div>
     }
     <!-- export -->
     @if (isSelectable && showExport) {
-      <div class="table-action-wrapper">
-        @if (dataSource.loading$ | async) {
-          <button [disabled]="true" mat-button>
-            <mat-icon>file_download</mat-icon>
-            Export
-          </button>
-        } @else {
-          <export-menu
-            [data]="dataSource.selection.selected"
-            [disabled]="!hasSelected()"
-            (menuItemClicked)="exportAction($event)"
-            />
-        }
-      </div>
+    <div class="table-action-wrapper">
+      @if (dataSource.loading$ | async) {
+      <button [disabled]="true" mat-button>
+        <mat-icon>file_download</mat-icon>
+        Export
+      </button>
+      } @else {
+      <export-menu [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
+        (menuItemClicked)="exportAction($event)" />
+      }
+    </div>
     }
     <!-- columns -->
     <div class="table-action-wrapper">
@@ -66,54 +56,47 @@
     </div>
     <!-- temrature information -->
     @if (hasTemperatureInformation) {
-      <div class="table-action-wrapper">
-        <button mat-button (click)="temperatureInformationEmit()">
-          <mat-icon>info</mat-icon>
-          Temperature Information
-        </button>
-      </div>
+    <div class="table-action-wrapper">
+      <button mat-button (click)="temperatureInformationEmit()">
+        <mat-icon>info</mat-icon>
+        Temperature Information
+      </button>
+    </div>
     }
     <!-- Filter section BACKEND BEGIN-->
     <div class="table-action-wrapper right-aligned">
       @if (isFilterable) {
-        <div class="filter-container">
-          <!-- Column selector dropdown -->
-          <mat-form-field>
-            <mat-label class="filter-input-lable">Filter by column</mat-label>
-            <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
-              @for (column of filterableColumns; track column) {
-                <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+      <div class="filter-container">
+        <!-- Column selector dropdown -->
+        <mat-form-field>
+          <mat-label class="filter-input-lable">Filter by column</mat-label>
+          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+            @for (column of filterableColumns; track column) {
+            <mat-option [value]="column">{{ columnLabels[column.id] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-          <!-- Filter input -->
-          <form [formGroup]="filterQueryFormGroup">
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <mat-form-field style="min-width: 200px" [class.filter-error]="filterError">
-                <input
-                  matInput
-                  appDebounce
-                  formControlName="textFilter"
-                  [debounceTime]="500"
-                  (debounceInput)="emitFilterValue()"
-                  (keyup.enter)="emitFilterValue()"
-                  placeholder="Filter"
-                  [attr.aria-invalid]="filterError ? 'true' : 'false'"
-                  [attr.aria-describedby]="filterError ? 'filter-error-message' : null"
-                  />
-                <button mat-icon-button matSuffix type="button" (click)="clearSearchBox()">
-                  <mat-icon>clear</mat-icon>
-                </button>
-              </mat-form-field>
-              @if (filterError) {
-                <div id="filter-error-message" class="filter-error-message">
-                  {{ filterError }}
-                </div>
-              }
+        <!-- Filter input -->
+        <form [formGroup]="filterQueryFormGroup">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <mat-form-field style="min-width: 200px" [class.filter-error]="filterError">
+              <input matInput appDebounce formControlName="textFilter" [debounceTime]="500"
+                (debounceInput)="emitFilterValue()" (keyup.enter)="emitFilterValue()" placeholder="Filter"
+                [attr.aria-invalid]="filterError ? 'true' : 'false'"
+                [attr.aria-describedby]="filterError ? 'filter-error-message' : null" />
+              <button mat-icon-button matSuffix type="button" (click)="clearSearchBox()">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </mat-form-field>
+            @if (filterError) {
+            <div id="filter-error-message" class="filter-error-message">
+              {{ filterError }}
             </div>
-          </form>
-        </div>
+            }
+          </div>
+        </form>
+      </div>
       }
     </div>
     <!-- Filter section BACKEND END-->
@@ -121,110 +104,84 @@
   <!-- Table -->
   <table [dataSource]="dataSource" class="hashtopolis-table" mat-table matSort>
     @if (dataSource.loading$ | async) {
-      <div class="spinner-container">
-        <mat-spinner></mat-spinner>
-      </div>
+    <div class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
     }
     <!-- select column -->
     @if (isSelectable) {
-      <ng-container matColumnDef="{{ colSelect }}">
-        <th *matHeaderCellDef mat-header-cell>
-          <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
-          @if (isCmdTask && isCmdPreproAttack) {
-            <p>{{
-              isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-            }}</p>
-          } @else {
-            @if (isCmdTask) {
-              <p>Task</p>
-            } @else {
-              <mat-checkbox
-                (click)="$event.stopPropagation()"
-                (change)="toggleAll()"
-                [checked]="isAllSelected()"
-                [indeterminate]="indeterminate()"
-                />
-            }
-          }
-          <!-- Check if only isCmdTask is true -->
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let row"
-        [ngStyle]="{
+    <ng-container matColumnDef="{{ colSelect }}">
+      <th *matHeaderCellDef mat-header-cell>
+        <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
+        @if (isCmdTask && isCmdPreproAttack) {
+        <p>{{
+          isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
+          }}</p>
+        } @else {
+        @if (isCmdTask) {
+        <p>Task</p>
+        } @else {
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()" [checked]="isAllSelected()"
+          [indeterminate]="indeterminate()" />
+        }
+        }
+        <!-- Check if only isCmdTask is true -->
+      </th>
+      <td mat-cell *matCellDef="let row" [ngStyle]="{
           'border-left':
             (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color)
               ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color)
               : '',
           'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || row.color ? '8px' : '16px'
-        }"
-          >
-          @if (!isCmdTask) {
-            <mat-checkbox (change)="toggleSelect(row)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
-          } @else {
-            <!-- CMD Task -->
-            <ng-container>
-              @if (isCmdTask) {
-                <mat-checkbox
-                  (click)="$event.stopPropagation()"
-                  (change)="toggleAttack($event, row, 'CMD')"
-                  [checked]="isSelected(row)"
-                  />
-              }
-            </ng-container>
+        }">
+        @if (!isCmdTask) {
+        <mat-checkbox (change)="toggleSelect(row)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
+        } @else {
+        <!-- CMD Task -->
+        <ng-container>
+          @if (isCmdTask) {
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAttack($event, row, 'CMD')"
+            [checked]="isSelected(row)" />
           }
-          <ng-container>
-            <!-- CMD Preprocessor -->
-            @if (isCmdPreproAttack) {
-              <mat-checkbox
-                (click)="$event.stopPropagation()"
-                (change)="toggleAttack($event, row, 'CMD_PREPRO')"
-                />
-            }
-          </ng-container>
-        </td>
-      </ng-container>
+        </ng-container>
+        }
+        <ng-container>
+          <!-- CMD Preprocessor -->
+          @if (isCmdPreproAttack) {
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAttack($event, row, 'CMD_PREPRO')" />
+          }
+        </ng-container>
+      </td>
+    </ng-container>
     }
 
     <!-- action column -->
     @if (contextMenuService && contextMenuService.getHasContextMenu()) {
-      <ng-container
-        matColumnDef="{{ colRowAction }}"
-        >
-        <th *matHeaderCellDef mat-header-cell></th>
-        <td *matCellDef="let element" [class.text-right]="true" mat-cell>
-          <row-action-menu
-            (menuItemClicked)="rowAction($event)"
-            [contextMenuService]="contextMenuService"
-            [data]="element"
-          ></row-action-menu>
-        </td>
-      </ng-container>
+    <ng-container matColumnDef="{{ colRowAction }}">
+      <th *matHeaderCellDef mat-header-cell></th>
+      <td *matCellDef="let element" [class.text-right]="true" mat-cell>
+        <row-action-menu (menuItemClicked)="rowAction($event)" [contextMenuService]="contextMenuService"
+          [data]="element"></row-action-menu>
+      </td>
+    </ng-container>
     }
 
     @for (tableColumn of tableColumns; track tableColumn) {
-      <ng-container [matColumnDef]="tableColumn.id + ''">
-        <!-- if sortable column header -->
-        @if (tableColumn.isSortable) {
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            [mat-sort-header]="tableColumn.id + ''"
-            (click)="onColumnHeaderClick(tableColumn)"
-            >
-            {{ columnLabels[tableColumn.id] }}
-          </th>
-        } @else {
-          <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
-            {{ columnLabels[tableColumn.id] }}
-          </th>
-        }
-        <!-- else not sortable -->
-        <!-- column data -->
-        <td
-          mat-cell
-          *matCellDef="let element"
-        [ngStyle]="{
+    <ng-container [matColumnDef]="tableColumn.id + ''">
+      <!-- if sortable column header -->
+      @if (tableColumn.isSortable) {
+      <th mat-header-cell *matHeaderCellDef [mat-sort-header]="tableColumn.id + ''"
+        (click)="onColumnHeaderClick(tableColumn)">
+        {{ columnLabels[tableColumn.id] }}
+      </th>
+      } @else {
+      <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
+        {{ columnLabels[tableColumn.id] }}
+      </th>
+      }
+      <!-- else not sortable -->
+      <!-- column data -->
+      <td mat-cell *matCellDef="let element" [ngStyle]="{
           color: tableColumn.customCellColor
             ? (tableColumn.customCellColor.value(element)
               | asColor
@@ -234,99 +191,74 @@
                 : tableColumn.customCellColor.isActive(element)
                 : tableColumn.customCellColor.lastTime(element))
             : ''
-        }"
-          [class.text-right]="tableColumn.position === 'right'"
-          >
-          <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
-            @if (tableColumn.isCopy) {
-              <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
-                <mat-icon>content_copy</mat-icon>
-              </button>
-            }
-            @if (tableColumn.truncate) {
-              <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
-            }
-            <span class="icon-actions">
-              @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
-                <button
-                  mat-icon-button
-                  color="primary"
-                  aria-label="Show full hash"
-                  (click)="showFullHashModalEmit(element)"
-                  >
-                  <mat-icon>visibility</mat-icon>
-                </button>
-              }
-            </span>
-            @if (!tableColumn.truncate) {
-              <app-ht-table-link
-                (linkClicked)="onLinkClicked()"
-                [element]="element"
-                [tableColumn]="tableColumn"
-              ></app-ht-table-link>
-              <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
-              <ht-table-editable
-                [tableColumn]="tableColumn"
-                [element]="element"
-                (editableInputSaved)="editableInputSaved($event)"
-              ></ht-table-editable>
-              <ht-table-editable-checkbox
-                [tableColumn]="tableColumn"
-                [element]="element"
-                (editableCheckboxSaved)="editableCheckboxSaved($event)"
-              ></ht-table-editable-checkbox>
-            }
-            <!-- Check if icon function is defined -->
-            @if (tableColumn.icon && tableColumn.icon(element); as icon) {
-              @if (icon.tooltip) {
-                <mat-icon
-                  [matTooltip]="icon.tooltip"
-                  [ngClass]="icon.cls ? icon.cls : ''"
-                  >{{ icon.name }}</mat-icon
-                  >
-                } @else {
-                  <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
-                }
-              }
-            </div>
-          </td>
-        </ng-container>
-      }
-      <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
-      <!-- noinspection JSUnusedLocalSymbols -->
-      <tr *matRowDef="let row; columns: displayedColumns" mat-row [ngClass]="rowClass ? rowClass(row) : ''"></tr>
-      <tr *matNoDataRow class="mat-row">
-        <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
-          @if (dataSource.loading$ | async) {
-            <div class="spinner-table">
-              <mat-spinner color="accent" diameter="30"></mat-spinner>
-            </div>
-          } @else {
-            No data available
+        }" [class.text-right]="tableColumn.position === 'right'">
+        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
+          @if (tableColumn.isCopy) {
+          <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+            <mat-icon>content_copy</mat-icon>
+          </button>
           }
-        </td>
-      </tr>
-    </table>
-
-    <!-- Pagination -->
-    @if (isPageable) {
-      <hr />
-      <div class="paginator-footer">
-        <last-updated
-          [lastUpdated]="dataSource.lastUpdated"
-          [nextRefreshTimestamp]="dataSource.autoRefreshService.nextRefreshTimestamp"
-          [refreshing]="dataSource.loading$ | async">
-        </last-updated>
-        <mat-paginator
-          (page)="onPageChange($event)"
-          [disabled]="dataSource.loading$ | async"
-          [length]="dataSource.totalItems"
-          [pageIndex]="dataSource.index"
-          [pageSizeOptions]="paginationSizes"
-          [pageSize]="dataSource.pageSize"
-        ></mat-paginator>
-      </div>
+          @if (tableColumn.truncate) {
+          <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
+          }
+          <span class="icon-actions">
+            @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+            <button mat-icon-button color="primary" aria-label="Show full hash"
+              (click)="showFullHashModalEmit(element)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            }
+          </span>
+          @if (!tableColumn.truncate) {
+          <app-ht-table-link (linkClicked)="onLinkClicked()" [element]="element"
+            [tableColumn]="tableColumn"></app-ht-table-link>
+          <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
+          <ht-table-editable [tableColumn]="tableColumn" [element]="element"
+            (editableInputSaved)="editableInputSaved($event)"></ht-table-editable>
+          <ht-table-editable-checkbox [tableColumn]="tableColumn" [element]="element"
+            (editableCheckboxSaved)="editableCheckboxSaved($event)"></ht-table-editable-checkbox>
+          }
+          <!-- Check if icon function is defined -->
+          @if (tableColumn.icon && tableColumn.icon(element); as icon) {
+          @if (icon.tooltip) {
+          <mat-icon [matTooltip]="icon.tooltip" [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+          } @else {
+          <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+          }
+          }
+        </div>
+      </td>
+    </ng-container>
     }
+    <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
+    <!-- noinspection JSUnusedLocalSymbols -->
+    <tr *matRowDef="let row; columns: displayedColumns" mat-row [ngClass]="rowClass ? rowClass(row) : ''"></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
+        @if (dataSource.loading$ | async) {
+        <div class="spinner-table">
+          <mat-spinner color="accent" diameter="30"></mat-spinner>
+        </div>
+        } @else {
+        No data available
+        }
+      </td>
+    </tr>
+  </table>
+
+  <!-- Pagination -->
+  @if (isPageable) {
+  <hr />
+  <div class="paginator-footer">
+    <last-updated [lastUpdated]="dataSource.lastUpdated"
+      [nextRefreshTimestamp]="dataSource.autoRefreshService.nextRefreshTimestamp"
+      [refreshing]="dataSource.loading$ | async">
+    </last-updated>
+    <mat-paginator (page)="onPageChange($event)" [disabled]="dataSource.loading$ | async"
+      [length]="dataSource.totalItems" [pageIndex]="dataSource.index" [pageSizeOptions]="paginationSizes"
+      [pageSize]="dataSource.pageSize"></mat-paginator>
+  </div>
+  }
 
 
-  </ng-container>
+</ng-container>

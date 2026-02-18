@@ -33,7 +33,6 @@ import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/dateti
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'tasks-agents-table',
   templateUrl: './tasks-agents-table.component.html',
   standalone: false
@@ -62,7 +61,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -90,7 +89,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
-    switch (selectedColumn) {
+    switch (selectedColumn.dataKey) {
       case 'all': {
         // Search across multiple relevant fields
         return (

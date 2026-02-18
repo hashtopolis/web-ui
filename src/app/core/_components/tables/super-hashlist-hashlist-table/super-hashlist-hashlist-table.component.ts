@@ -35,7 +35,7 @@ export class SuperHashlistsHashlistsTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistHashlistTableColumnLabel);
@@ -64,7 +64,7 @@ export class SuperHashlistsHashlistsTableComponent
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
-    switch (selectedColumn) {
+    switch (selectedColumn.dataKey) {
       case 'all': {
         // Search across multiple relevant fields
         return (

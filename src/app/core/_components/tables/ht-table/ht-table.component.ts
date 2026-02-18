@@ -95,9 +95,13 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
+  dialog = inject(MatDialog);
+  private cd = inject(ChangeDetectorRef);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: HTTableColumn;
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -208,7 +212,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() selectedFilterColumnChanged: EventEmitter<HTTableColumn> = new EventEmitter();
   @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
   @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   @Output() linkClicked = new EventEmitter();
@@ -224,10 +228,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     textFilter: new FormControl('')
   });
   filterError: string | null = null;
-
-  public dialog = inject(MatDialog);
-  private cd = inject(ChangeDetectorRef);
-  private storage = inject(LocalStorageService<UIConfig>);
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -253,7 +253,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
     if (this.filterableColumns.length > 0) {
-      this.selectedFilterColumn = this.filterableColumns[0]?.dataKey;
+      this.selectedFilterColumn = this.filterableColumns[0];
     }
   }
   // Handle filter column change

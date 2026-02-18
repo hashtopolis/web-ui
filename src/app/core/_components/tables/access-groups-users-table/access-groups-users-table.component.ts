@@ -36,7 +36,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'userMembers';
-  selectedFilterColumn: string = 'name'; // Default filter column
+  selectedFilterColumn: HTTableColumn = this.getColumns[1]; // Default filter column
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsUsersTableColumnLabel);
@@ -62,15 +62,15 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   }
 
   handleFilter(filterValue: string): void {
-    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn);
+    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn.dataKey);
   }
 
-  onFilterColumnChanged(column: string): void {
+  onFilterColumnChanged(column: HTTableColumn): void {
     this.selectedFilterColumn = column;
     // Re-apply current filter with new column
     const currentFilterValue = this.dataSource['currentFilterValue'] || '';
     if (currentFilterValue) {
-      this.dataSource.filterData(currentFilterValue, column);
+      this.dataSource.filterData(currentFilterValue, column.dataKey);
     }
   }
 

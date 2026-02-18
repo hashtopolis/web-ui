@@ -8,11 +8,10 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { Filter, type RequestParams } from '../_models/request-params.model';
 
-export function setParameter(
-  params: RequestParams
-): HttpParams {
+import { Filter, type RequestParams } from '@models/request-params.model';
+
+export function setParameter(params: RequestParams): HttpParams {
   let httpParams = new HttpParams();
 
   // Handle pagination parameters
@@ -35,7 +34,8 @@ export function setParameter(
   const filters: Array<Filter> = params.filter;
   if (Array.isArray(filters)) {
     filters.forEach((filter) => {
-      httpParams = httpParams.set(`filter[${filter.field}__${filter.operator}]`, filter.value.toString());
+      const parent = filter.parent ? `${filter.parent}.` : '';
+      httpParams = httpParams.set(`filter[${parent}${filter.field}__${filter.operator}]`, filter.value.toString());
     });
   }
 
