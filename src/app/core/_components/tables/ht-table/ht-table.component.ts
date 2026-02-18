@@ -229,10 +229,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   filterError: string | null = null;
 
-  public dialog = inject(MatDialog);
-  private cd = inject(ChangeDetectorRef);
-  private storage = inject(LocalStorageService<UIConfig>);
-
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
