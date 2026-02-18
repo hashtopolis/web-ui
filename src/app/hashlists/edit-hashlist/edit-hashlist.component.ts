@@ -200,7 +200,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   private async loadData(): Promise<void> {
-    // Respetamos la lógica de roles del master
     if (!this.roleService.hasRole('groups')) {
       return;
     }

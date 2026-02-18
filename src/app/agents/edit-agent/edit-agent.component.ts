@@ -147,7 +147,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     if (status === 404) {
       this.router.navigate(['/not-found']);
     } else if (status === 403) {
-      // ajusta la ruta si en tu app es distinta (por ejemplo '/forbidden')
       this.router.navigate(['/forbidden']);
     } else {
       this.alert.showErrorMessage('Error loading agent details');
