@@ -1,5 +1,17 @@
 <mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-  <mat-label>{{ title }}</mat-label>
+  <mat-label>
+    {{ title }}
+    @if (tooltip) {
+      <mat-icon
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        aria-hidden="true"
+      >
+        info
+      </mat-icon>
+    }
+  </mat-label>
   <div [class.is-invalid]="error">
     <input
       #inputField
