@@ -84,7 +84,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * Builds the form for creating a new Hashlist.
+   * Builds the form for Logging an user in
    */
   buildForm(): void {
     this.loginForm = new FormGroup({

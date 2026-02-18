@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -10,7 +10,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
-import { ServiceConfig } from '@services/main.config';
+import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -26,10 +26,21 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private metadataService = inject(MetadataService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private confirmDialog = inject(ConfirmDialogService);
+
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: ReturnType<MetadataService['getInfoMetadata']>[0];
 
   serviceConfig: ServiceConfig;
+
+  showDeleteButton: boolean;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
@@ -43,7 +54,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * When true, the form is fully loaded and can be displayed; otherwise, it's still being prepared.
    * @type {boolean}
    */
-  isloaded = false;
+  isloaded: boolean = false;
 
   /**
    * Flag that specifies whether the form is in "create" mode.
@@ -107,16 +118,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param router - The Angular Router for navigation.
    * @param confirmDialog
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private metadataService: MetadataService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private confirmDialog: ConfirmDialogService
-  ) {
+  constructor() {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
       (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
@@ -178,7 +180,7 @@ export class FormComponent implements OnInit, OnDestroy {
         }
 
         // For other server errors show a friendly message
-        // eslint-disable-next-line no-console
+
         console.error('Error loading form data:', err);
         const msg = status ? `Error loading data (server returned ${status}).` : 'Error loading data.';
         this.alert.showErrorMessage(msg);
@@ -225,6 +227,13 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
+        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+      });
+
+      this.unsubscribeService.add(createSubscription);
+    } else if (this.type === 'helper') {
+      const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
         this.alert.showSuccessMessage(this.globalMetadata['submitok']);
         this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
       });

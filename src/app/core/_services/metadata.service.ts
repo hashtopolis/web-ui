@@ -99,7 +99,7 @@ export class MetadataService {
 
   authforgot = [
     {
-      name: 'User Name',
+      name: 'username',
       label: 'User Name',
       type: 'text',
       validators: [Validators.required]
