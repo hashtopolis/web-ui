@@ -11,13 +11,14 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
 } from '@components/tables/supertasks-table/supertasks-table.constants';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { TaskStatus } from '@components/tables/tasks-table/tasks-table.constants';
 
 import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
 
@@ -57,11 +58,14 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
+      const filterField = selectedColumn?.parent
+        ? `${selectedColumn.parent}.${selectedColumn.dataKey}`
+        : selectedColumn?.dataKey;
+
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
-        operator: FilterType.ICONTAINS,
-        parent: selectedColumn.parent
+        field: filterField,
+        operator: FilterType.ICONTAINS
       });
       return;
     } else {
@@ -95,6 +99,13 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         export: async (supertask: JSuperTask) => supertask.supertaskName
       },
       {
+        id: SupertasksTableCol.STATUS,
+        dataKey: 'status',
+        icon: (supertask: JSuperTask) => this.renderSupertaskStatusIcon(supertask),
+        isSortable: false,
+        export: async (supertask: JSuperTask) => this.getStatusLabel(supertask)
+      },
+      {
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
         isSortable: false,
@@ -102,6 +113,59 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         export: async (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length.toString() : '')
       }
     ];
+  }
+
+  private getStatus(supertask: JSuperTask): TaskStatus {
+    if (supertask?.isRunning) {
+      return TaskStatus.RUNNING;
+    }
+
+    if (supertask?.isCompleted) {
+      return TaskStatus.COMPLETED;
+    }
+
+    if (supertask?.subtasks?.length) {
+      return TaskStatus.IDLE;
+    }
+
+    return TaskStatus.INVALID;
+  }
+
+  private getStatusLabel(supertask: JSuperTask): string {
+    switch (this.getStatus(supertask)) {
+      case TaskStatus.RUNNING:
+        return 'Running';
+      case TaskStatus.COMPLETED:
+        return 'Completed';
+      case TaskStatus.IDLE:
+        return 'Idle';
+      default:
+        return '';
+    }
+  }
+
+  private renderSupertaskStatusIcon(supertask: JSuperTask): HTTableIcon {
+    switch (this.getStatus(supertask)) {
+      case TaskStatus.RUNNING:
+        return {
+          name: 'radio_button_checked',
+          cls: 'pulsing-progress',
+          tooltip: 'In Progress'
+        };
+      case TaskStatus.COMPLETED:
+        return {
+          name: 'check',
+          tooltip: 'Completed'
+        };
+      case TaskStatus.IDLE:
+        return {
+          name: 'radio_button_checked',
+          tooltip: 'Idle',
+          cls: 'text-primary'
+        };
+      default:
+        return { name: '' };
+    }
   }
 
   openDialog(data: DialogData<JSuperTask>) {
