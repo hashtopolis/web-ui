@@ -167,9 +167,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    if (this.changepasswordFormGroup.invalid || this.changepasswordFormGroup.pending) {
+    if (this.changepasswordFormGroup.pending) {
       return;
     }
+
+    if (this.changepasswordFormGroup.invalid) {
+      this.changepasswordFormGroup.markAllAsTouched();
+      this.changepasswordFormGroup.updateValueAndValidity();
+      return;
+    }
+
     this.isUpdatingPassLoading = true;
     const payload: UpdateUserPassword = {
       oldPassword: this.oldPasswordValueFromForm,

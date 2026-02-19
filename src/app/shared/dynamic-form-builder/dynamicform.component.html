@@ -131,7 +131,7 @@
         @if (!isServerAction) {
           <button-submit
             [name]="buttonText"
-            [disabled]="!formIsValid()"
+            [disabled]="false"
           ></button-submit>
         }
       <mat-spinner *ngIf="isSubmitting" diameter="24"></mat-spinner>

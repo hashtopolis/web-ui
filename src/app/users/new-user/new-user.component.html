@@ -29,7 +29,7 @@
         appLoadingButton
         [loading]="loading"
         [name]="loading ? 'Processing...' : 'Create'"
-        [disabled]="!newUserForm.valid"
+        [disabled]="false"
       ></button-submit>
       @if (loading) {
         <div style="display: inline-block; margin-left: 10px">
