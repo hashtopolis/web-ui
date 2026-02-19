@@ -102,10 +102,12 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
     if (control) {
       const currentTouched = control.touched;
       const currentInvalid = control.invalid;
+      const isFormTouched = !!(control.parent?.touched || control.root?.touched);
+      const shouldShowValidation = control.dirty || currentTouched || isFormTouched;
 
       // Update error state properties for template binding
-      const newHasError = !!(control && control.invalid && (control.dirty || control.touched));
-      const newIsTouched = currentTouched;
+      const newHasError = !!(control && control.invalid && shouldShowValidation);
+      const newIsTouched = shouldShowValidation;
       const newErrors = control.errors || null;
 
       // Always update the properties
