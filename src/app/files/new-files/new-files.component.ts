@@ -1,7 +1,7 @@
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -150,6 +150,27 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
+    this.updateValidatorsBySourceType(this.form.get('sourceType').value);
+  }
+
+  private updateValidatorsBySourceType(sourceType: string): void {
+    const filenameCtrl = this.form.get('filename');
+    const urlCtrl = this.form.get('url');
+
+    if (!filenameCtrl || !urlCtrl) {
+      return;
+    }
+
+    if (sourceType === 'url') {
+      filenameCtrl.setValidators([Validators.required]);
+      urlCtrl.setValidators([Validators.required]);
+    } else {
+      filenameCtrl.clearValidators();
+      urlCtrl.clearValidators();
+    }
+
+    filenameCtrl.updateValueAndValidity({ emitEvent: false });
+    urlCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -276,6 +297,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: type,
       sourceData: ''
     });
+    this.updateValidatorsBySourceType(type);
 
     // Load server import directory files only when switching to tab3
     if (view === 'tab3' && this.serverFiles.length === 0) {
