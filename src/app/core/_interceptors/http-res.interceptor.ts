@@ -61,7 +61,6 @@ export class HttpResInterceptor implements HttpInterceptor {
       errmsg = error.error.title;
       showAlert = true;
     } else if (error.status === 0) {
-      const frontendBaseURL = window.location.href.split('/').slice(0, 3).join('/');
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
         req.url
       )}) and try again. Note: APIv2 HASHTOPOLIS_APIV2_ENABLE=1 needs to be enabled. `;
