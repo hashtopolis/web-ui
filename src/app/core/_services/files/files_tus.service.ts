@@ -111,7 +111,8 @@ export class UploadTUSService {
           filetype: file.type
         },
         onError: async (error) => {
-          const exist = String(error).includes('exists!');
+          const errorMessage = String(error).toLowerCase();
+          const exist = errorMessage.includes('already exists') || errorMessage.includes('exists!');
           if (exist) {
             const progress = 100;
             observer.next(progress);
@@ -120,8 +121,10 @@ export class UploadTUSService {
                 this.router.navigate(redirect);
               });
             }
+            observer.complete();
           } else {
             window.alert(`Failed because: ${error}`);
+            observer.error(error);
           }
           return false;
         },
