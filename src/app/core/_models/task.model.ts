@@ -60,6 +60,10 @@ export interface JTask extends BaseModel, TaskAttributes {
   speeds: SpeedStat[];
   chunkData?: ChunkData;
   status: number;
+  timeSpent: number;
+  currentSpeed: number;
+  estimatedTime: number;
+  cprogress: number;
 }
 
 /**
