@@ -342,14 +342,42 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       this.uploadService
         .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
         .pipe(takeUntil(this.fileUnsubscribe))
-        .subscribe((progress) => {
-          this.uploadProgress = progress;
-          this.changeDetectorRef.detectChanges();
-          if (this.uploadProgress === 100) {
+        .subscribe({
+          next: (progress) => {
+            this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+            if (this.uploadProgress === 100) {
+              this.isCreatingLoading = false;
+            }
+          },
+          error: (error) => {
+            this.uploadProgress = 0;
             this.isCreatingLoading = false;
+            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+            this.changeDetectorRef.detectChanges();
           }
         });
     }
+  }
+
+  private buildUploadErrorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+      return `Failed to upload file: ${error}`;
+    }
+
+    if (error && typeof error === 'object') {
+      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
+      const backendMessage = errorObject.error?.title || errorObject.error?.message;
+      if (backendMessage) {
+        return `Failed to upload file: ${backendMessage}`;
+      }
+
+      if (errorObject.message) {
+        return `Failed to upload file: ${errorObject.message}`;
+      }
+    }
+
+    return 'Failed to upload file.';
   }
 
   /**

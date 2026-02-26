@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import * as tus from 'tus-js-client';
 
-import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
+import { HttpEvent, HttpEventType, HttpHeaders, HttpProgressEvent } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -38,6 +38,10 @@ export class UploadTUSService {
    * Represents the ongoing TUS upload. It is initialized as null.
    */
   private tusUpload: tus.Upload | null = null;
+
+  private readonly skipErrorDialogHeaders = {
+    headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' })
+  };
 
   /**
    * Constructs an instance of UploadTUSService.
@@ -117,13 +121,23 @@ export class UploadTUSService {
             const progress = 100;
             observer.next(progress);
             if (form !== null) {
-              this.gs.create(serviceConfig, form).subscribe(() => {
-                this.router.navigate(redirect);
+              this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+                next: () => {
+                  if (redirect) {
+                    this.router.navigate(redirect);
+                  }
+                  observer.complete();
+                },
+                error: (createError) => {
+                  observer.next(0);
+                  observer.error(createError);
+                }
               });
+            } else {
+              observer.complete();
             }
-            observer.complete();
           } else {
-            window.alert(`Failed because: ${error}`);
+            observer.next(0);
             observer.error(error);
           }
           return false;
@@ -133,11 +147,21 @@ export class UploadTUSService {
           observer.next(progress);
         },
         onSuccess: async () => {
-          observer.complete();
           if (form !== null) {
-            this.gs.create(serviceConfig, form).subscribe(() => {
-              this.router.navigate(redirect);
+            this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+              next: () => {
+                if (redirect) {
+                  this.router.navigate(redirect);
+                }
+                observer.complete();
+              },
+              error: (createError) => {
+                observer.next(0);
+                observer.error(createError);
+              }
             });
+          } else {
+            observer.complete();
           }
         }
       });
