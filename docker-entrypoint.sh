@@ -27,9 +27,6 @@ if [ "$environment" = "development" ]; then
   export PUPPETEER_SKIP_DOWNLOAD='true'
   npm install
 
-  # Configure Git to trust the mounted directory
-  git config --global --add safe.directory /app || true
-
   # Prepare configuration
   update_app_config "/app/src"
 
