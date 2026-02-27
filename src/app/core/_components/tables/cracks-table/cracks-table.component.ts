@@ -87,7 +87,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'plaintext',
         isSortable: true,
         isSearchable: true,
-        render: (crack: JHash) => crack.plaintext,
         export: async (crack: JHash) => crack.plaintext
       },
       {
@@ -97,7 +96,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         isSearchable: true,
         isCopy: true,
         truncate: (crack: JHash) => crack.hash.length > 40,
-        render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
       },
       {
@@ -125,7 +123,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''),
+        render: (crack: JHash) => (crack.hashlist ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : ''),
         export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
       }
     ];

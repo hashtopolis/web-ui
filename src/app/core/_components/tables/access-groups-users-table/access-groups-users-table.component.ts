@@ -96,7 +96,6 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
         dataKey: 'name',
         isSortable: true,
         isSearchable: true,
-        render: (user: JUser) => user.name,
         export: async (user: JUser) => user.name + ''
       },
       {

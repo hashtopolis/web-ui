@@ -79,21 +79,18 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
     return [
       {
         id: ChunksTableCol.ID,
-        dataKey: 'chunkId',
-        render: (chunk: JChunk) => chunk.id,
+        dataKey: 'id',
         isSearchable: true,
         isSortable: true
       },
       {
         id: ChunksTableCol.START,
         dataKey: 'skip',
-        render: (chunk: JChunk) => chunk.skip,
         isSortable: true
       },
       {
         id: ChunksTableCol.LENGTH,
         dataKey: 'length',
-        render: (chunk: JChunk) => chunk.length,
         isSortable: true
       },
       {

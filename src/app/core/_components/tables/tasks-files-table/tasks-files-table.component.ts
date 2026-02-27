@@ -168,7 +168,7 @@ export class TasksFilesTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'accessGroupName',
         isSortable: true,
         isSearchable: true,
-        render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
+        render: (file: JFile) => (file.accessGroup?.groupName ? this.sanitize(file.accessGroup.groupName) : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       });
     }

@@ -101,7 +101,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (hashlist: JHashlist) => hashlist.id,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
@@ -142,7 +141,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'hashTypeId',
         isSearchable: true,
         isSortable: false,
-        render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
+        render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
       });
     }

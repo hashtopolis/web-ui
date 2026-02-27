@@ -71,7 +71,6 @@ export class AccessPermissionGroupsUsersTableComponent
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: JUser) => user.name,
         export: async (user: JUser) => user.name + ''
       },
       {

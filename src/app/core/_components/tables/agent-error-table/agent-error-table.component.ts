@@ -61,7 +61,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         id: AgentErrorTableCol.ID,
         dataKey: 'id',
         isSearchable: true,
-        render: (agentError: JAgentErrors) => agentError.id.toString(),
         export: async (agentError: JAgentErrors) => agentError.id.toString()
       },
       {

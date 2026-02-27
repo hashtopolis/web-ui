@@ -67,14 +67,12 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
-        render: (hash: SearchHashModel) => hash.hash,
         export: async (hash: SearchHashModel) => hash.hash + ''
       },
       {
         id: SearchHashTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        render: (hash: SearchHashModel) => hash.plaintext,
         export: async (hash: SearchHashModel) => hash.plaintext + ''
       },
       {
@@ -87,7 +85,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.INFO,
         dataKey: 'hashinfo',
         isSortable: true,
-        render: (hash: SearchHashModel) => hash.hashInfo,
         export: async (hash: SearchHashModel) => hash.hashInfo
       }
     ];

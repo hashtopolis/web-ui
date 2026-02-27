@@ -72,7 +72,6 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
         id: SupertasksPretasksTableCol.NAME,
         dataKey: 'taskName',
         isSortable: true,
-        render: (pretask: JPretask) => pretask.taskName,
         export: async (pretask: JPretask) => pretask.taskName + ''
       },
       {

@@ -87,7 +87,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.id,
         export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
@@ -95,7 +94,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'binaryType',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
         export: async (agentBinary: JAgentBinary) => agentBinary.binaryType
       },
       {
@@ -103,7 +101,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'operatingSystems',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
         export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
       {
@@ -111,7 +108,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'filename',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.filename,
         export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
       {
@@ -119,7 +115,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'version',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.version,
         export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
       {
@@ -127,7 +122,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'updateTrack',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
         export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];

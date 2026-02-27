@@ -116,10 +116,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return [
       {
         id: AgentsTableCol.ID,
-        dataKey: 'agentId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
       {

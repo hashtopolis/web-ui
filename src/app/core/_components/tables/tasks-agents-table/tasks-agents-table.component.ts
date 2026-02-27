@@ -135,7 +135,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
       {
