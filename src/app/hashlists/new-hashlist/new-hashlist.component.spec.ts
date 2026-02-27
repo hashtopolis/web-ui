@@ -207,6 +207,8 @@ describe('NewHashlistComponent', () => {
       });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
 
       expect(component.form.valid).toBeTrue();
 
@@ -214,7 +216,7 @@ describe('NewHashlistComponent', () => {
       buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       button = buttonDebugEl.query(By.css('button'));
       expect(button.nativeElement.disabled).toBeFalse();
-    });
+    }));
   });
 
   describe('Form submission', () => {
@@ -243,6 +245,7 @@ describe('NewHashlistComponent', () => {
 
       const expectedPayload = {
         ...component.form.value,
+        sourceData: 'hashes.txt',
         sourceType: 'import'
       };
 
