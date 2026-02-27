@@ -36,11 +36,12 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'userMembers';
-  selectedFilterColumn: HTTableColumn = this.getColumns[1]; // Default filter column
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
+    this.selectedFilterColumn = this.tableColumns[1]; // Default filter column
     this.dataSource = new AccessGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accessgroupId) {

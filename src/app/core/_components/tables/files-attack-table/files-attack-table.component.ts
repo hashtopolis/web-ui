@@ -118,7 +118,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     this.updateFormEvent.emit(transformed);
   }
 
-  onPrepareAttack(form: any, event: CheckboxChangeEvent) {
+  onPrepareAttack(form: AttackCommandData, event: CheckboxChangeEvent): PrepareAttackResult {
     let currentCmd;
     if (event.columnType === 'CMD') {
       currentCmd = form.attackCmd;
