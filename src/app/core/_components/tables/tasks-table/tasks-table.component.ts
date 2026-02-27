@@ -3,7 +3,6 @@ import { Observable, catchError, of } from 'rxjs';
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ChunkData } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JTask, JTaskWrapper, TaskAttributes, TaskType } from '@models/task.model';
 
@@ -147,19 +146,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'keyspaceProgress',
         icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) => {
-          const status = wrapper.tasks[0]?.status;
-          switch (status) {
-            case TaskStatus.RUNNING:
-              return 'Running';
-            case TaskStatus.COMPLETED:
-              return 'Completed';
-            case TaskStatus.IDLE:
-              return 'Idle';
-            default:
-              return '';
-          }
-        }
+        export: async (wrapper: JTaskWrapper) => this.getTaskStatusLabel(wrapper)
       },
       {
         id: TaskTableCol.HASHTYPE,
@@ -520,32 +507,28 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   // --- Render functions ---
 
   renderStatusIcons(wrapper: JTaskWrapper): HTTableIcon {
-    let icon: HTTableIcon = { name: '' };
-    const status = this.getTaskStatus(wrapper);
-    switch (status) {
-      case TaskStatus.RUNNING:
-        icon = {
-          name: 'radio_button_checked',
-          cls: 'pulsing-progress',
-          tooltip: 'In Progress'
-        };
-        break;
-      case TaskStatus.COMPLETED:
-        icon = {
-          name: 'check',
-          tooltip: 'Completed'
-        };
-        break;
-      case TaskStatus.IDLE:
-        icon = {
-          name: 'radio_button_checked',
-          tooltip: 'Idle',
-          cls: 'text-primary'
-        };
-        break;
+    if (wrapper.taskType !== TaskType.SUPERTASK) {
+      return { name: '' };
     }
 
-    return icon;
+    const status = this.getTaskStatus(wrapper);
+    if (status === TaskStatus.RUNNING) {
+      return {
+        name: 'radio_button_checked',
+        cls: 'pulsing-progress',
+        tooltip: 'In Progress'
+      };
+    }
+
+    return { name: '' };
+  }
+
+  private getTaskStatusLabel(wrapper: JTaskWrapper): string {
+    if (wrapper.taskType !== TaskType.SUPERTASK) {
+      return '';
+    }
+
+    return this.getTaskStatus(wrapper) === TaskStatus.RUNNING ? 'Running' : '';
   }
 
   private renderIsSmallIcon(wrapper: JTaskWrapper): HTTableIcon {
@@ -585,29 +568,28 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
-    if (wrapper.taskType === TaskType.TASK && wrapper.tasks.length > 0) {
-      const chunkData: ChunkData = wrapper.chunkData;
-      if (chunkData) {
-        const speed = chunkData.speed;
-
-        if (speed > 0) {
-          return TaskStatus.RUNNING;
-        } else if (
-          (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
-            wrapper.tasks[0].keyspaceProgress > 0 &&
-            Number(wrapper.tasks[0].searched) === 100) ||
-          wrapper.tasks.find(
-            (task: JTask) =>
-              task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100
-          )
-        ) {
-          return TaskStatus.COMPLETED;
-        } else {
-          return TaskStatus.IDLE;
-        }
-      }
+    if (!wrapper?.tasks?.length) {
+      return TaskStatus.INVALID;
     }
+
+    if (wrapper.taskType === TaskType.SUPERTASK) {
+      if (wrapper.tasks.some((task: JTask) => (task.activeAgents || 0) > 0)) {
+        return TaskStatus.RUNNING;
+      }
+
+      if (wrapper.tasks.every((task: JTask) => this.isTaskCompleted(task))) {
+        return TaskStatus.COMPLETED;
+      }
+
+      return TaskStatus.IDLE;
+    }
+
+    // Only show status indicators for supertasks in this view
     return TaskStatus.INVALID;
+  }
+
+  private isTaskCompleted(task: JTask): boolean {
+    return task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100;
   }
   // --- Action functions ---
 
