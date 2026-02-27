@@ -121,6 +121,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
+      this.ctimespent = task.timeSpent;
+      this.currenspeed = task.currentSpeed;
+      this.estimatedTime = task.estimatedTime;
+      this.cprogress = task.cprogress;
 
       if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
         this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
@@ -394,16 +398,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           break;
       }
     });
-
-    this.gs
-      .ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex)
-      .subscribe((result: ResponseWrapper) => {
-        const taskDetailData = result.meta;
-        this.ctimespent = taskDetailData['timeSpent'];
-        this.currenspeed = taskDetailData['currentSpeed'];
-        this.estimatedTime = taskDetailData['estimatedTime'];
-        this.cprogress = taskDetailData['cprogress'];
-      });
   }
 
   onChunkViewChange(event: MatButtonToggleChange): void {
