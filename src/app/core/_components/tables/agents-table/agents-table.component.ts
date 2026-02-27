@@ -34,7 +34,6 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'agents-table',
   templateUrl: './agents-table.component.html',
   standalone: false

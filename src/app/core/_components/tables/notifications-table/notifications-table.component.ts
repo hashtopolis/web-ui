@@ -273,10 +273,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     );
   }
 
-  private rowActionEdit(notification: JNotification): void {
-    this.router.navigate(['/account', 'notifications', notification.id, 'edit']);
-  }
-
   private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 

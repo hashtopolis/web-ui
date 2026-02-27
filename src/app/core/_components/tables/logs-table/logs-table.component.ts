@@ -10,7 +10,6 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
-/* eslint-disable @angular-eslint/component-selector */
 
 @Component({
   selector: 'logs-table',

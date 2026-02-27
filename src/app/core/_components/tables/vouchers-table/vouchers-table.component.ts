@@ -49,8 +49,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
 
   /**
    * Filter voucher
-   * @param item
-   * @param filterValue
+   * @param input value to filter
    * @returns true, if voucher contains filterValue, else false
    */
   filter(input: string) {

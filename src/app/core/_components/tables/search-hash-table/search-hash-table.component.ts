@@ -7,7 +7,6 @@ import { SearchHashModel } from '@models/hash.model';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-/* eslint-disable @angular-eslint/component-selector */
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
