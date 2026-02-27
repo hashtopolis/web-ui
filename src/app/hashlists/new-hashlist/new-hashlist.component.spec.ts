@@ -216,7 +216,7 @@ describe('NewHashlistComponent', () => {
       buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       button = buttonDebugEl.query(By.css('button'));
       expect(button.nativeElement.disabled).toBeFalse();
-    }));
+    });
   });
 
   describe('Form submission', () => {
