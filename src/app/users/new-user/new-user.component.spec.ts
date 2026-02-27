@@ -157,7 +157,7 @@ describe('NewUserComponent', () => {
     expect(helpBlock.textContent).toContain('Please complete all required fields!');
   });
 
-  it('should disable the submit button if form is invalid', () => {
+  it('should keep the submit button enabled if form is invalid', () => {
     // Make form invalid by clearing required fields
     component.newUserForm.patchValue({
       username: '',
@@ -167,10 +167,10 @@ describe('NewUserComponent', () => {
     component.newUserForm.markAllAsTouched();
     fixture.detectChanges();
 
-    // Query the submit button and check if it is disabled
+    // Query the submit button and check if it is enabled
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonEl: HTMLButtonElement = buttonDebugEl.nativeElement;
-    expect(buttonEl.disabled).toBeTrue();
+    expect(buttonEl.disabled).toBeFalse();
   });
 });

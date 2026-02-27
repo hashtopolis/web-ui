@@ -217,7 +217,8 @@ describe('NewNotificationComponent', () => {
 
   // Partial mock service
   const mockService: Partial<GlobalService> = {
-    getAll(serviceConfig, _routerParams?): Observable<any> {
+    getAll(serviceConfig, routerParams?: unknown): Observable<any> {
+      void routerParams;
       switch (serviceConfig) {
         case SERV.AGENTS:
           return of(agentValues);
@@ -231,7 +232,9 @@ describe('NewNotificationComponent', () => {
           return of({ data: [] });
       }
     },
-    create(serviceConfig, _object: any): Observable<any> {
+    create(serviceConfig, objectData: unknown): Observable<any> {
+      void serviceConfig;
+      void objectData;
       return of({});
     }
   };
@@ -273,30 +276,54 @@ describe('NewNotificationComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should not be possible to submit the form when form is empty', () => {
-    expectButtonToBeDisabled();
+  it('should keep submit button enabled but not submit when form is empty', () => {
+    expectButtonToBeEnabled();
+
+    const submitButton: DebugElement = findEl(fixture, 'button-create');
+    submitButton.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    expect(component.form.invalid).toBeTrue();
   });
 
-  it('should not be possible to submit the form when trigger action is not selected', () => {
+  it('should keep submit button enabled but not submit when trigger action is not selected', () => {
     setFieldValue(fixture, 'select-notification', NOTIF.TELEGRAM);
     setFieldValue(fixture, 'input-receiver', 'test-receiver');
-    expectButtonToBeDisabled();
+    expectButtonToBeEnabled();
+
+    const submitButton: DebugElement = findEl(fixture, 'button-create');
+    submitButton.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    expect(component.form.invalid).toBeTrue();
   });
 
-  it('should not be possible to submit the form when notification is not selected', () => {
+  it('should keep submit button enabled but not submit when notification is not selected', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'input-receiver', 'test-receiver');
-    expectButtonToBeDisabled();
+    expectButtonToBeEnabled();
+
+    const submitButton: DebugElement = findEl(fixture, 'button-create');
+    submitButton.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    expect(component.form.invalid).toBeTrue();
   });
 
-  it('should not be possible to submit the form when receiver is not selected', () => {
+  it('should keep submit button enabled but not submit when receiver is not selected', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
-    expectButtonToBeDisabled();
+    expectButtonToBeEnabled();
+
+    const submitButton: DebugElement = findEl(fixture, 'button-create');
+    submitButton.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    expect(component.form.invalid).toBeTrue();
   });
 
   it('should be possible to submit the form when all fields have data', () => {
@@ -414,11 +441,6 @@ describe('NewNotificationComponent', () => {
     receiverInput.patchValue('test@mail.com');
 
     fixture.detectChanges();
-  };
-
-  const expectButtonToBeDisabled = (): void => {
-    const btn: HTMLButtonElement = findEl(fixture, 'button-create').nativeElement.querySelector('button');
-    expect(btn.disabled).toBeTrue();
   };
 
   const expectButtonToBeEnabled = (): void => {

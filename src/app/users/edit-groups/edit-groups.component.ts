@@ -274,6 +274,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
       } finally {
         this.isUpdatingLoading = false;
       }
+    } else {
+      this.addUsersForm.markAllAsTouched();
+      this.addUsersForm.updateValueAndValidity();
     }
   }
 
@@ -305,6 +308,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
       } finally {
         this.isUpdatingLoading = false;
       }
+    } else {
+      this.addAgentsForm.markAllAsTouched();
+      this.addAgentsForm.updateValueAndValidity();
     }
   }
 
