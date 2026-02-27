@@ -176,7 +176,7 @@ progress::-webkit-progress-value {
   flex : auto 1 1;
   width : 100%;
   background : none;
-  background-color : transperant;
+  background-color : transparent;
 }
 
 .input-icon-container .fa{
@@ -332,7 +332,7 @@ progress::-webkit-progress-value {
   gap: 12px;
   max-width: 520px; /* Keep the controls compact, up to the + icon */
   width: fit-content;
-  
+
   input-multiselect {
     flex: 0 0 320px; /* Reserve room for the buttons without stretching */
     max-width: 320px;
@@ -369,13 +369,9 @@ progress::-webkit-progress-value {
   margin-right: 8px;
 }
 .filter-input-lable {
-  margin-bottom: 15px; 
+  margin-bottom: 15px;
   display: block;
 }
-
-/*
-  09
-*/
 
 $custom-form-min-width: 150px;
 $custom-form-max-width: 500px;
@@ -406,3 +402,30 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+:root {
+  --form-field-gap: 5px;
+}
+
+/* Global rule for custom controls and material form fields */
+input-select,
+input-text,
+input-check,
+mat-form-field,
+.form-field {
+  display: block;
+  margin-bottom: var(--form-field-gap);
+}
+
+[fxlayout="column"] > * {
+  display: block;
+  margin-bottom: var(--form-field-gap);
+}
+[fxlayout="column"] > *:last-child {
+  margin-bottom: 0;
+}
+
+/*
+  09 - End
+*/
