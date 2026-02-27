@@ -165,10 +165,9 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
-        dataKey: 'pretaskId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (pretask: JPretask) => pretask.id,
         export: async (pretask: JPretask) => pretask.id + ''
       },
       {
@@ -259,14 +258,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         {
           id: PretasksTableCol.PRIORITY,
           dataKey: 'priority',
-          render: (pretask: JPretask) => pretask.priority + '',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.priority + ''
         },
         {
           id: PretasksTableCol.MAX_AGENTS,
           dataKey: 'maxAgents',
-          render: (pretask: JPretask) => pretask.maxAgents + '',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.maxAgents + ''
         }

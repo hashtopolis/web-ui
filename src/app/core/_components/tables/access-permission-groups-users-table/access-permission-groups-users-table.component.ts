@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JPretask } from '@models/pretask.model';
@@ -71,7 +70,6 @@ export class AccessPermissionGroupsUsersTableComponent
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: JUser) => user.name,
         export: async (user: JUser) => user.name + ''
       },
       {

@@ -79,7 +79,6 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (preprocessor: JPreprocessor) => preprocessor.id,
         export: async (preprocessor: JPreprocessor) => preprocessor.id + ''
       },
       {

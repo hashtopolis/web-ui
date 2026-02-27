@@ -83,7 +83,6 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (accessGroup: JAccessGroup) => accessGroup.id,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {

@@ -80,10 +80,9 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: SupertasksTableCol.ID,
-        dataKey: 'supertaskId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (supertask: JSuperTask) => supertask.id,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {

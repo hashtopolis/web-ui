@@ -52,10 +52,9 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     return [
       {
         id: HashtypesTableCol.HASHTYPE,
-        dataKey: 'hashTypeId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (hashtype: JHashtype) => hashtype.id,
         export: async (hashtype: JHashtype) => hashtype.id + ''
       },
       {
@@ -63,7 +62,6 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'description',
         isSortable: true,
         isSearchable: true,
-        render: (hashtype: JHashtype) => hashtype.description,
         export: async (hashtype: JHashtype) => hashtype.description
       },
       {
