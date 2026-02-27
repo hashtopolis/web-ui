@@ -600,7 +600,7 @@ export const uiConfigDefault: UIConfig = {
     supertasksTable: {
       start: undefined,
       page: 25,
-      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.STATUS, SupertasksTableCol.PRETASKS],
+      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
         dataKey: '',
