@@ -1,6 +1,6 @@
 import { Subject, Subscription, takeUntil } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { AuthUser } from '@models/auth-user.model';
 import { UIConfig } from '@models/config-ui.model';
@@ -37,6 +37,25 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private themes = inject(ThemeService);
+  private permissionService = inject(PermissionService);
+  private easterEggService = inject(EasterEggService);
+  private tasksRoleService = inject(TasksRoleService);
+  private pretasksRoleService = inject(PreconfiguredTasksRoleService);
+  private supertaksRoleService = inject(SupertasksRoleService);
+  private hashListRoleService = inject(HashListRoleService);
+  private agentRoleService = inject(AgentRoleService);
+  private superHashListRoleService = inject(SuperHashListRoleService);
+  private hashRoleService = inject(HashRoleService);
+  private fileRoleService = inject(FileRoleService);
+  private crackerBinaryRoleService = inject(CrackerBinaryRoleService);
+  private agentBinaryRoleService = inject(AgentBinaryRoleService);
+  private preprocessorRoleService = inject(PreprocessorRoleService);
+  private configRoleWrapper = inject(ConfigRoleWrapperService);
+  private userRoleWrapperService = inject(UserRoleWrapperService);
+
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
@@ -51,26 +70,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mainMenu: MainMenuItem[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private authService: AuthService,
-    private storage: LocalStorageService<UIConfig>,
-    private themes: ThemeService,
-    private permissionService: PermissionService,
-    private easterEggService: EasterEggService,
-    private tasksRoleService: TasksRoleService,
-    private pretasksRoleService: PreconfiguredTasksRoleService,
-    private supertaksRoleService: SupertasksRoleService,
-    private hashListRoleService: HashListRoleService,
-    private agentRoleService: AgentRoleService,
-    private superHashListRoleService: SuperHashListRoleService,
-    private hashRoleService: HashRoleService,
-    private fileRoleService: FileRoleService,
-    private crackerBinaryRoleService: CrackerBinaryRoleService,
-    private agentBinaryRoleService: AgentBinaryRoleService,
-    private preprocessorRoleService: PreprocessorRoleService,
-    private configRoleWrapper: ConfigRoleWrapperService,
-    private userRoleWrapperService: UserRoleWrapperService
-  ) {
+  constructor() {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
   }
