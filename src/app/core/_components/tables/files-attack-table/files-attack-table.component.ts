@@ -86,10 +86,9 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     return [
       {
         id: FilesAttackTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSearchable: true,
         isSortable: true,
-        render: (file: JFile) => file.id,
         export: async (file: JFile) => file.id + ''
       },
       {
@@ -97,7 +96,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
         dataKey: 'filename',
         isSearchable: true,
         icon: (file: JFile) => this.renderSecretIcon(file),
-        render: (file: JFile) => file.filename,
+        render: (file: JFile) => this.sanitize(file.filename),
         isSortable: true,
         export: async (file: JFile) => file.filename
       },
@@ -119,7 +118,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     this.updateFormEvent.emit(transformed);
   }
 
-  onPrepareAttack(form: any, event: CheckboxChangeEvent) {
+  onPrepareAttack(form: AttackCommandData, event: CheckboxChangeEvent): PrepareAttackResult {
     let currentCmd;
     if (event.columnType === 'CMD') {
       currentCmd = form.attackCmd;

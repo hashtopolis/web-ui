@@ -30,7 +30,7 @@
           message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."></fixed-alert>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [disabled]="!createForm.valid"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="false"></button-submit>
             @if (isLoading) {
               <div>
                 <mat-spinner diameter="24" color="accent"></mat-spinner>

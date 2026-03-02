@@ -34,7 +34,6 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'agents-table',
   templateUrl: './agents-table.component.html',
   standalone: false
@@ -116,10 +115,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return [
       {
         id: AgentsTableCol.ID,
-        dataKey: 'agentId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
       {

@@ -76,10 +76,9 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     return [
       {
         id: CrackersTableCol.ID,
-        dataKey: 'crackerBinaryTypeId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (cracker: JCrackerBinaryType) => cracker.id,
         export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
@@ -87,7 +86,6 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'typeName',
         isSortable: true,
         isSearchable: true,
-        render: (cracker: JCrackerBinaryType) => cracker.typeName,
         export: async (cracker: JCrackerBinaryType) => cracker.typeName
       },
       {

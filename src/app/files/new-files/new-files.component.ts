@@ -1,7 +1,7 @@
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -150,6 +150,27 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
+    this.updateValidatorsBySourceType(this.form.get('sourceType').value);
+  }
+
+  private updateValidatorsBySourceType(sourceType: string): void {
+    const filenameCtrl = this.form.get('filename');
+    const urlCtrl = this.form.get('url');
+
+    if (!filenameCtrl || !urlCtrl) {
+      return;
+    }
+
+    if (sourceType === 'url') {
+      filenameCtrl.setValidators([Validators.required]);
+      urlCtrl.setValidators([Validators.required]);
+    } else {
+      filenameCtrl.clearValidators();
+      urlCtrl.clearValidators();
+    }
+
+    filenameCtrl.updateValueAndValidity({ emitEvent: false });
+    urlCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -276,6 +297,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: type,
       sourceData: ''
     });
+    this.updateValidatorsBySourceType(type);
 
     // Load server import directory files only when switching to tab3
     if (view === 'tab3' && this.serverFiles.length === 0) {
@@ -320,14 +342,42 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       this.uploadService
         .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
         .pipe(takeUntil(this.fileUnsubscribe))
-        .subscribe((progress) => {
-          this.uploadProgress = progress;
-          this.changeDetectorRef.detectChanges();
-          if (this.uploadProgress === 100) {
+        .subscribe({
+          next: (progress) => {
+            this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+            if (this.uploadProgress === 100) {
+              this.isCreatingLoading = false;
+            }
+          },
+          error: (error) => {
+            this.uploadProgress = 0;
             this.isCreatingLoading = false;
+            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+            this.changeDetectorRef.detectChanges();
           }
         });
     }
+  }
+
+  private buildUploadErrorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+      return `Failed to upload file: ${error}`;
+    }
+
+    if (error && typeof error === 'object') {
+      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
+      const backendMessage = errorObject.error?.title || errorObject.error?.message;
+      if (backendMessage) {
+        return `Failed to upload file: ${backendMessage}`;
+      }
+
+      if (errorObject.message) {
+        return `Failed to upload file: ${errorObject.message}`;
+      }
+    }
+
+    return 'Failed to upload file.';
   }
 
   /**

@@ -85,7 +85,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (superHashlist: JHashlist) => superHashlist.id,
         export: async (superHashlist: JHashlist) => superHashlist.id + ''
       },
       {
@@ -108,7 +107,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: false,
-        render: (hashlist: JHashlist) => hashlist.hashTypeDescription,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       },
       {

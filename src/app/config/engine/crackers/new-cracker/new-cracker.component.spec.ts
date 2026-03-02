@@ -134,7 +134,7 @@ describe('NewCrackerComponent', () => {
     expect(helpBlock.textContent).toContain('Please complete all required fields!');
   });
 
-  it('should disable the submit button if form is invalid', () => {
+  it('should keep the submit button enabled if form is invalid', () => {
     // Make form invalid by clearing required fields
     component.newCrackerForm.patchValue({
       typeName: '',
@@ -144,10 +144,10 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
 
-    // Query the submit button and check if it is disabled
+    // Query the submit button and check if it is enabled
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newCracker"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonInstance = buttonDebugEl.componentInstance;
-    expect(buttonInstance.disabled).toBeTrue();
+    expect(buttonInstance.disabled).toBeFalse();
   });
 });

@@ -191,11 +191,12 @@ describe('NewHashlistComponent', () => {
       expect(component.fileName).toBe('hashes.txt');
       expect(component.selectedFiles).toBe(fileList);
     });
-    it('should disable submit button when form is invalid', () => {
+    it('should keep submit button enabled when form is invalid', fakeAsync(() => {
       expect(component.form.invalid).toBeTrue();
+
       let buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       let button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeTrue();
+      expect(button.nativeElement.disabled).toBeFalse();
 
       component.form.patchValue({
         name: 'test',
@@ -205,7 +206,10 @@ describe('NewHashlistComponent', () => {
         sourceType: 'upload',
         sourceData: 'hashes'
       });
+
       component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
       fixture.detectChanges();
 
       expect(component.form.valid).toBeTrue();
@@ -214,7 +218,7 @@ describe('NewHashlistComponent', () => {
       buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       button = buttonDebugEl.query(By.css('button'));
       expect(button.nativeElement.disabled).toBeFalse();
-    });
+    }));
   });
 
   describe('Form submission', () => {
@@ -243,7 +247,8 @@ describe('NewHashlistComponent', () => {
 
       const expectedPayload = {
         ...component.form.value,
-        sourceType: 'import'
+        sourceType: 'import',
+        sourceData: 'hashes.txt'
       };
 
       expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, expectedPayload, [

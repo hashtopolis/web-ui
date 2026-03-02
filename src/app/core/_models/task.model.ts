@@ -64,6 +64,10 @@ export interface JTask extends BaseModel, TaskAttributes {
   currentSpeed: number;
   estimatedTime: number;
   cprogress: number;
+  isrunning?: boolean;
+  isCompleted?: boolean;
+  activeSubtasks?: number;
+  subtasks?: JTask[];
 }
 
 /**

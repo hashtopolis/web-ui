@@ -46,7 +46,7 @@
               <button-submit
                 [name]="'Add'"
                 (click)="onAddUsers()"
-                [disabled]="!addUsersForm.valid || !roleService.hasRole('update')"
+                [disabled]="!roleService.hasRole('update')"
               ></button-submit>
             </div>
           </div>
@@ -98,7 +98,7 @@
               <button-submit
                 [name]="'Add'"
                 (click)="onAddAgents()"
-                [disabled]="!addAgentsForm.valid || !roleService.hasRole('update')"
+                [disabled]="!roleService.hasRole('update')"
               ></button-submit>
             </div>
           </div>

@@ -14,7 +14,7 @@
 
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
+      <button-submit [name]="submitLabel" [disabled]="false" data-testid="button-create"></button-submit>
       @if (isCreatingLoading) {
         <div>
           <mat-spinner diameter="24" color="accent"></mat-spinner>

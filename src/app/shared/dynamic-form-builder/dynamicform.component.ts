@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DoCheck,
   EventEmitter,
   Input,
   OnDestroy,
@@ -29,7 +30,7 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
   templateUrl: 'dynamicform.component.html',
   standalone: false
 })
-export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /**
    * The title to display.
    * @type {string}
@@ -223,6 +224,26 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             this.cdr.detectChanges();
           });
       });
+    }
+  }
+
+  ngDoCheck(): void {
+    if (!this.form) {
+      return;
+    }
+
+    const controls = Object.values(this.form.controls);
+    if (controls.length === 0) {
+      return;
+    }
+
+    const anyTouched = controls.some((control) => control.touched);
+    const allTouched = controls.every((control) => control.touched);
+
+    if (anyTouched && !allTouched) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity({ emitEvent: false });
+      this.cdr.markForCheck();
     }
   }
 

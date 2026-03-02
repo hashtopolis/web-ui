@@ -229,9 +229,20 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private uploadAndImport(files: FileList | null): void {
+  private async uploadAndImport(files: FileList | null): Promise<void> {
     if (!files || files.length === 0) {
       this.alert.showErrorMessage('Please select a file to upload.');
+      return;
+    }
+
+    const filename = removeFakePath(this.fileName || files[0].name);
+    const alreadyExists = await this.fileExistsInServerImportDir(filename);
+    if (alreadyExists) {
+      this.submitImport({
+        hashlistId: this.editedHashlistIndex,
+        separator: this.form.get('separator').value,
+        sourceData: filename
+      });
       return;
     }
 
@@ -252,10 +263,29 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.submitImport({
             hashlistId: this.editedHashlistIndex,
             separator: this.form.get('separator').value,
-            sourceData: removeFakePath(this.fileName || files[0].name)
+            sourceData: filename
           });
         }
       });
+  }
+
+  private async fileExistsInServerImportDir(filename: string): Promise<boolean> {
+    if (!filename) {
+      return false;
+    }
+
+    try {
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      const files = (response.meta as ServerImportFile[]) || [];
+      this.serverFiles = files;
+      this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
+      this.hasLoadedServerFiles = true;
+      return files.some((file) => file.file === filename);
+    } catch {
+      return false;
+    }
   }
 
   private submitImport(payload: { hashlistId: number; separator: string; sourceData: string }): void {

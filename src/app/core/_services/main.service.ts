@@ -190,10 +190,10 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param item          Data of item to create
    */
-  create(serviceConfig: ServiceConfig, item: any): Observable<any> {
+  create(serviceConfig: ServiceConfig, item: any, httpOptions?: { headers?: HttpHeaders }): Observable<any> {
     const data = { type: serviceConfig.RESOURCE, ...item };
     const serializedData = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.post<any>(this.cs.getEndpoint() + serviceConfig.URL, serializedData);
+    return this.http.post<any>(this.cs.getEndpoint() + serviceConfig.URL, serializedData, httpOptions);
   }
 
   /**

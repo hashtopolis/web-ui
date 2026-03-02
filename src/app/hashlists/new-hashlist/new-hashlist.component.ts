@@ -219,10 +219,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     // Represents the modified form data without the fake path prefix.
     const newForm = { ...this.form.getRawValue() };
 
-    // Modify the sourceData key if it exists
-    if (newForm.sourceData) {
-      newForm.sourceData = removeFakePath(newForm.sourceData);
-    }
+    newForm.sourceData = removeFakePath(this.fileName || files[0].name);
 
     newForm.sourceType = 'import';
 

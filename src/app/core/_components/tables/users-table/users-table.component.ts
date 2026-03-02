@@ -81,7 +81,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (user: JUser) => user.id,
         export: async (user: JUser) => user.id + ''
       },
       {
@@ -113,7 +112,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'email',
         isSortable: true,
         isSearchable: true,
-        render: (user: JUser) => user.email,
         export: async (user: JUser) => user.email
       },
       {
@@ -128,14 +126,13 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
-        render: (user: JUser) => user.sessionLifetime,
         export: async (user: JUser) => user.sessionLifetime + ''
       },
       {
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: false,
-        render: (user: JUser) => user.globalPermissionGroup.name,
+        render: (user: JUser) => this.sanitize(user.globalPermissionGroup.name),
         export: async (user: JUser) => user.globalPermissionGroup.name
       }
     ];

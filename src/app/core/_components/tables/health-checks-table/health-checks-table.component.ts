@@ -100,7 +100,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         id: HealthChecksTableCol.TYPE,
         dataKey: 'hashtypeDescription',
         render: (healthCheck: JHealthCheck) =>
-          healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
+          healthCheck.hashType ? `Brute Force (${this.sanitize(healthCheck.hashType.description)})` : '',
         isSortable: false,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''

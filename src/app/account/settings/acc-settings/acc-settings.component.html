@@ -12,7 +12,7 @@
     </div>
     <input-text email inputType="email" title="Email" formControlName="email" [isRequired]="true" data-testid="input-email"></input-text>
     <grid-buttons>
-      <button-submit [name]="'Update'" (click)="onSubmit()" [disabled]="form.invalid || form.pending" data-testid="button-update-submit"></button-submit>
+      <button-submit [name]="'Update'" (click)="onSubmit()" [disabled]="form.pending" data-testid="button-update-submit"></button-submit>
       @if (isUpdatingLoading) {
         <div>
           <mat-spinner diameter="24" color="accent"></mat-spinner>
@@ -68,7 +68,7 @@
         </mat-error>
       }
       <grid-buttons>
-        <button-submit [name]="'Update Password'" (click)="onSubmitPass()" [disabled]="changepasswordFormGroup.invalid || changepasswordFormGroup.pending" data-testid="button-password-submit"></button-submit>
+        <button-submit [name]="'Update Password'" (click)="onSubmitPass()" [disabled]="changepasswordFormGroup.pending" data-testid="button-password-submit"></button-submit>
         @if (isUpdatingPassLoading) {
           <div>
             <mat-spinner diameter="24" color="accent"></mat-spinner>
