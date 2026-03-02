@@ -133,7 +133,7 @@ export class UISettingsUtilityClass {
   getSetting<T>(key: string): T | undefined {
     try {
       return this.uiConfig[key];
-    } catch (error) {
+    } catch {
       return undefined;
     }
   }
