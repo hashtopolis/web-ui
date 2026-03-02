@@ -143,7 +143,7 @@ export class SuperHashlistsHashlistsTableComponent
         dataKey: 'hashTypeDescription',
         isSearchable: true,
         isSortable: true,
-        render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
+        render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
       });
     }

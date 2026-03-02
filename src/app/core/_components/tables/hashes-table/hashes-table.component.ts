@@ -80,7 +80,6 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         isSearchable: true,
         isCopy: true,
         truncate: (hash: JHash) => hash.hash.length > 40,
-        render: (hash: JHash) => hash.hash,
         export: async (hash: JHash) => hash.hash + ''
       },
       {

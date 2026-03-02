@@ -84,7 +84,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.id,
         export: async (notification: JNotification) => notification.id + ''
       },
       {
@@ -100,7 +99,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'action',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.action,
         export: async (notification: JNotification) => notification.action
       },
       {
@@ -115,7 +113,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'notification',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.notification,
         export: async (notification: JNotification) => notification.notification
       },
       {
@@ -123,7 +120,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'receiver',
         isSearchable: true,
         isSortable: true,
-        render: (notification: JNotification) => notification.receiver,
         export: async (notification: JNotification) => notification.receiver
       }
     ];
@@ -275,10 +271,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           this.reload();
         })
     );
-  }
-
-  private rowActionEdit(notification: JNotification): void {
-    this.router.navigate(['/account', 'notifications', notification.id, 'edit']);
   }
 
   private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {

@@ -79,4 +79,5 @@ export interface AttackCommandData {
   attackCmd: string;
   preprocessorCommand?: string;
   files: number[];
+  otherFiles?: number[];
 }

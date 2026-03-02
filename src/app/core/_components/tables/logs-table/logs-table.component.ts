@@ -10,7 +10,6 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
-/* eslint-disable @angular-eslint/component-selector */
 
 @Component({
   selector: 'logs-table',
@@ -71,7 +70,6 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.id,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -86,7 +84,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'level',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        render: (log: JLog) => this.sanitize(log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()),
         export: async (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
@@ -94,7 +92,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'issuerId',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
+        render: (log: JLog) => this.sanitize(`${log.issuer}-ID-${log.issuerId}`),
         export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
       },
       {
@@ -102,14 +100,12 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'message',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.message,
         export: async (log: JLog) => log.message
       }
     ];
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
     this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }

@@ -156,7 +156,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         render: (wrapper: JTaskWrapper) => {
           const type = wrapper.hashType;
 
-          return type ? `${type.id} - ${type.description}` : '';
+          return type ? this.sanitize(`${type.id} - ${type.description}`) : '';
         },
 
         export: async (wrapper: JTaskWrapper) => {

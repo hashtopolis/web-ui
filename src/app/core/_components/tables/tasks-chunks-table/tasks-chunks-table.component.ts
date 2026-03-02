@@ -76,8 +76,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        isSearchable: true,
-        render: (chunk: JChunk) => chunk.id
+        isSearchable: true
       },
       {
         id: TasksChunksTableCol.START,
