@@ -135,7 +135,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleTheme() {
     const newTheme = this.isDarkMode ? 'light' : 'dark';
     this.uiSettings.updateSettings({ theme: newTheme });
-    window.location.reload();
   }
 
   menuItemClicked(event: ActionMenuEvent<unknown>): void {

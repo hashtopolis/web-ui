@@ -1,5 +1,6 @@
 import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
 
 /**
@@ -160,6 +161,9 @@ export class UISettingsUtilityClass {
 
     if (changedValues > 0) {
       this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+      if (themeChanged && this.themeService) {
+        this.themeService.theme = this.uiConfig.theme;
+      }
     }
 
     return changedValues;

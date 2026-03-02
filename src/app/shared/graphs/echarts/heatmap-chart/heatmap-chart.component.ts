@@ -36,9 +36,17 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
     }
   }
 
-
   ngOnChanges(changes: SimpleChanges) {
-    if (this.chart && (changes['data'] || changes['isDarkMode'])) {
+    if (!this.chart) {
+      return;
+    }
+
+    if (changes['isDarkMode'] && !changes['isDarkMode'].firstChange) {
+      this.chart.dispose();
+      this.initChart();
+    }
+
+    if (changes['data'] || changes['isDarkMode']) {
       this.setOption();
     }
   }
