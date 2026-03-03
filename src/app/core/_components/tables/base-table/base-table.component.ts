@@ -44,6 +44,8 @@ import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-t
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatPercentage } from '@src/app/shared/utils/util';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-base-table',
@@ -102,7 +104,7 @@ export class BaseTableComponent {
    * Call this in ngOnInit of child table components to automatically handle filter errors.
    * @param dataSource - The datasource with filterError$ observable
    */
-  protected setupFilterErrorSubscription(dataSource: any): void {
+  protected setupFilterErrorSubscription<T, P extends MatPaginator>(dataSource: BaseDataSource<T, P>): void {
     const ngZone = this.injector.get<NgZone>(NgZone);
 
     // Subscribe to filter errors from the datasource
