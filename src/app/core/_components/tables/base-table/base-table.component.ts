@@ -13,6 +13,7 @@ import {
   inject
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -41,11 +42,11 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatPercentage } from '@src/app/shared/utils/util';
-import { BaseDataSource } from '@datasources/base.datasource';
-import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-base-table',
