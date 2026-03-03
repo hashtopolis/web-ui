@@ -1,8 +1,8 @@
 import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { Observable, Subscription, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Injector, Input, NgZone, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, NgZone, SecurityContext, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -385,7 +385,7 @@ export class BaseTableComponent {
    * @returns A SafeHtml object that represents the sanitized HTML.
    */
   protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html);
   }
 
   protected setColumnLabels(labels: { [key: string]: string }): void {
