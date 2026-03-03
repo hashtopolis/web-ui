@@ -2,8 +2,18 @@ import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Injector, Input, NgZone, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Injector,
+  Input,
+  NgZone,
+  SecurityContext,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -32,6 +42,8 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatPercentage } from '@src/app/shared/utils/util';
@@ -42,6 +54,22 @@ import { formatPercentage } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class BaseTableComponent {
+  protected injector = inject(Injector);
+  protected gs = inject(GlobalService);
+  protected cs = inject(ConfigService);
+  protected clipboard = inject(Clipboard);
+  protected router = inject(Router);
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  protected sanitizer = inject(DomSanitizer);
+  protected alertService = inject(AlertService);
+  protected uiService = inject(UIConfigService);
+  protected exportService = inject(ExportService);
+  protected cdr = inject(ChangeDetectorRef);
+  dialog = inject(MatDialog);
+  protected permissionService = inject(PermissionService);
+  readonly tasksRoleService = inject(TasksRoleService);
+  readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
+
   @ViewChild('table') table: HTTableComponent;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
@@ -59,23 +87,9 @@ export class BaseTableComponent {
   protected columnLabels: { [key: string]: string } = {};
   protected contextMenuService: ContextMenuService;
 
-  constructor(
-    protected injector: Injector,
-    protected gs: GlobalService,
-    protected cs: ConfigService,
-    protected clipboard: Clipboard,
-    protected router: Router,
-    protected settingsService: LocalStorageService<UIConfig>,
-    protected sanitizer: DomSanitizer,
-    protected alertService: AlertService,
-    protected uiService: UIConfigService,
-    protected exportService: ExportService,
-    protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    protected permissionService: PermissionService,
-    readonly tasksRoleService: TasksRoleService,
-    readonly preconfiguredTasksRoleService: PreconfiguredTasksRoleService
-  ) {
+  constructor() {
+    const settingsService = this.settingsService;
+
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();
   }
@@ -91,7 +105,7 @@ export class BaseTableComponent {
    * Call this in ngOnInit of child table components to automatically handle filter errors.
    * @param dataSource - The datasource with filterError$ observable
    */
-  protected setupFilterErrorSubscription(dataSource: any): void {
+  protected setupFilterErrorSubscription<T, P extends MatPaginator>(dataSource: BaseDataSource<T, P>): void {
     const ngZone = this.injector.get<NgZone>(NgZone);
 
     // Subscribe to filter errors from the datasource
@@ -385,7 +399,7 @@ export class BaseTableComponent {
    * @returns A SafeHtml object that represents the sanitized HTML.
    */
   protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html);
   }
 
   protected setColumnLabels(labels: { [key: string]: string }): void {

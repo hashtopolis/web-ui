@@ -1,6 +1,14 @@
 import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
+
+export interface TableOrder {
+  id: number;
+  dataKey: string;
+  isSortable: boolean;
+  direction: 'asc' | 'desc';
+}
 
 /**
  * Utility class for managing user interface settings and configurations.
@@ -39,7 +47,7 @@ export class UISettingsUtilityClass {
    * @param {number} [settings.start] - The start index to set.
    * @param {number[]} [settings.columns] - An array of column numbers to set.
    * @param {number[]} [settings.search] - An array of column numbers to set.
-   * @param {any[]} [settings.order] - An array defining the order of columns.
+   * @param {TableOrder[]} [settings.order] - An array defining the order of columns.
    */
   updateTableSettings(
     key: string,
@@ -50,7 +58,7 @@ export class UISettingsUtilityClass {
       before?: number;
       totalItems?: number;
       columns?: number[];
-      order?: any[];
+      order?: TableOrder[];
       search?: string;
     }
   ): void {
@@ -132,7 +140,7 @@ export class UISettingsUtilityClass {
   getSetting<T>(key: string): T | undefined {
     try {
       return this.uiConfig[key];
-    } catch (error) {
+    } catch {
       return undefined;
     }
   }
@@ -143,7 +151,7 @@ export class UISettingsUtilityClass {
    * @param settings - An object containing key-value pairs of settings to update.
    * @returns The number of settings that were successfully changed.
    */
-  updateSettings(settings: { [key: string]: any }): number {
+  updateSettings(settings: { [key: string]: unknown }): number {
     const keys = Object.keys(settings);
     let changedValues = 0;
     let themeChanged = false;
@@ -160,6 +168,9 @@ export class UISettingsUtilityClass {
 
     if (changedValues > 0) {
       this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+      if (themeChanged && this.themeService) {
+        this.themeService.theme = this.uiConfig.theme;
+      }
     }
 
     return changedValues;

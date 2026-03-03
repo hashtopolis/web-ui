@@ -1,12 +1,13 @@
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+import { ThemeService } from '@services/shared/theme.service';
 
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
@@ -30,6 +31,13 @@ import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit, OnDestroy {
+  private gs = inject(GlobalService);
+  protected autoRefreshService = inject(AutoRefreshService);
+  private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private breakpointObserver = inject(BreakpointObserver);
+  private permissionService = inject(PermissionService);
+  private themeService = inject(ThemeService);
+
   /**
    * Utility class for UI settings retrieval and updates.
    */
@@ -86,20 +94,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   /**
    * HomeComponent constructor.
    * Sets up breakpoint observers for responsive layout and reads initial theme mode.
-   *
-   * @param gs GlobalService for API calls.
-   * @param autoRefreshService AutoRefreshService to manage auto-refresh logic.
-   * @param service LocalStorageService to manage UI config.
-   * @param breakpointObserver BreakpointObserver to detect screen sizes.
-   * @param permissionService PermissionService to check user permissions.
    */
-  constructor(
-    private gs: GlobalService,
-    protected autoRefreshService: AutoRefreshService,
-    private service: LocalStorageService<UIConfig>,
-    private breakpointObserver: BreakpointObserver,
-    private permissionService: PermissionService
-  ) {
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
 
@@ -128,6 +124,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.canReadCracks = this.permissionService.hasPermissionSync(Perm.Hash.READ);
 
     this.loadData();
+
+    const themeSubscription = this.themeService.theme$.subscribe((theme) => {
+      this.isDarkMode = (theme ?? this.themeService.current) === 'dark';
+    });
+    this.subscriptions.push(themeSubscription);
+
     // Start auto-refresh if enabled.
 
     if (this.autoRefreshService.refreshPage) {
