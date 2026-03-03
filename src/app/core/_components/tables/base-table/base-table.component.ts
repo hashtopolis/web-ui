@@ -1,8 +1,17 @@
 import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Injector, Input, NgZone, SecurityContext, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Injector,
+  Input,
+  NgZone,
+  SecurityContext,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -42,6 +51,22 @@ import { formatPercentage } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class BaseTableComponent {
+  protected injector = inject(Injector);
+  protected gs = inject(GlobalService);
+  protected cs = inject(ConfigService);
+  protected clipboard = inject(Clipboard);
+  protected router = inject(Router);
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  protected sanitizer = inject(DomSanitizer);
+  protected alertService = inject(AlertService);
+  protected uiService = inject(UIConfigService);
+  protected exportService = inject(ExportService);
+  protected cdr = inject(ChangeDetectorRef);
+  dialog = inject(MatDialog);
+  protected permissionService = inject(PermissionService);
+  readonly tasksRoleService = inject(TasksRoleService);
+  readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
+
   @ViewChild('table') table: HTTableComponent;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
@@ -59,23 +84,9 @@ export class BaseTableComponent {
   protected columnLabels: { [key: string]: string } = {};
   protected contextMenuService: ContextMenuService;
 
-  constructor(
-    protected injector: Injector,
-    protected gs: GlobalService,
-    protected cs: ConfigService,
-    protected clipboard: Clipboard,
-    protected router: Router,
-    protected settingsService: LocalStorageService<UIConfig>,
-    protected sanitizer: DomSanitizer,
-    protected alertService: AlertService,
-    protected uiService: UIConfigService,
-    protected exportService: ExportService,
-    protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    protected permissionService: PermissionService,
-    readonly tasksRoleService: TasksRoleService,
-    readonly preconfiguredTasksRoleService: PreconfiguredTasksRoleService
-  ) {
+  constructor() {
+    const settingsService = this.settingsService;
+
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();
   }
