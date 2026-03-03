@@ -42,16 +42,8 @@
               <simulate-form-field label="Access token" message="{{ showagent['token'] }}"></simulate-form-field>
               <simulate-form-field
                 label="O.S."
-              [message]="
-                showagent['os'] === 0
-                  ? 'Linux'
-                  : showagent['os'] === 1
-                    ? 'Windows'
-                    : showagent['os'] === 2
-                      ? 'IOS'
-                      : 'Unknown'
-              "
-                icon="computer"
+                [message]="getOsMessage(showagent['os'])"
+                [faIcon]="getOsFaIcon(showagent['os'])"
               ></simulate-form-field>
               @if (showagent['devices']) {
                 <simulate-form-field

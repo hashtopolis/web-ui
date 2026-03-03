@@ -3,6 +3,9 @@
     {{ label }}
   </div>
   <div class="simulate-form-field-flex">
+    @if (faIcon) {
+      <fa-icon [icon]="faIcon" aria-hidden="true"></fa-icon>
+    }
     @if (icon) {
       <mat-icon>{{ icon }}</mat-icon>
     }
