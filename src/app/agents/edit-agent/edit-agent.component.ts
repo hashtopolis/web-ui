@@ -224,12 +224,13 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const loadTasksSubscription$ = this.gs.ghelper(SERV.HELPER, "getBestTasksAgent?agent=" + this.editedAgentIndex).subscribe ((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const tasks = this.serializer.deserialize<JTask[]>(responseBody);
-      this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
-      
-    });
+    const loadTasksSubscription$ = this.gs
+      .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+      });
 
     this.unsubscribeService.add(loadTasksSubscription$);
   }
