@@ -46,11 +46,12 @@ export class ExportService {
    * @private
    */
   private saveCsvFile(inputString: string, fileName: string): void {
-    const byteArray = new Uint8Array(inputString.length);
-    for (let i = 0; i < inputString.length; i++) {
-      byteArray[i] = inputString.codePointAt(i);
-    }
-    this.exportUtil.download(byteArray, `${fileName}.csv`, 'text/csv');
+    // Encode the string as UTF-8 bytes
+    const encoder = new TextEncoder();
+    const byteArray = encoder.encode(inputString); // Uint8Array
+
+    // Pass the underlying ArrayBuffer to match the expected type
+    this.exportUtil.download(byteArray.buffer, `${fileName}.csv`, 'text/csv');
   }
 
   /**
