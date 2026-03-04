@@ -41,7 +41,6 @@
     "@ng-idle/keepalive": "^13.0.0",
     "@ngrx/store": "^20.1.0",
     "@popperjs/core": "^2.11.8",
-    "@schematics/angular": "^19.2.7",
     "@selectize/selectize": "^0.15.2",
     "@types/echarts": "^4.9.18",
     "angular-datatables": "^16.0.0",
