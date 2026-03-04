@@ -224,17 +224,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const requestParams = new RequestParamBuilder()
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .create();
-
-    const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
+    const loadTasksSubscription$ = this.gs.ghelper(SERV.HELPER, "getBestTasksAgent?agent=" + this.editedAgentIndex).subscribe ((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
       const tasks = this.serializer.deserialize<JTask[]>(responseBody);
-
-      // Remove completed tasks
-      const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0);
-      this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
+      this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+      
     });
 
     this.unsubscribeService.add(loadTasksSubscription$);
