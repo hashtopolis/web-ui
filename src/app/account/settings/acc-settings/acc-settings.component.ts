@@ -209,7 +209,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     const params = new RequestParamBuilder().create();
     this.subscriptions.push(
-      this.gs.get(SERV.USERS, Number(this.gs.userId), params).subscribe((response: ResponseWrapper) => {
+      this.gs.ghelper(SERV.HELPER, 'currentUser?user=' + Number(this.gs.userId)).subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({
           data: response.data,
           included: response.included
