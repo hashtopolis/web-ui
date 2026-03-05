@@ -145,6 +145,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.updateForm.setValue({
         taskId: task.id,
         forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+        staticChunks: this.getStaticChunkingLabel(task.staticChunks),
         skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
         keyspace: task.keyspace,
         keyspaceProgress: task.keyspaceProgress,
@@ -211,6 +212,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.updateForm = new FormGroup({
       taskId: new FormControl({ value: '', disabled: true }),
       forcePipe: new FormControl({ value: '', disabled: true }),
+      staticChunks: new FormControl({ value: '', disabled: true }),
       skipKeyspace: new FormControl({ value: '', disabled: true }),
       keyspace: new FormControl({ value: '', disabled: true }),
       keyspaceProgress: new FormControl({ value: '', disabled: true }),
@@ -447,5 +449,16 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       const speeds = this.serializer.deserialize<SpeedStat[]>({ data: response.data, included: response.included });
       this.originalValue.speeds = [...speeds].reverse();
     });
+  }
+
+  private getStaticChunkingLabel(staticChunks: number): string {
+    switch (staticChunks) {
+      case 1:
+        return 'Fixed chunk size (1)';
+      case 2:
+        return 'Fixed number of chunks (2)';
+      default:
+        return 'No';
+    }
   }
 }
