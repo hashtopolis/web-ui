@@ -464,19 +464,25 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   protected onSubmit() {
     if (this.form.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe(() => {
-        this.alert.showSuccessMessage('New Task created');
-        this.router
-          .navigate(['tasks/show-tasks'])
-          .then((success) => {
-            if (!success) {
-              console.error('Navigation failed.');
-            }
-          })
-          .catch((error) => {
-            console.error('Error navigating to tasks/show-tasks:', error);
-          });
-        this.isCreatingLoading = false;
+      const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New Task created');
+          this.isCreatingLoading = false;
+          this.router
+            .navigate(['tasks/show-tasks'])
+            .then((success) => {
+              if (!success) {
+                console.error('Navigation failed.');
+              }
+            })
+            .catch((error) => {
+              console.error('Error navigating to tasks/show-tasks:', error);
+            });
+        },
+        error: (err) => {
+          console.error('Error creating task:', err);
+          this.isCreatingLoading = false;
+        }
       });
       this.unsubscribeService.add(onSubmitSubscription$);
     } else {

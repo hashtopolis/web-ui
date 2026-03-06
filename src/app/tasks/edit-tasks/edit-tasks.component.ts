@@ -285,11 +285,17 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private updateTask(): void {
     this.isUpdatingLoading = true;
-    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.isUpdatingLoading = false;
-      this.router.navigate(['tasks/show-tasks']).then(() => {
-        this.alertService.showSuccessMessage('Task data has been updated successfully.');
-      });
+    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe({
+      next: () => {
+        this.isUpdatingLoading = false;
+        this.router.navigate(['tasks/show-tasks']).then(() => {
+          this.alertService.showSuccessMessage('Task data has been updated successfully.');
+        });
+      },
+      error: (err) => {
+        console.error('Error updating task', err);
+        this.isUpdatingLoading = false;
+      }
     });
   }
 

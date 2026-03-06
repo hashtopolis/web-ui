@@ -216,10 +216,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       this.subscriptions.push(
-        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-          this.alert.showSuccessMessage('New Notification created');
-          this.isCreatingLoading = false;
-          this.router.navigate(['/account/notifications']);
+        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('New Notification created');
+            this.isCreatingLoading = false;
+            this.router.navigate(['/account/notifications']);
+          },
+          error: (err) => {
+            console.error('Error creating new notification', err);
+            this.isCreatingLoading = false;
+          }
         })
       );
     } else {
