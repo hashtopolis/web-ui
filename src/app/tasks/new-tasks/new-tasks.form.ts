@@ -5,6 +5,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -50,7 +51,10 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     taskName: new FormControl('', [Validators.required, Validators.minLength(1)]),
     notes: new FormControl(''),
     hashlistId: new FormControl(undefined, [Validators.required]),
-    attackCmd: new FormControl(attackCmdSetting ? attackCmdSetting.value : '', [Validators.required]),
+    attackCmd: new FormControl(attackCmdSetting ? attackCmdSetting.value : '', [
+      Validators.required,
+      attackCommandWithAliasValidator()
+    ]),
     priority: new FormControl(priority, [Validators.required, Validators.pattern('^[0-9]*$')]),
     maxAgents: new FormControl(maxAgents),
     chunkTime: new FormControl(chunktimeSetting ? Number(chunktimeSetting.value) : null),

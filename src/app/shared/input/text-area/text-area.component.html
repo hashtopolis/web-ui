@@ -31,6 +31,25 @@
     <mat-hint>{{ hint }}</mat-hint>
   }
   @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+      @if (errors['required']) {
+        <span>{{ title }} is required</span>
+      }
+      @if (errors['missingHashlistAlias']) {
+        <span>{{ title }} must include #HL#</span>
+      }
+      @if (errors['attackCommandNeedsAdditionalContent']) {
+        <span>{{ title }} must include #HL# plus additional command options</span>
+      }
+      @if (errors['minlength']) {
+        <span>Minimum length is {{ errors['minlength'].requiredLength }}</span>
+      }
+      @if (errors['maxlength']) {
+        <span>Maximum length is {{ errors['maxlength'].requiredLength }}</span>
+      }
+      @if (errors['pattern']) {
+        <span>Please enter a valid {{ title?.toLowerCase() }}</span>
+      }
+    </mat-hint>
   }
 </mat-form-field>

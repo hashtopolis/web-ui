@@ -1,4 +1,4 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
  * Interface definition for EditHashlistForm
@@ -32,7 +32,7 @@ export const getEditHashlistForm = (): FormGroup<EditHashlistForm> => {
     cracked: new FormControl({ value: null, disabled: true }),
     remaining: new FormControl({ value: null, disabled: true }),
     updateData: new FormGroup({
-      name: new FormControl(null) as FormControl<string>,
+      name: new FormControl(null, [Validators.required]) as FormControl<string>,
       notes: new FormControl(null) as FormControl<string>,
       isSecret: new FormControl(null) as FormControl<boolean>,
       accessGroupId: new FormControl(null) as FormControl<number>

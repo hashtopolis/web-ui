@@ -20,7 +20,7 @@
 
           </div>
           <div>
-            <input-text-area title="Command line" formControlName="attackCmd"></input-text-area>
+            <input-text-area title="Command line" formControlName="attackCmd" [isRequired]="true"></input-text-area>
             <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
           </div>
           <mat-accordion>

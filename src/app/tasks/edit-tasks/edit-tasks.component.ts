@@ -2,7 +2,7 @@ import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -219,8 +220,14 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
-        taskName: new FormControl({ value: '', disabled: this.isReadOnly }),
-        attackCmd: new FormControl({ value: '', disabled: this.isReadOnly }),
+        taskName: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required]
+        ),
+        attackCmd: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
         notes: new FormControl({ value: '', disabled: this.isReadOnly }),
         color: new FormControl({ value: '', disabled: this.isReadOnly }),
         chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
