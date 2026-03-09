@@ -36,7 +36,7 @@
             <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
               <mat-icon>help</mat-icon>
             </button>
-            <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
+            <blacklist-attack [value]="form.controls.attackCmd.value"></blacklist-attack>
           </div>
 
           <input-text-area title="Notes" formControlName="notes"></input-text-area>
@@ -65,9 +65,9 @@
               <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
-                @if (form.get('staticChunks').value === 1) {
+                @if (form.controls.staticChunks.value === 1) {
                   <input-number title="Fixed size of chunks" formControlName="chunkSize" [tooltip]="tasktip.chunkSize"></input-number>
-                } @else if (form.get('staticChunks').value === 2) {
+                } @else if (form.controls.staticChunks.value === 2) {
                   <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
                 }
               </div>
@@ -86,7 +86,7 @@
           </mat-accordion>
           @if (!form.valid && form.touched) {
             <br>
-            <span class="help-block" >Please complete all the form!</span>
+            <span class="help-block" >Please fill in all required fields.</span>
             }<br>
             <grid-buttons>
               <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
@@ -110,7 +110,7 @@
               <span><b>Wordlists</b></span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="fileTypeWordlist" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
+          <app-files-attack-table [fileType]="FileType.WORDLIST" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
         </mat-expansion-panel>
 
         <mat-expansion-panel #rulesPanel>
@@ -119,7 +119,7 @@
               <span><b>Rules</b></span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+          <app-files-attack-table [fileType]="FileType.RULES" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
         </mat-expansion-panel>
 
         <mat-expansion-panel #otherPanel>
@@ -128,7 +128,7 @@
               <span><b>Other</b></span>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+          <app-files-attack-table [fileType]="FileType.OTHER" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
         </mat-expansion-panel>
 
       </mat-accordion>
