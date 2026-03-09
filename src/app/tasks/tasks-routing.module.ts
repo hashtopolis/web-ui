@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MyRoute } from '@models/routes.model';
 
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { NewTaskRouteKind } from './tasks-routing.constants';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 
@@ -82,7 +83,7 @@ const routes: MyRoute[] = [
         path: 'new-task',
         component: NewTasksComponent,
         data: {
-          kind: 'new-task',
+          kind: NewTaskRouteKind.NewTask,
           breadcrumb: 'New task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
@@ -94,7 +95,7 @@ const routes: MyRoute[] = [
         path: 'new-tasks/:id/copy',
         component: NewTasksComponent,
         data: {
-          kind: 'copy-task',
+          kind: NewTaskRouteKind.CopyTask,
           breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
@@ -105,7 +106,7 @@ const routes: MyRoute[] = [
         path: 'new-tasks/:id/copypretask',
         component: NewTasksComponent,
         data: {
-          kind: 'copy-pretask',
+          kind: NewTaskRouteKind.CopyPreTask,
           breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'

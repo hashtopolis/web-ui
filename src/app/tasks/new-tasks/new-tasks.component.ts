@@ -34,25 +34,12 @@ import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { environment } from '@src/environments/environment';
-
-enum PageMode {
-  CREATE = 'CREATE',
-  EDIT = 'EDIT',
-  VIEW = 'VIEW'
-}
+import { NewTaskRouteKind } from '../tasks-routing.constants';
 
 enum CopyType {
   CopyFromTask = 'COPY_FROM_TASK',
   CopyFromPreTask = 'COPY_FROM_PRETASK'
 }
-
-const ViewKind = {
-  NewTask: 'new-task',
-  CopyTask: 'copy-task',
-  CopyPreTask: 'copy-pretask'
-} as const;
-
-type ViewKind = (typeof ViewKind)[keyof typeof ViewKind];
 
 type FileId = number;
 
@@ -93,7 +80,6 @@ export class NewTasksComponent implements OnInit {
   copyMode = false;
   copyFiles: FileId[];
   editedIndex: number;
-  whichView: PageMode;
   copyType: CopyType;
   isCopyHashlistId: HashListId | null = null;
 
@@ -134,34 +120,23 @@ export class NewTasksComponent implements OnInit {
     const data = await firstValueFrom(this.route.data);
     this.buildForm();
     await this.loadSelectOptions();
-    await this.determineView(data['kind'] as ViewKind);
+    await this.determineView(data['kind'] as NewTaskRouteKind);
   }
 
   /**
    * Determine the view and set up the component accordingly.
    * @param kind The type of data (e.g., 'new-task', 'copy-task', 'copy-pretask').
    */
-  private async determineView(kind: ViewKind): Promise<void> {
+  private async determineView(kind: NewTaskRouteKind): Promise<void> {
     switch (kind) {
-      case ViewKind.NewTask:
-        this.setupForCreate();
-        break;
-
-      case ViewKind.CopyTask:
+      case NewTaskRouteKind.CopyTask:
         await this.setupForCopy(CopyType.CopyFromTask);
         break;
 
-      case ViewKind.CopyPreTask:
+      case NewTaskRouteKind.CopyPreTask:
         await this.setupForCopy(CopyType.CopyFromPreTask);
         break;
     }
-  }
-
-  /**
-   * Set up the component for creating a new task.
-   */
-  private setupForCreate(): void {
-    this.whichView = PageMode.CREATE;
   }
 
   /**
@@ -169,7 +144,6 @@ export class NewTasksComponent implements OnInit {
    * @param copyType The type of data to copy.
    */
   private async setupForCopy(copyType: CopyType): Promise<void> {
-    this.whichView = PageMode.EDIT;
     this.copyType = copyType;
     await this.initForm(copyType === CopyType.CopyFromTask);
   }
