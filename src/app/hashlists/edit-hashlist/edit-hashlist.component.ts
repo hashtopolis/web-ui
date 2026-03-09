@@ -11,7 +11,7 @@ import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -25,6 +25,7 @@ import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.gua
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -196,8 +197,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     if (!this.roleService.hasRole('groups')) {
       return;
     }
-
-    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_GROUPS));
+    const response = await firstValueFrom<ResponseWrapper>(
+      this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+    );
 
     const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
       data: response.data,

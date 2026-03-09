@@ -152,7 +152,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.update(SERV.USERS, Number(this.gs.userId), this.form.value).subscribe({
+        this.gs.uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value).subscribe({
           next: () => {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;
@@ -207,9 +207,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
-    const params = new RequestParamBuilder().create();
     this.subscriptions.push(
-      this.gs.ghelper(SERV.HELPER, 'currentUser?user=' + Number(this.gs.userId)).subscribe((response: ResponseWrapper) => {
+      this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({
           data: response.data,
           included: response.included
