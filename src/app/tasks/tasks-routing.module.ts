@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { MyRoute } from '@models/routes.model';
 
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
-import { NewTaskRouteKind } from './tasks-routing.constants';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 
@@ -25,6 +24,7 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
 import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
 import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
+import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 
 const taskRoleServiceClass = TasksRoleService;
 const supertaskRoleServiceClass = SupertasksRoleService;
