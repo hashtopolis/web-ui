@@ -4,9 +4,8 @@ import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { RelationshipType, SERV } from '@services/main.config';
-import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
-
 import { GlobalService } from '@services/main.service';
+import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
