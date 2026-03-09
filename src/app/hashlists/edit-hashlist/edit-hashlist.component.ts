@@ -25,7 +25,6 @@ import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.gua
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.

@@ -193,7 +193,8 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
       // Handle logic for select fields with selectOptions$ after the view is initialized
       selectFields.forEach((field) => {
         // Fetch the select options dynamically here
-        field.selectEndpoint$()
+        field
+          .selectEndpoint$()
           .pipe(takeUntil(this.destroy$))
           .subscribe((response: ResponseWrapper) => {
             // Sometimes fields need to be mapped

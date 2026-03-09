@@ -1,16 +1,17 @@
 import { Observable, of } from 'rxjs';
 
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { RelationshipType, SERV } from '@services/main.config';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
+import { GlobalService } from '@services/main.service';
+
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
 import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
-import { GlobalService } from './main.service';
 
 /**
  * Metadata information for the form page.
@@ -1086,7 +1087,8 @@ export class MetadataService {
       label: 'Binary',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
@@ -1096,7 +1098,8 @@ export class MetadataService {
       label: 'Binary Version',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]

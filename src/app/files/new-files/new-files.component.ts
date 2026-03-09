@@ -180,7 +180,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS));
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      );
 
       const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
         data: response.data,

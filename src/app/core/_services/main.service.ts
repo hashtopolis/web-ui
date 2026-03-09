@@ -326,7 +326,7 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(serviceConfig: ServiceConfig, id:number, option: string, arr: any): Observable<any> {
+  uhelper(serviceConfig: ServiceConfig, id: number, option: string, arr: any): Observable<any> {
     let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
     data = new JsonAPISerializer().serialize({ stuff: data });
     return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, data);

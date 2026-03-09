@@ -13,7 +13,6 @@ import { SERV } from '@services/main.config';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
 
 export interface UpdateUserPassword {
@@ -152,16 +151,18 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value).subscribe({
-          next: () => {
-            this.alert.showSuccessMessage('User saved');
-            this.isUpdatingLoading = false;
-          },
-          error: (err) => {
-            console.error('Error updating user', err);
-            this.isUpdatingLoading = false;
-          }
-        })
+        this.gs
+          .uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value)
+          .subscribe({
+            next: () => {
+              this.alert.showSuccessMessage('User saved');
+              this.isUpdatingLoading = false;
+            },
+            error: (err) => {
+              console.error('Error updating user', err);
+              this.isUpdatingLoading = false;
+            }
+          })
       );
     } else {
       this.form.markAllAsTouched();
