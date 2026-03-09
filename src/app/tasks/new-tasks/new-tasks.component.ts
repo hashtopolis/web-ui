@@ -36,11 +36,6 @@ import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/n
 import { environment } from '@src/environments/environment';
 import { NewTaskRouteKind } from '../tasks-routing.constants';
 
-enum CopyType {
-  CopyFromTask = 'COPY_FROM_TASK',
-  CopyFromPreTask = 'COPY_FROM_PRETASK'
-}
-
 type FileId = number;
 
 type HashListId = number;
@@ -80,7 +75,6 @@ export class NewTasksComponent implements OnInit {
   copyMode = false;
   copyFiles: FileId[];
   editedIndex: number;
-  copyType: CopyType;
   isCopyHashlistId: HashListId | null = null;
 
   // Tooltips
@@ -130,22 +124,13 @@ export class NewTasksComponent implements OnInit {
   private async determineView(kind: NewTaskRouteKind): Promise<void> {
     switch (kind) {
       case NewTaskRouteKind.CopyTask:
-        await this.setupForCopy(CopyType.CopyFromTask);
+        await this.initForm(true);
         break;
 
       case NewTaskRouteKind.CopyPreTask:
-        await this.setupForCopy(CopyType.CopyFromPreTask);
+        await this.initForm(false);
         break;
     }
-  }
-
-  /**
-   * Set up the component for copying an existing task or pretask.
-   * @param copyType The type of data to copy.
-   */
-  private async setupForCopy(copyType: CopyType): Promise<void> {
-    this.copyType = copyType;
-    await this.initForm(copyType === CopyType.CopyFromTask);
   }
 
   /**
@@ -162,8 +147,8 @@ export class NewTasksComponent implements OnInit {
         this.handleChangeBinary(newTypeId);
       });
 
-    this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newvalue) => {
-      this.handleChangePreprocessor(newvalue);
+    this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
+      this.handleChangePreprocessor(newValue);
     });
   }
 
