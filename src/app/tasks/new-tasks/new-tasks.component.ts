@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnIn
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
@@ -33,16 +33,26 @@ import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.co
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 import { environment } from '@src/environments/environment';
-import { NewTaskRouteKind } from '../tasks-routing.constants';
 
 type FileId = number;
 
 type HashListId = number;
 
-// pretasks do not have a hashlist assigned, currently hashlistId typed as number
-// and this value has been used as a placeholder
-const NO_HASHLIST_SENTINEL = 999999;
+type CopyData = Pick<
+  JTask,
+  | 'skipKeyspace'
+  | 'crackerBinaryId'
+  | 'staticChunks'
+  | 'chunkSize'
+  | 'forcePipe'
+  | 'preprocessorId'
+  | 'preprocessorCommand'
+> & {
+  files: FileId[];
+  hashlistId: HashListId | null;
+};
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -75,7 +85,6 @@ export class NewTasksComponent implements OnInit {
   copyMode = false;
   copyFiles: FileId[];
   editedIndex: number;
-  isCopyHashlistId: HashListId | null = null;
 
   // Tooltips
   tasktip: TaskTooltipsLevel;
@@ -105,10 +114,9 @@ export class NewTasksComponent implements OnInit {
    * load select options, and determine the view.
    */
   async ngOnInit(): Promise<void> {
-    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
-      this.copyMode = params['id'] != null;
-    });
+    const params = await firstValueFrom(this.route.params);
+    this.editedIndex = +params['id'];
+    this.copyMode = params['id'] != null;
     this.tasktip = this.tooltipService.getTaskTooltips();
 
     const data = await firstValueFrom(this.route.data);
@@ -268,8 +276,7 @@ export class NewTasksComponent implements OnInit {
    */
   protected isPreprocessor(): boolean {
     if (!this.formReady) return false;
-    const preprocessorId = this.form.controls.preprocessorId.value as number | string;
-    return preprocessorId !== 0 && preprocessorId !== 'null';
+    return this.form.controls.preprocessorId.value !== 0;
   }
 
   /**
@@ -307,7 +314,7 @@ export class NewTasksComponent implements OnInit {
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
       // Select the last version by default
-      const lastVersionId: string | undefined = this.selectCrackerversions.slice(-1)[0]?.id;
+      const lastVersionId = this.selectCrackerversions.slice(-1)[0]?.id;
       const crackerCtrl = this.form.controls.crackerBinaryId;
 
       if (lastVersionId) {
@@ -344,7 +351,7 @@ export class NewTasksComponent implements OnInit {
     if (!this.copyMode) return;
 
     const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
-    const includedResources = isTask
+    const includedResources: (keyof JTask | keyof JPretask)[] = isTask
       ? ['hashlist', 'speeds', 'crackerBinary', 'crackerBinaryType', 'files']
       : ['pretaskFiles'];
 
@@ -359,9 +366,7 @@ export class NewTasksComponent implements OnInit {
         included: response.included
       });
 
-      // Prepare files array
       const copyData = this.extractCopyData(task, isTask);
-      this.isCopyHashlistId = copyData.hashlistId;
       this.copyFiles = copyData.files;
 
       this.form.patchValue({
@@ -426,7 +431,7 @@ export class NewTasksComponent implements OnInit {
   /**
    * Returns values that differ between JTask and JPretask as a single object.
    */
-  private extractCopyData(task: JTask | JPretask, isTask: boolean) {
+  private extractCopyData(task: JTask | JPretask, isTask: boolean): CopyData {
     if (isTask) {
       const t = task as JTask;
       return {
@@ -445,7 +450,7 @@ export class NewTasksComponent implements OnInit {
     const p = task as JPretask;
     return {
       files: (p.pretaskFiles ?? []).map((f) => f.id),
-      hashlistId: NO_HASHLIST_SENTINEL,
+      hashlistId: null,
       skipKeyspace: 0,
       crackerBinaryId: 1,
       staticChunks: 0,
