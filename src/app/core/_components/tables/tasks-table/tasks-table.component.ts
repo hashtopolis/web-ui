@@ -116,12 +116,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
+        render: (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : ''),
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapper) => {
-          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
-        },
-        render: (wrapper: JTaskWrapper) => {
           return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
         }
       },
@@ -832,12 +830,28 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks?.[0];
       const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
+      const isRunning = (task?.activeAgents ?? 0) > 0;
+      const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${task?.id}`;
+      const totalHashes = wrapper.hashlist?.hashCount ?? 0;
+      const crackedHashes = wrapper.cracked ?? 0;
+      const hasHashlistProgress = totalHashes > 0;
+      const overallProgress = hasHashlistProgress ? Math.min(100, Math.round((crackedHashes / totalHashes) * 100)) : 0;
+      const overallProgressLabel = hasHashlistProgress
+        ? `${crackedHashes.toLocaleString()} / ${totalHashes.toLocaleString()} cracked`
+        : 'No hashlist progress available';
 
       return of([
         {
           label: taskName,
           routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
-          tooltip: task?.attackCmd ?? ''
+          tooltip: task?.attackCmd ?? '',
+          visualGraph: {
+            enabled: isRunning,
+            taskId: task?.id,
+            imageUrl,
+            overallProgress,
+            overallProgressLabel
+          }
         }
       ]);
     } else {
