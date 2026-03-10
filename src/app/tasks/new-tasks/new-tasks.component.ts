@@ -1,4 +1,4 @@
-import { firstValueFrom } from 'rxjs';
+import { combineLatest, firstValueFrom, from, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -113,16 +113,24 @@ export class NewTasksComponent implements OnInit {
    * Initialize the component: subscribe to route params, build form,
    * load select options, and determine the view.
    */
-  async ngOnInit(): Promise<void> {
-    const params = await firstValueFrom(this.route.params);
-    this.editedIndex = +params['id'];
-    this.copyMode = params['id'] != null;
+  ngOnInit(): void {
     this.tasktip = this.tooltipService.getTaskTooltips();
 
-    const data = await firstValueFrom(this.route.data);
-    this.buildForm();
-    await this.loadSelectOptions();
-    await this.determineView(data['kind'] as NewTaskRouteKind);
+    combineLatest([this.route.params, this.route.data])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(([params, data]) => {
+          this.editedIndex = +params['id'];
+          this.copyMode = params['id'] != null;
+          this.buildForm();
+          return from(
+            this.loadSelectOptions().then(() =>
+              this.determineView(data['kind'] as NewTaskRouteKind)
+            )
+          );
+        })
+      )
+      .subscribe();
   }
 
   /**
