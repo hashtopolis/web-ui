@@ -2,7 +2,7 @@
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
@@ -69,7 +69,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   buildForm() {
     this.updateForm = new FormGroup({
-      name: new FormControl('')
+      name: new FormControl('', [Validators.required])
     });
   }
 

@@ -4,7 +4,10 @@
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
     <mat-form-field>
       <mat-label>Update Global Permission Name</mat-label>
-      <input matInput type="text" formControlName="name"/>
+      <input matInput type="text" formControlName="name" required />
+      @if (updateForm.get('name')?.hasError('required') && updateForm.get('name')?.touched) {
+        <mat-error>This field is required</mat-error>
+      }
       <button mat-icon-button matSuffix>
         @if (!processing) {
           <mat-icon>save</mat-icon>

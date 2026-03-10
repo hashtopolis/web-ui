@@ -11,7 +11,7 @@
           <input-text title="ID" formControlName="hashlistId"></input-text>
 
           <div formGroupName="updateData" fxLayoutGap="10px">
-            <input-text title="Name" formControlName="name"></input-text>
+            <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
             <div>
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
             </div>

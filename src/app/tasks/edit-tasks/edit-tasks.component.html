@@ -6,12 +6,16 @@
       <input-text title="ID" formControlName="taskId"></input-text>
 
       <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-text title="Name" formControlName="taskName"></input-text>
+        <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
       </div>
 
       <div formGroupName="updateData" fxLayoutGap="10px">
-        <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+        <input-text-area
+          title="Attack command"
+          formControlName="attackCmd"
+          [isRequired]="!isReadOnly"
+        ></input-text-area>
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
       </div>
 

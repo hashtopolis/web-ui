@@ -21,6 +21,7 @@ import { ConfigService } from '@services/shared/config.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { yesNo } from '@src/app/core/_constants/general.config';
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -131,8 +132,14 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       statusTimer: new FormControl({ value: '', disabled: true }),
       useNewBench: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
-        taskName: new FormControl({ value: '', disabled: this.isReadOnly }),
-        attackCmd: new FormControl({ value: '', disabled: this.isReadOnly }),
+        taskName: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required]
+        ),
+        attackCmd: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
         chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
         color: new FormControl({ value: '', disabled: this.isReadOnly }),
         priority: new FormControl({ value: '', disabled: this.isReadOnly }),
@@ -168,7 +175,10 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       }),
       updateData: new FormGroup({
         taskName: new FormControl(pretask.taskName, this.isReadOnly ? [] : [Validators.required]),
-        attackCmd: new FormControl(pretask.attackCmd, this.isReadOnly ? [] : [Validators.required]),
+        attackCmd: new FormControl(
+          pretask.attackCmd,
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
         chunkTime: new FormControl(pretask.chunkTime),
         color: new FormControl(pretask.color),
         priority: new FormControl(pretask.priority),

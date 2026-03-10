@@ -1,7 +1,7 @@
 import { Observable, of } from 'rxjs';
 
 import { Injectable } from '@angular/core';
-import { FormControl, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { SERV } from '@services/main.config';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
@@ -228,7 +228,13 @@ export class MetadataService {
   //This variable defines the fields and properties required when editing a wonrdlist, rule or other file.
   editfile = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
-    { name: 'filename', label: 'Name', type: 'text' },
+    {
+      name: 'filename',
+      label: 'Name',
+      type: 'text',
+      requiredasterisk: true,
+      validators: [Validators.required]
+    },
     {
       name: 'fileType',
       label: 'File Type',
@@ -1345,7 +1351,7 @@ export class MetadataService {
   }
 
   // Custom validator to convert the input value to a number
-  numberValidator(control: FormControl) {
+  numberValidator(control: AbstractControl) {
     const value = control.value;
     if (value === null || value === undefined) {
       return null;

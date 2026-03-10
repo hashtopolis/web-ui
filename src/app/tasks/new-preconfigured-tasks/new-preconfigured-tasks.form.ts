@@ -2,6 +2,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -34,7 +35,7 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
     }),
     attackCmd: new FormControl(uiService.getUIsettings('hashlistAlias').value, {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [Validators.required, attackCommandWithAliasValidator()]
     }),
     maxAgents: new FormControl(environment.config.tasks.maxAgents, { nonNullable: true }),
     chunkTime: new FormControl(Number(uiService.getUIsettings('chunktime').value), { nonNullable: true }),

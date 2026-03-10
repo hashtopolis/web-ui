@@ -2,7 +2,7 @@
   <app-page-subtitle [subtitle]="'Edit Access Group'"></app-page-subtitle>
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
-    <input-text title="Name" formControlName="groupName"></input-text>
+    <input-text title="Name" formControlName="groupName" [isRequired]="true"></input-text>
 
     <grid-buttons>
       <button-submit name="Delete" (click)="onDelete()" [disabled]="!roleService.hasRole('delete')"

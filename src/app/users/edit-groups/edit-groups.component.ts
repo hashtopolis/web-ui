@@ -1,7 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgent } from '@models/agent.model';
@@ -105,7 +105,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.updateForm = new FormGroup({
-      groupName: new FormControl()
+      groupName: new FormControl('', [Validators.required])
     });
     this.addUsersForm = getAddUsersForm();
     this.addAgentsForm = getAddAgentsForm();
@@ -201,7 +201,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     await this.loadAccessGroup();
     this.editName = this.accessGroup.groupName;
     this.updateForm = new FormGroup({
-      groupName: new FormControl(this.accessGroup.groupName)
+      groupName: new FormControl(this.accessGroup.groupName, [Validators.required])
     });
     void this.loadSelectUsers();
     void this.loadSelectAgents();
