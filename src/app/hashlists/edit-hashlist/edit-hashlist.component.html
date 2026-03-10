@@ -10,12 +10,12 @@
         <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
           <input-text title="ID" formControlName="hashlistId"></input-text>
 
-          <div formGroupName="updateData" fxLayoutGap="10px">
-            <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
+          <div formGroupName="updateData" class="d-flex flex-column gap-2">
+            <input-text [isRequired]="true" title="Name" formControlName="name"></input-text>
             <div>
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
             </div>
-            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <div class="d-flex flex-wrap align-items-center gap-2">
               @if (roleService.hasRole('groups')) {
                 <input-select
                   title="Access group"
@@ -27,7 +27,7 @@
             </div>
           </div>
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <div class="d-flex flex-wrap align-items-center gap-2">
             <simulate-form-field
               label="Hash Type"
               message="{{ hashtype?.id }} - {{ hashtype?.description }}">
@@ -52,7 +52,7 @@
         <!-- If its cracked or partially cracked then show additional actions -->
         <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
 
-        <div fxLayout="row" fxLayoutGap="5px">
+        <div class="d-flex gap-1">
           <grid-buttons>
             <button-submit
               [name]="'Import pre-cracked hashes'"

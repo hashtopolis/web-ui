@@ -10,14 +10,14 @@
     <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
       <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div class="d-flex flex-wrap align-items-center gap-2">
         <input-number title="maxAgents" formControlName="maxAgents"></input-number>
       </div>
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div class="d-flex flex-wrap align-items-center gap-2">
         <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
         <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
       </div>
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div class="d-flex flex-wrap align-items-center gap-2">
         <input-check title="Small Tasks" formControlName="isSmall"></input-check>
         <input-check title="CPU" formControlName="isCpuTask"></input-check>
         <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>

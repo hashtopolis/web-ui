@@ -2,7 +2,6 @@ import { Subscription, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
-import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -27,7 +26,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 @Component({
   selector: 'app-new-preprocessor',
-  imports: [ButtonsModule, FlexModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
+  imports: [ButtonsModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
   templateUrl: './new_edit-preprocessor.component.html'
 })
 export class NewEditPreprocessorComponent implements OnInit {

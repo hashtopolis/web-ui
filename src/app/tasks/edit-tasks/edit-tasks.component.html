@@ -5,21 +5,17 @@
     <form [formGroup]="updateForm">
       <input-text title="ID" formControlName="taskId"></input-text>
 
-      <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
+      <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
+        <input-text  title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
       </div>
 
-      <div formGroupName="updateData" fxLayoutGap="10px">
-        <input-text-area
-          title="Attack command"
-          formControlName="attackCmd"
-          [isRequired]="!isReadOnly"
-        ></input-text-area>
+      <div formGroupName="updateData" class="d-flex flex-column gap-2">
+        <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="!isReadOnly"></input-text-area>
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
       </div>
 
-      <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
         <input-number title="Priority" formControlName="priority"></input-number>
         <input-number title="Status timer" formControlName="statusTimer"></input-number>
         <input-number title="Max agents" formControlName="maxAgents"></input-number>
@@ -52,9 +48,7 @@
         </mat-expansion-panel-header>
 
         <form [formGroup]="updateForm"
-              fxLayout="row wrap"
-              fxLayoutAlign="start center"
-              fxLayoutGap="10px">
+              class="d-flex flex-wrap align-items-center gap-2">
 
           <input-text title="No. of Chunks" formControlName="chunkSize"></input-text>
           <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
@@ -202,8 +196,8 @@
               [multiselectEnabled]="false"
               [mergeIdAndName]="true"
             ></input-multiselect>
-            <button mat-icon-button 
-                    matTooltip="Assign Agent" 
+            <button mat-icon-button
+                    matTooltip="Assign Agent"
                     (click)="assignAgent()"
                     [disabled]="!createForm.get('agentId')?.value">
               <mat-icon>add</mat-icon>

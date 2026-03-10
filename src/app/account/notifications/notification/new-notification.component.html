@@ -2,7 +2,7 @@
   <app-page-subtitle [subtitle]="subTitle"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <div fxLayout="column">
+    <div class="d-flex flex-column">
       <input-select title="Trigger Action" formControlName="action" [items]="allowedActions" data-testid="select-action" [isRequired]="true"></input-select>
       @if (active) {
         <input-select title="Value" formControlName="actionFilter" [items]="filters" [isRequired]="actionFilterIsRequired" data-testid="select-action-filter"></input-select>

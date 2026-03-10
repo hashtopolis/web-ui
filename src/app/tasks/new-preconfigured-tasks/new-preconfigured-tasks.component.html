@@ -1,5 +1,5 @@
-<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
-  <div fxFlex="60" fxFlex.lt-md="100">
+<div class="row g-3">
+  <div class="col-md-7 col-12">
     <grid-main>
       <div>
         @if (whichView === 'create') {
@@ -30,7 +30,7 @@
                   <span><b>Advanced Settings</b></span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <div class="d-flex flex-wrap align-items-center gap-2">
 
                 <input-number title="Chunk size" formControlName="chunkTime" tooltip="Measure is in seconds time"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" tooltip="Measure is in seconds time"></input-number>
@@ -56,7 +56,7 @@
         </form>
       </grid-main>
     </div>
-    <div fxFlex="50" fxFlex.lt-md="100">
+    <div class="col-md-6 col-12">
       <mat-accordion multi>
         <mat-expansion-panel>
           <mat-expansion-panel-header>

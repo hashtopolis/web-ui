@@ -24,7 +24,6 @@
     "@angular/common": "^20.3.17",
     "@angular/compiler": "^20.3.17",
     "@angular/core": "^20.3.17",
-    "@angular/flex-layout": "^15.0.0-beta.42",
     "@angular/forms": "^20.3.17",
     "@angular/localize": "^20.3.17",
     "@angular/material": "^20.2.10",

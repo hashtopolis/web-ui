@@ -3,7 +3,7 @@
     <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       @if (showagent) {
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+        <div class="d-flex flex-wrap align-items-center gap-2">
           <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
           <input-text
             title="Machine Name"
@@ -36,7 +36,7 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           @if (showagent) {
-            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <div class="d-flex flex-wrap align-items-center gap-2">
               <simulate-form-field
                 label="Last activity"
                 message="{{ showagent['lastTime'] | uiDate }}"
