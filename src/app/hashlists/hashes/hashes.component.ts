@@ -1,6 +1,4 @@
-import { DataTableDirective } from 'angular-datatables';
-
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -48,10 +46,6 @@ export class HashesComponent implements OnInit, OnDestroy {
   filteringDescr = '';
   displaying = '';
   displayingDescr = '';
-
-  // ViewChild reference to the DataTableDirective
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
 
   constructor(
     private unsubscribeService: UnsubscribeService,

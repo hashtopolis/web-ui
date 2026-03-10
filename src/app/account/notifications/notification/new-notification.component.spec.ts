@@ -1,6 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
 import { Observable, of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
@@ -249,11 +247,9 @@ describe('NewNotificationComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
-        DataTablesModule,
         ComponentsModule,
         RouterModule,
         PipesModule,
-        NgbModule,
         MatSnackBarModule
       ],
       providers: [

@@ -1,7 +1,6 @@
 import { SimulateFormFieldMultiComponent } from './simulate-form-field-multi/simulate-form-field-multi.component';
 import { SimulateFormFieldComponent } from './simulate-form-field/simulate-form-field.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { GridFormInputComponent } from './grid-formgroup';
 import { GridAutoColComponent } from './grid-autocol';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatCardModule } from '@angular/material/card';
@@ -25,14 +24,12 @@ import { CoreFormsModule } from '../forms.module';
   exports: [
     SimulateFormFieldMultiComponent,
     SimulateFormFieldComponent,
-    GridFormInputComponent,
     GridAutoColComponent,
     GridMainComponent
   ],
   declarations: [
     SimulateFormFieldMultiComponent,
     SimulateFormFieldComponent,
-    GridFormInputComponent,
     GridAutoColComponent,
     GridMainComponent
   ]

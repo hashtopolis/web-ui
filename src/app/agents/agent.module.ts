@@ -1,6 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -35,7 +34,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FontAwesomeModule,
     ReactiveFormsModule,
     AgentsRoutingModule,
-    DataTablesModule,
     DirectivesModule,
     ComponentsModule,
     CoreFormsModule,

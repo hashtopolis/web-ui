@@ -1,7 +1,5 @@
 // eslint-disable-next-line sort-imports
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
 import { Observable, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -86,10 +84,8 @@ describe('AccountSettingsComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
-        DataTablesModule,
         ComponentsModule,
         PipesModule,
-        NgbModule,
         MatSnackBarModule,
         MatFormFieldModule,
         MatInputModule,

@@ -1,8 +1,7 @@
-import { DataTableDirective } from 'angular-datatables';
-import { Subject, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -50,12 +49,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   // Lists of Selected inputs
   selectAccessgroup: Array<SelectOption> = [];
-
-  // To Remove for use tables
-  @ViewChild(DataTableDirective, { static: false })
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<unknown> = new Subject<unknown>();
 
   private httpNoInterceptors: HttpClient;
 

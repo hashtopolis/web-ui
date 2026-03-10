@@ -20,30 +20,6 @@
   background : rgb(45, 47, 49);
 }
 
-// Table
-
-.table .thead-light th {
-  background-color: #272525;
-  color: #f2f4f7;
-}
-
-.table.dataTable.table-hover>tbody>tr:hover>*{
-  background-color: rgb(117, 117, 114);
-}
-
-.table>:not(caption)>*>* {
-  padding: 0.5rem 0.5rem;
-  color: white;
-}
-
-div.dataTables_wrapper div.dataTables_filter label {
-  color: white;
-}
-
-div.dataTables_wrapper div.dataTables_info {
-  color: white;
-}
-
 // Dashboard
 
 .card-category {
@@ -106,13 +82,6 @@ div.dataTables_wrapper div.dataTables_info {
 
 .display-col {
   color: #bebaba;
-}
-
-// Search by Hashtype
-
-.style_selectize {
-  color: #bebaba;
-  background: #f2f2f2 !important;
 }
 
 @use 'node_modules/bootstrap-darkmode/scss/darktheme';

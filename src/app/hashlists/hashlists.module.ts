@@ -3,7 +3,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ComponentsModule } from '../shared/components.module';
 import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
 import { DirectivesModule } from '../shared/directives.module';
 import { EditHashlistComponent } from './edit-hashlist/edit-hashlist.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -44,7 +43,6 @@ import { MatInputModule } from '@angular/material/input'; // You may need to imp
     CoreFormsModule,
     CoreComponentsModule,
     FontAwesomeModule,
-    DataTablesModule,
     DirectivesModule,
     ComponentsModule,
     CoreFormsModule,

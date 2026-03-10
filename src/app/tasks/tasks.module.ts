@@ -5,7 +5,6 @@ import { ChunksComponent } from './chunks/chunks.component';
 import { CommonModule } from '@angular/common';
 import { ComponentsModule } from '../shared/components.module';
 import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
 import { EditPreconfiguredTasksComponent } from './edit-preconfigured-tasks/edit-preconfigured-tasks.component';
 import { EditSupertasksComponent } from './edit-supertasks/edit-supertasks.component';
 import { EditTasksComponent } from './edit-tasks/edit-tasks.component';
@@ -52,7 +51,6 @@ import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-spe
     ReactiveFormsModule,
     TasksRoutingModule,
     FontAwesomeModule,
-    DataTablesModule,
     ComponentsModule,
     CoreComponentsModule,
     CoreFormsModule,

@@ -1,5 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ButtonActionsComponent } from './button-actions.component';
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { TableComponent } from './table.component';
 import { CommonModule } from '@angular/common';
@@ -14,11 +13,9 @@ import { NgModule } from '@angular/core';
     FontAwesomeModule
   ],
   exports: [
-    ButtonActionsComponent,
     TableComponent
   ],
   declarations: [
-    ButtonActionsComponent,
     TableComponent
   ]
 })

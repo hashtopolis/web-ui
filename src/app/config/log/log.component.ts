@@ -1,8 +1,6 @@
-import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-log',
@@ -11,7 +9,4 @@ import { Component, ViewChild } from '@angular/core';
 })
 @PageTitle(['Show Logs'])
 export class LogComponent {
-  @ViewChild(DataTableDirective, { static: false })
-  dtElement: DataTableDirective;
-  dtTrigger: Subject<any> = new Subject<any>();
 }

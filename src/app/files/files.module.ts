@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ComponentsModule } from '../shared/components.module';
 import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
 import { FilesComponent } from './files.component';
 import { FilesRoutingModule } from './files-routing.module';
 import { NewFilesComponent } from './new-files/new-files.component';
@@ -16,7 +15,6 @@ import { CoreFormsModule } from '../shared/forms.module';
   imports: [
     CoreFormsModule,
     FilesRoutingModule,
-    DataTablesModule,
     ComponentsModule,
     CommonModule,
     CoreComponentsModule,
