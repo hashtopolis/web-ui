@@ -252,7 +252,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
-    if (this.filterableColumns.length > 0) {
+    if (this.filterableColumns.length >= 2) {
+      this.selectedFilterColumn = this.filterableColumns[1];
+    } else if (this.filterableColumns.length > 0) {
       this.selectedFilterColumn = this.filterableColumns[0];
     }
   }
