@@ -1,4 +1,4 @@
-import { combineLatest, firstValueFrom, from, switchMap } from 'rxjs';
+import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -119,15 +119,12 @@ export class NewTasksComponent implements OnInit {
     combineLatest([this.route.params, this.route.data])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(([params, data]) => {
+        switchMap(async ([params, data]) => {
           this.editedIndex = +params['id'];
           this.copyMode = params['id'] != null;
           this.buildForm();
-          return from(
-            this.loadSelectOptions().then(() =>
-              this.determineView(data['kind'] as NewTaskRouteKind)
-            )
-          );
+          await this.loadSelectOptions();
+          await this.determineView(data['kind'] as NewTaskRouteKind);
         })
       )
       .subscribe();
