@@ -55,6 +55,13 @@ export interface HTTableRouterLink {
   routerLink: Array<string | number>;
   tooltip?: string;
   icon?: { faIcon: IconDefinition; tooltip?: string };
+  visualGraph?: {
+    enabled: boolean;
+    taskId: number;
+    imageUrl?: string;
+    overallProgress?: number;
+    overallProgressLabel?: string;
+  };
 }
 
 export interface HTTableEditable<T> {

@@ -226,6 +226,15 @@ input.dt-button {
 }
 
 table.hashtopolis-table {
+  overflow: visible;
+
+  .mat-mdc-row,
+  .mat-mdc-cell,
+  .mat-mdc-header-row,
+  .mat-mdc-header-cell {
+    overflow: visible;
+  }
+
   .no-data {
     text-align: center;
     color: colors.$primary-900;
