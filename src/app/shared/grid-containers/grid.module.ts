@@ -2,7 +2,6 @@ import { SimulateFormFieldMultiComponent } from './simulate-form-field-multi/sim
 import { SimulateFormFieldComponent } from './simulate-form-field/simulate-form-field.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { GridAutoColComponent } from './grid-autocol';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatCardModule } from '@angular/material/card';
 import { GridMainComponent } from './grid-main';
 import { RouterModule } from '@angular/router';
@@ -18,8 +17,7 @@ import { CoreFormsModule } from '../forms.module';
     FontAwesomeModule,
     CommonModule,
     FormsModule,
-    MatCardModule,
-    NgbModule
+    MatCardModule
   ],
   exports: [
     SimulateFormFieldMultiComponent,

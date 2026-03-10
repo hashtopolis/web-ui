@@ -94,7 +94,8 @@
         <!-- Show progress bar during hashlist upload -->
         @if (uploadProgress > 0) {
           <div>
-            <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+            <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+            <span>{{ uploadProgress }}%</span>
           </div>
         }
 

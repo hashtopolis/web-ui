@@ -13,7 +13,6 @@ import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
 import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 import { ImportCrackedHashesComponent } from './import-cracked-hashes/import-cracked-hashes.component';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { SearchHashComponent } from './search-hash/search-hash.component';
@@ -49,8 +48,7 @@ import { MatInputModule } from '@angular/material/input'; // You may need to imp
     CommonModule,
     RouterModule,
     FormsModule,
-    PipesModule,
-    NgbModule
+    PipesModule
   ]
 })
 export class HashlistModule {}

@@ -1,5 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { StoreModule } from '@ngrx/store';
 import { MomentModule } from 'ngx-moment';
@@ -77,7 +76,6 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     MatTooltipModule,
     MatSnackBarModule,
     CoreComponentsModule,
-    NgbModule,
     AppRoutingModule, // Main routes for the App
     NgIdleKeepaliveModule.forRoot(),
     StoreModule.forRoot({ configList: configReducer })

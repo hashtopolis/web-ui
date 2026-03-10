@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -41,7 +41,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     RouterModule,
     FormsModule,
     PipesModule,
-    NgbModule,
     AgentStatGraphComponent
   ]
 })

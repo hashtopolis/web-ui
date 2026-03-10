@@ -1,10 +1,10 @@
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 import { filter } from 'rxjs';
 
 import { isPlatformBrowser } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
@@ -16,7 +16,8 @@ import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { TimeoutComponent } from '@src/app/shared/alert/timeout/timeout.component';
+import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
+import { DialogData } from '@src/app/shared/dialog/timeout/timeout-dialog.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
@@ -34,15 +35,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   timeoutMax = this.onTimeout();
   idleTime: number = this.onTimeout();
   showingModal = false;
-  modalRef = null;
   uiSettings: UISettingsUtilityClass;
   isLogged: boolean;
+
+  private dialogRef: MatDialogRef<TimeoutDialogComponent> | null = null;
+  private dialogData: DialogData = { message: '', value: 0, bufferValue: 100, timedOut: false };
 
   constructor(
     private cookieService: CookieService,
     private uicService: UIConfigService,
     private authService: AuthService,
-    private modalService: NgbModal,
+    private dialog: MatDialog,
     private keepalive: Keepalive,
     private router: Router,
     private idle: Idle,
@@ -72,7 +75,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     idle.onIdleEnd.subscribe(() => {
       this.idleState = 'NOT_IDLE.';
-      this.modalRef.componentInstance.timedOut = false;
+      this.dialogData.timedOut = false;
       this.timeoutCountdown = null;
       this.reset();
       this.closeModal();
@@ -82,7 +85,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.idleState = 'TIMED_OUT';
       this.timedOut = true;
       this.timeoutCountdown = null;
-      this.modalRef.componentInstance.timedOut = true;
+      this.dialogData.timedOut = true;
       this.onLogOut();
     });
 
@@ -91,7 +94,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.openModal();
       }
       this.timeoutCountdown = this.timeoutMax - countdown + 1;
-      this.modalRef.componentInstance.timeoutCountdown = this.timeoutCountdown;
+      this.dialogData.value = (this.timeoutCountdown / this.timeoutMax) * 100;
     });
 
     this.keepalive.interval(15);
@@ -205,14 +208,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   openModal() {
     if (this.isLogged) {
       this.showingModal = true;
-
-      this.modalRef = this.modalService.open(TimeoutComponent);
-      this.modalRef.componentInstance.timeoutMax = this.timeoutMax;
+      this.dialogData = { message: "You'll be logged out soon!", value: 0, bufferValue: 100, timedOut: false };
+      this.dialogRef = this.dialog.open(TimeoutDialogComponent, {
+        data: this.dialogData,
+        disableClose: true
+      });
     }
   }
 
   closeModal() {
     this.showingModal = false;
-    this.modalService.dismissAll();
+    this.dialogRef?.close();
+    this.dialogRef = null;
   }
 }

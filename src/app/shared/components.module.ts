@@ -1,5 +1,3 @@
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -9,7 +7,6 @@ import { AlertComponent } from '@src/app/shared/alert/alert.component';
 import { AlertNavModule } from '@src/app/shared/alert/alert.module';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { FixedAlertComponent } from '@src/app/shared/alert/fixed-alert/fixed-alert.component';
-import { TimeoutComponent } from '@src/app/shared/alert/timeout/timeout.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
@@ -44,7 +41,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     CheatsheetComponent,
     FixedAlertComponent,
     PassMatchComponent,
-    TimeoutComponent,
     AlertComponent
   ],
   imports: [
@@ -64,8 +60,7 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     GraphsModule,
     TableModule,
     InputModule,
-    GridModule,
-    NgbModule
+    GridModule
   ],
   exports: [
     WordlistGeneratorComponent,
@@ -83,7 +78,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     SwitchThemeModule,
     DynamicFormModule,
     PaginationModule,
-    TimeoutComponent,
     PageTitleModule,
     AlertComponent,
     AlertNavModule,

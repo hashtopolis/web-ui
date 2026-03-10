@@ -33,6 +33,7 @@
               "src/assets"
             ],
             "styles": [
+              "src/styles/tailwind.css",
               "src/styles/styles.scss"
             ],
             "stylePreprocessorOptions": {

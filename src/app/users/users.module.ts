@@ -14,7 +14,6 @@ import { GlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissio
 import { GroupsComponent } from '@src/app/users/groups/groups.component';
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { UsersRoutingModule } from '@src/app/users/users-routing.module';
@@ -40,8 +39,7 @@ import { UsersRoutingModule } from '@src/app/users/users-routing.module';
     RouterModule,
     CommonModule,
     FormsModule,
-    PipesModule,
-    NgbModule
+    PipesModule
   ]
 })
 export class UsersModule {}

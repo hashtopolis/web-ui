@@ -46,7 +46,8 @@
               <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
               @if (uploadProgress > 0) {
                 <div>
-                  <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+                  <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+                  <span>{{ uploadProgress }}%</span>
                 </div>
               }
             </div>

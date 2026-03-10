@@ -13,7 +13,6 @@ import { HealthChecksComponent } from './health-checks/health-checks.component';
 import { LogComponent } from './log/log.component';
 import { NewHealthChecksComponent } from './health-checks/new-health-check/new-health-checks.component';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
 import { RouterModule } from '@angular/router';
@@ -40,8 +39,7 @@ import { CoreFormsModule } from '../shared/forms.module';
     CommonModule,
     RouterModule,
     FormsModule,
-    PipesModule,
-    NgbModule
+    PipesModule
   ]
 })
 export class ConfigModule {}

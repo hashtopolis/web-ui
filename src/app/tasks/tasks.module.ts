@@ -16,7 +16,6 @@ import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-pr
 import { NewSupertasksComponent } from '../core/_components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
 import { NewTasksComponent } from './new-tasks/new-tasks.component';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { PreconfiguredTasksComponent } from './preconfigured-tasks/preconfigured-tasks.component';
 import { RouterModule } from '@angular/router';
@@ -58,7 +57,6 @@ import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-spe
     RouterModule,
     PipesModule,
     FormsModule,
-    NgbModule,
     MatButtonToggle,
     MatButtonToggleGroup,
     TaskSpeedGraphComponent

@@ -4,7 +4,6 @@ import { CoreComponentsModule } from '../core/_components/core-components.module
 import { FilesComponent } from './files.component';
 import { FilesRoutingModule } from './files-routing.module';
 import { NewFilesComponent } from './new-files/new-files.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
@@ -19,8 +18,7 @@ import { CoreFormsModule } from '../shared/forms.module';
     CommonModule,
     CoreComponentsModule,
     RouterModule,
-    PipesModule,
-    NgbModule
+    PipesModule
   ]
 })
 export class FilesModule {}
