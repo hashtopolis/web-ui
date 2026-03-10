@@ -1,6 +1,6 @@
 <app-table>
   <app-page-title [title]="pageTitle"></app-page-title>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-2">
     <input-text-area title="Search Hashes" formControlName="hashes" [required]="true"></input-text-area>
     <button-submit [name]="'Search'" [disabled]="false"></button-submit>
     @if (isCreatingLoading) {

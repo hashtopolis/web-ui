@@ -1,6 +1,6 @@
-<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
+<div class="row g-3">
   @if (!isLoading) {
-    <div fxFlex="60" fxFlex.lt-md="100">
+    <div class="col-md-7 col-12">
       <grid-main>
         <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
 
@@ -17,7 +17,7 @@
             ></input-text-area>
           </div>
 
-          <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
             <input-number title="Priority" formControlName="priority"></input-number>
             <input-number title="Max agents" formControlName="maxAgents"></input-number>
             <input-number
@@ -36,7 +36,7 @@
             ></input-select>
           </div>
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <div class="d-flex flex-wrap align-items-center gap-2">
             <input-text title="Benchmark Type" formControlName="useNewBench"></input-text>
             <input-text title="Status timer" formControlName="statusTimer"></input-text>
           </div>
@@ -55,7 +55,7 @@
       </grid-main>
     </div>
 
-    <div fxFlex="50" fxFlex.lt-md="100">
+    <div class="col-md-6 col-12">
       <app-table>
         <app-files-table
           #table

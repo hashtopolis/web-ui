@@ -7,7 +7,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -46,7 +45,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatTableModule,
     MatTooltipModule,
     MatFormFieldModule,
-    FlexLayoutModule,
     MatInputModule,
     MatIconModule
   ],
@@ -72,7 +70,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatTableModule,
     MatTooltipModule,
     MatFormFieldModule,
-    FlexLayoutModule,
     MatInputModule,
     MatIconModule
   ]

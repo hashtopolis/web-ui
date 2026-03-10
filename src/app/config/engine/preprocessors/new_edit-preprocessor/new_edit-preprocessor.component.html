@@ -5,10 +5,9 @@
     <form
       [formGroup]="newEditPreprocessorForm"
       (ngSubmit)="onSubmit()"
-      fxLayout="column"
-      fxLayoutGap="24px"
+      class="d-flex flex-column gap-4"
     >
-      <div fxLayout="column" fxLayoutGap="16px">
+      <div class="d-flex flex-column gap-3">
         <input-text
           width="500px"
           title="Name"
@@ -36,7 +35,7 @@
 
       <h4>Commands (set to empty if not available)</h4>
 
-      <div fxLayout="column" fxLayoutGap="16px">
+      <div class="d-flex flex-column gap-3">
         <input-text
           width="500px"
           title="Keyspace Command"

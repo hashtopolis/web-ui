@@ -2,7 +2,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
@@ -58,7 +57,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     PaginationModule,
     CoreFormsModule,
     PageTitleModule,
-    FlexLayoutModule,
     AlertNavModule,
     ButtonsModule,
     ReportsModule,

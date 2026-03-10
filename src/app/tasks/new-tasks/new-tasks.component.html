@@ -1,5 +1,5 @@
-<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
-  <div fxFlex="70" fxFlex.lt-md="100">
+<div class="row g-3">
+  <div class="col-md-8 col-12">
     <grid-main>
       <app-page-subtitle [subtitle]="'New Task'"></app-page-subtitle>
       @if (form) {
@@ -9,7 +9,7 @@
           <input-color title="Color" formControlName="color"></input-color>
 
           @if (!isLoading) {
-            <div fxLayout="column" fxLayoutAlign="start start">
+            <div class="d-flex flex-column align-items-start">
               @if ((copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)) {
                 <input-multiselect
                   [isLoading]="isLoading"
@@ -41,7 +41,7 @@
 
           <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <div class="d-flex flex-wrap align-items-center gap-2">
             <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
             <input-number title="Max agents" formControlName="maxAgents"></input-number>
           </div>
@@ -53,7 +53,7 @@
                   <span><b>Advanced Settings</b></span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <div class="d-flex flex-wrap align-items-center gap-2">
                 <input-number title="Chunk time" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
                 <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
@@ -63,7 +63,7 @@
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
               </div>
               <hr><br>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <div class="d-flex flex-wrap align-items-center gap-2">
                 <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
                 @if (form.get('staticChunks').value === 1) {
                   <input-number title="Fixed size of chunks" formControlName="chunkSize" [tooltip]="tasktip.chunkSize"></input-number>
@@ -72,13 +72,13 @@
                 }
               </div>
               <hr><br>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <div class="d-flex flex-wrap align-items-center gap-2">
                 <input-select title="Binary type to run task" formControlName="crackerBinaryTypeId" [items]="selectCrackertype"></input-select>
                 <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
 
               </div>
               <hr/>
-              <div fxLayoutGap="10px">
+              <div class="d-flex flex-column gap-2">
                 <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
                 <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
               </div>
@@ -101,7 +101,7 @@
       }
       </grid-main>
     </div>
-    <div fxFlex="50" fxFlex.lt-md="100">
+    <div class="col-md-6 col-12">
       <mat-accordion multi>
 
         <mat-expansion-panel #wordlistPanel>
