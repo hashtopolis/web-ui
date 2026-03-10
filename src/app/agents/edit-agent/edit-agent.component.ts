@@ -1,3 +1,5 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -73,6 +75,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
+  protected readonly faLinux = faLinux;
+  protected readonly faWindows = faWindows;
+  protected readonly faApple = faApple;
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
@@ -393,5 +398,35 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
       .join('<br>');
+  }
+
+  getOsLabel(os: number): string {
+    switch (Number(os)) {
+      case 0:
+        return 'Linux';
+      case 1:
+        return 'Windows';
+      case 2:
+        return 'MacOS';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  getOsMessage(os: number): string {
+    return this.getOsLabel(os);
+  }
+
+  getOsFaIcon(os: number): IconDefinition | null {
+    switch (Number(os)) {
+      case 0:
+        return this.faLinux;
+      case 1:
+        return this.faWindows;
+      case 2:
+        return this.faApple;
+      default:
+        return null;
+    }
   }
 }
