@@ -13,23 +13,23 @@ export class ScreenSizeDetectorComponent implements AfterViewInit {
   sizes = [
     {
       id: SCREEN_SIZE.XS, name: 'xs',
-      css: `d-block d-sm-none`
+      css: `block sm:hidden`
     },
     {
       id: SCREEN_SIZE.SM, name: 'sm',
-      css: `d-none d-sm-block d-md-none`
+      css: `hidden sm:block md:hidden`
     },
     {
       id: SCREEN_SIZE.MD, name: 'md',
-      css: `d-none d-md-block d-lg-none`
+      css: `hidden md:block lg:hidden`
     },
     {
       id: SCREEN_SIZE.LG, name: 'lg',
-      css: `d-none d-lg-block d-xl-none`
+      css: `hidden lg:block xl:hidden`
     },
     {
       id: SCREEN_SIZE.XL, name: 'xl',
-      css: `d-none d-xl-block`
+      css: `hidden xl:block`
     },
   ];
 

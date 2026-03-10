@@ -3,7 +3,7 @@
     <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       @if (showagent) {
-        <div class="d-flex flex-wrap align-items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
           <input-text
             title="Machine Name"
@@ -36,7 +36,7 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           @if (showagent) {
-            <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <simulate-form-field
                 label="Last activity"
                 message="{{ showagent['lastTime'] | uiDate }}"
@@ -90,20 +90,20 @@
   @if (showagent && agentRoleService.hasRole("readStat")) {
     <app-table>
       <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
-        <div class="row">
-          <div class="col col-12">
+        <div>
+          <div>
             <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
           </div>
         </div>
         <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
-        <div class="row">
-          <div class="col col-12">
+        <div>
+          <div>
             <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
           </div>
         </div>
         <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
-        <div class="row">
-          <div class="col col-12">
+        <div>
+          <div>
             <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
           </div>
         </div>

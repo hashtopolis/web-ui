@@ -1,6 +1,6 @@
-<div class="row g-0">
+<div class="grid grid-cols-12">
   @if (!isLoading) {
-    <div class="col-md-7 col-12">
+    <div class="col-span-12 md:col-span-6">
       <grid-main>
         <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
 
@@ -17,7 +17,7 @@
             ></input-text-area>
           </div>
 
-          <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
+          <div formGroupName="updateData" class="flex flex-wrap items-center gap-2">
             <input-number title="Priority" formControlName="priority"></input-number>
             <input-number title="Max agents" formControlName="maxAgents"></input-number>
             <input-number
@@ -36,7 +36,7 @@
             ></input-select>
           </div>
 
-          <div class="d-flex flex-wrap align-items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <input-text title="Benchmark Type" formControlName="useNewBench"></input-text>
             <input-text title="Status timer" formControlName="statusTimer"></input-text>
           </div>
@@ -55,7 +55,7 @@
       </grid-main>
     </div>
 
-    <div class="col-md-5 col-12">
+    <div class="col-span-12 md:col-span-6">
       <app-table>
         <app-files-table
           #table

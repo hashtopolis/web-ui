@@ -5,17 +5,17 @@
     <form [formGroup]="updateForm">
       <input-text title="ID" formControlName="taskId"></input-text>
 
-      <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
+      <div formGroupName="updateData" class="flex flex-wrap items-center gap-2">
         <input-text  title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
       </div>
 
-      <div formGroupName="updateData" class="d-flex flex-column gap-2">
+      <div formGroupName="updateData" class="flex flex-col gap-2">
         <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="!isReadOnly"></input-text-area>
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
       </div>
 
-      <div formGroupName="updateData" class="d-flex flex-wrap align-items-center gap-2">
+      <div formGroupName="updateData" class="flex flex-wrap items-center gap-2">
         <input-number title="Priority" formControlName="priority"></input-number>
         <input-number title="Status timer" formControlName="statusTimer"></input-number>
         <input-number title="Max agents" formControlName="maxAgents"></input-number>
@@ -48,7 +48,7 @@
         </mat-expansion-panel-header>
 
         <form [formGroup]="updateForm"
-              class="d-flex flex-wrap align-items-center gap-2">
+              class="flex flex-wrap items-center gap-2">
 
           <input-text title="No. of Chunks" formControlName="chunkSize"></input-text>
           <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
@@ -142,7 +142,7 @@
   <!-- Graph Visual  -->
   @if (tkeyspace > 0) {
     <div class="card shadow">
-      <div class="card-body table-responsive" style="overflow-x: auto;">
+      <div class="card-body overflow-x-auto" style="overflow-x: auto;">
         <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
 
         <img

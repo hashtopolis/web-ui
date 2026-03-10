@@ -1,11 +1,11 @@
 <grid-main>
   <app-page-title [title]="'Supertask Details'"></app-page-title>
   <form [formGroup]="viewForm">
-    <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
       <input-text title="ID" formControlName="supertaskId" ></input-text>
       <input-text title="Name" formControlName="supertaskName" ></input-text>
     </div>
-    <div class="d-flex">
+    <div class="flex">
       @if (roleService.hasRole("delete")) {
         <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
       }

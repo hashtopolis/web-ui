@@ -1,5 +1,5 @@
-<div class="row g-3">
-  <div class="col-md-7">
+<div class="grid grid-cols-12 gap-3">
+  <div class="md:col-span-7 col-span-12">
     @if (!isLoading) {
       <grid-main>
         <app-page-title
@@ -9,19 +9,19 @@
         <app-page-subtitle [subtitle]="'Import pre-cracked hashes'"></app-page-subtitle>
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <input-text title="Name" formControlName="name"></input-text>
-          <div class="d-flex gap-1">
+          <div class="flex gap-1">
             <simulate-form-field
               label="Hash Type"
               message="{{ hashtype.id }} - {{ hashtype.description }}"
             ></simulate-form-field>
           </div>
-          <div class="d-flex gap-1">
+          <div class="flex gap-1">
             <input-text title="Hashes" formControlName="hashCount"></input-text>
             <simulate-form-field label="Salted" [message]="form.get('isSalted')?.value ? 'Yes' : 'No'">
             </simulate-form-field>
             <input-text title="Format" formControlName="format"></input-text>
           </div>
-          <div class="d-flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-2">
             <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
             @if (form.get('isSalted')?.value) {
               <input-text title="Field separator" formControlName="separator"></input-text>
@@ -29,7 +29,7 @@
           </div>
 
           @if (sourceType === 'paste') {
-            <div class="d-flex gap-0" style="align-items: flex-start">
+            <div class="flex gap-0" style="align-items: flex-start">
               <input-text-area style="flex: 1 1 40%; min-width: 0" title="Hashes" formControlName="hashes"></input-text-area>
               <button
                 mat-icon-button
