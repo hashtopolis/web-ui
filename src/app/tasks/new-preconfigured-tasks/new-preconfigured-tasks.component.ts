@@ -27,7 +27,6 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
   standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
-  isLoading = true;
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
@@ -172,10 +171,16 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe(() => {
-        this.alert.showSuccessMessage('New PreTask created');
-        this.router.navigate(['tasks/preconfigured-tasks']);
-        this.isCreatingLoading = false;
+      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New PreTask created');
+          this.isCreatingLoading = false;
+          this.router.navigate(['tasks/preconfigured-tasks']);
+        },
+        error: (err) => {
+          console.error('Error creating PreTask', err);
+          this.isCreatingLoading = false;
+        }
       });
       this.unsubscribeService.add(onSubmitSubscription$);
     } else {

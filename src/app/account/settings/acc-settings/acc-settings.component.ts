@@ -152,9 +152,15 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.update(SERV.USERS, Number(this.gs.userId), this.form.value).subscribe(() => {
-          this.alert.showSuccessMessage('User saved');
-          this.isUpdatingLoading = false;
+        this.gs.update(SERV.USERS, Number(this.gs.userId), this.form.value).subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('User saved');
+            this.isUpdatingLoading = false;
+          },
+          error: (err) => {
+            console.error('Error updating user', err);
+            this.isUpdatingLoading = false;
+          }
         })
       );
     } else {

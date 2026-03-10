@@ -221,11 +221,18 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
-        .subscribe(() => {
-          this.alert.showSuccessMessage('PreTask saved');
-          this.isUpdatingLoading = false;
-          this.router.navigate(['tasks/preconfigured-tasks']);
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('PreTask saved');
+            this.isUpdatingLoading = false;
+            this.router.navigate(['tasks/preconfigured-tasks']);
+          },
+          error: (err) => {
+            console.error('Error updating preconfigured Task', err);
+            this.isUpdatingLoading = false;
+          }
         });
+
       this.unsubscribeService.add(updateSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
