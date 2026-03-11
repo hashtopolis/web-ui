@@ -114,7 +114,9 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
 })
 export class AppModule {
   static injector: Injector;
-  constructor(injector: Injector) {
+  constructor() {
+    const injector = inject(Injector);
+
     AppModule.injector = injector;
   }
 }

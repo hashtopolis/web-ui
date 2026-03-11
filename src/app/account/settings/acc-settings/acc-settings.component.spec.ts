@@ -1,4 +1,3 @@
-// eslint-disable-next-line sort-imports
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Observable, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -18,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { Params } from '@angular/router';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -52,23 +50,23 @@ describe('AccountSettingsComponent', () => {
 
   // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    get(_serviceConfig): Observable<any> {
       if (_serviceConfig.URL === SERV.USERS.URL) {
         return of({ data: userResponse });
       }
       return of([]);
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    create(serviceConfig, _object: any): Observable<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create(): Observable<any> {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    update(_serviceConfig, id, _object: any): Observable<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    update(): Observable<any> {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    chelper(_serviceConfig, option: string, _payload: any): Observable<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    chelper(): Observable<any> {
       return of({});
     },
     userId: 1

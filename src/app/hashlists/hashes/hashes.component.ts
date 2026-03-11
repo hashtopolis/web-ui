@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -24,6 +24,12 @@ import { displays, filters } from '@src/app/core/_constants/hashes.config';
   standalone: false
 })
 export class HashesComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
   /** Form group for the Hashes View. */
   viewForm: FormGroup;
 
@@ -41,19 +47,15 @@ export class HashesComponent implements OnInit, OnDestroy {
   filterParam: string;
 
   // Filtering and Display Properties
-  crackPos: any = true;
+  crackPos: boolean | string = true;
   filtering = '';
   filteringDescr = '';
   displaying = '';
   displayingDescr = '';
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  constructor() {
+    const titleService = this.titleService;
+
     titleService.set(['Show Hashes']);
   }
 
