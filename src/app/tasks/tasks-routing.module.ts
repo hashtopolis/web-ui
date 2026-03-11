@@ -24,6 +24,7 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
 import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
 import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
+import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 
 const taskRoleServiceClass = TasksRoleService;
 const supertaskRoleServiceClass = SupertasksRoleService;
@@ -82,7 +83,7 @@ const routes: MyRoute[] = [
         path: 'new-task',
         component: NewTasksComponent,
         data: {
-          kind: 'new-task',
+          kind: NewTaskRouteKind.NewTask,
           breadcrumb: 'New task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
@@ -94,7 +95,7 @@ const routes: MyRoute[] = [
         path: 'new-tasks/:id/copy',
         component: NewTasksComponent,
         data: {
-          kind: 'copy-task',
+          kind: NewTaskRouteKind.CopyTask,
           breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
@@ -105,7 +106,7 @@ const routes: MyRoute[] = [
         path: 'new-tasks/:id/copypretask',
         component: NewTasksComponent,
         data: {
-          kind: 'copy-pretask',
+          kind: NewTaskRouteKind.CopyPreTask,
           breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
