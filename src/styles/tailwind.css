@@ -1,8 +1,5 @@
-@import "tailwindcss" layer(tailwind);
-
-@layer tailwind.base {
-  /* Disabled - let Angular Material handle resets */
-}
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* Dark mode: match the existing .dark-theme body class */
 @variant dark (&:where(.dark-theme, .dark-theme *));
