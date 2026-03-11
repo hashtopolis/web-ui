@@ -6,7 +6,7 @@
 
   <app-page-title [title]="title"></app-page-title>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
-    <div gdAlignColumns="start stretch">
+    <div>
     <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
       <div *ngFor="let field of formMetadata">
         <div *ngIf="field.type !== 'hidden'">
