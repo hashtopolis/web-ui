@@ -10,9 +10,16 @@
 
 /* Material Form Field error styling - paint outline, label, and asterisk red */
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__leading,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch,
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__trailing {
   border-color: var(--mdc-theme-error, #f44336) !important;
+}
+
+/* Notch piece: only color top/bottom borders; keep left/right transparent
+   (Angular Material uses a transparent border-left + clip-path on the notch
+   for smooth label animation — coloring it red causes a visible vertical line) */
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch {
+  border-top-color: var(--mdc-theme-error, #f44336) !important;
+  border-bottom-color: var(--mdc-theme-error, #f44336) !important;
 }
 
 mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label {
