@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ComponentsModule } from '../shared/components.module';
-import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { FilesComponent } from './files.component';
-import { FilesRoutingModule } from './files-routing.module';
-import { NewFilesComponent } from './new-files/new-files.component';
-import { PipesModule } from '../shared/pipes.module';
-import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { CoreFormsModule } from '../shared/forms.module';
+import { RouterModule } from '@angular/router';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+
+import { FilesRoutingModule } from '@src/app/files/files-routing.module';
+import { FilesComponent } from '@src/app/files/files.component';
+import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
   declarations: [FilesComponent, NewFilesComponent],

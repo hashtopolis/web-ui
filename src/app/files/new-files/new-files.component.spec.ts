@@ -65,7 +65,7 @@ describe('NewFilesComponent', () => {
         { provide: UploadTUSService, useClass: MockUploadTUSService },
         { provide: GlobalService, useClass: MockGlobalService },
         { provide: AlertService, useClass: MockAlertService },
-        { provide: UnsubscribeService, useClass: MockUnsubscribeService },
+        { provide: UnsubscribeService, useClass: MockUnsubscribeService }
       ]
     }).compileComponents();
   });

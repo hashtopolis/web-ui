@@ -1,18 +1,16 @@
-import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
 import { ApplicationRef } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
-    selector: 'app-cheatsheet',
-    templateUrl: './cheatsheet.component.html',
-    standalone: false
+  selector: 'app-cheatsheet',
+  templateUrl: './cheatsheet.component.html',
+  standalone: false
 })
 export class CheatsheetComponent {
-  constructor(
-    public dialogRef: MatDialogRef<CheatsheetComponent>,
-    private appRef: ApplicationRef
-  ) {}
+  dialogRef = inject<MatDialogRef<CheatsheetComponent>>(MatDialogRef);
+  private appRef = inject(ApplicationRef);
 
   // Display Table Information
   attackmode = [

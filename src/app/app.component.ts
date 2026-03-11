@@ -3,7 +3,7 @@ import { Keepalive } from '@ng-idle/keepalive';
 import { filter } from 'rxjs';
 
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -26,6 +26,18 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit {
+  private cookieService = inject(CookieService);
+  private uicService = inject(UIConfigService);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private keepalive = inject(Keepalive);
+  private router = inject(Router);
+  private idle = inject(Idle);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  screen = inject(BreakpointService);
+  private elementRef = inject(ElementRef);
+  private platformId = inject(PLATFORM_ID);
+
   currentUrl: string;
   currentStep: string;
   idleState = 'Not Started';
@@ -41,19 +53,9 @@ export class AppComponent implements OnInit, AfterViewInit {
   private dialogRef: MatDialogRef<TimeoutDialogComponent> | null = null;
   private dialogData: DialogData = { message: '', value: 0, bufferValue: 100, timedOut: false };
 
-  constructor(
-    private cookieService: CookieService,
-    private uicService: UIConfigService,
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private keepalive: Keepalive,
-    private router: Router,
-    private idle: Idle,
-    private storage: LocalStorageService<UIConfig>,
-    public screen: BreakpointService,
-    private elementRef: ElementRef,
-    @Inject(PLATFORM_ID) private platformId: object
-  ) {
+  constructor() {
+    const idle = this.idle;
+
     inject(CheckTokenService);
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
       this.currentUrl = e.url;

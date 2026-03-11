@@ -8,5 +8,4 @@ import { Component } from '@angular/core';
   standalone: false
 })
 @PageTitle(['Show Logs'])
-export class LogComponent {
-}
+export class LogComponent {}
