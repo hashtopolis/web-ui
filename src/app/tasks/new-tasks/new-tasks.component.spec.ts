@@ -1,106 +1,239 @@
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
-import { InjectionToken } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-import { TooltipService } from '@src/app/core/_services/shared/tooltip.service';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { JPretask } from '@models/pretask.model';
+import { JTask } from '@models/task.model';
+
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
+
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
-import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { environment } from '@src/environments/environment';
 
-// Create a token for the form factory function
-export const GET_TASK_FORM = new InjectionToken<typeof getNewTaskForm>('getTaskForm');
+const MOCK_HASHLISTS_RESPONSE = {
+  data: [
+    { id: '1', type: 'HashLists', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
+    { id: '2', type: 'HashLists', attributes: { name: 'second-hashlist', isArchived: false, hashTypeId: 1 } }
+  ],
+  included: []
+};
+
+const MOCK_EMPTY_HASHLISTS_RESPONSE = {
+  data: [],
+  included: []
+};
+
+const MOCK_CRACKER_TYPES_RESPONSE = {
+  data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
+  included: []
+};
+
+const MOCK_CRACKERS_RESPONSE = {
+  data: [
+    { id: '10', type: 'Crackers', attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' } }
+  ],
+  included: []
+};
+
+const MOCK_CRACKERS_EMPTY_RESPONSE = {
+  data: [],
+  included: []
+};
+
+const MOCK_PREPROCESSORS_RESPONSE = {
+  data: [{ id: '1', type: 'Preprocessors', attributes: { name: 'prince' } }],
+  included: []
+};
+
+const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
+  taskName: 'Original Task',
+  attackCmd: '-a 0 #HL# rockyou.txt',
+  maxAgents: 2,
+  chunkTime: 600,
+  priority: 1,
+  color: '#ff0000',
+  isCpuTask: false,
+  crackerBinaryTypeId: 1,
+  isSmall: false,
+  useNewBench: true,
+  statusTimer: 5,
+  skipKeyspace: 100,
+  crackerBinaryId: 10,
+  staticChunks: 2,
+  chunkSize: 1000,
+  forcePipe: true,
+  preprocessorId: 3,
+  preprocessorCommand: '--prince',
+  notes: 'original notes',
+  activeAgents: 0,
+  keyspace: 0,
+  keyspaceProgress: 0,
+  taskWrapperId: 1,
+  isArchived: false,
+  dispatched: '',
+  searched: '',
+  status: 0,
+  timeSpent: 0,
+  currentSpeed: 0,
+  estimatedTime: 0,
+  cprogress: 0
+};
+
+const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
+  taskName: 'My Pretask',
+  attackCmd: '-a 3 ?a?a?a?a',
+  maxAgents: 0,
+  chunkTime: 300,
+  priority: 5,
+  color: '',
+  isCpuTask: true,
+  crackerBinaryTypeId: 1,
+  isSmall: true,
+  useNewBench: false,
+  statusTimer: 10,
+  isMaskImport: false
+};
+
+const MOCK_TASK_GET_RESPONSE = {
+  data: {
+    id: '42',
+    type: 'Tasks',
+    attributes: MOCK_TASK_ATTRIBUTES,
+    relationships: {
+      hashlist: { data: { id: '1', type: 'HashLists' } },
+      files: {
+        data: [
+          { id: '100', type: 'Files' },
+          { id: '101', type: 'Files' }
+        ]
+      },
+      speeds: { data: [] },
+      crackerBinary: { data: { id: '10', type: 'Crackers' } },
+      crackerBinaryType: { data: { id: '1', type: 'CrackerTypes' } }
+    }
+  },
+  included: [
+    { id: '1', type: 'HashLists', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
+    { id: '100', type: 'Files', attributes: { filename: 'rockyou.txt', size: 0 } },
+    { id: '101', type: 'Files', attributes: { filename: 'rules.txt', size: 0 } },
+    { id: '10', type: 'Crackers', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1 } },
+    { id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }
+  ]
+};
+
+const MOCK_PRETASK_GET_RESPONSE = {
+  data: {
+    id: '7',
+    type: 'PreTasks',
+    attributes: MOCK_PRETASK_ATTRIBUTES,
+    relationships: {
+      pretaskFiles: { data: [{ id: '200', type: 'Files' }] }
+    }
+  },
+  included: [{ id: '200', type: 'Files', attributes: { filename: 'mask.hcmask', size: 0 } }]
+};
+
+function buildGetAllCallFake(overrides: { [url: string]: Observable<unknown> } = {}) {
+  const defaults: { [url: string]: Observable<unknown> } = {
+    [SERV.HASHLISTS.URL]: of(MOCK_HASHLISTS_RESPONSE),
+    [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_RESPONSE),
+    [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_RESPONSE),
+    [SERV.PREPROCESSORS.URL]: of(MOCK_PREPROCESSORS_RESPONSE)
+  };
+  const merged = { ...defaults, ...overrides };
+  return (serviceConfig: { URL: string }) => {
+    return merged[serviceConfig.URL] ?? of({ data: [], included: [] });
+  };
+}
+
+// trigger ngOnInit
+async function initComponent(fixture: ComponentFixture<NewTasksComponent>) {
+  fixture.detectChanges(); // triggers ngOnInit
+  await fixture.whenStable();
+}
+
+/**
+ * Runs 10 change detection cycles and asserts the component stabilizes
+ */
+function expectChangeDetectionStability(fixture: ComponentFixture<NewTasksComponent>): void {
+  const cycles = 10;
+  let instabilities = 0;
+
+  for (let i = 0; i < cycles; i++) {
+    fixture.detectChanges();
+    try {
+      fixture.checkNoChanges();
+    } catch {
+      instabilities++;
+    }
+  }
+
+  expect(instabilities).toBeLessThan(cycles);
+}
 
 describe('NewTasksComponent', () => {
   let component: NewTasksComponent;
   let fixture: ComponentFixture<NewTasksComponent>;
+
+  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
+  let tooltipServiceSpy: jasmine.SpyObj<TooltipService>;
   let uiServiceMock: jasmine.SpyObj<UIConfigService>;
-  let mockForm: FormGroup;
-  let getNewTaskFormSpy: jasmine.Spy;
+  let alertServiceSpy: jasmine.SpyObj<AlertService>;
+  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
+  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  let activatedRoute: { params: Observable<Params>; data: Observable<unknown>; snapshot: { params: Params } };
 
   beforeEach(async () => {
-    // Create spy objects for all required services
-    const unsubscribeServiceSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
-    const changeDetectorRefSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
-    const titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    const tooltipServiceSpy = jasmine.createSpyObj('TooltipService', ['getTaskTooltips']);
+    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
+    tooltipServiceSpy = jasmine.createSpyObj('TooltipService', ['getTaskTooltips']);
+    tooltipServiceSpy.getTaskTooltips.and.returnValue({} as TaskTooltipsLevel);
+
     uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUIsettings']);
-    const routeSpy = {
-      params: of({}),
-      data: of({ kind: 'new-task' })
-    };
-    const alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
-    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
-    const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
-    // Setup UI service mock to return configuration values for different settings
-    uiServiceMock.getUIsettings.and.callFake((setting) => {
-      const settings = {
-        'tasks.priority': { value: 0 },
-        'tasks.maxAgents': { value: 0 },
-        'tasks.chunkTime': { value: 600 },
-        'tasks.statusTimer': { value: 5 },
-        'tasks.benchmarkType': { value: 0 },
-        'tasks.color': { value: '#000000' }
+    uiServiceMock.getUIsettings.and.callFake((key: string) => {
+      const settings: Record<string, { value: string } | null> = {
+        hashlistAlias: { value: '#HL#' },
+        chunktime: { value: '600' },
+        statustimer: { value: '5' }
       };
-      return settings[setting] || null;
+      return settings[key] ?? null;
     });
 
-    // Create a mock form
-    mockForm = new FormGroup({
-      taskName: new FormControl('', Validators.required),
-      notes: new FormControl(''),
-      hashlistId: new FormControl(0, Validators.required),
-      attackCmd: new FormControl('', Validators.required),
-      maxAgents: new FormControl(0),
-      chunkTime: new FormControl(600),
-      priority: new FormControl(0),
-      color: new FormControl('#000000'),
-      isCpuTask: new FormControl(false),
-      crackerBinaryTypeId: new FormControl(0),
-      crackerBinaryId: new FormControl(0),
-      isSmall: new FormControl(false),
-      useNewBench: new FormControl(false),
-      skipKeyspace: new FormControl(0),
-      isArchived: new FormControl(false),
-      staticChunks: new FormControl(0),
-      chunkSize: new FormControl(0),
-      forcePipe: new FormControl(false),
-      preprocessorId: new FormControl(0),
-      preprocessorCommand: new FormControl(''),
-      files: new FormControl([]),
-      statusTimer: new FormControl(5)
-    });
+    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
+    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
+    globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
+    globalServiceSpy.create.and.returnValue(of({}));
 
-    // Create a spy for getNewTaskForm function
-    getNewTaskFormSpy = jasmine.createSpy('getNewTaskForm').and.returnValue(mockForm);
+    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    routerSpy.navigate.and.returnValue(Promise.resolve(true));
 
-    // Provide the mock function via Angular DI
+    activatedRoute = {
+      params: of({}),
+      data: of({ kind: 'new-task' }),
+      snapshot: { params: {} }
+    };
+
     await TestBed.configureTestingModule({
       declarations: [NewTasksComponent],
       providers: [
-        { provide: UnsubscribeService, useValue: unsubscribeServiceSpy },
-        { provide: ChangeDetectorRef, useValue: changeDetectorRefSpy },
         { provide: AutoTitleService, useValue: titleServiceSpy },
         { provide: TooltipService, useValue: tooltipServiceSpy },
         { provide: UIConfigService, useValue: uiServiceMock },
-        { provide: ActivatedRoute, useValue: routeSpy },
+        { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: MatDialog, useValue: dialogSpy },
-        { provide: Router, useValue: routerSpy },
-        // Provide our spy via DI
-        { provide: GET_TASK_FORM, useValue: getNewTaskFormSpy }
+        { provide: Router, useValue: routerSpy }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -109,49 +242,630 @@ describe('NewTasksComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NewTasksComponent);
     component = fixture.componentInstance;
+  });
 
-    // Patch the component instance directly AFTER it's created
-    component.buildForm = function () {
-      this.form = getNewTaskFormSpy(this.uiService);
-    };
+  describe('Component creation', () => {
+    it('should create the component', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should set page title to "New Task"', () => {
+      // The constructor calls titleService.set immediately
+      expect(titleServiceSpy.set).toHaveBeenCalledWith(['New Task']);
+    });
+  });
+
+  describe('onSubmit', () => {
+    it('should have an invalid form by default after init', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.valid).toBe(false);
+    });
+
+    it('should have a valid form when all required fields are filled', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        taskName: 'My Task',
+        hashlistId: 1,
+        attackCmd: '-a 0 #HL# dict.txt',
+        priority: 0,
+        crackerBinaryTypeId: 1,
+        crackerBinaryId: 10
+      });
+      component.form.updateValueAndValidity();
+
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should call gs.create and navigate on valid form', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        taskName: 'My Task',
+        hashlistId: 1,
+        attackCmd: '-a 0 #HL# dict.txt',
+        priority: 0,
+        crackerBinaryTypeId: 1,
+        crackerBinaryId: 10
+      });
+      component.form.updateValueAndValidity();
+
+      await component['onSubmit']();
+
+      expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.TASKS, component.form.value);
+      expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New Task created');
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
+    });
+
+    it('should mark form as touched when invalid and not submit', async () => {
+      await initComponent(fixture);
+
+      // Leave required fields empty so form is invalid
+      component.form.patchValue({ taskName: '', hashlistId: null, attackCmd: '' });
+      component.form.updateValueAndValidity();
+
+      await component['onSubmit']();
+
+      expect(globalServiceSpy.create).not.toHaveBeenCalled();
+      expect(component.form.touched).toBe(true);
+    });
+  });
+
+  describe('Copy Task flow', () => {
+    beforeEach(() => {
+      activatedRoute.params = of({ id: '42' });
+      activatedRoute.data = of({ kind: 'copy-task' });
+      globalServiceSpy.get.and.returnValue(of(MOCK_TASK_GET_RESPONSE));
+    });
+
+    it('should call gs.get with SERV.TASKS endpoint and the task id', async () => {
+      await initComponent(fixture);
+
+      expect(globalServiceSpy.get).toHaveBeenCalled();
+      const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
+      expect(endpoint).toEqual(SERV.TASKS);
+      expect(id).toBe(42);
+    });
+
+    it('should have a valid form after copying a task', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should patch form with copied task name and notes', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.taskName.value).toBe('Original Task_(Copied_task_id_42)');
+      expect(component.form.controls.notes.value).toBe('Copied from task id 42');
+    });
+
+    it('should patch form with common task fields from the source', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.attackCmd.value).toBe('-a 0 #HL# rockyou.txt');
+      expect(component.form.controls.maxAgents.value).toBe(2);
+      expect(component.form.controls.chunkTime.value).toBe(600);
+      expect(component.form.controls.priority.value).toBe(1);
+      expect(component.form.controls.color.value).toBe('#ff0000');
+      expect(component.form.controls.isCpuTask.value).toBe(false);
+      expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
+      expect(component.form.controls.isSmall.value).toBe(false);
+      expect(component.form.controls.useNewBench.value).toBe(true);
+      expect(component.form.controls.statusTimer.value).toBe(5);
+    });
+
+    it('should always set isArchived to false on copy', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.isArchived.value).toBe(false);
+    });
+
+    it('should extract task-specific fields via extractCopyData', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.skipKeyspace.value).toBe(100);
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+      expect(component.form.controls.staticChunks.value).toBe(2);
+      expect(component.form.controls.chunkSize.value).toBe(1000);
+      expect(component.form.controls.forcePipe.value).toBe(true);
+    });
+
+    it('should set preprocessorId as a number from the source task', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.preprocessorId.value).toBe(3);
+      expect(typeof component.form.controls.preprocessorId.value).toBe('number');
+      expect(component.form.controls.preprocessorCommand.value).toBe('--prince');
+    });
+
+    it('should patch hashlistId to the source task hashlist id', async () => {
+      await initComponent(fixture);
+
+      // The mock task has hashlist relationship with id '1'
+      const hashlistId = component.form.controls.hashlistId.value;
+      expect(hashlistId).not.toBeNull();
+      expect(String(hashlistId)).toBe('1');
+    });
+
+    it('should set copyFiles from the source task files', async () => {
+      await initComponent(fixture);
+
+      expect(component.copyFiles).toBeDefined();
+      expect(component.copyFiles.length).toBe(2);
+    });
+
+    it('should set copyMode to true', async () => {
+      await initComponent(fixture);
+
+      expect(component.copyMode).toBe(true);
+    });
+
+    it('should set hashlistId to null when the source task has no hashlist', async () => {
+      const taskWithoutHashlist = {
+        ...MOCK_TASK_GET_RESPONSE,
+        data: {
+          ...MOCK_TASK_GET_RESPONSE.data,
+          relationships: {
+            ...MOCK_TASK_GET_RESPONSE.data.relationships,
+            hashlist: { data: null }
+          }
+        }
+      };
+      globalServiceSpy.get.and.returnValue(of(taskWithoutHashlist));
+
+      await initComponent(fixture);
+
+      expect(component.form.controls.hashlistId.value).toBeNull();
+    });
+  });
+
+  describe('Copy Pretask flow', () => {
+    beforeEach(() => {
+      activatedRoute.params = of({ id: '7' });
+      activatedRoute.data = of({ kind: 'copy-pretask' });
+      globalServiceSpy.get.and.returnValue(of(MOCK_PRETASK_GET_RESPONSE));
+    });
+
+    it('should call gs.get with SERV.PRETASKS endpoint and the pretask id', async () => {
+      await initComponent(fixture);
+
+      expect(globalServiceSpy.get).toHaveBeenCalled();
+      const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
+      expect(endpoint).toEqual(SERV.PRETASKS);
+      expect(id).toBe(7);
+    });
+
+    it('should have an invalid form because hashlistId is missing', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.valid).toBe(false);
+      expect(component.form.controls.hashlistId.value).toBeNull();
+    });
+
+    it('should patch form with copied pretask name and notes', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.taskName.value).toBe('My Pretask_(Copied_pretask_id_7)');
+      expect(component.form.controls.notes.value).toBe('Copied from pretask id 7');
+    });
+
+    it('should patch form with common fields from the source pretask', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.attackCmd.value).toBe('-a 3 ?a?a?a?a');
+      expect(component.form.controls.maxAgents.value).toBe(0);
+      expect(component.form.controls.chunkTime.value).toBe(300);
+      expect(component.form.controls.priority.value).toBe(5);
+      expect(component.form.controls.isCpuTask.value).toBe(true);
+      expect(component.form.controls.isSmall.value).toBe(true);
+      expect(component.form.controls.useNewBench.value).toBe(false);
+      expect(component.form.controls.statusTimer.value).toBe(10);
+    });
+
+    it('should set hashlistId to null — not the old sentinel value 999999', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.hashlistId.value).toBeNull();
+      expect(component.form.controls.hashlistId.value).not.toBe(999999);
+    });
+
+    it('should set pretask defaults for task-specific fields', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.skipKeyspace.value).toBe(0);
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+      expect(component.form.controls.staticChunks.value).toBe(0);
+      expect(component.form.controls.chunkSize.value).toBe(environment.config.tasks.chunkSize);
+      expect(component.form.controls.forcePipe.value).toBe(false);
+    });
+
+    it('should set preprocessorId to 0 (number, not null or string) for pretask', async () => {
+      await initComponent(fixture);
+
+      expect(component.form.controls.preprocessorId.value).toBe(0);
+      expect(typeof component.form.controls.preprocessorId.value).toBe('number');
+      expect(component.form.controls.preprocessorId.value).not.toBeNull();
+      expect(component.form.controls.preprocessorCommand.value).toBe('');
+    });
+
+    it('should set copyFiles from pretaskFiles', async () => {
+      await initComponent(fixture);
+
+      expect(component.copyFiles).toBeDefined();
+      expect(component.copyFiles.length).toBe(1);
+    });
+
+    it('should set copyMode to true', async () => {
+      await initComponent(fixture);
+
+      expect(component.copyMode).toBe(true);
+    });
   });
 
   describe('buildForm', () => {
-    it('should initialize the form with getNewTaskForm', () => {
-      // Call the buildForm method
+    it('should initialize the form with all expected controls', () => {
       component.buildForm();
 
-      // Verify the form was set on the component
-      expect(component.form).toBeDefined();
-      expect(component.form).toBe(mockForm);
+      const expectedControls = [
+        'taskName',
+        'notes',
+        'hashlistId',
+        'attackCmd',
+        'priority',
+        'maxAgents',
+        'chunkTime',
+        'statusTimer',
+        'color',
+        'isCpuTask',
+        'skipKeyspace',
+        'crackerBinaryId',
+        'crackerBinaryTypeId',
+        'isArchived',
+        'staticChunks',
+        'chunkSize',
+        'forcePipe',
+        'preprocessorId',
+        'preprocessorCommand',
+        'isSmall',
+        'useNewBench',
+        'files'
+      ];
+      for (const ctrl of expectedControls) {
+        expect(component.form.get(ctrl)).toBeTruthy(`Missing control: ${ctrl}`);
+      }
     });
 
-    it('should create a form with all required fields', () => {
-      component.buildForm();
+    it('should subscribe to crackerBinaryTypeId value changes', async () => {
+      await initComponent(fixture);
 
-      // Check that all expected form controls exist
-      expect(component.form.get('taskName')).toBeTruthy();
-      expect(component.form.get('notes')).toBeTruthy();
-      expect(component.form.get('hashlistId')).toBeTruthy();
-      expect(component.form.get('attackCmd')).toBeTruthy();
-      expect(component.form.get('maxAgents')).toBeTruthy();
-      expect(component.form.get('chunkTime')).toBeTruthy();
-      expect(component.form.get('priority')).toBeTruthy();
-      expect(component.form.get('color')).toBeTruthy();
-      expect(component.form.get('isCpuTask')).toBeTruthy();
-      expect(component.form.get('crackerBinaryTypeId')).toBeTruthy();
-      expect(component.form.get('crackerBinaryId')).toBeTruthy();
-      expect(component.form.get('isSmall')).toBeTruthy();
-      expect(component.form.get('useNewBench')).toBeTruthy();
-      expect(component.form.get('skipKeyspace')).toBeTruthy();
-      expect(component.form.get('isArchived')).toBeTruthy();
-      expect(component.form.get('staticChunks')).toBeTruthy();
-      expect(component.form.get('chunkSize')).toBeTruthy();
-      expect(component.form.get('forcePipe')).toBeTruthy();
-      expect(component.form.get('preprocessorId')).toBeTruthy();
-      expect(component.form.get('preprocessorCommand')).toBeTruthy();
-      expect(component.form.get('files')).toBeTruthy();
-      expect(component.form.get('statusTimer')).toBeTruthy();
+      // Reset call tracking so we only see calls triggered by the value change
+      globalServiceSpy.getAll.calls.reset();
+
+      component.form.get('crackerBinaryTypeId').setValue(2);
+      await fixture.whenStable();
+
+      // handleChangeBinary should have called gs.getAll(SERV.CRACKERS, ...)
+      const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
+      expect(crackerCalls.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should subscribe to preprocessorId value changes and update form value', async () => {
+      await initComponent(fixture);
+
+      component.form.get('preprocessorId').setValue(5);
+      await fixture.whenStable();
+
+      expect(component.form.get('preprocessorId').value).toBe(5);
+    });
+  });
+
+  describe('loadSelectOptions', () => {
+    it('should load hashlists, cracker types/versions, and preprocessors', async () => {
+      await initComponent(fixture);
+
+      // Hashlists were loaded
+      expect(component.selectHashlists).toBeDefined();
+      expect(component.selectHashlists.length).toBe(2);
+
+      // Cracker types were loaded
+      expect(component.selectCrackertype).toBeDefined();
+      expect(component.selectCrackertype.length).toBe(1);
+
+      // Cracker versions were loaded
+      expect(component.selectCrackerversions).toBeDefined();
+      expect(component.selectCrackerversions.length).toBeGreaterThanOrEqual(1);
+
+      // Preprocessors were loaded
+      expect(component.selectPreprocessor).toBeDefined();
+      expect(component.selectPreprocessor.length).toBe(1);
+    });
+
+    it('should set isLoading to false after hashlists load', async () => {
+      expect(component.isLoading).toBe(true);
+      await initComponent(fixture);
+      expect(component.isLoading).toBe(false);
+    });
+
+    it('should show error when no hashlists are available', async () => {
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(MOCK_EMPTY_HASHLISTS_RESPONSE) })
+      );
+
+      await initComponent(fixture);
+
+      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(
+        'You need to create a Hashlist to continue creating a Task'
+      );
+    });
+
+    it('should show error message when hashlists fail to load', async () => {
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: throwError(() => new Error('Network error')) })
+      );
+
+      await initComponent(fixture);
+
+      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Failed to load hashlists');
+    });
+  });
+
+  describe('handleChangeBinary', () => {
+    it('should load cracker versions when binary type changes', async () => {
+      await initComponent(fixture);
+      globalServiceSpy.getAll.calls.reset();
+
+      component.form.get('crackerBinaryTypeId').setValue(1);
+      await fixture.whenStable();
+
+      const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
+      expect(crackerCalls.length).toBeGreaterThanOrEqual(1);
+      expect(component.selectCrackerversions).toBeDefined();
+    });
+
+    it('should select the last version by default', async () => {
+      const multiVersionResponse = {
+        data: [
+          {
+            id: '10',
+            type: 'Crackers',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5' }
+          },
+          {
+            id: '11',
+            type: 'Crackers',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' }
+          }
+        ],
+        included: []
+      };
+
+      await initComponent(fixture);
+
+      // Override only CRACKERS responses for the next value change
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
+
+      component.form.get('crackerBinaryTypeId').setValue(1);
+      await fixture.whenStable();
+
+      // Last version id should be 11 (Number-converted from SelectOption.id string '11')
+      expect(component.form.get('crackerBinaryId').value).toBe(11);
+    });
+
+    it('should set required error when no versions are available', async () => {
+      await initComponent(fixture);
+
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
+      );
+
+      component.form.get('crackerBinaryTypeId').setValue(999);
+      await fixture.whenStable();
+
+      const crackerCtrl = component.form.get('crackerBinaryId');
+      expect(crackerCtrl.errors).toEqual({ required: true });
+      expect(crackerCtrl.touched).toBe(true);
+      expect(crackerCtrl.dirty).toBe(true);
+    });
+  });
+
+  describe('handleChangePreprocessor', () => {
+    it('should update preprocessorId when value changes', async () => {
+      await initComponent(fixture);
+
+      component.form.get('preprocessorId').setValue(5);
+      await fixture.whenStable();
+
+      expect(component.form.get('preprocessorId').value).toBe(5);
+    });
+
+    it('should not re-emit when value has not changed', async () => {
+      await initComponent(fixture);
+
+      component.form.get('preprocessorId').setValue(3);
+      await fixture.whenStable();
+
+      const spy = spyOn(component.form.get('preprocessorId'), 'setValue').and.callThrough();
+
+      // Set the same value again — handler should skip the inner setValue
+      component.form.get('preprocessorId').setValue(3);
+      await fixture.whenStable();
+
+      // The spy captures our explicit setValue(3) call, but the handler
+      // should NOT have called setValue again since value didn't change.
+      const handlerCalls = spy.calls
+        .allArgs()
+        .filter((args) => args.length > 1 && (args[1] as Record<string, unknown>)?.emitEvent === false);
+      expect(handlerCalls.length).toBe(0);
+    });
+  });
+
+  describe('determineView / initialization modes', () => {
+    it('should set copyMode to true when route has id param', async () => {
+      activatedRoute.params = of({ id: '42' });
+
+      await initComponent(fixture);
+
+      expect(component.copyMode).toBe(true);
+    });
+
+    it('should set copyMode to false when route has no id param', async () => {
+      activatedRoute.params = of({});
+
+      await initComponent(fixture);
+
+      expect(component.copyMode).toBe(false);
+    });
+
+    it('should leave hashlistId as default (null) in new-task mode', async () => {
+      activatedRoute.params = of({});
+      activatedRoute.data = of({ kind: 'new-task' });
+
+      await initComponent(fixture);
+
+      expect(component.form.controls.hashlistId.value).toBeNull();
+    });
+  });
+
+  describe('getFormData', () => {
+    it('should return attackCmd, files, and preprocessorCommand from form', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        attackCmd: '-a 0 #HL# dict.txt',
+        files: [1, 2],
+        preprocessorCommand: '--prince'
+      });
+
+      const data = component['getFormData']();
+      expect(data.attackCmd).toBe('-a 0 #HL# dict.txt');
+      expect(data.files).toEqual([1, 2]);
+      expect(data.preprocessorCommand).toBe('--prince');
+    });
+
+    it('should return empty defaults when form is not ready', () => {
+      // Before ngOnInit, formReady is false
+      const data = component['getFormData']();
+      expect(data.attackCmd).toBe('');
+      expect(data.files).toEqual([]);
+      expect(data.preprocessorCommand).toBe('');
+    });
+  });
+
+  describe('isPreprocessor', () => {
+    it('should return true when preprocessorId is a non-zero number', async () => {
+      await initComponent(fixture);
+
+      component.form.get('preprocessorId').setValue(5, { emitEvent: false });
+
+      expect(component['isPreprocessor']()).toBe(true);
+    });
+
+    it('should return false when preprocessorId is 0', async () => {
+      await initComponent(fixture);
+
+      component.form.get('preprocessorId').setValue(0, { emitEvent: false });
+
+      expect(component['isPreprocessor']()).toBe(false);
+    });
+  });
+
+  describe('onUpdateForm', () => {
+    it('should update attackCmd and files when event type is CMD', async () => {
+      await initComponent(fixture);
+
+      component['onUpdateForm']({
+        type: 'CMD',
+        attackCmd: '-a 3 ?a?a?a',
+        files: [10, 20],
+        otherFiles: []
+      });
+
+      expect(component.form.get('attackCmd').value).toBe('-a 3 ?a?a?a');
+      expect(component.form.get('files').value).toEqual([10, 20]);
+    });
+
+    it('should update preprocessorCommand when event type is not CMD', async () => {
+      await initComponent(fixture);
+
+      component['onUpdateForm']({
+        type: 'PREPROCESSOR',
+        attackCmd: '--prince-elem-cnt-min=1',
+        files: [],
+        otherFiles: []
+      });
+
+      expect(component.form.get('preprocessorCommand').value).toBe('--prince-elem-cnt-min=1');
+    });
+  });
+
+  describe('openHelpDialog', () => {
+    it('should open CheatsheetComponent dialog with full width', () => {
+      component['openHelpDialog']();
+
+      expect(dialogSpy.open).toHaveBeenCalledWith(CheatsheetComponent, { width: '100%' });
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('should destroy the component without errors', async () => {
+      await initComponent(fixture);
+
+      expect(() => {
+        fixture.destroy();
+      }).not.toThrow();
+    });
+  });
+
+  describe('change detection stability', () => {
+    it('should stabilize after init', async () => {
+      await initComponent(fixture);
+
+      expectChangeDetectionStability(fixture);
+    });
+
+    it('should stabilize after form value changes', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        attackCmd: '-a 3 ?a?a?a',
+        files: [1, 2],
+        preprocessorCommand: '--prince'
+      });
+
+      expectChangeDetectionStability(fixture);
+    });
+  });
+
+  // check this as there was a 'null' check before the refactoring, so add this to be source
+  describe('preprocessorId typing', () => {
+    it('should default to 0 (number) on fresh form', async () => {
+      await initComponent(fixture);
+
+      const value = component.form.controls.preprocessorId.value;
+      expect(value).toBe(0);
+      expect(typeof value).toBe('number');
+    });
+
+    it('should remain a number after setting via setValue', async () => {
+      await initComponent(fixture);
+
+      component.form.controls.preprocessorId.setValue(5, { emitEvent: false });
+
+      const value = component.form.controls.preprocessorId.value;
+      expect(typeof value).toBe('number');
+      expect(value).not.toBeNull();
+    });
+
+    it('should report isPreprocessor correctly based on numeric value', async () => {
+      await initComponent(fixture);
+
+      component.form.controls.preprocessorId.setValue(0, { emitEvent: false });
+      expect(component['isPreprocessor']()).toBe(false);
+
+      component.form.controls.preprocessorId.setValue(1, { emitEvent: false });
+      expect(component['isPreprocessor']()).toBe(true);
     });
   });
 });
