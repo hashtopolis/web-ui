@@ -44,6 +44,7 @@
             },
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/@selectize/selectize/dist/js/selectize.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
             ],
@@ -116,10 +117,13 @@
               "src/styles/styles.scss"
             ],
             "styles": [
-              "src/styles/styles.scss"
+              "src/styles/styles.scss",
+              "node_modules/@selectize/selectize/dist/css/selectize.css",
+              "node_modules/@selectize/selectize/dist/css/selectize.bootstrap5.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/@selectize/selectize/dist/js/selectize.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
             ]

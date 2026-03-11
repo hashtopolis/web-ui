@@ -1,6 +1,8 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { StoreModule } from '@ngrx/store';
+import { MomentModule } from 'ngx-moment';
+
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
@@ -62,6 +64,7 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     ComponentsModule,
     BrowserModule,
     CommonModule,
+    MomentModule,
     PipesModule,
     FormsModule,
     AuthModule,

@@ -1,3 +1,5 @@
+//import moment from 'moment';
+
 /**
  * Calculate a Unix timestamp for a date in the past.
  *
@@ -38,6 +40,7 @@ export function formatUnixTimestamp(
   if (unixTimestamp === 0) {
     return 'N/A';
   }
+  //return moment.unix(unixTimestamp).format(fmt)
   const date = new Date(unixTimestamp * 1000);
 
   return formatDate(date, fmt);
@@ -64,6 +67,7 @@ export function formatUnixTimestamp(
  * @returns The formatted date-time string.
  */
 export function formatDate(date: Date, fmt: string): string {
+  //return moment(date).format(fmt)
   const pad = (value: number) => (value < 10 ? `0${value}` : value.toString());
 
   return fmt
