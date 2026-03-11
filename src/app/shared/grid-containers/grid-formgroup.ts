@@ -10,9 +10,8 @@ import { Component, Input } from '@angular/core'
         <label class="form-label {{ labelclass }}" for="{{ name }}">{{ name }}</label>
         @if (tooltip) {
           <fa-icon
-            placement="bottom"
-            ngbTooltip="{{ tooltip }}"
-            container="body"
+            matTooltipPosition="below"
+            matTooltip="{{ tooltip }}"
             [icon]="faInfoCircle"
             aria-hidden="true"
             class="gray-light-ico display-col">
