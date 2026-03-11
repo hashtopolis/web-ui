@@ -1,12 +1,12 @@
 @if (currentTheme() === 'dark') {
-  <a class="dropdown-item items-center credits" (click)="theme$.next($event ? 'light' : 'dark')">
+  <button type="button" class="dropdown-item items-center credits" (click)="theme$.next($event ? 'light' : 'dark')">
     <fa-icon class="dropdown-icon" [icon]="faSun" aria-hidden="true"></fa-icon>
     Light Mode
-  </a>
+  </button>
 }
 @if (currentTheme() === 'light') {
-  <a class="dropdown-item items-center" (click)="theme$.next($event ? 'dark' : 'light')">
+  <button type="button" class="dropdown-item items-center" (click)="theme$.next($event ? 'dark' : 'light')">
     <fa-icon class="dropdown-icon" [icon]="faMoon" aria-hidden="true"></fa-icon>
     Dark Mode
-  </a>
+  </button>
 }

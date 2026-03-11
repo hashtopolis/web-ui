@@ -215,7 +215,7 @@ describe('NewNotificationComponent', () => {
 
   // Partial mock service
   const mockService: Partial<GlobalService> = {
-    getAll(serviceConfig, routerParams?: unknown): Observable<any> {
+    getAll(serviceConfig, routerParams?: unknown): Observable<unknown> {
       void routerParams;
       switch (serviceConfig) {
         case SERV.AGENTS:
@@ -230,7 +230,7 @@ describe('NewNotificationComponent', () => {
           return of({ data: [] });
       }
     },
-    create(serviceConfig, objectData: unknown): Observable<any> {
+    create(serviceConfig, objectData: unknown): Observable<unknown> {
       void serviceConfig;
       void objectData;
       return of({});
