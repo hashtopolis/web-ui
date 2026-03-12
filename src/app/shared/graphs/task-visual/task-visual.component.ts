@@ -40,7 +40,7 @@ export class TaskVisualComponent implements AfterViewInit {
     if (document.body.className.includes('fixed-width-layout')) {
       this.x = 1467;
     } else if (document.body.className.includes('full-width-layout')) {
-      this.x = $(window).width() - 50;
+      this.x = window.innerWidth - 50;
     }
   }
 
