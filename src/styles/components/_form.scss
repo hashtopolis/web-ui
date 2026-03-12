@@ -10,9 +10,16 @@
 
 /* Material Form Field error styling - paint outline, label, and asterisk red */
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__leading,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch,
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__trailing {
   border-color: var(--mdc-theme-error, #f44336) !important;
+}
+
+/* Notch piece: only color top/bottom borders; keep left/right transparent
+   (Angular Material uses a transparent border-left + clip-path on the notch
+   for smooth label animation — coloring it red causes a visible vertical line) */
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch {
+  border-top-color: var(--mdc-theme-error, #f44336) !important;
+  border-bottom-color: var(--mdc-theme-error, #f44336) !important;
 }
 
 mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label {
@@ -296,7 +303,13 @@ progress::-webkit-progress-value {
 */
 
 .custom-chip-grid {
-  width: 282%;
+  width: 100%;
+}
+
+.custom-chip-grid mat-chip-row button[matchipremove] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .highlight-text {
@@ -319,10 +332,21 @@ progress::-webkit-progress-value {
 
 .custom-hashlist-container {
   display: flex;
-  align-items: center; /* Align items vertically */
-  button {
-    order: 1;
-    margin-left: 320px;
+  align-items: center;
+  max-width: 600px;
+  input-multiselect {
+    flex: 1;
+    min-width: 0;
+  }
+  .mat-form-field {
+    max-width: 100% !important;
+  }
+  > button {
+    margin-left: -40px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -416,14 +440,6 @@ mat-form-field,
 .form-field {
   display: block;
   margin-bottom: var(--form-field-gap);
-}
-
-[fxlayout="column"] > * {
-  display: block;
-  margin-bottom: var(--form-field-gap);
-}
-[fxlayout="column"] > *:last-child {
-  margin-bottom: 0;
 }
 
 /*

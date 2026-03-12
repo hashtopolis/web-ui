@@ -2,7 +2,7 @@
   <app-page-subtitle [subtitle]="'Create Health Check'"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <div fxLayout="column">
+    <div class="flex flex-col">
 
       <input-select title="Attack" formControlName="checkType" [items]="selectAttack"></input-select>
       <input-select title="Hashtype" formControlName="hashtypeId" [items]="selectHashtypes"></input-select>

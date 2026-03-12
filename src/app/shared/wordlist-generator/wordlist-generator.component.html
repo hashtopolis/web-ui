@@ -3,11 +3,11 @@
 <grid-main>
   <div class="content">
     <form (ngSubmit)="onSubmit()" [formGroup]="form">
-      <div fxLayout="column" fxLayoutGap="24px">
-        <div fxLayout="row" fxLayoutGap="32px">
+      <div class="flex flex-col gap-4">
+        <div class="flex gap-5">
           <!-- Names FormArray -->
           <div formArrayName="names">
-            <div fxLayout="row" >
+            <div class="flex">
               <mat-form-field>
                 <mat-label>{{ ui.names.inputLabel }} 1</mat-label>
                 <input [formControl]="getFormControl(names.controls[0])" [placeholder]="ui.names.inputPlaceholder"
@@ -37,7 +37,7 @@
 
           <!-- Special Attributes FormArray -->
           <div formArrayName="sparetext">
-            <div fxLayout="row">
+            <div class="flex">
               <mat-form-field>
                 <mat-label>{{ ui.sparetext.inputLabel }} 1</mat-label>
                 <input [formControl]="getFormControl(sparetext.controls[0])" [placeholder]="ui.sparetext.inputPlaceholder"
@@ -78,7 +78,7 @@
             </mat-form-field>
           </div>
         </div>
-        <div class="w-100">
+        <div class="w-full">
           @if (submitted && form.errors?.atLeastOneRequired) {
             <mat-error>
               {{ ui.formError }}
@@ -94,7 +94,7 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px">
+            <div class="flex flex-col gap-2">
               <mat-form-field style="width: 200px;">
                 <mat-label>{{ ui.additionalOptions.fileName.inputLabel }}</mat-label>
                 <input [formControlName]="ui.additionalOptions.fileName.formControlName" [name]="ui.additionalOptions.fileName.inputName"
@@ -114,7 +114,7 @@
             </div>
           </mat-expansion-panel>
         </mat-accordion>
-        <div fxLayoutAlign="start">
+        <div>
           <button color="primary" mat-raised-button type="submit">
             {{ ui.generateButtonLabel }}
           </button>

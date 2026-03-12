@@ -1,8 +1,8 @@
 <grid-main>
   <app-page-subtitle [subtitle]="'New Cracker type'"></app-page-subtitle>
 
-  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
-    <div fxLayout="column" fxLayoutGap="16px">
+  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3">
 
       <input-select width="256px"
                                   title="Binary Type Name"

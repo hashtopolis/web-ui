@@ -1,5 +1,3 @@
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -34,8 +32,7 @@ import { CoreFormsModule } from '@src/app/shared/forms.module';
     CoreFormsModule,
     ComponentsModule,
     CommonModule,
-    FormsModule,
-    NgbModule
+    FormsModule
   ]
 })
 export class AuthModule {}

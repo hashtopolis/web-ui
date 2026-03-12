@@ -5,21 +5,17 @@
     <form [formGroup]="updateForm">
       <input-text title="ID" formControlName="taskId"></input-text>
 
-      <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
+      <div formGroupName="updateData" class="flex flex-wrap items-center gap-2">
+        <input-text  title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
       </div>
 
-      <div formGroupName="updateData" fxLayoutGap="10px">
-        <input-text-area
-          title="Attack command"
-          formControlName="attackCmd"
-          [isRequired]="!isReadOnly"
-        ></input-text-area>
+      <div formGroupName="updateData" class="flex flex-col gap-2">
+        <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="!isReadOnly"></input-text-area>
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
       </div>
 
-      <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <div formGroupName="updateData" class="flex flex-wrap items-center gap-2">
         <input-number title="Priority" formControlName="priority"></input-number>
         <input-number title="Status timer" formControlName="statusTimer"></input-number>
         <input-number title="Max agents" formControlName="maxAgents"></input-number>
@@ -52,9 +48,7 @@
         </mat-expansion-panel-header>
 
         <form [formGroup]="updateForm"
-              fxLayout="row wrap"
-              fxLayoutAlign="start center"
-              fxLayoutGap="10px">
+              class="flex flex-wrap items-center gap-2">
 
           <input-text title="No. of Chunks" formControlName="chunkSize"></input-text>
           <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
@@ -148,7 +142,7 @@
   <!-- Graph Visual  -->
   @if (tkeyspace > 0) {
     <div class="card shadow">
-      <div class="card-body table-responsive" style="overflow-x: auto;">
+      <div class="card-body overflow-x-auto" style="overflow-x: auto;">
         <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
 
         <img
@@ -158,7 +152,7 @@
           style="max-width: 100%; height: auto;" />
 
         <mat-card style="margin-top: 20px">
-          <mat-card-content class="info-message justify-content-center">
+          <mat-card-content class="info-message justify-center">
             <h4 style="margin-top: 0;">Description</h4>
             <table>
               <tr>
@@ -202,8 +196,8 @@
               [multiselectEnabled]="false"
               [mergeIdAndName]="true"
             ></input-multiselect>
-            <button mat-icon-button 
-                    matTooltip="Assign Agent" 
+            <button mat-icon-button
+                    matTooltip="Assign Agent"
                     (click)="assignAgent()"
                     [disabled]="!createForm.get('agentId')?.value">
               <mat-icon>add</mat-icon>

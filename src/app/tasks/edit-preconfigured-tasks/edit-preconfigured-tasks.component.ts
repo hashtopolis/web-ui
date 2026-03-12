@@ -1,8 +1,7 @@
-import { DataTableDirective } from 'angular-datatables';
-import { Subject, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -49,13 +48,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   /** Read-only mode based on roles */
   isReadOnly = false;
-
-  // TABLES CODE
-  @ViewChild(DataTableDirective, { static: false })
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<unknown> = new Subject<unknown>();
-  dtOptions: unknown = {};
 
   /** HttpClient without interceptors to avoid global error dialog */
   private httpNoInterceptors: HttpClient;
@@ -202,24 +194,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       .addInclude('pretaskFiles')
       .create();
 
-    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe(() => {
-      this.dtTrigger.next(void 0);
-    });
+    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe();
 
     this.unsubscribeService.add(loadtableSubscription$);
-
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      stateSave: true,
-      select: true,
-      buttons: []
-    };
   }
 
   /**

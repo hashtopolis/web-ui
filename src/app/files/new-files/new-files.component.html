@@ -16,10 +16,10 @@
       @case ('tab1') {
         <div id="tab1" class="tab-slider--body">
           <h4>Upload from your computer</h4>
-          <form [formGroup]="form" fxLayout="column">
+          <form [formGroup]="form" class="flex flex-col">
             <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"
             [isRequired]="true"></input-select>
-            <div fxLayout="row" fxLayoutGap="10px">
+            <div class="flex gap-2">
               <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
               @if (redirect === 'wordlist') {
                 <div>
@@ -32,8 +32,8 @@
             </div>
             @if (uploadProgress > 0) {
               <div>
-                <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress"
-                [showValue]="true"></ngb-progressbar>
+                <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+                <span>{{ uploadProgress }}%</span>
               </div>
             }
             @if (uploadProgress === 100) {
@@ -42,7 +42,7 @@
               </div>
             }
             <input-check title="Secret Data" formControlName="isSecret"></input-check>
-            <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px">
+            <grid-buttons class="flex justify-between gap-2">
               <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
               <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);" data-testid="button-submit-upload"></button-submit>
               @if (isCreatingLoading) {
@@ -58,7 +58,7 @@
       @case ('tab2') {
         <div id="tab2" class="tab-slider--body">
           <h4>Upload to the server using a public/private link</h4>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col">
             <input-text title="Name" formControlName="filename" [isRequired]="true"></input-text>
             <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
             <!--TODO also add ftp to pattern  -->
@@ -83,7 +83,7 @@
           <h4>Import from server import directory</h4>
 
           @if (serverFiles.length > 0) {
-            <form [formGroup]="form" fxLayout="column">
+            <form [formGroup]="form" class="flex flex-col">
               <!-- Access Group -->
               <input-select
                 title="Access group"
@@ -108,7 +108,7 @@
                 </mat-checkbox>
               </h5>
               <!-- Server files checkboxes -->
-              <div fxLayout="column" fxLayoutGap="5px" style="margin-top: 10px;">
+              <div class="flex flex-col gap-1" style="margin-top: 10px;">
                 @for (file of serverFiles; track file.file) {
                   <mat-checkbox
                     name="{{ file.file }}"
@@ -121,7 +121,7 @@
               </div>
 
               <!-- Buttons -->
-              <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px" style="margin-top: 10px;">
+              <grid-buttons class="flex justify-between gap-2" style="margin-top: 10px;">
                 <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
                 <button-submit
                   [name]="'Import'"

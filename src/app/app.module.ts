@@ -1,8 +1,6 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { StoreModule } from '@ngrx/store';
-import { DataTablesModule } from 'angular-datatables';
 import { MomentModule } from 'ngx-moment';
 
 import { CommonModule } from '@angular/common';
@@ -63,7 +61,6 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     ReactiveFormsModule,
     FontAwesomeModule,
     DirectivesModule,
-    DataTablesModule,
     ComponentsModule,
     BrowserModule,
     CommonModule,
@@ -79,7 +76,6 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     MatTooltipModule,
     MatSnackBarModule,
     CoreComponentsModule,
-    NgbModule,
     AppRoutingModule, // Main routes for the App
     NgIdleKeepaliveModule.forRoot(),
     StoreModule.forRoot({ configList: configReducer })
@@ -118,7 +114,9 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
 })
 export class AppModule {
   static injector: Injector;
-  constructor(injector: Injector) {
+  constructor() {
+    const injector = inject(Injector);
+
     AppModule.injector = injector;
   }
 }

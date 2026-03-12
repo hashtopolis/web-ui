@@ -143,7 +143,7 @@ export class UploadTUSService {
           return false;
         },
         onProgress: (bytesUploaded, bytesTotal) => {
-          const progress = (bytesUploaded / bytesTotal) * 100;
+          const progress = Math.round((bytesUploaded / bytesTotal) * 100);
           observer.next(progress);
         },
         onSuccess: async () => {

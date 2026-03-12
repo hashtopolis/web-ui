@@ -1,6 +1,6 @@
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
-import { Component, Input } from '@angular/core'
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'grid-form-input',
@@ -10,12 +10,12 @@ import { Component, Input } from '@angular/core'
         <label class="form-label {{ labelclass }}" for="{{ name }}">{{ name }}</label>
         @if (tooltip) {
           <fa-icon
-            placement="bottom"
-            ngbTooltip="{{ tooltip }}"
-            container="body"
+            matTooltipPosition="below"
+            matTooltip="{{ tooltip }}"
             [icon]="faInfoCircle"
             aria-hidden="true"
-            class="gray-light-ico display-col">
+            class="gray-light-ico display-col"
+          >
           </fa-icon>
         }
         <div #content><ng-content></ng-content></div>
@@ -25,9 +25,9 @@ import { Component, Input } from '@angular/core'
   standalone: false
 })
 export class GridFormInputComponent {
-  faInfoCircle = faInfoCircle
+  faInfoCircle = faInfoCircle;
 
-  @Input() name?: string
-  @Input() labelclass?: string
-  @Input() tooltip?: string
+  @Input() name?: string;
+  @Input() labelclass?: string;
+  @Input() tooltip?: string;
 }

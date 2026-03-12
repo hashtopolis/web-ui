@@ -13,6 +13,6 @@ import { Component } from '@angular/core';
 })
 export class TableComponent {
   public getResizeTable() {
-    return 'card-body table-responsive';
+    return 'card-body overflow-x-auto';
   }
 }

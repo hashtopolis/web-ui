@@ -1,11 +1,11 @@
 <mat-toolbar class="horizontalnav">
-  <div class="d-flex w-100">
-    <div class="d-block mb-4 mb-md-0">
+  <div class="flex w-full">
+    <div class="block mb-4 md:mb-0">
       <div #content><ng-content></ng-content></div>
     </div>
     @if (menuItems.length > 0) {
-      <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group ms-2 ms-3">
+      <div class="flex flex-wrap justify-start mb-2 md:mb-0">
+        <div class="flex ms-3">
           <mat-button-toggle-group
             appearance="legacy"
             name="fontStyle"

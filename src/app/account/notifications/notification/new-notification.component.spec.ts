@@ -1,6 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
 import { Observable, of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
@@ -217,7 +215,7 @@ describe('NewNotificationComponent', () => {
 
   // Partial mock service
   const mockService: Partial<GlobalService> = {
-    getAll(serviceConfig, routerParams?: unknown): Observable<any> {
+    getAll(serviceConfig, routerParams?: unknown): Observable<unknown> {
       void routerParams;
       switch (serviceConfig) {
         case SERV.AGENTS:
@@ -232,7 +230,7 @@ describe('NewNotificationComponent', () => {
           return of({ data: [] });
       }
     },
-    create(serviceConfig, objectData: unknown): Observable<any> {
+    create(serviceConfig, objectData: unknown): Observable<unknown> {
       void serviceConfig;
       void objectData;
       return of({});
@@ -249,11 +247,9 @@ describe('NewNotificationComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
-        DataTablesModule,
         ComponentsModule,
         RouterModule,
         PipesModule,
-        NgbModule,
         MatSnackBarModule
       ],
       providers: [

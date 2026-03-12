@@ -1,4 +1,3 @@
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -120,8 +119,7 @@ describe('NewHashlistComponent', () => {
         ButtonsModule,
         ComponentsModule,
         MatProgressSpinnerModule,
-        MatIconModule,
-        NgbModule
+        MatIconModule
       ],
       providers: [
         FileSizePipe,

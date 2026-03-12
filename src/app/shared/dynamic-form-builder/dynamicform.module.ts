@@ -1,5 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormComponent } from 'src/app/core/_components/forms/simple-forms/form.component';
 
 import { CommonModule } from '@angular/common';
@@ -50,7 +49,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FormsModule,
     PipesModule,
     GridModule,
-    NgbModule,
     PageTitleModule,
     ReactiveFormsModule,
     HorizontalNavModule,

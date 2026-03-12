@@ -1,4 +1,3 @@
-import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -58,8 +57,7 @@ describe('NewFilesComponent', () => {
         PageTitleModule,
         ComponentsModule,
         MatIconModule,
-        MatProgressSpinnerModule,
-        NgbProgressbarModule
+        MatProgressSpinnerModule
       ],
       providers: [
         { provide: ActivatedRoute, useValue: { data: of({ kind: 'wordlist-new' }) } },
@@ -67,7 +65,7 @@ describe('NewFilesComponent', () => {
         { provide: UploadTUSService, useClass: MockUploadTUSService },
         { provide: GlobalService, useClass: MockGlobalService },
         { provide: AlertService, useClass: MockAlertService },
-        { provide: UnsubscribeService, useClass: MockUnsubscribeService },
+        { provide: UnsubscribeService, useClass: MockUnsubscribeService }
       ]
     }).compileComponents();
   });
