@@ -306,6 +306,12 @@ progress::-webkit-progress-value {
   width: 100%;
 }
 
+.custom-chip-grid mat-chip-row button[matchipremove] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .highlight-text {
   background-color: colors.$search-text-highlight-color;
 }
@@ -326,10 +332,21 @@ progress::-webkit-progress-value {
 
 .custom-hashlist-container {
   display: flex;
-  align-items: center; /* Align items vertically */
-  button {
-    order: 1;
-    margin-left: 320px;
+  align-items: center;
+  max-width: 600px;
+  input-multiselect {
+    flex: 1;
+    min-width: 0;
+  }
+  .mat-form-field {
+    max-width: 100% !important;
+  }
+  > button {
+    margin-left: -40px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
