@@ -1,6 +1,7 @@
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -159,7 +160,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param error - The HTTP error response
    */
-  protected handleFilterError(error: any): void {
+  protected handleFilterError(error: HttpErrorResponse): void {
     // Handle filter validation errors gracefully
     if (error?.error?.title) {
       this.filterError$.next(error.error.title);

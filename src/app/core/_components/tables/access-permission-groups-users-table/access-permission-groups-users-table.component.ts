@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';

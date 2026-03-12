@@ -138,6 +138,8 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   /**
    * Load pretask files for given pretask IDs
    * @param pretaskIds
+   * @param activeFilter
+   * @param query
    * @private
    */
   private async loadPretaskFiles(pretaskIds: number[], activeFilter?: Filter, query?: Filter): Promise<JPretask[]> {
@@ -159,7 +161,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
             })
           )
         );
-        
+
         // set pagination info (same as loadPretasks)
         const length = response.meta?.page?.total_elements ?? 0;
         const nextLink = response.links?.next;
@@ -167,7 +169,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
         const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
         this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-        
+
         const responseData = { data: response.data, included: response.included };
         return this.serializer.deserialize<JPretask[]>(responseData);
       } catch {

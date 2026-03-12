@@ -1,6 +1,5 @@
 import { catchError } from 'rxjs';
 
-/* eslint-disable @angular-eslint/component-selector */
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
