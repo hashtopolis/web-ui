@@ -1,5 +1,5 @@
 <ht-table #table name="supertasksPretasksTable" dataType="pretasks" [columnLabels]="columnLabels"
   [dataSource]="dataSource" [tableColumns]="tableColumns" [isSelectable]="true"
-  [contextMenuService]="contextMenuService" [isFilterable]="isFilterable" [filterFn]="filter" [isDetailPage]="true"
+  [contextMenuService]="contextMenuService" [isFilterable]="isFilterable" filterMode="client" [isDetailPage]="true"
   [isPageable]="true" (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)" (editableSaved)="editableSaved($event)" />

@@ -53,10 +53,6 @@ export class AccessPermissionGroupsUsersTableComponent
     }
   }
 
-  filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {

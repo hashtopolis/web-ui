@@ -57,10 +57,6 @@ export class AccessPermissionGroupsUserTableComponent
     }
   }
 
-  filter(item: UserPermissions, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {

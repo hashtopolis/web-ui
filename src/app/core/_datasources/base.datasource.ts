@@ -83,7 +83,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   /**
    * Copy of the original dataSubject data used for filtering
    */
-  private originalData: T[] = [];
+  protected originalData: T[] = [];
 
   private readonly chunkTime: number = 600;
 
@@ -98,6 +98,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   autoRefreshService: AutoRefreshService;
   private autoRefreshSubscription: Subscription;
 
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
     this.service = injector.get(GlobalService);
@@ -202,6 +203,74 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.dataSubject.next(data);
     this.lastUpdated = new Date();
     this.cdr.detectChanges();
+  }
+
+  /**
+   * Returns items from originalData matching the given filter value and column.
+   * Passing an empty filterValue or null column returns all originalData.
+   * With a null/all column the full JSON representation is searched (catches nested fields).
+   *
+   * @param filterValue - The search string to match against. Case-insensitive. Empty string returns all items.
+   * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches the full JSON of each item.
+   * @returns A new array of items from originalData that match the filter.
+   */
+  protected filterItems(filterValue: string, selectedColumn: HTTableColumn | null): T[] {
+    if (!filterValue) {
+      return [...this.originalData];
+    }
+    const value = filterValue.toLowerCase();
+    return this.originalData.filter((item) => {
+      if (!selectedColumn || selectedColumn.dataKey === 'all') {
+        return JSON.stringify(item).toLowerCase().includes(value);
+      }
+      const fieldValue = (item as Record<string, unknown>)[selectedColumn.dataKey];
+      return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
+    });
+  }
+
+  /**
+   * Sorts an array using the current sortingColumn. Returns a new array without modifying the input.
+   * Supports string (locale-aware) and numeric comparisons. Returns the input array unchanged if no
+   * sortingColumn is set.
+   *
+   * @param data - The array to sort.
+   * @returns A new sorted array, or the original array reference if no sort is active.
+   */
+  protected applySorting(data: T[]): T[] {
+    if (!this.sortingColumn) return data;
+    const isAscending = this.sortingColumn.direction === 'asc';
+    const sortKey = this.sortingColumn.dataKey;
+    return [...data].sort((a, b) => {
+      const aValue = (a as Record<string, unknown>)[sortKey];
+      const bValue = (b as Record<string, unknown>)[sortKey];
+      if (aValue == null || bValue == null) return 0;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const cmp = aValue.localeCompare(bValue);
+        return isAscending ? cmp : -cmp;
+      }
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        const cmp = aValue - bValue;
+        return isAscending ? cmp : -cmp;
+      }
+      return 0;
+    });
+  }
+
+  /**
+   * Applies a client-side filter (and sort if sortingColumn is set) and pushes the result to the table.
+   * Passing an empty filterValue resets to the full data set. Resets pagination to the first page so
+   * filter results are always visible regardless of the previous scroll position.
+   *
+   * @param filterValue - The search string. Empty string clears the filter and restores all rows.
+   * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches all fields.
+   */
+  applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
+    let data = this.filterItems(filterValue, selectedColumn);
+    if (this.sortingColumn) data = this.applySorting(data);
+    this.setPaginationConfig(this.pageSize, data.length, null, null, 0);
+    if (this.paginator) this.paginator.firstPage();
+    this.dataSubject.next(data);
+    this.cdr.markForCheck();
   }
 
   /**

@@ -55,10 +55,6 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     }
   }
 
-  filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -66,12 +62,14 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
         dataKey: 'id',
         routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.id + ''
       },
       {
         id: SupertasksPretasksTableCol.NAME,
         dataKey: 'taskName',
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.taskName + ''
       },
       {

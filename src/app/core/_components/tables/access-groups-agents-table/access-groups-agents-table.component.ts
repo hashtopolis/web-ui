@@ -32,7 +32,6 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'agentMembers';
-  selectedFilterColumn: HTTableColumn = this.getColumns()[1]; // Default filter column
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsAgentsTableColumnLabel);
@@ -57,24 +56,11 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     }
   }
 
-  handleFilter(filterValue: string): void {
-    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn.dataKey);
-  }
-
-  onFilterColumnChanged(column: HTTableColumn): void {
-    this.selectedFilterColumn = column;
-    // Re-apply current filter with new column
-    const currentFilterValue = this.dataSource['currentFilterValue'] || '';
-    if (currentFilterValue) {
-      this.dataSource.filterData(currentFilterValue, column.dataKey);
-    }
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsAgentsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         routerLink: (agent: JAgent) => {
           return of([
             {

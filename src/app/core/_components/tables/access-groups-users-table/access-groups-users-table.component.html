@@ -1,6 +1,5 @@
 <ht-table #table name="accessGroupsUsersTable" dataType="access-groups-users" [columnLabels]="columnLabels"
   [dataSource]="dataSource" [tableColumns]="tableColumns" [isSelectable]="true"
   [contextMenuService]="contextMenuService" [isFilterable]="isFilterable" [isPageable]="true"
-  [isDetailPage]="true" (exportActionClicked)="exportActionClicked($event)"
-  (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
-  (backendSqlFilter)="handleFilter($event)" (selectedFilterColumnChanged)="onFilterColumnChanged($event)" />
+  [isDetailPage]="true" filterMode="client" (exportActionClicked)="exportActionClicked($event)"
+  (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)" />
