@@ -2,6 +2,7 @@ import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
+
 import { JPretask } from '@models/pretask.model';
 
 import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
