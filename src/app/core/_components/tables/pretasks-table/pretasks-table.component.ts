@@ -2,7 +2,6 @@ import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
-
 import { JPretask } from '@models/pretask.model';
 
 import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
@@ -31,16 +30,6 @@ import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource'
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
 import { formatFileSize } from '@src/app/shared/utils/util';
-
-export interface AttackOptions {
-  attackType: number;
-  ruleFiles: string[];
-  posArgs: string[];
-  unrecognizedFlag: string[];
-}
-
-declare let options: AttackOptions;
-declare let defaultOptions: AttackOptions;
 
 @Component({
   selector: 'app-pretasks-table',
@@ -95,10 +84,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   get isDelete(): boolean {
     return !this.unassignOption;
   }
-
-  // Estimate runtime attack
-  @Input() benchmarkA0 = 0;
-  @Input() benchmarkA3 = 0;
 
   @Output() pretasksChanged = new EventEmitter<void>();
 
@@ -277,12 +262,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         render: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
         isSortable: false,
         export: async (pretask: JPretask) => Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
-      });
-      tableColumns.push({
-        id: PretasksTableCol.ATTACK_RUNTIME,
-        dataKey: 'keyspaceTime',
-        isSortable: false,
-        render: () => this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3)
       });
     }
 
@@ -479,10 +458,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  renderKeyspaceTime(a0: number, a3: number): SafeHtml {
-    return this.calculateKeyspaceTime(a0, a3);
-  }
-
   /**
    * Inline Editing
    */
@@ -627,76 +602,5 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         this.router.navigate(links[0].routerLink).then(() => {});
       })
       .unsubscribe();
-  }
-
-  calculateKeyspaceTime(a0: number, a3: number): string {
-    if (a0 !== 0 && a3 !== 0) {
-      let totalSecondsSupertask = 0;
-      let unknown_runtime_included = 0;
-      const benchmarka0 = a0;
-      const benchmarka3 = a3;
-
-      // Iterate over each task in the supertask
-      $('.taskInSuper').each(function () {
-        // Extract keyspace size from the table cell
-        const keyspace_size = $(this).find('td:nth-child(4)').text();
-        let seconds = null;
-        let runtime: string;
-
-        // Set default options for the attack
-        options = defaultOptions;
-        options.ruleFiles = [];
-        options.posArgs = [];
-        options.unrecognizedFlag = [];
-
-        // Check if keyspace size is available
-        if (keyspace_size === null || !keyspace_size) {
-          unknown_runtime_included = 1;
-        } else if (options.attackType === 3) {
-          // Calculate seconds based on benchmarka3 for attackType 3
-          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
-        } else if (options.attackType === 0) {
-          // Calculate seconds based on benchmarka0 for attackType 0
-          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
-        }
-
-        // Convert seconds to human-readable runtime format
-        if (Number.isInteger(seconds)) {
-          totalSecondsSupertask += seconds;
-          const days = Math.floor(seconds / (3600 * 24));
-          seconds -= days * 3600 * 24;
-          const hrs = Math.floor(seconds / 3600);
-          seconds -= hrs * 3600;
-          const mins = Math.floor(seconds / 60);
-          seconds -= mins * 60;
-
-          runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
-        } else {
-          unknown_runtime_included = 1;
-          runtime = 'Unknown';
-        }
-
-        // Update the HTML content with the calculated runtime
-        $(this).find('td:nth-child(5)').html(runtime);
-      });
-
-      // Reduce total runtime to a human-readable format
-      let seconds = totalSecondsSupertask;
-      const days = Math.floor(seconds / (3600 * 24));
-      seconds -= days * 3600 * 24;
-      const hrs = Math.floor(seconds / 3600);
-      seconds -= hrs * 3600;
-      const mins = Math.floor(seconds / 60);
-      seconds -= mins * 60;
-
-      let totalRuntimeSupertask = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
-
-      // Append additional information if unknown runtime is included
-      if (unknown_runtime_included === 1) {
-        totalRuntimeSupertask += ', plus additional unknown runtime';
-      }
-      return totalRuntimeSupertask;
-    }
-    return '';
   }
 }
