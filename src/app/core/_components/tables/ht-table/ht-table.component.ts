@@ -124,8 +124,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Data type displayed in the table, used to load relevant context menus */
   @Input() dataType: DataType;
 
-  /** Function used to filter table data. */
-  @Input() filterFn: (item: any, filterValue: string) => boolean;
+  /** Whether filtering is handled client-side (datasource) or sent to the backend. */
+  @Input() filterMode: 'client' | 'backend' = 'backend';
 
   /** The data source for the table. */
   @Input() dataSource: BaseDataSource<any>;
@@ -250,6 +250,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initFilterableColumns();
     this.onFilterColumnChange();
   }
+  /**
+   * Builds the list of columns available in the filter column selector from tableColumns
+   * that have both a dataKey and isSearchable set. Defaults the active filter column to
+   * the second entry (index 1) when two or more searchable columns exist, otherwise the first.
+   */
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
     if (this.filterableColumns.length >= 2) {
@@ -258,9 +263,19 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedFilterColumn = this.filterableColumns[0];
     }
   }
-  // Handle filter column change
+  /**
+   * Called when the user changes the active filter column in the dropdown.
+   * Notifies parent components via selectedFilterColumnChanged and, in client mode,
+   * immediately re-applies the current filter value against the new column.
+   */
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
+    if (this.filterMode === 'client') {
+      const currentValue = this.filterQueryFormGroup.get('textFilter').value;
+      if (currentValue) {
+        this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -381,7 +396,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         order: sorting
       });
     }
-    this.dataSource.reload();
+    if (this.filterMode === 'client') {
+      const currentValue = this.filterQueryFormGroup.get('textFilter').value;
+      this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
+    } else {
+      this.dataSource.reload();
+    }
   }
 
   private filterKeys(original: { [key: string]: string }, include: string[]): any {
@@ -420,7 +440,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
-      if (num < Object.keys(this.columnLabels).length) {
+      if (this.tableColumns.some((col) => col.id === num)) {
         this.displayedColumns.push(num + '');
       }
     }
@@ -443,8 +463,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   } */
   emitFilterValue(): void {
-    this.filterError = null; // Clear any previous error
-    this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
+    this.filterError = null;
+    const value = this.filterQueryFormGroup.get('textFilter').value;
+    if (this.filterMode === 'client') {
+      this.dataSource.applyClientFilter(value, this.selectedFilterColumn);
+    } else {
+      this.backendSqlFilter.emit(value);
+    }
   }
 
   setFilterError(error: string): void {
@@ -585,6 +610,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   clearSearchBox(): void {
     this.filterQueryFormGroup.get('textFilter').setValue('');
     this.clearFilterError();
+    if (this.filterMode === 'client') {
+      this.dataSource.applyClientFilter('', null);
+    } else {
+      this.backendSqlFilter.emit('');
+    }
   }
   /**
    * Handles the page change event, including changes in page size and page index.

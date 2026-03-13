@@ -36,12 +36,10 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
   include = 'userMembers';
-  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.selectedFilterColumn = this.tableColumns[1]; // Default filter column
     this.dataSource = new AccessGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accessgroupId) {
@@ -62,24 +60,11 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     }
   }
 
-  handleFilter(filterValue: string): void {
-    this.dataSource.filterData(filterValue || '', this.selectedFilterColumn.dataKey);
-  }
-
-  onFilterColumnChanged(column: HTTableColumn): void {
-    this.selectedFilterColumn = column;
-    // Re-apply current filter with new column
-    const currentFilterValue = this.dataSource['currentFilterValue'] || '';
-    if (currentFilterValue) {
-      this.dataSource.filterData(currentFilterValue, column.dataKey);
-    }
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsUsersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         routerLink: (user: JUser) => {
           return of([
             {

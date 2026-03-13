@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -51,10 +50,6 @@ export class AccessPermissionGroupsUsersTableComponent
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-  }
-
-  filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {

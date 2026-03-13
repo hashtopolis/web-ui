@@ -57,14 +57,12 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);
       } else {
-        let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
-        params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-
-        const supertask = await this.loadSupertask(this._superTaskId, params.create());
+        const supertaskParams = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
+        const supertask = await this.loadSupertask(this._superTaskId, supertaskParams);
         const superTaskPreTaskIds = (supertask.pretasks || []).map((p) => p.id);
 
         if (superTaskPreTaskIds && superTaskPreTaskIds.length > 0) {
-          const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds);
+          const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds, activeFilter, query);
           this.setData(pretaskFiles);
         } else {
           // No pretasks assigned to the supertask.
@@ -140,16 +138,19 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   /**
    * Load pretask files for given pretask IDs
    * @param pretaskIds
+   * @param activeFilter
+   * @param query
    * @private
    */
-  private async loadPretaskFiles(pretaskIds: number[]): Promise<JPretask[]> {
+  private async loadPretaskFiles(pretaskIds: number[], activeFilter?: Filter, query?: Filter): Promise<JPretask[]> {
     const filterOperator = this._reverseQuery ? FilterType.NOTIN : FilterType.IN;
     if (pretaskIds && pretaskIds.length > 0) {
-      const paramsPretaskFiles = new RequestParamBuilder()
+      let paramsBuilder = new RequestParamBuilder()
         .addInitial(this)
         .addInclude('pretaskFiles')
-        .addFilter({ field: 'pretaskId', operator: filterOperator, value: pretaskIds })
-        .create();
+        .addFilter({ field: 'pretaskId', operator: filterOperator, value: pretaskIds });
+      paramsBuilder = this.applyFilterWithPaginationReset(paramsBuilder, activeFilter, query);
+      const paramsPretaskFiles = paramsBuilder.create();
       const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
       try {
         const response = await firstValueFrom<ResponseWrapper>(
@@ -160,7 +161,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
             })
           )
         );
-        
+
         // set pagination info (same as loadPretasks)
         const length = response.meta?.page?.total_elements ?? 0;
         const nextLink = response.links?.next;
@@ -168,7 +169,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
         const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
         this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-        
+
         const responseData = { data: response.data, included: response.included };
         return this.serializer.deserialize<JPretask[]>(responseData);
       } catch {

@@ -57,16 +57,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     this.linkClicked.emit();
   }
 
-  filter(item: JTask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: TasksSupertasksDataSourceTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTask) => wrapper.id + ''
       },
       {
@@ -81,6 +78,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
             } as HTTableRouterLink
           ]),
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
       {
