@@ -1,4 +1,5 @@
 <div class="flex flex-col gap-3">
+  <div class="col-md-7">
     @if (!isLoading) {
       <grid-main>
         <app-page-title
@@ -16,10 +17,15 @@
           </div>
           <div class="flex gap-1">
             <input-text title="Hashes" formControlName="hashCount"></input-text>
-            <simulate-form-field label="Salted" [message]="form.get('isSalted')?.value ? 'Yes' : 'No'">
+            <simulate-form-field label="Salted" [message]="form.get('isSalted')?.value ? 'Yes' : 'No'" style="padding-left: 17px">
             </simulate-form-field>
-            <input-text title="Format" formControlName="format"></input-text>
           </div>
+          <div class="flex flex-wrap gap-2">
+            <input-text title="Hashlist format" formControlName="hashlistFormat"></input-text>
+            <input-text title="Field separator" [isRequired]="true" formControlName="fieldSeparator" style="padding-left: 20px"></input-text>
+          </div>
+          <p style="margin-top: -3px; margin-bottom:30px">Accepted format is hash[:salt]:plaintext</p>
+
           <div class="flex flex-wrap gap-2">
             <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
             @if (form.get('isSalted')?.value) {
@@ -29,12 +35,12 @@
 
           @if (sourceType === 'paste') {
             <div class="flex gap-0" style="align-items: flex-start">
-              <input-text-area style="flex: 1 1 40%; min-width: 0" title="Hashes" formControlName="hashes"></input-text-area>
+              <input-text-area style="flex: 0 0 40%; min-width: 0" title="Hashes" formControlName="hashes" [isRequired]="hashesAreRequired"></input-text-area>
               <button
                 mat-icon-button
                 matTooltip="Be careful! Hashtopolis does NOT check if the precracked hash is correct!"
                 type="button"
-                >
+              >
                 <mat-icon color="primary">warning</mat-icon>
               </button>
             </div>
@@ -78,6 +84,19 @@
               [isRequired]="true"
             ></input-text>
           }
+
+          <div class="flex gap-0" style="align-items: center">
+            <mat-checkbox formControlName="conflictResolution">Conflict resolution: Overwrite already cracked hashes</mat-checkbox>
+            <button
+              mat-icon-button
+              matTooltip="Please note: If a hash that has already been cracked is included in the pre-cracked hashes to be imported, the new cracked hash will be adopted and the existing crack will be overwritten!"
+              type="button"
+            >
+              <mat-icon color="primary">warning</mat-icon>
+            </button>
+          </div>
+
+
           <grid-buttons>
             <button-submit [name]="'Pre-crack hashes'"></button-submit>
             @if (isCreatingLoading) {
@@ -86,9 +105,14 @@
               </div>
             }
           </grid-buttons>
+
+          @if (form.invalid && form.touched) {
+            <span class="help-block">Please complete all required fields!</span>
+          }
         </form>
       </grid-main>
     }
+  </div>
 </div>
 @if (isLoading) {
   <div>
