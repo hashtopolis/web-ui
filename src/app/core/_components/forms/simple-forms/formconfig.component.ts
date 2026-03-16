@@ -1,6 +1,6 @@
 import { Subscription, forkJoin } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -77,29 +77,17 @@ export class FormConfigComponent implements OnInit, OnDestroy {
 
   public isServerAction = false;
 
-  /**
-   * Constructor for the FormComponent.
-   * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
-   * @param metadataService - The MetadataService for accessing form metadata.
-   * @param titleService - The AutoTitleService for setting titles.
-   * @param uicService
-   * @param route - The ActivatedRoute for retrieving route data.
-   * @param alert - The AlertService for displaying alerts.
-   * @param gs - The GlobalService for handling global operations.
-   * @param serializer - JsonAPISerializer to serialize/deserialize json:api objects
-   * @param notificationRoleService - role service for notifications
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private metadataService: MetadataService,
-    private titleService: AutoTitleService,
-    private uicService: UIConfigService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private serializer: JsonAPISerializer,
-    private notificationRoleService: NotificationsRoleService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private metadataService = inject(MetadataService);
+  private titleService = inject(AutoTitleService);
+  private uicService = inject(UIConfigService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private serializer = inject(JsonAPISerializer);
+  private notificationRoleService = inject(NotificationsRoleService);
+
+  constructor() {
     // Subscribe to route data to initialize component data
     this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
       const formKind = data.kind;
@@ -203,7 +191,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = forkJoin(updateRequests).subscribe({
       next: () => {
         // Mark all fields as updated
-        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0]));
+        Object.keys(changedFields).forEach((key) =>
+          this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0])
+        );
 
         // Show a single success message
         this.alert.showSuccessMessage(`Saved ${this.title}`);
