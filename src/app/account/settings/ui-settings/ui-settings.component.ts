@@ -4,7 +4,6 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -17,7 +16,7 @@ import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-se
   standalone: false
 })
 export class UiSettingsComponent implements OnInit {
-  form!: FormGroup;
+  form!: UiSettingsFormGroup;
   util: UISettingsUtilityClass;
 
   pageTitle = 'UI Settings';

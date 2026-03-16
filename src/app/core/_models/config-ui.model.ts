@@ -90,7 +90,7 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: string;
+  direction: 'asc' | 'desc';
 }
 
 const _uiConfigDefault = {

@@ -50,6 +50,7 @@ export class TypedStorage<T = unknown> {
     if (effectiveSchema) {
       const result = effectiveSchema.safeParse(value);
       if (!result.success) {
+        console.warn(`Storage read validation failed for "${key}", use default value instead:`, result.error.issues);
         this.nativeStorage.removeItem(key);
         return defaultValue ?? null;
       }

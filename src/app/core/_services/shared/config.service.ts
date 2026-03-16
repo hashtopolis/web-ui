@@ -58,11 +58,11 @@ export class ConfigService {
         } else {
           ApiEndPoint = environment.config.prodApiEndpoint;
         }
-        localStorage.setItem('prodApiEndpoint', ApiEndPoint);
+        localStorage.setItem('prodApiEndpoint', ApiEndPoint, z.string());
       },
       error: () => {
         ApiEndPoint = environment.config.prodApiEndpoint;
-        localStorage.setItem('prodApiEndpoint', ApiEndPoint);
+        localStorage.setItem('prodApiEndpoint', ApiEndPoint, z.string());
       }
     });
   }

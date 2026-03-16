@@ -149,7 +149,7 @@ export class UISettingsUtilityClass {
    * @param settings - An object containing key-value pairs of settings to update.
    * @returns The number of settings that were successfully changed.
    */
-  updateSettings(settings: { [key: string]: unknown }): number {
+  updateSettings(settings: Partial<UIConfig>): number {
     const keys = Object.keys(settings);
     let changedValues = 0;
     let themeChanged = false;
