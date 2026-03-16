@@ -5,6 +5,12 @@ import { AppModule } from '@src/app/app.module';
 import { registerEChartsModules } from '@src/app/shared/graphs/echarts/echarts.config';
 import { environment } from '@src/environments/environment';
 
+// side effect imports, replace window.localStorage and window.sessionStorage with
+// the typed LocalStorage wrapper and augment the global type.
+// Must run before any other code accesses localStorage or sessionStorage.
+import '@src/app/core/_services/storage/local-storage';
+import '@src/app/core/_services/storage/session-storage';
+
 if (environment.production) {
   enableProdMode();
 }
