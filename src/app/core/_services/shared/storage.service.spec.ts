@@ -5,10 +5,32 @@ import { TestBed } from '@angular/core/testing';
 // Side-effect import: ensures window.localStorage is our typed wrapper.
 import '@services/storage/local-storage';
 
-import { UiSetting, uisSchema } from '@models/config-ui.schema';
+import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 
 import { GlobalService } from '@services/main.service';
 import { UIConfigService } from '@services/shared/storage.service';
+
+/** Helper to create a minimal valid UiSettings object for tests. */
+function makeUiSettings(overrides: Partial<UiSettings> = {}): UiSettings {
+  return {
+    chunktime: 600,
+    agentStatLimit: 0,
+    agentStatTension: 0,
+    agentTempThreshold1: 0,
+    agentTempThreshold2: 0,
+    agentUtilThreshold1: 0,
+    agentUtilThreshold2: 0,
+    statustimer: 5,
+    agenttimeout: 0,
+    maxSessionLength: 0,
+    hashcatBrainEnable: 0,
+    hashlistAlias: '#HL#',
+    blacklistChars: '',
+    _timestamp: Date.now(),
+    _expiresin: 72 * 60 * 60 * 1000,
+    ...overrides
+  };
+}
 
 describe('UIConfigService', () => {
   let service: UIConfigService;
@@ -32,11 +54,11 @@ describe('UIConfigService', () => {
       const storeDefaultSpy = spyOn(service, 'storeDefault');
 
       // Timestamp 100 hours ago, expiry window is 72 hours → stale
-      const entries: UiSetting[] = [
-        { name: '_timestamp', value: Date.now() - 100 * 60 * 60 * 1000 },
-        { name: '_expiresin', value: 72 * 60 * 60 * 1000 }
-      ];
-      localStorage.setItem<UiSetting[]>('uis', entries, uisSchema);
+      const settings = makeUiSettings({
+        _timestamp: Date.now() - 100 * 60 * 60 * 1000,
+        _expiresin: 72 * 60 * 60 * 1000
+      });
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
 
       service.checkExpiry();
 
@@ -47,11 +69,11 @@ describe('UIConfigService', () => {
       const storeDefaultSpy = spyOn(service, 'storeDefault');
 
       // Timestamp is now, expiry window is 72 hours → fresh
-      const entries: UiSetting[] = [
-        { name: '_timestamp', value: Date.now() },
-        { name: '_expiresin', value: 72 * 60 * 60 * 1000 }
-      ];
-      localStorage.setItem<UiSetting[]>('uis', entries, uisSchema);
+      const settings = makeUiSettings({
+        _timestamp: Date.now(),
+        _expiresin: 72 * 60 * 60 * 1000
+      });
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
 
       service.checkExpiry();
 

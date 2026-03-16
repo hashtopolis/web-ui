@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { UiSetting } from '@models/config-ui.schema';
+import { UiSettings } from '@models/config-ui.schema';
 import { JPretask } from '@models/pretask.model';
 import { JTask } from '@models/task.model';
 
@@ -199,15 +199,15 @@ describe('NewTasksComponent', () => {
     tooltipServiceSpy = jasmine.createSpyObj('TooltipService', ['getTaskTooltips']);
     tooltipServiceSpy.getTaskTooltips.and.returnValue({} as TaskTooltipsLevel);
 
-    uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUIsettings']);
-    uiServiceMock.getUIsettings.and.callFake((key?: string) => {
-      const settings: Record<string, UiSetting | null> = {
-        hashlistAlias: { name: 'hashlistAlias', value: '#HL#' },
-        chunktime: { name: 'chunktime', value: '600' },
-        statustimer: { name: 'statustimer', value: '5' }
+    uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUIsetting']);
+    uiServiceMock.getUIsetting.and.callFake((<K extends keyof UiSettings>(key: K): UiSettings[K] | undefined => {
+      const settings: Partial<UiSettings> = {
+        hashlistAlias: '#HL#',
+        chunktime: 600,
+        statustimer: 5
       };
-      return key ? (settings[key] ?? null) : null;
-    });
+      return settings[key] as UiSettings[K] | undefined;
+    }) as UIConfigService['getUIsetting']);
 
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);

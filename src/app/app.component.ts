@@ -8,7 +8,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
-import { UiSetting, uisSchema } from '@models/config-ui.schema';
+import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 import { UserData, userDataSchema } from '@models/user-data.schema';
 
 import { AuthService } from '@services/access/auth.service';
@@ -203,15 +203,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onTimeout(): number {
-    const uisData = localStorage.getItem<UiSetting[]>('uis', uisSchema);
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
     let timeoutidle = 1;
-    if (uisData !== null) {
-      const maxSession = uisData.find((o) => o.name === 'maxSessionLength')?.value;
-      if (maxSession != null) {
-        const hours = Number(maxSession);
-        if (!isNaN(hours) && hours > 0) {
-          timeoutidle = hours * 60 * 60; // Convert max session hours to seconds
-        }
+    if (settings !== null) {
+      const hours = settings.maxSessionLength;
+      if (!isNaN(hours) && hours > 0) {
+        timeoutidle = hours * 60 * 60; // Convert max session hours to seconds
       }
     }
     return timeoutidle;

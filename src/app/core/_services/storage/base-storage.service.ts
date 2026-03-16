@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { Injectable } from '@angular/core';
 
 export interface StorageWrapper<T> {
-  value: T
-  expires: number
+  value: T;
+  expires: number;
 }
 
 /**
@@ -15,10 +15,9 @@ export interface StorageWrapper<T> {
  * @template T - The type of data to be stored.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export abstract class BaseStorageService<T> {
-
   /**
    * Retrieves the stored data associated with the specified key.
    *
@@ -70,6 +69,6 @@ export abstract class BaseStorageService<T> {
    * @returns `true` if the wrapper has expired, or `false` if it is still valid or has no expiration timestamp.
    */
   hasExpired(wrapper: StorageWrapper<T>): boolean {
-    return !!(wrapper.expires && wrapper.expires <= Date.now())
+    return !!(wrapper.expires && wrapper.expires <= Date.now());
   }
 }

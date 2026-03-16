@@ -29,8 +29,8 @@ export class AgentStatusModalComponent implements OnInit {
   @Input() thresholdType: ThresholdType;
 
   // Threshold values from the config database
-  threshold1: string;
-  threshold2: string;
+  threshold1: number;
+  threshold2: number;
   unitLabel: string;
 
   // Text and labels
@@ -77,8 +77,8 @@ export class AgentStatusModalComponent implements OnInit {
     }
   }
 
-  private getThresholdValue(settingKey: ThresholdSettingName): string {
-    return String(this.uiService.getUIsettings(settingKey).value);
+  private getThresholdValue(settingKey: ThresholdSettingName): number {
+    return this.uiService.getUIsetting(settingKey) ?? 0;
   }
 
   /**

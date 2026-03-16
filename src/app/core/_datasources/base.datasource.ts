@@ -107,9 +107,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.serializer = new JsonAPISerializer();
     this.autoRefreshService = injector.get(AutoRefreshService);
 
-    const chunktimeSetting = String(this.uiService.getUIsettings('chunktime').value);
-    if (chunktimeSetting) {
-      this.chunkTime = Number(chunktimeSetting);
+    const chunktime = this.uiService.getUIsetting('chunktime');
+    if (chunktime !== undefined) {
+      this.chunkTime = chunktime;
     }
 
     // Create util manually instead of injector.get

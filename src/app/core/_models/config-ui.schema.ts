@@ -23,26 +23,54 @@ export const uisCacheNames = [
   'maxSessionLength'
 ] as const;
 
-/** Internal metadata keys appended by `UIConfigService.storeDefault()`. */
-export const uisMetaNames = ['_timestamp', '_expiresin'] as const;
-
-/** All valid `name` values for a `uis` entry. */
-export const uisNames = [...uisCacheNames, ...uisMetaNames] as const;
-
-export type UiSettingName = (typeof uisNames)[number];
+/**
+ * Preprocess: migrates old [{name, value}, ...] array format to flat object.
+ * Existing object data passes through unchanged.
+ * Having an object instead of an array with name, value entries makes it easier to type them
+ */
+const migrateUisFormat = (val: unknown): unknown => {
+  if (Array.isArray(val)) {
+    const obj: Record<string, unknown> = {};
+    for (const entry of val) {
+      if (entry && typeof entry === 'object' && 'name' in entry && 'value' in entry) {
+        obj[(entry as { name: string }).name] = (entry as { value: unknown }).value;
+      }
+    }
+    return obj;
+  }
+  return val;
+};
 
 /**
- * Zod schema for a single entry in the `uis` localStorage key.
- * Each entry is a name-value pair cached from the server config API.
+ * Zod schema for the `uis` localStorage key as a flat typed object.
+ * z.preprocess handles migration from the old [{name, value}] array format.
+ * z.coerce.number() / z.coerce.string() handle API string→number conversion.
  */
-export const uisEntrySchema = z.object({
-  name: z.enum(uisNames),
-  value: z.unknown()
-});
+export const uisSettingsSchema = z.preprocess(
+  migrateUisFormat,
+  z.object({
+    // Numeric (API returns strings, coerce to number)
+    chunktime: z.coerce.number(),
+    agentStatLimit: z.coerce.number(),
+    agentStatTension: z.coerce.number(),
+    agentTempThreshold1: z.coerce.number(),
+    agentTempThreshold2: z.coerce.number(),
+    agentUtilThreshold1: z.coerce.number(),
+    agentUtilThreshold2: z.coerce.number(),
+    statustimer: z.coerce.number(),
+    agenttimeout: z.coerce.number(),
+    maxSessionLength: z.coerce.number(),
+    hashcatBrainEnable: z.coerce.number(),
+    // String (already strings from API)
+    hashlistAlias: z.coerce.string(),
+    blacklistChars: z.coerce.string(),
+    // Meta (programmatic, already numbers)
+    _timestamp: z.number(),
+    _expiresin: z.number()
+  })
+);
 
-export const uisSchema = z.array(uisEntrySchema);
-
-export type UiSetting = z.infer<typeof uisEntrySchema>;
+export type UiSettings = z.infer<typeof uisSettingsSchema>;
 
 /**
  * Zod schema for the Sorting / TableOrder shape.

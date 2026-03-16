@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { UiSetting, UiSettingName, uisCacheNames, uisSchema } from '@models/config-ui.schema';
+import { UiSettings, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
 import { JConfig } from '@models/configs.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -23,8 +23,10 @@ export class UIConfigService {
   constructor(private gs: GlobalService) {}
 
   public checkStorage(): void {
-    const defaults = localStorage.getItem<UiSetting[]>('uis', uisSchema);
-    if (defaults) {
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
+    if (settings) {
+      // Write back to persist migrated format (no-op if already object format)
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
       this.checkExpiry();
       return;
     }
@@ -33,11 +35,9 @@ export class UIConfigService {
   }
 
   public checkExpiry(): void {
-    const uiconfig = localStorage.getItem<UiSetting[]>('uis', uisSchema);
-    if (!uiconfig) return;
-    const timestamp = Number(uiconfig.find((o) => o.name === '_timestamp')?.value) || 0;
-    const expires = Number(uiconfig.find((o) => o.name === '_expiresin')?.value) || 0;
-    if (Date.now() - timestamp > expires) {
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
+    if (!settings) return;
+    if (Date.now() - settings._timestamp > settings._expiresin) {
       this.storeDefault();
     }
   }
@@ -49,16 +49,14 @@ export class UIConfigService {
         data: response.data,
         included: response.included
       });
-      const post_data: UiSetting[] = this.cachevar.map((name) => {
-        const config = configs.find((c) => c.item === name);
-        return { name, value: config?.value };
-      });
-      const timeinfo: UiSetting[] = [
-        { name: '_timestamp', value: Date.now() },
-        { name: '_expiresin', value: this.cexprity }
-      ];
+      const settings: Record<string, unknown> = {};
+      for (const name of this.cachevar) {
+        settings[name] = configs.find((c) => c.item === name)?.value;
+      }
+      settings['_timestamp'] = Date.now();
+      settings['_expiresin'] = this.cexprity;
 
-      localStorage.setItem<UiSetting[]>('uis', [...post_data, ...timeinfo], uisSchema);
+      localStorage.setItem<UiSettings>('uis', settings as UiSettings, uisSettingsSchema);
     });
   }
 
@@ -68,12 +66,8 @@ export class UIConfigService {
     }
   }
 
-  // @TYPING @TODO maybe migrate UiSetting from list of UiSetting into object
-  public getUIsettings(name: UiSettingName): UiSetting | undefined {
-    const uiconfig = localStorage.getItem<UiSetting[]>('uis', uisSchema);
-    if (!uiconfig) {
-      return undefined;
-    }
-    return uiconfig.find((o) => o.name === name);
+  public getUIsetting<K extends keyof UiSettings>(name: K): UiSettings[K] | undefined {
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
+    return settings?.[name];
   }
 }

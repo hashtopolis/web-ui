@@ -41,9 +41,6 @@ export interface NewTaskForm {
  * @returns Empty Instance of NewTaskForm
  */
 export const getNewTaskForm = (uiService: UIConfigService) => {
-  const attackCmdSetting = uiService.getUIsettings('hashlistAlias');
-  const chunktimeSetting = uiService.getUIsettings('chunktime');
-  const statustimerSetting = uiService.getUIsettings('statustimer');
   const priority = environment.config.tasks.priority;
   const maxAgents = environment.config.tasks.maxAgents;
   const chunkSize = environment.config.tasks.chunkSize;
@@ -51,14 +48,14 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     taskName: new FormControl('', [Validators.required, Validators.minLength(1)]),
     notes: new FormControl(''),
     hashlistId: new FormControl(undefined, [Validators.required]),
-    attackCmd: new FormControl(attackCmdSetting ? String(attackCmdSetting.value) : '', [
+    attackCmd: new FormControl(uiService.getUIsetting('hashlistAlias') ?? '', [
       Validators.required,
       attackCommandWithAliasValidator()
     ]),
     priority: new FormControl(priority, [Validators.required, Validators.pattern('^[0-9]*$')]),
     maxAgents: new FormControl(maxAgents),
-    chunkTime: new FormControl(chunktimeSetting ? Number(chunktimeSetting.value) : null),
-    statusTimer: new FormControl(statustimerSetting ? Number(statustimerSetting.value) : null),
+    chunkTime: new FormControl(uiService.getUIsetting('chunktime') ?? null),
+    statusTimer: new FormControl(uiService.getUIsetting('statustimer') ?? null),
     color: new FormControl(''),
     isCpuTask: new FormControl(false),
     skipKeyspace: new FormControl(0),
