@@ -127,13 +127,18 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
 
-          <app-tasks-files-table
+          <app-files-table
             #table
             name="filesTable"
             [isSelectable]="false"
+            [isFilterable]="true"
+            [isPageable]="false"
+            [isSortable]="true"
+            [isDetailPage]="true"
+            filterMode="client"
             [editIndex]="editedTaskIndex"
             [editType]="0">
-          </app-tasks-files-table>
+          </app-files-table>
         </mat-expansion-panel>
       }
     </mat-accordion>

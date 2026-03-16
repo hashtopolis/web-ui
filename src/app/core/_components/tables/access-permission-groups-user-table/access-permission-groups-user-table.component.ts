@@ -1,6 +1,5 @@
 import { catchError } from 'rxjs';
 
-/* eslint-disable @angular-eslint/component-selector */
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
@@ -55,10 +54,6 @@ export class AccessPermissionGroupsUserTableComponent
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-  }
-
-  filter(item: UserPermissions, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {

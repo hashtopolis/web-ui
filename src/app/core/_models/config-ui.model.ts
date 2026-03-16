@@ -636,7 +636,6 @@ const _uiConfigDefault = {
         PretasksTableCol.NAME,
         PretasksTableCol.ATTACK_COMMAND,
         PretasksTableCol.ESTIMATED_KEYSPACE,
-        PretasksTableCol.ATTACK_RUNTIME,
         PretasksTableCol.FILES_TOTAL,
         PretasksTableCol.FILES_SIZE,
         PretasksTableCol.PRIORITY,

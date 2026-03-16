@@ -31,6 +31,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 export class InputFileComponent extends AbstractInputComponent<any> {
   @Input() accept = '';
   @Input() multiple = false;
+  fileInfoText = '';
   @Output() filesSelected = new EventEmitter<FileList>();
   private fs = inject(FileSizePipe);
 
@@ -45,7 +46,7 @@ export class InputFileComponent extends AbstractInputComponent<any> {
     const fileToUpload = event.target.files[0];
     const fileSize = fileToUpload.size;
     const fileName = fileToUpload.name;
-    $('.fileuploadspan').text(' ' + fileName + ' / Size: ' + this.fs.transform(fileSize, false));
+    this.fileInfoText = fileName + ' / Size: ' + this.fs.transform(fileSize, false);
     const files = event.target.files;
     this.filesSelected.emit(files);
     this.value = files;

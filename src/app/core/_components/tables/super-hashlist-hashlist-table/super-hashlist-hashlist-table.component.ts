@@ -35,7 +35,6 @@ export class SuperHashlistsHashlistsTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistHashlistTableColumnLabel);
@@ -57,42 +56,6 @@ export class SuperHashlistsHashlistsTableComponent
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
-    }
-  }
-
-  filter(item: JHashlist, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn.dataKey) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name?.toLowerCase().includes(filterValue) ||
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'hashTypeDescription': {
-        return (
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
     }
   }
 

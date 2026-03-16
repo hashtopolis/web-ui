@@ -61,7 +61,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: HTTableColumn = { id: 0, dataKey: 'all' };
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -83,49 +82,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.reload();
-  }
-
-  filter(item: JAgent, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn.dataKey) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.agentName?.toLowerCase().includes(filterValue) ||
-          item.user.name?.toLowerCase().includes(filterValue) ||
-          item.clientSignature?.toLowerCase().includes(filterValue) ||
-          item.devices?.toLowerCase().includes(filterValue) ||
-          item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue)) ||
-          item.task?.taskName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return String(item.id).toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-      case 'userId': {
-        return item.user?.name?.toLowerCase().includes(filterValue);
-      }
-      case 'clientSignature': {
-        return item.clientSignature?.toLowerCase().includes(filterValue);
-      }
-      case 'devices': {
-        return item.devices?.toLowerCase().includes(filterValue);
-      }
-      case 'accessGroupId': {
-        return item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue));
-      }
-      case 'taskName': {
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-    }
   }
 
   getColumns(): HTTableColumn[] {

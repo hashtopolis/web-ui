@@ -52,6 +52,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   @Input() editType?: number; //0 Task 1 Pretask
   @Input() showExport = true;
+  @Input() isSortable = true;
+  @Input() isPageable = true;
+  @Input() filterMode: 'client' | 'backend' = 'backend';
+  @Input() isDetailPage = false;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
@@ -67,14 +71,11 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     };
     this.editPath = pathMap[this.fileType];
 
-    //AccessGroups should not be shown in files table in pre-tasks
-    if (this.name === 'filesTableInPreTasks') {
-      this.showAccessGroups = false;
-    }
+    this.showAccessGroups = this.editType === undefined;
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    if (this.name !== 'filesTableInPreTasks') {
+    if (!this.isDetailPage) {
       this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
     }
     this.dataSource = new FilesDataSource(this.injector);
@@ -97,6 +98,12 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
+  /**
+   * Reloads the data source with a backend field filter applied to the currently selected column.
+   * Clears the filter and reloads all data when input is empty.
+   *
+   * @param input - The search string to send to the backend.
+   */
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -111,7 +118,15 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  /**
+   * Handles the backendSqlFilter event emitted by ht-table.
+   * No-ops when filterMode is not 'backend'. Delegates to filter() or clearFilter()
+   * depending on whether the event contains a non-empty search string.
+   *
+   * @param event - The filter string emitted by the table's filter input.
+   */
   handleBackendSqlFilter(event: string) {
+    if (this.filterMode !== 'backend') return;
     if (event && event.trim().length > 0) {
       this.filter(event);
     } else {
@@ -128,7 +143,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: FilesTableCol.ID,
         dataKey: 'id',
-        isSortable: true,
+        isSortable: this.isSortable,
         isSearchable: true,
         export: async (file: JFile) => file.id + ''
       },
@@ -136,7 +151,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.NAME,
         dataKey: 'filename',
         routerLink: (file: JFile) => this.renderFileLink(file),
-        isSortable: true,
+        isSortable: this.isSortable,
         isSearchable: true,
         export: async (file: JFile) => file.filename
       },
@@ -144,13 +159,13 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.SIZE,
         dataKey: 'size',
         render: (file: JFile) => formatFileSize(file.size, 'short'),
-        isSortable: true,
+        isSortable: this.isSortable,
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       },
       {
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
-        isSortable: true,
+        isSortable: this.isSortable,
         render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
         export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
       }
@@ -161,7 +176,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: false,
-        render: (file: JFile) => (file.accessGroup?.groupName ? this.sanitize(file.accessGroup.groupName) : file.id),
+        routerLink: (file: JFile) => this.renderAccessGroupLink(file.accessGroup),
         export: async (file: JFile) => file.accessGroup?.groupName
       });
     }
