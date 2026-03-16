@@ -45,6 +45,6 @@ export class AgentSColorPipe implements PipeTransform {
   }
 
   gettime() {
-    return this.uiService.getUIsetting('agenttimeout') ?? 0;
+    return this.uiService.getUISettings()?.agenttimeout ?? 0;
   }
 }

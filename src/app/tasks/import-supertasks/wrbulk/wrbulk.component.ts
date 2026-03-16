@@ -95,7 +95,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       isCpuTask: new FormControl(false),
       useNewBench: new FormControl(true),
       crackerBinaryId: new FormControl(1),
-      attackCmd: new FormControl(this.uiService.getUIsetting('hashlistAlias') ?? '', [Validators.required]),
+      attackCmd: new FormControl(this.uiService.getUISettings()?.hashlistAlias ?? '', [Validators.required]),
       baseFiles: new FormControl([]),
       iterFiles: new FormControl([])
     });
@@ -134,8 +134,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
           taskName: '',
           attackCmd: '',
           maxAgents: form.maxAgents,
-          chunkTime: this.uiService.getUIsetting('chunktime') ?? 0,
-          statusTimer: this.uiService.getUIsetting('statustimer') ?? 0,
+          chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
+          statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
           priority: index + 1,
           color: '',
           isCpuTask: form.isCpuTask,
@@ -193,7 +193,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const crackerBinaryId: number = formValue.crackerBinaryId;
       const iterFiles: [] = formValue.iterFiles;
 
-      const attackAlias = this.uiService.getUIsetting('hashlistAlias') ?? '';
+      const attackAlias = this.uiService.getUISettings()?.hashlistAlias ?? '';
       let hasError = false;
 
       try {

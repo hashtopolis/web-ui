@@ -15,6 +15,8 @@ import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { PermissionService } from '@services/permission/permission.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+import { uiConfigDefault } from '@models/config-ui.model';
+
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { AppModule } from '@src/app/app.module';
@@ -104,8 +106,8 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
  * Simulates localStorage behavior by stubbing `getItem` and `setItem`.
  */
 const mockLocalStorageService = {
-  /** Simulates retrieving a value from localStorage. Returns `null` by default. */
-  getItem: jasmine.createSpy('getItem').and.returnValue(null),
+  /** Simulates retrieving a value from localStorage. Returns uiConfigDefault so UISettingsUtilityClass has a valid timefmt. */
+  getItem: jasmine.createSpy('getItem').and.returnValue(uiConfigDefault),
 
   /** Simulates saving a value in localStorage. Does not persist anything. */
   setItem: jasmine.createSpy('setItem')

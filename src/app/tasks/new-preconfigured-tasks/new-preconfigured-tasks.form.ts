@@ -33,13 +33,13 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
       nonNullable: true,
       validators: [Validators.required]
     }),
-    attackCmd: new FormControl(uiService.getUIsetting('hashlistAlias') ?? '', {
+    attackCmd: new FormControl(uiService.getUISettings()?.hashlistAlias ?? '', {
       nonNullable: true,
       validators: [Validators.required, attackCommandWithAliasValidator()]
     }),
     maxAgents: new FormControl(environment.config.tasks.maxAgents, { nonNullable: true }),
-    chunkTime: new FormControl(uiService.getUIsetting('chunktime') ?? 0, { nonNullable: true }),
-    statusTimer: new FormControl(uiService.getUIsetting('statustimer') ?? 0, { nonNullable: true }),
+    chunkTime: new FormControl(uiService.getUISettings()?.chunktime ?? 0, { nonNullable: true }),
+    statusTimer: new FormControl(uiService.getUISettings()?.statustimer ?? 0, { nonNullable: true }),
     priority: new FormControl(environment.config.tasks.priority, { nonNullable: true }),
     color: new FormControl(''),
     isCpuTask: new FormControl(false, { nonNullable: true }),

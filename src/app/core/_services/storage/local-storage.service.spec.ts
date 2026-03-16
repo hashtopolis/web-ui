@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
+// Side-effect: replaces window.localStorage with the typed wrapper so setItem/getItem
+// work correctly in tests (same as the import in main.ts).
+import '@services/storage/local-storage';
+
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LocalStorageService', () => {
@@ -172,5 +176,46 @@ describe('LocalStorageService', () => {
       expect(result).toEqual({ name: 'a', count: 1 });
       expect(result['extra']).toBeUndefined();
     });
+  });
+
+  describe('defaultValue reference isolation', () => {
+    const pointSchema = z.object({ x: z.number(), y: z.number() });
+    let svc: LocalStorageService<{ x: number; y: number }>;
+
+    beforeEach(() => {
+      svc = TestBed.inject(LocalStorageService) as unknown as LocalStorageService<{ x: number; y: number }>;
+    });
+
+    afterEach(() => svc.removeItem('__pt__'));
+
+    it('should not share the defaultValue reference when key is missing', () => {
+      const def = { x: 1, y: 2 };
+
+      const result = svc.getItem('__pt__', pointSchema, def);
+      result.x = 99;
+
+      expect(def.x).toBe(1); // original must not be mutated
+    });
+
+    it('should not share the defaultValue reference when schema validation fails', () => {
+      const def = { x: 1, y: 2 };
+      svc.setItem('__pt__', { x: 'bad', y: 'bad' } as unknown as { x: number; y: number }, 1000);
+
+      const result = svc.getItem('__pt__', pointSchema, def);
+      result.x = 99;
+
+      expect(def.x).toBe(1); // original must not be mutated
+    });
+
+    it('should not share the defaultValue reference when data has expired', fakeAsync(() => {
+      const def = { x: 1, y: 2 };
+      svc.setItem('__pt__', { x: 5, y: 6 }, 1);
+      tick(2);
+
+      const result = svc.getItem('__pt__', pointSchema, def);
+      result.x = 99;
+
+      expect(def.x).toBe(1); // original must not be mutated
+    }));
   });
 });

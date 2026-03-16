@@ -464,19 +464,19 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   // Modal Agent Utilisation and OffCanvas menu
 
   getTemp1(): number {
-    return this.uiService.getUIsetting('agentTempThreshold1') ?? 0;
+    return this.uiService.getUISettings()?.agentTempThreshold1 ?? 0;
   }
 
   getTemp2(): number {
-    return this.uiService.getUIsetting('agentTempThreshold2') ?? 0;
+    return this.uiService.getUISettings()?.agentTempThreshold2 ?? 0;
   }
 
   getUtil1(): number {
-    return this.uiService.getUIsetting('agentUtilThreshold1') ?? 0;
+    return this.uiService.getUISettings()?.agentUtilThreshold1 ?? 0;
   }
 
   getUtil2(): number {
-    return this.uiService.getUIsetting('agentUtilThreshold2') ?? 0;
+    return this.uiService.getUISettings()?.agentUtilThreshold2 ?? 0;
   }
 
   /**

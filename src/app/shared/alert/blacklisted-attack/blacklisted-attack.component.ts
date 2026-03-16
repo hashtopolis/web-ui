@@ -27,7 +27,7 @@ export class BlacklistAttackComponent implements OnChanges {
    * @returns {RegExp} A regular expression for matching blacklisted characters.
    */
   getBanChars() {
-    const chars = (this.uiService.getUIsetting('blacklistChars') ?? '').replace(']', '\\]').replace('[', '\\[');
+    const chars = (this.uiService.getUISettings()?.blacklistChars ?? '').replace(']', '\\]').replace('[', '\\[');
     return new RegExp('[' + chars + '/]', 'g');
   }
 

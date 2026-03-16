@@ -48,14 +48,14 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     taskName: new FormControl('', [Validators.required, Validators.minLength(1)]),
     notes: new FormControl(''),
     hashlistId: new FormControl(undefined, [Validators.required]),
-    attackCmd: new FormControl(uiService.getUIsetting('hashlistAlias') ?? '', [
+    attackCmd: new FormControl(uiService.getUISettings()?.hashlistAlias ?? '', [
       Validators.required,
       attackCommandWithAliasValidator()
     ]),
     priority: new FormControl(priority, [Validators.required, Validators.pattern('^[0-9]*$')]),
     maxAgents: new FormControl(maxAgents),
-    chunkTime: new FormControl(uiService.getUIsetting('chunktime') ?? null),
-    statusTimer: new FormControl(uiService.getUIsetting('statustimer') ?? null),
+    chunkTime: new FormControl(uiService.getUISettings()?.chunktime ?? null),
+    statusTimer: new FormControl(uiService.getUISettings()?.statustimer ?? null),
     color: new FormControl(''),
     isCpuTask: new FormControl(false),
     skipKeyspace: new FormControl(0),

@@ -23,6 +23,8 @@ export const uisCacheNames = [
   'maxSessionLength'
 ] as const;
 
+export type UisCacheName = (typeof uisCacheNames)[number];
+
 /**
  * Preprocess: migrates old [{name, value}, ...] array format to flat object.
  * Existing object data passes through unchanged.

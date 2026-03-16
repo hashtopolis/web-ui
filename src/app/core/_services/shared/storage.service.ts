@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { UiSettings, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
+import { UiSettings, UisCacheName, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
 import { JConfig } from '@models/configs.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -10,6 +10,8 @@ import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { environment } from '@src/environments/environment';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -50,10 +52,7 @@ export class UIConfigService {
           data: response.data,
           included: response.included
         });
-        const settings: Record<string, unknown> = {};
-        for (const name of this.cachevar) {
-          settings[name] = configs.find((c) => c.item === name)?.value;
-        }
+        const settings = convertNameValueConfigPairs(configs, this.cachevar);
         settings['_timestamp'] = Date.now();
         settings['_expiresin'] = this.cexprity;
 
@@ -65,14 +64,21 @@ export class UIConfigService {
     });
   }
 
-  public onUpdatingCheck(name: string): void {
+  public onUpdatingCheck(name: UisCacheName): void {
     if (this.cachevar.some((v) => v === name)) {
       this.storeDefault();
     }
   }
 
-  public getUIsetting<K extends keyof UiSettings>(name: K): UiSettings[K] | undefined {
-    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
-    return settings?.[name];
+  public getUISettings(): UiSettings | null {
+    return localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
   }
+}
+
+function convertNameValueConfigPairs(configs: JConfig[], keys: readonly string[]): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const name of keys) {
+    result[name] = configs.find((c) => c.item === name)?.value;
+  }
+  return result;
 }

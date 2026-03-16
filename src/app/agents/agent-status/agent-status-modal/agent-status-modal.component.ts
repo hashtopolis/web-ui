@@ -17,6 +17,15 @@ type ThresholdSettingName =
   | 'agentUtilThreshold1'
   | 'agentUtilThreshold2';
 
+export type AgentStatusModalData = {
+  title: string;
+  icon: string;
+  content: string;
+  thresholdType: ThresholdType;
+  result: number | string;
+  form: { isActive: number | boolean; lastTime: number; agentName: string };
+};
+
 @Component({
   selector: 'app-agent-status-modal',
   templateUrl: './agent-status-modal.component.html',
@@ -41,14 +50,7 @@ export class AgentStatusModalComponent implements OnInit {
 
   public dialogRef = inject(MatDialogRef<AgentStatusModalComponent>);
   private uiService = inject(UIConfigService);
-  public data: {
-    title: string;
-    icon: string;
-    content: string;
-    thresholdType: ThresholdType;
-    result: number | string;
-    form: { isActive: number | boolean; lastTime: number; agentName: string };
-  } = inject(MAT_DIALOG_DATA);
+  public data: AgentStatusModalData = inject(MAT_DIALOG_DATA);
 
   ngOnInit(): void {
     this.title = this.data.title;
@@ -78,7 +80,7 @@ export class AgentStatusModalComponent implements OnInit {
   }
 
   private getThresholdValue(settingKey: ThresholdSettingName): number {
-    return this.uiService.getUIsetting(settingKey) ?? 0;
+    return this.uiService.getUISettings()?.[settingKey] ?? 0;
   }
 
   /**

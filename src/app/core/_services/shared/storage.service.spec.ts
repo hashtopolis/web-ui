@@ -97,20 +97,20 @@ describe('UIConfigService', () => {
     });
   });
 
-  describe('getUIsetting', () => {
+  describe('getUISettings', () => {
     it('should return the correct value for an existing key', () => {
       const settings = makeUiSettings({ chunktime: 600, statustimer: 5 });
       localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
 
-      expect(service.getUIsetting('chunktime')).toBe(600);
-      expect(service.getUIsetting('statustimer')).toBe(5);
-      expect(service.getUIsetting('hashlistAlias')).toBe('#HL#');
+      expect(service.getUISettings()?.chunktime).toBe(600);
+      expect(service.getUISettings()?.statustimer).toBe(5);
+      expect(service.getUISettings()?.hashlistAlias).toBe('#HL#');
     });
 
-    it('should return undefined when uis key is missing from localStorage', () => {
+    it('should return null when uis key is missing from localStorage', () => {
       localStorage.removeItem('uis');
 
-      expect(service.getUIsetting('chunktime')).toBeUndefined();
+      expect(service.getUISettings()).toBeNull();
     });
   });
 
