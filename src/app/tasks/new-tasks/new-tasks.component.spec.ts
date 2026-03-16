@@ -199,15 +199,12 @@ describe('NewTasksComponent', () => {
     tooltipServiceSpy = jasmine.createSpyObj('TooltipService', ['getTaskTooltips']);
     tooltipServiceSpy.getTaskTooltips.and.returnValue({} as TaskTooltipsLevel);
 
-    uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUIsetting']);
-    uiServiceMock.getUIsetting.and.callFake((<K extends keyof UiSettings>(key: K): UiSettings[K] | undefined => {
-      const settings: Partial<UiSettings> = {
-        hashlistAlias: '#HL#',
-        chunktime: 600,
-        statustimer: 5
-      };
-      return settings[key] as UiSettings[K] | undefined;
-    }) as UIConfigService['getUIsetting']);
+    uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
+    uiServiceMock.getUISettings.and.returnValue({
+      hashlistAlias: '#HL#',
+      chunktime: 600,
+      statustimer: 5
+    } as unknown as UiSettings);
 
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);

@@ -3,8 +3,6 @@ import { Subject, of } from 'rxjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, DebugElement, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';
 

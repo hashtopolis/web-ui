@@ -30,9 +30,10 @@ export class TypedStorage<T = unknown> {
    * - When a Zod schema is provided, the parsed value is validated.
    *   On validation failure the key is removed (self-heal) and `null` is returned.
    */
-  getItem<U = T>(key: string, schema: z.ZodType<U> | undefined, defaultValue: U): U;
-  getItem<U = T>(key: string, schema?: z.ZodType<U>): U | null;
-  getItem<U = T>(key: string, schema?: z.ZodType<U>, defaultValue?: U): U | null {
+  getItem<U>(key: string, schema: z.ZodType<U>, defaultValue: U): U;
+  getItem<U>(key: string, schema: z.ZodType<U>): U | null;
+  getItem(key: string): T | null;
+  getItem<U>(key: string, schema?: z.ZodType<U>, defaultValue?: U): U | T | null {
     // Cast: native Storage.getItem always returns string | null.
     // The augmented Storage interface's generic overload would infer `unknown` here.
     const raw = this.nativeStorage.getItem(key) as string | null;
@@ -63,7 +64,7 @@ export class TypedStorage<T = unknown> {
         this.nativeStorage.removeItem(key);
         return defaultValue ?? null;
       }
-      return result.data as U;
+      return result.data;
     }
 
     return value as U;

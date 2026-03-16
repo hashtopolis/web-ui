@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { uiConfigDefault } from '@models/config-ui.model';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
@@ -95,15 +95,15 @@ export const sortingSchema = z.object({
  * Maybe remove if we want to migrate certain user data, otherwise just change to number and let the local storage data be reset.
  * - Numeric fields use coercion to tolerate string representations in stored data.
  */
-export const tableConfigSchema = z
-  .object({
-    columns: z.array(z.coerce.number()),
-    start: z.coerce.number().optional(),
-    order: z.union([sortingSchema, z.array(sortingSchema)]).optional(),
-    page: z.coerce.number(),
-    search: z.union([z.string(), z.array(z.unknown())])
-  })
-  .passthrough();
+export const tableConfigSchema = z.object({
+  columns: z.array(z.coerce.number()),
+  start: z.coerce.number().optional(),
+  order: z.union([sortingSchema, z.array(sortingSchema)]).optional(),
+  page: z.coerce.number(),
+  search: z.union([z.string(), z.array(z.unknown())]),
+  before: z.coerce.number().optional(),
+  index: z.coerce.number().optional()
+});
 
 /**
  * Zod schema for the full tableSettings record.
@@ -117,7 +117,7 @@ export const tableSettingsSchema = z.record(z.string(), z.union([z.array(z.coerc
  * Each field has a default so that when we add new entries the existing data is not replaced but each
  * missing field (due to adding a new value) automatically is set to the default provided.
  */
-export const uiConfigSchema = z.object({
+export const uiConfigSchema: z.ZodType<UIConfig> = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
   theme: z.enum(['light', 'dark']).default(uiConfigDefault.theme),
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),

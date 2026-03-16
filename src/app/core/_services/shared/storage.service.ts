@@ -50,11 +50,17 @@ export class UIConfigService {
           data: response.data,
           included: response.included
         });
-        const settings = convertNameValueConfigPairs(configs, this.cachevar);
-        settings['_timestamp'] = Date.now();
-        settings['_expiresin'] = this.cexprity;
+        const raw = convertNameValueConfigPairs(configs, this.cachevar);
+        raw['_timestamp'] = Date.now();
+        raw['_expiresin'] = this.cexprity;
 
-        localStorage.setItem<UiSettings>('uis', settings as UiSettings, uisSettingsSchema);
+        const result = uisSettingsSchema.safeParse(raw);
+        if (!result.success) {
+          console.error('Failed to validate UI config settings from server:', result.error.issues);
+          return;
+        }
+
+        localStorage.setItem<UiSettings>('uis', result.data, uisSettingsSchema);
       },
       error: (err: unknown) => {
         console.error('Failed to fetch UI config defaults:', err);

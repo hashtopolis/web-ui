@@ -203,7 +203,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = forkJoin(updateRequests).subscribe({
       next: () => {
         // Mark all fields as updated
-        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key));
+        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0]));
 
         // Show a single success message
         this.alert.showSuccessMessage(`Saved ${this.title}`);

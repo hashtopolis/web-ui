@@ -33,13 +33,13 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     key = this.decode(key);
     const storedData = localStorage.getItem<StorageWrapper<T>>(key);
     if (!storedData) {
-      return defaultValue ?? null;
+      return defaultValue !== undefined ? structuredClone(defaultValue) : null;
     }
 
     if (this.hasExpired(storedData)) {
       // Data has expired, remove it from local storage.
       localStorage.removeItem(key);
-      return defaultValue ?? null;
+      return defaultValue !== undefined ? structuredClone(defaultValue) : null;
     }
 
     const value = storedData.value;
@@ -50,7 +50,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
         console.error(`Schema validation failed for "${key}", using default:`, result.error.issues);
         // self heal, value is removed and the default value is used
         localStorage.removeItem(key);
-        return defaultValue ?? null;
+        return defaultValue !== undefined ? structuredClone(defaultValue) : null;
       }
       return result.data;
     }
