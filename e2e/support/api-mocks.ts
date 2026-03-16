@@ -70,30 +70,27 @@ function buildJsonApiItem(type: string, id: string, attributes: Record<string, u
  * @param permissions - Optional permission flags to seed into the permissions cache
  * @returns Resolves when the init script has been registered
  */
-export async function seedAuthStorage(
-  page: Page,
-  permissions: Record<string, boolean> = {}
-): Promise<void> {
-  await page.addInitScript(({ token, permissions }) => {
-    localStorage.setItem(
-      'userData',
-      JSON.stringify({
-        expires: 0,
-        value: {
-          _token: token,
-          _expires: new Date(9_999_999_999 * 1000).toISOString(),
-          userId: 1,
-          canonicalUsername: 'e2e-test'
-        }
-      })
-    );
-    if (Object.keys(permissions).length > 0) {
+export async function seedAuthStorage(page: Page, permissions: Record<string, boolean> = {}): Promise<void> {
+  await page.addInitScript(
+    ({ token, permissions }) => {
       localStorage.setItem(
-        'user_permissions',
-        JSON.stringify({ expires: 0, value: permissions })
+        'userData',
+        JSON.stringify({
+          expires: 0,
+          value: {
+            _token: token,
+            _expires: new Date(9_999_999_999 * 1000).toISOString(),
+            userId: 1,
+            canonicalUsername: 'e2e-test'
+          }
+        })
       );
-    }
-  }, { token: FAKE_JWT, permissions });
+      if (Object.keys(permissions).length > 0) {
+        localStorage.setItem('user_permissions', JSON.stringify({ expires: 0, value: permissions }));
+      }
+    },
+    { token: FAKE_JWT, permissions }
+  );
 }
 
 /**
