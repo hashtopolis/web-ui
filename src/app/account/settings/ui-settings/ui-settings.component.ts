@@ -3,7 +3,7 @@ import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -16,7 +16,11 @@ import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-se
   standalone: false
 })
 export class UiSettingsComponent implements OnInit {
-  form!: UiSettingsFormGroup;
+  private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private alertService = inject(AlertService);
+  private reloadService = inject(ReloadService);
+
+  form = new UiSettingsFormGroup();
   util: UISettingsUtilityClass;
 
   pageTitle = 'UI Settings';
@@ -27,14 +31,6 @@ export class UiSettingsComponent implements OnInit {
   formats: Setting[] = dateFormats;
   layouts: Setting[] = layouts;
   themes: Setting[] = themes;
-
-  constructor(
-    private service: LocalStorageService<UIConfig>,
-    private alertService: AlertService,
-    private reloadService: ReloadService
-  ) {
-    this.form = new UiSettingsFormGroup();
-  }
 
   ngOnInit(): void {
     this.util = new UISettingsUtilityClass(this.service);
