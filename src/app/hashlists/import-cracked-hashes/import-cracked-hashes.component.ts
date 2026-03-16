@@ -2,11 +2,12 @@ import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ServerImportFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -46,10 +47,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
   // Edit variables
   editedHashlistIndex: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hashtype: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type: any; // Hashlist or SuperHashlist
+  hashtype: JHashtype;
+  type: number; // Hashlist or SuperHashlist
 
   selectSource = hashSource;
 
@@ -60,6 +59,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   serverFileOptions: SelectOption[] = [];
   isLoadingServerFiles = false;
   hasLoadedServerFiles = false;
+  hashesAreRequired = false;
 
   private fileUnsubscribe = new Subject();
 
@@ -96,6 +96,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     const sourceTypeControl = this.form.get('sourceType');
     if (sourceTypeControl) {
       const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
+        this.hashesAreRequired = false;
+        this.resetHashesValidator();
         if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
           void this.loadServerFiles();
         }
@@ -107,6 +109,12 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         }
 
         if (sourceType === 'paste') {
+          this.hashesAreRequired = true;
+
+          // set required validator now that control is visible
+          const ctrl = this.form.get('hashes');
+          ctrl.setValidators([Validators.required]);
+          ctrl.updateValueAndValidity();
           this.form.patchValue({ sourceData: '' });
         } else {
           this.form.patchValue({ hashes: '' });
@@ -115,6 +123,16 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
       this.unsubscribeService.add(sourceTypeSubscription$);
     }
+  }
+
+  /**
+   * Resets the action filter control by clearing validators, resetting the value, and updating validity.
+   */
+  resetHashesValidator(): void {
+    const ctrl = this.form.get('hashes');
+    ctrl.clearValidators();
+    ctrl.setValue('');
+    ctrl.updateValueAndValidity();
   }
 
   /**
@@ -144,62 +162,75 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
       return;
-    }
+    } else {
+      const separator: string = this.form.get('separator').value;
+      const sourceData: string = this.form.get('hashes').value;
+      const conflictResolution: number = this.form.get('conflictResolution').value ? 1 : 0;
 
-    const sourceType = this.form.get('sourceType').value;
+      const sourceType = this.form.get('sourceType').value;
 
-    if (sourceType === 'upload') {
-      if (!this.selectedFiles || this.selectedFiles.length === 0) {
-        this.alert.showErrorMessage('Please select a file to upload.');
+      if (sourceType === 'upload') {
+        if (!this.selectedFiles || this.selectedFiles.length === 0) {
+          this.alert.showErrorMessage('Please select a file to upload.');
+          return;
+        }
+        this.uploadAndImport(this.selectedFiles);
         return;
       }
-      this.uploadAndImport(this.selectedFiles);
-      return;
-    }
 
-    if (sourceType === 'paste') {
-      const hashes = this.form.get('hashes').value;
-      if (!hashes || hashes.trim() === '') {
-        this.alert.showErrorMessage('Please paste hashes to import.');
+      if (sourceType === 'paste') {
+        const hashes = this.form.get('hashes').value;
+        if (!hashes || hashes.trim() === '') {
+          this.alert.showErrorMessage('Please paste hashes to import.');
+          return;
+        } else if (!sourceData.includes(separator)) {
+          this.alert.showErrorMessage('The hash must contain the specified separator!');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData: handleEncode(hashes),
+          overwrite: conflictResolution
+        });
         return;
       }
-      this.submitImport({
-        hashlistId: this.editedHashlistIndex,
-        separator: this.form.get('separator').value,
-        sourceData: handleEncode(hashes)
-      });
-      return;
-    }
 
-    if (sourceType === 'import') {
-      const sourceData = this.form.get('sourceData').value;
-      if (!sourceData || sourceData.trim() === '') {
-        this.alert.showErrorMessage('Please select a file from the server import directory.');
+      if (sourceType === 'import') {
+        const sourceData = this.form.get('sourceData').value;
+        if (!sourceData || sourceData.trim() === '') {
+          this.alert.showErrorMessage('Please select a file from the server import directory.');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData,
+          overwrite: conflictResolution
+        });
         return;
       }
-      this.submitImport({
-        hashlistId: this.editedHashlistIndex,
-        separator: this.form.get('separator').value,
-        sourceData
-      });
-      return;
-    }
 
-    if (sourceType === 'url') {
-      const sourceData = this.form.get('sourceData').value;
-      if (!sourceData || sourceData.trim() === '') {
-        this.alert.showErrorMessage('Please provide a URL to download cracked hashes from.');
+      if (sourceType === 'url') {
+        const sourceData = this.form.get('sourceData').value;
+        if (!sourceData || sourceData.trim() === '') {
+          this.alert.showErrorMessage('Please provide a URL to download cracked hashes from.');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData,
+          overwrite: conflictResolution
+        });
         return;
       }
-      this.submitImport({
-        hashlistId: this.editedHashlistIndex,
-        separator: this.form.get('separator').value,
-        sourceData
-      });
-      return;
-    }
 
-    this.alert.showErrorMessage('Unknown source type selected.');
+      this.alert.showErrorMessage('Unknown source type selected.');
+    }
   }
 
   onFilesSelected(files: FileList): void {
@@ -239,9 +270,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     const alreadyExists = await this.fileExistsInServerImportDir(filename);
     if (alreadyExists) {
       this.submitImport({
+        sourceType: 'import',
         hashlistId: this.editedHashlistIndex,
         separator: this.form.get('separator').value,
-        sourceData: filename
+        sourceData: filename,
+        overwrite: this.form.get('conflictResolution').value ? 1 : 0
       });
       return;
     }
@@ -261,9 +294,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         },
         complete: () => {
           this.submitImport({
+            sourceType: 'import',
             hashlistId: this.editedHashlistIndex,
             separator: this.form.get('separator').value,
-            sourceData: filename
+            sourceData: filename,
+            overwrite: this.form.get('conflictResolution').value ? 1 : 0
           });
         }
       });
@@ -288,11 +323,19 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private submitImport(payload: { hashlistId: number; separator: string; sourceData: string }): void {
+  private submitImport(payload: {
+    sourceType: string;
+    hashlistId: number;
+    separator: string;
+    sourceData: string;
+    overwrite: number;
+  }): void {
     this.isCreatingLoading = true;
     const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe({
-      next: () => {
-        this.alert.showSuccessMessage('Imported Cracked Hashes');
+      next: (response: ResponseWrapper) => {
+        this.alert.showSuccessMessage(
+          `Processed pre-cracked hashes: ${response.meta.totalLines} total lines, ${response.meta.newCracked} new cracked hashes, ${response.meta.alreadyCracked} were already cracked, ${response.meta.invalid} invalid lines, ${response.meta.notFound} not matching entries (0s)!`
+        );
         const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
         this.router.navigate([path]);
       },
@@ -325,13 +368,15 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
         this.form.setValue({
           name: hashlist.name,
-          format: this.format.transform(hashlist.format, 'formats'),
+          hashlistFormat: this.format.transform(hashlist.format, 'formats'),
+          fieldSeparator: ':',
           isSalted: hashlist.isSalted,
           hashCount: hashlist.hashCount,
           separator: hashlist.separator || ':',
           sourceType: 'paste',
           sourceData: '',
-          hashes: ''
+          hashes: '',
+          conflictResolution: false
         });
 
         this.isLoading = false; // Set isLoading to false after data is loaded
