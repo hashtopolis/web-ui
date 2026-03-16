@@ -51,5 +51,12 @@ export interface Meta {
   total_count?: number;
   page?: {
     total_elements?: number;
-  }
+  };
+  totalLines?: number;
+  newCracked?: number;
+  alreadyCracked?: number;
+  invalid?: number;
+  notFound?: number;
+  processTime?: number;
+  tooLongPlaintexts?: number;
 }
