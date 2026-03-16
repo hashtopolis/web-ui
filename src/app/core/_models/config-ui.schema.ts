@@ -50,23 +50,28 @@ export const uisSettingsSchema = z.preprocess(
   migrateUisFormat,
   z.object({
     // Numeric (API returns strings, coerce to number)
-    chunktime: z.coerce.number(),
-    agentStatLimit: z.coerce.number(),
-    agentStatTension: z.coerce.number(),
-    agentTempThreshold1: z.coerce.number(),
-    agentTempThreshold2: z.coerce.number(),
-    agentUtilThreshold1: z.coerce.number(),
-    agentUtilThreshold2: z.coerce.number(),
-    statustimer: z.coerce.number(),
-    agenttimeout: z.coerce.number(),
-    maxSessionLength: z.coerce.number(),
-    hashcatBrainEnable: z.coerce.number(),
+    // Each field has a .default() so partial/migrated data fills in safe values
+    // instead of failing validation entirely. Zeros are safe because storeDefault()
+    // will overwrite them with real API values once the expiry check triggers.
+    chunktime: z.coerce.number().default(0),
+    agentStatLimit: z.coerce.number().default(0),
+    agentStatTension: z.coerce.number().default(0),
+    agentTempThreshold1: z.coerce.number().default(0),
+    agentTempThreshold2: z.coerce.number().default(0),
+    agentUtilThreshold1: z.coerce.number().default(0),
+    agentUtilThreshold2: z.coerce.number().default(0),
+    statustimer: z.coerce.number().default(0),
+    agenttimeout: z.coerce.number().default(0),
+    maxSessionLength: z.coerce.number().default(0),
+    hashcatBrainEnable: z.coerce.number().default(0),
     // String (already strings from API)
-    hashlistAlias: z.coerce.string(),
-    blacklistChars: z.coerce.string(),
+    hashlistAlias: z.coerce.string().default('#HL#'),
+    blacklistChars: z.coerce.string().default(''),
     // Meta (programmatic, already numbers)
-    _timestamp: z.number(),
-    _expiresin: z.number()
+    // _timestamp defaults to 0 so Date.now() - 0 > _expiresin is always true,
+    // forcing an immediate storeDefault() refresh on next checkExpiry().
+    _timestamp: z.number().default(0),
+    _expiresin: z.number().default(72 * 60 * 60 * 1000)
   })
 );
 

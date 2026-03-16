@@ -1,6 +1,6 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-
 import { Layout, Theme } from 'src/app/core/_models/config-ui.model';
+
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
  * Type definition for the UI Settings Form.

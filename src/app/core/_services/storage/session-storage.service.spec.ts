@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
+// Side-effect: replaces window.sessionStorage with the TypedStorage wrapper.
+// Must run before any test touches sessionStorage so that setItem/getItem
+// handle JSON serialisation automatically.
+import '@services/storage/session-storage';
+
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('SessionStorageService', () => {
@@ -158,6 +163,71 @@ describe('SessionStorageService', () => {
 
       expect(result).toEqual({ name: 'a', count: 1 });
       expect(result['extra']).toBeUndefined();
+    });
+  });
+
+  // --- defaultValue parameter tests ---
+
+  describe('with defaultValue parameter', () => {
+    const testSchema = z.object({
+      name: z.string(),
+      count: z.number()
+    });
+
+    const defaultObj = { name: 'default', count: 0 };
+
+    it('getItem should return defaultValue when key does not exist', () => {
+      const result = service.getItem('missing-key', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+    });
+
+    it('getItem should return stored value (not default) when key exists and is valid', () => {
+      const stored = { name: 'real', count: 42 };
+      service.setItem('existing', stored, 1000);
+
+      const result = service.getItem('existing', testSchema, defaultObj);
+      expect(result).toEqual(stored);
+    });
+
+    it('getItem should return defaultValue when schema validation fails', () => {
+      service.setItem('bad', { name: 999, count: 'bad' }, 1000);
+
+      const result = service.getItem('bad', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+      // corrupt entry should be self-healed (removed)
+      expect(sessionStorage.getItem('bad')).toBeNull();
+    });
+
+    it('getItem should return defaultValue when item has expired', fakeAsync(() => {
+      service.setItem('expiring', { name: 'gone', count: 1 }, 1); // 1ms TTL
+
+      tick(2);
+
+      const result = service.getItem('expiring', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+    }));
+
+    it('getItem should return defaultValue without schema when key is missing', () => {
+      const result = service.getItem('nope', undefined, 'fallback');
+      expect(result).toBe('fallback');
+    });
+  });
+
+  // --- URL-encoded key handling ---
+
+  describe('URL-encoded keys', () => {
+    it('should decode URL-encoded keys on store and retrieve', () => {
+      const encodedKey = 'my%20key';
+      service.setItem(encodedKey, 'value', 1000);
+
+      const result = service.getItem(encodedKey);
+      expect(result).toBe('value');
+    });
+
+    it('should treat non-encoded keys normally', () => {
+      const key = 'plain-key';
+      service.setItem(key, 'value', 1000);
+      expect(service.getItem(key)).toBe('value');
     });
   });
 });

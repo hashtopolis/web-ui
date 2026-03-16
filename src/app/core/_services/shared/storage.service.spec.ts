@@ -49,6 +49,71 @@ describe('UIConfigService', () => {
     localStorage.removeItem('uis');
   });
 
+  describe('checkStorage', () => {
+    it('should not call storeDefault when valid data exists in localStorage', () => {
+      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const settings = makeUiSettings();
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
+
+      service.checkStorage();
+
+      expect(storeDefaultSpy).not.toHaveBeenCalled();
+      expect(service.defaultSettings).toBeFalse();
+    });
+
+    it('should call storeDefault and set defaultSettings when no data exists', () => {
+      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      localStorage.removeItem('uis');
+
+      service.checkStorage();
+
+      expect(storeDefaultSpy).toHaveBeenCalled();
+      expect(service.defaultSettings).toBeTrue();
+    });
+
+    it('should self-heal and call storeDefault when data is corrupt', () => {
+      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      // Write corrupt data directly bypassing schema validation
+      // The typed localStorage will fail validation on read and remove the key
+      window.localStorage.setItem('uis', '"not-a-valid-settings-object"');
+
+      service.checkStorage();
+
+      expect(storeDefaultSpy).toHaveBeenCalled();
+      expect(service.defaultSettings).toBeTrue();
+    });
+
+    it('should write back migrated format to persist it', () => {
+      spyOn(service, 'storeDefault');
+      const settings = makeUiSettings({ chunktime: 999 });
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
+
+      const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
+
+      service.checkStorage();
+
+      // checkStorage reads + writes back to persist any migration
+      expect(setItemSpy).toHaveBeenCalledWith('uis', jasmine.anything(), uisSettingsSchema);
+    });
+  });
+
+  describe('getUIsetting', () => {
+    it('should return the correct value for an existing key', () => {
+      const settings = makeUiSettings({ chunktime: 600, statustimer: 5 });
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
+
+      expect(service.getUIsetting('chunktime')).toBe(600);
+      expect(service.getUIsetting('statustimer')).toBe(5);
+      expect(service.getUIsetting('hashlistAlias')).toBe('#HL#');
+    });
+
+    it('should return undefined when uis key is missing from localStorage', () => {
+      localStorage.removeItem('uis');
+
+      expect(service.getUIsetting('chunktime')).toBeUndefined();
+    });
+  });
+
   describe('checkExpiry', () => {
     it('should refresh when stored data has expired', () => {
       const storeDefaultSpy = spyOn(service, 'storeDefault');

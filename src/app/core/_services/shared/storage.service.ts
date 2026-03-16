@@ -44,19 +44,24 @@ export class UIConfigService {
 
   public storeDefault(): void {
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-    this.gs.getAll(SERV.CONFIGS, params).subscribe((response: ResponseWrapper) => {
-      const configs = new JsonAPISerializer().deserialize<JConfig[]>({
-        data: response.data,
-        included: response.included
-      });
-      const settings: Record<string, unknown> = {};
-      for (const name of this.cachevar) {
-        settings[name] = configs.find((c) => c.item === name)?.value;
-      }
-      settings['_timestamp'] = Date.now();
-      settings['_expiresin'] = this.cexprity;
+    this.gs.getAll(SERV.CONFIGS, params).subscribe({
+      next: (response: ResponseWrapper) => {
+        const configs = new JsonAPISerializer().deserialize<JConfig[]>({
+          data: response.data,
+          included: response.included
+        });
+        const settings: Record<string, unknown> = {};
+        for (const name of this.cachevar) {
+          settings[name] = configs.find((c) => c.item === name)?.value;
+        }
+        settings['_timestamp'] = Date.now();
+        settings['_expiresin'] = this.cexprity;
 
-      localStorage.setItem<UiSettings>('uis', settings as UiSettings, uisSettingsSchema);
+        localStorage.setItem<UiSettings>('uis', settings as UiSettings, uisSettingsSchema);
+      },
+      error: (err: unknown) => {
+        console.error('Failed to fetch UI config defaults:', err);
+      }
     });
   }
 
