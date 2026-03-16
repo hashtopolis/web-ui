@@ -136,7 +136,7 @@ export enum Prepro {
 export enum Hashtype {
   CREATE = 'permHashTypeCreate',
   DELETE = 'permHashTypeDelete',
-  READ = 'permPreprocessorRead',
+  READ = 'permHashTypeRead',
   UPDATE = 'permHashTypeUpdate'
 }
 // // HEALTH CHECK
