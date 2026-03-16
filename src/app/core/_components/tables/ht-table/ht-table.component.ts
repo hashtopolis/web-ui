@@ -367,11 +367,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed().subscribe((selectedColumns: number[]) => {
+    dialogRef.afterClosed().subscribe((selectedColumns: string[]) => {
       if (selectedColumns) {
-        this.setDisplayedColumns(selectedColumns);
+        const numericColumns = selectedColumns.map(Number);
+        this.setDisplayedColumns(numericColumns);
         this.uiSettings.updateTableSettings(this.name, {
-          columns: selectedColumns
+          columns: numericColumns
         });
         this.cd.detectChanges();
       }
