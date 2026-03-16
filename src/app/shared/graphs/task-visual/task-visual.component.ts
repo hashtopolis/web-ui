@@ -1,6 +1,6 @@
 import { FilterType } from 'src/app/core/_models/request-params.model';
 
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 
 import { JChunk } from '@models/chunk.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,12 +25,13 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 })
 export class TaskVisualComponent implements AfterViewInit {
   @ViewChild('myCanvas') canvasRef: ElementRef;
-  @Input() view: any;
-  @Input() tkeyspace: any;
-  @Input() taskid: any;
-  @Input() taskWrapperId: any;
-  @Input() cprogress: any;
-  @Input() tusepreprocessor: any;
+  @Input() view: string;
+  @Input() tkeyspace: number;
+  @Input() taskid: number;
+  @Input() taskWrapperId: number;
+  @Input() cprogress: number;
+  @Input() tusepreprocessor: number;
+  private gs = inject(GlobalService);
   private ctx: CanvasRenderingContext2D;
   // public x = 1500;
   public x: number = window.innerWidth; // Dynamic width
@@ -40,11 +41,11 @@ export class TaskVisualComponent implements AfterViewInit {
     if (document.body.className.includes('fixed-width-layout')) {
       this.x = 1467;
     } else if (document.body.className.includes('full-width-layout')) {
-      this.x = $(window).width() - 50;
+      this.x = window.innerWidth - 50;
     }
   }
 
-  constructor(private gs: GlobalService) {
+  constructor() {
     this.getWidth();
   }
 

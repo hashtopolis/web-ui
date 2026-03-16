@@ -43,7 +43,6 @@
               ]
             },
             "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
             ],
@@ -119,7 +118,6 @@
               "src/styles/styles.scss"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
             ]

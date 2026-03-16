@@ -9,11 +9,11 @@
     class="custom-file-input"
     [id]="inputId"
     >
-  <button 
-    type="button" 
-    mat-stroked-button 
-    color="accent" 
-    (click)="inputField.click()" 
+  <button
+    type="button"
+    mat-stroked-button
+    color="accent"
+    (click)="inputField.click()"
     aria-label="Choose file to upload"
     [disabled]="disabled"
     >
@@ -21,9 +21,9 @@
     <span>Choose File</span>
   </button>
   <mat-hint class="mt-2">
-    <span class="fileuploadspan custom-file-upload-size"></span>
+    <span class="fileuploadspan custom-file-upload-size">{{ fileInfoText }}</span>
   </mat-hint>
-  
+
   @if (hasError && errors) {
     <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336); margin-top: 8px;">
       @if (errors['required']) {
