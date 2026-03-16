@@ -193,7 +193,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const crackerBinaryId: number = formValue.crackerBinaryId;
       const iterFiles: [] = formValue.iterFiles;
 
-      const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
+      const attackAlias = String(this.uiService.getUIsettings('hashlistAlias').value);
       let hasError = false;
 
       try {

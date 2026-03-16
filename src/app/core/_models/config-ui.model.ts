@@ -77,6 +77,8 @@ export interface UIConfig {
   refreshInterval: number;
 }
 
+export type UIConfigKeys = keyof UIConfig;
+
 /**
  * Interface definition for Sorting
  * @prop id         Column id
@@ -91,7 +93,7 @@ export interface Sorting {
   direction: string;
 }
 
-export const uiConfigDefault: UIConfig = {
+const _uiConfigDefault = {
   layout: 'fixed',
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
@@ -808,4 +810,7 @@ export const uiConfigDefault: UIConfig = {
   },
   refreshPage: false,
   refreshInterval: 10
-};
+} as const satisfies UIConfig;
+
+export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];
+export const uiConfigDefault: UIConfig = _uiConfigDefault;

@@ -1,95 +1,78 @@
 import { Injectable } from '@angular/core';
 
-import { environment } from '@src/environments/environment';
-
+import { UiSetting, UiSettingName, uisCacheNames, uisSchema } from '@models/config-ui.schema';
 import { JConfig } from '@models/configs.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { GlobalService } from '@services/main.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UIConfigService {
   defaultSettings = false;
-  cachevar = [
-    // {name:'timefmt'},
-    { name: 'hashcatBrainEnable' },
-    { name: 'hashlistAlias' },
-    { name: 'blacklistChars' },
-    { name: 'chunktime' },
-    { name: 'agentStatLimit' },
-    { name: 'agentStatTension' },
-    { name: 'agentTempThreshold1' },
-    { name: 'agentTempThreshold2' },
-    { name: 'agentUtilThreshold1' },
-    { name: 'agentUtilThreshold2' },
-    { name: 'statustimer' },
-    { name: 'agenttimeout' },
-    { name: 'maxSessionLength' }
-  ];
-  cexprity: number = 72 * 60 * 60; // Hours*minutes*Seconds Default: 72 hours
+  cachevar = uisCacheNames;
+  cexprity: number = 72 * 60 * 60 * 1000; // Default: 72 hours in milliseconds
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(private gs: GlobalService) {}
 
-  public checkStorage() {
-    const defaults = JSON.parse(localStorage.getItem('uis'));
+  public checkStorage(): void {
+    const defaults = localStorage.getItem<UiSetting[]>('uis', uisSchema);
     if (defaults) {
-      //Change to !defaults
       this.checkExpiry();
-      return this.defaultSettings;
-    } else if (!defaults) {
-      this.storeDefault();
-      this.defaultSettings = true;
+      return;
     }
-    return '';
+    this.storeDefault();
+    this.defaultSettings = true;
   }
 
-  public checkExpiry() {
-    const timestamp = this.getUIsettings('_timestamp').value || 0;
-    const expires = this.getUIsettings('_expiresin').value || 0;
-    if (Date.now() - timestamp < expires) {
+  public checkExpiry(): void {
+    const uiconfig = localStorage.getItem<UiSetting[]>('uis', uisSchema);
+    if (!uiconfig) return;
+    const timestamp = Number(uiconfig.find((o) => o.name === '_timestamp')?.value) || 0;
+    const expires = Number(uiconfig.find((o) => o.name === '_expiresin')?.value) || 0;
+    if (Date.now() - timestamp > expires) {
       this.storeDefault();
     }
   }
 
-  public storeDefault() {
+  public storeDefault(): void {
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     this.gs.getAll(SERV.CONFIGS, params).subscribe((response: ResponseWrapper) => {
       const configs = new JsonAPISerializer().deserialize<JConfig[]>({
         data: response.data,
         included: response.included
       });
-      const post_data = [];
-      this.cachevar.forEach((data) => {
-        const name = data.name;
-        let value: any = configs.find((config) => config.item === data.name);
-        value = { name: name, value: value.value };
-        post_data.push(value);
+      const post_data: UiSetting[] = this.cachevar.map((name) => {
+        const config = configs.find((c) => c.item === name);
+        return { name, value: config?.value };
       });
-      const timeinfo = [
+      const timeinfo: UiSetting[] = [
         { name: '_timestamp', value: Date.now() },
         { name: '_expiresin', value: this.cexprity }
       ];
 
-      localStorage.setItem('uis', JSON.stringify([].concat(post_data, timeinfo)));
+      localStorage.setItem<UiSetting[]>('uis', [...post_data, ...timeinfo], uisSchema);
     });
   }
 
-  public onUpdatingCheck(name: any) {
-    if (this.cachevar.some((e) => e.name === name)) {
+  public onUpdatingCheck(name: string): void {
+    if (this.cachevar.some((v) => v === name)) {
       this.storeDefault();
     }
   }
 
-  public getUIsettings(name?: string) {
-    const uiconfig = JSON.parse(localStorage.getItem('uis'));
+  // @TYPING @TODO maybe migrate UiSetting from list of UiSetting into object
+  public getUIsettings(name: UiSettingName): UiSetting | undefined {
+    const uiconfig = localStorage.getItem<UiSetting[]>('uis', uisSchema);
     if (!uiconfig) {
-      return null;
+      return undefined;
     }
     return uiconfig.find((o) => o.name === name);
   }

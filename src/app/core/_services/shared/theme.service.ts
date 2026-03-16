@@ -14,7 +14,7 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
         return of(null);
       }
       return fromEvent<StorageEvent>(window, 'storage').pipe(
-        filter((event) => event.key === 'theme' && event.storageArea === localStorage),
+        filter((event) => event.key === 'theme'),
         map((event) => event.newValue),
         startWith(localStorage.getItem('theme'))
       );

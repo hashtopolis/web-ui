@@ -1,4 +1,5 @@
-import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
+import { TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
+import { uiConfigSchema } from 'src/app/core/_models/config-ui.schema';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
@@ -29,10 +30,7 @@ export class UISettingsUtilityClass {
     private storage: LocalStorageService<UIConfig>,
     private themeService?: ThemeService
   ) {
-    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY);
-    if (!this.uiConfig) {
-      this.uiConfig = uiConfigDefault;
-    }
+    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
     if (this.themeService && this.uiConfig.theme) {
       this.themeService.theme = this.uiConfig.theme;
     }
@@ -50,7 +48,7 @@ export class UISettingsUtilityClass {
    * @param {TableOrder[]} [settings.order] - An array defining the order of columns.
    */
   updateTableSettings(
-    key: string,
+    key: TableSettingsKey,
     settings: {
       page?: number;
       index?: number;
@@ -94,7 +92,7 @@ export class UISettingsUtilityClass {
           existingTableSettings['search'] = settings.search;
         }
 
-        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
       } else {
         // If the key doesn't exist, log an error or handle it accordingly
         console.error(`Table settings not found for key: ${key}`);
@@ -110,7 +108,7 @@ export class UISettingsUtilityClass {
    * @param key - The key for the table settings.
    * @returns An array of column names as table settings for the key.
    */
-  getTableSettings(key: string): number[] {
+  getTableSettings(key: TableSettingsKey): number[] {
     try {
       const tableConfig = this.uiConfig.tableSettings[key];
 
@@ -137,7 +135,7 @@ export class UISettingsUtilityClass {
    * @param key - The key for the UI setting.
    * @returns The value of the UI setting, or undefined if not found.
    */
-  getSetting<T>(key: string): T | undefined {
+  getSetting<K extends UIConfigKeys>(key: K): UIConfig[K] | undefined {
     try {
       return this.uiConfig[key];
     } catch {
@@ -167,7 +165,7 @@ export class UISettingsUtilityClass {
     }
 
     if (changedValues > 0) {
-      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
       if (themeChanged && this.themeService) {
         this.themeService.theme = this.uiConfig.theme;
       }

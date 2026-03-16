@@ -1,15 +1,15 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { LocalStorageService } from './local-storage.service';
+import { z } from 'zod';
 
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LocalStorageService', () => {
   let service: LocalStorageService<string | object>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        LocalStorageService,
-      ]
+      providers: [LocalStorageService]
     });
     service = TestBed.inject(LocalStorageService);
   });
@@ -92,5 +92,85 @@ describe('LocalStorageService', () => {
     const retrievedValue = service.getItem(key);
 
     expect(retrievedValue).toBe('specialValue');
+  });
+
+  // --- Schema validation tests ---
+
+  describe('with schema validation', () => {
+    const testSchema = z.object({
+      name: z.string(),
+      count: z.number()
+    });
+
+    it('getItem should return parsed value when schema matches', () => {
+      const key = 'schemaValid';
+      const value = { name: 'test', count: 42 };
+
+      service.setItem(key, value, 1000);
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toEqual(value);
+    });
+
+    it('getItem should remove key and return null when stored data fails schema', () => {
+      const key = 'schemaInvalid';
+      // Write invalid data without schema validation
+      service.setItem(key, { name: 123, count: 'bad' }, 1000);
+
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toBeNull();
+      // Verify the corrupt entry was removed
+      expect(localStorage.getItem(key)).toBeNull();
+    });
+
+    it('setItem should write parsed value when schema matches', () => {
+      const key = 'schemaWriteValid';
+      const value = { name: 'hello', count: 7 };
+
+      service.setItem(key, value, 1000, testSchema);
+      const result = service.getItem(key);
+
+      expect(result).toEqual(value);
+    });
+
+    it('setItem should refuse to write and log error when value fails schema', () => {
+      const key = 'schemaWriteInvalid';
+      spyOn(console, 'error');
+
+      service.setItem(key, { name: 999, count: 'bad' }, 1000, testSchema);
+
+      // Nothing should be stored
+      expect(localStorage.getItem(key)).toBeNull();
+      expect(console.error).toHaveBeenCalled();
+    });
+
+    it('getItem without schema should behave unchanged (backward compat)', () => {
+      const key = 'noSchema';
+      const value = { anything: true, goes: [1, 2, 3] };
+
+      service.setItem(key, value, 1000);
+      const result = service.getItem(key);
+
+      expect(result).toEqual(value);
+    });
+
+    it('setItem without schema should behave unchanged (backward compat)', () => {
+      const key = 'noSchemaWrite';
+      const value = 'any string value';
+
+      service.setItem(key, value, 1000);
+      expect(service.getItem(key)).toBe(value);
+    });
+
+    it('getItem with schema should strip unknown keys (z.object default)', () => {
+      const key = 'schemaStrip';
+      service.setItem(key, { name: 'a', count: 1, extra: true }, 1000);
+
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toEqual({ name: 'a', count: 1 });
+      expect(result['extra']).toBeUndefined();
+    });
   });
 });

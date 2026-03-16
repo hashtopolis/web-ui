@@ -22,7 +22,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { UIConfig } from '@models/config-ui.model';
+import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -116,7 +116,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort, { static: true }) matSort: MatSort;
 
   /** Name of the table, used when storing user customizations */
-  @Input() name: string;
+  @Input() name: TableSettingsKey;
 
   /** All available column labels */
   @Input() columnLabels: { [key: number]: string };

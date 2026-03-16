@@ -76,9 +76,14 @@ export class HttpCacheService {
       }
     }
 
-    Object.keys(sessionStorage)
-      .filter((k) => k.startsWith(targetPrefix))
-      .forEach((k) => sessionStorage.removeItem(k));
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      if (k?.startsWith(targetPrefix)) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => sessionStorage.removeItem(k));
   }
 
   private delete(key: string): void {

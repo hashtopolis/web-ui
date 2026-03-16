@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { TableSettingsKey } from '@models/config-ui.model';
 import { FileType } from '@models/file.model';
 
 import { FileRoleService } from '@services/roles/file-role.service';
@@ -14,16 +15,16 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 export class FilesComponent implements OnInit {
   fileType: FileType = 0;
   FileType = FileType;
-  name = 'filesTable';
+  name: TableSettingsKey = 'filesTable';
 
   protected showCreateButton: boolean = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private titleService: AutoTitleService,
-    private fileRolesService: FileRoleService
-  ) {
-    titleService.set(['Show Files']);
+  private route = inject(ActivatedRoute);
+  private titleService = inject(AutoTitleService);
+  private fileRolesService = inject(FileRoleService);
+
+  constructor() {
+    this.titleService.set(['Show Files']);
   }
 
   ngOnInit(): void {

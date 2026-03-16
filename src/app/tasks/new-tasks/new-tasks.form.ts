@@ -51,7 +51,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     taskName: new FormControl('', [Validators.required, Validators.minLength(1)]),
     notes: new FormControl(''),
     hashlistId: new FormControl(undefined, [Validators.required]),
-    attackCmd: new FormControl(attackCmdSetting ? attackCmdSetting.value : '', [
+    attackCmd: new FormControl(attackCmdSetting ? String(attackCmdSetting.value) : '', [
       Validators.required,
       attackCommandWithAliasValidator()
     ]),

@@ -33,7 +33,7 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
       nonNullable: true,
       validators: [Validators.required]
     }),
-    attackCmd: new FormControl(uiService.getUIsettings('hashlistAlias').value, {
+    attackCmd: new FormControl(String(uiService.getUIsettings('hashlistAlias').value), {
       nonNullable: true,
       validators: [Validators.required, attackCommandWithAliasValidator()]
     }),

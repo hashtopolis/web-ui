@@ -98,6 +98,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   autoRefreshService: AutoRefreshService;
   private autoRefreshSubscription: Subscription;
 
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
     this.service = injector.get(GlobalService);
@@ -106,7 +107,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.serializer = new JsonAPISerializer();
     this.autoRefreshService = injector.get(AutoRefreshService);
 
-    const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
+    const chunktimeSetting = String(this.uiService.getUIsettings('chunktime').value);
     if (chunktimeSetting) {
       this.chunkTime = Number(chunktimeSetting);
     }
@@ -158,6 +159,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param error - The HTTP error response
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected handleFilterError(error: any): void {
     // Handle filter validation errors gracefully
     if (error?.error?.title) {

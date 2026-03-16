@@ -100,7 +100,8 @@ describe('UiSettingsComponent', () => {
     expect(mockLocalStorageService.setItem).toHaveBeenCalledWith(
       'ui-config',
       jasmine.objectContaining(mockModifiedUIConfig),
-      0
+      0,
+      jasmine.anything()
     );
     expect(alertService.showInfoMessage).toHaveBeenCalledWith('Reloading settings ...');
     expect(mockReloadService.reloadPage).toHaveBeenCalled();

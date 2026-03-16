@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Subscription } from 'rxjs';
 import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 import { ExportService } from 'src/app/core/_services/export/export.service';
@@ -8,7 +7,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -23,18 +22,18 @@ export class BaseReportComponent {
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
 
-  constructor(
-    protected gs: GlobalService,
-    protected cs: ConfigService,
-    protected router: Router,
-    protected settingsService: LocalStorageService<UIConfig>,
-    protected sanitizer: DomSanitizer,
-    protected uiService: UIConfigService,
-    protected exportService: ExportService,
-    protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog
-  ) {
-    this.uiSettings = new UISettingsUtilityClass(settingsService);
+  protected gs = inject(GlobalService);
+  protected cs = inject(ConfigService);
+  protected router = inject(Router);
+  protected settingsService = inject(LocalStorageService) as LocalStorageService<UIConfig>;
+  protected sanitizer = inject(DomSanitizer);
+  protected uiService = inject(UIConfigService);
+  protected exportService = inject(ExportService);
+  protected cdr = inject(ChangeDetectorRef);
+  public dialog = inject(MatDialog);
+
+  constructor() {
+    this.uiSettings = new UISettingsUtilityClass(this.settingsService);
     this.dateFormat = this.getDateFormat();
   }
 
@@ -43,7 +42,7 @@ export class BaseReportComponent {
    * @returns The date format string.
    */
   private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
+    const fmt = this.uiSettings.getSetting('timefmt');
 
     return fmt ? fmt : uiConfigDefault.timefmt;
   }

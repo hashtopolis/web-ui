@@ -1,17 +1,32 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+export const ThresholdType = {
+  temp: 'temp',
+  device: 'device',
+  util: 'util'
+} as const;
+
+export type ThresholdType = (typeof ThresholdType)[keyof typeof ThresholdType];
+
+type ThresholdSettingName =
+  | 'agentTempThreshold1'
+  | 'agentTempThreshold2'
+  | 'agentUtilThreshold1'
+  | 'agentUtilThreshold2';
+
 @Component({
-    selector: 'app-agent-status-modal',
-    templateUrl: './agent-status-modal.component.html',
-    standalone: false
+  selector: 'app-agent-status-modal',
+  templateUrl: './agent-status-modal.component.html',
+  standalone: false
 })
 export class AgentStatusModalComponent implements OnInit {
   @Input() title = '';
   @Input() icon = '';
   @Input() content = '';
-  @Input() thresholdType: string; // Options are 'temp', 'device' or 'util'
+  @Input() thresholdType: ThresholdType;
 
   // Threshold values from the config database
   threshold1: string;
@@ -24,11 +39,16 @@ export class AgentStatusModalComponent implements OnInit {
   statusInvalid: string;
   note = 'Note: Threshold can be configured in the config section.';
 
-  constructor(
-    public dialogRef: MatDialogRef<AgentStatusModalComponent>,
-    private uiService: UIConfigService,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  public dialogRef = inject(MatDialogRef<AgentStatusModalComponent>);
+  private uiService = inject(UIConfigService);
+  public data: {
+    title: string;
+    icon: string;
+    content: string;
+    thresholdType: ThresholdType;
+    result: number | string;
+    form: { isActive: number | boolean; lastTime: number; agentName: string };
+  } = inject(MAT_DIALOG_DATA);
 
   ngOnInit(): void {
     this.title = this.data.title;
@@ -48,25 +68,17 @@ export class AgentStatusModalComponent implements OnInit {
    * @returns {void}
    */
   private fetchThresholds(): void {
-    if (this.thresholdType === 'temp') {
+    if (this.thresholdType === ThresholdType.temp) {
       this.threshold1 = this.getThresholdValue('agentTempThreshold1');
       this.threshold2 = this.getThresholdValue('agentTempThreshold2');
-    } else if (
-      this.thresholdType === 'util' ||
-      this.thresholdType === 'device'
-    ) {
+    } else if (this.thresholdType === ThresholdType.util || this.thresholdType === ThresholdType.device) {
       this.threshold1 = this.getThresholdValue('agentUtilThreshold1');
       this.threshold2 = this.getThresholdValue('agentUtilThreshold2');
     }
   }
 
-  /**
-   * Retrieves the threshold value for a given setting key from the UI settings.
-   * @param {string} settingKey - The key for the UI setting.
-   * @returns {string} The threshold value associated with the specified setting key.
-   */
-  private getThresholdValue(settingKey: string): string {
-    return this.uiService.getUIsettings(settingKey).value;
+  private getThresholdValue(settingKey: ThresholdSettingName): string {
+    return String(this.uiService.getUIsettings(settingKey).value);
   }
 
   /**
@@ -74,17 +86,17 @@ export class AgentStatusModalComponent implements OnInit {
    * @returns {void}
    */
   private generateText(): void {
-    if (this.thresholdType === 'temp') {
+    if (this.thresholdType === ThresholdType.temp) {
       this.statusNumber = 2;
       this.statusLabel = 'Device temperatures';
       this.statusInvalid = 'device';
       this.unitLabel = '°';
-    } else if (this.thresholdType === 'util') {
+    } else if (this.thresholdType === ThresholdType.util) {
       this.statusNumber = 3;
       this.statusLabel = 'Device utilisation';
       this.statusInvalid = 'device';
       this.unitLabel = '%';
-    } else if (this.thresholdType === 'device') {
+    } else if (this.thresholdType === ThresholdType.device) {
       this.statusNumber = 1;
       this.statusLabel = 'CPU utilisation';
       this.statusInvalid = 'CPU';
