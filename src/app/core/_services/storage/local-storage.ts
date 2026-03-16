@@ -46,9 +46,18 @@ export class TypedStorage<T = unknown> {
       value = raw;
     }
 
-    const effectiveSchema = schema ?? this.defaultSchema;
-    if (effectiveSchema) {
-      const result = effectiveSchema.safeParse(value);
+    if (schema) {
+      const result = schema.safeParse(value);
+      if (!result.success) {
+        console.warn(`Storage read validation failed for "${key}", use default value instead:`, result.error.issues);
+        this.nativeStorage.removeItem(key);
+        return defaultValue ?? null;
+      }
+      return result.data;
+    }
+
+    if (this.defaultSchema) {
+      const result = this.defaultSchema.safeParse(value);
       if (!result.success) {
         console.warn(`Storage read validation failed for "${key}", use default value instead:`, result.error.issues);
         this.nativeStorage.removeItem(key);

@@ -11,8 +11,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { environment } from '@src/environments/environment';
 
-
-
 @Injectable({
   providedIn: 'root'
 })

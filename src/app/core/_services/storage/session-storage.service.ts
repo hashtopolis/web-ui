@@ -26,9 +26,9 @@ export class SessionStorageService<T> extends BaseStorageService<T> {
    * @param defaultValue - Optional default value if the schema validation fails use that
    * @returns The stored data if found and not expired, or `null` if not found or expired.
    */
-  getItem(key: string, schema: z.ZodType, defaultValue: T): T;
-  getItem(key: string, schema?: z.ZodType): T | null;
-  getItem(key: string, schema?: z.ZodType, defaultValue?: T): T | null {
+  getItem(key: string, schema: z.ZodType<T>, defaultValue: T): T;
+  getItem(key: string, schema?: z.ZodType<T>): T | null;
+  getItem(key: string, schema?: z.ZodType<T>, defaultValue?: T): T | null {
     key = this.decode(key);
     const storedData = sessionStorage.getItem<StorageWrapper<T>>(key);
     if (!storedData) {
@@ -49,7 +49,7 @@ export class SessionStorageService<T> extends BaseStorageService<T> {
         sessionStorage.removeItem(key);
         return defaultValue ?? null;
       }
-      return result.data as T;
+      return result.data;
     }
 
     return value;
@@ -69,14 +69,14 @@ export class SessionStorageService<T> extends BaseStorageService<T> {
    *                     after the specified time has passed.
    * @param schema - Optional Zod schema to validate the value before writing.
    */
-  setItem(key: string, value: T, expiresInMs: number, schema?: z.ZodType): void {
+  setItem(key: string, value: T, expiresInMs: number, schema?: z.ZodType<T>): void {
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
         console.error(`Cannot write to session storage as validation fails for "${key}":`, result.error.issues);
         return;
       }
-      value = result.data as T;
+      value = result.data;
     }
 
     const storedValue: StorageWrapper<T> = {

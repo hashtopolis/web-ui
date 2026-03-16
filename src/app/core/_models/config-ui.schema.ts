@@ -4,8 +4,6 @@ import { uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
- * This is the single source of truth — `UIConfigService.cachevar` should
- * reference this list rather than duplicating it.
  */
 export const uisCacheNames = [
   'hashcatBrainEnable',
@@ -69,9 +67,6 @@ export const uisSettingsSchema = z.preprocess(
     // String (already strings from API)
     hashlistAlias: z.coerce.string().default('#HL#'),
     blacklistChars: z.coerce.string().default(''),
-    // Meta (programmatic, already numbers)
-    // _timestamp defaults to 0 so Date.now() - 0 > _expiresin is always true,
-    // forcing an immediate storeDefault() refresh on next checkExpiry().
     _timestamp: z.number().default(0),
     _expiresin: z.number().default(72 * 60 * 60 * 1000)
   })
@@ -81,17 +76,14 @@ export type UiSettings = z.infer<typeof uisSettingsSchema>;
 
 /**
  * Zod schema for the Sorting / TableOrder shape.
- * Uses passthrough to preserve any extra fields that components may add.
  * Numeric fields use `z.coerce.number()` to handle values stored as strings.
  */
-export const sortingSchema = z
-  .object({
-    id: z.coerce.number(),
-    dataKey: z.string(),
-    isSortable: z.boolean(),
-    direction: z.enum(['asc', 'desc'])
-  })
-  .passthrough();
+export const sortingSchema = z.object({
+  id: z.coerce.number(),
+  dataKey: z.string(),
+  isSortable: z.boolean(),
+  direction: z.enum(['asc', 'desc'])
+});
 
 /**
  * Zod schema for a single table configuration entry.
@@ -128,10 +120,6 @@ export const tableSettingsSchema = z.record(z.string(), z.union([z.array(z.coerc
 export const uiConfigSchema = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
   theme: z.enum(['light', 'dark']).default(uiConfigDefault.theme),
-  // Cast needed: `.passthrough()` adds `[x: string]: unknown` to inferred types,
-  // which is incompatible with the `Sorting`/`TableConfig` interfaces that lack
-  // index signatures. The default value itself is correct — `.default()` stores
-  // it as-is without re-validating.
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),
   timefmt: z.string().default(uiConfigDefault.timefmt),
   refreshPage: z.boolean().default(uiConfigDefault.refreshPage),

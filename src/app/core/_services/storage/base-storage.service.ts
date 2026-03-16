@@ -26,7 +26,7 @@ export abstract class BaseStorageService<T> {
    * @param defaultValue - Optional default value to return when key is missing or validation fails.
    * @returns The stored data if found, or `null` if not found or expired.
    */
-  abstract getItem(key: string, schema?: z.ZodType, defaultValue?: T): T | null;
+  abstract getItem(key: string, schema?: z.ZodType<T>, defaultValue?: T): T | null;
 
   /**
    * Stores data with an optional expiration time.
@@ -38,7 +38,7 @@ export abstract class BaseStorageService<T> {
    *                     after the specified time has passed.
    * @param schema - Optional Zod schema to validate the value before writing.
    */
-  abstract setItem(key: string, value: T, expiresInMs: number, schema?: z.ZodType): void;
+  abstract setItem(key: string, value: T, expiresInMs: number, schema?: z.ZodType<T>): void;
 
   /**
    * Removes the stored data associated with the specified key.

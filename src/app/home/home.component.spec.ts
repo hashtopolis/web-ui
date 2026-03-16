@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';
 
+import { uiConfigDefault } from '@models/config-ui.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 import { TaskType } from '@models/task.model';
 
@@ -15,8 +16,6 @@ import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { PermissionService } from '@services/permission/permission.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
-import { uiConfigDefault } from '@models/config-ui.model';
-
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { AppModule } from '@src/app/app.module';
