@@ -1,5 +1,3 @@
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -15,6 +13,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-view-health-checks',

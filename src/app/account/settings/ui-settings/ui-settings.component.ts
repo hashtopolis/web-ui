@@ -1,14 +1,15 @@
 import { Setting, dateFormats, layouts, themes } from '@constants/settings.config';
-import { UIConfig } from '@models/config-ui.model';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 import { Component, OnInit, inject } from '@angular/core';
 
+import { UIConfig } from '@models/config-ui.model';
+
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-settings.form';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
   selector: 'app-ui-settings',

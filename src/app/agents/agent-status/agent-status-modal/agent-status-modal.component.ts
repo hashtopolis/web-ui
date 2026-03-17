@@ -1,7 +1,7 @@
-import { UIConfigService } from '@services/shared/storage.service';
-
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+import { UIConfigService } from '@services/shared/storage.service';
 
 export const ThresholdType = {
   temp: 'temp',

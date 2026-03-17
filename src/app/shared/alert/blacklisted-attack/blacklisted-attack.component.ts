@@ -1,6 +1,6 @@
-import { UIConfigService } from '@services/shared/storage.service';
-
 import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+
+import { UIConfigService } from '@services/shared/storage.service';
 
 @Component({
   selector: 'blacklist-attack',

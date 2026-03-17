@@ -1,16 +1,19 @@
 import { Subscription } from 'rxjs';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { ExportService } from '@services/export/export.service';
-import { GlobalService } from '@services/main.service';
-import { ConfigService } from '@services/shared/config.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
   selector: 'base-report',
