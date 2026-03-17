@@ -25,7 +25,7 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const vouchers: JVoucher[] = new JsonAPISerializer().deserialize({
+          const vouchers: JVoucher[] = new JsonAPISerializer().deserialize<JVoucher[]>({
             data: response.data,
             included: response.included
           });

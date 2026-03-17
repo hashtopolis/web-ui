@@ -1,4 +1,5 @@
 import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
@@ -10,10 +11,10 @@ import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
 
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { JUser } from '@src/app/core/_models/user.model';
+import { JUserSchema } from '@src/app/core/_models/user.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
+import { changeOwnPasswordResponseSchema } from './acc-settings.schema';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -191,16 +192,29 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       confirmPassword: this.confirmNewPasswordValueFromForm
     };
     this.subscriptions.push(
-      this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
-        next: (val) => {
-          this.alert.showSuccessMessage(val.meta['Change password']);
-          this.isUpdatingPassLoading = false;
-          this.resetPasswordForm();
-        },
-        error: () => {
-          this.isUpdatingPassLoading = false;
-        }
-      })
+      this.gs
+        .chelper(SERV.HELPER, 'changeOwnPassword', payload)
+        .pipe(
+          map((r) => {
+            const parseResult = changeOwnPasswordResponseSchema.safeParse(r);
+            if (!parseResult.success) {
+              console.error('Password change response validation failed', parseResult.error);
+              this.alert.showErrorMessage('Unexpected response from server.');
+              throw parseResult.error;
+            }
+            return parseResult.data;
+          })
+        )
+        .subscribe({
+          next: (val) => {
+            this.alert.showSuccessMessage(val.meta['Change password']);
+            this.isUpdatingPassLoading = false;
+            this.resetPasswordForm();
+          },
+          error: () => {
+            this.isUpdatingPassLoading = false;
+          }
+        })
     );
   }
 
@@ -209,11 +223,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   private loadUserSettings() {
     this.subscriptions.push(
-      this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({
-          data: response.data,
-          included: response.included
-        });
+      this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
+        const user = new JsonAPISerializer().deserialize(
+          { data: response.data, included: response.included },
+          JUserSchema
+        );
 
         this.form.patchValue({
           name: user.name,
