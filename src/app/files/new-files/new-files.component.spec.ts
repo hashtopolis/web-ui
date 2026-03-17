@@ -13,13 +13,13 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 // Mock services
@@ -225,7 +225,9 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }) as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }) as any);
     });
 

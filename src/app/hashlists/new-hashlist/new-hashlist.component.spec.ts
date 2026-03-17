@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 import { ResponseWrapper } from '@models/response.model';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -103,7 +103,8 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'getRelationships']);
+    Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
@@ -135,7 +136,7 @@ describe('NewHashlistComponent', () => {
   });
 
   beforeEach(() => {
-    gsSpy.getAll.withArgs(SERV.ACCESS_GROUPS).and.returnValue(of(mockAccessGroups));
+    gsSpy.getRelationships.and.returnValue(of(mockAccessGroups));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
     (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
@@ -317,5 +318,12 @@ describe('NewHashlistComponent', () => {
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
     expect(nextSpy).toHaveBeenCalledWith(false);
     expect(completeSpy).toHaveBeenCalled();
+  });
+
+  describe('Access group scoping', () => {
+    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
+      expect(gsSpy.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+      expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
+    });
   });
 });

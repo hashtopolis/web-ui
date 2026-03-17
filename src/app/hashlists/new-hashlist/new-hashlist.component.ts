@@ -16,7 +16,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -63,7 +63,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   selectSource = hashSource;
 
   // Lists of Hashtypes
-  hashtypes: JHashtype[];
+  hashtypes: JHashtype[] = [];
 
   //Hashcat Brain Mode
   brainenabled: number;
@@ -164,15 +164,17 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.loadConfigs();
-    const accessGroupSubscription = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
+    const accessGroupSubscription = this.gs
+      .getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      .subscribe((response: ResponseWrapper) => {
+        const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        this.isLoadingAccessGroups = false;
+        this.changeDetectorRef.detectChanges();
       });
-      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-      this.isLoadingAccessGroups = false;
-      this.changeDetectorRef.detectChanges();
-    });
     this.unsubscribeService.add(accessGroupSubscription);
 
     const hashtypesSubscription$ = this.gs.getAll(SERV.HASHTYPES).subscribe((response: ResponseWrapper) => {
