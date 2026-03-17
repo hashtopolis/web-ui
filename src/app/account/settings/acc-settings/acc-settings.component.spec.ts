@@ -70,11 +70,11 @@ describe('AccountSettingsComponent', () => {
       return of({});
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ghelper(_serviceConfig, _option: string): Observable<any> {
+    ghelper(_serviceConfig, _option: string): Observable<unknown> {
       return of({ data: userResponse, included: [] });
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    uhelper(_serviceConfig, _id: number, _option: string, _payload: any): Observable<any> {
+    uhelper(_serviceConfig, _id: number, _option: string, _payload: unknown): Observable<unknown> {
       return of({});
     },
     userId: 1

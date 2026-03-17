@@ -11,10 +11,10 @@ import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
 
+import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
 import { JUserSchema } from '@src/app/core/_models/user.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
-import { changeOwnPasswordResponseSchema } from './acc-settings.schema';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -152,18 +152,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs
-          .uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value)
-          .subscribe({
-            next: () => {
-              this.alert.showSuccessMessage('User saved');
-              this.isUpdatingLoading = false;
-            },
-            error: (err) => {
-              console.error('Error updating user', err);
-              this.isUpdatingLoading = false;
-            }
-          })
+        this.gs.uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value).subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('User saved');
+            this.isUpdatingLoading = false;
+          },
+          error: (err) => {
+            console.error('Error updating user', err);
+            this.isUpdatingLoading = false;
+          }
+        })
       );
     } else {
       this.form.markAllAsTouched();

@@ -4,6 +4,7 @@
  *  @module serializer
  * */
 
+import Jsona from 'jsona';
 import {
   TDeserializeOptions,
   TJsonApiBody,
@@ -11,10 +12,10 @@ import {
   TJsonaModel,
   TJsonaNormalizedIncludeNamesTree
 } from 'jsona/lib/JsonaTypes';
+import { z } from 'zod';
 
 import { Injectable, inject } from '@angular/core';
-import Jsona from 'jsona';
-import { z } from 'zod';
+
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
 /** Class for serializing/deserializing objects to and from JSON:API format

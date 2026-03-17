@@ -9,6 +9,7 @@ import { Params } from '@angular/router';
 import { ServiceConfig } from '@services/main.config';
 
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { AuthService } from '@src/app/core/_services/access/auth.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { setParameter } from '@src/app/core/_services/buildparams';
@@ -277,7 +278,7 @@ export class GlobalService {
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<any> {
     return this.http
-      .get<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
       .pipe(debounceTime(2000));
   }
 
