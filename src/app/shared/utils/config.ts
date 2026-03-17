@@ -1,6 +1,6 @@
-import { TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
-import { uiConfigSchema } from 'src/app/core/_models/config-ui.schema';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
+import { uiConfigSchema } from '@models/config-ui.schema';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
 

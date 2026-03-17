@@ -1,7 +1,7 @@
-import { Setting, dateFormats, layouts, themes } from 'src/app/core/_constants/settings.config';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { Setting, dateFormats, layouts, themes } from '@constants/settings.config';
+import { UIConfig } from '@models/config-ui.model';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 import { Component, OnInit, inject } from '@angular/core';
 

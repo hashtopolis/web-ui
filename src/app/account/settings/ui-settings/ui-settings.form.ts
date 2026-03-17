@@ -1,4 +1,4 @@
-import { Layout, Theme } from 'src/app/core/_models/config-ui.model';
+import { Layout, Theme } from '@models/config-ui.model';
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 

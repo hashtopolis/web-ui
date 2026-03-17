@@ -1,11 +1,11 @@
 import { Subscription } from 'rxjs';
-import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
-import { ExportService } from 'src/app/core/_services/export/export.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { ConfigService } from 'src/app/core/_services/shared/config.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';

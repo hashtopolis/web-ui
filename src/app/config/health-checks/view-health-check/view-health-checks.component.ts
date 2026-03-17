@@ -1,4 +1,4 @@
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
