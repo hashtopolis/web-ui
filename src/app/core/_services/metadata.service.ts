@@ -1145,7 +1145,7 @@ export class MetadataService {
       label: 'Global Permission Group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS),
+      selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
       selectOptions$: of([]),
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
