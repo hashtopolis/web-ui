@@ -14,9 +14,7 @@ import {
 } from 'jsona/lib/JsonaTypes';
 import { z } from 'zod';
 
-import { Injectable, inject } from '@angular/core';
-
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { Injectable } from '@angular/core';
 
 /** Class for serializing/deserializing objects to and from JSON:API format
  * @class JsonAPISerializer
@@ -26,7 +24,6 @@ import { AlertService } from '@src/app/core/_services/shared/alert.service';
 })
 export class JsonAPISerializer {
   private formatter: Jsona;
-  private alert = inject(AlertService);
 
   constructor() {
     this.formatter = new Jsona();
@@ -76,7 +73,6 @@ export class JsonAPISerializer {
       const parseResult = schemaOrOptions.safeParse(result);
       if (!parseResult.success) {
         console.error('API response validation failed', parseResult.error);
-        this.alert.showErrorMessage('Unexpected data received from server.');
         throw parseResult.error;
       }
       return parseResult.data as T;
