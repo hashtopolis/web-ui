@@ -3,11 +3,10 @@ import { Subject, of } from 'rxjs';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, DebugElement, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';
 
+import { uiConfigDefault } from '@models/config-ui.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 import { TaskType } from '@models/task.model';
 
@@ -104,8 +103,8 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
  * Simulates localStorage behavior by stubbing `getItem` and `setItem`.
  */
 const mockLocalStorageService = {
-  /** Simulates retrieving a value from localStorage. Returns `null` by default. */
-  getItem: jasmine.createSpy('getItem').and.returnValue(null),
+  /** Simulates retrieving a value from localStorage. Returns uiConfigDefault so UISettingsUtilityClass has a valid timefmt. */
+  getItem: jasmine.createSpy('getItem').and.returnValue(uiConfigDefault),
 
   /** Simulates saving a value in localStorage. Does not persist anything. */
   setItem: jasmine.createSpy('setItem')

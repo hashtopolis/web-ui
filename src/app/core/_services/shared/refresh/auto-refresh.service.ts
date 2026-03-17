@@ -65,7 +65,7 @@ export class AutoRefreshService implements OnDestroy {
    * Returns whether auto-refresh page reload is enabled in UI settings.
    */
   get refreshPage(): boolean {
-    return this.uiSettings.getSetting<boolean>('refreshPage');
+    return this.uiSettings.getSetting('refreshPage');
   }
 
   /**

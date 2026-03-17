@@ -27,7 +27,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   }
 
   async loadAll(query?: Filter): Promise<void> {
-    let chunkTime = this.uiService.getUIsettings('chunktime').value;
+    let chunkTime = this.uiService.getUISettings()?.chunktime ?? 0;
     this.loading = true;
 
     if (query) {

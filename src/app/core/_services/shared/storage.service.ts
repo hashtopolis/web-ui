@@ -1,96 +1,88 @@
 import { Injectable } from '@angular/core';
 
-import { environment } from '@src/environments/environment';
-
+import { UiSettings, UisCacheName, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
 import { JConfig } from '@models/configs.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { GlobalService } from '@services/main.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UIConfigService {
   defaultSettings = false;
-  cachevar = [
-    // {name:'timefmt'},
-    { name: 'hashcatBrainEnable' },
-    { name: 'hashlistAlias' },
-    { name: 'blacklistChars' },
-    { name: 'chunktime' },
-    { name: 'agentStatLimit' },
-    { name: 'agentStatTension' },
-    { name: 'agentTempThreshold1' },
-    { name: 'agentTempThreshold2' },
-    { name: 'agentUtilThreshold1' },
-    { name: 'agentUtilThreshold2' },
-    { name: 'statustimer' },
-    { name: 'agenttimeout' },
-    { name: 'maxSessionLength' }
-  ];
-  cexprity: number = 72 * 60 * 60; // Hours*minutes*Seconds Default: 72 hours
+  cachevar = uisCacheNames;
+  cexprity: number = 72 * 60 * 60 * 1000; // Default: 72 hours in milliseconds
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(private gs: GlobalService) {}
 
-  public checkStorage() {
-    const defaults = JSON.parse(localStorage.getItem('uis'));
-    if (defaults) {
-      //Change to !defaults
+  public checkStorage(): void {
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
+    if (settings) {
+      // Write back to persist migrated format (no-op if already object format)
+      localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
       this.checkExpiry();
-      return this.defaultSettings;
-    } else if (!defaults) {
-      this.storeDefault();
-      this.defaultSettings = true;
+      return;
     }
-    return '';
+    this.storeDefault();
+    this.defaultSettings = true;
   }
 
-  public checkExpiry() {
-    const timestamp = this.getUIsettings('_timestamp').value || 0;
-    const expires = this.getUIsettings('_expiresin').value || 0;
-    if (Date.now() - timestamp < expires) {
+  public checkExpiry(): void {
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
+    if (!settings) return;
+    if (Date.now() - settings._timestamp > settings._expiresin) {
       this.storeDefault();
     }
   }
 
-  public storeDefault() {
+  public storeDefault(): void {
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-    this.gs.getAll(SERV.CONFIGS, params).subscribe((response: ResponseWrapper) => {
-      const configs = new JsonAPISerializer().deserialize<JConfig[]>({
-        data: response.data,
-        included: response.included
-      });
-      const post_data = [];
-      this.cachevar.forEach((data) => {
-        const name = data.name;
-        let value: any = configs.find((config) => config.item === data.name);
-        value = { name: name, value: value.value };
-        post_data.push(value);
-      });
-      const timeinfo = [
-        { name: '_timestamp', value: Date.now() },
-        { name: '_expiresin', value: this.cexprity }
-      ];
+    this.gs.getAll(SERV.CONFIGS, params).subscribe({
+      next: (response: ResponseWrapper) => {
+        const configs = new JsonAPISerializer().deserialize<JConfig[]>({
+          data: response.data,
+          included: response.included
+        });
+        const raw = convertNameValueConfigPairs(configs, this.cachevar);
+        raw['_timestamp'] = Date.now();
+        raw['_expiresin'] = this.cexprity;
 
-      localStorage.setItem('uis', JSON.stringify([].concat(post_data, timeinfo)));
+        const result = uisSettingsSchema.safeParse(raw);
+        if (!result.success) {
+          console.error('Failed to validate UI config settings from server:', result.error.issues);
+          return;
+        }
+
+        localStorage.setItem<UiSettings>('uis', result.data, uisSettingsSchema);
+      },
+      error: (err: unknown) => {
+        console.error('Failed to fetch UI config defaults:', err);
+      }
     });
   }
 
-  public onUpdatingCheck(name: any) {
-    if (this.cachevar.some((e) => e.name === name)) {
+  public onUpdatingCheck(name: UisCacheName): void {
+    if (this.cachevar.some((v) => v === name)) {
       this.storeDefault();
     }
   }
 
-  public getUIsettings(name?: string) {
-    const uiconfig = JSON.parse(localStorage.getItem('uis'));
-    if (!uiconfig) {
-      return null;
-    }
-    return uiconfig.find((o) => o.name === name);
+  public getUISettings(): UiSettings | null {
+    return localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
   }
+}
+
+function convertNameValueConfigPairs(configs: JConfig[], keys: readonly string[]): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const name of keys) {
+    result[name] = configs.find((c) => c.item === name)?.value;
+  }
+  return result;
 }

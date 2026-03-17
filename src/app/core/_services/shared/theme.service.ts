@@ -1,7 +1,10 @@
 import { BehaviorSubject, Observable, Subject, fromEvent, of } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
+import { z } from 'zod';
 
 import { DOCUMENT, Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
+
+const themeSchema = z.enum(['light', 'dark']);
 
 export type DetectedTheme = 'dark' | 'light';
 export type ThemeLoader = () => Observable<string | null>;
@@ -14,9 +17,9 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
         return of(null);
       }
       return fromEvent<StorageEvent>(window, 'storage').pipe(
-        filter((event) => event.key === 'theme' && event.storageArea === localStorage),
+        filter((event) => event.key === 'theme'),
         map((event) => event.newValue),
-        startWith(localStorage.getItem('theme'))
+        startWith(localStorage.getItem('theme', themeSchema))
       );
     };
   }
@@ -33,7 +36,7 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
         return;
       }
       if (theme) {
-        localStorage.setItem('theme', theme);
+        localStorage.setItem('theme', theme, themeSchema);
       } else {
         localStorage.removeItem('theme');
       }
@@ -54,11 +57,11 @@ export class ThemeService {
   private readonly supportedThemeClasses = ['light', 'dark', 'light-theme', 'dark-theme'];
 
   public get current(): string {
-    return localStorage.getItem('theme') ?? 'light';
+    return localStorage.getItem('theme', themeSchema) ?? 'light';
   }
 
   public set current(value: string) {
-    localStorage.setItem('theme', value);
+    localStorage.setItem('theme', value, themeSchema);
   }
 
   private readonly style: HTMLLinkElement;

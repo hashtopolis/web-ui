@@ -8,12 +8,15 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
+import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
+import { UserData, userDataSchema } from '@models/user-data.schema';
 
 import { AuthService } from '@services/access/auth.service';
 import { CheckTokenService } from '@services/access/checktoken.service';
 import { BreakpointService } from '@services/shared/breakpoint.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
@@ -34,6 +37,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private idle = inject(Idle);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private themeService = inject(ThemeService);
   screen = inject(BreakpointService);
   private elementRef = inject(ElementRef);
   private platformId = inject(PLATFORM_ID);
@@ -120,7 +124,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     });
     this.authService.checkStatus();
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
+    this.uiSettings = new UISettingsUtilityClass(this.storage, this.themeService);
   }
 
   ngAfterViewInit() {
@@ -167,7 +171,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    const userData: { _token: string; _expires: string } = JSON.parse(localStorage.getItem('userData'));
+    const userData = localStorage.getItem<UserData>('userData', userDataSchema);
     if (!userData) {
       return;
     }
@@ -199,10 +203,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onTimeout(): number {
-    const uisData = JSON.parse(localStorage?.getItem('uis'));
+    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
     let timeoutidle = 1;
-    if (uisData !== null) {
-      timeoutidle = Number(uisData.find((o) => o.name === 'maxSessionLength').value * 60 * 60); //Convert max session hours to seconds
+    if (settings !== null) {
+      const hours = settings.maxSessionLength;
+      if (!isNaN(hours) && hours > 0) {
+        timeoutidle = hours * 60 * 60; // Convert max session hours to seconds
+      }
     }
     return timeoutidle;
   }

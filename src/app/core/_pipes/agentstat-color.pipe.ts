@@ -1,7 +1,8 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { ASC } from '@constants/agentsc.config';
 
-import { ASC } from '../_constants/agentsc.config';
-import { UIConfigService } from '../_services/shared/storage.service';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+
+import { UIConfigService } from '@services/shared/storage.service';
 
 /**
  * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilisations, CPU Utilisation)
@@ -18,9 +19,16 @@ import { UIConfigService } from '../_services/shared/storage.service';
   standalone: false
 })
 export class AgentSColorPipe implements PipeTransform {
-  constructor(private uiService: UIConfigService) {}
+  private uiService = inject(UIConfigService);
 
-  transform(value: any, threshold1: number, threshold2: number, stattype: number, isActive: any, lastactivity: number) {
+  transform(
+    value: number | string,
+    threshold1: number,
+    threshold2: number,
+    stattype: number,
+    isActive: number | boolean,
+    lastactivity: number
+  ) {
     if (!isActive) return '';
     if (value === 'No data') {
       if (isActive == 1 && Date.now() - lastactivity < this.gettime()) {
@@ -37,6 +45,6 @@ export class AgentSColorPipe implements PipeTransform {
   }
 
   gettime() {
-    return this.uiService.getUIsettings('agenttimeout').value;
+    return this.uiService.getUISettings()?.agenttimeout ?? 0;
   }
 }

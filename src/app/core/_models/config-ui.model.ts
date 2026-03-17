@@ -53,10 +53,12 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
-  start: number;
-  order: Sorting;
+  start?: number;
+  order?: Sorting | Sorting[];
   page: number;
-  search: string | [];
+  search?: string | unknown[];
+  before?: number;
+  index?: number;
 }
 
 /**
@@ -77,6 +79,8 @@ export interface UIConfig {
   refreshInterval: number;
 }
 
+export type UIConfigKeys = keyof UIConfig;
+
 /**
  * Interface definition for Sorting
  * @prop id         Column id
@@ -88,10 +92,10 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: string;
+  direction: 'asc' | 'desc';
 }
 
-export const uiConfigDefault: UIConfig = {
+const _uiConfigDefault = {
   layout: 'fixed',
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
@@ -807,4 +811,7 @@ export const uiConfigDefault: UIConfig = {
   },
   refreshPage: false,
   refreshInterval: 10
-};
+} as const satisfies UIConfig;
+
+export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];
+export const uiConfigDefault: UIConfig = _uiConfigDefault;

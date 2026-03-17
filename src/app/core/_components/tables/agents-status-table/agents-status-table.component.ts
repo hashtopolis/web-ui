@@ -463,24 +463,20 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
   // Modal Agent Utilisation and OffCanvas menu
 
-  getTemp1() {
-    // Temperature Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold1').value;
+  getTemp1(): number {
+    return this.uiService.getUISettings()?.agentTempThreshold1 ?? 0;
   }
 
-  getTemp2() {
-    // Temperature 2 Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold2').value;
+  getTemp2(): number {
+    return this.uiService.getUISettings()?.agentTempThreshold2 ?? 0;
   }
 
-  getUtil1() {
-    // CPU Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold1').value;
+  getUtil1(): number {
+    return this.uiService.getUISettings()?.agentUtilThreshold1 ?? 0;
   }
 
-  getUtil2() {
-    // CPU 2 Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold2').value;
+  getUtil2(): number {
+    return this.uiService.getUISettings()?.agentUtilThreshold2 ?? 0;
   }
 
   /**

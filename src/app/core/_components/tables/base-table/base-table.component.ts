@@ -21,7 +21,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
@@ -73,7 +73,7 @@ export class BaseTableComponent {
   @ViewChild('table') table: HTTableComponent;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
-  @Input() name: string;
+  @Input() name: TableSettingsKey;
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
@@ -411,7 +411,7 @@ export class BaseTableComponent {
    * @returns The date format string.
    */
   private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
+    const fmt = this.uiSettings.getSetting('timefmt');
 
     return fmt ? fmt : uiConfigDefault.timefmt;
   }

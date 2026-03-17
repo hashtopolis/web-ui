@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { UIConfig } from '@models/config-ui.model';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -35,6 +35,7 @@ describe('UiSettingsComponent', () => {
   beforeEach(async () => {
     mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
     mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
+    mockLocalStorageService.getItem.and.returnValue(uiConfigDefault);
 
     await TestBed.configureTestingModule({
       declarations: [UiSettingsComponent],
@@ -100,7 +101,8 @@ describe('UiSettingsComponent', () => {
     expect(mockLocalStorageService.setItem).toHaveBeenCalledWith(
       'ui-config',
       jasmine.objectContaining(mockModifiedUIConfig),
-      0
+      0,
+      jasmine.anything()
     );
     expect(alertService.showInfoMessage).toHaveBeenCalledWith('Reloading settings ...');
     expect(mockReloadService.reloadPage).toHaveBeenCalled();

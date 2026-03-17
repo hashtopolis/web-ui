@@ -1,5 +1,6 @@
 import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { z } from 'zod';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -57,11 +58,11 @@ export class ConfigService {
         } else {
           ApiEndPoint = environment.config.prodApiEndpoint;
         }
-        localStorage.setItem('prodApiEndpoint', ApiEndPoint);
+        localStorage.setItem('prodApiEndpoint', ApiEndPoint, z.string());
       },
       error: () => {
         ApiEndPoint = environment.config.prodApiEndpoint;
-        localStorage.setItem('prodApiEndpoint', ApiEndPoint);
+        localStorage.setItem('prodApiEndpoint', ApiEndPoint, z.string());
       }
     });
   }
@@ -76,10 +77,10 @@ export class ConfigService {
    * @returns The active API endpoint as a string.
    */
   public getEndpoint(): string {
-    let ApiEndPoint = localStorage.getItem('prodApiEndpoint');
+    let ApiEndPoint = localStorage.getItem<string>('prodApiEndpoint', z.string());
     if (!ApiEndPoint) {
       this.refreshEndpoint();
-      ApiEndPoint = localStorage.getItem('prodApiEndpoint');
+      ApiEndPoint = localStorage.getItem<string>('prodApiEndpoint', z.string());
     }
     return ApiEndPoint ?? environment.config.prodApiEndpoint;
   }

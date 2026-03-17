@@ -1,12 +1,14 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { Layout, Theme } from '@models/config-ui.model';
+
 /**
  * Type definition for the UI Settings Form.
  */
 export type UiSettingsForm = {
   timefmt: FormControl<string>;
-  layout: FormControl<string>;
-  theme: FormControl<string>;
+  layout: FormControl<Layout>;
+  theme: FormControl<Theme>;
   refreshPage: FormControl<boolean>;
   refreshInterval: FormControl<number>;
 };
@@ -21,8 +23,8 @@ export class UiSettingsFormGroup extends FormGroup<UiSettingsForm> {
   constructor() {
     super({
       timefmt: new FormControl(''),
-      layout: new FormControl(''),
-      theme: new FormControl(''),
+      layout: new FormControl<Layout>('fixed'),
+      theme: new FormControl<Theme>('light'),
       refreshPage: new FormControl(false),
       refreshInterval: new FormControl(undefined, [
         Validators.min(UiSettingsFormGroup.REFRESH_INTERVAL_MIN),

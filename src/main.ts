@@ -1,3 +1,9 @@
+// side effect imports, replace window.localStorage and window.sessionStorage with
+// the typed LocalStorage wrapper and augment the global type.
+// Must run before any other code accesses localStorage or sessionStorage.
+import '@src/app/core/_services/storage/local-storage';
+import '@src/app/core/_services/storage/session-storage';
+
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 

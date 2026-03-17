@@ -1,24 +1,24 @@
-import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
+import { benchmarkType } from '@constants/tasks.config';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { HorizontalNav } from '@models/horizontalnav.model';
 import { JPretask } from '@models/pretask.model';
 
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -154,8 +154,8 @@ export class MasksComponent implements OnInit, OnDestroy {
           taskName: maskline,
           attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
           maxAgents: form.maxAgents,
-          chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
+          chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
+          statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
           priority: index + 1,
           color: '',
           isCpuTask: form.isCpuTask,

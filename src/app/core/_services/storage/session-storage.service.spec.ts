@@ -1,9 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { z } from 'zod';
+
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+
+// Side-effect: replaces window.sessionStorage with the TypedStorage wrapper.
+// Must run before any test touches sessionStorage so that setItem/getItem
+// handle JSON serialisation automatically.
+import '@services/storage/session-storage';
 
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('SessionStorageService', () => {
-  let service: SessionStorageService<string>;
+  let service: SessionStorageService<string | object>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -47,18 +54,17 @@ describe('SessionStorageService', () => {
     expect(result).toBeNull();
   });
 
-  it('should return null for expired items', (done) => {
+  it('should return null for expired items', fakeAsync(() => {
     const key = 'expiring-key';
     const value = 'expiring-value';
 
-    service.setItem(key, value, 100); // Expires in 100ms
+    service.setItem(key, value, 1); // Expires in 1ms
 
-    setTimeout(() => {
-      const result = service.getItem(key);
-      expect(result).toBeNull();
-      done();
-    }, 150);
-  });
+    tick(2);
+
+    const result = service.getItem(key);
+    expect(result).toBeNull();
+  }));
 
   it('should not expire items with TTL=0 (indefinite)', () => {
     const key = 'indefinite-key';
@@ -70,14 +76,158 @@ describe('SessionStorageService', () => {
     expect(result).toBe(value);
   });
 
-  it('should handle complex objects as JSON string', () => {
+  it('should handle complex objects', () => {
     const key = 'object-key';
-    const value = JSON.stringify({ name: 'test', count: 42 });
+    const value = { name: 'test', count: 42 };
 
     service.setItem(key, value, 10000);
     const result = service.getItem(key);
 
     expect(result).toEqual(value);
-    expect(JSON.parse(result!)).toEqual({ name: 'test', count: 42 });
+  });
+
+  // --- Schema validation tests ---
+
+  describe('with schema validation', () => {
+    const testSchema = z.object({
+      name: z.string(),
+      count: z.number()
+    });
+
+    it('getItem should return parsed value when schema matches', () => {
+      const key = 'schemaValid';
+      const value = { name: 'test', count: 42 };
+
+      service.setItem(key, value, 1000);
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toEqual(value);
+    });
+
+    it('getItem should remove key and return null when stored data fails schema', () => {
+      const key = 'schemaInvalid';
+      // Write invalid data without schema validation
+      service.setItem(key, { name: 123, count: 'bad' }, 1000);
+
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toBeNull();
+      // Verify the corrupt entry was removed
+      expect(sessionStorage.getItem(key)).toBeNull();
+    });
+
+    it('setItem should write parsed value when schema matches', () => {
+      const key = 'schemaWriteValid';
+      const value = { name: 'hello', count: 7 };
+
+      service.setItem(key, value, 1000, testSchema);
+      const result = service.getItem(key);
+
+      expect(result).toEqual(value);
+    });
+
+    it('setItem should refuse to write and log error when value fails schema', () => {
+      const key = 'schemaWriteInvalid';
+      spyOn(console, 'error');
+
+      service.setItem(key, { name: 999, count: 'bad' }, 1000, testSchema);
+
+      // Nothing should be stored
+      expect(sessionStorage.getItem(key)).toBeNull();
+      expect(console.error).toHaveBeenCalled();
+    });
+
+    it('getItem without schema should behave unchanged (backward compat)', () => {
+      const key = 'noSchema';
+      const value = { anything: true, goes: [1, 2, 3] };
+
+      service.setItem(key, value, 1000);
+      const result = service.getItem(key);
+
+      expect(result).toEqual(value);
+    });
+
+    it('setItem without schema should behave unchanged (backward compat)', () => {
+      const key = 'noSchemaWrite';
+      const value = 'any string value';
+
+      service.setItem(key, value, 1000);
+      expect(service.getItem(key)).toBe(value);
+    });
+
+    it('getItem with schema should strip unknown keys (z.object default)', () => {
+      const key = 'schemaStrip';
+      service.setItem(key, { name: 'a', count: 1, extra: true }, 1000);
+
+      const result = service.getItem(key, testSchema);
+
+      expect(result).toEqual({ name: 'a', count: 1 });
+      expect(result['extra']).toBeUndefined();
+    });
+  });
+
+  // --- defaultValue parameter tests ---
+
+  describe('with defaultValue parameter', () => {
+    const testSchema = z.object({
+      name: z.string(),
+      count: z.number()
+    });
+
+    const defaultObj = { name: 'default', count: 0 };
+
+    it('getItem should return defaultValue when key does not exist', () => {
+      const result = service.getItem('missing-key', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+    });
+
+    it('getItem should return stored value (not default) when key exists and is valid', () => {
+      const stored = { name: 'real', count: 42 };
+      service.setItem('existing', stored, 1000);
+
+      const result = service.getItem('existing', testSchema, defaultObj);
+      expect(result).toEqual(stored);
+    });
+
+    it('getItem should return defaultValue when schema validation fails', () => {
+      service.setItem('bad', { name: 999, count: 'bad' }, 1000);
+
+      const result = service.getItem('bad', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+      // corrupt entry should be self-healed (removed)
+      expect(sessionStorage.getItem('bad')).toBeNull();
+    });
+
+    it('getItem should return defaultValue when item has expired', fakeAsync(() => {
+      service.setItem('expiring', { name: 'gone', count: 1 }, 1); // 1ms TTL
+
+      tick(2);
+
+      const result = service.getItem('expiring', testSchema, defaultObj);
+      expect(result).toEqual(defaultObj);
+    }));
+
+    it('getItem should return defaultValue without schema when key is missing', () => {
+      const result = service.getItem('nope', undefined, 'fallback');
+      expect(result).toBe('fallback');
+    });
+  });
+
+  // --- URL-encoded key handling ---
+
+  describe('URL-encoded keys', () => {
+    it('should decode URL-encoded keys on store and retrieve', () => {
+      const encodedKey = 'my%20key';
+      service.setItem(encodedKey, 'value', 1000);
+
+      const result = service.getItem(encodedKey);
+      expect(result).toBe('value');
+    });
+
+    it('should treat non-encoded keys normally', () => {
+      const key = 'plain-key';
+      service.setItem(key, 'value', 1000);
+      expect(service.getItem(key)).toBe('value');
+    });
   });
 });
