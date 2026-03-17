@@ -9,6 +9,7 @@ import { Params } from '@angular/router';
 import { ServiceConfig } from '@services/main.config';
 
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { AuthService } from '@src/app/core/_services/access/auth.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { setParameter } from '@src/app/core/_services/buildparams';
@@ -275,6 +276,12 @@ export class GlobalService {
       .pipe(debounceTime(2000));
   }
 
+  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<any> {
+    return this.http
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
+      .pipe(debounceTime(2000));
+  }
+
   /**
    * Update agent information
    * @param serviceConfig the serviceconfig of the API endpoint
@@ -320,7 +327,9 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
-    return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+  uhelper(serviceConfig: ServiceConfig, id: number, option: string, arr: any): Observable<any> {
+    let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
+    data = new JsonAPISerializer().serialize({ stuff: data });
+    return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, data);
   }
 }

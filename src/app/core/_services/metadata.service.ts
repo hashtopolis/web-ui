@@ -1,9 +1,10 @@
 import { Observable, of } from 'rxjs';
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
@@ -75,6 +76,7 @@ export interface MetadataFormField {
 })
 export class MetadataService {
   private tooltip: ConfigTooltipsLevel;
+  private gs = inject(GlobalService);
 
   constructor(private tooltipService: TooltipService) {
     this.tooltip = this.tooltipService.getConfigTooltips();
@@ -225,7 +227,7 @@ export class MetadataService {
     }
   ];
 
-  //This variable defines the fields and properties required when editing a wonrdlist, rule or other file.
+  //This variable defines the fields and properties required when editing a wordlist, rule or other file.
   editfile = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
     {
@@ -246,7 +248,7 @@ export class MetadataService {
       label: 'Access group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_GROUPS,
+      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS),
       selectOptions$: of([]),
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
@@ -1084,7 +1086,8 @@ export class MetadataService {
       label: 'Binary',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
@@ -1094,7 +1097,8 @@ export class MetadataService {
       label: 'Binary Version',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
@@ -1141,7 +1145,7 @@ export class MetadataService {
       label: 'Global Permission Group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
+      selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
       selectOptions$: of([]),
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]

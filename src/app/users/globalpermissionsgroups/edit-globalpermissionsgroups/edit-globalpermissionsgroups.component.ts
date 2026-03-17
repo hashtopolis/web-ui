@@ -92,7 +92,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         if (response) {
-          this.editedGPG = new JsonAPISerializer().deserialize({
+          this.editedGPG = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>({
             data: response.data,
             included: response.included
           });

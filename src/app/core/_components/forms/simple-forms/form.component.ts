@@ -165,7 +165,10 @@ export class FormComponent implements OnInit, OnDestroy {
     // Fetch data from the API for editing
     const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
       next: (response: ResponseWrapper) => {
-        this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
+        this.formValues = new JsonAPISerializer().deserialize<(BaseModel & Record<string, unknown>)[]>({
+          data: response.data,
+          included: response.included
+        });
         this.isloaded = true; // Data is loaded and ready for form rendering
       },
       error: (err: unknown) => {

@@ -69,6 +69,14 @@ describe('AccountSettingsComponent', () => {
     chelper(): Observable<any> {
       return of({});
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ghelper(_serviceConfig, _option: string): Observable<unknown> {
+      return of({ data: userResponse, included: [] });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    uhelper(_serviceConfig, _id: number, _option: string, _payload: unknown): Observable<unknown> {
+      return of({});
+    },
     userId: 1
   };
 
@@ -157,7 +165,7 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('submits form with valid email', () => {
-      spyOn(component['gs'], 'update').and.returnValue(of({}));
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
 
       component.form.patchValue({ email: 'test@example.com' });
       component.form.updateValueAndValidity();
@@ -167,16 +175,17 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].update).toHaveBeenCalledWith(
-        SERV.USERS,
+      expect(component['gs'].uhelper).toHaveBeenCalledWith(
+        SERV.HELPER,
         Number(component['gs'].userId),
+        'currentUser',
         component.form.value
       );
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
     });
 
     it('does not submit form with invalid email', () => {
-      const updateSpy = spyOn(component['gs'], 'update');
+      const uhelperSpy = spyOn(component['gs'], 'uhelper');
       component.form.patchValue({ email: 'invalid-email' });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
@@ -186,7 +195,7 @@ describe('AccountSettingsComponent', () => {
       fixture.detectChanges();
 
       expect(component.form.valid).toBeFalse();
-      expect(updateSpy).not.toHaveBeenCalled();
+      expect(uhelperSpy).not.toHaveBeenCalled();
       expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
     });
   });

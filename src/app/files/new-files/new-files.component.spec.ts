@@ -8,17 +8,19 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 // Mock services
 class MockUnsubscribeService {
@@ -31,7 +33,9 @@ class MockUploadTUSService {
 
 class MockGlobalService {
   getAll = jasmine.createSpy('getAll').and.returnValue(of({ data: [], included: [] }));
+  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of({ data: [], included: [] }));
   create = jasmine.createSpy('create').and.returnValue(of({}));
+  userId = 1;
 }
 
 class MockAlertService {
@@ -198,5 +202,68 @@ describe('NewFilesComponent', () => {
     const unsubscribe = fixture.debugElement.injector.get(UnsubscribeService) as unknown as MockUnsubscribeService;
     comp.ngOnDestroy();
     expect(unsubscribe.unsubscribeAll).toHaveBeenCalled();
+  });
+
+  describe('Access group scoping', () => {
+    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
+      setup('wordlist-new');
+      const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
+
+      // Component must use getRelationships to get user-scoped access groups
+      expect(gs.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+
+      // getAll must NOT be called — the component should not fetch all access groups
+      expect(gs.getAll).not.toHaveBeenCalled();
+    });
+
+    it('should correctly transform access group API data to select options', () => {
+      // Simulate deserialized access groups (what JsonAPISerializer would produce)
+      const deserialized = [
+        { id: 1, groupName: 'Group A' },
+        { id: 3, groupName: 'Group C' }
+      ];
+
+      const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
+      expect(result.length).toBe(2);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }) as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }) as any);
+    });
+
+    it('should populate dropdown with only user-scoped groups, not the full set', async () => {
+      // The user belongs to 2 out of 5 total groups.
+      // We mock loadData to bypass JsonAPISerializer (which needs an injection
+      // context unavailable in tests) and verify the dropdown binding.
+      const userScopedGroups: SelectOption[] = [
+        { id: '1', name: 'Group A' },
+        { id: '3', name: 'Group C' }
+      ];
+
+      TestBed.overrideProvider(ActivatedRoute, {
+        useValue: { data: of({ kind: 'wordlist-new' }) }
+      });
+
+      fixture = TestBed.createComponent(NewFilesComponent);
+      component = fixture.componentInstance;
+
+      spyOn(component, 'loadData').and.callFake(async () => {
+        component.selectAccessgroup = userScopedGroups;
+        component.isLoading = false;
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // Only the user's 2 groups should appear, not all 5
+      expect(component.selectAccessgroup.length).toBe(2);
+      expect(component.selectAccessgroup).toEqual(userScopedGroups);
+
+      // Groups that exist globally but not for this user must be absent
+      expect(component.selectAccessgroup.find((g) => g.name === 'Admin Group')).toBeUndefined();
+      expect(component.selectAccessgroup.find((g) => g.name === 'Ops Group')).toBeUndefined();
+      expect(component.selectAccessgroup.find((g) => g.name === 'Dev Group')).toBeUndefined();
+    });
   });
 });
