@@ -121,10 +121,28 @@ describe('NewUserComponent', () => {
       name: 'testuser',
       email: 'test@example.com',
       globalPermissionGroupId: 1,
-      isValid: true
+      isValid: true,
+      sessionLifetime: 3600
     });
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('User created');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['users/all-users']);
+  });
+
+  it('should include sessionLifetime as an integer in the create payload', async () => {
+    component.newUserForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      globalPermissionGroupId: 1,
+      isValid: true
+    });
+    component.newUserForm.updateValueAndValidity();
+
+    mockGlobalService.create.and.returnValue(of({}));
+
+    await component.onSubmit();
+
+    const payload = mockGlobalService.create.calls.mostRecent().args[1] as Record<string, unknown>;
+    expect(Number.isInteger(payload['sessionLifetime'])).toBeTrue();
   });
 
   it('should show error if create fails', async () => {
