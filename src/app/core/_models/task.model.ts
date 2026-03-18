@@ -88,3 +88,20 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
   tasks?: JTask[];
   chunkData?: ChunkData;
 }
+
+export enum TaskStatus {
+  INVALID,
+  RUNNING,
+  COMPLETED,
+  IDLE
+}
+
+export interface TaskCompletionData {
+  keyspace: number;
+  keyspaceProgress: number;
+  searched: string;
+}
+
+export interface TaskStatusData extends TaskCompletionData {
+  activeAgents: number;
+}
