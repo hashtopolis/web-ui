@@ -30,7 +30,7 @@ export interface TaskAttributes extends BaseModel {
  */
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
-  activeAgents: number;
+  totalAssignedAgents: number;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
@@ -92,8 +92,8 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
 export enum TaskStatus {
   INVALID,
   RUNNING,
-  COMPLETED,
-  IDLE
+  IDLE,
+  COMPLETED
 }
 
 export interface TaskCompletionData {

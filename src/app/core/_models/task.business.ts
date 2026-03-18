@@ -7,19 +7,7 @@ export function isTaskCompleted(task: TaskCompletionData): boolean {
 export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus {
   if (!wrapper?.tasks?.length) {
     return TaskStatus.INVALID;
+  } else {
+    return wrapper?.tasks[0]?.status;
   }
-
-  if (wrapper.tasks.some((task) => (task.activeAgents || 0) > 0)) {
-    return TaskStatus.RUNNING;
-  }
-
-  if (wrapper.taskType === TaskType.SUPERTASK) {
-    if (wrapper.tasks.every((task) => isTaskCompleted(task))) {
-      return TaskStatus.COMPLETED;
-    }
-
-    return TaskStatus.IDLE;
-  }
-
-  return TaskStatus.INVALID;
 }

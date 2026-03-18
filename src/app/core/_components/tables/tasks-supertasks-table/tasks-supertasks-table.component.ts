@@ -276,11 +276,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private getNumAgents(task: JTask): number {
-    return task.activeAgents;
+    return task.totalAssignedAgents;
   }
 
   private renderAgents(task: JTask): SafeHtml {
-    const numAgents = task.activeAgents;
+    const numAgents = task.totalAssignedAgents;
     return this.sanitize(`${numAgents}`);
   }
 
