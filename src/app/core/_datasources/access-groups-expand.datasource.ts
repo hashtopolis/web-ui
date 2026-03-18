@@ -72,10 +72,6 @@ export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent>
 
   override reload(): void {
     this.clearSelection();
-    if (this.originalData.length > 0) {
-      this.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
-    } else {
-      this.loadAll();
-    }
+    this.loadAll();
   }
 }
