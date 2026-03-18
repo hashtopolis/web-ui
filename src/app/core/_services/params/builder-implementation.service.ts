@@ -99,6 +99,16 @@ export class RequestParamBuilder implements IParamBuilder {
   }
 
   /**
+   * Adds a new value to the aggregate fieldsets array
+   * @param include new include value
+   * @returns object instance
+   */
+  addAggregate(aggregate: string): IParamBuilder {
+    this.params.aggregate = this.addToArray<string>(this.params.aggregate, aggregate);
+    return this;
+  }
+
+  /**
    * Adds a new value from the given column to the sort array
    * @param sortingColumn column to get sort values from
    * @returns object instance

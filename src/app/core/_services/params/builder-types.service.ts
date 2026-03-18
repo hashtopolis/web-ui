@@ -20,6 +20,7 @@ export class RequestParamsIntermediate {
   public filters?: Array<Filter>;
   public sortOrder?: Array<string>;
   public includeTotal?: boolean;
+  public aggregate?: Array<string>;
 }
 
 /**
@@ -39,6 +40,8 @@ export interface IParamBuilder {
   addFilter(filter: Filter): IParamBuilder;
 
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
+
+  addAggregate(aggregate: string): IParamBuilder;
 
   addInitial(datasource: BaseDataSource<MatPaginator>): IParamBuilder;
 
