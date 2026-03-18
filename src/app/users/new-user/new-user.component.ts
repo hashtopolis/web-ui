@@ -74,7 +74,8 @@ export class NewUserComponent implements OnInit {
         name: this.newUserForm.value.username,
         email: this.newUserForm.value.email,
         globalPermissionGroupId: this.newUserForm.value.globalPermissionGroupId,
-        isValid: this.newUserForm.value.isValid
+        isValid: this.newUserForm.value.isValid,
+        sessionLifetime: 3600
       };
 
       await firstValueFrom(this.gs.create(SERV.USERS, payload));
