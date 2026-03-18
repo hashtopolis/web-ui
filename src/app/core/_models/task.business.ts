@@ -1,4 +1,4 @@
-import { JTaskWrapper, TaskCompletionData, TaskStatus, TaskType } from './task.model';
+import { JTaskWrapper, TaskCompletionData, TaskStatus, TaskType } from '@models/task.model';
 
 export function isTaskCompleted(task: TaskCompletionData): boolean {
   return task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100;
