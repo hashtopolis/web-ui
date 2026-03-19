@@ -554,7 +554,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: TaskTableCol.PRIORITY,
-        dataKey: '',
+        dataKey: 'priority',
         isSortable: true,
         direction: 'desc'
       },
