@@ -8,9 +8,12 @@ import { JTaskWrapper, TaskStatus, TaskType } from '@models/task.model';
  * subtask is running, IDLE otherwise.
  *
  * @param wrapper - The task wrapper to evaluate
- * @returns The effective `TaskStatus` of the wrapper
+ * @returns The effective `TaskStatus` of the wrapper, or `null` if the wrapper has no tasks
  */
-export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus {
+export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus | null {
+  if (!wrapper?.tasks?.length) {
+    return null;
+  }
   if (wrapper.taskType === TaskType.TASK) {
     return wrapper.tasks[0].status;
   }

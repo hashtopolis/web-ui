@@ -27,6 +27,16 @@ describe('getTaskWrapperStatus', () => {
     });
   });
 
+  describe('edge cases', () => {
+    it('should return null for an empty tasks array', () => {
+      expect(getTaskWrapperStatus(createWrapper(TaskType.TASK, []))).toBeNull();
+    });
+
+    it('should return null for undefined tasks', () => {
+      expect(getTaskWrapperStatus({ tasks: undefined } as JTaskWrapper)).toBeNull();
+    });
+  });
+
   describe('supertask (TaskType.SUPERTASK)', () => {
     it('should return COMPLETED when all subtasks are COMPLETED', () => {
       const wrapper = createWrapper(TaskType.SUPERTASK, [
