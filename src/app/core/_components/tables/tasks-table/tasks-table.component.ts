@@ -513,7 +513,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         tooltip: 'In Progress'
       };
     }
-
     return { name: '' };
   }
 

@@ -1,15 +1,24 @@
-import { JTaskWrapper, TaskCompletionData, TaskStatus, TaskType } from '@models/task.model';
+import { JTaskWrapper, TaskStatus, TaskType } from '@models/task.model';
 
-export function isTaskCompleted(task: TaskCompletionData): boolean {
-  return task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100;
-}
-
+/**
+ * Returns the effective status of a task wrapper.
+ *
+ * For a regular task the status is taken directly from the single task.
+ * For a supertask: COMPLETED if all subtasks are completed, RUNNING if any
+ * subtask is running, IDLE otherwise.
+ *
+ * @param wrapper - The task wrapper to evaluate
+ * @returns The effective `TaskStatus` of the wrapper
+ */
 export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus {
-  if (!wrapper?.tasks?.length) {
-    return TaskStatus.INVALID;
+  if (wrapper.taskType === TaskType.TASK) {
+    return wrapper.tasks[0].status;
   }
-  if (wrapper.taskType === TaskType.SUPERTASK && wrapper.tasks.every((task) => isTaskCompleted(task))) {
+  if (wrapper.tasks.every((task) => task.status === TaskStatus.COMPLETED)) {
     return TaskStatus.COMPLETED;
   }
-  return wrapper?.tasks[0]?.status;
+  if (wrapper.tasks.some((task) => task.status === TaskStatus.RUNNING)) {
+    return TaskStatus.RUNNING;
+  }
+  return TaskStatus.IDLE;
 }

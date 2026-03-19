@@ -90,10 +90,9 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
 }
 
 export enum TaskStatus {
-  INVALID,
-  RUNNING,
-  IDLE,
-  COMPLETED
+  RUNNING = 1,
+  IDLE = 2,
+  COMPLETED = 3
 }
 
 export interface TaskCompletionData {
