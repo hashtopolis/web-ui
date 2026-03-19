@@ -9,7 +9,7 @@ export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus {
     return TaskStatus.INVALID;
   }
   if (wrapper.taskType === TaskType.SUPERTASK && wrapper.tasks.every((task) => isTaskCompleted(task))) {
-      return TaskStatus.COMPLETED;
+    return TaskStatus.COMPLETED;
   }
   return wrapper?.tasks[0]?.status;
 }
