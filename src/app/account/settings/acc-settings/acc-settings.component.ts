@@ -12,8 +12,8 @@ import { Router } from '@angular/router';
 import { SERV } from '@services/main.config';
 
 import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
-import { JUserSchema } from '@src/app/core/_models/user.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { zUserResponse } from '@src/generated/api/zod.gen';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
 
 export interface UpdateUserPassword {
@@ -222,15 +222,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     this.subscriptions.push(
       this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
-        const user = new JsonAPISerializer().deserialize(
-          { data: response.data, included: response.included },
-          JUserSchema
-        );
+        const users = new JsonAPISerializer().deserialize(response, zUserResponse);
+        const user = users[0];
 
         this.form.patchValue({
-          name: user.name,
-          registeredSince: this.datePipe.transform(user.registeredSince),
-          email: user.email
+          name: user?.name,
+          registeredSince: this.datePipe.transform(Number(user?.registeredSince)),
+          email: user?.email
         });
       })
     );
