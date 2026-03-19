@@ -103,5 +103,5 @@ export interface TaskCompletionData {
 }
 
 export interface TaskStatusData extends TaskCompletionData {
-  activeAgents: number;
+  totalAssignedAgents: number;
 }

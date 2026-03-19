@@ -3,7 +3,7 @@ import { JTask, JTaskWrapper, TaskStatus, TaskStatusData, TaskType } from '@mode
 
 function createTask(overrides: Partial<TaskStatusData> = {}): JTask {
   return {
-    activeAgents: 0,
+    totalAssignedAgents: 0,
     keyspace: 1000,
     keyspaceProgress: 0,
     searched: '0',
@@ -28,7 +28,7 @@ describe('getTaskStatus', () => {
     it('should return RUNNING when task has active agents', () => {
       const wrapper = createWrapper({
         taskType: TaskType.TASK,
-        tasks: [createTask({ activeAgents: 2 })]
+        tasks: [createTask({ totalAssignedAgents: 2 })]
       });
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.RUNNING);
@@ -37,7 +37,7 @@ describe('getTaskStatus', () => {
     it('should return INVALID when task has no active agents', () => {
       const wrapper = createWrapper({
         taskType: TaskType.TASK,
-        tasks: [createTask({ activeAgents: 0 })]
+        tasks: [createTask({ totalAssignedAgents: 0 })]
       });
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.INVALID);
@@ -47,9 +47,9 @@ describe('getTaskStatus', () => {
   describe('supertasks', () => {
     it('should return RUNNING when any subtask has active agents', () => {
       const wrapper = createSupertask([
-        createTask({ activeAgents: 0 }),
-        createTask({ activeAgents: 1 }),
-        createTask({ activeAgents: 0 })
+        createTask({ totalAssignedAgents: 0 }),
+        createTask({ totalAssignedAgents: 1 }),
+        createTask({ totalAssignedAgents: 0 })
       ]);
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.RUNNING);
@@ -57,8 +57,8 @@ describe('getTaskStatus', () => {
 
     it('should return COMPLETED when all subtasks are completed', () => {
       const wrapper = createSupertask([
-        createTask({ activeAgents: 0, keyspace: 100, keyspaceProgress: 100, searched: '100' }),
-        createTask({ activeAgents: 0, keyspace: 200, keyspaceProgress: 200, searched: '100' })
+        createTask({ totalAssignedAgents: 0, keyspace: 100, keyspaceProgress: 100, searched: '100' }),
+        createTask({ totalAssignedAgents: 0, keyspace: 200, keyspaceProgress: 200, searched: '100' })
       ]);
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.COMPLETED);
@@ -66,8 +66,8 @@ describe('getTaskStatus', () => {
 
     it('should return IDLE when no agents active and not all subtasks completed', () => {
       const wrapper = createSupertask([
-        createTask({ activeAgents: 0, keyspace: 100, keyspaceProgress: 100, searched: '100' }),
-        createTask({ activeAgents: 0, keyspace: 200, keyspaceProgress: 50, searched: '25' })
+        createTask({ totalAssignedAgents: 0, keyspace: 100, keyspaceProgress: 100, searched: '100' }),
+        createTask({ totalAssignedAgents: 0, keyspace: 200, keyspaceProgress: 50, searched: '25' })
       ]);
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.IDLE);
@@ -75,8 +75,8 @@ describe('getTaskStatus', () => {
 
     it('should return IDLE when no subtasks are completed', () => {
       const wrapper = createSupertask([
-        createTask({ activeAgents: 0 }),
-        createTask({ activeAgents: 0 })
+        createTask({ totalAssignedAgents: 0 }),
+        createTask({ totalAssignedAgents: 0 })
       ]);
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.IDLE);
@@ -99,7 +99,7 @@ describe('getTaskStatus', () => {
     it('should treat undefined activeAgents as zero (not running)', () => {
       const wrapper = createWrapper({
         taskType: TaskType.TASK,
-        tasks: [createTask({ activeAgents: undefined })]
+        tasks: [createTask({ totalAssignedAgents: undefined })]
       });
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.INVALID);
@@ -108,7 +108,7 @@ describe('getTaskStatus', () => {
     it('should treat null activeAgents as zero (not running)', () => {
       const wrapper = createWrapper({
         taskType: TaskType.TASK,
-        tasks: [createTask({ activeAgents: null })]
+        tasks: [createTask({ totalAssignedAgents: null })]
       });
 
       expect(getTaskWrapperStatus(wrapper)).toBe(TaskStatus.INVALID);
