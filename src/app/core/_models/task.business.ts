@@ -1,4 +1,4 @@
-import { JTaskWrapper, TaskCompletionData, TaskStatus } from '@models/task.model';
+import { JTaskWrapper, TaskCompletionData, TaskStatus, TaskType } from '@models/task.model';
 
 export function isTaskCompleted(task: TaskCompletionData): boolean {
   return task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100;
@@ -7,7 +7,9 @@ export function isTaskCompleted(task: TaskCompletionData): boolean {
 export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus {
   if (!wrapper?.tasks?.length) {
     return TaskStatus.INVALID;
-  } else {
-    return wrapper?.tasks[0]?.status;
   }
+  if (wrapper.taskType === TaskType.SUPERTASK && wrapper.tasks.every((task) => isTaskCompleted(task))) {
+      return TaskStatus.COMPLETED;
+  }
+  return wrapper?.tasks[0]?.status;
 }
