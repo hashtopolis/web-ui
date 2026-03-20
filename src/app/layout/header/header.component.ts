@@ -140,8 +140,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuItemClicked(event: ActionMenuEvent<unknown>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
-      this.rebuildMenu();
-      window.location.reload();
     }
   }
 
