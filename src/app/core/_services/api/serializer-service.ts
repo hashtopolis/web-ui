@@ -16,6 +16,8 @@ import { z } from 'zod';
 
 import { Injectable } from '@angular/core';
 
+import { JsonApiPayload } from '@models/json-api.types';
+
 /** Class for serializing/deserializing objects to and from JSON:API format
  * @class JsonAPISerializer
  * */
@@ -47,21 +49,22 @@ export class JsonAPISerializer {
   /**
    * Deserialize a JSON:API response body into a typed model.
    *
-   * @overload Pass a Zod schema to validate and type the result:
-   *   `deserialize(body, MySchema)` → returns `z.infer<typeof MySchema>`
+   * @overload Pass a Zod envelope schema to validate the raw body pre-deserialization
+   *   and auto-infer the flat return type via JsonApiPayload:
+   *   `deserialize(body, zUserSingleResponse)` → returns `JsonApiPayload<...>`
    *
    * @overload Omit the schema to get an unvalidated result:
    *   `deserialize<MyType>(body)` → returns `MyType`
    *
    * @param body  Response body received by an API call
-   * @param schema  Zod schema to validate and type the result (first overload)
+   * @param schema  Zod envelope schema to validate the raw JSON:API body (first overload)
    * @param options  Optional deserializer options
    */
   deserialize<TSchema extends z.ZodTypeAny>(
     body: TJsonApiBody,
     schema: TSchema,
     options?: TDeserializeOptions
-  ): z.infer<TSchema>;
+  ): JsonApiPayload<z.infer<TSchema>>;
   deserialize<T = unknown>(body: TJsonApiBody, options?: TDeserializeOptions): T;
   deserialize<T>(
     body: TJsonApiBody,
@@ -69,13 +72,12 @@ export class JsonAPISerializer {
     options?: TDeserializeOptions
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
-      const result = this.formatter.deserialize(body, options);
-      const parseResult = schemaOrOptions.safeParse(result);
+      const parseResult = schemaOrOptions.safeParse(body);
       if (!parseResult.success) {
         console.error('API response validation failed', parseResult.error);
         throw parseResult.error;
       }
-      return parseResult.data as T;
+      return this.formatter.deserialize(body, options) as T;
     }
     return this.formatter.deserialize(body, schemaOrOptions) as T;
   }
