@@ -352,7 +352,7 @@ progress::-webkit-progress-value {
 
 .custom-agent-container {
   display: flex;
-  align-items: center; /* Align items vertically */
+  align-items: flex-end;
   gap: 12px;
   max-width: 520px; /* Keep the controls compact, up to the + icon */
   width: fit-content;
@@ -367,6 +367,10 @@ progress::-webkit-progress-value {
     width: 320px;
     max-width: 320px;
     min-width: 240px;
+  }
+
+  button[mat-icon-button] {
+    margin-bottom: 1.25em; /* Offset the mat-form-field subscript wrapper so buttons sit level with the input */
   }
 }
 
