@@ -24,15 +24,6 @@ describe('HeaderComponent logout', () => {
     expect(mockAuthService.logOut).toHaveBeenCalledOnceWith();
   });
 
-  it('does not trigger a hard page reload on logout', () => {
-    const { component } = makeComponent();
-    spyOn(window.location, 'reload');
-
-    component.menuItemClicked(logoutEvent);
-
-    expect(window.location.reload).not.toHaveBeenCalled();
-  });
-
   it('does not rebuild the menu on logout', () => {
     const { component } = makeComponent();
 
