@@ -24,6 +24,7 @@
             placeholder="User Name"
             formControlName="username"
             aria-describedby="username-error"
+            data-testid="username-input"
             />
           @if (loginForm.controls['username'].errors?.required) {
             <mat-error>Username is required</mat-error>
@@ -40,6 +41,7 @@
             formControlName="password"
             (keydown.enter)="$event.preventDefault(); onSubmit()"
             aria-describedby="password-error"
+            data-testid="password-input"
             />
           <button
             mat-icon-button

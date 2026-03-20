@@ -24,6 +24,9 @@
       ],
       "@interceptors/*": [
         "./src/app/core/_interceptors/*"
+      ],
+      "@e2e/*": [
+        "./e2e/*"
       ]
     },
     "outDir": "./dist/out-tsc",

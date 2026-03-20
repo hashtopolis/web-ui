@@ -119,6 +119,11 @@ export default defineConfig([
               pattern: '@src/**',
               group: 'sibling',
               position: 'after'
+            },
+            {
+              pattern: '@e2e/**',
+              group: 'internal',
+              position: 'after'
             }
           ],
 
