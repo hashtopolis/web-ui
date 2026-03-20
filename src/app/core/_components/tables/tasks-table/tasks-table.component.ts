@@ -205,12 +205,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.tasks[0]?.activeAgents + '';
+            return wrapper.tasks[0]?.totalAssignedAgents + '';
           } else {
             return '';
           }
         },
-        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.activeAgents ?? 0) + ''
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.totalAssignedAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
@@ -513,7 +513,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         tooltip: 'In Progress'
       };
     }
-
     return { name: '' };
   }
 
@@ -798,7 +797,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks?.[0];
       const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
-      const isRunning = (task?.activeAgents ?? 0) > 0;
+      const isRunning = task?.status === TaskStatus.RUNNING;
       const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${task?.id}`;
       const totalHashes = wrapper.hashlist?.hashCount ?? 0;
       const crackedHashes = wrapper.cracked ?? 0;

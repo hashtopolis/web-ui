@@ -75,7 +75,7 @@ const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   preprocessorId: 3,
   preprocessorCommand: '--prince',
   notes: 'original notes',
-  activeAgents: 0,
+  totalAssignedAgents: 0,
   keyspace: 0,
   keyspaceProgress: 0,
   taskWrapperId: 1,
