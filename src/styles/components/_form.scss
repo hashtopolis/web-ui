@@ -302,6 +302,8 @@ progress::-webkit-progress-value {
 
 .custom-chip-grid {
   width: 100%;
+  min-width: 300px;
+  max-width: 600px;
 }
 
 .custom-chip-grid mat-chip-row button[matchipremove] {
