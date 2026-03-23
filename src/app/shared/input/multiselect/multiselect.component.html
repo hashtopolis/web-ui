@@ -39,12 +39,20 @@
       [value]="searchTerm"
       placeholder="{{ placeholder }}"
       />
-    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onAutocompleteSelect($event.option.value)">
-      @for (item of filteredItems | async; track item) {
-        <mat-option [value]="item">
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="onAutocompleteSelect($event.option.value)"
+      (opened)="onPanelOpened()"
+      panelClass="multiselect-virtual-panel">
+      <cdk-virtual-scroll-viewport
+        [itemSize]="itemSize"
+        [style.height.px]="viewportHeight"
+        [minBufferPx]="viewportHeight"
+        [maxBufferPx]="viewportHeight * 2">
+        <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
           <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
         </mat-option>
-      }
+      </cdk-virtual-scroll-viewport>
     </mat-autocomplete>
     @if (hasError && errors) {
       <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
