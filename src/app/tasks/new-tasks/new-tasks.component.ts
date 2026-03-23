@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JCrackerBinaryType, JCrackerBinary } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, JCrackerBinary, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JPreprocessor } from '@models/preprocessor.model';
@@ -204,7 +204,7 @@ export class NewTasksComponent implements OnInit {
   private async loadCrackerSelectOptions(): Promise<void> {
     try {
       const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES));
-      const crackerTypes: JCrackerBinaryType[] = new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse);
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse));
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
 
       let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JCrackerBinaryType, JCrackerBinary } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, JCrackerBinary, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -86,7 +86,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes: JCrackerBinaryType[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse);
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse));
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);

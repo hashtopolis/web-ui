@@ -2,7 +2,7 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -42,7 +42,7 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const crackers: JCrackerBinaryType[] = this.serializer.deserialize(response, zCrackerBinaryTypeListResponse) as JCrackerBinaryType[];
+          const crackers: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(this.serializer.deserialize(response, zCrackerBinaryTypeListResponse));
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
