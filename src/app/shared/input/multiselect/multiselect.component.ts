@@ -86,10 +86,7 @@ export class InputMultiSelectComponent
 
   constructor() {
     super();
-    combineLatest([
-      this.searchInputSubject.pipe(startWith('')),
-      this.itemsSubject.pipe(startWith(this.availableItems))
-    ])
+    combineLatest([this.searchInputSubject.pipe(startWith('')), this.itemsSubject.pipe(startWith(this.availableItems))])
       .pipe(
         map(([searchTerm]) => (searchTerm ? this._filter(searchTerm) : this.getUnselectedItems())),
         takeUntil(this.destroy$)
@@ -355,11 +352,10 @@ export class InputMultiSelectComponent
     } else {
       // Convert number/number[] to SelectOption/SelectOption[]
       const ids = Array.isArray(newValue) ? newValue : [newValue];
-      const selectedOptions = ids
+
+      this.selectedItems = ids
         .map((id) => this._items.find((item) => Number(item.id) === Number(id)))
         .filter((item): item is SelectOption => item !== undefined);
-
-      this.selectedItems = selectedOptions;
       this.chipGridValidation = [...this.selectedItems];
 
       // Remove selected items from available

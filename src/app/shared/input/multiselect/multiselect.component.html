@@ -9,7 +9,6 @@
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid
       #chipGridRef
-      name="selectedItems"
       [required]="isRequired"
       aria-label="Items selection"
       [class.ng-invalid]="hasError"
@@ -43,7 +42,7 @@
       #auto="matAutocomplete"
       (optionSelected)="onAutocompleteSelect($event.option.value)"
       (opened)="onPanelOpened()"
-      panelClass="multiselect-virtual-panel">
+      class="multiselect-virtual-panel">
       <cdk-virtual-scroll-viewport
         [itemSize]="itemSize"
         [style.height.px]="viewportHeight"
