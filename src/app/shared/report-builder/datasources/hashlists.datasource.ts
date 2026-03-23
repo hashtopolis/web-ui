@@ -7,6 +7,7 @@ import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { zHashlistResponse } from '@generated/api/zod.gen';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
@@ -29,8 +30,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashlist = new JsonAPISerializer().deserialize<JHashlist>(responseBody);
+          const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
           const res = this.getReport(hashlist);
           this.setData(res);

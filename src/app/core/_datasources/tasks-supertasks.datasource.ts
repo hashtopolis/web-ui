@@ -10,6 +10,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod.gen';
+
 export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   private _supertTaskId = 0;
 
@@ -34,10 +36,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const subtasks = this.serializer.deserialize<JTask[]>({
-            data: response.data,
-            included: response.included
-          });
+          const subtasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
@@ -57,10 +56,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
                 .getAll(SERV.CHUNKS, chunkParams.create())
                 .pipe(finalize(() => this.setData(subtasks)))
                 .subscribe((chunkResponse: ResponseWrapper) => {
-                  const chunks = this.serializer.deserialize<JChunk[]>({
-                    data: chunkResponse.data,
-                    included: chunkResponse.included
-                  });
+                  const chunks: JChunk[] = this.serializer.deserialize(chunkResponse, zChunkListResponse);
                   subtasks.forEach((task) => {
                     task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
                   });

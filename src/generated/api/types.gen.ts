@@ -7,11 +7,11 @@ export type ClientOptions = {
 export type ErrorResponse = {
     title?: string;
     type?: string;
-    status?: number;
+    status: number;
 };
 
 export type NotFoundResponse = {
-    message?: string;
+    message: string;
     exception?: {
         type?: string;
         code?: number;
@@ -22,59 +22,67 @@ export type NotFoundResponse = {
 };
 
 export type AccessGroupCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'accessGroup';
+        attributes: {
             groupName?: string;
         };
     };
 };
 
 export type AccessGroupPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'accessGroup';
+        attributes: {
             groupName?: string;
         };
     };
 };
 
 export type AccessGroupResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            groupName?: string;
+    data: {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
         };
-    }>;
+    };
     relationships?: {
-        agentMembers?: {
-            links?: {
-                self?: string;
-                related?: string;
+        agentMembers: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'agent';
+                id: number;
+            }>;
         };
-        userMembers?: {
-            links?: {
-                self?: string;
-                related?: string;
+        userMembers: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'user';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'agentMembers';
         attributes?: {
             agentId?: number;
             agentName?: string;
@@ -97,37 +105,102 @@ export type AccessGroupResponse = {
 };
 
 export type AccessGroupPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    };
+};
+
+export type AccessGroupListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    }>;
+    relationships?: {
+        agentMembers: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'agent';
+                id: number;
+            }>;
+        };
+        userMembers: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'user';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'agentMembers';
         attributes?: {
-            groupName?: string;
+            agentId?: number;
+            agentName?: string;
+            uid?: string;
+            os?: number;
+            devices?: string;
+            cmdPars?: string;
+            ignoreErrors?: 0 | 1 | 2;
+            isActive?: boolean;
+            isTrusted?: boolean;
+            token?: string;
+            lastAct?: string;
+            lastTime?: number;
+            lastIp?: string;
+            userId?: number;
+            cpuOnly?: boolean;
+            clientSignature?: string;
         };
     }>;
 };
 
 export type AccessGroupRelationAgentMembers = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'agentMembers';
+        id: number;
     }>;
 };
 
 export type AccessGroupRelationAgentMembersGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'agentMembers';
+        id: number;
     }>;
 };
 
 export type AgentPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'agent';
+        attributes: {
             agentName?: string;
             cmdPars?: string;
             cpuOnly?: boolean;
@@ -142,85 +215,113 @@ export type AgentPatch = {
 };
 
 export type AgentResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            agentName?: string;
-            uid?: string;
-            os?: number;
-            devices?: string;
-            cmdPars?: string;
-            ignoreErrors?: 0 | 1 | 2;
-            isActive?: boolean;
-            isTrusted?: boolean;
-            token?: string;
-            lastAct?: string;
-            lastTime?: number;
-            lastIp?: string;
-            userId?: number;
-            cpuOnly?: boolean;
-            clientSignature?: string;
+    data: {
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: number;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
         };
-    }>;
+    };
     relationships?: {
-        accessGroups?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroups: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'accessGroup';
+                id: number;
+            }>;
         };
-        agentErrors?: {
-            links?: {
-                self?: string;
-                related?: string;
+        agentErrors: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'agentError';
+                id: number;
+            }>;
         };
-        agentStats?: {
-            links?: {
-                self?: string;
-                related?: string;
+        agentStats: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'agentStat';
+                id: number;
+            }>;
         };
-        assignments?: {
-            links?: {
-                self?: string;
-                related?: string;
+        assignments: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'agentAssignment';
+                id: number;
+            }>;
         };
-        chunks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        chunks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'chunk';
+                id: number;
+            }>;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
-        user?: {
-            links?: {
-                self?: string;
-                related?: string;
+        user: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'assignments';
         attributes?: {
             assignmentId?: number;
             taskId?: number;
@@ -231,51 +332,168 @@ export type AgentResponse = {
 };
 
 export type AgentPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: number;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    };
+};
+
+export type AgentListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: number;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    }>;
+    relationships?: {
+        accessGroups: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'accessGroup';
+                id: number;
+            }>;
+        };
+        agentErrors: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'agentError';
+                id: number;
+            }>;
+        };
+        agentStats: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'agentStat';
+                id: number;
+            }>;
+        };
+        assignments: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'agentAssignment';
+                id: number;
+            }>;
+        };
+        chunks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'chunk';
+                id: number;
+            }>;
+        };
+        tasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
+        };
+        user: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'assignments';
         attributes?: {
-            agentName?: string;
-            uid?: string;
-            os?: number;
-            devices?: string;
-            cmdPars?: string;
-            ignoreErrors?: 0 | 1 | 2;
-            isActive?: boolean;
-            isTrusted?: boolean;
-            token?: string;
-            lastAct?: string;
-            lastTime?: number;
-            lastIp?: string;
-            userId?: number;
-            cpuOnly?: boolean;
-            clientSignature?: string;
+            assignmentId?: number;
+            taskId?: number;
+            agentId?: number;
+            benchmark?: string;
         };
     }>;
 };
 
 export type AgentRelationAssignments = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'assignments';
+        id: number;
     }>;
 };
 
 export type AgentRelationAssignmentsGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'assignments';
+        id: number;
     }>;
 };
 
 export type AssignmentCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'assignment';
+        attributes: {
             taskId?: number;
             agentId?: number;
             benchmark?: string;
@@ -284,52 +502,60 @@ export type AssignmentCreate = {
 };
 
 export type AssignmentPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'assignment';
+        attributes: {
             benchmark?: string;
         };
     };
 };
 
 export type AssignmentResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            taskId?: number;
-            agentId?: number;
-            benchmark?: string;
+    data: {
+        id: number;
+        type: 'assignment';
+        attributes: {
+            taskId: number;
+            agentId: number;
+            benchmark: string;
         };
-    }>;
+    };
     relationships?: {
-        agent?: {
-            links?: {
-                self?: string;
-                related?: string;
+        agent: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
         };
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
+        task: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'task';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -362,39 +588,116 @@ export type AssignmentResponse = {
 };
 
 export type AssignmentPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'assignment';
+        attributes: {
+            taskId: number;
+            agentId: number;
+            benchmark: string;
+        };
+    };
+};
+
+export type AssignmentListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'assignment';
+        attributes: {
+            taskId: number;
+            agentId: number;
+            benchmark: string;
+        };
+    }>;
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'task';
         attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
             taskId?: number;
-            agentId?: number;
-            benchmark?: string;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
         };
     }>;
 };
 
 export type AssignmentRelationTask = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type AssignmentRelationTaskGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type AgentBinaryCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'agentBinary';
+        attributes: {
             binaryType?: string;
             version?: string;
             operatingSystems?: string;
@@ -405,9 +708,9 @@ export type AgentBinaryCreate = {
 };
 
 export type AgentBinaryPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'agentBinary';
+        attributes: {
             binaryType?: string;
             filename?: string;
             operatingSystems?: string;
@@ -418,29 +721,29 @@ export type AgentBinaryPatch = {
 };
 
 export type AgentBinaryResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            binaryType?: string;
-            version?: string;
-            operatingSystems?: string;
-            filename?: string;
-            updateTrack?: string;
-            updateAvailable?: string;
+    data: {
+        id: number;
+        type: 'agentBinary';
+        attributes: {
+            binaryType: string;
+            version: string;
+            operatingSystems: string;
+            filename: string;
+            updateTrack: string;
+            updateAvailable: string;
         };
-    }>;
+    };
     relationships?: {
         [key: string]: unknown;
     };
@@ -450,58 +753,163 @@ export type AgentBinaryResponse = {
 };
 
 export type AgentBinaryPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            binaryType?: string;
-            version?: string;
-            operatingSystems?: string;
-            filename?: string;
-            updateTrack?: string;
-            updateAvailable?: string;
+    data: {
+        id: number;
+        type: 'agentBinary';
+        attributes: {
+            binaryType: string;
+            version: string;
+            operatingSystems: string;
+            filename: string;
+            updateTrack: string;
+            updateAvailable: string;
         };
-    }>;
+    };
 };
 
-export type AgentErrorResponse = {
-    jsonapi?: {
-        version?: string;
+export type AgentBinaryListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            agentId?: number;
-            taskId?: number;
-            chunkId?: number;
-            time?: number;
-            error?: string;
+    data: Array<{
+        id: number;
+        type: 'agentBinary';
+        attributes: {
+            binaryType: string;
+            version: string;
+            operatingSystems: string;
+            filename: string;
+            updateTrack: string;
+            updateAvailable: string;
         };
     }>;
     relationships?: {
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type AgentErrorResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'agentError';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            chunkId: number;
+            time: number;
+            error: string;
+        };
+    };
+    relationships?: {
+        task: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'task';
+        attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
+        };
+    }>;
+};
+
+export type AgentErrorListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'agentError';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            chunkId: number;
+            time: number;
+            error: string;
+        };
+    }>;
+    relationships?: {
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'task';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -534,39 +942,69 @@ export type AgentErrorResponse = {
 };
 
 export type AgentErrorRelationTask = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type AgentErrorRelationTaskGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type AgentStatResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            agentId?: number;
-            statType?: number;
-            time?: number;
-            value?: Array<number>;
+    data: {
+        id: number;
+        type: 'agentStat';
+        attributes: {
+            agentId: number;
+            statType: number;
+            time: number;
+            value: Array<number>;
+        };
+    };
+    relationships?: {
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type AgentStatListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'agentStat';
+        attributes: {
+            agentId: number;
+            statType: number;
+            time: number;
+            value: Array<number>;
         };
     }>;
     relationships?: {
@@ -578,9 +1016,9 @@ export type AgentStatResponse = {
 };
 
 export type JwtApiKeyCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'jwtApiKey';
+        attributes: {
             scopes?: Array<number>;
             startValid?: number;
             endValid?: number;
@@ -591,47 +1029,52 @@ export type JwtApiKeyCreate = {
 };
 
 export type JwtApiKeyPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'jwtApiKey';
+        attributes: {
             isRevoked?: boolean;
         };
     };
 };
 
 export type JwtApiKeyResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            startValid?: number;
-            endValid?: number;
-            userId?: number;
-            isRevoked?: boolean;
+    data: {
+        id: number;
+        type: 'jwtApiKey';
+        attributes: {
+            startValid: number;
+            endValid: number;
+            userId: number;
+            isRevoked: boolean;
+            token?: string;
         };
-    }>;
+    };
     relationships?: {
-        user?: {
-            links?: {
-                self?: string;
-                related?: string;
+        user: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'user';
         attributes?: {
             userId?: number;
             name?: string;
@@ -654,82 +1097,235 @@ export type JwtApiKeyResponse = {
 };
 
 export type JwtApiKeyPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            startValid?: number;
-            endValid?: number;
-            userId?: number;
-            isRevoked?: boolean;
+    data: {
+        id: number;
+        type: 'jwtApiKey';
+        attributes: {
+            startValid: number;
+            endValid: number;
+            userId: number;
+            isRevoked: boolean;
+            token?: string;
         };
-    }>;
-};
-
-export type JwtApiKeyRelationUser = {
-    data?: {
-        type?: string;
-        id?: number;
     };
 };
 
-export type JwtApiKeyRelationUserGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
-    };
-};
-
-export type ChunkResponse = {
-    jsonapi?: {
-        version?: string;
+export type JwtApiKeyListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            taskId?: number;
-            skip?: number;
-            length?: number;
-            agentId?: number;
-            dispatchTime?: number;
-            solveTime?: number;
-            checkpoint?: number;
-            progress?: number;
-            state?: number;
-            cracked?: number;
-            speed?: number;
+    data: Array<{
+        id: number;
+        type: 'jwtApiKey';
+        attributes: {
+            startValid: number;
+            endValid: number;
+            userId: number;
+            isRevoked: boolean;
+            token?: string;
         };
     }>;
     relationships?: {
-        agent?: {
-            links?: {
-                self?: string;
-                related?: string;
+        user: {
+            links: {
+                self: string;
+                related: string;
             };
-        };
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
-            };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'user';
+        attributes?: {
+            userId?: number;
+            name?: string;
+            email?: string;
+            passwordHash?: string;
+            passwordSalt?: string;
+            isValid?: boolean;
+            isComputedPassword?: boolean;
+            lastLoginDate?: number;
+            registeredSince?: number;
+            sessionLifetime?: number;
+            globalPermissionGroupId?: number;
+            yubikey?: string;
+            otp1?: string;
+            otp2?: string;
+            otp3?: string;
+            otp4?: string;
+        };
+    }>;
+};
+
+export type JwtApiKeyRelationUser = {
+    data: {
+        type: 'user';
+        id: number;
+    };
+};
+
+export type JwtApiKeyRelationUserGetResponse = {
+    data: {
+        type: 'user';
+        id: number;
+    };
+};
+
+export type ChunkResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'chunk';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: number;
+            cracked: number;
+            speed: number;
+        };
+    };
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'task';
+        attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
+        };
+    }>;
+};
+
+export type ChunkListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'chunk';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: number;
+            cracked: number;
+            speed: number;
+        };
+    }>;
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'task';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -762,23 +1358,23 @@ export type ChunkResponse = {
 };
 
 export type ChunkRelationTask = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type ChunkRelationTaskGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type ConfigPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'config';
+        attributes: {
             item?: string;
             value?: string;
         };
@@ -786,37 +1382,41 @@ export type ConfigPatch = {
 };
 
 export type ConfigResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            configSectionId?: number;
-            item?: string;
-            value?: string;
+    data: {
+        id: number;
+        type: 'config';
+        attributes: {
+            configSectionId: number;
+            item: string;
+            value: string;
         };
-    }>;
+    };
     relationships?: {
-        configSection?: {
-            links?: {
-                self?: string;
-                related?: string;
+        configSection: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'configSection';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'configSection';
         attributes?: {
             configSectionId?: number;
             sectionName?: string;
@@ -825,52 +1425,122 @@ export type ConfigResponse = {
 };
 
 export type ConfigPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            configSectionId?: number;
-            item?: string;
-            value?: string;
+    data: {
+        id: number;
+        type: 'config';
+        attributes: {
+            configSectionId: number;
+            item: string;
+            value: string;
         };
-    }>;
-};
-
-export type ConfigRelationConfigSection = {
-    data?: {
-        type?: string;
-        id?: number;
     };
 };
 
-export type ConfigRelationConfigSectionGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
-    };
-};
-
-export type ConfigSectionResponse = {
-    jsonapi?: {
-        version?: string;
+export type ConfigListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
+    data: Array<{
+        id: number;
+        type: 'config';
+        attributes: {
+            configSectionId: number;
+            item: string;
+            value: string;
+        };
+    }>;
+    relationships?: {
+        configSection: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'configSection';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'configSection';
         attributes?: {
+            configSectionId?: number;
             sectionName?: string;
+        };
+    }>;
+};
+
+export type ConfigRelationConfigSection = {
+    data: {
+        type: 'configSection';
+        id: number;
+    };
+};
+
+export type ConfigRelationConfigSectionGetResponse = {
+    data: {
+        type: 'configSection';
+        id: number;
+    };
+};
+
+export type ConfigSectionResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'configSection';
+        attributes: {
+            sectionName: string;
+        };
+    };
+    relationships?: {
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type ConfigSectionListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'configSection';
+        attributes: {
+            sectionName: string;
         };
     }>;
     relationships?: {
@@ -882,9 +1552,9 @@ export type ConfigSectionResponse = {
 };
 
 export type CrackerBinaryCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'crackerBinary';
+        attributes: {
             crackerBinaryTypeId?: number;
             version?: string;
             downloadUrl?: string;
@@ -894,9 +1564,9 @@ export type CrackerBinaryCreate = {
 };
 
 export type CrackerBinaryPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'crackerBinary';
+        attributes: {
             binaryName?: string;
             downloadUrl?: string;
             version?: string;
@@ -905,44 +1575,52 @@ export type CrackerBinaryPatch = {
 };
 
 export type CrackerBinaryResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            crackerBinaryTypeId?: number;
-            version?: string;
-            downloadUrl?: string;
-            binaryName?: string;
+    data: {
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
         };
-    }>;
+    };
     relationships?: {
-        crackerBinaryType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        crackerBinaryType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'crackerBinaryType';
+                id: number;
+            } | null;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -975,49 +1653,127 @@ export type CrackerBinaryResponse = {
 };
 
 export type CrackerBinaryPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    };
+};
+
+export type CrackerBinaryListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    }>;
+    relationships?: {
+        crackerBinaryType: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'crackerBinaryType';
+                id: number;
+            } | null;
+        };
+        tasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
             crackerBinaryTypeId?: number;
-            version?: string;
-            downloadUrl?: string;
-            binaryName?: string;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
         };
     }>;
 };
 
 export type CrackerBinaryRelationTasks = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type CrackerBinaryRelationTasksGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type CrackerBinaryTypeCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'crackerBinaryType';
+        attributes: {
             typeName?: string;
         };
     };
 };
 
 export type CrackerBinaryTypePatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'crackerBinaryType';
+        attributes: {
             isChunkingAvailable?: boolean;
             typeName?: string;
         };
@@ -1025,42 +1781,50 @@ export type CrackerBinaryTypePatch = {
 };
 
 export type CrackerBinaryTypeResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            typeName?: string;
-            isChunkingAvailable?: boolean;
+    data: {
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
         };
-    }>;
+    };
     relationships?: {
-        crackerVersions?: {
-            links?: {
-                self?: string;
-                related?: string;
+        crackerVersions: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'crackerBinary';
+                id: number;
+            }>;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -1093,38 +1857,114 @@ export type CrackerBinaryTypeResponse = {
 };
 
 export type CrackerBinaryTypePostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    };
+};
+
+export type CrackerBinaryTypeListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    }>;
+    relationships?: {
+        crackerVersions: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'crackerBinary';
+                id: number;
+            }>;
+        };
+        tasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
-            typeName?: string;
-            isChunkingAvailable?: boolean;
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
         };
     }>;
 };
 
 export type CrackerBinaryTypeRelationTasks = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type CrackerBinaryTypeRelationTasksGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type FileCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'file';
+        attributes: {
             sourceType?: string;
             sourceData?: string;
             filename?: string;
@@ -1136,9 +1976,9 @@ export type FileCreate = {
 };
 
 export type FilePatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'file';
+        attributes: {
             accessGroupId?: number;
             fileType?: number;
             filename?: string;
@@ -1148,40 +1988,44 @@ export type FilePatch = {
 };
 
 export type FileResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            filename?: string;
-            size?: number;
-            isSecret?: boolean;
-            fileType?: number;
-            accessGroupId?: number;
-            lineCount?: number;
+    data: {
+        id: number;
+        type: 'file';
+        attributes: {
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: number;
+            accessGroupId: number;
+            lineCount: number;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'accessGroup';
         attributes?: {
             accessGroupId?: number;
             groupName?: string;
@@ -1190,29 +2034,33 @@ export type FileResponse = {
 };
 
 export type FileSingleResponse = {
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            filename?: string;
-            size?: number;
-            isSecret?: boolean;
-            fileType?: number;
-            accessGroupId?: number;
-            lineCount?: number;
+    data: {
+        id: number;
+        type: 'file';
+        attributes: {
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: number;
+            accessGroupId: number;
+            lineCount: number;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'accessGroup';
         attributes?: {
             accessGroupId?: number;
             groupName?: string;
@@ -1221,42 +2069,88 @@ export type FileSingleResponse = {
 };
 
 export type FilePostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'file';
+        attributes: {
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: number;
+            accessGroupId: number;
+            lineCount: number;
+        };
+    };
+};
+
+export type FileListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'file';
+        attributes: {
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: number;
+            accessGroupId: number;
+            lineCount: number;
+        };
+    }>;
+    relationships?: {
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'accessGroup';
         attributes?: {
-            filename?: string;
-            size?: number;
-            isSecret?: boolean;
-            fileType?: number;
             accessGroupId?: number;
-            lineCount?: number;
+            groupName?: string;
         };
     }>;
 };
 
 export type FileRelationAccessGroup = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'accessGroup';
+        id: number;
     };
 };
 
 export type FileRelationAccessGroupGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'accessGroup';
+        id: number;
     };
 };
 
 export type RightGroupCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'rightGroup';
+        attributes: {
             name?: string;
             permissions?: {
                 [key: string]: unknown;
@@ -1266,9 +2160,9 @@ export type RightGroupCreate = {
 };
 
 export type RightGroupPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'rightGroup';
+        attributes: {
             name?: string;
             permissions?: {
                 [key: string]: unknown;
@@ -1278,38 +2172,42 @@ export type RightGroupPatch = {
 };
 
 export type RightGroupResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            permissions?: {
+    data: {
+        id: number;
+        type: 'rightGroup';
+        attributes: {
+            name: string;
+            permissions: {
                 [key: string]: unknown;
             };
         };
-    }>;
+    };
     relationships?: {
-        userMembers?: {
-            links?: {
-                self?: string;
-                related?: string;
+        userMembers: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'user';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'userMembers';
         attributes?: {
             userId?: number;
             name?: string;
@@ -1332,79 +2230,219 @@ export type RightGroupResponse = {
 };
 
 export type RightGroupPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            permissions?: {
+    data: {
+        id: number;
+        type: 'rightGroup';
+        attributes: {
+            name: string;
+            permissions: {
                 [key: string]: unknown;
             };
         };
-    }>;
+    };
 };
 
-export type RightGroupRelationUserMembers = {
-    data?: Array<{
-        type?: string;
-        id?: number;
-    }>;
-};
-
-export type RightGroupRelationUserMembersGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
-    }>;
-};
-
-export type HashResponse = {
-    jsonapi?: {
-        version?: string;
+export type RightGroupListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            hashlistId?: number;
-            hash?: string;
-            salt?: string;
-            plaintext?: string;
-            timeCracked?: number;
-            chunkId?: number;
-            isCracked?: boolean;
-            crackPos?: number;
+    data: Array<{
+        id: number;
+        type: 'rightGroup';
+        attributes: {
+            name: string;
+            permissions: {
+                [key: string]: unknown;
+            };
         };
     }>;
     relationships?: {
-        chunk?: {
-            links?: {
-                self?: string;
-                related?: string;
+        userMembers: {
+            links: {
+                self: string;
+                related: string;
             };
-        };
-        hashlist?: {
-            links?: {
-                self?: string;
-                related?: string;
-            };
+            data?: Array<{
+                type: 'user';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'userMembers';
+        attributes?: {
+            userId?: number;
+            name?: string;
+            email?: string;
+            passwordHash?: string;
+            passwordSalt?: string;
+            isValid?: boolean;
+            isComputedPassword?: boolean;
+            lastLoginDate?: number;
+            registeredSince?: number;
+            sessionLifetime?: number;
+            globalPermissionGroupId?: number;
+            yubikey?: string;
+            otp1?: string;
+            otp2?: string;
+            otp3?: string;
+            otp4?: string;
+        };
+    }>;
+};
+
+export type RightGroupRelationUserMembers = {
+    data: Array<{
+        type: 'userMembers';
+        id: number;
+    }>;
+};
+
+export type RightGroupRelationUserMembersGetResponse = {
+    data: Array<{
+        type: 'userMembers';
+        id: number;
+    }>;
+};
+
+export type HashResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'hash';
+        attributes: {
+            hashlistId: number;
+            hash: string;
+            salt: string;
+            plaintext: string;
+            timeCracked: number;
+            chunkId: number;
+            isCracked: boolean;
+            crackPos: number;
+        };
+    };
+    relationships?: {
+        chunk: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'chunk';
+                id: number;
+            } | null;
+        };
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'hashlist';
+        attributes?: {
+            hashlistSeperator?: string;
+            sourceType?: string;
+            sourceData?: string;
+            hashlistId?: number;
+            name?: string;
+            format?: 0 | 1 | 2 | 3;
+            hashTypeId?: number;
+            hashCount?: number;
+            separator?: string;
+            cracked?: number;
+            isSecret?: boolean;
+            isHexSalt?: boolean;
+            isSalted?: boolean;
+            accessGroupId?: number;
+            notes?: string;
+            useBrain?: boolean;
+            brainFeatures?: number;
+            isArchived?: boolean;
+        };
+    }>;
+};
+
+export type HashListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'hash';
+        attributes: {
+            hashlistId: number;
+            hash: string;
+            salt: string;
+            plaintext: string;
+            timeCracked: number;
+            chunkId: number;
+            isCracked: boolean;
+            crackPos: number;
+        };
+    }>;
+    relationships?: {
+        chunk: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'chunk';
+                id: number;
+            } | null;
+        };
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'hashlist';
         attributes?: {
             hashlistSeperator?: string;
             sourceType?: string;
@@ -1429,23 +2467,23 @@ export type HashResponse = {
 };
 
 export type HashRelationHashlist = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'hashlist';
+        id: number;
     };
 };
 
 export type HashRelationHashlistGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'hashlist';
+        id: number;
     };
 };
 
 export type HashlistCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'hashlist';
+        attributes: {
             hashlistSeperator?: string;
             sourceType?: string;
             sourceData?: string;
@@ -1467,9 +2505,9 @@ export type HashlistCreate = {
 };
 
 export type HashlistPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'hashlist';
+        attributes: {
             accessGroupId?: number;
             isArchived?: boolean;
             isSecret?: boolean;
@@ -1480,72 +2518,92 @@ export type HashlistPatch = {
 };
 
 export type HashlistResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
-            separator?: string;
-            cracked?: number;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
-            isArchived?: boolean;
+    data: {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
-        hashType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
         };
-        hashes?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashes: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'hash';
+                id: number;
+            }>;
         };
-        hashlists?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashlists: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'hashlist';
+                id: number;
+            }>;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -1578,61 +2636,81 @@ export type HashlistResponse = {
 };
 
 export type HashlistSingleResponse = {
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
-            separator?: string;
-            cracked?: number;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
-            isArchived?: boolean;
+    data: {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
-        hashType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
         };
-        hashes?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashes: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'hash';
+                id: number;
+            }>;
         };
-        hashlists?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashlists: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'hashlist';
+                id: number;
+            }>;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -1665,50 +2743,168 @@ export type HashlistSingleResponse = {
 };
 
 export type HashlistPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    };
+};
+
+export type HashlistListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    }>;
+    relationships?: {
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
+        };
+        hashType: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
+        };
+        hashes: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'hash';
+                id: number;
+            }>;
+        };
+        hashlists: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'hashlist';
+                id: number;
+            }>;
+        };
+        tasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
-            separator?: string;
-            cracked?: number;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
             isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
         };
     }>;
 };
 
 export type HashlistRelationTasks = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type HashlistRelationTasksGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type HashTypeCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'hashType';
+        attributes: {
             hashTypeId?: number;
             description?: string;
             isSalted?: boolean;
@@ -1718,9 +2914,9 @@ export type HashTypeCreate = {
 };
 
 export type HashTypePatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'hashType';
+        attributes: {
             description?: string;
             isSalted?: boolean;
             isSlowHash?: boolean;
@@ -1729,26 +2925,26 @@ export type HashTypePatch = {
 };
 
 export type HashTypeResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            description?: string;
-            isSalted?: boolean;
-            isSlowHash?: boolean;
+    data: {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
         };
-    }>;
+    };
     relationships?: {
         [key: string]: unknown;
     };
@@ -1758,64 +2954,165 @@ export type HashTypeResponse = {
 };
 
 export type HashTypePostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            description?: string;
-            isSalted?: boolean;
-            isSlowHash?: boolean;
+    data: {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
         };
-    }>;
+    };
 };
 
-export type HealthCheckAgentResponse = {
-    jsonapi?: {
-        version?: string;
+export type HashTypeListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            healthCheckId?: number;
-            agentId?: number;
-            status?: number;
-            cracked?: number;
-            numGpus?: number;
-            start?: number;
-            end?: number;
-            errors?: string;
+    data: Array<{
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
         };
     }>;
     relationships?: {
-        agent?: {
-            links?: {
-                self?: string;
-                related?: string;
-            };
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type HealthCheckAgentResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'healthCheckAgent';
+        attributes: {
+            healthCheckId: number;
+            agentId: number;
+            status: number;
+            cracked: number;
+            numGpus: number;
+            start: number;
+            end: number;
+            errors: string;
         };
-        healthCheck?: {
-            links?: {
-                self?: string;
-                related?: string;
+    };
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        healthCheck: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'healthCheck';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'healthCheck';
+        attributes?: {
+            healthCheckId?: number;
+            time?: number;
+            status?: number;
+            checkType?: number;
+            hashtypeId?: number;
+            crackerBinaryId?: number;
+            expectedCracks?: number;
+            attackCmd?: string;
+        };
+    }>;
+};
+
+export type HealthCheckAgentListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'healthCheckAgent';
+        attributes: {
+            healthCheckId: number;
+            agentId: number;
+            status: number;
+            cracked: number;
+            numGpus: number;
+            start: number;
+            end: number;
+            errors: string;
+        };
+    }>;
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        healthCheck: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'healthCheck';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'healthCheck';
         attributes?: {
             healthCheckId?: number;
             time?: number;
@@ -1830,23 +3127,23 @@ export type HealthCheckAgentResponse = {
 };
 
 export type HealthCheckAgentRelationHealthCheck = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'healthCheck';
+        id: number;
     };
 };
 
 export type HealthCheckAgentRelationHealthCheckGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'healthCheck';
+        id: number;
     };
 };
 
 export type HealthCheckCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'healthCheck';
+        attributes: {
             checkType?: number;
             hashtypeId?: number;
             crackerBinaryId?: number;
@@ -1855,62 +3152,74 @@ export type HealthCheckCreate = {
 };
 
 export type HealthCheckPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'healthCheck';
+        attributes: {
             checkType?: number;
         };
     };
 };
 
 export type HealthCheckResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            time?: number;
-            status?: number;
-            checkType?: number;
-            hashtypeId?: number;
-            crackerBinaryId?: number;
-            expectedCracks?: number;
-            attackCmd?: string;
+    data: {
+        id: number;
+        type: 'healthCheck';
+        attributes: {
+            time: number;
+            status: number;
+            checkType: number;
+            hashtypeId: number;
+            crackerBinaryId: number;
+            expectedCracks: number;
+            attackCmd: string;
         };
-    }>;
+    };
     relationships?: {
-        crackerBinary?: {
-            links?: {
-                self?: string;
-                related?: string;
+        crackerBinary: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'crackerBinary';
+                id: number;
+            } | null;
         };
-        hashType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
         };
-        healthCheckAgents?: {
-            links?: {
-                self?: string;
-                related?: string;
+        healthCheckAgents: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'healthCheckAgent';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'healthCheckAgents';
         attributes?: {
             healthCheckAgentId?: number;
             healthCheckId?: number;
@@ -1926,80 +3235,154 @@ export type HealthCheckResponse = {
 };
 
 export type HealthCheckPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'healthCheck';
+        attributes: {
+            time: number;
+            status: number;
+            checkType: number;
+            hashtypeId: number;
+            crackerBinaryId: number;
+            expectedCracks: number;
+            attackCmd: string;
+        };
+    };
+};
+
+export type HealthCheckListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'healthCheck';
+        attributes: {
+            time: number;
+            status: number;
+            checkType: number;
+            hashtypeId: number;
+            crackerBinaryId: number;
+            expectedCracks: number;
+            attackCmd: string;
+        };
+    }>;
+    relationships?: {
+        crackerBinary: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'crackerBinary';
+                id: number;
+            } | null;
+        };
+        hashType: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
+        };
+        healthCheckAgents: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'healthCheckAgent';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'healthCheckAgents';
         attributes?: {
-            time?: number;
+            healthCheckAgentId?: number;
+            healthCheckId?: number;
+            agentId?: number;
             status?: number;
-            checkType?: number;
-            hashtypeId?: number;
-            crackerBinaryId?: number;
-            expectedCracks?: number;
-            attackCmd?: string;
+            cracked?: number;
+            numGpus?: number;
+            start?: number;
+            end?: number;
+            errors?: string;
         };
     }>;
 };
 
 export type HealthCheckRelationHealthCheckAgents = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'healthCheckAgents';
+        id: number;
     }>;
 };
 
 export type HealthCheckRelationHealthCheckAgentsGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'healthCheckAgents';
+        id: number;
     }>;
 };
 
 export type LogEntryCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'logEntry';
+        attributes: {
             [key: string]: unknown;
         };
     };
 };
 
 export type LogEntryPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'logEntry';
+        attributes: {
             [key: string]: unknown;
         };
     };
 };
 
 export type LogEntryResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            issuer?: string;
-            issuerId?: string;
-            level?: string;
-            message?: string;
-            time?: number;
+    data: {
+        id: number;
+        type: 'logEntry';
+        attributes: {
+            issuer: string;
+            issuerId: string;
+            level: string;
+            message: string;
+            time: number;
         };
-    }>;
+    };
     relationships?: {
         [key: string]: unknown;
     };
@@ -2009,27 +3392,58 @@ export type LogEntryResponse = {
 };
 
 export type LogEntryPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            issuer?: string;
-            issuerId?: string;
-            level?: string;
-            message?: string;
-            time?: number;
+    data: {
+        id: number;
+        type: 'logEntry';
+        attributes: {
+            issuer: string;
+            issuerId: string;
+            level: string;
+            message: string;
+            time: number;
         };
+    };
+};
+
+export type LogEntryListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'logEntry';
+        attributes: {
+            issuer: string;
+            issuerId: string;
+            level: string;
+            message: string;
+            time: number;
+        };
+    }>;
+    relationships?: {
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
     }>;
 };
 
 export type NotificationSettingCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'notificationSetting';
+        attributes: {
             actionFilter?: string;
             action?: string;
             notification?: string;
@@ -2039,9 +3453,9 @@ export type NotificationSettingCreate = {
 };
 
 export type NotificationSettingPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'notificationSetting';
+        attributes: {
             action?: string;
             isActive?: boolean;
             notification?: string;
@@ -2051,40 +3465,44 @@ export type NotificationSettingPatch = {
 };
 
 export type NotificationSettingResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            action?: string;
-            objectId?: number;
-            notification?: string;
-            userId?: number;
-            receiver?: string;
-            isActive?: boolean;
+    data: {
+        id: number;
+        type: 'notificationSetting';
+        attributes: {
+            action: string;
+            objectId: number;
+            notification: string;
+            userId: number;
+            receiver: string;
+            isActive: boolean;
         };
-    }>;
+    };
     relationships?: {
-        user?: {
-            links?: {
-                self?: string;
-                related?: string;
+        user: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'user';
         attributes?: {
             userId?: number;
             name?: string;
@@ -2107,42 +3525,102 @@ export type NotificationSettingResponse = {
 };
 
 export type NotificationSettingPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'notificationSetting';
+        attributes: {
+            action: string;
+            objectId: number;
+            notification: string;
+            userId: number;
+            receiver: string;
+            isActive: boolean;
+        };
+    };
+};
+
+export type NotificationSettingListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'notificationSetting';
+        attributes: {
+            action: string;
+            objectId: number;
+            notification: string;
+            userId: number;
+            receiver: string;
+            isActive: boolean;
+        };
+    }>;
+    relationships?: {
+        user: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'user';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'user';
         attributes?: {
-            action?: string;
-            objectId?: number;
-            notification?: string;
             userId?: number;
-            receiver?: string;
-            isActive?: boolean;
+            name?: string;
+            email?: string;
+            passwordHash?: string;
+            passwordSalt?: string;
+            isValid?: boolean;
+            isComputedPassword?: boolean;
+            lastLoginDate?: number;
+            registeredSince?: number;
+            sessionLifetime?: number;
+            globalPermissionGroupId?: number;
+            yubikey?: string;
+            otp1?: string;
+            otp2?: string;
+            otp3?: string;
+            otp4?: string;
         };
     }>;
 };
 
 export type NotificationSettingRelationUser = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'user';
+        id: number;
     };
 };
 
 export type NotificationSettingRelationUserGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'user';
+        id: number;
     };
 };
 
 export type PreprocessorCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'preprocessor';
+        attributes: {
             name?: string;
             url?: string;
             binaryName?: string;
@@ -2154,9 +3632,9 @@ export type PreprocessorCreate = {
 };
 
 export type PreprocessorPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'preprocessor';
+        attributes: {
             binaryName?: string;
             keyspaceCommand?: string;
             limitCommand?: string;
@@ -2168,27 +3646,78 @@ export type PreprocessorPatch = {
 };
 
 export type PreprocessorResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            url?: string;
-            binaryName?: string;
-            keyspaceCommand?: string;
-            skipCommand?: string;
-            limitCommand?: string;
+    data: {
+        id: number;
+        type: 'preprocessor';
+        attributes: {
+            name: string;
+            url: string;
+            binaryName: string;
+            keyspaceCommand: string;
+            skipCommand: string;
+            limitCommand: string;
+        };
+    };
+    relationships?: {
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type PreprocessorPostPatchResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    data: {
+        id: number;
+        type: 'preprocessor';
+        attributes: {
+            name: string;
+            url: string;
+            binaryName: string;
+            keyspaceCommand: string;
+            skipCommand: string;
+            limitCommand: string;
+        };
+    };
+};
+
+export type PreprocessorListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'preprocessor';
+        attributes: {
+            name: string;
+            url: string;
+            binaryName: string;
+            keyspaceCommand: string;
+            skipCommand: string;
+            limitCommand: string;
         };
     }>;
     relationships?: {
@@ -2199,29 +3728,10 @@ export type PreprocessorResponse = {
     }>;
 };
 
-export type PreprocessorPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
-        ext?: string;
-    };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            url?: string;
-            binaryName?: string;
-            keyspaceCommand?: string;
-            skipCommand?: string;
-            limitCommand?: string;
-        };
-    }>;
-};
-
 export type PretaskCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'pretask';
+        attributes: {
             files?: Array<number>;
             taskName?: string;
             attackCmd?: string;
@@ -2240,9 +3750,9 @@ export type PretaskCreate = {
 };
 
 export type PretaskPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'pretask';
+        attributes: {
             attackCmd?: string;
             chunkTime?: number;
             color?: string;
@@ -2259,46 +3769,51 @@ export type PretaskPatch = {
 };
 
 export type PretaskResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+    data: {
+        id: number;
+        type: 'pretask';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
+            auxiliaryKeyspace?: number;
         };
-    }>;
+    };
     relationships?: {
-        pretaskFiles?: {
-            links?: {
-                self?: string;
-                related?: string;
+        pretaskFiles: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'file';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'pretaskFiles';
         attributes?: {
             sourceType?: string;
             sourceData?: string;
@@ -2314,83 +3829,230 @@ export type PretaskResponse = {
 };
 
 export type PretaskPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+    data: {
+        id: number;
+        type: 'pretask';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
+            auxiliaryKeyspace?: number;
         };
-    }>;
+    };
 };
 
-export type PretaskRelationPretaskFiles = {
-    data?: Array<{
-        type?: string;
-        id?: number;
-    }>;
-};
-
-export type PretaskRelationPretaskFilesGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
-    }>;
-};
-
-export type SpeedResponse = {
-    jsonapi?: {
-        version?: string;
+export type PretaskListResponse = {
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            agentId?: number;
-            taskId?: number;
-            speed?: number;
-            time?: number;
+    data: Array<{
+        id: number;
+        type: 'pretask';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
+            auxiliaryKeyspace?: number;
         };
     }>;
     relationships?: {
-        agent?: {
-            links?: {
-                self?: string;
-                related?: string;
+        pretaskFiles: {
+            links: {
+                self: string;
+                related: string;
             };
-        };
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
-            };
+            data?: Array<{
+                type: 'file';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'pretaskFiles';
+        attributes?: {
+            sourceType?: string;
+            sourceData?: string;
+            fileId?: number;
+            filename?: string;
+            size?: number;
+            isSecret?: boolean;
+            fileType?: number;
+            accessGroupId?: number;
+            lineCount?: number;
+        };
+    }>;
+};
+
+export type PretaskRelationPretaskFiles = {
+    data: Array<{
+        type: 'pretaskFiles';
+        id: number;
+    }>;
+};
+
+export type PretaskRelationPretaskFilesGetResponse = {
+    data: Array<{
+        type: 'pretaskFiles';
+        id: number;
+    }>;
+};
+
+export type SpeedResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: {
+        id: number;
+        type: 'speed';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            speed: number;
+            time: number;
+        };
+    };
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'task';
+        attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
+            priority?: number;
+            maxAgents?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
+            isArchived?: boolean;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
+        };
+    }>;
+};
+
+export type SpeedListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'speed';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            speed: number;
+            time: number;
+        };
+    }>;
+    relationships?: {
+        agent: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'agent';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
+        id?: number;
+        type?: 'task';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -2423,23 +4085,23 @@ export type SpeedResponse = {
 };
 
 export type SpeedRelationTask = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type SpeedRelationTaskGetResponse = {
-    data?: {
-        type?: string;
-        id?: number;
+    data: {
+        type: 'task';
+        id: number;
     };
 };
 
 export type SupertaskCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'supertask';
+        attributes: {
             pretasks?: Array<number>;
             supertaskName?: string;
         };
@@ -2447,44 +4109,48 @@ export type SupertaskCreate = {
 };
 
 export type SupertaskPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'supertask';
+        attributes: {
             supertaskName?: string;
         };
     };
 };
 
 export type SupertaskResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            supertaskName?: string;
+    data: {
+        id: number;
+        type: 'supertask';
+        attributes: {
+            supertaskName: string;
         };
-    }>;
+    };
     relationships?: {
-        pretasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        pretasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'preTask';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'pretasks';
         attributes?: {
             files?: Array<number>;
             pretaskId?: number;
@@ -2505,24 +4171,28 @@ export type SupertaskResponse = {
 };
 
 export type SupertaskSingleResponse = {
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            supertaskName?: string;
+    data: {
+        id: number;
+        type: 'supertask';
+        attributes: {
+            supertaskName: string;
         };
-    }>;
+    };
     relationships?: {
-        pretasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        pretasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'preTask';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'pretasks';
         attributes?: {
             files?: Array<number>;
             pretaskId?: number;
@@ -2543,37 +4213,90 @@ export type SupertaskSingleResponse = {
 };
 
 export type SupertaskPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'supertask';
+        attributes: {
+            supertaskName: string;
+        };
+    };
+};
+
+export type SupertaskListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'supertask';
+        attributes: {
+            supertaskName: string;
+        };
+    }>;
+    relationships?: {
+        pretasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'preTask';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'pretasks';
         attributes?: {
-            supertaskName?: string;
+            files?: Array<number>;
+            pretaskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            priority?: number;
+            maxAgents?: number;
+            isMaskImport?: boolean;
+            crackerBinaryTypeId?: number;
         };
     }>;
 };
 
 export type SupertaskRelationPretasks = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'pretasks';
+        id: number;
     }>;
 };
 
 export type SupertaskRelationPretasksGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'pretasks';
+        id: number;
     }>;
 };
 
 export type TaskCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'task';
+        attributes: {
             hashlistId?: number;
             files?: Array<number>;
             taskName?: string;
@@ -2601,9 +4324,9 @@ export type TaskCreate = {
 };
 
 export type TaskPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'task';
+        attributes: {
             attackCmd?: string;
             chunkTime?: number;
             color?: string;
@@ -2620,87 +4343,119 @@ export type TaskPatch = {
 };
 
 export type TaskResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+    data: {
+        id: number;
+        type: 'task';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+            activeAgents?: number;
+            dispatched?: string;
+            searched?: string;
+            status?: 0 | 1 | 2 | 3;
+            estimatedTime?: number;
+            timeSpent?: number;
+            currentSpeed?: number;
+            cprogress?: number;
         };
-    }>;
+    };
     relationships?: {
-        assignedAgents?: {
-            links?: {
-                self?: string;
-                related?: string;
+        assignedAgents: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'agent';
+                id: number;
+            }>;
         };
-        crackerBinary?: {
-            links?: {
-                self?: string;
-                related?: string;
+        crackerBinary: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'crackerBinary';
+                id: number;
+            } | null;
         };
-        crackerBinaryType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        crackerBinaryType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'crackerBinaryType';
+                id: number;
+            } | null;
         };
-        files?: {
-            links?: {
-                self?: string;
-                related?: string;
+        files: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'file';
+                id: number;
+            }>;
         };
-        hashlist?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
         };
-        speeds?: {
-            links?: {
-                self?: string;
-                related?: string;
+        speeds: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'speed';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'speeds';
         attributes?: {
             speedId?: number;
             agentId?: number;
@@ -2712,59 +4467,191 @@ export type TaskResponse = {
 };
 
 export type TaskPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'task';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+            activeAgents?: number;
+            dispatched?: string;
+            searched?: string;
+            status?: 0 | 1 | 2 | 3;
+            estimatedTime?: number;
+            timeSpent?: number;
+            currentSpeed?: number;
+            cprogress?: number;
+        };
+    };
+};
+
+export type TaskListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'task';
+        attributes: {
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+            activeAgents?: number;
+            dispatched?: string;
+            searched?: string;
+            status?: 0 | 1 | 2 | 3;
+            estimatedTime?: number;
+            timeSpent?: number;
+            currentSpeed?: number;
+            cprogress?: number;
+        };
+    }>;
+    relationships?: {
+        assignedAgents: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'agent';
+                id: number;
+            }>;
+        };
+        crackerBinary: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'crackerBinary';
+                id: number;
+            } | null;
+        };
+        crackerBinaryType: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'crackerBinaryType';
+                id: number;
+            } | null;
+        };
+        files: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'file';
+                id: number;
+            }>;
+        };
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
+        };
+        speeds: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'speed';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'speeds';
         attributes?: {
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+            speedId?: number;
+            agentId?: number;
+            taskId?: number;
+            speed?: number;
+            time?: number;
         };
     }>;
 };
 
 export type TaskRelationSpeeds = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'speeds';
+        id: number;
     }>;
 };
 
 export type TaskRelationSpeedsGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'speeds';
+        id: number;
     }>;
 };
 
 export type TaskWrapperPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'taskWrapper';
+        attributes: {
             accessGroupId?: number;
             isArchived?: boolean;
             maxAgents?: number;
@@ -2775,66 +4662,86 @@ export type TaskWrapperPatch = {
 };
 
 export type TaskWrapperResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            priority?: number;
-            maxAgents?: number;
-            taskType?: 0 | 1;
-            hashlistId?: number;
-            accessGroupId?: number;
-            taskWrapperName?: string;
-            isArchived?: boolean;
-            cracked?: number;
+    data: {
+        id: number;
+        type: 'taskWrapper';
+        attributes: {
+            priority: number;
+            maxAgents: number;
+            taskType: 0 | 1;
+            hashlistId: number;
+            accessGroupId: number;
+            taskWrapperName: string;
+            isArchived: boolean;
+            cracked: number;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
-        hashType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
         };
-        hashlist?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
         };
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
+        task: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -2867,55 +4774,75 @@ export type TaskWrapperResponse = {
 };
 
 export type TaskWrapperSingleResponse = {
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            priority?: number;
-            maxAgents?: number;
-            taskType?: 0 | 1;
-            hashlistId?: number;
-            accessGroupId?: number;
-            taskWrapperName?: string;
-            isArchived?: boolean;
-            cracked?: number;
+    data: {
+        id: number;
+        type: 'taskWrapper';
+        attributes: {
+            priority: number;
+            maxAgents: number;
+            taskType: 0 | 1;
+            hashlistId: number;
+            accessGroupId: number;
+            taskWrapperName: string;
+            isArchived: boolean;
+            cracked: number;
         };
-    }>;
+    };
     relationships?: {
-        accessGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
         };
-        hashType?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashType: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
         };
-        hashlist?: {
-            links?: {
-                self?: string;
-                related?: string;
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
         };
-        task?: {
-            links?: {
-                self?: string;
-                related?: string;
+        task: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
         };
-        tasks?: {
-            links?: {
-                self?: string;
-                related?: string;
+        tasks: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
             hashlistId?: number;
             files?: Array<number>;
@@ -2948,44 +4875,156 @@ export type TaskWrapperSingleResponse = {
 };
 
 export type TaskWrapperPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'taskWrapper';
+        attributes: {
+            priority: number;
+            maxAgents: number;
+            taskType: 0 | 1;
+            hashlistId: number;
+            accessGroupId: number;
+            taskWrapperName: string;
+            isArchived: boolean;
+            cracked: number;
+        };
+    };
+};
+
+export type TaskWrapperListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'taskWrapper';
+        attributes: {
+            priority: number;
+            maxAgents: number;
+            taskType: 0 | 1;
+            hashlistId: number;
+            accessGroupId: number;
+            taskWrapperName: string;
+            isArchived: boolean;
+            cracked: number;
+        };
+    }>;
+    relationships?: {
+        accessGroup: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'accessGroup';
+                id: number;
+            } | null;
+        };
+        hashType: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashType';
+                id: number;
+            } | null;
+        };
+        hashlist: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'hashlist';
+                id: number;
+            } | null;
+        };
+        task: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'task';
+                id: number;
+            } | null;
+        };
+        tasks: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'task';
+                id: number;
+            }>;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'tasks';
         attributes?: {
+            hashlistId?: number;
+            files?: Array<number>;
+            taskId?: number;
+            taskName?: string;
+            attackCmd?: string;
+            chunkTime?: number;
+            statusTimer?: number;
+            keyspace?: number;
+            keyspaceProgress?: number;
             priority?: number;
             maxAgents?: number;
-            taskType?: 0 | 1;
-            hashlistId?: number;
-            accessGroupId?: number;
-            taskWrapperName?: string;
+            color?: string;
+            isSmall?: boolean;
+            isCpuTask?: boolean;
+            useNewBench?: boolean;
+            skipKeyspace?: number;
+            crackerBinaryId?: number;
+            crackerBinaryTypeId?: number;
+            taskWrapperId?: number;
             isArchived?: boolean;
-            cracked?: number;
+            notes?: string;
+            staticChunks?: number;
+            chunkSize?: number;
+            forcePipe?: boolean;
+            preprocessorId?: number;
+            preprocessorCommand?: string;
         };
     }>;
 };
 
 export type TaskWrapperRelationTasks = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type TaskWrapperRelationTasksGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'tasks';
+        id: number;
     }>;
 };
 
 export type UserCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'user';
+        attributes: {
             name?: string;
             email?: string;
             globalPermissionGroupId?: number;
@@ -2994,9 +5033,9 @@ export type UserCreate = {
 };
 
 export type UserPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'user';
+        attributes: {
             email?: string;
             globalPermissionGroupId?: number;
             isValid?: boolean;
@@ -3006,55 +5045,61 @@ export type UserPatch = {
 };
 
 export type UserResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+    data: {
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
-    }>;
+    };
     relationships?: {
-        accessGroups?: {
-            links?: {
-                self?: string;
-                related?: string;
+        accessGroups: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: Array<{
+                type: 'accessGroup';
+                id: number;
+            }>;
         };
-        globalPermissionGroup?: {
-            links?: {
-                self?: string;
-                related?: string;
+        globalPermissionGroup: {
+            links: {
+                self: string;
+                related: string;
             };
+            data?: {
+                type: 'globalPermissionGroup';
+                id: number;
+            } | null;
         };
     };
     included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'accessGroups';
         attributes?: {
             accessGroupId?: number;
             groupName?: string;
@@ -3063,85 +5108,146 @@ export type UserResponse = {
 };
 
 export type UserPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
+    data: {
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    };
+};
+
+export type UserListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    }>;
+    relationships?: {
+        accessGroups: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: Array<{
+                type: 'accessGroup';
+                id: number;
+            }>;
+        };
+        globalPermissionGroup: {
+            links: {
+                self: string;
+                related: string;
+            };
+            data?: {
+                type: 'globalPermissionGroup';
+                id: number;
+            } | null;
+        };
+    };
+    included?: Array<{
         id?: number;
-        type?: string;
+        type?: 'accessGroups';
         attributes?: {
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+            accessGroupId?: number;
+            groupName?: string;
         };
     }>;
 };
 
 export type UserRelationAccessGroups = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'accessGroups';
+        id: number;
     }>;
 };
 
 export type UserRelationAccessGroupsGetResponse = {
-    data?: Array<{
-        type?: string;
-        id?: number;
+    data: Array<{
+        type: 'accessGroups';
+        id: number;
     }>;
 };
 
 export type RegVoucherCreate = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'regVoucher';
+        attributes: {
             voucher?: string;
         };
     };
 };
 
 export type RegVoucherPatch = {
-    data?: {
-        type?: string;
-        attributes?: {
+    data: {
+        type: 'regVoucher';
+        attributes: {
             voucher?: string;
         };
     };
 };
 
 export type RegVoucherResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
     links?: {
-        self?: string;
+        self: string;
         first?: string;
         last?: string;
         next?: string;
         previous?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            voucher?: string;
-            time?: number;
+    data: {
+        id: number;
+        type: 'regVoucher';
+        attributes: {
+            voucher: string;
+            time: number;
         };
-    }>;
+    };
     relationships?: {
         [key: string]: unknown;
     };
@@ -3151,17 +5257,45 @@ export type RegVoucherResponse = {
 };
 
 export type RegVoucherPostPatchResponse = {
-    jsonapi?: {
-        version?: string;
+    jsonapi: {
+        version: string;
         ext?: string;
     };
-    data?: Array<{
-        id?: number;
-        type?: string;
-        attributes?: {
-            voucher?: string;
-            time?: number;
+    data: {
+        id: number;
+        type: 'regVoucher';
+        attributes: {
+            voucher: string;
+            time: number;
         };
+    };
+};
+
+export type RegVoucherListResponse = {
+    jsonapi: {
+        version: string;
+        ext?: string;
+    };
+    links?: {
+        self: string;
+        first?: string;
+        last?: string;
+        next?: string;
+        previous?: string;
+    };
+    data: Array<{
+        id: number;
+        type: 'regVoucher';
+        attributes: {
+            voucher: string;
+            time: number;
+        };
+    }>;
+    relationships?: {
+        [key: string]: unknown;
+    };
+    included?: Array<{
+        [key: string]: unknown;
     }>;
 };
 
@@ -3338,8 +5472,8 @@ export type UnassignAgentHelperApiResponse = Array<{
 }>;
 
 export type Token = {
-    token?: string;
-    expires?: number;
+    token: string;
+    expires: number;
 };
 
 export type TokenRequest = Array<string>;
@@ -3418,7 +5552,7 @@ export type GetAccessgroupsResponses = {
     /**
      * successful operation
      */
-    200: Array<AccessGroupResponse>;
+    200: AccessGroupListResponse;
 };
 
 export type GetAccessgroupsResponse = GetAccessgroupsResponses[keyof GetAccessgroupsResponses];
@@ -3526,7 +5660,7 @@ export type GetAccessgroupsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AccessGroupResponse>;
+    200: AccessGroupListResponse;
 };
 
 export type GetAccessgroupsCountResponse = GetAccessgroupsCountResponses[keyof GetAccessgroupsCountResponses];
@@ -3899,7 +6033,7 @@ export type GetAgentsResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentResponse>;
+    200: AgentListResponse;
 };
 
 export type GetAgentsResponse = GetAgentsResponses[keyof GetAgentsResponses];
@@ -3978,7 +6112,7 @@ export type GetAgentsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentResponse>;
+    200: AgentListResponse;
 };
 
 export type GetAgentsCountResponse = GetAgentsCountResponses[keyof GetAgentsCountResponses];
@@ -4351,7 +6485,7 @@ export type GetAgentassignmentsResponses = {
     /**
      * successful operation
      */
-    200: Array<AssignmentResponse>;
+    200: AssignmentListResponse;
 };
 
 export type GetAgentassignmentsResponse = GetAgentassignmentsResponses[keyof GetAgentassignmentsResponses];
@@ -4459,7 +6593,7 @@ export type GetAgentassignmentsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AssignmentResponse>;
+    200: AssignmentListResponse;
 };
 
 export type GetAgentassignmentsCountResponse = GetAgentassignmentsCountResponses[keyof GetAgentassignmentsCountResponses];
@@ -4758,7 +6892,7 @@ export type GetAgentbinariesResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentBinaryResponse>;
+    200: AgentBinaryListResponse;
 };
 
 export type GetAgentbinariesResponse = GetAgentbinariesResponses[keyof GetAgentbinariesResponses];
@@ -4866,7 +7000,7 @@ export type GetAgentbinariesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentBinaryResponse>;
+    200: AgentBinaryListResponse;
 };
 
 export type GetAgentbinariesCountResponse = GetAgentbinariesCountResponses[keyof GetAgentbinariesCountResponses];
@@ -5057,7 +7191,7 @@ export type GetAgenterrorsResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentErrorResponse>;
+    200: AgentErrorListResponse;
 };
 
 export type GetAgenterrorsResponse = GetAgenterrorsResponses[keyof GetAgenterrorsResponses];
@@ -5109,7 +7243,7 @@ export type GetAgenterrorsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentErrorResponse>;
+    200: AgentErrorListResponse;
 };
 
 export type GetAgenterrorsCountResponse = GetAgenterrorsCountResponses[keyof GetAgenterrorsCountResponses];
@@ -5373,7 +7507,7 @@ export type GetAgentstatsResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentStatResponse>;
+    200: AgentStatListResponse;
 };
 
 export type GetAgentstatsResponse = GetAgentstatsResponses[keyof GetAgentstatsResponses];
@@ -5425,7 +7559,7 @@ export type GetAgentstatsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<AgentStatResponse>;
+    200: AgentStatListResponse;
 };
 
 export type GetAgentstatsCountResponse = GetAgentstatsCountResponses[keyof GetAgentstatsCountResponses];
@@ -5581,7 +7715,7 @@ export type GetApiTokensResponses = {
     /**
      * successful operation
      */
-    200: Array<JwtApiKeyResponse>;
+    200: JwtApiKeyListResponse;
 };
 
 export type GetApiTokensResponse = GetApiTokensResponses[keyof GetApiTokensResponses];
@@ -5689,7 +7823,7 @@ export type GetApiTokensCountResponses = {
     /**
      * successful operation
      */
-    200: Array<JwtApiKeyResponse>;
+    200: JwtApiKeyListResponse;
 };
 
 export type GetApiTokensCountResponse = GetApiTokensCountResponses[keyof GetApiTokensCountResponses];
@@ -5961,7 +8095,7 @@ export type GetChunksResponses = {
     /**
      * successful operation
      */
-    200: Array<ChunkResponse>;
+    200: ChunkListResponse;
 };
 
 export type GetChunksResponse = GetChunksResponses[keyof GetChunksResponses];
@@ -6013,7 +8147,7 @@ export type GetChunksCountResponses = {
     /**
      * successful operation
      */
-    200: Array<ChunkResponse>;
+    200: ChunkListResponse;
 };
 
 export type GetChunksCountResponse = GetChunksCountResponses[keyof GetChunksCountResponses];
@@ -6213,7 +8347,7 @@ export type GetConfigsResponses = {
     /**
      * successful operation
      */
-    200: Array<ConfigResponse>;
+    200: ConfigListResponse;
 };
 
 export type GetConfigsResponse = GetConfigsResponses[keyof GetConfigsResponses];
@@ -6292,7 +8426,7 @@ export type GetConfigsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<ConfigResponse>;
+    200: ConfigListResponse;
 };
 
 export type GetConfigsCountResponse = GetConfigsCountResponses[keyof GetConfigsCountResponses];
@@ -6527,7 +8661,7 @@ export type GetConfigsectionsResponses = {
     /**
      * successful operation
      */
-    200: Array<ConfigSectionResponse>;
+    200: ConfigSectionListResponse;
 };
 
 export type GetConfigsectionsResponse = GetConfigsectionsResponses[keyof GetConfigsectionsResponses];
@@ -6579,7 +8713,7 @@ export type GetConfigsectionsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<ConfigSectionResponse>;
+    200: ConfigSectionListResponse;
 };
 
 export type GetConfigsectionsCountResponse = GetConfigsectionsCountResponses[keyof GetConfigsectionsCountResponses];
@@ -6698,7 +8832,7 @@ export type GetCrackersResponses = {
     /**
      * successful operation
      */
-    200: Array<CrackerBinaryResponse>;
+    200: CrackerBinaryListResponse;
 };
 
 export type GetCrackersResponse = GetCrackersResponses[keyof GetCrackersResponses];
@@ -6806,7 +8940,7 @@ export type GetCrackersCountResponses = {
     /**
      * successful operation
      */
-    200: Array<CrackerBinaryResponse>;
+    200: CrackerBinaryListResponse;
 };
 
 export type GetCrackersCountResponse = GetCrackersCountResponses[keyof GetCrackersCountResponses];
@@ -7179,7 +9313,7 @@ export type GetCrackertypesResponses = {
     /**
      * successful operation
      */
-    200: Array<CrackerBinaryTypeResponse>;
+    200: CrackerBinaryTypeListResponse;
 };
 
 export type GetCrackertypesResponse = GetCrackertypesResponses[keyof GetCrackertypesResponses];
@@ -7287,7 +9421,7 @@ export type GetCrackertypesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<CrackerBinaryTypeResponse>;
+    200: CrackerBinaryTypeListResponse;
 };
 
 export type GetCrackertypesCountResponse = GetCrackertypesCountResponses[keyof GetCrackertypesCountResponses];
@@ -7660,7 +9794,7 @@ export type GetFilesResponses = {
     /**
      * successful operation
      */
-    200: Array<FileResponse>;
+    200: FileListResponse;
 };
 
 export type GetFilesResponse = GetFilesResponses[keyof GetFilesResponses];
@@ -7768,7 +9902,7 @@ export type GetFilesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<FileResponse>;
+    200: FileListResponse;
 };
 
 export type GetFilesCountResponse = GetFilesCountResponses[keyof GetFilesCountResponses];
@@ -8067,7 +10201,7 @@ export type GetGlobalpermissiongroupsResponses = {
     /**
      * successful operation
      */
-    200: Array<RightGroupResponse>;
+    200: RightGroupListResponse;
 };
 
 export type GetGlobalpermissiongroupsResponse = GetGlobalpermissiongroupsResponses[keyof GetGlobalpermissiongroupsResponses];
@@ -8175,7 +10309,7 @@ export type GetGlobalpermissiongroupsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<RightGroupResponse>;
+    200: RightGroupListResponse;
 };
 
 export type GetGlobalpermissiongroupsCountResponse = GetGlobalpermissiongroupsCountResponses[keyof GetGlobalpermissiongroupsCountResponses];
@@ -8521,7 +10655,7 @@ export type GetHashesResponses = {
     /**
      * successful operation
      */
-    200: Array<HashResponse>;
+    200: HashListResponse;
 };
 
 export type GetHashesResponse = GetHashesResponses[keyof GetHashesResponses];
@@ -8573,7 +10707,7 @@ export type GetHashesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<HashResponse>;
+    200: HashListResponse;
 };
 
 export type GetHashesCountResponse = GetHashesCountResponses[keyof GetHashesCountResponses];
@@ -8800,7 +10934,7 @@ export type GetHashlistsResponses = {
     /**
      * successful operation
      */
-    200: Array<HashlistResponse>;
+    200: HashlistListResponse;
 };
 
 export type GetHashlistsResponse = GetHashlistsResponses[keyof GetHashlistsResponses];
@@ -8908,7 +11042,7 @@ export type GetHashlistsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<HashlistResponse>;
+    200: HashlistListResponse;
 };
 
 export type GetHashlistsCountResponse = GetHashlistsCountResponses[keyof GetHashlistsCountResponses];
@@ -9281,7 +11415,7 @@ export type GetHashtypesResponses = {
     /**
      * successful operation
      */
-    200: Array<HashTypeResponse>;
+    200: HashTypeListResponse;
 };
 
 export type GetHashtypesResponse = GetHashtypesResponses[keyof GetHashtypesResponses];
@@ -9389,7 +11523,7 @@ export type GetHashtypesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<HashTypeResponse>;
+    200: HashTypeListResponse;
 };
 
 export type GetHashtypesCountResponse = GetHashtypesCountResponses[keyof GetHashtypesCountResponses];
@@ -9553,7 +11687,7 @@ export type GetHealthcheckagentsResponses = {
     /**
      * successful operation
      */
-    200: Array<HealthCheckAgentResponse>;
+    200: HealthCheckAgentListResponse;
 };
 
 export type GetHealthcheckagentsResponse = GetHealthcheckagentsResponses[keyof GetHealthcheckagentsResponses];
@@ -9605,7 +11739,7 @@ export type GetHealthcheckagentsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<HealthCheckAgentResponse>;
+    200: HealthCheckAgentListResponse;
 };
 
 export type GetHealthcheckagentsCountResponse = GetHealthcheckagentsCountResponses[keyof GetHealthcheckagentsCountResponses];
@@ -9832,7 +11966,7 @@ export type GetHealthchecksResponses = {
     /**
      * successful operation
      */
-    200: Array<HealthCheckResponse>;
+    200: HealthCheckListResponse;
 };
 
 export type GetHealthchecksResponse = GetHealthchecksResponses[keyof GetHealthchecksResponses];
@@ -9940,7 +12074,7 @@ export type GetHealthchecksCountResponses = {
     /**
      * successful operation
      */
-    200: Array<HealthCheckResponse>;
+    200: HealthCheckListResponse;
 };
 
 export type GetHealthchecksCountResponse = GetHealthchecksCountResponses[keyof GetHealthchecksCountResponses];
@@ -10313,7 +12447,7 @@ export type GetLogentriesResponses = {
     /**
      * successful operation
      */
-    200: Array<LogEntryResponse>;
+    200: LogEntryListResponse;
 };
 
 export type GetLogentriesResponse = GetLogentriesResponses[keyof GetLogentriesResponses];
@@ -10421,7 +12555,7 @@ export type GetLogentriesCountResponses = {
     /**
      * successful operation
      */
-    200: Array<LogEntryResponse>;
+    200: LogEntryListResponse;
 };
 
 export type GetLogentriesCountResponse = GetLogentriesCountResponses[keyof GetLogentriesCountResponses];
@@ -10612,7 +12746,7 @@ export type GetNotificationsResponses = {
     /**
      * successful operation
      */
-    200: Array<NotificationSettingResponse>;
+    200: NotificationSettingListResponse;
 };
 
 export type GetNotificationsResponse = GetNotificationsResponses[keyof GetNotificationsResponses];
@@ -10720,7 +12854,7 @@ export type GetNotificationsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<NotificationSettingResponse>;
+    200: NotificationSettingListResponse;
 };
 
 export type GetNotificationsCountResponse = GetNotificationsCountResponses[keyof GetNotificationsCountResponses];
@@ -11019,7 +13153,7 @@ export type GetPreprocessorsResponses = {
     /**
      * successful operation
      */
-    200: Array<PreprocessorResponse>;
+    200: PreprocessorListResponse;
 };
 
 export type GetPreprocessorsResponse = GetPreprocessorsResponses[keyof GetPreprocessorsResponses];
@@ -11127,7 +13261,7 @@ export type GetPreprocessorsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<PreprocessorResponse>;
+    200: PreprocessorListResponse;
 };
 
 export type GetPreprocessorsCountResponse = GetPreprocessorsCountResponses[keyof GetPreprocessorsCountResponses];
@@ -11318,7 +13452,7 @@ export type GetPretasksResponses = {
     /**
      * successful operation
      */
-    200: Array<PretaskResponse>;
+    200: PretaskListResponse;
 };
 
 export type GetPretasksResponse = GetPretasksResponses[keyof GetPretasksResponses];
@@ -11426,7 +13560,7 @@ export type GetPretasksCountResponses = {
     /**
      * successful operation
      */
-    200: Array<PretaskResponse>;
+    200: PretaskListResponse;
 };
 
 export type GetPretasksCountResponse = GetPretasksCountResponses[keyof GetPretasksCountResponses];
@@ -11772,7 +13906,7 @@ export type GetSpeedsResponses = {
     /**
      * successful operation
      */
-    200: Array<SpeedResponse>;
+    200: SpeedListResponse;
 };
 
 export type GetSpeedsResponse = GetSpeedsResponses[keyof GetSpeedsResponses];
@@ -11824,7 +13958,7 @@ export type GetSpeedsCountResponses = {
     /**
      * successful operation
      */
-    200: Array<SpeedResponse>;
+    200: SpeedListResponse;
 };
 
 export type GetSpeedsCountResponse = GetSpeedsCountResponses[keyof GetSpeedsCountResponses];
@@ -12051,7 +14185,7 @@ export type GetSupertasksResponses = {
     /**
      * successful operation
      */
-    200: Array<SupertaskResponse>;
+    200: SupertaskListResponse;
 };
 
 export type GetSupertasksResponse = GetSupertasksResponses[keyof GetSupertasksResponses];
@@ -12159,7 +14293,7 @@ export type GetSupertasksCountResponses = {
     /**
      * successful operation
      */
-    200: Array<SupertaskResponse>;
+    200: SupertaskListResponse;
 };
 
 export type GetSupertasksCountResponse = GetSupertasksCountResponses[keyof GetSupertasksCountResponses];
@@ -12532,7 +14666,7 @@ export type GetTasksResponses = {
     /**
      * successful operation
      */
-    200: Array<TaskResponse>;
+    200: TaskListResponse;
 };
 
 export type GetTasksResponse = GetTasksResponses[keyof GetTasksResponses];
@@ -12640,7 +14774,7 @@ export type GetTasksCountResponses = {
     /**
      * successful operation
      */
-    200: Array<TaskResponse>;
+    200: TaskListResponse;
 };
 
 export type GetTasksCountResponse = GetTasksCountResponses[keyof GetTasksCountResponses];
@@ -13013,7 +15147,7 @@ export type GetTaskwrappersResponses = {
     /**
      * successful operation
      */
-    200: Array<TaskWrapperResponse>;
+    200: TaskWrapperListResponse;
 };
 
 export type GetTaskwrappersResponse = GetTaskwrappersResponses[keyof GetTaskwrappersResponses];
@@ -13092,7 +15226,7 @@ export type GetTaskwrappersCountResponses = {
     /**
      * successful operation
      */
-    200: Array<TaskWrapperResponse>;
+    200: TaskWrapperListResponse;
 };
 
 export type GetTaskwrappersCountResponse = GetTaskwrappersCountResponses[keyof GetTaskwrappersCountResponses];
@@ -13465,7 +15599,7 @@ export type GetUsersResponses = {
     /**
      * successful operation
      */
-    200: Array<UserResponse>;
+    200: UserListResponse;
 };
 
 export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
@@ -13573,7 +15707,7 @@ export type GetUsersCountResponses = {
     /**
      * successful operation
      */
-    200: Array<UserResponse>;
+    200: UserListResponse;
 };
 
 export type GetUsersCountResponse = GetUsersCountResponses[keyof GetUsersCountResponses];
@@ -13946,7 +16080,7 @@ export type GetVouchersResponses = {
     /**
      * successful operation
      */
-    200: Array<RegVoucherResponse>;
+    200: RegVoucherListResponse;
 };
 
 export type GetVouchersResponse = GetVouchersResponses[keyof GetVouchersResponses];
@@ -14054,7 +16188,7 @@ export type GetVouchersCountResponses = {
     /**
      * successful operation
      */
-    200: Array<RegVoucherResponse>;
+    200: RegVoucherListResponse;
 };
 
 export type GetVouchersCountResponse = GetVouchersCountResponses[keyof GetVouchersCountResponses];

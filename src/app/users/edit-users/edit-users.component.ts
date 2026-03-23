@@ -4,8 +4,8 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angula
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -28,6 +28,7 @@ import {
   getEditUserForm,
   getUpdatePassForm
 } from '@src/app/users/edit-users/edit-user.form';
+import { zRightGroupListResponse, zUserResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-users',
@@ -115,7 +116,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loaduserAGPSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse) as JUser;
         this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
@@ -125,10 +126,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadAGPSubscription$ = this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
       .subscribe((response: ResponseWrapper) => {
-        const globalPermissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
-          data: response.data,
-          included: response.included
-        });
+        const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(response, zRightGroupListResponse) as JGlobalPermissionGroup[];
         this.selectGlobalPermissionGroups = transformSelectOptions(globalPermissionGroups, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
@@ -146,7 +144,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse) as JUser;
 
         this.updateForm.setValue({
           id: user.id,

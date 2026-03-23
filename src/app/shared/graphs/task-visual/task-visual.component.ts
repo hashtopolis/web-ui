@@ -10,6 +10,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'task-visual',
@@ -67,8 +68,7 @@ export class TaskVisualComponent implements AfterViewInit {
       .create();
 
     this.gs.getAll(SERV.TASKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const tasks = new JsonAPISerializer().deserialize<JTask[]>(responseBody);
+      const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);
 
       const paramsTaskWrapper = new RequestParamBuilder()
         .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: tasks[0].taskWrapperId })
@@ -76,13 +76,11 @@ export class TaskVisualComponent implements AfterViewInit {
         .create();
 
       this.gs.getAll(SERV.TASKS_WRAPPER, paramsTaskWrapper).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>(responseBody);
+        const taskWrappers: JTaskWrapper[] = new JsonAPISerializer().deserialize(response, zTaskWrapperListResponse);
         if (taskWrappers[0].taskType === TaskType.SUPERTASK && this.view === 'supertask') {
           for (let i = 0; i < taskWrappers.length; i++) {
             this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-              const responseBody = { data: response.data, included: response.included };
-              const chunks = new JsonAPISerializer().deserialize<JChunk[]>(responseBody);
+              const chunks: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse);
 
               const progress = [];
               let cracked = [];
@@ -124,8 +122,7 @@ export class TaskVisualComponent implements AfterViewInit {
           }
         } else {
           this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-            const responseBody = { data: response.data, included: response.included };
-            const ch = new JsonAPISerializer().deserialize<JChunk[]>(responseBody); // Get chunks by id
+            const ch: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse); // Get chunks by id
 
             // Getting variables
             const keyspace = Number(this.tkeyspace); // Get Keyspace Progress

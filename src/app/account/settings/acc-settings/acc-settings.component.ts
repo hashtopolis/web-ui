@@ -9,6 +9,8 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JUser } from '@models/user.model';
+
 import { SERV } from '@services/main.config';
 
 import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
@@ -222,7 +224,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     this.subscriptions.push(
       this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
-        const users = new JsonAPISerializer().deserialize(response, zUserResponse);
+        const users: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
         const user = users[0];
 
         this.form.patchValue({

@@ -5,11 +5,11 @@ import * as z from 'zod';
 export const zErrorResponse = z.object({
     title: z.string().optional(),
     type: z.string().optional(),
-    status: z.int().optional()
+    status: z.int()
 });
 
 export const zNotFoundResponse = z.object({
-    message: z.string().optional(),
+    message: z.string(),
     exception: z.object({
         type: z.string().optional(),
         code: z.int().optional(),
@@ -21,58 +21,66 @@ export const zNotFoundResponse = z.object({
 
 export const zAccessGroupCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\AccessGroup'),
+        type: z.literal('accessGroup'),
         attributes: z.object({
             groupName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zAccessGroupPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\AccessGroup'),
+        type: z.literal('accessGroup'),
         attributes: z.object({
             groupName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zAccessGroupResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25'),
+        self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AccessGroup'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('accessGroup'),
         attributes: z.object({
-            groupName: z.string().optional()
-        }).optional()
-    })).optional(),
+            groupName: z.string()
+        })
+    }),
     relationships: z.object({
         agentMembers: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
-                related: z.string().optional().default('/api/v2/ui/accessgroups/agentMembers')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
         userMembers: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/accessgroups/relationships/userMembers'),
-                related: z.string().optional().default('/api/v2/ui/accessgroups/userMembers')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('agentMembers'),
+        type: z.literal('agentMembers').optional(),
         attributes: z.object({
             agentId: z.int().optional(),
             agentName: z.string().optional(),
@@ -89,7 +97,7 @@ export const zAccessGroupResponse = z.object({
             isTrusted: z.boolean().optional(),
             token: z.string().optional(),
             lastAct: z.string().optional(),
-            lastTime: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            lastTime: z.number().optional(),
             lastIp: z.string().optional(),
             userId: z.int().optional(),
             cpuOnly: z.boolean().optional(),
@@ -100,35 +108,104 @@ export const zAccessGroupResponse = z.object({
 
 export const zAccessGroupPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string()
+        })
+    })
+});
+
+export const zAccessGroupListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AccessGroup'),
+        id: z.int(),
+        type: z.literal('accessGroup'),
         attributes: z.object({
-            groupName: z.string().optional()
+            groupName: z.string()
+        })
+    })),
+    relationships: z.object({
+        agentMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('agentMembers').optional(),
+        attributes: z.object({
+            agentId: z.int().optional(),
+            agentName: z.string().optional(),
+            uid: z.string().optional(),
+            os: z.int().optional(),
+            devices: z.string().optional(),
+            cmdPars: z.string().optional(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
+            isActive: z.boolean().optional(),
+            isTrusted: z.boolean().optional(),
+            token: z.string().optional(),
+            lastAct: z.string().optional(),
+            lastTime: z.number().optional(),
+            lastIp: z.string().optional(),
+            userId: z.int().optional(),
+            cpuOnly: z.boolean().optional(),
+            clientSignature: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zAccessGroupRelationAgentMembers = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('agentMembers'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('agentMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAccessGroupRelationAgentMembersGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('agentMembers'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('agentMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAgentPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Agent'),
+        type: z.literal('agent'),
         attributes: z.object({
             agentName: z.string().optional(),
             cmdPars: z.string().optional(),
@@ -143,94 +220,122 @@ export const zAgentPatch = z.object({
             os: z.int().optional(),
             uid: z.string().optional(),
             userId: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zAgentResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/agents?page[size]=25'),
+        self: z.string().default('/api/v2/ui/agents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Agent'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agent'),
         attributes: z.object({
-            agentName: z.string().optional(),
-            uid: z.string().optional(),
-            os: z.int().optional(),
-            devices: z.string().optional(),
-            cmdPars: z.string().optional(),
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.int(),
+            devices: z.string(),
+            cmdPars: z.string(),
             ignoreErrors: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2)
-            ]).optional(),
-            isActive: z.boolean().optional(),
-            isTrusted: z.boolean().optional(),
-            token: z.string().optional(),
-            lastAct: z.string().optional(),
-            lastTime: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            lastIp: z.string().optional(),
-            userId: z.int().optional(),
-            cpuOnly: z.boolean().optional(),
-            clientSignature: z.string().optional()
-        }).optional()
-    })).optional(),
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+        })
+    }),
     relationships: z.object({
         accessGroups: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/accessGroups'),
-                related: z.string().optional().default('/api/v2/ui/agents/accessGroups')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/agents/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
         agentErrors: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/agentErrors'),
-                related: z.string().optional().default('/api/v2/ui/agents/agentErrors')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
+                related: z.string().default('/api/v2/ui/agents/agentErrors')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentError'),
+                id: z.int()
+            })).optional()
+        }),
         agentStats: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/agentStats'),
-                related: z.string().optional().default('/api/v2/ui/agents/agentStats')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
+                related: z.string().default('/api/v2/ui/agents/agentStats')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentStat'),
+                id: z.int()
+            })).optional()
+        }),
         assignments: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/assignments'),
-                related: z.string().optional().default('/api/v2/ui/agents/assignments')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
+                related: z.string().default('/api/v2/ui/agents/assignments')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentAssignment'),
+                id: z.int()
+            })).optional()
+        }),
         chunks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/chunks'),
-                related: z.string().optional().default('/api/v2/ui/agents/chunks')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
+                related: z.string().default('/api/v2/ui/agents/chunks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            })).optional()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/agents/tasks')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/agents/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        }),
         user: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agents/relationships/user'),
-                related: z.string().optional().default('/api/v2/ui/agents/user')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/agents/relationships/user'),
+                related: z.string().default('/api/v2/ui/agents/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('assignments'),
+        type: z.literal('assignments').optional(),
         attributes: z.object({
             assignmentId: z.int().optional(),
             taskId: z.int().optional(),
@@ -242,108 +347,237 @@ export const zAgentResponse = z.object({
 
 export const zAgentPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Agent'),
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agent'),
         attributes: z.object({
-            agentName: z.string().optional(),
-            uid: z.string().optional(),
-            os: z.int().optional(),
-            devices: z.string().optional(),
-            cmdPars: z.string().optional(),
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.int(),
+            devices: z.string(),
+            cmdPars: z.string(),
             ignoreErrors: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2)
-            ]).optional(),
-            isActive: z.boolean().optional(),
-            isTrusted: z.boolean().optional(),
-            token: z.string().optional(),
-            lastAct: z.string().optional(),
-            lastTime: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            lastIp: z.string().optional(),
-            userId: z.int().optional(),
-            cpuOnly: z.boolean().optional(),
-            clientSignature: z.string().optional()
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+        })
+    })
+});
+
+export const zAgentListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agent'),
+        attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.int(),
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+        })
+    })),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/agents/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
+        agentErrors: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
+                related: z.string().default('/api/v2/ui/agents/agentErrors')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentError'),
+                id: z.int()
+            })).optional()
+        }),
+        agentStats: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
+                related: z.string().default('/api/v2/ui/agents/agentStats')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentStat'),
+                id: z.int()
+            })).optional()
+        }),
+        assignments: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
+                related: z.string().default('/api/v2/ui/agents/assignments')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentAssignment'),
+                id: z.int()
+            })).optional()
+        }),
+        chunks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
+                related: z.string().default('/api/v2/ui/agents/chunks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/agents/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        }),
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/user'),
+                related: z.string().default('/api/v2/ui/agents/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('assignments').optional(),
+        attributes: z.object({
+            assignmentId: z.int().optional(),
+            taskId: z.int().optional(),
+            agentId: z.int().optional(),
+            benchmark: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zAgentRelationAssignments = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('assignments'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('assignments'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAgentRelationAssignmentsGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('assignments'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('assignments'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAssignmentCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Assignment'),
+        type: z.literal('assignment'),
         attributes: z.object({
             taskId: z.int().optional(),
             agentId: z.int().optional(),
             benchmark: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zAssignmentPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Assignment'),
+        type: z.literal('assignment'),
         attributes: z.object({
             benchmark: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zAssignmentResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25'),
+        self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Assignment'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('assignment'),
         attributes: z.object({
-            taskId: z.int().optional(),
-            agentId: z.int().optional(),
-            benchmark: z.string().optional()
-        }).optional()
-    })).optional(),
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    }),
     relationships: z.object({
         agent: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agentassignments/relationships/agent'),
-                related: z.string().optional().default('/api/v2/ui/agentassignments/agent')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
+                related: z.string().default('/api/v2/ui/agentassignments/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agentassignments/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/agentassignments/task')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
+                related: z.string().default('/api/v2/ui/agentassignments/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('task'),
+        type: z.literal('task').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -352,22 +586,22 @@ export const zAssignmentResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -377,141 +611,66 @@ export const zAssignmentResponse = z.object({
 
 export const zAssignmentPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Assignment'),
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('assignment'),
         attributes: z.object({
-            taskId: z.int().optional(),
-            agentId: z.int().optional(),
-            benchmark: z.string().optional()
-        }).optional()
-    })).optional()
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    })
 });
 
-export const zAssignmentRelationTask = z.object({
-    data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
-});
-
-export const zAssignmentRelationTaskGetResponse = z.object({
-    data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
-});
-
-export const zAgentBinaryCreate = z.object({
-    data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\AgentBinary'),
-        attributes: z.object({
-            binaryType: z.string().optional(),
-            version: z.string().optional(),
-            operatingSystems: z.string().optional(),
-            filename: z.string().optional(),
-            updateTrack: z.string().optional()
-        }).optional()
-    }).optional()
-});
-
-export const zAgentBinaryPatch = z.object({
-    data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\AgentBinary'),
-        attributes: z.object({
-            binaryType: z.string().optional(),
-            filename: z.string().optional(),
-            operatingSystems: z.string().optional(),
-            updateTrack: z.string().optional(),
-            version: z.string().optional()
-        }).optional()
-    }).optional()
-});
-
-export const zAgentBinaryResponse = z.object({
+export const zAssignmentListResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25'),
-        first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
-        last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+        self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AgentBinary'),
+        id: z.int(),
+        type: z.literal('assignment'),
         attributes: z.object({
-            binaryType: z.string().optional(),
-            version: z.string().optional(),
-            operatingSystems: z.string().optional(),
-            filename: z.string().optional(),
-            updateTrack: z.string().optional(),
-            updateAvailable: z.string().optional()
-        }).optional()
-    })).optional(),
-    relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
-});
-
-export const zAgentBinaryPostPatchResponse = z.object({
-    jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AgentBinary'),
-        attributes: z.object({
-            binaryType: z.string().optional(),
-            version: z.string().optional(),
-            operatingSystems: z.string().optional(),
-            filename: z.string().optional(),
-            updateTrack: z.string().optional(),
-            updateAvailable: z.string().optional()
-        }).optional()
-    })).optional()
-});
-
-export const zAgentErrorResponse = z.object({
-    jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    links: z.object({
-        self: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25'),
-        first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
-        last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AgentError'),
-        attributes: z.object({
-            agentId: z.int().optional(),
-            taskId: z.int().optional(),
-            chunkId: z.int().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            error: z.string().optional()
-        }).optional()
-    })).optional(),
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    })),
     relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
+                related: z.string().default('/api/v2/ui/agentassignments/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/agenterrors/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/agenterrors/task')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
+                related: z.string().default('/api/v2/ui/agentassignments/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('task'),
+        type: z.literal('task').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -520,22 +679,275 @@ export const zAgentErrorResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zAssignmentRelationTask = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAssignmentRelationTaskGetResponse = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAgentBinaryCreate = z.object({
+    data: z.object({
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string().optional(),
+            version: z.string().optional(),
+            operatingSystems: z.string().optional(),
+            filename: z.string().optional(),
+            updateTrack: z.string().optional()
+        })
+    })
+});
+
+export const zAgentBinaryPatch = z.object({
+    data: z.object({
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string().optional(),
+            filename: z.string().optional(),
+            operatingSystems: z.string().optional(),
+            updateTrack: z.string().optional(),
+            version: z.string().optional()
+        })
+    })
+});
+
+export const zAgentBinaryResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
+});
+
+export const zAgentBinaryPostPatchResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    })
+});
+
+export const zAgentBinaryListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
+});
+
+export const zAgentErrorResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentError'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            chunkId: z.int(),
+            time: z.number(),
+            error: z.string()
+        })
+    }),
+    relationships: z.object({
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
+                related: z.string().default('/api/v2/ui/agenterrors/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('task').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zAgentErrorListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentError'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            chunkId: z.int(),
+            time: z.number(),
+            error: z.string()
+        })
+    })),
+    relationships: z.object({
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
+                related: z.string().default('/api/v2/ui/agenterrors/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('task').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -545,99 +957,130 @@ export const zAgentErrorResponse = z.object({
 
 export const zAgentErrorRelationTask = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zAgentErrorRelationTaskGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zAgentStatResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25'),
+        self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentStat'),
+        attributes: z.object({
+            agentId: z.int(),
+            statType: z.int(),
+            time: z.number(),
+            value: z.array(z.int())
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
+});
+
+export const zAgentStatListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\AgentStat'),
+        id: z.int(),
+        type: z.literal('agentStat'),
         attributes: z.object({
-            agentId: z.int().optional(),
-            statType: z.int().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            value: z.array(z.int()).optional()
-        }).optional()
-    })).optional(),
+            agentId: z.int(),
+            statType: z.int(),
+            time: z.number(),
+            value: z.array(z.int())
+        })
+    })),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zJwtApiKeyCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\JwtApiKey'),
+        type: z.literal('jwtApiKey'),
         attributes: z.object({
             scopes: z.array(z.int()).optional(),
-            startValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            endValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            startValid: z.number().optional(),
+            endValid: z.number().optional(),
             userId: z.int().optional(),
             isRevoked: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zJwtApiKeyPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\JwtApiKey'),
+        type: z.literal('jwtApiKey'),
         attributes: z.object({
             isRevoked: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zJwtApiKeyResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25'),
+        self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\JwtApiKey'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('jwtApiKey'),
         attributes: z.object({
-            startValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            endValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            userId: z.int().optional(),
-            isRevoked: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
+    }),
     relationships: z.object({
         user: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/apiTokens/relationships/user'),
-                related: z.string().optional().default('/api/v2/ui/apiTokens/user')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
+                related: z.string().default('/api/v2/ui/apiTokens/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('user'),
+        type: z.literal('user').optional(),
         attributes: z.object({
             userId: z.int().optional(),
             name: z.string().optional(),
@@ -646,8 +1089,8 @@ export const zJwtApiKeyResponse = z.object({
             passwordSalt: z.string().optional(),
             isValid: z.boolean().optional(),
             isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            registeredSince: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
             sessionLifetime: z.int().optional(),
             globalPermissionGroupId: z.int().optional(),
             yubikey: z.string().optional(),
@@ -661,81 +1104,149 @@ export const zJwtApiKeyResponse = z.object({
 
 export const zJwtApiKeyPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('jwtApiKey'),
+        attributes: z.object({
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
+    })
+});
+
+export const zJwtApiKeyListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\JwtApiKey'),
+        id: z.int(),
+        type: z.literal('jwtApiKey'),
         attributes: z.object({
-            startValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            endValid: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
+    })),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
+                related: z.string().default('/api/v2/ui/apiTokens/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('user').optional(),
+        attributes: z.object({
             userId: z.int().optional(),
-            isRevoked: z.boolean().optional()
+            name: z.string().optional(),
+            email: z.string().optional(),
+            passwordHash: z.string().optional(),
+            passwordSalt: z.string().optional(),
+            isValid: z.boolean().optional(),
+            isComputedPassword: z.boolean().optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
+            sessionLifetime: z.int().optional(),
+            globalPermissionGroupId: z.int().optional(),
+            yubikey: z.string().optional(),
+            otp1: z.string().optional(),
+            otp2: z.string().optional(),
+            otp3: z.string().optional(),
+            otp4: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zJwtApiKeyRelationUser = z.object({
     data: z.object({
-        type: z.string().optional().default('user'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zJwtApiKeyRelationUserGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('user'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zChunkResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/chunks?page[size]=25'),
+        self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Chunk'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('chunk'),
         attributes: z.object({
-            taskId: z.int().optional(),
-            skip: z.int().optional(),
-            length: z.int().optional(),
-            agentId: z.int().optional(),
-            dispatchTime: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            solveTime: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            checkpoint: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            progress: z.int().optional(),
-            state: z.int().optional(),
-            cracked: z.int().optional(),
-            speed: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            taskId: z.int(),
+            skip: z.int(),
+            length: z.int(),
+            agentId: z.int(),
+            dispatchTime: z.number(),
+            solveTime: z.number(),
+            checkpoint: z.number(),
+            progress: z.int(),
+            state: z.int(),
+            cracked: z.int(),
+            speed: z.number()
+        })
+    }),
     relationships: z.object({
         agent: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/chunks/relationships/agent'),
-                related: z.string().optional().default('/api/v2/ui/chunks/agent')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
+                related: z.string().default('/api/v2/ui/chunks/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/chunks/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/chunks/task')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/chunks/relationships/task'),
+                related: z.string().default('/api/v2/ui/chunks/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('task'),
+        type: z.literal('task').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -744,22 +1255,107 @@ export const zChunkResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zChunkListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('chunk'),
+        attributes: z.object({
+            taskId: z.int(),
+            skip: z.int(),
+            length: z.int(),
+            agentId: z.int(),
+            dispatchTime: z.number(),
+            solveTime: z.number(),
+            checkpoint: z.number(),
+            progress: z.int(),
+            state: z.int(),
+            cracked: z.int(),
+            speed: z.number()
+        })
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
+                related: z.string().default('/api/v2/ui/chunks/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/task'),
+                related: z.string().default('/api/v2/ui/chunks/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('task').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -769,60 +1365,64 @@ export const zChunkResponse = z.object({
 
 export const zChunkRelationTask = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zChunkRelationTaskGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Config'),
+        type: z.literal('config'),
         attributes: z.object({
             item: z.string().optional(),
             value: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zConfigResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/configs?page[size]=25'),
+        self: z.string().default('/api/v2/ui/configs?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Config'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('config'),
         attributes: z.object({
-            configSectionId: z.int().optional(),
-            item: z.string().optional(),
-            value: z.string().optional()
-        }).optional()
-    })).optional(),
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
+    }),
     relationships: z.object({
         configSection: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/configs/relationships/configSection'),
-                related: z.string().optional().default('/api/v2/ui/configs/configSection')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
+                related: z.string().default('/api/v2/ui/configs/configSection')
+            }),
+            data: z.object({
+                type: z.literal('configSection'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('configSection'),
+        type: z.literal('configSection').optional(),
         attributes: z.object({
             configSectionId: z.int().optional(),
             sectionName: z.string().optional()
@@ -832,119 +1432,193 @@ export const zConfigResponse = z.object({
 
 export const zConfigPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('config'),
+        attributes: z.object({
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
+    })
+});
+
+export const zConfigListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configs?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('config'),
+        attributes: z.object({
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
+    })),
+    relationships: z.object({
+        configSection: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
+                related: z.string().default('/api/v2/ui/configs/configSection')
+            }),
+            data: z.object({
+                type: z.literal('configSection'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Config'),
+        type: z.literal('configSection').optional(),
         attributes: z.object({
             configSectionId: z.int().optional(),
-            item: z.string().optional(),
-            value: z.string().optional()
+            sectionName: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zConfigRelationConfigSection = z.object({
     data: z.object({
-        type: z.string().optional().default('configSection'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('configSection'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigRelationConfigSectionGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('configSection'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('configSection'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigSectionResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/configsections?page[size]=25'),
+        self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('configSection'),
+        attributes: z.object({
+            sectionName: z.string()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
+});
+
+export const zConfigSectionListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\ConfigSection'),
+        id: z.int(),
+        type: z.literal('configSection'),
         attributes: z.object({
-            sectionName: z.string().optional()
-        }).optional()
-    })).optional(),
+            sectionName: z.string()
+        })
+    })),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zCrackerBinaryCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinary'),
+        type: z.literal('crackerBinary'),
         attributes: z.object({
             crackerBinaryTypeId: z.int().optional(),
             version: z.string().optional(),
             downloadUrl: z.string().optional(),
             binaryName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zCrackerBinaryPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinary'),
+        type: z.literal('crackerBinary'),
         attributes: z.object({
             binaryName: z.string().optional(),
             downloadUrl: z.string().optional(),
             version: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zCrackerBinaryResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/crackers?page[size]=25'),
+        self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinary'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
         attributes: z.object({
-            crackerBinaryTypeId: z.int().optional(),
-            version: z.string().optional(),
-            downloadUrl: z.string().optional(),
-            binaryName: z.string().optional()
-        }).optional()
-    })).optional(),
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+        })
+    }),
     relationships: z.object({
         crackerBinaryType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
-                related: z.string().optional().default('/api/v2/ui/crackers/crackerBinaryType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/crackers/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/crackers/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -953,22 +1627,22 @@ export const zCrackerBinaryResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -978,91 +1652,68 @@ export const zCrackerBinaryResponse = z.object({
 
 export const zCrackerBinaryPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinary'),
-        attributes: z.object({
-            crackerBinaryTypeId: z.int().optional(),
-            version: z.string().optional(),
-            downloadUrl: z.string().optional(),
-            binaryName: z.string().optional()
-        }).optional()
-    })).optional()
-});
-
-export const zCrackerBinaryRelationTasks = z.object({
-    data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
-});
-
-export const zCrackerBinaryRelationTasksGetResponse = z.object({
-    data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
-});
-
-export const zCrackerBinaryTypeCreate = z.object({
+    }),
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinaryType'),
+        id: z.int(),
+        type: z.literal('crackerBinary'),
         attributes: z.object({
-            typeName: z.string().optional()
-        }).optional()
-    }).optional()
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+        })
+    })
 });
 
-export const zCrackerBinaryTypePatch = z.object({
-    data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinaryType'),
-        attributes: z.object({
-            isChunkingAvailable: z.boolean().optional(),
-            typeName: z.string().optional()
-        }).optional()
-    }).optional()
-});
-
-export const zCrackerBinaryTypeResponse = z.object({
+export const zCrackerBinaryListResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25'),
-        first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
-        last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+        self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinaryType'),
+        id: z.int(),
+        type: z.literal('crackerBinary'),
         attributes: z.object({
-            typeName: z.string().optional(),
-            isChunkingAvailable: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+        })
+    })),
     relationships: z.object({
-        crackerVersions: z.object({
+        crackerBinaryType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
-                related: z.string().optional().default('/api/v2/ui/crackertypes/crackerVersions')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/crackertypes/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/crackertypes/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -1071,22 +1722,131 @@ export const zCrackerBinaryTypeResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zCrackerBinaryRelationTasks = z.object({
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
+});
+
+export const zCrackerBinaryRelationTasksGetResponse = z.object({
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
+});
+
+export const zCrackerBinaryTypeCreate = z.object({
+    data: z.object({
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string().optional()
+        })
+    })
+});
+
+export const zCrackerBinaryTypePatch = z.object({
+    data: z.object({
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            isChunkingAvailable: z.boolean().optional(),
+            typeName: z.string().optional()
+        })
+    })
+});
+
+export const zCrackerBinaryTypeResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
+        })
+    }),
+    relationships: z.object({
+        crackerVersions: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
+                related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
+            }),
+            data: z.array(z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackertypes/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('tasks').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -1096,36 +1856,112 @@ export const zCrackerBinaryTypeResponse = z.object({
 
 export const zCrackerBinaryTypePostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
+        })
+    })
+});
+
+export const zCrackerBinaryTypeListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\CrackerBinaryType'),
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
         attributes: z.object({
-            typeName: z.string().optional(),
-            isChunkingAvailable: z.boolean().optional()
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
+        })
+    })),
+    relationships: z.object({
+        crackerVersions: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
+                related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
+            }),
+            data: z.array(z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackertypes/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('tasks').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zCrackerBinaryTypeRelationTasks = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zCrackerBinaryTypeRelationTasksGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zFileCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\File'),
+        type: z.literal('file'),
         attributes: z.object({
             sourceType: z.string().optional(),
             sourceData: z.string().optional(),
@@ -1133,57 +1969,61 @@ export const zFileCreate = z.object({
             isSecret: z.boolean().optional(),
             fileType: z.int().optional(),
             accessGroupId: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zFilePatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\File'),
+        type: z.literal('file'),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             fileType: z.int().optional(),
             filename: z.string().optional(),
             isSecret: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zFileResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/files?page[size]=25'),
+        self: z.string().default('/api/v2/ui/files?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\File'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
         attributes: z.object({
-            filename: z.string().optional(),
-            size: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
-            accessGroupId: z.int().optional(),
-            lineCount: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.int(),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/files/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/files/accessGroup')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('accessGroup'),
+        type: z.literal('accessGroup').optional(),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             groupName: z.string().optional()
@@ -1192,29 +2032,33 @@ export const zFileResponse = z.object({
 });
 
 export const zFileSingleResponse = z.object({
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\File'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
         attributes: z.object({
-            filename: z.string().optional(),
-            size: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
-            accessGroupId: z.int().optional(),
-            lineCount: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.int(),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/files/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/files/accessGroup')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('accessGroup'),
+        type: z.literal('accessGroup').optional(),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             groupName: z.string().optional()
@@ -1224,88 +2068,138 @@ export const zFileSingleResponse = z.object({
 
 export const zFilePostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
+        attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.int(),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    })
+});
+
+export const zFileListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/files?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\File'),
+        id: z.int(),
+        type: z.literal('file'),
         attributes: z.object({
-            filename: z.string().optional(),
-            size: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.int(),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('accessGroup').optional(),
+        attributes: z.object({
             accessGroupId: z.int().optional(),
-            lineCount: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+            groupName: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zFileRelationAccessGroup = z.object({
     data: z.object({
-        type: z.string().optional().default('accessGroup'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('accessGroup'),
+        id: z.int().default(1)
+    })
 });
 
 export const zFileRelationAccessGroupGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('accessGroup'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('accessGroup'),
+        id: z.int().default(1)
+    })
 });
 
 export const zRightGroupCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\RightGroup'),
+        type: z.literal('rightGroup'),
         attributes: z.object({
             name: z.string().optional(),
             permissions: z.record(z.string(), z.unknown()).optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zRightGroupPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\RightGroup'),
+        type: z.literal('rightGroup'),
         attributes: z.object({
             name: z.string().optional(),
             permissions: z.record(z.string(), z.unknown()).optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zRightGroupResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
+        self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\RightGroup'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('rightGroup'),
         attributes: z.object({
-            name: z.string().optional(),
-            permissions: z.record(z.string(), z.unknown()).optional()
-        }).optional()
-    })).optional(),
+            name: z.string(),
+            permissions: z.record(z.string(), z.unknown())
+        })
+    }),
     relationships: z.object({
         userMembers: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
-                related: z.string().optional().default('/api/v2/ui/globalpermissiongroups/userMembers')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('userMembers'),
+        type: z.literal('userMembers').optional(),
         attributes: z.object({
             userId: z.int().optional(),
             name: z.string().optional(),
@@ -1314,8 +2208,8 @@ export const zRightGroupResponse = z.object({
             passwordSalt: z.string().optional(),
             isValid: z.boolean().optional(),
             isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            registeredSince: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
             sessionLifetime: z.int().optional(),
             globalPermissionGroupId: z.int().optional(),
             yubikey: z.string().optional(),
@@ -1329,76 +2223,219 @@ export const zRightGroupResponse = z.object({
 
 export const zRightGroupPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('rightGroup'),
+        attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.unknown())
+        })
+    })
+});
+
+export const zRightGroupListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\RightGroup'),
+        id: z.int(),
+        type: z.literal('rightGroup'),
         attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.unknown())
+        })
+    })),
+    relationships: z.object({
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('userMembers').optional(),
+        attributes: z.object({
+            userId: z.int().optional(),
             name: z.string().optional(),
-            permissions: z.record(z.string(), z.unknown()).optional()
+            email: z.string().optional(),
+            passwordHash: z.string().optional(),
+            passwordSalt: z.string().optional(),
+            isValid: z.boolean().optional(),
+            isComputedPassword: z.boolean().optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
+            sessionLifetime: z.int().optional(),
+            globalPermissionGroupId: z.int().optional(),
+            yubikey: z.string().optional(),
+            otp1: z.string().optional(),
+            otp2: z.string().optional(),
+            otp3: z.string().optional(),
+            otp4: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zRightGroupRelationUserMembers = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('userMembers'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('userMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zRightGroupRelationUserMembersGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('userMembers'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('userMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/hashes?page[size]=25'),
+        self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hash'),
+        attributes: z.object({
+            hashlistId: z.int(),
+            hash: z.string(),
+            salt: z.string(),
+            plaintext: z.string(),
+            timeCracked: z.number(),
+            chunkId: z.int(),
+            isCracked: z.boolean(),
+            crackPos: z.number()
+        })
+    }),
+    relationships: z.object({
+        chunk: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
+                related: z.string().default('/api/v2/ui/hashes/chunk')
+            }),
+            data: z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/hashes/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('hashlist').optional(),
+        attributes: z.object({
+            hashlistSeperator: z.string().optional(),
+            sourceType: z.string().optional(),
+            sourceData: z.string().optional(),
+            hashlistId: z.int().optional(),
+            name: z.string().optional(),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            hashTypeId: z.int().optional(),
+            hashCount: z.int().optional(),
+            separator: z.string().optional(),
+            cracked: z.int().optional(),
+            isSecret: z.boolean().optional(),
+            isHexSalt: z.boolean().optional(),
+            isSalted: z.boolean().optional(),
+            accessGroupId: z.int().optional(),
+            notes: z.string().optional(),
+            useBrain: z.boolean().optional(),
+            brainFeatures: z.int().optional(),
+            isArchived: z.boolean().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zHashListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Hash'),
+        id: z.int(),
+        type: z.literal('hash'),
         attributes: z.object({
-            hashlistId: z.int().optional(),
-            hash: z.string().optional(),
-            salt: z.string().optional(),
-            plaintext: z.string().optional(),
-            timeCracked: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            chunkId: z.int().optional(),
-            isCracked: z.boolean().optional(),
-            crackPos: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            hashlistId: z.int(),
+            hash: z.string(),
+            salt: z.string(),
+            plaintext: z.string(),
+            timeCracked: z.number(),
+            chunkId: z.int(),
+            isCracked: z.boolean(),
+            crackPos: z.number()
+        })
+    })),
     relationships: z.object({
         chunk: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashes/relationships/chunk'),
-                related: z.string().optional().default('/api/v2/ui/hashes/chunk')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
+                related: z.string().default('/api/v2/ui/hashes/chunk')
+            }),
+            data: z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            }).nullish()
+        }),
         hashlist: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashes/relationships/hashlist'),
-                related: z.string().optional().default('/api/v2/ui/hashes/hashlist')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/hashes/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('hashlist'),
+        type: z.literal('hashlist').optional(),
         attributes: z.object({
             hashlistSeperator: z.string().optional(),
             sourceType: z.string().optional(),
@@ -1429,21 +2466,21 @@ export const zHashResponse = z.object({
 
 export const zHashRelationHashlist = z.object({
     data: z.object({
-        type: z.string().optional().default('hashlist'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('hashlist'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHashRelationHashlistGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('hashlist'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('hashlist'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHashlistCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Hashlist'),
+        type: z.literal('hashlist'),
         attributes: z.object({
             hashlistSeperator: z.string().optional(),
             sourceType: z.string().optional(),
@@ -1466,95 +2503,115 @@ export const zHashlistCreate = z.object({
             useBrain: z.boolean().optional(),
             brainFeatures: z.int().optional(),
             isArchived: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHashlistPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Hashlist'),
+        type: z.literal('hashlist'),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             isArchived: z.boolean().optional(),
             isSecret: z.boolean().optional(),
             name: z.string().optional(),
             notes: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHashlistResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25'),
+        self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Hashlist'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
         attributes: z.object({
-            name: z.string().optional(),
+            name: z.string(),
             format: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
-            separator: z.string().optional(),
-            cracked: z.int().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
-            notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/accessGroup')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
         hashType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashType'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
         hashes: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashes'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashes')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
         hashlists: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashlists'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashlists')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -1563,22 +2620,22 @@ export const zHashlistResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -1587,66 +2644,86 @@ export const zHashlistResponse = z.object({
 });
 
 export const zHashlistSingleResponse = z.object({
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Hashlist'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
         attributes: z.object({
-            name: z.string().optional(),
+            name: z.string(),
             format: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
-            separator: z.string().optional(),
-            cracked: z.int().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
-            notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/accessGroup')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
         hashType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashType'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
         hashes: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashes'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashes')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
         hashlists: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/hashlists'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/hashlists')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/hashlists/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/hashlists/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -1655,22 +2732,22 @@ export const zHashlistSingleResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -1680,160 +2757,380 @@ export const zHashlistSingleResponse = z.object({
 
 export const zHashlistPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Hashlist'),
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
         attributes: z.object({
-            name: z.string().optional(),
+            name: z.string(),
             format: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
-            separator: z.string().optional(),
-            cracked: z.int().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
+    })
+});
+
+export const zHashlistListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
+        attributes: z.object({
+            name: z.string(),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashes: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlists: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('tasks').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
             notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zHashlistRelationTasks = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashlistRelationTasksGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashTypeCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\HashType'),
+        type: z.literal('hashType'),
         attributes: z.object({
             hashTypeId: z.int().optional(),
             description: z.string().optional(),
             isSalted: z.boolean().optional(),
             isSlowHash: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHashTypePatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\HashType'),
+        type: z.literal('hashType'),
         attributes: z.object({
             description: z.string().optional(),
             isSalted: z.boolean().optional(),
             isSlowHash: z.boolean().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHashTypeResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25'),
+        self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\HashType'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashType'),
         attributes: z.object({
-            description: z.string().optional(),
-            isSalted: z.boolean().optional(),
-            isSlowHash: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
+    }),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zHashTypePostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashType'),
+        attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
+    })
+});
+
+export const zHashTypeListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\HashType'),
+        id: z.int(),
+        type: z.literal('hashType'),
         attributes: z.object({
-            description: z.string().optional(),
-            isSalted: z.boolean().optional(),
-            isSlowHash: z.boolean().optional()
-        }).optional()
-    })).optional()
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zHealthCheckAgentResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25'),
+        self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheckAgent'),
+        attributes: z.object({
+            healthCheckId: z.int(),
+            agentId: z.int(),
+            status: z.int(),
+            cracked: z.int(),
+            numGpus: z.int(),
+            start: z.number(),
+            end: z.number(),
+            errors: z.string()
+        })
+    }),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        healthCheck: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
+            }),
+            data: z.object({
+                type: z.literal('healthCheck'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('healthCheck').optional(),
+        attributes: z.object({
+            healthCheckId: z.int().optional(),
+            time: z.number().optional(),
+            status: z.int().optional(),
+            checkType: z.int().optional(),
+            hashtypeId: z.int().optional(),
+            crackerBinaryId: z.int().optional(),
+            expectedCracks: z.int().optional(),
+            attackCmd: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zHealthCheckAgentListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\HealthCheckAgent'),
+        id: z.int(),
+        type: z.literal('healthCheckAgent'),
         attributes: z.object({
-            healthCheckId: z.int().optional(),
-            agentId: z.int().optional(),
-            status: z.int().optional(),
-            cracked: z.int().optional(),
-            numGpus: z.int().optional(),
-            start: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            end: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            errors: z.string().optional()
-        }).optional()
-    })).optional(),
+            healthCheckId: z.int(),
+            agentId: z.int(),
+            status: z.int(),
+            cracked: z.int(),
+            numGpus: z.int(),
+            start: z.number(),
+            end: z.number(),
+            errors: z.string()
+        })
+    })),
     relationships: z.object({
         agent: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/healthcheckagents/relationships/agent'),
-                related: z.string().optional().default('/api/v2/ui/healthcheckagents/agent')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
         healthCheck: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
-                related: z.string().optional().default('/api/v2/ui/healthcheckagents/healthCheck')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
+            }),
+            data: z.object({
+                type: z.literal('healthCheck'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('healthCheck'),
+        type: z.literal('healthCheck').optional(),
         attributes: z.object({
             healthCheckId: z.int().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            time: z.number().optional(),
             status: z.int().optional(),
             checkType: z.int().optional(),
             hashtypeId: z.int().optional(),
@@ -1846,86 +3143,98 @@ export const zHealthCheckAgentResponse = z.object({
 
 export const zHealthCheckAgentRelationHealthCheck = z.object({
     data: z.object({
-        type: z.string().optional().default('healthCheck'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('healthCheck'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('healthCheck'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('healthCheck'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHealthCheckCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\HealthCheck'),
+        type: z.literal('healthCheck'),
         attributes: z.object({
             checkType: z.int().optional(),
             hashtypeId: z.int().optional(),
             crackerBinaryId: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHealthCheckPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\HealthCheck'),
+        type: z.literal('healthCheck'),
         attributes: z.object({
             checkType: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zHealthCheckResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25'),
+        self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\HealthCheck'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheck'),
         attributes: z.object({
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            status: z.int().optional(),
-            checkType: z.int().optional(),
-            hashtypeId: z.int().optional(),
-            crackerBinaryId: z.int().optional(),
-            expectedCracks: z.int().optional(),
-            attackCmd: z.string().optional()
-        }).optional()
-    })).optional(),
+            time: z.number(),
+            status: z.int(),
+            checkType: z.int(),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int(),
+            expectedCracks: z.int(),
+            attackCmd: z.string()
+        })
+    }),
     relationships: z.object({
         crackerBinary: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
-                related: z.string().optional().default('/api/v2/ui/healthchecks/crackerBinary')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
         hashType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/healthchecks/relationships/hashType'),
-                related: z.string().optional().default('/api/v2/ui/healthchecks/hashType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/healthchecks/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
         healthCheckAgents: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
-                related: z.string().optional().default('/api/v2/ui/healthchecks/healthCheckAgents')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
+                related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('healthCheckAgent'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('healthCheckAgents'),
+        type: z.literal('healthCheckAgents').optional(),
         attributes: z.object({
             healthCheckAgentId: z.int().optional(),
             healthCheckId: z.int().optional(),
@@ -1933,8 +3242,8 @@ export const zHealthCheckResponse = z.object({
             status: z.int().optional(),
             cracked: z.int().optional(),
             numGpus: z.int().optional(),
-            start: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            end: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            start: z.number().optional(),
+            end: z.number().optional(),
             errors: z.string().optional()
         }).optional()
     })).optional()
@@ -1942,156 +3251,261 @@ export const zHealthCheckResponse = z.object({
 
 export const zHealthCheckPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheck'),
+        attributes: z.object({
+            time: z.number(),
+            status: z.int(),
+            checkType: z.int(),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int(),
+            expectedCracks: z.int(),
+            attackCmd: z.string()
+        })
+    })
+});
+
+export const zHealthCheckListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\HealthCheck'),
+        id: z.int(),
+        type: z.literal('healthCheck'),
         attributes: z.object({
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            time: z.number(),
+            status: z.int(),
+            checkType: z.int(),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int(),
+            expectedCracks: z.int(),
+            attackCmd: z.string()
+        })
+    })),
+    relationships: z.object({
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/healthchecks/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        healthCheckAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
+                related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('healthCheckAgent'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('healthCheckAgents').optional(),
+        attributes: z.object({
+            healthCheckAgentId: z.int().optional(),
+            healthCheckId: z.int().optional(),
+            agentId: z.int().optional(),
             status: z.int().optional(),
-            checkType: z.int().optional(),
-            hashtypeId: z.int().optional(),
-            crackerBinaryId: z.int().optional(),
-            expectedCracks: z.int().optional(),
-            attackCmd: z.string().optional()
+            cracked: z.int().optional(),
+            numGpus: z.int().optional(),
+            start: z.number().optional(),
+            end: z.number().optional(),
+            errors: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zHealthCheckRelationHealthCheckAgents = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('healthCheckAgents'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('healthCheckAgents'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHealthCheckRelationHealthCheckAgentsGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('healthCheckAgents'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('healthCheckAgents'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zLogEntryCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\LogEntry'),
-        attributes: z.record(z.string(), z.unknown()).optional()
-    }).optional()
+        type: z.literal('logEntry'),
+        attributes: z.record(z.string(), z.unknown())
+    })
 });
 
 export const zLogEntryPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\LogEntry'),
-        attributes: z.record(z.string(), z.unknown()).optional()
-    }).optional()
+        type: z.literal('logEntry'),
+        attributes: z.record(z.string(), z.unknown())
+    })
 });
 
 export const zLogEntryResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/logentries?page[size]=25'),
+        self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\LogEntry'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.string().optional(),
-            issuerId: z.string().optional(),
-            level: z.string().optional(),
-            message: z.string().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            issuer: z.string(),
+            issuerId: z.string(),
+            level: z.string(),
+            message: z.string(),
+            time: z.number()
+        })
+    }),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zLogEntryPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('logEntry'),
+        attributes: z.object({
+            issuer: z.string(),
+            issuerId: z.string(),
+            level: z.string(),
+            message: z.string(),
+            time: z.number()
+        })
+    })
+});
+
+export const zLogEntryListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\LogEntry'),
+        id: z.int(),
+        type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.string().optional(),
-            issuerId: z.string().optional(),
-            level: z.string().optional(),
-            message: z.string().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional()
+            issuer: z.string(),
+            issuerId: z.string(),
+            level: z.string(),
+            message: z.string(),
+            time: z.number()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zNotificationSettingCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\NotificationSetting'),
+        type: z.literal('notificationSetting'),
         attributes: z.object({
             actionFilter: z.string().optional(),
             action: z.string().optional(),
             notification: z.string().optional(),
             receiver: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zNotificationSettingPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\NotificationSetting'),
+        type: z.literal('notificationSetting'),
         attributes: z.object({
             action: z.string().optional(),
             isActive: z.boolean().optional(),
             notification: z.string().optional(),
             receiver: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zNotificationSettingResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/notifications?page[size]=25'),
+        self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\NotificationSetting'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string().optional(),
-            objectId: z.int().optional(),
-            notification: z.string().optional(),
-            userId: z.int().optional(),
-            receiver: z.string().optional(),
-            isActive: z.boolean().optional()
-        }).optional()
-    })).optional(),
+            action: z.string(),
+            objectId: z.int(),
+            notification: z.string(),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
+    }),
     relationships: z.object({
         user: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/notifications/relationships/user'),
-                related: z.string().optional().default('/api/v2/ui/notifications/user')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+                related: z.string().default('/api/v2/ui/notifications/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('user'),
+        type: z.literal('user').optional(),
         attributes: z.object({
             userId: z.int().optional(),
             name: z.string().optional(),
@@ -2100,8 +3514,8 @@ export const zNotificationSettingResponse = z.object({
             passwordSalt: z.string().optional(),
             isValid: z.boolean().optional(),
             isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            registeredSince: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
             sessionLifetime: z.int().optional(),
             globalPermissionGroupId: z.int().optional(),
             yubikey: z.string().optional(),
@@ -2115,40 +3529,100 @@ export const zNotificationSettingResponse = z.object({
 
 export const zNotificationSettingPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            action: z.string(),
+            objectId: z.int(),
+            notification: z.string(),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
+    })
+});
+
+export const zNotificationSettingListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\NotificationSetting'),
+        id: z.int(),
+        type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string().optional(),
-            objectId: z.int().optional(),
-            notification: z.string().optional(),
+            action: z.string(),
+            objectId: z.int(),
+            notification: z.string(),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
+    })),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+                related: z.string().default('/api/v2/ui/notifications/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('user').optional(),
+        attributes: z.object({
             userId: z.int().optional(),
-            receiver: z.string().optional(),
-            isActive: z.boolean().optional()
+            name: z.string().optional(),
+            email: z.string().optional(),
+            passwordHash: z.string().optional(),
+            passwordSalt: z.string().optional(),
+            isValid: z.boolean().optional(),
+            isComputedPassword: z.boolean().optional(),
+            lastLoginDate: z.number().optional(),
+            registeredSince: z.number().optional(),
+            sessionLifetime: z.int().optional(),
+            globalPermissionGroupId: z.int().optional(),
+            yubikey: z.string().optional(),
+            otp1: z.string().optional(),
+            otp2: z.string().optional(),
+            otp3: z.string().optional(),
+            otp4: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zNotificationSettingRelationUser = z.object({
     data: z.object({
-        type: z.string().optional().default('user'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zNotificationSettingRelationUserGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('user'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zPreprocessorCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Preprocessor'),
+        type: z.literal('preprocessor'),
         attributes: z.object({
             name: z.string().optional(),
             url: z.string().optional(),
@@ -2156,13 +3630,13 @@ export const zPreprocessorCreate = z.object({
             keyspaceCommand: z.string().optional(),
             skipCommand: z.string().optional(),
             limitCommand: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zPreprocessorPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Preprocessor'),
+        type: z.literal('preprocessor'),
         attributes: z.object({
             binaryName: z.string().optional(),
             keyspaceCommand: z.string().optional(),
@@ -2170,60 +3644,88 @@ export const zPreprocessorPatch = z.object({
             name: z.string().optional(),
             skipCommand: z.string().optional(),
             url: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zPreprocessorResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25'),
+        self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Preprocessor'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preprocessor'),
         attributes: z.object({
-            name: z.string().optional(),
-            url: z.string().optional(),
-            binaryName: z.string().optional(),
-            keyspaceCommand: z.string().optional(),
-            skipCommand: z.string().optional(),
-            limitCommand: z.string().optional()
-        }).optional()
-    })).optional(),
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
+    }),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zPreprocessorPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
+    })
+});
+
+export const zPreprocessorListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Preprocessor'),
+        id: z.int(),
+        type: z.literal('preprocessor'),
         attributes: z.object({
-            name: z.string().optional(),
-            url: z.string().optional(),
-            binaryName: z.string().optional(),
-            keyspaceCommand: z.string().optional(),
-            skipCommand: z.string().optional(),
-            limitCommand: z.string().optional()
-        }).optional()
-    })).optional()
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zPretaskCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Pretask'),
+        type: z.literal('pretask'),
         attributes: z.object({
             files: z.array(z.int()).optional(),
             taskName: z.string().optional(),
@@ -2238,13 +3740,13 @@ export const zPretaskCreate = z.object({
             maxAgents: z.int().optional(),
             isMaskImport: z.boolean().optional(),
             crackerBinaryTypeId: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zPretaskPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Pretask'),
+        type: z.literal('pretask'),
         attributes: z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
@@ -2257,143 +3759,217 @@ export const zPretaskPatch = z.object({
             priority: z.int().optional(),
             statusTimer: z.int().optional(),
             taskName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zPretaskResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25'),
+        self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Pretask'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('pretask'),
         attributes: z.object({
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
-        }).optional()
-    })).optional(),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
+    }),
     relationships: z.object({
         pretaskFiles: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
-                related: z.string().optional().default('/api/v2/ui/pretasks/pretaskFiles')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
+                related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('pretaskFiles'),
+        type: z.literal('pretaskFiles').optional(),
         attributes: z.object({
             sourceType: z.string().optional(),
             sourceData: z.string().optional(),
             fileId: z.int().optional(),
             filename: z.string().optional(),
-            size: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            size: z.number().optional(),
             isSecret: z.boolean().optional(),
             fileType: z.int().optional(),
             accessGroupId: z.int().optional(),
-            lineCount: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+            lineCount: z.number().optional()
         }).optional()
     })).optional()
 });
 
 export const zPretaskPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('pretask'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
+    })
+});
+
+export const zPretaskListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Pretask'),
+        id: z.int(),
+        type: z.literal('pretask'),
         attributes: z.object({
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
+    })),
+    relationships: z.object({
+        pretaskFiles: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
+                related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('pretaskFiles').optional(),
+        attributes: z.object({
+            sourceType: z.string().optional(),
+            sourceData: z.string().optional(),
+            fileId: z.int().optional(),
+            filename: z.string().optional(),
+            size: z.number().optional(),
+            isSecret: z.boolean().optional(),
+            fileType: z.int().optional(),
+            accessGroupId: z.int().optional(),
+            lineCount: z.number().optional()
         }).optional()
     })).optional()
 });
 
 export const zPretaskRelationPretaskFiles = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('pretaskFiles'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('pretaskFiles'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zPretaskRelationPretaskFilesGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('pretaskFiles'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('pretaskFiles'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zSpeedResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/speeds?page[size]=25'),
+        self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Speed'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('speed'),
         attributes: z.object({
-            agentId: z.int().optional(),
-            taskId: z.int().optional(),
-            speed: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            agentId: z.int(),
+            taskId: z.int(),
+            speed: z.number(),
+            time: z.number()
+        })
+    }),
     relationships: z.object({
         agent: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/speeds/relationships/agent'),
-                related: z.string().optional().default('/api/v2/ui/speeds/agent')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
+                related: z.string().default('/api/v2/ui/speeds/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/speeds/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/speeds/task')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/speeds/relationships/task'),
+                related: z.string().default('/api/v2/ui/speeds/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('task'),
+        type: z.literal('task').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -2402,22 +3978,100 @@ export const zSpeedResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
+        }).optional()
+    })).optional()
+});
+
+export const zSpeedListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('speed'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            speed: z.number(),
+            time: z.number()
+        })
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
+                related: z.string().default('/api/v2/ui/speeds/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/task'),
+                related: z.string().default('/api/v2/ui/speeds/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('task').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -2427,67 +4081,71 @@ export const zSpeedResponse = z.object({
 
 export const zSpeedRelationTask = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zSpeedRelationTaskGetResponse = z.object({
     data: z.object({
-        type: z.string().optional().default('task'),
-        id: z.int().optional().default(1)
-    }).optional()
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zSupertaskCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Supertask'),
+        type: z.literal('supertask'),
         attributes: z.object({
             pretasks: z.array(z.int()).optional(),
             supertaskName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zSupertaskPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Supertask'),
+        type: z.literal('supertask'),
         attributes: z.object({
             supertaskName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zSupertaskResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25'),
+        self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Supertask'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
         attributes: z.object({
-            supertaskName: z.string().optional()
-        }).optional()
-    })).optional(),
+            supertaskName: z.string()
+        })
+    }),
     relationships: z.object({
         pretasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/supertasks/relationships/pretasks'),
-                related: z.string().optional().default('/api/v2/ui/supertasks/pretasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('pretasks'),
+        type: z.literal('pretasks').optional(),
         attributes: z.object({
             files: z.array(z.int()).optional(),
             pretaskId: z.int().optional(),
@@ -2508,24 +4166,28 @@ export const zSupertaskResponse = z.object({
 });
 
 export const zSupertaskSingleResponse = z.object({
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Supertask'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
         attributes: z.object({
-            supertaskName: z.string().optional()
-        }).optional()
-    })).optional(),
+            supertaskName: z.string()
+        })
+    }),
     relationships: z.object({
         pretasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/supertasks/relationships/pretasks'),
-                related: z.string().optional().default('/api/v2/ui/supertasks/pretasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('pretasks'),
+        type: z.literal('pretasks').optional(),
         attributes: z.object({
             files: z.array(z.int()).optional(),
             pretaskId: z.int().optional(),
@@ -2547,35 +4209,88 @@ export const zSupertaskSingleResponse = z.object({
 
 export const zSupertaskPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string()
+        })
+    })
+});
+
+export const zSupertaskListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Supertask'),
+        id: z.int(),
+        type: z.literal('supertask'),
         attributes: z.object({
-            supertaskName: z.string().optional()
+            supertaskName: z.string()
+        })
+    })),
+    relationships: z.object({
+        pretasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('pretasks').optional(),
+        attributes: z.object({
+            files: z.array(z.int()).optional(),
+            pretaskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            priority: z.int().optional(),
+            maxAgents: z.int().optional(),
+            isMaskImport: z.boolean().optional(),
+            crackerBinaryTypeId: z.int().optional()
         }).optional()
     })).optional()
 });
 
 export const zSupertaskRelationPretasks = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('pretasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('pretasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zSupertaskRelationPretasksGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('pretasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('pretasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Task'),
+        type: z.literal('task'),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -2589,23 +4304,23 @@ export const zTaskCreate = z.object({
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zTaskPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\Task'),
+        type: z.literal('task'),
         attributes: z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
@@ -2618,226 +4333,425 @@ export const zTaskPatch = z.object({
             priority: z.int().optional(),
             statusTimer: z.int().optional(),
             taskName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zTaskResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/tasks?page[size]=25'),
+        self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Task'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('task'),
         attributes: z.object({
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional(),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
+        })
+    }),
     relationships: z.object({
         assignedAgents: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/assignedAgents'),
-                related: z.string().optional().default('/api/v2/ui/tasks/assignedAgents')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+                related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
         crackerBinary: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/crackerBinary'),
-                related: z.string().optional().default('/api/v2/ui/tasks/crackerBinary')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
         crackerBinaryType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
-                related: z.string().optional().default('/api/v2/ui/tasks/crackerBinaryType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
         files: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/files'),
-                related: z.string().optional().default('/api/v2/ui/tasks/files')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+                related: z.string().default('/api/v2/ui/tasks/files')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        }),
         hashlist: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/hashlist'),
-                related: z.string().optional().default('/api/v2/ui/tasks/hashlist')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/tasks/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
         speeds: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/tasks/relationships/speeds'),
-                related: z.string().optional().default('/api/v2/ui/tasks/speeds')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+                related: z.string().default('/api/v2/ui/tasks/speeds')
+            }),
+            data: z.array(z.object({
+                type: z.literal('speed'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('speeds'),
+        type: z.literal('speeds').optional(),
         attributes: z.object({
             speedId: z.int().optional(),
             agentId: z.int().optional(),
             taskId: z.int().optional(),
-            speed: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+            speed: z.number().optional(),
+            time: z.number().optional()
         }).optional()
     })).optional()
 });
 
 export const zTaskPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
+        })
+    })
+});
+
+export const zTaskListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\Task'),
+        id: z.int(),
+        type: z.literal('task'),
         attributes: z.object({
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
+        })
+    })),
+    relationships: z.object({
+        assignedAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+                related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
+        crackerBinaryType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
+        files: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+                related: z.string().default('/api/v2/ui/tasks/files')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/tasks/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        speeds: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+                related: z.string().default('/api/v2/ui/tasks/speeds')
+            }),
+            data: z.array(z.object({
+                type: z.literal('speed'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('speeds').optional(),
+        attributes: z.object({
+            speedId: z.int().optional(),
+            agentId: z.int().optional(),
+            taskId: z.int().optional(),
+            speed: z.number().optional(),
+            time: z.number().optional()
         }).optional()
     })).optional()
 });
 
 export const zTaskRelationSpeeds = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('speeds'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('speeds'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskRelationSpeedsGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('speeds'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('speeds'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskWrapperPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\TaskWrapper'),
+        type: z.literal('taskWrapper'),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             isArchived: z.boolean().optional(),
             maxAgents: z.int().optional(),
             priority: z.int().optional(),
             taskWrapperName: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zTaskWrapperResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25'),
+        self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\TaskWrapper'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
         attributes: z.object({
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            taskType: z.union([z.literal(0), z.literal(1)]).optional(),
-            hashlistId: z.int().optional(),
-            accessGroupId: z.int().optional(),
-            taskWrapperName: z.string().optional(),
-            isArchived: z.boolean().optional(),
-            cracked: z.int().optional()
-        }).optional()
-    })).optional(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            taskType: z.union([z.literal(0), z.literal(1)]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
+            isArchived: z.boolean(),
+            cracked: z.int()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/accessGroup')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
         hashType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/hashType'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/hashType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
         hashlist: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/hashlist')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/task')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -2846,22 +4760,22 @@ export const zTaskWrapperResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -2870,55 +4784,75 @@ export const zTaskWrapperResponse = z.object({
 });
 
 export const zTaskWrapperSingleResponse = z.object({
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\TaskWrapper'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
         attributes: z.object({
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            taskType: z.union([z.literal(0), z.literal(1)]).optional(),
-            hashlistId: z.int().optional(),
-            accessGroupId: z.int().optional(),
-            taskWrapperName: z.string().optional(),
-            isArchived: z.boolean().optional(),
-            cracked: z.int().optional()
-        }).optional()
-    })).optional(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            taskType: z.union([z.literal(0), z.literal(1)]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
+            isArchived: z.boolean(),
+            cracked: z.int()
+        })
+    }),
     relationships: z.object({
         accessGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/accessGroup')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
         hashType: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/hashType'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/hashType')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
         hashlist: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/hashlist')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
         task: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/task'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/task')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
         tasks: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/taskwrappers/relationships/tasks'),
-                related: z.string().optional().default('/api/v2/ui/taskwrappers/tasks')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('tasks'),
+        type: z.literal('tasks').optional(),
         attributes: z.object({
             hashlistId: z.int().optional(),
             files: z.array(z.int()).optional(),
@@ -2927,22 +4861,22 @@ export const zTaskWrapperSingleResponse = z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
             statusTimer: z.int().optional(),
-            keyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            keyspaceProgress: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
             color: z.string().optional(),
             isSmall: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             useNewBench: z.boolean().optional(),
-            skipKeyspace: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            skipKeyspace: z.number().optional(),
             crackerBinaryId: z.int().optional(),
             crackerBinaryTypeId: z.int().optional(),
             taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
             notes: z.string().optional(),
             staticChunks: z.int().optional(),
-            chunkSize: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+            chunkSize: z.number().optional(),
             forcePipe: z.boolean().optional(),
             preprocessorId: z.int().optional(),
             preprocessorCommand: z.string().optional()
@@ -2952,112 +4886,230 @@ export const zTaskWrapperSingleResponse = z.object({
 
 export const zTaskWrapperPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
+            priority: z.int(),
+            maxAgents: z.int(),
+            taskType: z.union([z.literal(0), z.literal(1)]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
+            isArchived: z.boolean(),
+            cracked: z.int()
+        })
+    })
+});
+
+export const zTaskWrapperListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\TaskWrapper'),
+        id: z.int(),
+        type: z.literal('taskWrapper'),
         attributes: z.object({
+            priority: z.int(),
+            maxAgents: z.int(),
+            taskType: z.union([z.literal(0), z.literal(1)]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
+            isArchived: z.boolean(),
+            cracked: z.int()
+        })
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('tasks').optional(),
+        attributes: z.object({
+            hashlistId: z.int().optional(),
+            files: z.array(z.int()).optional(),
+            taskId: z.int().optional(),
+            taskName: z.string().optional(),
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            statusTimer: z.int().optional(),
+            keyspace: z.number().optional(),
+            keyspaceProgress: z.number().optional(),
             priority: z.int().optional(),
             maxAgents: z.int().optional(),
-            taskType: z.union([z.literal(0), z.literal(1)]).optional(),
-            hashlistId: z.int().optional(),
-            accessGroupId: z.int().optional(),
-            taskWrapperName: z.string().optional(),
+            color: z.string().optional(),
+            isSmall: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            useNewBench: z.boolean().optional(),
+            skipKeyspace: z.number().optional(),
+            crackerBinaryId: z.int().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            taskWrapperId: z.int().optional(),
             isArchived: z.boolean().optional(),
-            cracked: z.int().optional()
+            notes: z.string().optional(),
+            staticChunks: z.int().optional(),
+            chunkSize: z.number().optional(),
+            forcePipe: z.boolean().optional(),
+            preprocessorId: z.int().optional(),
+            preprocessorCommand: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zTaskWrapperRelationTasks = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskWrapperRelationTasksGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('tasks'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zUserCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\User'),
+        type: z.literal('user'),
         attributes: z.object({
             name: z.string().optional(),
             email: z.string().optional(),
             globalPermissionGroupId: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zUserPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\User'),
+        type: z.literal('user'),
         attributes: z.object({
             email: z.string().optional(),
             globalPermissionGroupId: z.int().optional(),
             isValid: z.boolean().optional(),
             sessionLifetime: z.int().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zUserResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/users?page[size]=25'),
+        self: z.string().default('/api/v2/ui/users?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\User'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            registeredSince: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
-    })).optional(),
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
+    }),
     relationships: z.object({
         accessGroups: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/users/relationships/accessGroups'),
-                related: z.string().optional().default('/api/v2/ui/users/accessGroups')
-            }).optional()
-        }).optional(),
+                self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/users/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
         globalPermissionGroup: z.object({
             links: z.object({
-                self: z.string().optional().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
-                related: z.string().optional().default('/api/v2/ui/users/globalPermissionGroup')
-            }).optional()
-        }).optional()
+                self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
+                related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
+            }),
+            data: z.object({
+                type: z.literal('globalPermissionGroup'),
+                id: z.int()
+            }).nullish()
+        })
     }).optional(),
     included: z.array(z.object({
         id: z.int().optional(),
-        type: z.string().optional().default('accessGroups'),
+        type: z.literal('accessGroups').optional(),
         attributes: z.object({
             accessGroupId: z.int().optional(),
             groupName: z.string().optional()
@@ -3067,101 +5119,186 @@ export const zUserResponse = z.object({
 
 export const zUserPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('user'),
+        attributes: z.object({
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
+    })
+});
+
+export const zUserListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/users?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\User'),
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            registeredSince: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
+    })),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/users/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
+        globalPermissionGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
+                related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
+            }),
+            data: z.object({
+                type: z.literal('globalPermissionGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int().optional(),
+        type: z.literal('accessGroups').optional(),
+        attributes: z.object({
+            accessGroupId: z.int().optional(),
+            groupName: z.string().optional()
         }).optional()
     })).optional()
 });
 
 export const zUserRelationAccessGroups = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('accessGroups'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('accessGroups'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zUserRelationAccessGroupsGetResponse = z.object({
     data: z.array(z.object({
-        type: z.string().optional().default('accessGroups'),
-        id: z.int().optional().default(1)
-    })).optional()
+        type: z.literal('accessGroups'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zRegVoucherCreate = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\RegVoucher'),
+        type: z.literal('regVoucher'),
         attributes: z.object({
             voucher: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zRegVoucherPatch = z.object({
     data: z.object({
-        type: z.string().optional().default('topolis\\dba\\models\\RegVoucher'),
+        type: z.literal('regVoucher'),
         attributes: z.object({
             voucher: z.string().optional()
-        }).optional()
-    }).optional()
+        })
+    })
 });
 
 export const zRegVoucherResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
-    }).optional(),
+    }),
     links: z.object({
-        self: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25'),
+        self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
         next: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
         previous: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
     }).optional(),
-    data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\RegVoucher'),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('regVoucher'),
         attributes: z.object({
-            voucher: z.string().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional(),
+            voucher: z.string(),
+            time: z.number()
+        })
+    }),
     relationships: z.record(z.string(), z.unknown()).optional(),
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zRegVoucherPostPatchResponse = z.object({
     jsonapi: z.object({
-        version: z.string().optional().default('1.1'),
+        version: z.string().default('1.1'),
         ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('regVoucher'),
+        attributes: z.object({
+            voucher: z.string(),
+            time: z.number()
+        })
+    })
+});
+
+export const zRegVoucherListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
+        next: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
+        previous: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
-        id: z.int().optional(),
-        type: z.string().optional().default('topolis\\dba\\models\\RegVoucher'),
+        id: z.int(),
+        type: z.literal('regVoucher'),
         attributes: z.object({
-            voucher: z.string().optional(),
-            time: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
-        }).optional()
-    })).optional()
+            voucher: z.string(),
+            time: z.number()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
 export const zAbortChunkHelperApi = z.object({
@@ -3361,8 +5498,8 @@ export const zUnassignAgentHelperApiResponse = z.array(z.object({
 }));
 
 export const zToken = z.object({
-    token: z.string().optional(),
-    expires: z.int().optional()
+    token: z.string(),
+    expires: z.int()
 });
 
 export const zTokenRequest = z.array(z.string());
@@ -3388,7 +5525,7 @@ export const zGetAccessgroupsData = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsResponse = z.array(zAccessGroupResponse);
+export const zGetAccessgroupsResponse = zAccessGroupListResponse;
 
 export const zPatchAccessgroupsData = z.object({
     body: z.never().optional(),
@@ -3422,7 +5559,7 @@ export const zGetAccessgroupsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsCountResponse = z.array(zAccessGroupResponse);
+export const zGetAccessgroupsCountResponse = zAccessGroupListResponse;
 
 export const zGetAccessgroupsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -3556,7 +5693,7 @@ export const zGetAgentsData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsResponse = z.array(zAgentResponse);
+export const zGetAgentsResponse = zAgentListResponse;
 
 export const zPatchAgentsData = z.object({
     body: z.never().optional(),
@@ -3579,7 +5716,7 @@ export const zGetAgentsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsCountResponse = z.array(zAgentResponse);
+export const zGetAgentsCountResponse = zAgentListResponse;
 
 export const zGetAgentsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -3713,7 +5850,7 @@ export const zGetAgentassignmentsData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsResponse = z.array(zAssignmentResponse);
+export const zGetAgentassignmentsResponse = zAssignmentListResponse;
 
 export const zPatchAgentassignmentsData = z.object({
     body: z.never().optional(),
@@ -3747,7 +5884,7 @@ export const zGetAgentassignmentsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsCountResponse = z.array(zAssignmentResponse);
+export const zGetAgentassignmentsCountResponse = zAssignmentListResponse;
 
 export const zGetAgentassignmentsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -3853,7 +5990,7 @@ export const zGetAgentbinariesData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentbinariesResponse = z.array(zAgentBinaryResponse);
+export const zGetAgentbinariesResponse = zAgentBinaryListResponse;
 
 export const zPatchAgentbinariesData = z.object({
     body: z.never().optional(),
@@ -3887,7 +6024,7 @@ export const zGetAgentbinariesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentbinariesCountResponse = z.array(zAgentBinaryResponse);
+export const zGetAgentbinariesCountResponse = zAgentBinaryListResponse;
 
 export const zDeleteAgentbinariesByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -3951,7 +6088,7 @@ export const zGetAgenterrorsData = z.object({
 /**
  * successful operation
  */
-export const zGetAgenterrorsResponse = z.array(zAgentErrorResponse);
+export const zGetAgenterrorsResponse = zAgentErrorListResponse;
 
 export const zGetAgenterrorsCountData = z.object({
     body: z.never().optional(),
@@ -3968,7 +6105,7 @@ export const zGetAgenterrorsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgenterrorsCountResponse = z.array(zAgentErrorResponse);
+export const zGetAgenterrorsCountResponse = zAgentErrorListResponse;
 
 export const zGetAgenterrorsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4061,7 +6198,7 @@ export const zGetAgentstatsData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentstatsResponse = z.array(zAgentStatResponse);
+export const zGetAgentstatsResponse = zAgentStatListResponse;
 
 export const zGetAgentstatsCountData = z.object({
     body: z.never().optional(),
@@ -4078,7 +6215,7 @@ export const zGetAgentstatsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentstatsCountResponse = z.array(zAgentStatResponse);
+export const zGetAgentstatsCountResponse = zAgentStatListResponse;
 
 export const zDeleteAgentstatsByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -4129,7 +6266,7 @@ export const zGetApiTokensData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensResponse = z.array(zJwtApiKeyResponse);
+export const zGetApiTokensResponse = zJwtApiKeyListResponse;
 
 export const zPatchApiTokensData = z.object({
     body: z.never().optional(),
@@ -4163,7 +6300,7 @@ export const zGetApiTokensCountData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensCountResponse = z.array(zJwtApiKeyResponse);
+export const zGetApiTokensCountResponse = zJwtApiKeyListResponse;
 
 export const zGetApiTokensByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4263,7 +6400,7 @@ export const zGetChunksData = z.object({
 /**
  * successful operation
  */
-export const zGetChunksResponse = z.array(zChunkResponse);
+export const zGetChunksResponse = zChunkListResponse;
 
 export const zGetChunksCountData = z.object({
     body: z.never().optional(),
@@ -4280,7 +6417,7 @@ export const zGetChunksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetChunksCountResponse = z.array(zChunkResponse);
+export const zGetChunksCountResponse = zChunkListResponse;
 
 export const zGetChunksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4354,7 +6491,7 @@ export const zGetConfigsData = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsResponse = z.array(zConfigResponse);
+export const zGetConfigsResponse = zConfigListResponse;
 
 export const zPatchConfigsData = z.object({
     body: z.never().optional(),
@@ -4377,7 +6514,7 @@ export const zGetConfigsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsCountResponse = z.array(zConfigResponse);
+export const zGetConfigsCountResponse = zConfigListResponse;
 
 export const zGetConfigsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4464,7 +6601,7 @@ export const zGetConfigsectionsData = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsectionsResponse = z.array(zConfigSectionResponse);
+export const zGetConfigsectionsResponse = zConfigSectionListResponse;
 
 export const zGetConfigsectionsCountData = z.object({
     body: z.never().optional(),
@@ -4481,7 +6618,7 @@ export const zGetConfigsectionsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsectionsCountResponse = z.array(zConfigSectionResponse);
+export const zGetConfigsectionsCountResponse = zConfigSectionListResponse;
 
 export const zGetConfigsectionsByIdData = z.object({
     body: z.never().optional(),
@@ -4519,7 +6656,7 @@ export const zGetCrackersData = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersResponse = z.array(zCrackerBinaryResponse);
+export const zGetCrackersResponse = zCrackerBinaryListResponse;
 
 export const zPatchCrackersData = z.object({
     body: z.never().optional(),
@@ -4553,7 +6690,7 @@ export const zGetCrackersCountData = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersCountResponse = z.array(zCrackerBinaryResponse);
+export const zGetCrackersCountResponse = zCrackerBinaryListResponse;
 
 export const zGetCrackersByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4687,7 +6824,7 @@ export const zGetCrackertypesData = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesResponse = z.array(zCrackerBinaryTypeResponse);
+export const zGetCrackertypesResponse = zCrackerBinaryTypeListResponse;
 
 export const zPatchCrackertypesData = z.object({
     body: z.never().optional(),
@@ -4721,7 +6858,7 @@ export const zGetCrackertypesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesCountResponse = z.array(zCrackerBinaryTypeResponse);
+export const zGetCrackertypesCountResponse = zCrackerBinaryTypeListResponse;
 
 export const zGetCrackertypesByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4855,7 +6992,7 @@ export const zGetFilesData = z.object({
 /**
  * successful operation
  */
-export const zGetFilesResponse = z.array(zFileResponse);
+export const zGetFilesResponse = zFileListResponse;
 
 export const zPatchFilesData = z.object({
     body: z.never().optional(),
@@ -4889,7 +7026,7 @@ export const zGetFilesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetFilesCountResponse = z.array(zFileResponse);
+export const zGetFilesCountResponse = zFileListResponse;
 
 export const zGetFilesByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -4995,7 +7132,7 @@ export const zGetGlobalpermissiongroupsData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsResponse = z.array(zRightGroupResponse);
+export const zGetGlobalpermissiongroupsResponse = zRightGroupListResponse;
 
 export const zPatchGlobalpermissiongroupsData = z.object({
     body: z.never().optional(),
@@ -5029,7 +7166,7 @@ export const zGetGlobalpermissiongroupsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsCountResponse = z.array(zRightGroupResponse);
+export const zGetGlobalpermissiongroupsCountResponse = zRightGroupListResponse;
 
 export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5157,7 +7294,7 @@ export const zGetHashesData = z.object({
 /**
  * successful operation
  */
-export const zGetHashesResponse = z.array(zHashResponse);
+export const zGetHashesResponse = zHashListResponse;
 
 export const zGetHashesCountData = z.object({
     body: z.never().optional(),
@@ -5174,7 +7311,7 @@ export const zGetHashesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetHashesCountResponse = z.array(zHashResponse);
+export const zGetHashesCountResponse = zHashListResponse;
 
 export const zGetHashesByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5254,7 +7391,7 @@ export const zGetHashlistsData = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsResponse = z.array(zHashlistResponse);
+export const zGetHashlistsResponse = zHashlistListResponse;
 
 export const zPatchHashlistsData = z.object({
     body: z.never().optional(),
@@ -5288,7 +7425,7 @@ export const zGetHashlistsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsCountResponse = z.array(zHashlistResponse);
+export const zGetHashlistsCountResponse = zHashlistListResponse;
 
 export const zGetHashlistsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5422,7 +7559,7 @@ export const zGetHashtypesData = z.object({
 /**
  * successful operation
  */
-export const zGetHashtypesResponse = z.array(zHashTypeResponse);
+export const zGetHashtypesResponse = zHashTypeListResponse;
 
 export const zPatchHashtypesData = z.object({
     body: z.never().optional(),
@@ -5456,7 +7593,7 @@ export const zGetHashtypesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetHashtypesCountResponse = z.array(zHashTypeResponse);
+export const zGetHashtypesCountResponse = zHashTypeListResponse;
 
 export const zDeleteHashtypesByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -5514,7 +7651,7 @@ export const zGetHealthcheckagentsData = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsResponse = z.array(zHealthCheckAgentResponse);
+export const zGetHealthcheckagentsResponse = zHealthCheckAgentListResponse;
 
 export const zGetHealthcheckagentsCountData = z.object({
     body: z.never().optional(),
@@ -5531,7 +7668,7 @@ export const zGetHealthcheckagentsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsCountResponse = z.array(zHealthCheckAgentResponse);
+export const zGetHealthcheckagentsCountResponse = zHealthCheckAgentListResponse;
 
 export const zGetHealthcheckagentsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5611,7 +7748,7 @@ export const zGetHealthchecksData = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksResponse = z.array(zHealthCheckResponse);
+export const zGetHealthchecksResponse = zHealthCheckListResponse;
 
 export const zPatchHealthchecksData = z.object({
     body: z.never().optional(),
@@ -5645,7 +7782,7 @@ export const zGetHealthchecksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksCountResponse = z.array(zHealthCheckResponse);
+export const zGetHealthchecksCountResponse = zHealthCheckListResponse;
 
 export const zGetHealthchecksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5779,7 +7916,7 @@ export const zGetLogentriesData = z.object({
 /**
  * successful operation
  */
-export const zGetLogentriesResponse = z.array(zLogEntryResponse);
+export const zGetLogentriesResponse = zLogEntryListResponse;
 
 export const zPatchLogentriesData = z.object({
     body: z.never().optional(),
@@ -5813,7 +7950,7 @@ export const zGetLogentriesCountData = z.object({
 /**
  * successful operation
  */
-export const zGetLogentriesCountResponse = z.array(zLogEntryResponse);
+export const zGetLogentriesCountResponse = zLogEntryListResponse;
 
 export const zDeleteLogentriesByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -5877,7 +8014,7 @@ export const zGetNotificationsData = z.object({
 /**
  * successful operation
  */
-export const zGetNotificationsResponse = z.array(zNotificationSettingResponse);
+export const zGetNotificationsResponse = zNotificationSettingListResponse;
 
 export const zPatchNotificationsData = z.object({
     body: z.never().optional(),
@@ -5911,7 +8048,7 @@ export const zGetNotificationsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetNotificationsCountResponse = z.array(zNotificationSettingResponse);
+export const zGetNotificationsCountResponse = zNotificationSettingListResponse;
 
 export const zGetNotificationsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6017,7 +8154,7 @@ export const zGetPreprocessorsData = z.object({
 /**
  * successful operation
  */
-export const zGetPreprocessorsResponse = z.array(zPreprocessorResponse);
+export const zGetPreprocessorsResponse = zPreprocessorListResponse;
 
 export const zPatchPreprocessorsData = z.object({
     body: z.never().optional(),
@@ -6051,7 +8188,7 @@ export const zGetPreprocessorsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetPreprocessorsCountResponse = z.array(zPreprocessorResponse);
+export const zGetPreprocessorsCountResponse = zPreprocessorListResponse;
 
 export const zDeletePreprocessorsByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -6115,7 +8252,7 @@ export const zGetPretasksData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksResponse = z.array(zPretaskResponse);
+export const zGetPretasksResponse = zPretaskListResponse;
 
 export const zPatchPretasksData = z.object({
     body: z.never().optional(),
@@ -6149,7 +8286,7 @@ export const zGetPretasksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksCountResponse = z.array(zPretaskResponse);
+export const zGetPretasksCountResponse = zPretaskListResponse;
 
 export const zGetPretasksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6277,7 +8414,7 @@ export const zGetSpeedsData = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsResponse = z.array(zSpeedResponse);
+export const zGetSpeedsResponse = zSpeedListResponse;
 
 export const zGetSpeedsCountData = z.object({
     body: z.never().optional(),
@@ -6294,7 +8431,7 @@ export const zGetSpeedsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsCountResponse = z.array(zSpeedResponse);
+export const zGetSpeedsCountResponse = zSpeedListResponse;
 
 export const zGetSpeedsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6374,7 +8511,7 @@ export const zGetSupertasksData = z.object({
 /**
  * successful operation
  */
-export const zGetSupertasksResponse = z.array(zSupertaskResponse);
+export const zGetSupertasksResponse = zSupertaskListResponse;
 
 export const zPatchSupertasksData = z.object({
     body: z.never().optional(),
@@ -6408,7 +8545,7 @@ export const zGetSupertasksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetSupertasksCountResponse = z.array(zSupertaskResponse);
+export const zGetSupertasksCountResponse = zSupertaskListResponse;
 
 export const zGetSupertasksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6542,7 +8679,7 @@ export const zGetTasksData = z.object({
 /**
  * successful operation
  */
-export const zGetTasksResponse = z.array(zTaskResponse);
+export const zGetTasksResponse = zTaskListResponse;
 
 export const zPatchTasksData = z.object({
     body: z.never().optional(),
@@ -6576,7 +8713,7 @@ export const zGetTasksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetTasksCountResponse = z.array(zTaskResponse);
+export const zGetTasksCountResponse = zTaskListResponse;
 
 export const zGetTasksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6710,7 +8847,7 @@ export const zGetTaskwrappersData = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersResponse = z.array(zTaskWrapperResponse);
+export const zGetTaskwrappersResponse = zTaskWrapperListResponse;
 
 export const zPatchTaskwrappersData = z.object({
     body: z.never().optional(),
@@ -6733,7 +8870,7 @@ export const zGetTaskwrappersCountData = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersCountResponse = z.array(zTaskWrapperResponse);
+export const zGetTaskwrappersCountResponse = zTaskWrapperListResponse;
 
 export const zGetTaskwrappersByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6867,7 +9004,7 @@ export const zGetUsersData = z.object({
 /**
  * successful operation
  */
-export const zGetUsersResponse = z.array(zUserResponse);
+export const zGetUsersResponse = zUserListResponse;
 
 export const zPatchUsersData = z.object({
     body: z.never().optional(),
@@ -6901,7 +9038,7 @@ export const zGetUsersCountData = z.object({
 /**
  * successful operation
  */
-export const zGetUsersCountResponse = z.array(zUserResponse);
+export const zGetUsersCountResponse = zUserListResponse;
 
 export const zGetUsersByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -7035,7 +9172,7 @@ export const zGetVouchersData = z.object({
 /**
  * successful operation
  */
-export const zGetVouchersResponse = z.array(zRegVoucherResponse);
+export const zGetVouchersResponse = zRegVoucherListResponse;
 
 export const zPatchVouchersData = z.object({
     body: z.never().optional(),
@@ -7069,7 +9206,7 @@ export const zGetVouchersCountData = z.object({
 /**
  * successful operation
  */
-export const zGetVouchersCountResponse = z.array(zRegVoucherResponse);
+export const zGetVouchersCountResponse = zRegVoucherListResponse;
 
 export const zDeleteVouchersByIdData = z.object({
     body: z.record(z.string(), z.unknown()),

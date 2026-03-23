@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zUserListResponse } from '@generated/api/zod.gen';
+
 export class UsersDataSource extends BaseDataSource<JUser> {
   private _currentFilter: Filter = null;
 
@@ -41,9 +43,7 @@ export class UsersDataSource extends BaseDataSource<JUser> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-
-          const users = this.serializer.deserialize<JUser[]>(responseBody);
+          const users: JUser[] = this.serializer.deserialize(response, zUserListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

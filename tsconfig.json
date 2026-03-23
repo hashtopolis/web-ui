@@ -23,6 +23,9 @@
       ],
       "@interceptors/*": [
         "./src/app/core/_interceptors/*"
+      ],
+      "@generated/*": [
+        "./src/generated/*"
       ]
     },
     "outDir": "./dist/out-tsc",

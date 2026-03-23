@@ -7,12 +7,13 @@ import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+import { zHashlistListResponse } from '@generated/api/zod.gen';
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
@@ -51,9 +52,7 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const serializer = new JsonAPISerializer();
-          const responseData = { data: response.data, included: response.included };
-          const superHashlists = serializer.deserialize<JHashlist[]>(responseData);
+          const superHashlists: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse) as JHashlist[];
 
           const rows: JHashlist[] = [];
           superHashlists.forEach((superHashlist) => {

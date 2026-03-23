@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zAccessGroupListResponse } from '@generated/api/zod.gen';
+
 export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   private _currentFilter: Filter = null;
 
@@ -41,10 +43,7 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-
-          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
-
+          const accessgroups: JAccessGroup[] = this.serializer.deserialize(response, zAccessGroupListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

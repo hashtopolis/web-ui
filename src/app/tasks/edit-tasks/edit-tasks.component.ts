@@ -10,12 +10,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
-import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { SpeedStat } from '@models/speed-stat.model';
 import { JTask } from '@models/task.model';
+import { SpeedStat } from '@models/speed-stat.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -34,6 +34,8 @@ import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+import { zAgentListResponse, zAssignmentListResponse, zHashTypeResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -138,7 +140,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
         this.hashlistinform = task.hashlist;
         this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
-          const hashtype = this.serializer.deserialize<JHashtype>({ data: response.data, included: response.included });
+          const hashtype: JHashtype = this.serializer.deserialize(response, zHashTypeResponse);
           this.hashlistDescrip = hashtype.description;
         });
       }
@@ -254,7 +256,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      return this.serializer.deserialize<JTask>({ data: response.data, included: response.included });
+      return this.serializer.deserialize(response, zTaskResponse) as JTask;
     } catch (err: unknown) {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
@@ -262,7 +264,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        return this.serializer.deserialize<JTask>({ data: responseFallback.data, included: responseFallback.included });
+        return this.serializer.deserialize(responseFallback, zTaskResponse) as JTask;
       }
       throw err;
     }
@@ -350,8 +352,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-      this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
+      this.availAgents = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;
     });
@@ -361,11 +362,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const responseBodyAssignments = {
-        data: responseAssignments.data,
-        included: responseAssignments.included
-      };
-      const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
+      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(responseAssignments, zAssignmentListResponse);
       const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
         (agentAssignment) => agentAssignment.agentId
       );
@@ -459,7 +456,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       .setPageSize(requestLimit);
 
     this.gs.getAll(SERV.SPEEDS, speedParams.create()).subscribe((response: ResponseWrapper) => {
-      const speeds = this.serializer.deserialize<SpeedStat[]>({ data: response.data, included: response.included });
+      const speeds: SpeedStat[] = this.serializer.deserialize(response, zSpeedListResponse);
       this.originalValue.speeds = [...speeds].reverse();
     });
   }

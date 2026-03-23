@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, JCrackerBinary } from '@models/cracker-binary.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -16,6 +16,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -85,10 +86,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackerTypes: JCrackerBinaryType[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse);
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);
@@ -105,10 +103,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
     const filter = new Array<Filter>({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id });
     const params = { filter: filter };
     const onChangeBinarySubscription$ = this.gs.getAll(SERV.CRACKERS, params).subscribe((response: ResponseWrapper) => {
-      const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
       const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
       this.form.get('crackerBinaryId').patchValue(lastItem);

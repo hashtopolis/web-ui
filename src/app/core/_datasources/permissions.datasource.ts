@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zRightGroupListResponse } from '@generated/api/zod.gen';
+
 export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
   private _currentFilter: Filter = null;
 
@@ -41,8 +43,7 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
+          const globalPermissionGroups: JGlobalPermissionGroup[] = this.serializer.deserialize(response, zRightGroupListResponse) as JGlobalPermissionGroup[];
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

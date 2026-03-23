@@ -21,7 +21,7 @@ export interface Permission {
 export interface JGlobalPermissionGroup extends BaseModel {
   name: string;
   permissions: Permission;
-  userMembers: JUser[];
+  userMembers?: JUser[];
 }
 
 /**

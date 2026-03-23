@@ -26,6 +26,7 @@ import {
 } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.form';
 import { SelectOption } from '@src/app/shared/utils/forms';
 import { handleEncode, removeFakePath } from '@src/app/shared/utils/forms';
+import { zHashlistResponse } from '@generated/api/zod.gen';
 
 /**
  * Component for import pre cracked hashes
@@ -359,10 +360,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         include: ['tasks,hashlists,hashType']
       })
       .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse) as JHashlist;
         this.type = hashlist.format;
         this.hashtype = hashlist.hashType;
 

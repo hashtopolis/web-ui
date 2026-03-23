@@ -22,6 +22,8 @@ import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
+import { zCrackerBinaryTypeListResponse, zFileResponse, zPretaskResponse } from '@generated/api/zod.gen';
+
 @Component({
   selector: 'app-wrbulk',
   templateUrl: './wrbulk.component.html',
@@ -110,8 +112,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   loadData() {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+      const crackerBinaryTypes: JCrackerBinaryType[] = this.serializer.deserialize(response, zCrackerBinaryTypeListResponse) as JCrackerBinaryType[];
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
@@ -150,10 +151,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         const fileName: string = await new Promise((resolve, reject) => {
           const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
             next: (response: ResponseWrapper) => {
-              const file = new JsonAPISerializer().deserialize<JFile>({
-                data: response.data,
-                included: response.included
-              });
+              const file: JFile = new JsonAPISerializer().deserialize(response, zFileResponse);
               resolve(file.filename);
             },
             error: reject
@@ -167,7 +165,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         payload.attackCmd = updatedAttackCmd;
 
         const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
-        const pretask = new JsonAPISerializer().deserialize<JPretask>({ data: result.data, included: result.included });
+        const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPretaskResponse);
         preTasksIds.push(pretask.id);
       });
 

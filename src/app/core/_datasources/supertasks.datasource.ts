@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zSupertaskListResponse } from '@generated/api/zod.gen';
+
 export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
   private _currentFilter: Filter = null;
   loadAll(query?: Filter): void {
@@ -40,8 +42,7 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
+          const supertasks: JSuperTask[] = this.serializer.deserialize(response, zSupertaskListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

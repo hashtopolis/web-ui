@@ -4,11 +4,12 @@ import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permissi
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { zRightGroupResponse } from '@generated/api/zod.gen';
 
 export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | UserPermissions> {
   private _accesspermgroupId = 0;
@@ -40,12 +41,12 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const globalPermissionGroup = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>(response);
+          const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(response, zRightGroupResponse) as JGlobalPermissionGroup;
           let data: (UserPermissions | JUser)[];
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
-            data = globalPermissionGroup.userMembers;
+            data = globalPermissionGroup.userMembers as JUser[];
           }
           this.setData(data);
         })

@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -13,6 +12,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { zHashlistListResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -84,10 +85,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+        this.selectHashlists = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

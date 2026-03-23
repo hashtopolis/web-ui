@@ -23,6 +23,7 @@ import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
+import { zAccessGroupListResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
@@ -184,10 +185,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
         this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
       );
 
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
-      });
+      const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
       this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     } catch (error) {

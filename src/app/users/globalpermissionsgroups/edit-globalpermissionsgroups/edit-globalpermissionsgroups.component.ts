@@ -15,6 +15,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { zRightGroupResponse } from '@generated/api/zod.gen';
+
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
   templateUrl: './edit-globalpermissionsgroups.component.html',
@@ -92,10 +94,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         if (response) {
-          this.editedGPG = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>({
-            data: response.data,
-            included: response.included
-          });
+          this.editedGPG = new JsonAPISerializer().deserialize(response, zRightGroupResponse) as JGlobalPermissionGroup;
           const formValues = this.buildFormValues();
           this.updateForm.patchValue(formValues);
         }

@@ -11,6 +11,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { zAgentBinaryListResponse } from '@generated/api/zod.gen';
+
 export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
   private _currentFilter: Filter = null;
 
@@ -41,8 +43,7 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const agentBinaries = this.serializer.deserialize<JAgentBinary[]>(responseData);
+          const agentBinaries: JAgentBinary[] = this.serializer.deserialize(response, zAgentBinaryListResponse);
           const length = response.meta.page.total_elements;
 
           const nextLink = response.links.next;

@@ -4,11 +4,12 @@ import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { zSupertaskResponse } from '@generated/api/zod.gen';
 
 export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
   private _supertTaskId = 0;
@@ -29,10 +30,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const pretasks = new JsonAPISerializer().deserialize<JSuperTask>({
-            data: response.data,
-            included: response.included
-          }).pretasks;
+          const pretasks = (this.serializer.deserialize(response, zSupertaskResponse) as JSuperTask).pretasks as JPretask[];
           this.setData(pretasks);
         })
     );

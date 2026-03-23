@@ -22,6 +22,8 @@ import { PretasksTableComponent } from '@components/tables/pretasks-table/pretas
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
+import { zPretaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
+
 @Component({
   selector: 'app-edit-supertasks',
   templateUrl: './edit-supertasks.component.html',
@@ -121,8 +123,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     const params = new RequestParamBuilder().addInclude('pretasks').create();
     const loadSTSubscription$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex, params).subscribe({
       next: (response: ResponseWrapper) => {
-        const responseData = { data: response.data, included: response.included };
-        const supertask = this.serializer.deserialize<JSuperTask>(responseData);
+        const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
         this.editName = supertask.supertaskName;
         this.viewForm = new FormGroup({
           supertaskId: new FormControl({
@@ -137,9 +138,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
         if (this.roleService.hasRole('editSupertaskPreTasks')) {
           const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
-            const responseDataPT = { data: responsePT.data, included: responsePT.included };
-            const pretasks = this.serializer.deserialize<JPretask[]>(responseDataPT);
-            const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
+            const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPretaskListResponse);
+            const availablePretasks = this.getAvailablePretasks((supertask as any).pretasks as JPretask[], pretasks);
 
             this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
             this.isLoading = false;
@@ -164,8 +164,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
           console.warn('loadData(): request with includes failed, retrying without includes', err);
           const retry$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex).subscribe({
             next: (response2: ResponseWrapper) => {
-              const responseData2 = { data: response2.data, included: response2.included };
-              const supertask2 = this.serializer.deserialize<JSuperTask>(responseData2);
+              const supertask2: JSuperTask = this.serializer.deserialize(response2, zSupertaskResponse);
               this.editName = supertask2.supertaskName;
               this.viewForm = new FormGroup({
                 supertaskId: new FormControl({ value: supertask2.id, disabled: true }),
@@ -173,9 +172,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
               });
               // still try to load pretasks list for selection
               const loadPTSubscription2$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
-                const responseDataPT2 = { data: responsePT.data, included: responsePT.included };
-                const pretasks = this.serializer.deserialize<JPretask[]>(responseDataPT2);
-                const availablePretasks = this.getAvailablePretasks(supertask2.pretasks, pretasks);
+                const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPretaskListResponse);
+                const availablePretasks = this.getAvailablePretasks((supertask2 as any).pretasks as JPretask[], pretasks);
                 this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
                 this.isLoading = false;
                 this.changeDetectorRef.detectChanges();

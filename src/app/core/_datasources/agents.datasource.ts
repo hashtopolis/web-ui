@@ -10,11 +10,13 @@ import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { zAgentListResponse, zAssignmentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -69,12 +71,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const serializer = new JsonAPISerializer();
-        const responseBody = { data: response.data, included: response.included };
-        const agents = serializer.deserialize<JAgent[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const agents: JAgent[] = this.serializer.deserialize(response, zAgentListResponse) as JAgent[];
 
         if (agents && agents.length > 0) {
           agents.forEach((agent: JAgent) => {
@@ -112,12 +109,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const serializer = new JsonAPISerializer();
-        const responseBody = { data: response.data, included: response.included };
-        const assignments = serializer.deserialize<JAgentAssignment[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAssignmentListResponse) as JAgentAssignment[];
         if (assignments && assignments.length > 0) {
           const userIds: Array<number> = assignments
             .map((assignment) => assignment.agent.userId)
@@ -126,8 +118,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
           const agents: JAgent[] = [];
           assignments.forEach((assignment) => {
-            const task = assignment.task;
-            const agent = assignment.agent;
+            const task = assignment.task as JTask;
+            const agent = assignment.agent as JAgent;
             agent.task = task;
             agent.user = users.find((user) => user.id === agent.userId);
             agent.taskName = agent.task.taskName;
@@ -188,8 +180,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             })
           )
         );
-        const responseBody = { data: response.data, included: response.included };
-        users = this.serializer.deserialize<JUser[]>(responseBody);
+        users = this.serializer.deserialize(response, zUserListResponse) as JUser[];
       } catch {
         // Error already handled via handleFilterError
       }

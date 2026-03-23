@@ -47,11 +47,11 @@ export class JsonAPISerializer {
   }
 
   /**
-   * Deserialize a JSON:API response body into a typed model.
+   * Deserialize a single-resource JSON:API response body into a typed model.
    *
    * @overload Pass a Zod envelope schema to validate the raw body pre-deserialization
    *   and auto-infer the flat return type via JsonApiPayload:
-   *   `deserialize(body, zUserSingleResponse)` → returns `JsonApiPayload<...>`
+   *   `deserialize(body, zAgentResponse)` → returns `JsonApiPayload<...>` (single flat model)
    *
    * @overload Omit the schema to get an unvalidated result:
    *   `deserialize<MyType>(body)` → returns `MyType`
@@ -72,13 +72,20 @@ export class JsonAPISerializer {
     options?: TDeserializeOptions
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
-      const parseResult = schemaOrOptions.safeParse(body);
-      if (!parseResult.success) {
-        console.error('API response validation failed', parseResult.error);
-        throw parseResult.error;
-      }
+      this.validateBody(body, schemaOrOptions);
       return this.formatter.deserialize(body, options) as T;
     }
     return this.formatter.deserialize(body, schemaOrOptions) as T;
+  }
+
+  /**
+   * Validate a JSON:API body against a Zod envelope schema.
+   */
+  private validateBody(body: TJsonApiBody, schema: z.ZodTypeAny): void {
+    const parseResult = schema.safeParse(body);
+    if (!parseResult.success) {
+      console.error('API response validation failed', parseResult.error);
+      throw parseResult.error;
+    }
   }
 }

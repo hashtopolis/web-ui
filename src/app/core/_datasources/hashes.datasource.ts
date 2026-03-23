@@ -4,11 +4,12 @@ import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { zHashListResponse } from '@generated/api/zod.gen';
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
@@ -40,10 +41,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-              data: response.data,
-              included: response.included
-            });
+            const hashes: JHash[] = this.serializer.deserialize(response, zHashListResponse);
 
             this.setData(hashes);
           })
@@ -72,10 +70,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-              data: response.data,
-              included: response.included
-            });
+            const hashes: JHash[] = this.serializer.deserialize(response, zHashListResponse);
 
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;

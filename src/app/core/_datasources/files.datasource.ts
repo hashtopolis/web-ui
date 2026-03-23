@@ -13,11 +13,12 @@ import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { zFileListResponse, zPretaskResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * Data source class definition for files
@@ -99,15 +100,11 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         )
         .subscribe((response: ResponseWrapper) => {
           if (this.editIndex !== undefined && this.editType === 0) {
-            const serializer = new JsonAPISerializer();
-            const responseData = { data: response.data, included: response.included };
-            const tasks = serializer.deserialize<JTask>(responseData);
+            const tasks: JTask = this.serializer.deserialize(response, zTaskResponse) as JTask;
 
-            this.setData(tasks.files);
+            this.setData(tasks.files as JFile[]);
           } else if (this.editType === 1) {
-            const serializer = new JsonAPISerializer();
-            const responseData = { data: response.data, included: response.included };
-            const pretask = serializer.deserialize<JPretask>(responseData);
+            const pretask: JPretask = this.serializer.deserialize(response, zPretaskResponse) as JPretask;
 
             if (!this.editType) {
               const nextLink = response.links.next;
@@ -118,11 +115,9 @@ export class FilesDataSource extends BaseDataSource<JFile> {
               this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             }
 
-            this.setData(pretask.pretaskFiles);
+            this.setData(pretask.pretaskFiles as JFile[]);
           } else {
-            const serializer = new JsonAPISerializer();
-            const responseData = { data: response.data, included: response.included };
-            const files = serializer.deserialize<JFile[]>(responseData);
+            const files: JFile[] = this.serializer.deserialize(response, zFileListResponse);
 
             const nextLink = response.links.next;
             const prevLink = response.links.prev;

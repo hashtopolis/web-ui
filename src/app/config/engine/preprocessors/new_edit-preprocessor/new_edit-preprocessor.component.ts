@@ -5,7 +5,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JPreprocessor } from '@models/preprocessor.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -23,6 +22,7 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+import { zPreprocessorResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-preprocessor',
@@ -113,10 +113,7 @@ export class NewEditPreprocessorComponent implements OnInit {
 
     const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
-    const preprocessor = new JsonAPISerializer().deserialize<JPreprocessor>({
-      data: response.data,
-      included: response.included
-    });
+    const preprocessor = new JsonAPISerializer().deserialize(response, zPreprocessorResponse);
 
     this.newEditPreprocessorForm.patchValue({
       name: preprocessor.name,

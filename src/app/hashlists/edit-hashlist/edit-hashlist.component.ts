@@ -5,7 +5,6 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angula
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JAccessGroup } from '@models/access-group.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,6 +24,7 @@ import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.gua
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -128,10 +128,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-        data: response.data,
-        included: response.included
-      });
+      const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse) as JHashlist;
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
@@ -159,10 +156,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: responseFallback.data,
-          included: responseFallback.included
-        });
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(responseFallback, zHashlistResponse) as JHashlist;
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;
@@ -200,10 +194,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
     );
 
-    const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-      data: response.data,
-      included: response.included
-    });
+    const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
     this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     this.changeDetectorRef.detectChanges();

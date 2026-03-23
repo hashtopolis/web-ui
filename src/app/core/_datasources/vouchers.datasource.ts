@@ -5,9 +5,10 @@ import { Filter } from '@models/request-params.model';
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JVoucher } from '@src/app/core/_models/voucher.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+import { zRegVoucherListResponse } from '@generated/api/zod.gen';
 
 export class VouchersDataSource extends BaseDataSource<JVoucher> {
   loadAll(query?: Filter): void {
@@ -25,10 +26,7 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const vouchers: JVoucher[] = new JsonAPISerializer().deserialize<JVoucher[]>({
-            data: response.data,
-            included: response.included
-          });
+          const vouchers: JVoucher[] = this.serializer.deserialize(response, zRegVoucherListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

@@ -5,13 +5,14 @@ import { JAgent } from '@models/agent.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { zAccessGroupResponse } from '@generated/api/zod.gen';
 
 export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
   private _accessgroupId = 0;
@@ -40,10 +41,7 @@ export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent>
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-            data: response.data,
-            included: response.included
-          });
+          const accessGroup: JAccessGroup = this.serializer.deserialize(response, zAccessGroupResponse);
           this.originalData = accessGroup[this._include] || [];
           this.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
         })

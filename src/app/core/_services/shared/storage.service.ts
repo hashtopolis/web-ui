@@ -9,6 +9,7 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
+import { zConfigListResponse } from '@generated/api/zod.gen';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -46,10 +47,7 @@ export class UIConfigService {
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     this.gs.getAll(SERV.CONFIGS, params).subscribe({
       next: (response: ResponseWrapper) => {
-        const configs = new JsonAPISerializer().deserialize<JConfig[]>({
-          data: response.data,
-          included: response.included
-        });
+        const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
         const raw = convertNameValueConfigPairs(configs, this.cachevar);
         raw['_timestamp'] = Date.now();
         raw['_expiresin'] = this.cexprity;

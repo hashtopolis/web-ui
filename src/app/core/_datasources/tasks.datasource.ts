@@ -10,6 +10,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { zTaskWrapperListResponse } from '@generated/api/zod.gen';
+
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
   private _hashlistID = 0;
@@ -69,10 +71,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers = this.serializer.deserialize<JTaskWrapper[]>({
-            data: response.data,
-            included: response.included
-          });
+          const taskWrappers: JTaskWrapper[] = this.serializer.deserialize(response, zTaskWrapperListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

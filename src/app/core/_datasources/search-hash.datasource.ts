@@ -11,6 +11,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
+import { zHashListResponse } from '@generated/api/zod.gen';
+
 export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   private search: string[];
   private dateFormat: string;
@@ -60,8 +62,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           })
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const hashes = this.convertHashes(this.serializer.deserialize<JHash[]>(responseData));
+          const hashes = this.convertHashes(this.serializer.deserialize(response, zHashListResponse) as JHash[]);
           this.checkMissingHashes(hashes);
           this.setData(hashes);
         })

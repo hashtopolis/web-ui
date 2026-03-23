@@ -13,6 +13,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
+import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod.gen';
+
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
@@ -59,12 +61,8 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const responseData = { data: response.data, included: response.included };
-            const superHashList: JHashlist = this.serializer.deserialize<JHashlist>({
-              data: responseData.data,
-              included: responseData.included
-            });
-            this.setData(superHashList.hashlists);
+            const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse) as JHashlist;
+            this.setData(superHashList.hashlists as JHashlist[]);
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
@@ -103,8 +101,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const responseData = { data: response.data, included: response.included };
-            const deserialized = this.serializer.deserialize<JHashlist[]>(responseData);
+            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse) as JHashlist[];
             if (!deserialized || !Array.isArray(deserialized)) {
               return; // Safety check: if deserialize returns null or non-array, exit
             }

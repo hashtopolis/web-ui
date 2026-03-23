@@ -11,6 +11,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { zHealthCheckListResponse } from '@generated/api/zod.gen';
+
 export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
   private _currentFilter: Filter = null;
 
@@ -40,8 +42,7 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
           finalize(() => (this.loading = false))
         )
         .subscribe(([response]: [ResponseWrapper]) => {
-          const responseData = { data: response.data, included: response.included };
-          const healthChecks = this.serializer.deserialize<JHealthCheck[]>(responseData);
+          const healthChecks: JHealthCheck[] = this.serializer.deserialize(response, zHealthCheckListResponse);
 
           healthChecks.forEach((healthCheck: JHealthCheck) => {
             healthCheck.hashTypeDescription = healthCheck.hashType?.description;

@@ -14,6 +14,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { zPretaskListResponse } from '@generated/api/zod.gen';
 
 /**
  * Component class to create a new supertask
@@ -80,10 +81,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
-      const pretasks = new JsonAPISerializer().deserialize<JPretask[]>({
-        data: response.data,
-        included: response.included
-      });
+      const pretasks: JPretask[] = new JsonAPISerializer().deserialize(response, zPretaskListResponse);
       this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();

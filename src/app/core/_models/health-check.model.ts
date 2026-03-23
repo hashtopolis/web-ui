@@ -35,7 +35,8 @@ export interface JHealthCheck extends BaseModel {
   crackerBinary?: JCrackerBinary;
   expectedCracks: number;
   healthCheckAgents?: JHealthCheckAgent[];
-  hashTypeId: number;
+  hashtypeId: number;
+  hashTypeId?: number;
   hashType?: JHashtype;
   hashTypeDescription?: string;
   status: number;

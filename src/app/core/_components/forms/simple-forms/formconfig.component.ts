@@ -18,6 +18,8 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { zConfigListResponse } from '@generated/api/zod.gen';
+
 type ConfigValues = Record<string, string | boolean>;
 type ConfigIds = Record<string, number>;
 
@@ -135,8 +137,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = this.gs
       .getAll(this.serviceConfig, { page: { size: 500 } })
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const config = this.serializer.deserialize<JConfig[]>(responseBody);
+        const config: JConfig[] = this.serializer.deserialize(response, zConfigListResponse);
 
         this.formValues = config.reduce<ConfigValues>((configValues, item) => {
           let value: string | boolean = item.value;

@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zHashTypeListResponse } from '@generated/api/zod.gen';
+
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   private _currentFilter: Filter = null;
 
@@ -39,8 +41,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
+          const hashtypes: JHashtype[] = this.serializer.deserialize(response, zHashTypeListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

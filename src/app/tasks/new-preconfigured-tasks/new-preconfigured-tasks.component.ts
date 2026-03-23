@@ -21,6 +21,8 @@ import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigured-tasks/new-preconfigured-tasks.form';
 
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
+
 @Component({
   selector: 'app-new-preconfigured-tasks',
   templateUrl: './new-preconfigured-tasks.component.html',
@@ -105,10 +107,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   loadData() {
     const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackerTypes: JCrackerBinaryType[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse);
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadCrackersSubscription$);

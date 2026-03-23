@@ -12,6 +12,8 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
+import { zLogEntryListResponse } from '@generated/api/zod.gen';
+
 export class LogsDataSource extends BaseDataSource<JLog> {
   private _currentFilter: Filter = null;
 
@@ -44,10 +46,9 @@ export class LogsDataSource extends BaseDataSource<JLog> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const logs = this.serializer.deserialize<JLog[]>(responseData);
-          /* 
-            this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it 
+          const logs: JLog[] = this.serializer.deserialize(response, zLogEntryListResponse) as JLog[];
+          /*
+            this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it
           */
           /*           if (this.currentPage * this.pageSize >= logs.length) {
             this.currentPage = 0;
