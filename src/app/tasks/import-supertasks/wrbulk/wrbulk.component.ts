@@ -23,6 +23,7 @@ import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
+import { zJFile } from '@models/schemas';
 
 @Component({
   selector: 'app-wrbulk',
@@ -151,7 +152,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         const fileName: string = await new Promise((resolve, reject) => {
           const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
             next: (response: ResponseWrapper) => {
-              const file: JFile = new JsonAPISerializer().deserialize(response, zFileResponse);
+              const file = zJFile.parse(new JsonAPISerializer().deserialize(response, zFileResponse)) as JFile;
               resolve(file.filename);
             },
             error: reject

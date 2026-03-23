@@ -81,25 +81,42 @@ export type AccessGroupResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'agentMembers';
-        attributes?: {
-            agentId?: number;
-            agentName?: string;
-            uid?: string;
-            os?: 0 | 1 | 2;
-            devices?: string;
-            cmdPars?: string;
-            ignoreErrors?: 0 | 1 | 2;
-            isActive?: boolean;
-            isTrusted?: boolean;
-            token?: string;
-            lastAct?: string;
-            lastTime?: number;
-            lastIp?: string;
-            userId?: number;
-            cpuOnly?: boolean;
-            clientSignature?: string;
+        id: number;
+        type: 'userMembers';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    } | {
+        id: number;
+        type: 'agentMembers';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
         };
     }>;
 };
@@ -160,25 +177,42 @@ export type AccessGroupListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'agentMembers';
-        attributes?: {
-            agentId?: number;
-            agentName?: string;
-            uid?: string;
-            os?: 0 | 1 | 2;
-            devices?: string;
-            cmdPars?: string;
-            ignoreErrors?: 0 | 1 | 2;
-            isActive?: boolean;
-            isTrusted?: boolean;
-            token?: string;
-            lastAct?: string;
-            lastTime?: number;
-            lastIp?: string;
-            userId?: number;
-            cpuOnly?: boolean;
-            clientSignature?: string;
+        id: number;
+        type: 'userMembers';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    } | {
+        id: number;
+        type: 'agentMembers';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
         };
     }>;
 };
@@ -320,13 +354,101 @@ export type AgentResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'assignments';
-        attributes?: {
-            assignmentId?: number;
-            taskId?: number;
-            agentId?: number;
-            benchmark?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    } | {
+        id: number;
+        type: 'accessGroups';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'agentStats';
+        attributes: {
+            agentId: number;
+            statType: 1 | 2 | 3;
+            time: number;
+            value: Array<number>;
+        };
+    } | {
+        id: number;
+        type: 'agentErrors';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            chunkId: number;
+            time: number;
+            error: string;
+        };
+    } | {
+        id: number;
+        type: 'chunks';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+            cracked: number;
+            speed: number;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+        };
+    } | {
+        id: number;
+        type: 'assignments';
+        attributes: {
+            taskId: number;
+            agentId: number;
+            benchmark: string;
         };
     }>;
 };
@@ -465,13 +587,101 @@ export type AgentListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'assignments';
-        attributes?: {
-            assignmentId?: number;
-            taskId?: number;
-            agentId?: number;
-            benchmark?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
+        };
+    } | {
+        id: number;
+        type: 'accessGroups';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'agentStats';
+        attributes: {
+            agentId: number;
+            statType: 1 | 2 | 3;
+            time: number;
+            value: Array<number>;
+        };
+    } | {
+        id: number;
+        type: 'agentErrors';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            chunkId: number;
+            time: number;
+            error: string;
+        };
+    } | {
+        id: number;
+        type: 'chunks';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+            cracked: number;
+            speed: number;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+        };
+    } | {
+        id: number;
+        type: 'assignments';
+        attributes: {
+            taskId: number;
+            agentId: number;
+            benchmark: string;
         };
     }>;
 };
@@ -554,35 +764,54 @@ export type AgentAssignmentResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -647,35 +876,54 @@ export type AgentAssignmentListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -747,9 +995,7 @@ export type AgentBinaryResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type AgentBinaryPostPatchResponse = {
@@ -798,9 +1044,7 @@ export type AgentBinaryListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type AgentErrorResponse = {
@@ -839,35 +1083,34 @@ export type AgentErrorResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -908,35 +1151,34 @@ export type AgentErrorListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -980,9 +1222,7 @@ export type AgentStatResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type AgentStatListResponse = {
@@ -1010,9 +1250,7 @@ export type AgentStatListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type ApiTokenCreate = {
@@ -1073,25 +1311,22 @@ export type ApiTokenResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'user';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -1150,25 +1385,22 @@ export type ApiTokenListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'user';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -1239,35 +1471,54 @@ export type ChunkResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -1324,35 +1575,54 @@ export type ChunkListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -1415,11 +1685,10 @@ export type ConfigResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'configSection';
-        attributes?: {
-            configSectionId?: number;
-            sectionName?: string;
+        id: number;
+        type: 'configSection';
+        attributes: {
+            sectionName: string;
         };
     }>;
 };
@@ -1474,11 +1743,10 @@ export type ConfigListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'configSection';
-        attributes?: {
-            configSectionId?: number;
-            sectionName?: string;
+        id: number;
+        type: 'configSection';
+        attributes: {
+            sectionName: string;
         };
     }>;
 };
@@ -1519,9 +1787,7 @@ export type ConfigSectionResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type ConfigSectionListResponse = {
@@ -1546,9 +1812,7 @@ export type ConfigSectionListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type CrackerBinaryCreate = {
@@ -1619,35 +1883,41 @@ export type CrackerBinaryResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -1714,35 +1984,41 @@ export type CrackerBinaryListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -1823,35 +2099,43 @@ export type CrackerBinaryTypeResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'crackerVersions';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -1914,35 +2198,43 @@ export type CrackerBinaryTypeListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'crackerVersions';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -2024,11 +2316,10 @@ export type FileResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'accessGroup';
-        attributes?: {
-            accessGroupId?: number;
-            groupName?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
         };
     }>;
 };
@@ -2059,11 +2350,10 @@ export type FileSingleResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'accessGroup';
-        attributes?: {
-            accessGroupId?: number;
-            groupName?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
         };
     }>;
 };
@@ -2124,11 +2414,10 @@ export type FileListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'accessGroup';
-        attributes?: {
-            accessGroupId?: number;
-            groupName?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
         };
     }>;
 };
@@ -2206,25 +2495,22 @@ export type GlobalPermissionGroupResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'userMembers';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'userMembers';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -2281,25 +2567,22 @@ export type GlobalPermissionGroupListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'userMembers';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'userMembers';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -2367,27 +2650,42 @@ export type HashResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'hashlist';
-        attributes?: {
-            hashlistSeperator?: string;
-            sourceType?: string;
-            sourceData?: string;
-            hashlistId?: number;
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
-            separator?: string;
-            cracked?: number;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
-            isArchived?: boolean;
+        id: number;
+        type: 'chunk';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+            cracked: number;
+            speed: number;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
         };
     }>;
 };
@@ -2441,27 +2739,42 @@ export type HashListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'hashlist';
-        attributes?: {
-            hashlistSeperator?: string;
-            sourceType?: string;
-            sourceData?: string;
-            hashlistId?: number;
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
-            separator?: string;
-            cracked?: number;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
-            isArchived?: boolean;
+        id: number;
+        type: 'chunk';
+        attributes: {
+            taskId: number;
+            skip: number;
+            length: number;
+            agentId: number;
+            dispatchTime: number;
+            solveTime: number;
+            checkpoint: number;
+            progress: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+            cracked: number;
+            speed: number;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
         };
     }>;
 };
@@ -2602,35 +2915,83 @@ export type HashlistResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashes';
+        attributes: {
+            hashlistId: number;
+            hash: string;
+            salt: string;
+            plaintext: string;
+            timeCracked: number;
+            chunkId: number;
+            isCracked: boolean;
+            crackPos: number;
+        };
+    } | {
+        id: number;
+        type: 'hashlists';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -2709,35 +3070,83 @@ export type HashlistSingleResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashes';
+        attributes: {
+            hashlistId: number;
+            hash: string;
+            salt: string;
+            plaintext: string;
+            timeCracked: number;
+            chunkId: number;
+            isCracked: boolean;
+            crackPos: number;
+        };
+    } | {
+        id: number;
+        type: 'hashlists';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -2854,35 +3263,83 @@ export type HashlistListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashes';
+        attributes: {
+            hashlistId: number;
+            hash: string;
+            salt: string;
+            plaintext: string;
+            timeCracked: number;
+            chunkId: number;
+            isCracked: boolean;
+            crackPos: number;
+        };
+    } | {
+        id: number;
+        type: 'hashlists';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -2948,9 +3405,7 @@ export type HashTypeResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type HashTypePostPatchResponse = {
@@ -2993,9 +3448,7 @@ export type HashTypeListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type HealthCheckAgentResponse = {
@@ -3047,17 +3500,36 @@ export type HealthCheckAgentResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'healthCheck';
-        attributes?: {
-            healthCheckId?: number;
-            time?: number;
-            status?: -1 | 0 | 1;
-            checkType?: 0 | 3200;
-            hashtypeId?: number;
-            crackerBinaryId?: number;
-            expectedCracks?: number;
-            attackCmd?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'healthCheck';
+        attributes: {
+            time: number;
+            status: -1 | 0 | 1;
+            checkType: 0 | 3200;
+            hashtypeId: number;
+            crackerBinaryId: number;
+            expectedCracks: number;
+            attackCmd: string;
         };
     }>;
 };
@@ -3111,17 +3583,36 @@ export type HealthCheckAgentListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'healthCheck';
-        attributes?: {
-            healthCheckId?: number;
-            time?: number;
-            status?: -1 | 0 | 1;
-            checkType?: 0 | 3200;
-            hashtypeId?: number;
-            crackerBinaryId?: number;
-            expectedCracks?: number;
-            attackCmd?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'healthCheck';
+        attributes: {
+            time: number;
+            status: -1 | 0 | 1;
+            checkType: 0 | 3200;
+            hashtypeId: number;
+            crackerBinaryId: number;
+            expectedCracks: number;
+            attackCmd: string;
         };
     }>;
 };
@@ -3218,18 +3709,34 @@ export type HealthCheckResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'healthCheckAgents';
-        attributes?: {
-            healthCheckAgentId?: number;
-            healthCheckId?: number;
-            agentId?: number;
-            status?: -1 | 0 | 1;
-            cracked?: number;
-            numGpus?: number;
-            start?: number;
-            end?: number;
-            errors?: string;
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'healthCheckAgents';
+        attributes: {
+            healthCheckId: number;
+            agentId: number;
+            status: -1 | 0 | 1;
+            cracked: number;
+            numGpus: number;
+            start: number;
+            end: number;
+            errors: string;
         };
     }>;
 };
@@ -3312,18 +3819,34 @@ export type HealthCheckListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'healthCheckAgents';
-        attributes?: {
-            healthCheckAgentId?: number;
-            healthCheckId?: number;
-            agentId?: number;
-            status?: -1 | 0 | 1;
-            cracked?: number;
-            numGpus?: number;
-            start?: number;
-            end?: number;
-            errors?: string;
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'healthCheckAgents';
+        attributes: {
+            healthCheckId: number;
+            agentId: number;
+            status: -1 | 0 | 1;
+            cracked: number;
+            numGpus: number;
+            start: number;
+            end: number;
+            errors: string;
         };
     }>;
 };
@@ -3386,9 +3909,7 @@ export type LogEntryResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type LogEntryPostPatchResponse = {
@@ -3435,9 +3956,7 @@ export type LogEntryListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type NotificationSettingCreate = {
@@ -3501,25 +4020,22 @@ export type NotificationSettingResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'user';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -3580,25 +4096,22 @@ export type NotificationSettingListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'user';
-        attributes?: {
-            id?: number;
-            name?: string;
-            email?: string;
-            passwordHash?: string;
-            passwordSalt?: string;
-            isValid?: boolean;
-            isComputedPassword?: boolean;
-            lastLoginDate?: number;
-            registeredSince?: number;
-            sessionLifetime?: number;
-            globalPermissionGroupId?: number;
-            yubikey?: string;
-            otp1?: string;
-            otp2?: string;
-            otp3?: string;
-            otp4?: string;
+        id: number;
+        type: 'user';
+        attributes: {
+            name: string;
+            email: string;
+            isValid: boolean;
+            isComputedPassword: boolean;
+            lastLoginDate: number;
+            registeredSince: number;
+            sessionLifetime: number;
+            globalPermissionGroupId: number;
+            yubikey: string;
+            otp1: string;
+            otp2: string;
+            otp3: string;
+            otp4: string;
         };
     }>;
 };
@@ -3672,9 +4185,7 @@ export type PreprocessorResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type PreprocessorPostPatchResponse = {
@@ -3723,9 +4234,7 @@ export type PreprocessorListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type PreTaskCreate = {
@@ -3812,18 +4321,17 @@ export type PreTaskResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'pretaskFiles';
-        attributes?: {
-            sourceType?: string;
-            sourceData?: string;
-            fileId?: number;
-            filename?: string;
-            size?: number;
-            isSecret?: boolean;
-            fileType?: 0 | 1 | 2 | 100;
-            accessGroupId?: number;
-            lineCount?: number;
+        id: number;
+        type: 'pretaskFiles';
+        attributes: {
+            sourceType: string;
+            sourceData: string;
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: 0 | 1 | 2 | 100;
+            accessGroupId: number;
+            lineCount: number;
         };
     }>;
 };
@@ -3898,18 +4406,17 @@ export type PreTaskListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'pretaskFiles';
-        attributes?: {
-            sourceType?: string;
-            sourceData?: string;
-            fileId?: number;
-            filename?: string;
-            size?: number;
-            isSecret?: boolean;
-            fileType?: 0 | 1 | 2 | 100;
-            accessGroupId?: number;
-            lineCount?: number;
+        id: number;
+        type: 'pretaskFiles';
+        attributes: {
+            sourceType: string;
+            sourceData: string;
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: 0 | 1 | 2 | 100;
+            accessGroupId: number;
+            lineCount: number;
         };
     }>;
 };
@@ -3973,35 +4480,54 @@ export type SpeedResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -4051,35 +4577,54 @@ export type SpeedListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'task';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'agent';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -4149,23 +4694,22 @@ export type SupertaskResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'pretasks';
-        attributes?: {
-            files?: Array<number>;
-            pretaskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+        id: number;
+        type: 'pretasks';
+        attributes: {
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
         };
     }>;
 };
@@ -4191,23 +4735,22 @@ export type SupertaskSingleResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'pretasks';
-        attributes?: {
-            files?: Array<number>;
-            pretaskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+        id: number;
+        type: 'pretasks';
+        attributes: {
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
         };
     }>;
 };
@@ -4258,23 +4801,22 @@ export type SupertaskListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'pretasks';
-        attributes?: {
-            files?: Array<number>;
-            pretaskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+        id: number;
+        type: 'pretasks';
+        attributes: {
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
         };
     }>;
 };
@@ -4454,14 +4996,84 @@ export type TaskResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'speeds';
-        attributes?: {
-            speedId?: number;
-            agentId?: number;
-            taskId?: number;
-            speed?: number;
-            time?: number;
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'assignedAgents';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'files';
+        attributes: {
+            sourceType: string;
+            sourceData: string;
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: 0 | 1 | 2 | 100;
+            accessGroupId: number;
+            lineCount: number;
+        };
+    } | {
+        id: number;
+        type: 'speeds';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            speed: number;
+            time: number;
         };
     }>;
 };
@@ -4622,14 +5234,84 @@ export type TaskListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'speeds';
-        attributes?: {
-            speedId?: number;
-            agentId?: number;
-            taskId?: number;
-            speed?: number;
-            time?: number;
+        id: number;
+        type: 'crackerBinary';
+        attributes: {
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
+        };
+    } | {
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+            typeName: string;
+            isChunkingAvailable: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'assignedAgents';
+        attributes: {
+            agentName: string;
+            uid: string;
+            os: 0 | 1 | 2;
+            devices: string;
+            cmdPars: string;
+            ignoreErrors: 0 | 1 | 2;
+            isActive: boolean;
+            isTrusted: boolean;
+            token: string;
+            lastAct: string;
+            lastTime: number;
+            lastIp: string;
+            userId: number;
+            cpuOnly: boolean;
+            clientSignature: string;
+        };
+    } | {
+        id: number;
+        type: 'files';
+        attributes: {
+            sourceType: string;
+            sourceData: string;
+            filename: string;
+            size: number;
+            isSecret: boolean;
+            fileType: 0 | 1 | 2 | 100;
+            accessGroupId: number;
+            lineCount: number;
+        };
+    } | {
+        id: number;
+        type: 'speeds';
+        attributes: {
+            agentId: number;
+            taskId: number;
+            speed: number;
+            time: number;
         };
     }>;
 };
@@ -4740,35 +5422,100 @@ export type TaskWrapperResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -4841,35 +5588,100 @@ export type TaskWrapperSingleResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -4974,35 +5786,100 @@ export type TaskWrapperListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'tasks';
-        attributes?: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskId?: number;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            keyspace?: number;
-            keyspaceProgress?: number;
-            priority?: number;
-            maxAgents?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            taskWrapperId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+            groupName: string;
+        };
+    } | {
+        id: number;
+        type: 'hashlist';
+        attributes: {
+            hashlistSeperator: string;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
+            separator: string;
+            cracked: number;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
+        };
+    } | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
+        };
+    } | {
+        id: number;
+        type: 'task';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
+        };
+    } | {
+        id: number;
+        type: 'tasks';
+        attributes: {
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            keyspace: number;
+            keyspaceProgress: number;
+            priority: number;
+            maxAgents: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            taskWrapperId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     }>;
 };
@@ -5098,11 +5975,19 @@ export type UserResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'accessGroups';
-        attributes?: {
-            accessGroupId?: number;
-            groupName?: string;
+        id: number;
+        type: 'globalPermissionGroup';
+        attributes: {
+            name: string;
+            permissions: {
+                [key: string]: boolean;
+            };
+        };
+    } | {
+        id: number;
+        type: 'accessGroups';
+        attributes: {
+            groupName: string;
         };
     }>;
 };
@@ -5187,11 +6072,19 @@ export type UserListResponse = {
         };
     };
     included?: Array<{
-        id?: number;
-        type?: 'accessGroups';
-        attributes?: {
-            accessGroupId?: number;
-            groupName?: string;
+        id: number;
+        type: 'globalPermissionGroup';
+        attributes: {
+            name: string;
+            permissions: {
+                [key: string]: boolean;
+            };
+        };
+    } | {
+        id: number;
+        type: 'accessGroups';
+        attributes: {
+            groupName: string;
         };
     }>;
 };
@@ -5251,9 +6144,7 @@ export type VoucherResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type VoucherPostPatchResponse = {
@@ -5294,9 +6185,7 @@ export type VoucherListResponse = {
     relationships?: {
         [key: string]: unknown;
     };
-    included?: Array<{
-        [key: string]: unknown;
-    }>;
+    included?: Array<unknown>;
 };
 
 export type AbortChunkHelperApi = {
@@ -5528,7 +6417,7 @@ export type GetAccessgroupsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: userMembers,agentMembers
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -5636,7 +6525,7 @@ export type GetAccessgroupsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: userMembers,agentMembers
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6009,7 +6898,7 @@ export type GetAgentsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user,accessGroups,agentStats,agentErrors,chunks,tasks,assignments
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6088,7 +6977,7 @@ export type GetAgentsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user,accessGroups,agentStats,agentErrors,chunks,tasks,assignments
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6461,7 +7350,7 @@ export type GetAgentassignmentsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6569,7 +7458,7 @@ export type GetAgentassignmentsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6868,7 +7757,7 @@ export type GetAgentbinariesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -6976,7 +7865,7 @@ export type GetAgentbinariesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7167,7 +8056,7 @@ export type GetAgenterrorsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7219,7 +8108,7 @@ export type GetAgenterrorsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7483,7 +8372,7 @@ export type GetAgentstatsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7535,7 +8424,7 @@ export type GetAgentstatsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7691,7 +8580,7 @@ export type GetApiTokensData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -7799,7 +8688,7 @@ export type GetApiTokensCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8071,7 +8960,7 @@ export type GetChunksData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8123,7 +9012,7 @@ export type GetChunksCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8323,7 +9212,7 @@ export type GetConfigsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: configSection
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8402,7 +9291,7 @@ export type GetConfigsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: configSection
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8637,7 +9526,7 @@ export type GetConfigsectionsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8689,7 +9578,7 @@ export type GetConfigsectionsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8808,7 +9697,7 @@ export type GetCrackersData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinaryType,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -8916,7 +9805,7 @@ export type GetCrackersCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinaryType,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -9289,7 +10178,7 @@ export type GetCrackertypesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerVersions,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -9397,7 +10286,7 @@ export type GetCrackertypesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerVersions,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -9770,7 +10659,7 @@ export type GetFilesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -9878,7 +10767,7 @@ export type GetFilesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -10177,7 +11066,7 @@ export type GetGlobalpermissiongroupsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: userMembers
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -10285,7 +11174,7 @@ export type GetGlobalpermissiongroupsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: userMembers
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -10631,7 +11520,7 @@ export type GetHashesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: chunk,hashlist
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -10683,7 +11572,7 @@ export type GetHashesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: chunk,hashlist
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -10910,7 +11799,7 @@ export type GetHashlistsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup,hashType,hashes,hashlists,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11018,7 +11907,7 @@ export type GetHashlistsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup,hashType,hashes,hashlists,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11391,7 +12280,7 @@ export type GetHashtypesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11499,7 +12388,7 @@ export type GetHashtypesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11663,7 +12552,7 @@ export type GetHealthcheckagentsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,healthCheck
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11715,7 +12604,7 @@ export type GetHealthcheckagentsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,healthCheck
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -11942,7 +12831,7 @@ export type GetHealthchecksData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinary,hashType,healthCheckAgents
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -12050,7 +12939,7 @@ export type GetHealthchecksCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinary,hashType,healthCheckAgents
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -12423,7 +13312,7 @@ export type GetLogentriesData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -12531,7 +13420,7 @@ export type GetLogentriesCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -12722,7 +13611,7 @@ export type GetNotificationsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -12830,7 +13719,7 @@ export type GetNotificationsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: user
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13129,7 +14018,7 @@ export type GetPreprocessorsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13237,7 +14126,7 @@ export type GetPreprocessorsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13428,7 +14317,7 @@ export type GetPretasksData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: pretaskFiles
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13536,7 +14425,7 @@ export type GetPretasksCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: pretaskFiles
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13882,7 +14771,7 @@ export type GetSpeedsData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -13934,7 +14823,7 @@ export type GetSpeedsCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: agent,task
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -14161,7 +15050,7 @@ export type GetSupertasksData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: pretasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -14269,7 +15158,7 @@ export type GetSupertasksCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: pretasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -14642,7 +15531,7 @@ export type GetTasksData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinary,crackerBinaryType,hashlist,assignedAgents,files,speeds
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -14750,7 +15639,7 @@ export type GetTasksCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: crackerBinary,crackerBinaryType,hashlist,assignedAgents,files,speeds
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -15123,7 +16012,7 @@ export type GetTaskwrappersData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup,hashlist,hashType,task,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -15202,7 +16091,7 @@ export type GetTaskwrappersCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: accessGroup,hashlist,hashType,task,tasks
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -15575,7 +16464,7 @@ export type GetUsersData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: globalPermissionGroup,accessGroups
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -15683,7 +16572,7 @@ export type GetUsersCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options: globalPermissionGroup,accessGroups
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -16056,7 +16945,7 @@ export type GetVouchersData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };
@@ -16164,7 +17053,7 @@ export type GetVouchersCountData = {
             [key: string]: unknown;
         };
         /**
-         * Items to include, comma seperated. Possible options:
+         * Items to include, comma seperated. Possible options: Array
          */
         include?: string;
     };

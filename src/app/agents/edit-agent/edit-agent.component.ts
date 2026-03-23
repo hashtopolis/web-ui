@@ -26,6 +26,8 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { zJAgent, zJChunk } from '@models/schemas';
+import { z } from 'zod';
 
 import {
   EditAgentForm,
@@ -186,7 +188,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
+      const agent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse)) as JAgent;
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -209,7 +211,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
+        const agent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse)) as JAgent;
         this.showagent = agent;
         this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
         return;
@@ -304,7 +306,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .create();
 
     const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
+      const chunks = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse)) as JChunk[];
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
         const tasks: JTask[] = this.serializer.deserialize(tasksResponse, zTaskListResponse);

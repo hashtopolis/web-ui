@@ -78,36 +78,53 @@ export const zAccessGroupResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('agentMembers').optional(),
-        attributes: z.object({
-            agentId: z.int().optional(),
-            agentName: z.string().optional(),
-            uid: z.string().optional(),
-            os: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2)
-            ]).optional(),
-            devices: z.string().optional(),
-            cmdPars: z.string().optional(),
-            ignoreErrors: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2)
-            ]).optional(),
-            isActive: z.boolean().optional(),
-            isTrusted: z.boolean().optional(),
-            token: z.string().optional(),
-            lastAct: z.string().optional(),
-            lastTime: z.number().optional(),
-            lastIp: z.string().optional(),
-            userId: z.int().optional(),
-            cpuOnly: z.boolean().optional(),
-            clientSignature: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('userMembers'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('agentMembers'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        })])).optional()
 });
 
 export const zAccessGroupPostPatchResponse = z.object({
@@ -165,36 +182,53 @@ export const zAccessGroupListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('agentMembers').optional(),
-        attributes: z.object({
-            agentId: z.int().optional(),
-            agentName: z.string().optional(),
-            uid: z.string().optional(),
-            os: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2)
-            ]).optional(),
-            devices: z.string().optional(),
-            cmdPars: z.string().optional(),
-            ignoreErrors: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2)
-            ]).optional(),
-            isActive: z.boolean().optional(),
-            isTrusted: z.boolean().optional(),
-            token: z.string().optional(),
-            lastAct: z.string().optional(),
-            lastTime: z.number().optional(),
-            lastIp: z.string().optional(),
-            userId: z.int().optional(),
-            cpuOnly: z.boolean().optional(),
-            clientSignature: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('userMembers'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('agentMembers'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        })])).optional()
 });
 
 export const zAccessGroupRelationAgentMembers = z.object({
@@ -349,16 +383,128 @@ export const zAgentResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('assignments').optional(),
-        attributes: z.object({
-            assignmentId: z.int().optional(),
-            taskId: z.int().optional(),
-            agentId: z.int().optional(),
-            benchmark: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroups'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentStats'),
+            attributes: z.object({
+                agentId: z.int(),
+                statType: z.union([
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                time: z.number(),
+                value: z.array(z.int())
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentErrors'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                chunkId: z.int(),
+                time: z.number(),
+                error: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('chunks'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('assignments'),
+            attributes: z.object({
+                taskId: z.int(),
+                agentId: z.int(),
+                benchmark: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zAgentPostPatchResponse = z.object({
@@ -510,16 +656,128 @@ export const zAgentListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('assignments').optional(),
-        attributes: z.object({
-            assignmentId: z.int().optional(),
-            taskId: z.int().optional(),
-            agentId: z.int().optional(),
-            benchmark: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroups'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentStats'),
+            attributes: z.object({
+                agentId: z.int(),
+                statType: z.union([
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                time: z.number(),
+                value: z.array(z.int())
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentErrors'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                chunkId: z.int(),
+                time: z.number(),
+                error: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('chunks'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('assignments'),
+            attributes: z.object({
+                taskId: z.int(),
+                agentId: z.int(),
+                benchmark: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zAgentRelationAssignments = z.object({
@@ -599,38 +857,65 @@ export const zAgentAssignmentResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zAgentAssignmentPostPatchResponse = z.object({
@@ -692,38 +977,65 @@ export const zAgentAssignmentListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zAgentAssignmentRelationTask = z.object({
@@ -791,7 +1103,7 @@ export const zAgentBinaryResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zAgentBinaryPostPatchResponse = z.object({
@@ -838,7 +1150,7 @@ export const zAgentBinaryListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zAgentErrorResponse = z.object({
@@ -877,36 +1189,35 @@ export const zAgentErrorResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
+        id: z.int(),
+        type: z.literal('task'),
         attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
+            hashlistId: z.int(),
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+        })
     })).optional()
 });
 
@@ -946,36 +1257,35 @@ export const zAgentErrorListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
+        id: z.int(),
+        type: z.literal('task'),
         attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
+            hashlistId: z.int(),
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+        })
     })).optional()
 });
 
@@ -1020,7 +1330,7 @@ export const zAgentStatResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zAgentStatListResponse = z.object({
@@ -1050,7 +1360,7 @@ export const zAgentStatListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zApiTokenCreate = z.object({
@@ -1111,26 +1421,23 @@ export const zApiTokenResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('user').optional(),
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -1188,26 +1495,23 @@ export const zApiTokenListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('user').optional(),
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -1288,38 +1592,65 @@ export const zChunkResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zChunkListResponse = z.object({
@@ -1385,38 +1716,65 @@ export const zChunkListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zChunkRelationTask = z.object({
@@ -1477,12 +1835,11 @@ export const zConfigResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('configSection').optional(),
+        id: z.int(),
+        type: z.literal('configSection'),
         attributes: z.object({
-            configSectionId: z.int().optional(),
-            sectionName: z.string().optional()
-        }).optional()
+            sectionName: z.string()
+        })
     })).optional()
 });
 
@@ -1536,12 +1893,11 @@ export const zConfigListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('configSection').optional(),
+        id: z.int(),
+        type: z.literal('configSection'),
         attributes: z.object({
-            configSectionId: z.int().optional(),
-            sectionName: z.string().optional()
-        }).optional()
+            sectionName: z.string()
+        })
     })).optional()
 });
 
@@ -1579,7 +1935,7 @@ export const zConfigSectionResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zConfigSectionListResponse = z.object({
@@ -1602,7 +1958,7 @@ export const zConfigSectionListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zCrackerBinaryCreate = z.object({
@@ -1672,38 +2028,44 @@ export const zCrackerBinaryResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryPostPatchResponse = z.object({
@@ -1767,38 +2129,44 @@ export const zCrackerBinaryListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryRelationTasks = z.object({
@@ -1876,38 +2244,46 @@ export const zCrackerBinaryTypeResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerVersions'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryTypePostPatchResponse = z.object({
@@ -1967,38 +2343,46 @@ export const zCrackerBinaryTypeListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerVersions'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryTypeRelationTasks = z.object({
@@ -2093,12 +2477,11 @@ export const zFileResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('accessGroup').optional(),
+        id: z.int(),
+        type: z.literal('accessGroup'),
         attributes: z.object({
-            accessGroupId: z.int().optional(),
-            groupName: z.string().optional()
-        }).optional()
+            groupName: z.string()
+        })
     })).optional()
 });
 
@@ -2133,12 +2516,11 @@ export const zFileSingleResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('accessGroup').optional(),
+        id: z.int(),
+        type: z.literal('accessGroup'),
         attributes: z.object({
-            accessGroupId: z.int().optional(),
-            groupName: z.string().optional()
-        }).optional()
+            groupName: z.string()
+        })
     })).optional()
 });
 
@@ -2208,12 +2590,11 @@ export const zFileListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('accessGroup').optional(),
+        id: z.int(),
+        type: z.literal('accessGroup'),
         attributes: z.object({
-            accessGroupId: z.int().optional(),
-            groupName: z.string().optional()
-        }).optional()
+            groupName: z.string()
+        })
     })).optional()
 });
 
@@ -2284,26 +2665,23 @@ export const zGlobalPermissionGroupResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('userMembers').optional(),
+        id: z.int(),
+        type: z.literal('userMembers'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -2355,26 +2733,23 @@ export const zGlobalPermissionGroupListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('userMembers').optional(),
+        id: z.int(),
+        type: z.literal('userMembers'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -2440,35 +2815,62 @@ export const zHashResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('hashlist').optional(),
-        attributes: z.object({
-            hashlistSeperator: z.string().optional(),
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            hashlistId: z.int().optional(),
-            name: z.string().optional(),
-            format: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2),
-                z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
-            separator: z.string().optional(),
-            cracked: z.int().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
-            notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        })])).optional()
 });
 
 export const zHashListResponse = z.object({
@@ -2519,35 +2921,62 @@ export const zHashListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('hashlist').optional(),
-        attributes: z.object({
-            hashlistSeperator: z.string().optional(),
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            hashlistId: z.int().optional(),
-            name: z.string().optional(),
-            format: z.union([
-                z.literal(0),
-                z.literal(1),
-                z.literal(2),
-                z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
-            separator: z.string().optional(),
-            cracked: z.int().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
-            notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        })])).optional()
 });
 
 export const zHashRelationHashlist = z.object({
@@ -2695,38 +3124,97 @@ export const zHashlistResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashes'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlists'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHashlistSingleResponse = z.object({
@@ -2807,38 +3295,97 @@ export const zHashlistSingleResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashes'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlists'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHashlistPostPatchResponse = z.object({
@@ -2962,38 +3509,97 @@ export const zHashlistListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashes'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlists'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHashlistRelationTasks = z.object({
@@ -3055,7 +3661,7 @@ export const zHashTypeResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zHashTypePostPatchResponse = z.object({
@@ -3096,7 +3702,7 @@ export const zHashTypeListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zHealthCheckAgentResponse = z.object({
@@ -3151,24 +3757,54 @@ export const zHealthCheckAgentResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('healthCheck').optional(),
-        attributes: z.object({
-            healthCheckId: z.int().optional(),
-            time: z.number().optional(),
-            status: z.union([
-                z.literal(-1),
-                z.literal(0),
-                z.literal(1)
-            ]).optional(),
-            checkType: z.union([z.literal(0), z.literal(3200)]).optional(),
-            hashtypeId: z.int().optional(),
-            crackerBinaryId: z.int().optional(),
-            expectedCracks: z.int().optional(),
-            attackCmd: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('healthCheck'),
+            attributes: z.object({
+                time: z.number(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                checkType: z.union([
+                    z.literal(0),
+                    z.literal(3200)
+                ]),
+                hashtypeId: z.int(),
+                crackerBinaryId: z.int(),
+                expectedCracks: z.int(),
+                attackCmd: z.string()
+            })
+        })])).optional()
 });
 
 export const zHealthCheckAgentListResponse = z.object({
@@ -3223,24 +3859,54 @@ export const zHealthCheckAgentListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('healthCheck').optional(),
-        attributes: z.object({
-            healthCheckId: z.int().optional(),
-            time: z.number().optional(),
-            status: z.union([
-                z.literal(-1),
-                z.literal(0),
-                z.literal(1)
-            ]).optional(),
-            checkType: z.union([z.literal(0), z.literal(3200)]).optional(),
-            hashtypeId: z.int().optional(),
-            crackerBinaryId: z.int().optional(),
-            expectedCracks: z.int().optional(),
-            attackCmd: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('healthCheck'),
+            attributes: z.object({
+                time: z.number(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                checkType: z.union([
+                    z.literal(0),
+                    z.literal(3200)
+                ]),
+                hashtypeId: z.int(),
+                crackerBinaryId: z.int(),
+                expectedCracks: z.int(),
+                attackCmd: z.string()
+            })
+        })])).optional()
 });
 
 export const zHealthCheckAgentRelationHealthCheck = z.object({
@@ -3261,7 +3927,10 @@ export const zHealthCheckCreate = z.object({
     data: z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
-            checkType: z.union([z.literal(0), z.literal(3200)]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int()
         })
@@ -3272,7 +3941,10 @@ export const zHealthCheckPatch = z.object({
     data: z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
-            checkType: z.union([z.literal(0), z.literal(3200)]).optional()
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]).optional()
         })
     })
 });
@@ -3299,7 +3971,10 @@ export const zHealthCheckResponse = z.object({
                 z.literal(0),
                 z.literal(1)
             ]),
-            checkType: z.union([z.literal(0), z.literal(3200)]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3338,25 +4013,45 @@ export const zHealthCheckResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('healthCheckAgents').optional(),
-        attributes: z.object({
-            healthCheckAgentId: z.int().optional(),
-            healthCheckId: z.int().optional(),
-            agentId: z.int().optional(),
-            status: z.union([
-                z.literal(-1),
-                z.literal(0),
-                z.literal(1)
-            ]).optional(),
-            cracked: z.int().optional(),
-            numGpus: z.int().optional(),
-            start: z.number().optional(),
-            end: z.number().optional(),
-            errors: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('healthCheckAgents'),
+            attributes: z.object({
+                healthCheckId: z.int(),
+                agentId: z.int(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                cracked: z.int(),
+                numGpus: z.int(),
+                start: z.number(),
+                end: z.number(),
+                errors: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHealthCheckPostPatchResponse = z.object({
@@ -3374,7 +4069,10 @@ export const zHealthCheckPostPatchResponse = z.object({
                 z.literal(0),
                 z.literal(1)
             ]),
-            checkType: z.union([z.literal(0), z.literal(3200)]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3405,7 +4103,10 @@ export const zHealthCheckListResponse = z.object({
                 z.literal(0),
                 z.literal(1)
             ]),
-            checkType: z.union([z.literal(0), z.literal(3200)]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3444,25 +4145,45 @@ export const zHealthCheckListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('healthCheckAgents').optional(),
-        attributes: z.object({
-            healthCheckAgentId: z.int().optional(),
-            healthCheckId: z.int().optional(),
-            agentId: z.int().optional(),
-            status: z.union([
-                z.literal(-1),
-                z.literal(0),
-                z.literal(1)
-            ]).optional(),
-            cracked: z.int().optional(),
-            numGpus: z.int().optional(),
-            start: z.number().optional(),
-            end: z.number().optional(),
-            errors: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('healthCheckAgents'),
+            attributes: z.object({
+                healthCheckId: z.int(),
+                agentId: z.int(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                cracked: z.int(),
+                numGpus: z.int(),
+                start: z.number(),
+                end: z.number(),
+                errors: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHealthCheckRelationHealthCheckAgents = z.object({
@@ -3509,20 +4230,23 @@ export const zLogEntryResponse = z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.enum(['API', 'User']),
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
             issuerId: z.string(),
-            level: z.enum([
-                'warning',
-                'error',
-                'fatal error',
-                'information'
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
             ]),
             message: z.string(),
             time: z.number()
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zLogEntryPostPatchResponse = z.object({
@@ -3534,13 +4258,16 @@ export const zLogEntryPostPatchResponse = z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.enum(['API', 'User']),
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
             issuerId: z.string(),
-            level: z.enum([
-                'warning',
-                'error',
-                'fatal error',
-                'information'
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
             ]),
             message: z.string(),
             time: z.number()
@@ -3564,20 +4291,23 @@ export const zLogEntryListResponse = z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.enum(['API', 'User']),
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
             issuerId: z.string(),
-            level: z.enum([
-                'warning',
-                'error',
-                'fatal error',
-                'information'
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
             ]),
             message: z.string(),
             time: z.number()
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zNotificationSettingCreate = z.object({
@@ -3585,29 +4315,29 @@ export const zNotificationSettingCreate = z.object({
         type: z.literal('notificationSetting'),
         attributes: z.object({
             actionFilter: z.string(),
-            action: z.enum([
-                'createNotification',
-                'setActive',
-                'deleteNotification'
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
             ]),
-            notification: z.enum([
-                'taskComplete',
-                'agentError',
-                'ownAgentError',
-                'logError',
-                'newTask',
-                'newHashlist',
-                'hashlistAllCracked',
-                'hashlistCrackedHash',
-                'userCreated',
-                'userDeleted',
-                'userLoginFailed',
-                'logWarn',
-                'logFatal',
-                'newAgent',
-                'deleteTask',
-                'deleteHashlist',
-                'deleteAgent'
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
             ]),
             receiver: z.string()
         })
@@ -3618,30 +4348,30 @@ export const zNotificationSettingPatch = z.object({
     data: z.object({
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.enum([
-                'createNotification',
-                'setActive',
-                'deleteNotification'
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
             ]).optional(),
             isActive: z.boolean().optional(),
-            notification: z.enum([
-                'taskComplete',
-                'agentError',
-                'ownAgentError',
-                'logError',
-                'newTask',
-                'newHashlist',
-                'hashlistAllCracked',
-                'hashlistCrackedHash',
-                'userCreated',
-                'userDeleted',
-                'userLoginFailed',
-                'logWarn',
-                'logFatal',
-                'newAgent',
-                'deleteTask',
-                'deleteHashlist',
-                'deleteAgent'
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
             ]).optional(),
             receiver: z.string().optional()
         })
@@ -3664,30 +4394,30 @@ export const zNotificationSettingResponse = z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.enum([
-                'createNotification',
-                'setActive',
-                'deleteNotification'
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
             ]),
             objectId: z.int(),
-            notification: z.enum([
-                'taskComplete',
-                'agentError',
-                'ownAgentError',
-                'logError',
-                'newTask',
-                'newHashlist',
-                'hashlistAllCracked',
-                'hashlistCrackedHash',
-                'userCreated',
-                'userDeleted',
-                'userLoginFailed',
-                'logWarn',
-                'logFatal',
-                'newAgent',
-                'deleteTask',
-                'deleteHashlist',
-                'deleteAgent'
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
             ]),
             userId: z.int(),
             receiver: z.string(),
@@ -3707,26 +4437,23 @@ export const zNotificationSettingResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('user').optional(),
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -3739,30 +4466,30 @@ export const zNotificationSettingPostPatchResponse = z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.enum([
-                'createNotification',
-                'setActive',
-                'deleteNotification'
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
             ]),
             objectId: z.int(),
-            notification: z.enum([
-                'taskComplete',
-                'agentError',
-                'ownAgentError',
-                'logError',
-                'newTask',
-                'newHashlist',
-                'hashlistAllCracked',
-                'hashlistCrackedHash',
-                'userCreated',
-                'userDeleted',
-                'userLoginFailed',
-                'logWarn',
-                'logFatal',
-                'newAgent',
-                'deleteTask',
-                'deleteHashlist',
-                'deleteAgent'
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
             ]),
             userId: z.int(),
             receiver: z.string(),
@@ -3787,30 +4514,30 @@ export const zNotificationSettingListResponse = z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.enum([
-                'createNotification',
-                'setActive',
-                'deleteNotification'
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
             ]),
             objectId: z.int(),
-            notification: z.enum([
-                'taskComplete',
-                'agentError',
-                'ownAgentError',
-                'logError',
-                'newTask',
-                'newHashlist',
-                'hashlistAllCracked',
-                'hashlistCrackedHash',
-                'userCreated',
-                'userDeleted',
-                'userLoginFailed',
-                'logWarn',
-                'logFatal',
-                'newAgent',
-                'deleteTask',
-                'deleteHashlist',
-                'deleteAgent'
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
             ]),
             userId: z.int(),
             receiver: z.string(),
@@ -3830,26 +4557,23 @@ export const zNotificationSettingListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('user').optional(),
+        id: z.int(),
+        type: z.literal('user'),
         attributes: z.object({
-            id: z.int().optional(),
-            name: z.string().optional(),
-            email: z.string().optional(),
-            passwordHash: z.string().optional(),
-            passwordSalt: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-        }).optional()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })).optional()
 });
 
@@ -3920,7 +4644,7 @@ export const zPreprocessorResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zPreprocessorPostPatchResponse = z.object({
@@ -3967,7 +4691,7 @@ export const zPreprocessorListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zPreTaskCreate = z.object({
@@ -4054,24 +4778,23 @@ export const zPreTaskResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('pretaskFiles').optional(),
+        id: z.int(),
+        type: z.literal('pretaskFiles'),
         attributes: z.object({
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            fileId: z.int().optional(),
-            filename: z.string().optional(),
-            size: z.number().optional(),
-            isSecret: z.boolean().optional(),
+            sourceType: z.string(),
+            sourceData: z.string(),
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
             fileType: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(100)
-            ]).optional(),
-            accessGroupId: z.int().optional(),
-            lineCount: z.number().optional()
-        }).optional()
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
     })).optional()
 });
 
@@ -4145,24 +4868,23 @@ export const zPreTaskListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('pretaskFiles').optional(),
+        id: z.int(),
+        type: z.literal('pretaskFiles'),
         attributes: z.object({
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            fileId: z.int().optional(),
-            filename: z.string().optional(),
-            size: z.number().optional(),
-            isSecret: z.boolean().optional(),
+            sourceType: z.string(),
+            sourceData: z.string(),
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
             fileType: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(100)
-            ]).optional(),
-            accessGroupId: z.int().optional(),
-            lineCount: z.number().optional()
-        }).optional()
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
     })).optional()
 });
 
@@ -4224,38 +4946,65 @@ export const zSpeedResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zSpeedListResponse = z.object({
@@ -4302,38 +5051,65 @@ export const zSpeedListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('task').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zSpeedRelationTask = z.object({
@@ -4401,24 +5177,23 @@ export const zSupertaskResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('pretasks').optional(),
+        id: z.int(),
+        type: z.literal('pretasks'),
         attributes: z.object({
-            files: z.array(z.int()).optional(),
-            pretaskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
-        }).optional()
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
+        })
     })).optional()
 });
 
@@ -4443,24 +5218,23 @@ export const zSupertaskSingleResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('pretasks').optional(),
+        id: z.int(),
+        type: z.literal('pretasks'),
         attributes: z.object({
-            files: z.array(z.int()).optional(),
-            pretaskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
-        }).optional()
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
+        })
     })).optional()
 });
 
@@ -4510,24 +5284,23 @@ export const zSupertaskListResponse = z.object({
         })
     }).optional(),
     included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('pretasks').optional(),
+        id: z.int(),
+        type: z.literal('pretasks'),
         attributes: z.object({
-            files: z.array(z.int()).optional(),
-            pretaskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
-        }).optional()
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
+        })
     })).optional()
 });
 
@@ -4710,17 +5483,112 @@ export const zTaskResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('speeds').optional(),
-        attributes: z.object({
-            speedId: z.int().optional(),
-            agentId: z.int().optional(),
-            taskId: z.int().optional(),
-            speed: z.number().optional(),
-            time: z.number().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('assignedAgents'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('files'),
+            attributes: z.object({
+                sourceType: z.string(),
+                sourceData: z.string(),
+                filename: z.string(),
+                size: z.number(),
+                isSecret: z.boolean(),
+                fileType: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(100)
+                ]),
+                accessGroupId: z.int(),
+                lineCount: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('speeds'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                speed: z.number(),
+                time: z.number()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskPostPatchResponse = z.object({
@@ -4888,17 +5756,112 @@ export const zTaskListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('speeds').optional(),
-        attributes: z.object({
-            speedId: z.int().optional(),
-            agentId: z.int().optional(),
-            taskId: z.int().optional(),
-            speed: z.number().optional(),
-            time: z.number().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('assignedAgents'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('files'),
+            attributes: z.object({
+                sourceType: z.string(),
+                sourceData: z.string(),
+                filename: z.string(),
+                size: z.number(),
+                isSecret: z.boolean(),
+                fileType: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(100)
+                ]),
+                accessGroupId: z.int(),
+                lineCount: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('speeds'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                speed: z.number(),
+                time: z.number()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskRelationSpeeds = z.object({
@@ -4946,7 +5909,10 @@ export const zTaskWrapperResponse = z.object({
         attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            taskType: z.union([z.literal(0), z.literal(1)]),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
             hashlistId: z.int(),
             accessGroupId: z.int(),
             taskWrapperName: z.string(),
@@ -5006,38 +5972,114 @@ export const zTaskWrapperResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperSingleResponse = z.object({
@@ -5047,7 +6089,10 @@ export const zTaskWrapperSingleResponse = z.object({
         attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            taskType: z.union([z.literal(0), z.literal(1)]),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
             hashlistId: z.int(),
             accessGroupId: z.int(),
             taskWrapperName: z.string(),
@@ -5107,38 +6152,114 @@ export const zTaskWrapperSingleResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperPostPatchResponse = z.object({
@@ -5152,7 +6273,10 @@ export const zTaskWrapperPostPatchResponse = z.object({
         attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            taskType: z.union([z.literal(0), z.literal(1)]),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
             hashlistId: z.int(),
             accessGroupId: z.int(),
             taskWrapperName: z.string(),
@@ -5180,7 +6304,10 @@ export const zTaskWrapperListResponse = z.object({
         attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            taskType: z.union([z.literal(0), z.literal(1)]),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
             hashlistId: z.int(),
             accessGroupId: z.int(),
             taskWrapperName: z.string(),
@@ -5240,38 +6367,114 @@ export const zTaskWrapperListResponse = z.object({
             })).optional()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('tasks').optional(),
-        attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskId: z.int().optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            keyspace: z.number().optional(),
-            keyspaceProgress: z.number().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            taskWrapperId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                hashlistSeperator: z.string(),
+                sourceType: z.string(),
+                sourceData: z.string(),
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('tasks'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                files: z.array(z.int()),
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperRelationTasks = z.object({
@@ -5364,14 +6567,20 @@ export const zUserResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('accessGroups').optional(),
-        attributes: z.object({
-            accessGroupId: z.int().optional(),
-            groupName: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('globalPermissionGroup'),
+            attributes: z.object({
+                name: z.string(),
+                permissions: z.record(z.string(), z.boolean())
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('accessGroups'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        })])).optional()
 });
 
 export const zUserPostPatchResponse = z.object({
@@ -5453,14 +6662,20 @@ export const zUserListResponse = z.object({
             }).nullish()
         })
     }).optional(),
-    included: z.array(z.object({
-        id: z.int().optional(),
-        type: z.literal('accessGroups').optional(),
-        attributes: z.object({
-            accessGroupId: z.int().optional(),
-            groupName: z.string().optional()
-        }).optional()
-    })).optional()
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('globalPermissionGroup'),
+            attributes: z.object({
+                name: z.string(),
+                permissions: z.record(z.string(), z.boolean())
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('accessGroups'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        })])).optional()
 });
 
 export const zUserRelationAccessGroups = z.object({
@@ -5516,7 +6731,7 @@ export const zVoucherResponse = z.object({
         })
     }),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zVoucherPostPatchResponse = z.object({
@@ -5555,7 +6770,7 @@ export const zVoucherListResponse = z.object({
         })
     })),
     relationships: z.record(z.string(), z.unknown()).optional(),
-    included: z.array(z.record(z.string(), z.unknown())).optional()
+    included: z.array(z.unknown()).optional()
 });
 
 export const zAbortChunkHelperApi = z.object({

@@ -12,6 +12,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { zNotificationSettingListResponse } from '@generated/api/zod.gen';
+import { zJNotification } from '@models/schemas';
+import { z } from 'zod';
 
 export class NotificationsDataSource extends BaseDataSource<JNotification> {
   private _currentFilter: Filter = null;
@@ -42,7 +44,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const notifications: JNotification[] = this.serializer.deserialize(response, zNotificationSettingListResponse);
+          const notifications = z.array(zJNotification).parse(this.serializer.deserialize(response, zNotificationSettingListResponse)) as JNotification[];
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

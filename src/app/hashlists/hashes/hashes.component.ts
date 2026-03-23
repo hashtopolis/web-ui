@@ -15,6 +15,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
 import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod.gen';
+import { zJChunk } from '@models/schemas';
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes
@@ -138,7 +139,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'chunkshash':
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
+            const chunk = zJChunk.parse(new JsonAPISerializer().deserialize(response, zChunkResponse)) as JChunk;
             this.titleName = String(chunk.id);
           });
           break;

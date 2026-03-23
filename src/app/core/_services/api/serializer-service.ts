@@ -16,7 +16,11 @@ import { z } from 'zod';
 
 import { Injectable } from '@angular/core';
 
-import { JsonApiPayload } from '@models/json-api.types';
+import { JsonApiPayload, RelationshipKeysOfSchema } from '@models/json-api.types';
+
+interface IncludeOptions<K extends string> extends TDeserializeOptions {
+  include: readonly K[];
+}
 
 /** Class for serializing/deserializing objects to and from JSON:API format
  * @class JsonAPISerializer
@@ -47,19 +51,26 @@ export class JsonAPISerializer {
   }
 
   /**
-   * Deserialize a single-resource JSON:API response body into a typed model.
+   * Deserialize a JSON:API response body into a typed model.
    *
-   * @overload Pass a Zod envelope schema to validate the raw body pre-deserialization
-   *   and auto-infer the flat return type via JsonApiPayload:
-   *   `deserialize(body, zAgentResponse)` → returns `JsonApiPayload<...>` (single flat model)
+   * @overload Pass a Zod envelope schema + include keys to get relationships required:
+   *   `deserialize(body, zTaskResponse, { include: ['hashlist'] })`
+   *
+   * @overload Pass a Zod envelope schema to validate and auto-infer the flat return type:
+   *   `deserialize(body, zAgentResponse)` → returns `JsonApiPayload<...>`
    *
    * @overload Omit the schema to get an unvalidated result:
    *   `deserialize<MyType>(body)` → returns `MyType`
    *
    * @param body  Response body received by an API call
-   * @param schema  Zod envelope schema to validate the raw JSON:API body (first overload)
-   * @param options  Optional deserializer options
+   * @param schema  Zod envelope schema to validate the raw JSON:API body
+   * @param options  Optional deserializer options; `include` is type-only
    */
+  deserialize<TSchema extends z.ZodTypeAny, K extends RelationshipKeysOfSchema<TSchema>>(
+    body: TJsonApiBody,
+    schema: TSchema,
+    options: IncludeOptions<K>
+  ): JsonApiPayload<z.infer<TSchema>, K>;
   deserialize<TSchema extends z.ZodTypeAny>(
     body: TJsonApiBody,
     schema: TSchema,
@@ -69,7 +80,7 @@ export class JsonAPISerializer {
   deserialize<T>(
     body: TJsonApiBody,
     schemaOrOptions?: z.ZodTypeAny | TDeserializeOptions,
-    options?: TDeserializeOptions
+    options?: TDeserializeOptions | IncludeOptions<string>
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
       this.validateBody(body, schemaOrOptions);

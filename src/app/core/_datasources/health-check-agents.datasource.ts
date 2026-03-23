@@ -10,6 +10,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { zHealthCheckAgentListResponse } from '@generated/api/zod.gen';
+import { zJHealthCheckAgent } from '@models/schemas';
+import { z } from 'zod';
 
 export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
   private _healthCheckId = 0;
@@ -39,7 +41,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
           finalize(() => (this.loading = false))
         )
         .subscribe((healthCheckResponse: ResponseWrapper) => {
-          const healthChecksAgent: JHealthCheckAgent[] = this.serializer.deserialize(healthCheckResponse, zHealthCheckAgentListResponse);
+          const healthChecksAgent = z.array(zJHealthCheckAgent).parse(this.serializer.deserialize(healthCheckResponse, zHealthCheckAgentListResponse)) as JHealthCheckAgent[];
 
           const length = healthCheckResponse.meta.page.total_elements;
           const nextLink = healthCheckResponse.links.next;

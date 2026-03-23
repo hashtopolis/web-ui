@@ -12,6 +12,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { zChunkListResponse } from '@generated/api/zod.gen';
+import { zJChunk } from '@models/schemas';
+import { z } from 'zod';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
@@ -50,7 +52,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
         finalize(() => (this.loading = false))
       )
       .subscribe(([response]: [ResponseWrapper]) => {
-        const assignedChunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
+        const assignedChunks = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse)) as JChunk[];
 
         assignedChunks.forEach((chunk: JChunk) => {
           if (chunk.task != undefined) {
