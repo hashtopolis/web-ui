@@ -20,7 +20,7 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
-import { zCrackerBinaryTypeListResponse, zPretaskResponse } from '@generated/api/zod.gen';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -170,7 +170,7 @@ export class MasksComponent implements OnInit, OnDestroy {
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
           const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPretaskResponse);
+            const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPreTaskResponse);
             preTasksIds.push(pretask.id);
             resolve(); // Resolve the promise when subscription completes
           }, reject); // Reject the promise if there's an error

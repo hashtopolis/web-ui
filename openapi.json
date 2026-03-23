@@ -878,7 +878,7 @@
     },
     "/api/v2/ui/agentassignments": {
       "get": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -890,7 +890,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentListResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentListResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -933,11 +935,11 @@
             "description": "Items to include, comma seperated. Possible options: agent,task"
           }
         ],
-        "summary": "List Assignments",
+        "summary": "List AgentAssignments",
         "operationId": "getAgentassignments"
       },
       "post": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -950,7 +952,7 @@
           "201": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentPostPatchResponse" } }
+              "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentPostPatchResponse" } }
             }
           }
         },
@@ -958,14 +960,14 @@
         "description": "POST request to create a new object. The request must contain the resource record as data with the attributes of the new object.To add relationships, a relationships object can be added with the resource records of the relations that are part of this object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentCreate" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentCreate" } } }
         },
         "parameters": [],
-        "summary": "Create Assignments",
+        "summary": "Create AgentAssignments",
         "operationId": "postAgentassignments"
       },
       "patch": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -980,11 +982,11 @@
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "parameters": [],
-        "summary": "Update Assignments",
+        "summary": "Update AgentAssignments",
         "operationId": "patchAgentassignments"
       },
       "delete": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -997,15 +999,15 @@
           "200": { "description": "successful operation" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete Assignments",
+        "description": "Delete AgentAssignments",
         "parameters": [],
-        "summary": "Delete Assignments",
+        "summary": "Delete AgentAssignments",
         "operationId": "deleteAgentassignments"
       }
     },
     "/api/v2/ui/agentassignments/count": {
       "get": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1017,7 +1019,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentListResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentListResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -1060,13 +1064,13 @@
             "description": "Items to include, comma seperated. Possible options: agent,task"
           }
         ],
-        "summary": "Count Assignments",
+        "summary": "Count AgentAssignments",
         "operationId": "getAgentassignmentsCount"
       }
     },
     "/api/v2/ui/agentassignments/{id}/{relation}": {
       "get": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1083,7 +1087,9 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentRelationTaskGetResponse" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgentAssignmentRelationTaskGetResponse" }
+              }
             }
           }
         },
@@ -1098,13 +1104,13 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get Assignments",
+        "summary": "Get AgentAssignments",
         "operationId": "getAgentassignmentsByIdByRelation"
       }
     },
     "/api/v2/ui/agentassignments/{id}/relationships/{relation}": {
       "get": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1120,7 +1126,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -1134,11 +1140,11 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get Assignments",
+        "summary": "Get AgentAssignments",
         "operationId": "getAgentassignmentsByIdRelationshipsByRelation"
       },
       "patch": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1158,19 +1164,21 @@
         "description": "PATCH request to update a to one relationship.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentRelationTask" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentRelationTask" } }
+          }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Update Assignments",
+        "summary": "Update AgentAssignments",
         "operationId": "patchAgentassignmentsByIdRelationshipsByRelation"
       }
     },
     "/api/v2/ui/agentassignments/{id}": {
       "get": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1186,7 +1194,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -1205,11 +1213,11 @@
             "description": "Items to include. Comma seperated"
           }
         ],
-        "summary": "Get Assignments",
+        "summary": "Get AgentAssignments",
         "operationId": "getAgentassignmentsById"
       },
       "patch": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1226,7 +1234,7 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentPostPatchResponse" } }
+              "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentPostPatchResponse" } }
             }
           }
         },
@@ -1234,14 +1242,14 @@
         "description": "PATCH request to update attributes of a single object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AssignmentPatch" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AgentAssignmentPatch" } } }
         },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Update Assignments",
+        "summary": "Update AgentAssignments",
         "operationId": "patchAgentassignmentsById"
       },
       "delete": {
-        "tags": ["Assignments"],
+        "tags": ["AgentAssignments"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -1258,10 +1266,10 @@
           "204": { "description": "successfully deleted" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete Assignments",
+        "description": "Delete AgentAssignments",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Delete Assignments",
+        "summary": "Delete AgentAssignments",
         "operationId": "deleteAgentassignmentsById"
       }
     },
@@ -2068,7 +2076,7 @@
     },
     "/api/v2/ui/apiTokens": {
       "get": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2080,7 +2088,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -2123,11 +2131,11 @@
             "description": "Items to include, comma seperated. Possible options: user"
           }
         ],
-        "summary": "List JwtApiKeys",
+        "summary": "List ApiTokens",
         "operationId": "getApiTokens"
       },
       "post": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2140,7 +2148,7 @@
           "201": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyPostPatchResponse" } }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenPostPatchResponse" } }
             }
           }
         },
@@ -2148,14 +2156,14 @@
         "description": "POST request to create a new object. The request must contain the resource record as data with the attributes of the new object.To add relationships, a relationships object can be added with the resource records of the relations that are part of this object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyCreate" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenCreate" } } }
         },
         "parameters": [],
-        "summary": "Create JwtApiKeys",
+        "summary": "Create ApiTokens",
         "operationId": "postApiTokens"
       },
       "patch": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2170,11 +2178,11 @@
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "parameters": [],
-        "summary": "Update JwtApiKeys",
+        "summary": "Update ApiTokens",
         "operationId": "patchApiTokens"
       },
       "delete": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2187,15 +2195,15 @@
           "200": { "description": "successful operation" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete JwtApiKeys",
+        "description": "Delete ApiTokens",
         "parameters": [],
-        "summary": "Delete JwtApiKeys",
+        "summary": "Delete ApiTokens",
         "operationId": "deleteApiTokens"
       }
     },
     "/api/v2/ui/apiTokens/count": {
       "get": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2207,7 +2215,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -2250,13 +2258,13 @@
             "description": "Items to include, comma seperated. Possible options: user"
           }
         ],
-        "summary": "Count JwtApiKeys",
+        "summary": "Count ApiTokens",
         "operationId": "getApiTokensCount"
       }
     },
     "/api/v2/ui/apiTokens/{id}/{relation}": {
       "get": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2273,7 +2281,7 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyRelationUserGetResponse" } }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenRelationUserGetResponse" } }
             }
           }
         },
@@ -2288,13 +2296,13 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get JwtApiKeys",
+        "summary": "Get ApiTokens",
         "operationId": "getApiTokensByIdByRelation"
       }
     },
     "/api/v2/ui/apiTokens/{id}/relationships/{relation}": {
       "get": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2310,7 +2318,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -2324,11 +2332,11 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get JwtApiKeys",
+        "summary": "Get ApiTokens",
         "operationId": "getApiTokensByIdRelationshipsByRelation"
       },
       "patch": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2348,19 +2356,19 @@
         "description": "PATCH request to update a to one relationship.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyRelationUser" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenRelationUser" } } }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Update JwtApiKeys",
+        "summary": "Update ApiTokens",
         "operationId": "patchApiTokensByIdRelationshipsByRelation"
       }
     },
     "/api/v2/ui/apiTokens/{id}": {
       "get": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2376,7 +2384,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -2395,11 +2403,11 @@
             "description": "Items to include. Comma seperated"
           }
         ],
-        "summary": "Get JwtApiKeys",
+        "summary": "Get ApiTokens",
         "operationId": "getApiTokensById"
       },
       "patch": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2416,7 +2424,7 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyPostPatchResponse" } }
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenPostPatchResponse" } }
             }
           }
         },
@@ -2424,14 +2432,14 @@
         "description": "PATCH request to update attributes of a single object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JwtApiKeyPatch" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiTokenPatch" } } }
         },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Update JwtApiKeys",
+        "summary": "Update ApiTokens",
         "operationId": "patchApiTokensById"
       },
       "delete": {
-        "tags": ["JwtApiKeys"],
+        "tags": ["ApiTokens"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -2448,10 +2456,10 @@
           "204": { "description": "successfully deleted" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete JwtApiKeys",
+        "description": "Delete ApiTokens",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Delete JwtApiKeys",
+        "summary": "Delete ApiTokens",
         "operationId": "deleteApiTokensById"
       }
     },
@@ -4506,7 +4514,7 @@
     },
     "/api/v2/ui/globalpermissiongroups": {
       "get": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4518,7 +4526,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupListResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupListResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -4561,11 +4571,11 @@
             "description": "Items to include, comma seperated. Possible options: userMembers"
           }
         ],
-        "summary": "List RightGroups",
+        "summary": "List GlobalPermissionGroups",
         "operationId": "getGlobalpermissiongroups"
       },
       "post": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4578,7 +4588,9 @@
           "201": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupPostPatchResponse" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupPostPatchResponse" }
+              }
             }
           }
         },
@@ -4586,14 +4598,16 @@
         "description": "POST request to create a new object. The request must contain the resource record as data with the attributes of the new object.To add relationships, a relationships object can be added with the resource records of the relations that are part of this object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupCreate" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupCreate" } }
+          }
         },
         "parameters": [],
-        "summary": "Create RightGroups",
+        "summary": "Create GlobalPermissionGroups",
         "operationId": "postGlobalpermissiongroups"
       },
       "patch": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4608,11 +4622,11 @@
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "parameters": [],
-        "summary": "Update RightGroups",
+        "summary": "Update GlobalPermissionGroups",
         "operationId": "patchGlobalpermissiongroups"
       },
       "delete": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4625,15 +4639,15 @@
           "200": { "description": "successful operation" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete RightGroups",
+        "description": "Delete GlobalPermissionGroups",
         "parameters": [],
-        "summary": "Delete RightGroups",
+        "summary": "Delete GlobalPermissionGroups",
         "operationId": "deleteGlobalpermissiongroups"
       }
     },
     "/api/v2/ui/globalpermissiongroups/count": {
       "get": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4645,7 +4659,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupListResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupListResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -4688,13 +4704,13 @@
             "description": "Items to include, comma seperated. Possible options: userMembers"
           }
         ],
-        "summary": "Count RightGroups",
+        "summary": "Count GlobalPermissionGroups",
         "operationId": "getGlobalpermissiongroupsCount"
       }
     },
     "/api/v2/ui/globalpermissiongroups/{id}/{relation}": {
       "get": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4712,7 +4728,7 @@
             "description": "successful operation",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/RightGroupRelationUserMembersGetResponse" }
+                "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupRelationUserMembersGetResponse" }
               }
             }
           }
@@ -4728,13 +4744,13 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get RightGroups",
+        "summary": "Get GlobalPermissionGroups",
         "operationId": "getGlobalpermissiongroupsByIdByRelation"
       }
     },
     "/api/v2/ui/globalpermissiongroups/{id}/relationships/{relation}": {
       "get": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4750,7 +4766,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -4764,11 +4782,11 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get RightGroups",
+        "summary": "Get GlobalPermissionGroups",
         "operationId": "getGlobalpermissiongroupsByIdRelationshipsByRelation"
       },
       "patch": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4789,18 +4807,20 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupRelationUserMembers" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupRelationUserMembers" }
+            }
           }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Update RightGroups",
+        "summary": "Update GlobalPermissionGroups",
         "operationId": "patchGlobalpermissiongroupsByIdRelationshipsByRelation"
       },
       "post": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4823,11 +4843,11 @@
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Add RightGroups relationship",
+        "summary": "Add GlobalPermissionGroups relationship",
         "operationId": "postGlobalpermissiongroupsByIdRelationshipsByRelation"
       },
       "delete": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4844,24 +4864,26 @@
           }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Remove RightGroups relationship",
+        "description": "Remove GlobalPermissionGroups relationship",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupRelationUserMembers" } }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupRelationUserMembers" }
+            }
           }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Remove RightGroups relationship",
+        "summary": "Remove GlobalPermissionGroups relationship",
         "operationId": "deleteGlobalpermissiongroupsByIdRelationshipsByRelation"
       }
     },
     "/api/v2/ui/globalpermissiongroups/{id}": {
       "get": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4877,7 +4899,9 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupResponse" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupResponse" } }
+            }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -4896,11 +4920,11 @@
             "description": "Items to include. Comma seperated"
           }
         ],
-        "summary": "Get RightGroups",
+        "summary": "Get GlobalPermissionGroups",
         "operationId": "getGlobalpermissiongroupsById"
       },
       "patch": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4917,7 +4941,9 @@
           "200": {
             "description": "successful operation",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupPostPatchResponse" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupPostPatchResponse" }
+              }
             }
           }
         },
@@ -4925,14 +4951,14 @@
         "description": "PATCH request to update attributes of a single object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RightGroupPatch" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GlobalPermissionGroupPatch" } } }
         },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Update RightGroups",
+        "summary": "Update GlobalPermissionGroups",
         "operationId": "patchGlobalpermissiongroupsById"
       },
       "delete": {
-        "tags": ["RightGroups"],
+        "tags": ["GlobalPermissionGroups"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -4949,10 +4975,10 @@
           "204": { "description": "successfully deleted" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete RightGroups",
+        "description": "Delete GlobalPermissionGroups",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Delete RightGroups",
+        "summary": "Delete GlobalPermissionGroups",
         "operationId": "deleteGlobalpermissiongroupsById"
       }
     },
@@ -7654,7 +7680,7 @@
     },
     "/api/v2/ui/pretasks": {
       "get": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7666,7 +7692,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -7709,11 +7735,11 @@
             "description": "Items to include, comma seperated. Possible options: pretaskFiles"
           }
         ],
-        "summary": "List Pretasks",
+        "summary": "List PreTasks",
         "operationId": "getPretasks"
       },
       "post": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7725,21 +7751,21 @@
           },
           "201": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskPostPatchResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskPostPatchResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
         "description": "POST request to create a new object. The request must contain the resource record as data with the attributes of the new object.To add relationships, a relationships object can be added with the resource records of the relations that are part of this object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskCreate" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskCreate" } } }
         },
         "parameters": [],
-        "summary": "Create Pretasks",
+        "summary": "Create PreTasks",
         "operationId": "postPretasks"
       },
       "patch": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7754,11 +7780,11 @@
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "parameters": [],
-        "summary": "Update Pretasks",
+        "summary": "Update PreTasks",
         "operationId": "patchPretasks"
       },
       "delete": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7771,15 +7797,15 @@
           "200": { "description": "successful operation" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete Pretasks",
+        "description": "Delete PreTasks",
         "parameters": [],
-        "summary": "Delete Pretasks",
+        "summary": "Delete PreTasks",
         "operationId": "deletePretasks"
       }
     },
     "/api/v2/ui/pretasks/count": {
       "get": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7791,7 +7817,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -7834,13 +7860,13 @@
             "description": "Items to include, comma seperated. Possible options: pretaskFiles"
           }
         ],
-        "summary": "Count Pretasks",
+        "summary": "Count PreTasks",
         "operationId": "getPretasksCount"
       }
     },
     "/api/v2/ui/pretasks/{id}/{relation}": {
       "get": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7858,7 +7884,7 @@
             "description": "successful operation",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PretaskRelationPretaskFilesGetResponse" }
+                "schema": { "$ref": "#/components/schemas/PreTaskRelationPretaskFilesGetResponse" }
               }
             }
           }
@@ -7874,13 +7900,13 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get Pretasks",
+        "summary": "Get PreTasks",
         "operationId": "getPretasksByIdByRelation"
       }
     },
     "/api/v2/ui/pretasks/{id}/relationships/{relation}": {
       "get": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7896,7 +7922,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -7910,11 +7936,11 @@
           },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Get Pretasks",
+        "summary": "Get PreTasks",
         "operationId": "getPretasksByIdRelationshipsByRelation"
       },
       "patch": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7935,18 +7961,18 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/PretaskRelationPretaskFiles" } }
+            "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskRelationPretaskFiles" } }
           }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Update Pretasks",
+        "summary": "Update PreTasks",
         "operationId": "patchPretasksByIdRelationshipsByRelation"
       },
       "post": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7969,11 +7995,11 @@
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Add Pretasks relationship",
+        "summary": "Add PreTasks relationship",
         "operationId": "postPretasksByIdRelationshipsByRelation"
       },
       "delete": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -7990,24 +8016,24 @@
           }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Remove Pretasks relationship",
+        "description": "Remove PreTasks relationship",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/PretaskRelationPretaskFiles" } }
+            "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskRelationPretaskFiles" } }
           }
         },
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
           { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
-        "summary": "Remove Pretasks relationship",
+        "summary": "Remove PreTasks relationship",
         "operationId": "deletePretasksByIdRelationshipsByRelation"
       }
     },
     "/api/v2/ui/pretasks/{id}": {
       "get": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -8023,7 +8049,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -8042,11 +8068,11 @@
             "description": "Items to include. Comma seperated"
           }
         ],
-        "summary": "Get Pretasks",
+        "summary": "Get PreTasks",
         "operationId": "getPretasksById"
       },
       "patch": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -8062,21 +8088,21 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskPostPatchResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskPostPatchResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PretaskPatch" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PreTaskPatch" } } }
         },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Update Pretasks",
+        "summary": "Update PreTasks",
         "operationId": "patchPretasksById"
       },
       "delete": {
-        "tags": ["Pretasks"],
+        "tags": ["PreTasks"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -8093,10 +8119,10 @@
           "204": { "description": "successfully deleted" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete Pretasks",
+        "description": "Delete PreTasks",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Delete Pretasks",
+        "summary": "Delete PreTasks",
         "operationId": "deletePretasksById"
       }
     },
@@ -10117,7 +10143,7 @@
     },
     "/api/v2/ui/vouchers": {
       "get": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10129,7 +10155,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -10172,11 +10198,11 @@
             "description": "Items to include, comma seperated. Possible options: "
           }
         ],
-        "summary": "List RegVouchers",
+        "summary": "List Vouchers",
         "operationId": "getVouchers"
       },
       "post": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10188,23 +10214,21 @@
           },
           "201": {
             "description": "successful operation",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherPostPatchResponse" } }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherPostPatchResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
         "description": "POST request to create a new object. The request must contain the resource record as data with the attributes of the new object.To add relationships, a relationships object can be added with the resource records of the relations that are part of this object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherCreate" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherCreate" } } }
         },
         "parameters": [],
-        "summary": "Create RegVouchers",
+        "summary": "Create Vouchers",
         "operationId": "postVouchers"
       },
       "patch": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10219,11 +10243,11 @@
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "parameters": [],
-        "summary": "Update RegVouchers",
+        "summary": "Update Vouchers",
         "operationId": "patchVouchers"
       },
       "delete": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10236,15 +10260,15 @@
           "200": { "description": "successful operation" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete RegVouchers",
+        "description": "Delete Vouchers",
         "parameters": [],
-        "summary": "Delete RegVouchers",
+        "summary": "Delete Vouchers",
         "operationId": "deleteVouchers"
       }
     },
     "/api/v2/ui/vouchers/count": {
       "get": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10256,7 +10280,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherListResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherListResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -10299,13 +10323,13 @@
             "description": "Items to include, comma seperated. Possible options: "
           }
         ],
-        "summary": "Count RegVouchers",
+        "summary": "Count Vouchers",
         "operationId": "getVouchersCount"
       }
     },
     "/api/v2/ui/vouchers/{id}": {
       "get": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10321,7 +10345,7 @@
           },
           "200": {
             "description": "successful operation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
@@ -10340,11 +10364,11 @@
             "description": "Items to include. Comma seperated"
           }
         ],
-        "summary": "Get RegVouchers",
+        "summary": "Get Vouchers",
         "operationId": "getVouchersById"
       },
       "patch": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10360,23 +10384,21 @@
           },
           "200": {
             "description": "successful operation",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherPostPatchResponse" } }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherPostPatchResponse" } } }
           }
         },
         "security": [{ "bearerAuth": [] }],
         "description": "PATCH request to update attributes of a single object.",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegVoucherPatch" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/VoucherPatch" } } }
         },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Update RegVouchers",
+        "summary": "Update Vouchers",
         "operationId": "patchVouchersById"
       },
       "delete": {
-        "tags": ["RegVouchers"],
+        "tags": ["Vouchers"],
         "responses": {
           "400": {
             "description": "Invalid request",
@@ -10393,10 +10415,10 @@
           "204": { "description": "successfully deleted" }
         },
         "security": [{ "bearerAuth": [] }],
-        "description": "Delete RegVouchers",
+        "description": "Delete Vouchers",
         "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
-        "summary": "Delete RegVouchers",
+        "summary": "Delete Vouchers",
         "operationId": "deleteVouchersById"
       }
     },
@@ -11212,7 +11234,11 @@
             "required": ["type", "attributes"],
             "properties": {
               "type": { "type": "string", "const": "accessGroup" },
-              "attributes": { "type": "object", "properties": { "groupName": { "type": "string" } } }
+              "attributes": {
+                "type": "object",
+                "properties": { "groupName": { "type": "string" } },
+                "required": ["groupName"]
+              }
             }
           }
         }
@@ -11240,7 +11266,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -11330,7 +11360,7 @@
                     "agentId": { "type": "integer" },
                     "agentName": { "type": "string" },
                     "uid": { "type": "string" },
-                    "os": { "type": "integer" },
+                    "os": { "type": "integer", "enum": [0, 1, 2] },
                     "devices": { "type": "string" },
                     "cmdPars": { "type": "string" },
                     "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
@@ -11359,7 +11389,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -11386,7 +11420,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -11479,7 +11517,7 @@
                     "agentId": { "type": "integer" },
                     "agentName": { "type": "string" },
                     "uid": { "type": "string" },
-                    "os": { "type": "integer" },
+                    "os": { "type": "integer", "enum": [0, 1, 2] },
                     "devices": { "type": "string" },
                     "cmdPars": { "type": "string" },
                     "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
@@ -11551,7 +11589,7 @@
                   "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
                   "isActive": { "type": "boolean" },
                   "isTrusted": { "type": "boolean" },
-                  "os": { "type": "integer" },
+                  "os": { "type": "integer", "enum": [0, 1, 2] },
                   "uid": { "type": "string" },
                   "userId": { "type": "integer" }
                 }
@@ -11569,7 +11607,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -11611,7 +11653,7 @@
                 "properties": {
                   "agentName": { "type": "string" },
                   "uid": { "type": "string" },
-                  "os": { "type": "integer" },
+                  "os": { "type": "integer", "enum": [0, 1, 2] },
                   "devices": { "type": "string" },
                   "cmdPars": { "type": "string" },
                   "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
@@ -11826,7 +11868,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -11857,7 +11903,7 @@
                 "properties": {
                   "agentName": { "type": "string" },
                   "uid": { "type": "string" },
-                  "os": { "type": "integer" },
+                  "os": { "type": "integer", "enum": [0, 1, 2] },
                   "devices": { "type": "string" },
                   "cmdPars": { "type": "string" },
                   "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
@@ -11885,7 +11931,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -11929,7 +11979,7 @@
                   "properties": {
                     "agentName": { "type": "string" },
                     "uid": { "type": "string" },
-                    "os": { "type": "integer" },
+                    "os": { "type": "integer", "enum": [0, 1, 2] },
                     "devices": { "type": "string" },
                     "cmdPars": { "type": "string" },
                     "ignoreErrors": { "type": "integer", "enum": [0, 1, 2] },
@@ -12170,7 +12220,7 @@
           }
         }
       },
-      "AssignmentCreate": {
+      "AgentAssignmentCreate": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -12178,20 +12228,21 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "assignment" },
+              "type": { "type": "string", "const": "agentAssignment" },
               "attributes": {
                 "type": "object",
                 "properties": {
                   "taskId": { "type": "integer" },
                   "agentId": { "type": "integer" },
                   "benchmark": { "type": "string" }
-                }
+                },
+                "required": ["taskId", "agentId"]
               }
             }
           }
         }
       },
-      "AssignmentPatch": {
+      "AgentAssignmentPatch": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -12199,13 +12250,13 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "assignment" },
+              "type": { "type": "string", "const": "agentAssignment" },
               "attributes": { "type": "object", "properties": { "benchmark": { "type": "string" } } }
             }
           }
         }
       },
-      "AssignmentResponse": {
+      "AgentAssignmentResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -12214,7 +12265,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12233,7 +12288,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "assignment" },
+              "type": { "type": "string", "const": "agentAssignment" },
               "attributes": {
                 "type": "object",
                 "required": ["taskId", "agentId", "benchmark"],
@@ -12342,7 +12397,7 @@
           }
         }
       },
-      "AssignmentPostPatchResponse": {
+      "AgentAssignmentPostPatchResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -12351,7 +12406,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -12359,7 +12418,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "assignment" },
+              "type": { "type": "string", "const": "agentAssignment" },
               "attributes": {
                 "type": "object",
                 "required": ["taskId", "agentId", "benchmark"],
@@ -12373,7 +12432,7 @@
           }
         }
       },
-      "AssignmentListResponse": {
+      "AgentAssignmentListResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -12382,7 +12441,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12403,7 +12466,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "assignment" },
+                "type": { "type": "string", "const": "agentAssignment" },
                 "attributes": {
                   "type": "object",
                   "required": ["taskId", "agentId", "benchmark"],
@@ -12513,7 +12576,7 @@
           }
         }
       },
-      "AssignmentRelationTask": {
+      "AgentAssignmentRelationTask": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -12524,7 +12587,7 @@
           }
         }
       },
-      "AssignmentRelationTaskGetResponse": {
+      "AgentAssignmentRelationTaskGetResponse": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -12552,7 +12615,8 @@
                   "operatingSystems": { "type": "string" },
                   "filename": { "type": "string" },
                   "updateTrack": { "type": "string" }
-                }
+                },
+                "required": ["binaryType", "version", "operatingSystems", "filename", "updateTrack"]
               }
             }
           }
@@ -12590,7 +12654,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12637,7 +12705,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -12671,7 +12743,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12728,7 +12804,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12843,7 +12923,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -12983,7 +13067,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13008,7 +13096,7 @@
                 "required": ["agentId", "statType", "time", "value"],
                 "properties": {
                   "agentId": { "type": "integer" },
-                  "statType": { "type": "integer" },
+                  "statType": { "type": "integer", "enum": [1, 2, 3] },
                   "time": { "type": "integer", "format": "int64" },
                   "value": { "type": "array", "items": { "type": "integer" } }
                 }
@@ -13028,7 +13116,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13055,7 +13147,7 @@
                   "required": ["agentId", "statType", "time", "value"],
                   "properties": {
                     "agentId": { "type": "integer" },
-                    "statType": { "type": "integer" },
+                    "statType": { "type": "integer", "enum": [1, 2, 3] },
                     "time": { "type": "integer", "format": "int64" },
                     "value": { "type": "array", "items": { "type": "integer" } }
                   }
@@ -13067,7 +13159,7 @@
           "included": { "type": "array", "items": { "type": "object", "properties": {} } }
         }
       },
-      "JwtApiKeyCreate": {
+      "ApiTokenCreate": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -13075,7 +13167,7 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "jwtApiKey" },
+              "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
                 "properties": {
@@ -13084,13 +13176,14 @@
                   "endValid": { "type": "integer", "format": "int64" },
                   "userId": { "type": "integer" },
                   "isRevoked": { "type": "boolean" }
-                }
+                },
+                "required": ["scopes", "startValid", "endValid", "userId", "isRevoked"]
               }
             }
           }
         }
       },
-      "JwtApiKeyPatch": {
+      "ApiTokenPatch": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -13098,13 +13191,13 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "jwtApiKey" },
+              "type": { "type": "string", "const": "apiToken" },
               "attributes": { "type": "object", "properties": { "isRevoked": { "type": "boolean" } } }
             }
           }
         }
       },
-      "JwtApiKeyResponse": {
+      "ApiTokenResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -13113,7 +13206,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13132,7 +13229,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "jwtApiKey" },
+              "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
                 "required": ["startValid", "endValid", "userId", "isRevoked"],
@@ -13186,7 +13283,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -13209,7 +13306,7 @@
           }
         }
       },
-      "JwtApiKeyPostPatchResponse": {
+      "ApiTokenPostPatchResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -13218,7 +13315,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -13226,7 +13327,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "jwtApiKey" },
+              "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
                 "required": ["startValid", "endValid", "userId", "isRevoked"],
@@ -13242,7 +13343,7 @@
           }
         }
       },
-      "JwtApiKeyListResponse": {
+      "ApiTokenListResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -13251,7 +13352,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13272,7 +13377,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "jwtApiKey" },
+                "type": { "type": "string", "const": "apiToken" },
                 "attributes": {
                   "type": "object",
                   "required": ["startValid", "endValid", "userId", "isRevoked"],
@@ -13327,7 +13432,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -13350,7 +13455,7 @@
           }
         }
       },
-      "JwtApiKeyRelationUser": {
+      "ApiTokenRelationUser": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -13361,7 +13466,7 @@
           }
         }
       },
-      "JwtApiKeyRelationUserGetResponse": {
+      "ApiTokenRelationUserGetResponse": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -13381,7 +13486,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13425,7 +13534,7 @@
                   "solveTime": { "type": "integer", "format": "int64" },
                   "checkpoint": { "type": "integer", "format": "int64" },
                   "progress": { "type": "integer" },
-                  "state": { "type": "integer" },
+                  "state": { "type": "integer", "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
                   "cracked": { "type": "integer" },
                   "speed": { "type": "integer", "format": "int64" }
                 }
@@ -13538,7 +13647,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13584,7 +13697,7 @@
                     "solveTime": { "type": "integer", "format": "int64" },
                     "checkpoint": { "type": "integer", "format": "int64" },
                     "progress": { "type": "integer" },
-                    "state": { "type": "integer" },
+                    "state": { "type": "integer", "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
                     "cracked": { "type": "integer" },
                     "speed": { "type": "integer", "format": "int64" }
                   }
@@ -13737,7 +13850,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13826,7 +13943,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -13857,7 +13978,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -13977,7 +14102,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14017,7 +14146,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14067,7 +14200,8 @@
                   "version": { "type": "string" },
                   "downloadUrl": { "type": "string" },
                   "binaryName": { "type": "string" }
-                }
+                },
+                "required": ["crackerBinaryTypeId", "version", "downloadUrl", "binaryName"]
               }
             }
           }
@@ -14103,7 +14237,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14242,7 +14380,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -14274,7 +14416,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14450,7 +14596,11 @@
             "required": ["type", "attributes"],
             "properties": {
               "type": { "type": "string", "const": "crackerBinaryType" },
-              "attributes": { "type": "object", "properties": { "typeName": { "type": "string" } } }
+              "attributes": {
+                "type": "object",
+                "properties": { "typeName": { "type": "string" } },
+                "required": ["typeName"]
+              }
             }
           }
         }
@@ -14481,7 +14631,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14613,7 +14767,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -14640,7 +14798,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14816,9 +14978,10 @@
                   "sourceData": { "type": "string" },
                   "filename": { "type": "string" },
                   "isSecret": { "type": "boolean" },
-                  "fileType": { "type": "integer" },
+                  "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                   "accessGroupId": { "type": "integer" }
-                }
+                },
+                "required": ["sourceType", "sourceData", "filename", "isSecret", "fileType", "accessGroupId"]
               }
             }
           }
@@ -14837,7 +15000,7 @@
                 "type": "object",
                 "properties": {
                   "accessGroupId": { "type": "integer" },
-                  "fileType": { "type": "integer" },
+                  "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                   "filename": { "type": "string" },
                   "isSecret": { "type": "boolean" }
                 }
@@ -14855,7 +15018,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -14882,7 +15049,7 @@
                   "filename": { "type": "string" },
                   "size": { "type": "integer", "format": "int64" },
                   "isSecret": { "type": "boolean" },
-                  "fileType": { "type": "integer" },
+                  "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                   "accessGroupId": { "type": "integer" },
                   "lineCount": { "type": "integer", "format": "int64" }
                 }
@@ -14955,7 +15122,7 @@
                   "filename": { "type": "string" },
                   "size": { "type": "integer", "format": "int64" },
                   "isSecret": { "type": "boolean" },
-                  "fileType": { "type": "integer" },
+                  "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                   "accessGroupId": { "type": "integer" },
                   "lineCount": { "type": "integer", "format": "int64" }
                 }
@@ -15020,7 +15187,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -15036,7 +15207,7 @@
                   "filename": { "type": "string" },
                   "size": { "type": "integer", "format": "int64" },
                   "isSecret": { "type": "boolean" },
-                  "fileType": { "type": "integer" },
+                  "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                   "accessGroupId": { "type": "integer" },
                   "lineCount": { "type": "integer", "format": "int64" }
                 }
@@ -15054,7 +15225,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -15083,7 +15258,7 @@
                     "filename": { "type": "string" },
                     "size": { "type": "integer", "format": "int64" },
                     "isSecret": { "type": "boolean" },
-                    "fileType": { "type": "integer" },
+                    "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                     "accessGroupId": { "type": "integer" },
                     "lineCount": { "type": "integer", "format": "int64" }
                   }
@@ -15168,7 +15343,7 @@
           }
         }
       },
-      "RightGroupCreate": {
+      "GlobalPermissionGroupCreate": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -15176,16 +15351,20 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "rightGroup" },
+              "type": { "type": "string", "const": "globalPermissionGroup" },
               "attributes": {
                 "type": "object",
-                "properties": { "name": { "type": "string" }, "permissions": { "type": "object" } }
+                "properties": {
+                  "name": { "type": "string" },
+                  "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
+                },
+                "required": ["name"]
               }
             }
           }
         }
       },
-      "RightGroupPatch": {
+      "GlobalPermissionGroupPatch": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -15193,16 +15372,19 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "rightGroup" },
+              "type": { "type": "string", "const": "globalPermissionGroup" },
               "attributes": {
                 "type": "object",
-                "properties": { "name": { "type": "string" }, "permissions": { "type": "object" } }
+                "properties": {
+                  "name": { "type": "string" },
+                  "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
+                }
               }
             }
           }
         }
       },
-      "RightGroupResponse": {
+      "GlobalPermissionGroupResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -15211,7 +15393,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -15236,11 +15422,14 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "rightGroup" },
+              "type": { "type": "string", "const": "globalPermissionGroup" },
               "attributes": {
                 "type": "object",
                 "required": ["name", "permissions"],
-                "properties": { "name": { "type": "string" }, "permissions": { "type": "object" } }
+                "properties": {
+                  "name": { "type": "string" },
+                  "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
+                }
               }
             }
           },
@@ -15285,7 +15474,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -15308,7 +15497,7 @@
           }
         }
       },
-      "RightGroupPostPatchResponse": {
+      "GlobalPermissionGroupPostPatchResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -15317,7 +15506,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -15325,17 +15518,20 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "rightGroup" },
+              "type": { "type": "string", "const": "globalPermissionGroup" },
               "attributes": {
                 "type": "object",
                 "required": ["name", "permissions"],
-                "properties": { "name": { "type": "string" }, "permissions": { "type": "object" } }
+                "properties": {
+                  "name": { "type": "string" },
+                  "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
+                }
               }
             }
           }
         }
       },
-      "RightGroupListResponse": {
+      "GlobalPermissionGroupListResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -15344,7 +15540,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -15371,11 +15571,14 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "rightGroup" },
+                "type": { "type": "string", "const": "globalPermissionGroup" },
                 "attributes": {
                   "type": "object",
                   "required": ["name", "permissions"],
-                  "properties": { "name": { "type": "string" }, "permissions": { "type": "object" } }
+                  "properties": {
+                    "name": { "type": "string" },
+                    "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
+                  }
                 }
               }
             }
@@ -15421,7 +15624,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -15444,7 +15647,7 @@
           }
         }
       },
-      "RightGroupRelationUserMembers": {
+      "GlobalPermissionGroupRelationUserMembers": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -15461,7 +15664,7 @@
           }
         }
       },
-      "RightGroupRelationUserMembersGetResponse": {
+      "GlobalPermissionGroupRelationUserMembersGetResponse": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -15487,7 +15690,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -15630,7 +15837,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -15823,7 +16034,23 @@
                   "useBrain": { "type": "boolean" },
                   "brainFeatures": { "type": "integer" },
                   "isArchived": { "type": "boolean" }
-                }
+                },
+                "required": [
+                  "sourceType",
+                  "sourceData",
+                  "name",
+                  "format",
+                  "hashTypeId",
+                  "hashCount",
+                  "isSecret",
+                  "isHexSalt",
+                  "isSalted",
+                  "accessGroupId",
+                  "notes",
+                  "useBrain",
+                  "brainFeatures",
+                  "isArchived"
+                ]
               }
             }
           }
@@ -15861,7 +16088,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16306,7 +16537,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -16363,7 +16598,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16639,7 +16878,8 @@
                   "description": { "type": "string" },
                   "isSalted": { "type": "boolean" },
                   "isSlowHash": { "type": "boolean" }
-                }
+                },
+                "required": ["hashTypeId", "description", "isSalted", "isSlowHash"]
               }
             }
           }
@@ -16675,7 +16915,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16719,7 +16963,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -16750,7 +16998,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16797,7 +17049,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16823,7 +17079,7 @@
                 "properties": {
                   "healthCheckId": { "type": "integer" },
                   "agentId": { "type": "integer" },
-                  "status": { "type": "integer" },
+                  "status": { "type": "integer", "enum": [-1, 0, 1] },
                   "cracked": { "type": "integer" },
                   "numGpus": { "type": "integer" },
                   "start": { "type": "integer", "format": "int64" },
@@ -16902,8 +17158,8 @@
                   "properties": {
                     "healthCheckId": { "type": "integer" },
                     "time": { "type": "integer", "format": "int64" },
-                    "status": { "type": "integer" },
-                    "checkType": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
+                    "checkType": { "type": "integer", "enum": [0, 3200] },
                     "hashtypeId": { "type": "integer" },
                     "crackerBinaryId": { "type": "integer" },
                     "expectedCracks": { "type": "integer" },
@@ -16924,7 +17180,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -16952,7 +17212,7 @@
                   "properties": {
                     "healthCheckId": { "type": "integer" },
                     "agentId": { "type": "integer" },
-                    "status": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
                     "cracked": { "type": "integer" },
                     "numGpus": { "type": "integer" },
                     "start": { "type": "integer", "format": "int64" },
@@ -17032,8 +17292,8 @@
                   "properties": {
                     "healthCheckId": { "type": "integer" },
                     "time": { "type": "integer", "format": "int64" },
-                    "status": { "type": "integer" },
-                    "checkType": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
+                    "checkType": { "type": "integer", "enum": [0, 3200] },
                     "hashtypeId": { "type": "integer" },
                     "crackerBinaryId": { "type": "integer" },
                     "expectedCracks": { "type": "integer" },
@@ -17085,10 +17345,11 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "checkType": { "type": "integer" },
+                  "checkType": { "type": "integer", "enum": [0, 3200] },
                   "hashtypeId": { "type": "integer" },
                   "crackerBinaryId": { "type": "integer" }
-                }
+                },
+                "required": ["checkType", "hashtypeId", "crackerBinaryId"]
               }
             }
           }
@@ -17103,7 +17364,10 @@
             "required": ["type", "attributes"],
             "properties": {
               "type": { "type": "string", "const": "healthCheck" },
-              "attributes": { "type": "object", "properties": { "checkType": { "type": "integer" } } }
+              "attributes": {
+                "type": "object",
+                "properties": { "checkType": { "type": "integer", "enum": [0, 3200] } }
+              }
             }
           }
         }
@@ -17117,7 +17381,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17150,8 +17418,8 @@
                 ],
                 "properties": {
                   "time": { "type": "integer", "format": "int64" },
-                  "status": { "type": "integer" },
-                  "checkType": { "type": "integer" },
+                  "status": { "type": "integer", "enum": [-1, 0, 1] },
+                  "checkType": { "type": "integer", "enum": [0, 3200] },
                   "hashtypeId": { "type": "integer" },
                   "crackerBinaryId": { "type": "integer" },
                   "expectedCracks": { "type": "integer" },
@@ -17258,7 +17526,7 @@
                     "healthCheckAgentId": { "type": "integer" },
                     "healthCheckId": { "type": "integer" },
                     "agentId": { "type": "integer" },
-                    "status": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
                     "cracked": { "type": "integer" },
                     "numGpus": { "type": "integer" },
                     "start": { "type": "integer", "format": "int64" },
@@ -17280,7 +17548,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -17302,8 +17574,8 @@
                 ],
                 "properties": {
                   "time": { "type": "integer", "format": "int64" },
-                  "status": { "type": "integer" },
-                  "checkType": { "type": "integer" },
+                  "status": { "type": "integer", "enum": [-1, 0, 1] },
+                  "checkType": { "type": "integer", "enum": [0, 3200] },
                   "hashtypeId": { "type": "integer" },
                   "crackerBinaryId": { "type": "integer" },
                   "expectedCracks": { "type": "integer" },
@@ -17323,7 +17595,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17358,8 +17634,8 @@
                   ],
                   "properties": {
                     "time": { "type": "integer", "format": "int64" },
-                    "status": { "type": "integer" },
-                    "checkType": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
+                    "checkType": { "type": "integer", "enum": [0, 3200] },
                     "hashtypeId": { "type": "integer" },
                     "crackerBinaryId": { "type": "integer" },
                     "expectedCracks": { "type": "integer" },
@@ -17467,7 +17743,7 @@
                     "healthCheckAgentId": { "type": "integer" },
                     "healthCheckId": { "type": "integer" },
                     "agentId": { "type": "integer" },
-                    "status": { "type": "integer" },
+                    "status": { "type": "integer", "enum": [-1, 0, 1] },
                     "cracked": { "type": "integer" },
                     "numGpus": { "type": "integer" },
                     "start": { "type": "integer", "format": "int64" },
@@ -17551,7 +17827,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17575,9 +17855,9 @@
                 "type": "object",
                 "required": ["issuer", "issuerId", "level", "message", "time"],
                 "properties": {
-                  "issuer": { "type": "string" },
+                  "issuer": { "type": "string", "enum": ["API", "User"] },
                   "issuerId": { "type": "string" },
-                  "level": { "type": "string" },
+                  "level": { "type": "string", "enum": ["warning", "error", "fatal error", "information"] },
                   "message": { "type": "string" },
                   "time": { "type": "integer", "format": "int64" }
                 }
@@ -17597,7 +17877,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -17610,9 +17894,9 @@
                 "type": "object",
                 "required": ["issuer", "issuerId", "level", "message", "time"],
                 "properties": {
-                  "issuer": { "type": "string" },
+                  "issuer": { "type": "string", "enum": ["API", "User"] },
                   "issuerId": { "type": "string" },
-                  "level": { "type": "string" },
+                  "level": { "type": "string", "enum": ["warning", "error", "fatal error", "information"] },
                   "message": { "type": "string" },
                   "time": { "type": "integer", "format": "int64" }
                 }
@@ -17630,7 +17914,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17656,9 +17944,9 @@
                   "type": "object",
                   "required": ["issuer", "issuerId", "level", "message", "time"],
                   "properties": {
-                    "issuer": { "type": "string" },
+                    "issuer": { "type": "string", "enum": ["API", "User"] },
                     "issuerId": { "type": "string" },
-                    "level": { "type": "string" },
+                    "level": { "type": "string", "enum": ["warning", "error", "fatal error", "information"] },
                     "message": { "type": "string" },
                     "time": { "type": "integer", "format": "int64" }
                   }
@@ -17683,10 +17971,32 @@
                 "type": "object",
                 "properties": {
                   "actionFilter": { "type": "string" },
-                  "action": { "type": "string" },
-                  "notification": { "type": "string" },
+                  "action": { "type": "string", "enum": ["createNotification", "setActive", "deleteNotification"] },
+                  "notification": {
+                    "type": "string",
+                    "enum": [
+                      "taskComplete",
+                      "agentError",
+                      "ownAgentError",
+                      "logError",
+                      "newTask",
+                      "newHashlist",
+                      "hashlistAllCracked",
+                      "hashlistCrackedHash",
+                      "userCreated",
+                      "userDeleted",
+                      "userLoginFailed",
+                      "logWarn",
+                      "logFatal",
+                      "newAgent",
+                      "deleteTask",
+                      "deleteHashlist",
+                      "deleteAgent"
+                    ]
+                  },
                   "receiver": { "type": "string" }
-                }
+                },
+                "required": ["actionFilter", "action", "notification", "receiver"]
               }
             }
           }
@@ -17704,9 +18014,30 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "action": { "type": "string" },
+                  "action": { "type": "string", "enum": ["createNotification", "setActive", "deleteNotification"] },
                   "isActive": { "type": "boolean" },
-                  "notification": { "type": "string" },
+                  "notification": {
+                    "type": "string",
+                    "enum": [
+                      "taskComplete",
+                      "agentError",
+                      "ownAgentError",
+                      "logError",
+                      "newTask",
+                      "newHashlist",
+                      "hashlistAllCracked",
+                      "hashlistCrackedHash",
+                      "userCreated",
+                      "userDeleted",
+                      "userLoginFailed",
+                      "logWarn",
+                      "logFatal",
+                      "newAgent",
+                      "deleteTask",
+                      "deleteHashlist",
+                      "deleteAgent"
+                    ]
+                  },
                   "receiver": { "type": "string" }
                 }
               }
@@ -17723,7 +18054,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17747,9 +18082,30 @@
                 "type": "object",
                 "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
                 "properties": {
-                  "action": { "type": "string" },
+                  "action": { "type": "string", "enum": ["createNotification", "setActive", "deleteNotification"] },
                   "objectId": { "type": "integer" },
-                  "notification": { "type": "string" },
+                  "notification": {
+                    "type": "string",
+                    "enum": [
+                      "taskComplete",
+                      "agentError",
+                      "ownAgentError",
+                      "logError",
+                      "newTask",
+                      "newHashlist",
+                      "hashlistAllCracked",
+                      "hashlistCrackedHash",
+                      "userCreated",
+                      "userDeleted",
+                      "userLoginFailed",
+                      "logWarn",
+                      "logFatal",
+                      "newAgent",
+                      "deleteTask",
+                      "deleteHashlist",
+                      "deleteAgent"
+                    ]
+                  },
                   "userId": { "type": "integer" },
                   "receiver": { "type": "string" },
                   "isActive": { "type": "boolean" }
@@ -17797,7 +18153,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -17829,7 +18185,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -17842,9 +18202,30 @@
                 "type": "object",
                 "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
                 "properties": {
-                  "action": { "type": "string" },
+                  "action": { "type": "string", "enum": ["createNotification", "setActive", "deleteNotification"] },
                   "objectId": { "type": "integer" },
-                  "notification": { "type": "string" },
+                  "notification": {
+                    "type": "string",
+                    "enum": [
+                      "taskComplete",
+                      "agentError",
+                      "ownAgentError",
+                      "logError",
+                      "newTask",
+                      "newHashlist",
+                      "hashlistAllCracked",
+                      "hashlistCrackedHash",
+                      "userCreated",
+                      "userDeleted",
+                      "userLoginFailed",
+                      "logWarn",
+                      "logFatal",
+                      "newAgent",
+                      "deleteTask",
+                      "deleteHashlist",
+                      "deleteAgent"
+                    ]
+                  },
                   "userId": { "type": "integer" },
                   "receiver": { "type": "string" },
                   "isActive": { "type": "boolean" }
@@ -17863,7 +18244,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -17889,9 +18274,30 @@
                   "type": "object",
                   "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
                   "properties": {
-                    "action": { "type": "string" },
+                    "action": { "type": "string", "enum": ["createNotification", "setActive", "deleteNotification"] },
                     "objectId": { "type": "integer" },
-                    "notification": { "type": "string" },
+                    "notification": {
+                      "type": "string",
+                      "enum": [
+                        "taskComplete",
+                        "agentError",
+                        "ownAgentError",
+                        "logError",
+                        "newTask",
+                        "newHashlist",
+                        "hashlistAllCracked",
+                        "hashlistCrackedHash",
+                        "userCreated",
+                        "userDeleted",
+                        "userLoginFailed",
+                        "logWarn",
+                        "logFatal",
+                        "newAgent",
+                        "deleteTask",
+                        "deleteHashlist",
+                        "deleteAgent"
+                      ]
+                    },
                     "userId": { "type": "integer" },
                     "receiver": { "type": "string" },
                     "isActive": { "type": "boolean" }
@@ -17940,7 +18346,7 @@
                 "attributes": {
                   "type": "object",
                   "properties": {
-                    "userId": { "type": "integer" },
+                    "id": { "type": "integer" },
                     "name": { "type": "string" },
                     "email": { "type": "string" },
                     "passwordHash": { "type": "string" },
@@ -18003,7 +18409,8 @@
                   "keyspaceCommand": { "type": "string" },
                   "skipCommand": { "type": "string" },
                   "limitCommand": { "type": "string" }
-                }
+                },
+                "required": ["name", "url", "binaryName", "keyspaceCommand", "skipCommand", "limitCommand"]
               }
             }
           }
@@ -18042,7 +18449,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18089,7 +18500,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -18123,7 +18538,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18164,7 +18583,7 @@
           "included": { "type": "array", "items": { "type": "object", "properties": {} } }
         }
       },
-      "PretaskCreate": {
+      "PreTaskCreate": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -18172,7 +18591,7 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "pretask" },
+              "type": { "type": "string", "const": "preTask" },
               "attributes": {
                 "type": "object",
                 "properties": {
@@ -18189,13 +18608,28 @@
                   "maxAgents": { "type": "integer" },
                   "isMaskImport": { "type": "boolean" },
                   "crackerBinaryTypeId": { "type": "integer" }
-                }
+                },
+                "required": [
+                  "files",
+                  "taskName",
+                  "attackCmd",
+                  "chunkTime",
+                  "statusTimer",
+                  "color",
+                  "isSmall",
+                  "isCpuTask",
+                  "useNewBench",
+                  "priority",
+                  "maxAgents",
+                  "isMaskImport",
+                  "crackerBinaryTypeId"
+                ]
               }
             }
           }
         }
       },
-      "PretaskPatch": {
+      "PreTaskPatch": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -18203,7 +18637,7 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "pretask" },
+              "type": { "type": "string", "const": "preTask" },
               "attributes": {
                 "type": "object",
                 "properties": {
@@ -18224,7 +18658,7 @@
           }
         }
       },
-      "PretaskResponse": {
+      "PreTaskResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -18233,7 +18667,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18252,7 +18690,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "pretask" },
+              "type": { "type": "string", "const": "preTask" },
               "attributes": {
                 "type": "object",
                 "required": [
@@ -18331,7 +18769,7 @@
                     "filename": { "type": "string" },
                     "size": { "type": "integer", "format": "int64" },
                     "isSecret": { "type": "boolean" },
-                    "fileType": { "type": "integer" },
+                    "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                     "accessGroupId": { "type": "integer" },
                     "lineCount": { "type": "integer", "format": "int64" }
                   }
@@ -18341,7 +18779,7 @@
           }
         }
       },
-      "PretaskPostPatchResponse": {
+      "PreTaskPostPatchResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -18350,7 +18788,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -18358,7 +18800,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "pretask" },
+              "type": { "type": "string", "const": "preTask" },
               "attributes": {
                 "type": "object",
                 "required": [
@@ -18395,7 +18837,7 @@
           }
         }
       },
-      "PretaskListResponse": {
+      "PreTaskListResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -18404,7 +18846,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18425,7 +18871,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretask" },
+                "type": { "type": "string", "const": "preTask" },
                 "attributes": {
                   "type": "object",
                   "required": [
@@ -18505,7 +18951,7 @@
                     "filename": { "type": "string" },
                     "size": { "type": "integer", "format": "int64" },
                     "isSecret": { "type": "boolean" },
-                    "fileType": { "type": "integer" },
+                    "fileType": { "type": "integer", "enum": [0, 1, 2, 100] },
                     "accessGroupId": { "type": "integer" },
                     "lineCount": { "type": "integer", "format": "int64" }
                   }
@@ -18515,7 +18961,7 @@
           }
         }
       },
-      "PretaskRelationPretaskFiles": {
+      "PreTaskRelationPretaskFiles": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -18532,7 +18978,7 @@
           }
         }
       },
-      "PretaskRelationPretaskFilesGetResponse": {
+      "PreTaskRelationPretaskFilesGetResponse": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -18558,7 +19004,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18696,7 +19146,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -18864,7 +19318,8 @@
                 "properties": {
                   "pretasks": { "type": "array", "items": { "type": "integer" } },
                   "supertaskName": { "type": "string" }
-                }
+                },
+                "required": ["pretasks", "supertaskName"]
               }
             }
           }
@@ -18893,7 +19348,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -19064,7 +19523,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -19091,7 +19554,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -19248,7 +19715,30 @@
                   "forcePipe": { "type": "boolean" },
                   "preprocessorId": { "type": "integer" },
                   "preprocessorCommand": { "type": "string" }
-                }
+                },
+                "required": [
+                  "hashlistId",
+                  "files",
+                  "taskName",
+                  "attackCmd",
+                  "chunkTime",
+                  "statusTimer",
+                  "priority",
+                  "maxAgents",
+                  "isSmall",
+                  "isCpuTask",
+                  "useNewBench",
+                  "skipKeyspace",
+                  "crackerBinaryId",
+                  "crackerBinaryTypeId",
+                  "isArchived",
+                  "notes",
+                  "staticChunks",
+                  "chunkSize",
+                  "forcePipe",
+                  "preprocessorId",
+                  "preprocessorCommand"
+                ]
               }
             }
           }
@@ -19292,7 +19782,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -19556,7 +20050,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -19639,7 +20137,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -19963,7 +20465,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -20392,7 +20898,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -20437,7 +20947,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -20704,7 +21218,8 @@
                   "name": { "type": "string" },
                   "email": { "type": "string" },
                   "globalPermissionGroupId": { "type": "integer" }
-                }
+                },
+                "required": ["name", "email", "globalPermissionGroupId"]
               }
             }
           }
@@ -20741,7 +21256,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -20879,7 +21398,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -20934,7 +21457,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -21100,7 +21627,7 @@
           }
         }
       },
-      "RegVoucherCreate": {
+      "VoucherCreate": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -21108,13 +21635,17 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "regVoucher" },
-              "attributes": { "type": "object", "properties": { "voucher": { "type": "string" } } }
+              "type": { "type": "string", "const": "voucher" },
+              "attributes": {
+                "type": "object",
+                "properties": { "voucher": { "type": "string" } },
+                "required": ["voucher"]
+              }
             }
           }
         }
       },
-      "RegVoucherPatch": {
+      "VoucherPatch": {
         "type": "object",
         "required": ["data"],
         "properties": {
@@ -21122,13 +21653,13 @@
             "type": "object",
             "required": ["type", "attributes"],
             "properties": {
-              "type": { "type": "string", "const": "regVoucher" },
+              "type": { "type": "string", "const": "voucher" },
               "attributes": { "type": "object", "properties": { "voucher": { "type": "string" } } }
             }
           }
         }
       },
-      "RegVoucherResponse": {
+      "VoucherResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -21137,7 +21668,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -21156,7 +21691,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "regVoucher" },
+              "type": { "type": "string", "const": "voucher" },
               "attributes": {
                 "type": "object",
                 "required": ["voucher", "time"],
@@ -21168,7 +21703,7 @@
           "included": { "type": "array", "items": { "type": "object", "properties": {} } }
         }
       },
-      "RegVoucherPostPatchResponse": {
+      "VoucherPostPatchResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -21177,7 +21712,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "data": {
@@ -21185,7 +21724,7 @@
             "required": ["id", "type", "attributes"],
             "properties": {
               "id": { "type": "integer" },
-              "type": { "type": "string", "const": "regVoucher" },
+              "type": { "type": "string", "const": "voucher" },
               "attributes": {
                 "type": "object",
                 "required": ["voucher", "time"],
@@ -21195,7 +21734,7 @@
           }
         }
       },
-      "RegVoucherListResponse": {
+      "VoucherListResponse": {
         "type": "object",
         "required": ["jsonapi", "data"],
         "properties": {
@@ -21204,7 +21743,11 @@
             "required": ["version"],
             "properties": {
               "version": { "type": "string", "default": "1.1" },
-              "ext": { "type": "string", "default": "https://jsonapi.org/profiles/ethanresnick/cursor-pagination" }
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
             }
           },
           "links": {
@@ -21225,7 +21768,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "regVoucher" },
+                "type": { "type": "string", "const": "voucher" },
                 "attributes": {
                   "type": "object",
                   "required": ["voucher", "time"],
@@ -21483,35 +22026,35 @@
   },
   "tags": [
     { "name": "AccessGroups" },
+    { "name": "AgentAssignments" },
     { "name": "AgentBinarys" },
     { "name": "AgentErrors" },
     { "name": "AgentStats" },
     { "name": "Agents" },
-    { "name": "Assignments" },
+    { "name": "ApiTokens" },
     { "name": "Chunks" },
     { "name": "ConfigSections" },
     { "name": "Configs" },
     { "name": "CrackerBinaryTypes" },
     { "name": "CrackerBinarys" },
     { "name": "Files" },
+    { "name": "GlobalPermissionGroups" },
     { "name": "HashTypes" },
     { "name": "Hashlists" },
     { "name": "Hashs" },
     { "name": "HealthCheckAgents" },
     { "name": "HealthChecks" },
     { "name": "Helpers" },
-    { "name": "JwtApiKeys" },
     { "name": "LogEntrys" },
     { "name": "Login" },
     { "name": "NotificationSettings" },
+    { "name": "PreTasks" },
     { "name": "Preprocessors" },
-    { "name": "Pretasks" },
-    { "name": "RegVouchers" },
-    { "name": "RightGroups" },
     { "name": "Speeds" },
     { "name": "Supertasks" },
     { "name": "TaskWrappers" },
     { "name": "Tasks" },
-    { "name": "Users" }
+    { "name": "Users" },
+    { "name": "Vouchers" }
   ]
 }

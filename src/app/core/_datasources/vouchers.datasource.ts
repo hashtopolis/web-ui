@@ -8,7 +8,7 @@ import { JVoucher } from '@src/app/core/_models/voucher.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-import { zRegVoucherListResponse } from '@generated/api/zod.gen';
+import { zVoucherListResponse } from '@generated/api/zod.gen';
 
 export class VouchersDataSource extends BaseDataSource<JVoucher> {
   loadAll(query?: Filter): void {
@@ -26,7 +26,7 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const vouchers: JVoucher[] = this.serializer.deserialize(response, zRegVoucherListResponse);
+          const vouchers: JVoucher[] = this.serializer.deserialize(response, zVoucherListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

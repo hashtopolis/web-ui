@@ -186,7 +186,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
+      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -209,7 +209,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
+        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
         this.showagent = agent;
         this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
         return;
@@ -247,7 +247,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   private loadSelectUsers(): void {
     const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
       this.selectUsers = transformSelectOptions(
-        this.serializer.deserialize(response, zUserListResponse) as JUser[],
+        this.serializer.deserialize(response, zUserListResponse),
         DEFAULT_FIELD_MAPPING
       );
     });

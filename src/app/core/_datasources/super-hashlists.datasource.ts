@@ -52,7 +52,7 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const superHashlists: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse) as JHashlist[];
+          const superHashlists: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
 
           const rows: JHashlist[] = [];
           superHashlists.forEach((superHashlist) => {

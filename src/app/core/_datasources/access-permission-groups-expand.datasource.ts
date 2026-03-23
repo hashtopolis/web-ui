@@ -9,7 +9,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { zRightGroupResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
 
 export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | UserPermissions> {
   private _accesspermgroupId = 0;
@@ -41,12 +41,12 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(response, zRightGroupResponse) as JGlobalPermissionGroup;
+          const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(response, zGlobalPermissionGroupResponse) as JGlobalPermissionGroup;
           let data: (UserPermissions | JUser)[];
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
-            data = globalPermissionGroup.userMembers as JUser[];
+            data = globalPermissionGroup.userMembers;
           }
           this.setData(data);
         })

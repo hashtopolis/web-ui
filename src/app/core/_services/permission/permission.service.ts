@@ -10,7 +10,7 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { zRightGroupResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
 
 import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
@@ -46,7 +46,7 @@ export class PermissionService {
     return this.gs.ghelper(SERV.HELPER, 'getUserPermission').pipe(
       take(1),
       map((response: ResponseWrapper) => {
-        const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(response, zRightGroupResponse) as JGlobalPermissionGroup;
+        const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(response, zGlobalPermissionGroupResponse);
         const permissions = globalPermissionGroup.permissions;
 
         this.currentPermissions = permissions;

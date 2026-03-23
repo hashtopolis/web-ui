@@ -35,7 +35,7 @@ import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
-import { zAgentListResponse, zAssignmentListResponse, zHashTypeResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod.gen';
+import { zAgentAssignmentListResponse, zAgentListResponse, zHashTypeResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -256,7 +256,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      return this.serializer.deserialize(response, zTaskResponse) as JTask;
+      return this.serializer.deserialize(response, zTaskResponse);
     } catch (err: unknown) {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
@@ -264,7 +264,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        return this.serializer.deserialize(responseFallback, zTaskResponse) as JTask;
+        return this.serializer.deserialize(responseFallback, zTaskResponse);
       }
       throw err;
     }
@@ -362,7 +362,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(responseAssignments, zAssignmentListResponse);
+      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(responseAssignments, zAgentAssignmentListResponse);
       const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
         (agentAssignment) => agentAssignment.agentId
       );

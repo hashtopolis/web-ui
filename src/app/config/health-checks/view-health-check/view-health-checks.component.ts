@@ -80,7 +80,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
-        this.healthc = new JsonAPISerializer().deserialize(response, zHealthCheckResponse) as JHealthCheck;
+        this.healthc = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
       });
     this.unsubscribeService.add(loadSubscription$);
   }

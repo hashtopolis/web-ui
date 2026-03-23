@@ -25,7 +25,7 @@ export type AccessGroupCreate = {
     data: {
         type: 'accessGroup';
         attributes: {
-            groupName?: string;
+            groupName: string;
         };
     };
 };
@@ -42,7 +42,7 @@ export type AccessGroupPatch = {
 export type AccessGroupResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -87,7 +87,7 @@ export type AccessGroupResponse = {
             agentId?: number;
             agentName?: string;
             uid?: string;
-            os?: number;
+            os?: 0 | 1 | 2;
             devices?: string;
             cmdPars?: string;
             ignoreErrors?: 0 | 1 | 2;
@@ -107,7 +107,7 @@ export type AccessGroupResponse = {
 export type AccessGroupPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -121,7 +121,7 @@ export type AccessGroupPostPatchResponse = {
 export type AccessGroupListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -166,7 +166,7 @@ export type AccessGroupListResponse = {
             agentId?: number;
             agentName?: string;
             uid?: string;
-            os?: number;
+            os?: 0 | 1 | 2;
             devices?: string;
             cmdPars?: string;
             ignoreErrors?: 0 | 1 | 2;
@@ -207,7 +207,7 @@ export type AgentPatch = {
             ignoreErrors?: 0 | 1 | 2;
             isActive?: boolean;
             isTrusted?: boolean;
-            os?: number;
+            os?: 0 | 1 | 2;
             uid?: string;
             userId?: number;
         };
@@ -217,7 +217,7 @@ export type AgentPatch = {
 export type AgentResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -232,7 +232,7 @@ export type AgentResponse = {
         attributes: {
             agentName: string;
             uid: string;
-            os: number;
+            os: 0 | 1 | 2;
             devices: string;
             cmdPars: string;
             ignoreErrors: 0 | 1 | 2;
@@ -334,7 +334,7 @@ export type AgentResponse = {
 export type AgentPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -342,7 +342,7 @@ export type AgentPostPatchResponse = {
         attributes: {
             agentName: string;
             uid: string;
-            os: number;
+            os: 0 | 1 | 2;
             devices: string;
             cmdPars: string;
             ignoreErrors: 0 | 1 | 2;
@@ -362,7 +362,7 @@ export type AgentPostPatchResponse = {
 export type AgentListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -377,7 +377,7 @@ export type AgentListResponse = {
         attributes: {
             agentName: string;
             uid: string;
-            os: number;
+            os: 0 | 1 | 2;
             devices: string;
             cmdPars: string;
             ignoreErrors: 0 | 1 | 2;
@@ -490,30 +490,30 @@ export type AgentRelationAssignmentsGetResponse = {
     }>;
 };
 
-export type AssignmentCreate = {
+export type AgentAssignmentCreate = {
     data: {
-        type: 'assignment';
+        type: 'agentAssignment';
         attributes: {
-            taskId?: number;
-            agentId?: number;
+            taskId: number;
+            agentId: number;
             benchmark?: string;
         };
     };
 };
 
-export type AssignmentPatch = {
+export type AgentAssignmentPatch = {
     data: {
-        type: 'assignment';
+        type: 'agentAssignment';
         attributes: {
             benchmark?: string;
         };
     };
 };
 
-export type AssignmentResponse = {
+export type AgentAssignmentResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -524,7 +524,7 @@ export type AssignmentResponse = {
     };
     data: {
         id: number;
-        type: 'assignment';
+        type: 'agentAssignment';
         attributes: {
             taskId: number;
             agentId: number;
@@ -587,14 +587,14 @@ export type AssignmentResponse = {
     }>;
 };
 
-export type AssignmentPostPatchResponse = {
+export type AgentAssignmentPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
-        type: 'assignment';
+        type: 'agentAssignment';
         attributes: {
             taskId: number;
             agentId: number;
@@ -603,10 +603,10 @@ export type AssignmentPostPatchResponse = {
     };
 };
 
-export type AssignmentListResponse = {
+export type AgentAssignmentListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -617,7 +617,7 @@ export type AssignmentListResponse = {
     };
     data: Array<{
         id: number;
-        type: 'assignment';
+        type: 'agentAssignment';
         attributes: {
             taskId: number;
             agentId: number;
@@ -680,14 +680,14 @@ export type AssignmentListResponse = {
     }>;
 };
 
-export type AssignmentRelationTask = {
+export type AgentAssignmentRelationTask = {
     data: {
         type: 'task';
         id: number;
     };
 };
 
-export type AssignmentRelationTaskGetResponse = {
+export type AgentAssignmentRelationTaskGetResponse = {
     data: {
         type: 'task';
         id: number;
@@ -698,11 +698,11 @@ export type AgentBinaryCreate = {
     data: {
         type: 'agentBinary';
         attributes: {
-            binaryType?: string;
-            version?: string;
-            operatingSystems?: string;
-            filename?: string;
-            updateTrack?: string;
+            binaryType: string;
+            version: string;
+            operatingSystems: string;
+            filename: string;
+            updateTrack: string;
         };
     };
 };
@@ -723,7 +723,7 @@ export type AgentBinaryPatch = {
 export type AgentBinaryResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -755,7 +755,7 @@ export type AgentBinaryResponse = {
 export type AgentBinaryPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -774,7 +774,7 @@ export type AgentBinaryPostPatchResponse = {
 export type AgentBinaryListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -806,7 +806,7 @@ export type AgentBinaryListResponse = {
 export type AgentErrorResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -875,7 +875,7 @@ export type AgentErrorResponse = {
 export type AgentErrorListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -958,7 +958,7 @@ export type AgentErrorRelationTaskGetResponse = {
 export type AgentStatResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -972,7 +972,7 @@ export type AgentStatResponse = {
         type: 'agentStat';
         attributes: {
             agentId: number;
-            statType: number;
+            statType: 1 | 2 | 3;
             time: number;
             value: Array<number>;
         };
@@ -988,7 +988,7 @@ export type AgentStatResponse = {
 export type AgentStatListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1002,7 +1002,7 @@ export type AgentStatListResponse = {
         type: 'agentStat';
         attributes: {
             agentId: number;
-            statType: number;
+            statType: 1 | 2 | 3;
             time: number;
             value: Array<number>;
         };
@@ -1015,32 +1015,32 @@ export type AgentStatListResponse = {
     }>;
 };
 
-export type JwtApiKeyCreate = {
+export type ApiTokenCreate = {
     data: {
-        type: 'jwtApiKey';
+        type: 'apiToken';
         attributes: {
-            scopes?: Array<number>;
-            startValid?: number;
-            endValid?: number;
-            userId?: number;
+            scopes: Array<number>;
+            startValid: number;
+            endValid: number;
+            userId: number;
+            isRevoked: boolean;
+        };
+    };
+};
+
+export type ApiTokenPatch = {
+    data: {
+        type: 'apiToken';
+        attributes: {
             isRevoked?: boolean;
         };
     };
 };
 
-export type JwtApiKeyPatch = {
-    data: {
-        type: 'jwtApiKey';
-        attributes: {
-            isRevoked?: boolean;
-        };
-    };
-};
-
-export type JwtApiKeyResponse = {
+export type ApiTokenResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1051,7 +1051,7 @@ export type JwtApiKeyResponse = {
     };
     data: {
         id: number;
-        type: 'jwtApiKey';
+        type: 'apiToken';
         attributes: {
             startValid: number;
             endValid: number;
@@ -1076,7 +1076,7 @@ export type JwtApiKeyResponse = {
         id?: number;
         type?: 'user';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -1096,14 +1096,14 @@ export type JwtApiKeyResponse = {
     }>;
 };
 
-export type JwtApiKeyPostPatchResponse = {
+export type ApiTokenPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
-        type: 'jwtApiKey';
+        type: 'apiToken';
         attributes: {
             startValid: number;
             endValid: number;
@@ -1114,10 +1114,10 @@ export type JwtApiKeyPostPatchResponse = {
     };
 };
 
-export type JwtApiKeyListResponse = {
+export type ApiTokenListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1128,7 +1128,7 @@ export type JwtApiKeyListResponse = {
     };
     data: Array<{
         id: number;
-        type: 'jwtApiKey';
+        type: 'apiToken';
         attributes: {
             startValid: number;
             endValid: number;
@@ -1153,7 +1153,7 @@ export type JwtApiKeyListResponse = {
         id?: number;
         type?: 'user';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -1173,14 +1173,14 @@ export type JwtApiKeyListResponse = {
     }>;
 };
 
-export type JwtApiKeyRelationUser = {
+export type ApiTokenRelationUser = {
     data: {
         type: 'user';
         id: number;
     };
 };
 
-export type JwtApiKeyRelationUserGetResponse = {
+export type ApiTokenRelationUserGetResponse = {
     data: {
         type: 'user';
         id: number;
@@ -1190,7 +1190,7 @@ export type JwtApiKeyRelationUserGetResponse = {
 export type ChunkResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1211,7 +1211,7 @@ export type ChunkResponse = {
             solveTime: number;
             checkpoint: number;
             progress: number;
-            state: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
             cracked: number;
             speed: number;
         };
@@ -1275,7 +1275,7 @@ export type ChunkResponse = {
 export type ChunkListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1296,7 +1296,7 @@ export type ChunkListResponse = {
             solveTime: number;
             checkpoint: number;
             progress: number;
-            state: number;
+            state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
             cracked: number;
             speed: number;
         };
@@ -1384,7 +1384,7 @@ export type ConfigPatch = {
 export type ConfigResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1427,7 +1427,7 @@ export type ConfigResponse = {
 export type ConfigPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -1443,7 +1443,7 @@ export type ConfigPostPatchResponse = {
 export type ConfigListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1500,7 +1500,7 @@ export type ConfigRelationConfigSectionGetResponse = {
 export type ConfigSectionResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1527,7 +1527,7 @@ export type ConfigSectionResponse = {
 export type ConfigSectionListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1555,10 +1555,10 @@ export type CrackerBinaryCreate = {
     data: {
         type: 'crackerBinary';
         attributes: {
-            crackerBinaryTypeId?: number;
-            version?: string;
-            downloadUrl?: string;
-            binaryName?: string;
+            crackerBinaryTypeId: number;
+            version: string;
+            downloadUrl: string;
+            binaryName: string;
         };
     };
 };
@@ -1577,7 +1577,7 @@ export type CrackerBinaryPatch = {
 export type CrackerBinaryResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1655,7 +1655,7 @@ export type CrackerBinaryResponse = {
 export type CrackerBinaryPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -1672,7 +1672,7 @@ export type CrackerBinaryPostPatchResponse = {
 export type CrackerBinaryListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1765,7 +1765,7 @@ export type CrackerBinaryTypeCreate = {
     data: {
         type: 'crackerBinaryType';
         attributes: {
-            typeName?: string;
+            typeName: string;
         };
     };
 };
@@ -1783,7 +1783,7 @@ export type CrackerBinaryTypePatch = {
 export type CrackerBinaryTypeResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1859,7 +1859,7 @@ export type CrackerBinaryTypeResponse = {
 export type CrackerBinaryTypePostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -1874,7 +1874,7 @@ export type CrackerBinaryTypePostPatchResponse = {
 export type CrackerBinaryTypeListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -1965,12 +1965,12 @@ export type FileCreate = {
     data: {
         type: 'file';
         attributes: {
-            sourceType?: string;
-            sourceData?: string;
-            filename?: string;
-            isSecret?: boolean;
-            fileType?: number;
-            accessGroupId?: number;
+            sourceType: string;
+            sourceData: string;
+            filename: string;
+            isSecret: boolean;
+            fileType: 0 | 1 | 2 | 100;
+            accessGroupId: number;
         };
     };
 };
@@ -1980,7 +1980,7 @@ export type FilePatch = {
         type: 'file';
         attributes: {
             accessGroupId?: number;
-            fileType?: number;
+            fileType?: 0 | 1 | 2 | 100;
             filename?: string;
             isSecret?: boolean;
         };
@@ -1990,7 +1990,7 @@ export type FilePatch = {
 export type FileResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2006,7 +2006,7 @@ export type FileResponse = {
             filename: string;
             size: number;
             isSecret: boolean;
-            fileType: number;
+            fileType: 0 | 1 | 2 | 100;
             accessGroupId: number;
             lineCount: number;
         };
@@ -2041,7 +2041,7 @@ export type FileSingleResponse = {
             filename: string;
             size: number;
             isSecret: boolean;
-            fileType: number;
+            fileType: 0 | 1 | 2 | 100;
             accessGroupId: number;
             lineCount: number;
         };
@@ -2071,7 +2071,7 @@ export type FileSingleResponse = {
 export type FilePostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -2080,7 +2080,7 @@ export type FilePostPatchResponse = {
             filename: string;
             size: number;
             isSecret: boolean;
-            fileType: number;
+            fileType: 0 | 1 | 2 | 100;
             accessGroupId: number;
             lineCount: number;
         };
@@ -2090,7 +2090,7 @@ export type FilePostPatchResponse = {
 export type FileListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2106,7 +2106,7 @@ export type FileListResponse = {
             filename: string;
             size: number;
             isSecret: boolean;
-            fileType: number;
+            fileType: 0 | 1 | 2 | 100;
             accessGroupId: number;
             lineCount: number;
         };
@@ -2147,34 +2147,34 @@ export type FileRelationAccessGroupGetResponse = {
     };
 };
 
-export type RightGroupCreate = {
+export type GlobalPermissionGroupCreate = {
     data: {
-        type: 'rightGroup';
+        type: 'globalPermissionGroup';
         attributes: {
-            name?: string;
+            name: string;
             permissions?: {
-                [key: string]: unknown;
+                [key: string]: boolean;
             };
         };
     };
 };
 
-export type RightGroupPatch = {
+export type GlobalPermissionGroupPatch = {
     data: {
-        type: 'rightGroup';
+        type: 'globalPermissionGroup';
         attributes: {
             name?: string;
             permissions?: {
-                [key: string]: unknown;
+                [key: string]: boolean;
             };
         };
     };
 };
 
-export type RightGroupResponse = {
+export type GlobalPermissionGroupResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2185,11 +2185,11 @@ export type RightGroupResponse = {
     };
     data: {
         id: number;
-        type: 'rightGroup';
+        type: 'globalPermissionGroup';
         attributes: {
             name: string;
             permissions: {
-                [key: string]: unknown;
+                [key: string]: boolean;
             };
         };
     };
@@ -2209,7 +2209,7 @@ export type RightGroupResponse = {
         id?: number;
         type?: 'userMembers';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -2229,27 +2229,27 @@ export type RightGroupResponse = {
     }>;
 };
 
-export type RightGroupPostPatchResponse = {
+export type GlobalPermissionGroupPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
-        type: 'rightGroup';
+        type: 'globalPermissionGroup';
         attributes: {
             name: string;
             permissions: {
-                [key: string]: unknown;
+                [key: string]: boolean;
             };
         };
     };
 };
 
-export type RightGroupListResponse = {
+export type GlobalPermissionGroupListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2260,11 +2260,11 @@ export type RightGroupListResponse = {
     };
     data: Array<{
         id: number;
-        type: 'rightGroup';
+        type: 'globalPermissionGroup';
         attributes: {
             name: string;
             permissions: {
-                [key: string]: unknown;
+                [key: string]: boolean;
             };
         };
     }>;
@@ -2284,7 +2284,7 @@ export type RightGroupListResponse = {
         id?: number;
         type?: 'userMembers';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -2304,14 +2304,14 @@ export type RightGroupListResponse = {
     }>;
 };
 
-export type RightGroupRelationUserMembers = {
+export type GlobalPermissionGroupRelationUserMembers = {
     data: Array<{
         type: 'userMembers';
         id: number;
     }>;
 };
 
-export type RightGroupRelationUserMembersGetResponse = {
+export type GlobalPermissionGroupRelationUserMembersGetResponse = {
     data: Array<{
         type: 'userMembers';
         id: number;
@@ -2321,7 +2321,7 @@ export type RightGroupRelationUserMembersGetResponse = {
 export type HashResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2395,7 +2395,7 @@ export type HashResponse = {
 export type HashListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2485,21 +2485,21 @@ export type HashlistCreate = {
         type: 'hashlist';
         attributes: {
             hashlistSeperator?: string;
-            sourceType?: string;
-            sourceData?: string;
-            name?: string;
-            format?: 0 | 1 | 2 | 3;
-            hashTypeId?: number;
-            hashCount?: number;
+            sourceType: string;
+            sourceData: string;
+            name: string;
+            format: 0 | 1 | 2 | 3;
+            hashTypeId: number;
+            hashCount: number;
             separator?: string;
-            isSecret?: boolean;
-            isHexSalt?: boolean;
-            isSalted?: boolean;
-            accessGroupId?: number;
-            notes?: string;
-            useBrain?: boolean;
-            brainFeatures?: number;
-            isArchived?: boolean;
+            isSecret: boolean;
+            isHexSalt: boolean;
+            isSalted: boolean;
+            accessGroupId: number;
+            notes: string;
+            useBrain: boolean;
+            brainFeatures: number;
+            isArchived: boolean;
         };
     };
 };
@@ -2520,7 +2520,7 @@ export type HashlistPatch = {
 export type HashlistResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2745,7 +2745,7 @@ export type HashlistSingleResponse = {
 export type HashlistPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -2772,7 +2772,7 @@ export type HashlistPostPatchResponse = {
 export type HashlistListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2905,10 +2905,10 @@ export type HashTypeCreate = {
     data: {
         type: 'hashType';
         attributes: {
-            hashTypeId?: number;
-            description?: string;
-            isSalted?: boolean;
-            isSlowHash?: boolean;
+            hashTypeId: number;
+            description: string;
+            isSalted: boolean;
+            isSlowHash: boolean;
         };
     };
 };
@@ -2927,7 +2927,7 @@ export type HashTypePatch = {
 export type HashTypeResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -2956,7 +2956,7 @@ export type HashTypeResponse = {
 export type HashTypePostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -2972,7 +2972,7 @@ export type HashTypePostPatchResponse = {
 export type HashTypeListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3001,7 +3001,7 @@ export type HashTypeListResponse = {
 export type HealthCheckAgentResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3016,7 +3016,7 @@ export type HealthCheckAgentResponse = {
         attributes: {
             healthCheckId: number;
             agentId: number;
-            status: number;
+            status: -1 | 0 | 1;
             cracked: number;
             numGpus: number;
             start: number;
@@ -3052,8 +3052,8 @@ export type HealthCheckAgentResponse = {
         attributes?: {
             healthCheckId?: number;
             time?: number;
-            status?: number;
-            checkType?: number;
+            status?: -1 | 0 | 1;
+            checkType?: 0 | 3200;
             hashtypeId?: number;
             crackerBinaryId?: number;
             expectedCracks?: number;
@@ -3065,7 +3065,7 @@ export type HealthCheckAgentResponse = {
 export type HealthCheckAgentListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3080,7 +3080,7 @@ export type HealthCheckAgentListResponse = {
         attributes: {
             healthCheckId: number;
             agentId: number;
-            status: number;
+            status: -1 | 0 | 1;
             cracked: number;
             numGpus: number;
             start: number;
@@ -3116,8 +3116,8 @@ export type HealthCheckAgentListResponse = {
         attributes?: {
             healthCheckId?: number;
             time?: number;
-            status?: number;
-            checkType?: number;
+            status?: -1 | 0 | 1;
+            checkType?: 0 | 3200;
             hashtypeId?: number;
             crackerBinaryId?: number;
             expectedCracks?: number;
@@ -3144,9 +3144,9 @@ export type HealthCheckCreate = {
     data: {
         type: 'healthCheck';
         attributes: {
-            checkType?: number;
-            hashtypeId?: number;
-            crackerBinaryId?: number;
+            checkType: 0 | 3200;
+            hashtypeId: number;
+            crackerBinaryId: number;
         };
     };
 };
@@ -3155,7 +3155,7 @@ export type HealthCheckPatch = {
     data: {
         type: 'healthCheck';
         attributes: {
-            checkType?: number;
+            checkType?: 0 | 3200;
         };
     };
 };
@@ -3163,7 +3163,7 @@ export type HealthCheckPatch = {
 export type HealthCheckResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3177,8 +3177,8 @@ export type HealthCheckResponse = {
         type: 'healthCheck';
         attributes: {
             time: number;
-            status: number;
-            checkType: number;
+            status: -1 | 0 | 1;
+            checkType: 0 | 3200;
             hashtypeId: number;
             crackerBinaryId: number;
             expectedCracks: number;
@@ -3224,7 +3224,7 @@ export type HealthCheckResponse = {
             healthCheckAgentId?: number;
             healthCheckId?: number;
             agentId?: number;
-            status?: number;
+            status?: -1 | 0 | 1;
             cracked?: number;
             numGpus?: number;
             start?: number;
@@ -3237,15 +3237,15 @@ export type HealthCheckResponse = {
 export type HealthCheckPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
         type: 'healthCheck';
         attributes: {
             time: number;
-            status: number;
-            checkType: number;
+            status: -1 | 0 | 1;
+            checkType: 0 | 3200;
             hashtypeId: number;
             crackerBinaryId: number;
             expectedCracks: number;
@@ -3257,7 +3257,7 @@ export type HealthCheckPostPatchResponse = {
 export type HealthCheckListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3271,8 +3271,8 @@ export type HealthCheckListResponse = {
         type: 'healthCheck';
         attributes: {
             time: number;
-            status: number;
-            checkType: number;
+            status: -1 | 0 | 1;
+            checkType: 0 | 3200;
             hashtypeId: number;
             crackerBinaryId: number;
             expectedCracks: number;
@@ -3318,7 +3318,7 @@ export type HealthCheckListResponse = {
             healthCheckAgentId?: number;
             healthCheckId?: number;
             agentId?: number;
-            status?: number;
+            status?: -1 | 0 | 1;
             cracked?: number;
             numGpus?: number;
             start?: number;
@@ -3363,7 +3363,7 @@ export type LogEntryPatch = {
 export type LogEntryResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3376,9 +3376,9 @@ export type LogEntryResponse = {
         id: number;
         type: 'logEntry';
         attributes: {
-            issuer: string;
+            issuer: 'API' | 'User';
             issuerId: string;
-            level: string;
+            level: 'warning' | 'error' | 'fatal error' | 'information';
             message: string;
             time: number;
         };
@@ -3394,15 +3394,15 @@ export type LogEntryResponse = {
 export type LogEntryPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
         type: 'logEntry';
         attributes: {
-            issuer: string;
+            issuer: 'API' | 'User';
             issuerId: string;
-            level: string;
+            level: 'warning' | 'error' | 'fatal error' | 'information';
             message: string;
             time: number;
         };
@@ -3412,7 +3412,7 @@ export type LogEntryPostPatchResponse = {
 export type LogEntryListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3425,9 +3425,9 @@ export type LogEntryListResponse = {
         id: number;
         type: 'logEntry';
         attributes: {
-            issuer: string;
+            issuer: 'API' | 'User';
             issuerId: string;
-            level: string;
+            level: 'warning' | 'error' | 'fatal error' | 'information';
             message: string;
             time: number;
         };
@@ -3444,10 +3444,10 @@ export type NotificationSettingCreate = {
     data: {
         type: 'notificationSetting';
         attributes: {
-            actionFilter?: string;
-            action?: string;
-            notification?: string;
-            receiver?: string;
+            actionFilter: string;
+            action: 'createNotification' | 'setActive' | 'deleteNotification';
+            notification: 'taskComplete' | 'agentError' | 'ownAgentError' | 'logError' | 'newTask' | 'newHashlist' | 'hashlistAllCracked' | 'hashlistCrackedHash' | 'userCreated' | 'userDeleted' | 'userLoginFailed' | 'logWarn' | 'logFatal' | 'newAgent' | 'deleteTask' | 'deleteHashlist' | 'deleteAgent';
+            receiver: string;
         };
     };
 };
@@ -3456,9 +3456,9 @@ export type NotificationSettingPatch = {
     data: {
         type: 'notificationSetting';
         attributes: {
-            action?: string;
+            action?: 'createNotification' | 'setActive' | 'deleteNotification';
             isActive?: boolean;
-            notification?: string;
+            notification?: 'taskComplete' | 'agentError' | 'ownAgentError' | 'logError' | 'newTask' | 'newHashlist' | 'hashlistAllCracked' | 'hashlistCrackedHash' | 'userCreated' | 'userDeleted' | 'userLoginFailed' | 'logWarn' | 'logFatal' | 'newAgent' | 'deleteTask' | 'deleteHashlist' | 'deleteAgent';
             receiver?: string;
         };
     };
@@ -3467,7 +3467,7 @@ export type NotificationSettingPatch = {
 export type NotificationSettingResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3480,9 +3480,9 @@ export type NotificationSettingResponse = {
         id: number;
         type: 'notificationSetting';
         attributes: {
-            action: string;
+            action: 'createNotification' | 'setActive' | 'deleteNotification';
             objectId: number;
-            notification: string;
+            notification: 'taskComplete' | 'agentError' | 'ownAgentError' | 'logError' | 'newTask' | 'newHashlist' | 'hashlistAllCracked' | 'hashlistCrackedHash' | 'userCreated' | 'userDeleted' | 'userLoginFailed' | 'logWarn' | 'logFatal' | 'newAgent' | 'deleteTask' | 'deleteHashlist' | 'deleteAgent';
             userId: number;
             receiver: string;
             isActive: boolean;
@@ -3504,7 +3504,7 @@ export type NotificationSettingResponse = {
         id?: number;
         type?: 'user';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -3527,15 +3527,15 @@ export type NotificationSettingResponse = {
 export type NotificationSettingPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
         type: 'notificationSetting';
         attributes: {
-            action: string;
+            action: 'createNotification' | 'setActive' | 'deleteNotification';
             objectId: number;
-            notification: string;
+            notification: 'taskComplete' | 'agentError' | 'ownAgentError' | 'logError' | 'newTask' | 'newHashlist' | 'hashlistAllCracked' | 'hashlistCrackedHash' | 'userCreated' | 'userDeleted' | 'userLoginFailed' | 'logWarn' | 'logFatal' | 'newAgent' | 'deleteTask' | 'deleteHashlist' | 'deleteAgent';
             userId: number;
             receiver: string;
             isActive: boolean;
@@ -3546,7 +3546,7 @@ export type NotificationSettingPostPatchResponse = {
 export type NotificationSettingListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3559,9 +3559,9 @@ export type NotificationSettingListResponse = {
         id: number;
         type: 'notificationSetting';
         attributes: {
-            action: string;
+            action: 'createNotification' | 'setActive' | 'deleteNotification';
             objectId: number;
-            notification: string;
+            notification: 'taskComplete' | 'agentError' | 'ownAgentError' | 'logError' | 'newTask' | 'newHashlist' | 'hashlistAllCracked' | 'hashlistCrackedHash' | 'userCreated' | 'userDeleted' | 'userLoginFailed' | 'logWarn' | 'logFatal' | 'newAgent' | 'deleteTask' | 'deleteHashlist' | 'deleteAgent';
             userId: number;
             receiver: string;
             isActive: boolean;
@@ -3583,7 +3583,7 @@ export type NotificationSettingListResponse = {
         id?: number;
         type?: 'user';
         attributes?: {
-            userId?: number;
+            id?: number;
             name?: string;
             email?: string;
             passwordHash?: string;
@@ -3621,12 +3621,12 @@ export type PreprocessorCreate = {
     data: {
         type: 'preprocessor';
         attributes: {
-            name?: string;
-            url?: string;
-            binaryName?: string;
-            keyspaceCommand?: string;
-            skipCommand?: string;
-            limitCommand?: string;
+            name: string;
+            url: string;
+            binaryName: string;
+            keyspaceCommand: string;
+            skipCommand: string;
+            limitCommand: string;
         };
     };
 };
@@ -3648,7 +3648,7 @@ export type PreprocessorPatch = {
 export type PreprocessorResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3680,7 +3680,7 @@ export type PreprocessorResponse = {
 export type PreprocessorPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -3699,7 +3699,7 @@ export type PreprocessorPostPatchResponse = {
 export type PreprocessorListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3728,30 +3728,30 @@ export type PreprocessorListResponse = {
     }>;
 };
 
-export type PretaskCreate = {
+export type PreTaskCreate = {
     data: {
-        type: 'pretask';
+        type: 'preTask';
         attributes: {
-            files?: Array<number>;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            priority?: number;
-            maxAgents?: number;
-            isMaskImport?: boolean;
-            crackerBinaryTypeId?: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            color: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            priority: number;
+            maxAgents: number;
+            isMaskImport: boolean;
+            crackerBinaryTypeId: number;
         };
     };
 };
 
-export type PretaskPatch = {
+export type PreTaskPatch = {
     data: {
-        type: 'pretask';
+        type: 'preTask';
         attributes: {
             attackCmd?: string;
             chunkTime?: number;
@@ -3768,10 +3768,10 @@ export type PretaskPatch = {
     };
 };
 
-export type PretaskResponse = {
+export type PreTaskResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3782,7 +3782,7 @@ export type PretaskResponse = {
     };
     data: {
         id: number;
-        type: 'pretask';
+        type: 'preTask';
         attributes: {
             taskName: string;
             attackCmd: string;
@@ -3821,21 +3821,21 @@ export type PretaskResponse = {
             filename?: string;
             size?: number;
             isSecret?: boolean;
-            fileType?: number;
+            fileType?: 0 | 1 | 2 | 100;
             accessGroupId?: number;
             lineCount?: number;
         };
     }>;
 };
 
-export type PretaskPostPatchResponse = {
+export type PreTaskPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
-        type: 'pretask';
+        type: 'preTask';
         attributes: {
             taskName: string;
             attackCmd: string;
@@ -3854,10 +3854,10 @@ export type PretaskPostPatchResponse = {
     };
 };
 
-export type PretaskListResponse = {
+export type PreTaskListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -3868,7 +3868,7 @@ export type PretaskListResponse = {
     };
     data: Array<{
         id: number;
-        type: 'pretask';
+        type: 'preTask';
         attributes: {
             taskName: string;
             attackCmd: string;
@@ -3907,21 +3907,21 @@ export type PretaskListResponse = {
             filename?: string;
             size?: number;
             isSecret?: boolean;
-            fileType?: number;
+            fileType?: 0 | 1 | 2 | 100;
             accessGroupId?: number;
             lineCount?: number;
         };
     }>;
 };
 
-export type PretaskRelationPretaskFiles = {
+export type PreTaskRelationPretaskFiles = {
     data: Array<{
         type: 'pretaskFiles';
         id: number;
     }>;
 };
 
-export type PretaskRelationPretaskFilesGetResponse = {
+export type PreTaskRelationPretaskFilesGetResponse = {
     data: Array<{
         type: 'pretaskFiles';
         id: number;
@@ -3931,7 +3931,7 @@ export type PretaskRelationPretaskFilesGetResponse = {
 export type SpeedResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4009,7 +4009,7 @@ export type SpeedResponse = {
 export type SpeedListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4102,8 +4102,8 @@ export type SupertaskCreate = {
     data: {
         type: 'supertask';
         attributes: {
-            pretasks?: Array<number>;
-            supertaskName?: string;
+            pretasks: Array<number>;
+            supertaskName: string;
         };
     };
 };
@@ -4120,7 +4120,7 @@ export type SupertaskPatch = {
 export type SupertaskResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4215,7 +4215,7 @@ export type SupertaskSingleResponse = {
 export type SupertaskPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -4229,7 +4229,7 @@ export type SupertaskPostPatchResponse = {
 export type SupertaskListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4297,28 +4297,28 @@ export type TaskCreate = {
     data: {
         type: 'task';
         attributes: {
-            hashlistId?: number;
-            files?: Array<number>;
-            taskName?: string;
-            attackCmd?: string;
-            chunkTime?: number;
-            statusTimer?: number;
-            priority?: number;
-            maxAgents?: number;
+            hashlistId: number;
+            files: Array<number>;
+            taskName: string;
+            attackCmd: string;
+            chunkTime: number;
+            statusTimer: number;
+            priority: number;
+            maxAgents: number;
             color?: string;
-            isSmall?: boolean;
-            isCpuTask?: boolean;
-            useNewBench?: boolean;
-            skipKeyspace?: number;
-            crackerBinaryId?: number;
-            crackerBinaryTypeId?: number;
-            isArchived?: boolean;
-            notes?: string;
-            staticChunks?: number;
-            chunkSize?: number;
-            forcePipe?: boolean;
-            preprocessorId?: number;
-            preprocessorCommand?: string;
+            isSmall: boolean;
+            isCpuTask: boolean;
+            useNewBench: boolean;
+            skipKeyspace: number;
+            crackerBinaryId: number;
+            crackerBinaryTypeId: number;
+            isArchived: boolean;
+            notes: string;
+            staticChunks: number;
+            chunkSize: number;
+            forcePipe: boolean;
+            preprocessorId: number;
+            preprocessorCommand: string;
         };
     };
 };
@@ -4345,7 +4345,7 @@ export type TaskPatch = {
 export type TaskResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4469,7 +4469,7 @@ export type TaskResponse = {
 export type TaskPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -4513,7 +4513,7 @@ export type TaskPostPatchResponse = {
 export type TaskListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4664,7 +4664,7 @@ export type TaskWrapperPatch = {
 export type TaskWrapperResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -4877,7 +4877,7 @@ export type TaskWrapperSingleResponse = {
 export type TaskWrapperPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -4898,7 +4898,7 @@ export type TaskWrapperPostPatchResponse = {
 export type TaskWrapperListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -5025,9 +5025,9 @@ export type UserCreate = {
     data: {
         type: 'user';
         attributes: {
-            name?: string;
-            email?: string;
-            globalPermissionGroupId?: number;
+            name: string;
+            email: string;
+            globalPermissionGroupId: number;
         };
     };
 };
@@ -5047,7 +5047,7 @@ export type UserPatch = {
 export type UserResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -5110,7 +5110,7 @@ export type UserResponse = {
 export type UserPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
@@ -5136,7 +5136,7 @@ export type UserPostPatchResponse = {
 export type UserListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -5210,28 +5210,28 @@ export type UserRelationAccessGroupsGetResponse = {
     }>;
 };
 
-export type RegVoucherCreate = {
+export type VoucherCreate = {
     data: {
-        type: 'regVoucher';
+        type: 'voucher';
+        attributes: {
+            voucher: string;
+        };
+    };
+};
+
+export type VoucherPatch = {
+    data: {
+        type: 'voucher';
         attributes: {
             voucher?: string;
         };
     };
 };
 
-export type RegVoucherPatch = {
-    data: {
-        type: 'regVoucher';
-        attributes: {
-            voucher?: string;
-        };
-    };
-};
-
-export type RegVoucherResponse = {
+export type VoucherResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -5242,7 +5242,7 @@ export type RegVoucherResponse = {
     };
     data: {
         id: number;
-        type: 'regVoucher';
+        type: 'voucher';
         attributes: {
             voucher: string;
             time: number;
@@ -5256,14 +5256,14 @@ export type RegVoucherResponse = {
     }>;
 };
 
-export type RegVoucherPostPatchResponse = {
+export type VoucherPostPatchResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     data: {
         id: number;
-        type: 'regVoucher';
+        type: 'voucher';
         attributes: {
             voucher: string;
             time: number;
@@ -5271,10 +5271,10 @@ export type RegVoucherPostPatchResponse = {
     };
 };
 
-export type RegVoucherListResponse = {
+export type VoucherListResponse = {
     jsonapi: {
         version: string;
-        ext?: string;
+        ext?: Array<string>;
     };
     links?: {
         self: string;
@@ -5285,7 +5285,7 @@ export type RegVoucherListResponse = {
     };
     data: Array<{
         id: number;
-        type: 'regVoucher';
+        type: 'voucher';
         attributes: {
             voucher: string;
             time: number;
@@ -6485,7 +6485,7 @@ export type GetAgentassignmentsResponses = {
     /**
      * successful operation
      */
-    200: AssignmentListResponse;
+    200: AgentAssignmentListResponse;
 };
 
 export type GetAgentassignmentsResponse = GetAgentassignmentsResponses[keyof GetAgentassignmentsResponses];
@@ -6518,7 +6518,7 @@ export type PatchAgentassignmentsResponses = {
 };
 
 export type PostAgentassignmentsData = {
-    body: AssignmentCreate;
+    body: AgentAssignmentCreate;
     path?: never;
     query?: never;
     url: '/api/v2/ui/agentassignments';
@@ -6541,7 +6541,7 @@ export type PostAgentassignmentsResponses = {
     /**
      * successful operation
      */
-    201: AssignmentPostPatchResponse;
+    201: AgentAssignmentPostPatchResponse;
 };
 
 export type PostAgentassignmentsResponse = PostAgentassignmentsResponses[keyof PostAgentassignmentsResponses];
@@ -6593,7 +6593,7 @@ export type GetAgentassignmentsCountResponses = {
     /**
      * successful operation
      */
-    200: AssignmentListResponse;
+    200: AgentAssignmentListResponse;
 };
 
 export type GetAgentassignmentsCountResponse = GetAgentassignmentsCountResponses[keyof GetAgentassignmentsCountResponses];
@@ -6629,7 +6629,7 @@ export type GetAgentassignmentsByIdByRelationResponses = {
     /**
      * successful operation
      */
-    200: AssignmentRelationTaskGetResponse;
+    200: AgentAssignmentRelationTaskGetResponse;
 };
 
 export type GetAgentassignmentsByIdByRelationResponse = GetAgentassignmentsByIdByRelationResponses[keyof GetAgentassignmentsByIdByRelationResponses];
@@ -6665,13 +6665,13 @@ export type GetAgentassignmentsByIdRelationshipsByRelationResponses = {
     /**
      * successful operation
      */
-    200: AssignmentResponse;
+    200: AgentAssignmentResponse;
 };
 
 export type GetAgentassignmentsByIdRelationshipsByRelationResponse = GetAgentassignmentsByIdRelationshipsByRelationResponses[keyof GetAgentassignmentsByIdRelationshipsByRelationResponses];
 
 export type PatchAgentassignmentsByIdRelationshipsByRelationData = {
-    body: AssignmentRelationTask;
+    body: AgentAssignmentRelationTask;
     path: {
         id: number;
         relation: string;
@@ -6778,13 +6778,13 @@ export type GetAgentassignmentsByIdResponses = {
     /**
      * successful operation
      */
-    200: AssignmentResponse;
+    200: AgentAssignmentResponse;
 };
 
 export type GetAgentassignmentsByIdResponse = GetAgentassignmentsByIdResponses[keyof GetAgentassignmentsByIdResponses];
 
 export type PatchAgentassignmentsByIdData = {
-    body: AssignmentPatch;
+    body: AgentAssignmentPatch;
     path: {
         id: number;
     };
@@ -6813,7 +6813,7 @@ export type PatchAgentassignmentsByIdResponses = {
     /**
      * successful operation
      */
-    200: AssignmentPostPatchResponse;
+    200: AgentAssignmentPostPatchResponse;
 };
 
 export type PatchAgentassignmentsByIdResponse = PatchAgentassignmentsByIdResponses[keyof PatchAgentassignmentsByIdResponses];
@@ -7715,7 +7715,7 @@ export type GetApiTokensResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyListResponse;
+    200: ApiTokenListResponse;
 };
 
 export type GetApiTokensResponse = GetApiTokensResponses[keyof GetApiTokensResponses];
@@ -7748,7 +7748,7 @@ export type PatchApiTokensResponses = {
 };
 
 export type PostApiTokensData = {
-    body: JwtApiKeyCreate;
+    body: ApiTokenCreate;
     path?: never;
     query?: never;
     url: '/api/v2/ui/apiTokens';
@@ -7771,7 +7771,7 @@ export type PostApiTokensResponses = {
     /**
      * successful operation
      */
-    201: JwtApiKeyPostPatchResponse;
+    201: ApiTokenPostPatchResponse;
 };
 
 export type PostApiTokensResponse = PostApiTokensResponses[keyof PostApiTokensResponses];
@@ -7823,7 +7823,7 @@ export type GetApiTokensCountResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyListResponse;
+    200: ApiTokenListResponse;
 };
 
 export type GetApiTokensCountResponse = GetApiTokensCountResponses[keyof GetApiTokensCountResponses];
@@ -7859,7 +7859,7 @@ export type GetApiTokensByIdByRelationResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyRelationUserGetResponse;
+    200: ApiTokenRelationUserGetResponse;
 };
 
 export type GetApiTokensByIdByRelationResponse = GetApiTokensByIdByRelationResponses[keyof GetApiTokensByIdByRelationResponses];
@@ -7895,13 +7895,13 @@ export type GetApiTokensByIdRelationshipsByRelationResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyResponse;
+    200: ApiTokenResponse;
 };
 
 export type GetApiTokensByIdRelationshipsByRelationResponse = GetApiTokensByIdRelationshipsByRelationResponses[keyof GetApiTokensByIdRelationshipsByRelationResponses];
 
 export type PatchApiTokensByIdRelationshipsByRelationData = {
-    body: JwtApiKeyRelationUser;
+    body: ApiTokenRelationUser;
     path: {
         id: number;
         relation: string;
@@ -8008,13 +8008,13 @@ export type GetApiTokensByIdResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyResponse;
+    200: ApiTokenResponse;
 };
 
 export type GetApiTokensByIdResponse = GetApiTokensByIdResponses[keyof GetApiTokensByIdResponses];
 
 export type PatchApiTokensByIdData = {
-    body: JwtApiKeyPatch;
+    body: ApiTokenPatch;
     path: {
         id: number;
     };
@@ -8043,7 +8043,7 @@ export type PatchApiTokensByIdResponses = {
     /**
      * successful operation
      */
-    200: JwtApiKeyPostPatchResponse;
+    200: ApiTokenPostPatchResponse;
 };
 
 export type PatchApiTokensByIdResponse = PatchApiTokensByIdResponses[keyof PatchApiTokensByIdResponses];
@@ -10201,7 +10201,7 @@ export type GetGlobalpermissiongroupsResponses = {
     /**
      * successful operation
      */
-    200: RightGroupListResponse;
+    200: GlobalPermissionGroupListResponse;
 };
 
 export type GetGlobalpermissiongroupsResponse = GetGlobalpermissiongroupsResponses[keyof GetGlobalpermissiongroupsResponses];
@@ -10234,7 +10234,7 @@ export type PatchGlobalpermissiongroupsResponses = {
 };
 
 export type PostGlobalpermissiongroupsData = {
-    body: RightGroupCreate;
+    body: GlobalPermissionGroupCreate;
     path?: never;
     query?: never;
     url: '/api/v2/ui/globalpermissiongroups';
@@ -10257,7 +10257,7 @@ export type PostGlobalpermissiongroupsResponses = {
     /**
      * successful operation
      */
-    201: RightGroupPostPatchResponse;
+    201: GlobalPermissionGroupPostPatchResponse;
 };
 
 export type PostGlobalpermissiongroupsResponse = PostGlobalpermissiongroupsResponses[keyof PostGlobalpermissiongroupsResponses];
@@ -10309,7 +10309,7 @@ export type GetGlobalpermissiongroupsCountResponses = {
     /**
      * successful operation
      */
-    200: RightGroupListResponse;
+    200: GlobalPermissionGroupListResponse;
 };
 
 export type GetGlobalpermissiongroupsCountResponse = GetGlobalpermissiongroupsCountResponses[keyof GetGlobalpermissiongroupsCountResponses];
@@ -10345,13 +10345,13 @@ export type GetGlobalpermissiongroupsByIdByRelationResponses = {
     /**
      * successful operation
      */
-    200: RightGroupRelationUserMembersGetResponse;
+    200: GlobalPermissionGroupRelationUserMembersGetResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdByRelationResponse = GetGlobalpermissiongroupsByIdByRelationResponses[keyof GetGlobalpermissiongroupsByIdByRelationResponses];
 
 export type DeleteGlobalpermissiongroupsByIdRelationshipsByRelationData = {
-    body: RightGroupRelationUserMembers;
+    body: GlobalPermissionGroupRelationUserMembers;
     path: {
         id: number;
         relation: string;
@@ -10417,13 +10417,13 @@ export type GetGlobalpermissiongroupsByIdRelationshipsByRelationResponses = {
     /**
      * successful operation
      */
-    200: RightGroupResponse;
+    200: GlobalPermissionGroupResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = GetGlobalpermissiongroupsByIdRelationshipsByRelationResponses[keyof GetGlobalpermissiongroupsByIdRelationshipsByRelationResponses];
 
 export type PatchGlobalpermissiongroupsByIdRelationshipsByRelationData = {
-    body: RightGroupRelationUserMembers;
+    body: GlobalPermissionGroupRelationUserMembers;
     path: {
         id: number;
         relation: string;
@@ -10568,13 +10568,13 @@ export type GetGlobalpermissiongroupsByIdResponses = {
     /**
      * successful operation
      */
-    200: RightGroupResponse;
+    200: GlobalPermissionGroupResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdResponse = GetGlobalpermissiongroupsByIdResponses[keyof GetGlobalpermissiongroupsByIdResponses];
 
 export type PatchGlobalpermissiongroupsByIdData = {
-    body: RightGroupPatch;
+    body: GlobalPermissionGroupPatch;
     path: {
         id: number;
     };
@@ -10603,7 +10603,7 @@ export type PatchGlobalpermissiongroupsByIdResponses = {
     /**
      * successful operation
      */
-    200: RightGroupPostPatchResponse;
+    200: GlobalPermissionGroupPostPatchResponse;
 };
 
 export type PatchGlobalpermissiongroupsByIdResponse = PatchGlobalpermissiongroupsByIdResponses[keyof PatchGlobalpermissiongroupsByIdResponses];
@@ -13452,7 +13452,7 @@ export type GetPretasksResponses = {
     /**
      * successful operation
      */
-    200: PretaskListResponse;
+    200: PreTaskListResponse;
 };
 
 export type GetPretasksResponse = GetPretasksResponses[keyof GetPretasksResponses];
@@ -13485,7 +13485,7 @@ export type PatchPretasksResponses = {
 };
 
 export type PostPretasksData = {
-    body: PretaskCreate;
+    body: PreTaskCreate;
     path?: never;
     query?: never;
     url: '/api/v2/ui/pretasks';
@@ -13508,7 +13508,7 @@ export type PostPretasksResponses = {
     /**
      * successful operation
      */
-    201: PretaskPostPatchResponse;
+    201: PreTaskPostPatchResponse;
 };
 
 export type PostPretasksResponse = PostPretasksResponses[keyof PostPretasksResponses];
@@ -13560,7 +13560,7 @@ export type GetPretasksCountResponses = {
     /**
      * successful operation
      */
-    200: PretaskListResponse;
+    200: PreTaskListResponse;
 };
 
 export type GetPretasksCountResponse = GetPretasksCountResponses[keyof GetPretasksCountResponses];
@@ -13596,13 +13596,13 @@ export type GetPretasksByIdByRelationResponses = {
     /**
      * successful operation
      */
-    200: PretaskRelationPretaskFilesGetResponse;
+    200: PreTaskRelationPretaskFilesGetResponse;
 };
 
 export type GetPretasksByIdByRelationResponse = GetPretasksByIdByRelationResponses[keyof GetPretasksByIdByRelationResponses];
 
 export type DeletePretasksByIdRelationshipsByRelationData = {
-    body: PretaskRelationPretaskFiles;
+    body: PreTaskRelationPretaskFiles;
     path: {
         id: number;
         relation: string;
@@ -13668,13 +13668,13 @@ export type GetPretasksByIdRelationshipsByRelationResponses = {
     /**
      * successful operation
      */
-    200: PretaskResponse;
+    200: PreTaskResponse;
 };
 
 export type GetPretasksByIdRelationshipsByRelationResponse = GetPretasksByIdRelationshipsByRelationResponses[keyof GetPretasksByIdRelationshipsByRelationResponses];
 
 export type PatchPretasksByIdRelationshipsByRelationData = {
-    body: PretaskRelationPretaskFiles;
+    body: PreTaskRelationPretaskFiles;
     path: {
         id: number;
         relation: string;
@@ -13819,13 +13819,13 @@ export type GetPretasksByIdResponses = {
     /**
      * successful operation
      */
-    200: PretaskResponse;
+    200: PreTaskResponse;
 };
 
 export type GetPretasksByIdResponse = GetPretasksByIdResponses[keyof GetPretasksByIdResponses];
 
 export type PatchPretasksByIdData = {
-    body: PretaskPatch;
+    body: PreTaskPatch;
     path: {
         id: number;
     };
@@ -13854,7 +13854,7 @@ export type PatchPretasksByIdResponses = {
     /**
      * successful operation
      */
-    200: PretaskPostPatchResponse;
+    200: PreTaskPostPatchResponse;
 };
 
 export type PatchPretasksByIdResponse = PatchPretasksByIdResponses[keyof PatchPretasksByIdResponses];
@@ -16080,7 +16080,7 @@ export type GetVouchersResponses = {
     /**
      * successful operation
      */
-    200: RegVoucherListResponse;
+    200: VoucherListResponse;
 };
 
 export type GetVouchersResponse = GetVouchersResponses[keyof GetVouchersResponses];
@@ -16113,7 +16113,7 @@ export type PatchVouchersResponses = {
 };
 
 export type PostVouchersData = {
-    body: RegVoucherCreate;
+    body: VoucherCreate;
     path?: never;
     query?: never;
     url: '/api/v2/ui/vouchers';
@@ -16136,7 +16136,7 @@ export type PostVouchersResponses = {
     /**
      * successful operation
      */
-    201: RegVoucherPostPatchResponse;
+    201: VoucherPostPatchResponse;
 };
 
 export type PostVouchersResponse = PostVouchersResponses[keyof PostVouchersResponses];
@@ -16188,7 +16188,7 @@ export type GetVouchersCountResponses = {
     /**
      * successful operation
      */
-    200: RegVoucherListResponse;
+    200: VoucherListResponse;
 };
 
 export type GetVouchersCountResponse = GetVouchersCountResponses[keyof GetVouchersCountResponses];
@@ -16265,13 +16265,13 @@ export type GetVouchersByIdResponses = {
     /**
      * successful operation
      */
-    200: RegVoucherResponse;
+    200: VoucherResponse;
 };
 
 export type GetVouchersByIdResponse = GetVouchersByIdResponses[keyof GetVouchersByIdResponses];
 
 export type PatchVouchersByIdData = {
-    body: RegVoucherPatch;
+    body: VoucherPatch;
     path: {
         id: number;
     };
@@ -16300,7 +16300,7 @@ export type PatchVouchersByIdResponses = {
     /**
      * successful operation
      */
-    200: RegVoucherPostPatchResponse;
+    200: VoucherPostPatchResponse;
 };
 
 export type PatchVouchersByIdResponse = PatchVouchersByIdResponses[keyof PatchVouchersByIdResponses];

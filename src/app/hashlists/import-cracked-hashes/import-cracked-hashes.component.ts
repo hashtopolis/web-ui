@@ -360,7 +360,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         include: ['tasks,hashlists,hashType']
       })
       .subscribe((response: ResponseWrapper) => {
-        const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse) as JHashlist;
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
         this.type = hashlist.format;
         this.hashtype = hashlist.hashType;
 

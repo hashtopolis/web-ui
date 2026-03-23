@@ -62,7 +62,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           })
         )
         .subscribe((response: ResponseWrapper) => {
-          const hashes = this.convertHashes(this.serializer.deserialize(response, zHashListResponse) as JHash[]);
+          const hashes = this.convertHashes(this.serializer.deserialize(response, zHashListResponse));
           this.checkMissingHashes(hashes);
           this.setData(hashes);
         })

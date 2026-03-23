@@ -22,7 +22,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { yesNo } from '@src/app/core/_constants/general.config';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
-import { zPretaskResponse } from '@generated/api/zod.gen';
+import { zPreTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -149,7 +149,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
-    const pretask: JPretask = this.serializer.deserialize(response, zPretaskResponse);
+    const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
     this.updateForm = new FormGroup({
       pretaskId: new FormControl({

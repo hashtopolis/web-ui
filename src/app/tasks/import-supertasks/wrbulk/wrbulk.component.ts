@@ -22,7 +22,7 @@ import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
-import { zCrackerBinaryTypeListResponse, zFileResponse, zPretaskResponse } from '@generated/api/zod.gen';
+import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-wrbulk',
@@ -165,7 +165,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         payload.attackCmd = updatedAttackCmd;
 
         const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
-        const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPretaskResponse);
+        const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPreTaskResponse);
         preTasksIds.push(pretask.id);
       });
 

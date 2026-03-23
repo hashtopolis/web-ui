@@ -128,7 +128,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse) as JHashlist;
+      const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
@@ -156,7 +156,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        const hashlist: JHashlist = new JsonAPISerializer().deserialize(responseFallback, zHashlistResponse) as JHashlist;
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(responseFallback, zHashlistResponse);
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;

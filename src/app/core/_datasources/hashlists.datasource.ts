@@ -61,7 +61,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse) as JHashlist;
+            const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse);
             this.setData(superHashList.hashlists as JHashlist[]);
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
@@ -101,7 +101,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse) as JHashlist[];
+            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
             if (!deserialized || !Array.isArray(deserialized)) {
               return; // Safety check: if deserialize returns null or non-array, exit
             }

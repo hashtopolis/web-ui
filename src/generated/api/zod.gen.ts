@@ -23,7 +23,7 @@ export const zAccessGroupCreate = z.object({
     data: z.object({
         type: z.literal('accessGroup'),
         attributes: z.object({
-            groupName: z.string().optional()
+            groupName: z.string()
         })
     })
 });
@@ -40,7 +40,7 @@ export const zAccessGroupPatch = z.object({
 export const zAccessGroupResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
@@ -85,7 +85,11 @@ export const zAccessGroupResponse = z.object({
             agentId: z.int().optional(),
             agentName: z.string().optional(),
             uid: z.string().optional(),
-            os: z.int().optional(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
             devices: z.string().optional(),
             cmdPars: z.string().optional(),
             ignoreErrors: z.union([
@@ -109,7 +113,7 @@ export const zAccessGroupResponse = z.object({
 export const zAccessGroupPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -123,7 +127,7 @@ export const zAccessGroupPostPatchResponse = z.object({
 export const zAccessGroupListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
@@ -168,7 +172,11 @@ export const zAccessGroupListResponse = z.object({
             agentId: z.int().optional(),
             agentName: z.string().optional(),
             uid: z.string().optional(),
-            os: z.int().optional(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
             devices: z.string().optional(),
             cmdPars: z.string().optional(),
             ignoreErrors: z.union([
@@ -217,7 +225,11 @@ export const zAgentPatch = z.object({
             ]).optional(),
             isActive: z.boolean().optional(),
             isTrusted: z.boolean().optional(),
-            os: z.int().optional(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
             uid: z.string().optional(),
             userId: z.int().optional()
         })
@@ -227,7 +239,7 @@ export const zAgentPatch = z.object({
 export const zAgentResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agents?page[size]=25'),
@@ -242,7 +254,11 @@ export const zAgentResponse = z.object({
         attributes: z.object({
             agentName: z.string(),
             uid: z.string(),
-            os: z.int(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
             devices: z.string(),
             cmdPars: z.string(),
             ignoreErrors: z.union([
@@ -348,7 +364,7 @@ export const zAgentResponse = z.object({
 export const zAgentPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -356,7 +372,11 @@ export const zAgentPostPatchResponse = z.object({
         attributes: z.object({
             agentName: z.string(),
             uid: z.string(),
-            os: z.int(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
             devices: z.string(),
             cmdPars: z.string(),
             ignoreErrors: z.union([
@@ -380,7 +400,7 @@ export const zAgentPostPatchResponse = z.object({
 export const zAgentListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agents?page[size]=25'),
@@ -395,7 +415,11 @@ export const zAgentListResponse = z.object({
         attributes: z.object({
             agentName: z.string(),
             uid: z.string(),
-            os: z.int(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
             devices: z.string(),
             cmdPars: z.string(),
             ignoreErrors: z.union([
@@ -512,30 +536,30 @@ export const zAgentRelationAssignmentsGetResponse = z.object({
     }))
 });
 
-export const zAssignmentCreate = z.object({
+export const zAgentAssignmentCreate = z.object({
     data: z.object({
-        type: z.literal('assignment'),
+        type: z.literal('agentAssignment'),
         attributes: z.object({
-            taskId: z.int().optional(),
-            agentId: z.int().optional(),
+            taskId: z.int(),
+            agentId: z.int(),
             benchmark: z.string().optional()
         })
     })
 });
 
-export const zAssignmentPatch = z.object({
+export const zAgentAssignmentPatch = z.object({
     data: z.object({
-        type: z.literal('assignment'),
+        type: z.literal('agentAssignment'),
         attributes: z.object({
             benchmark: z.string().optional()
         })
     })
 });
 
-export const zAssignmentResponse = z.object({
+export const zAgentAssignmentResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
@@ -546,7 +570,7 @@ export const zAssignmentResponse = z.object({
     }).optional(),
     data: z.object({
         id: z.int(),
-        type: z.literal('assignment'),
+        type: z.literal('agentAssignment'),
         attributes: z.object({
             taskId: z.int(),
             agentId: z.int(),
@@ -609,14 +633,14 @@ export const zAssignmentResponse = z.object({
     })).optional()
 });
 
-export const zAssignmentPostPatchResponse = z.object({
+export const zAgentAssignmentPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
-        type: z.literal('assignment'),
+        type: z.literal('agentAssignment'),
         attributes: z.object({
             taskId: z.int(),
             agentId: z.int(),
@@ -625,10 +649,10 @@ export const zAssignmentPostPatchResponse = z.object({
     })
 });
 
-export const zAssignmentListResponse = z.object({
+export const zAgentAssignmentListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
@@ -639,7 +663,7 @@ export const zAssignmentListResponse = z.object({
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
-        type: z.literal('assignment'),
+        type: z.literal('agentAssignment'),
         attributes: z.object({
             taskId: z.int(),
             agentId: z.int(),
@@ -702,14 +726,14 @@ export const zAssignmentListResponse = z.object({
     })).optional()
 });
 
-export const zAssignmentRelationTask = z.object({
+export const zAgentAssignmentRelationTask = z.object({
     data: z.object({
         type: z.literal('task'),
         id: z.int().default(1)
     })
 });
 
-export const zAssignmentRelationTaskGetResponse = z.object({
+export const zAgentAssignmentRelationTaskGetResponse = z.object({
     data: z.object({
         type: z.literal('task'),
         id: z.int().default(1)
@@ -720,11 +744,11 @@ export const zAgentBinaryCreate = z.object({
     data: z.object({
         type: z.literal('agentBinary'),
         attributes: z.object({
-            binaryType: z.string().optional(),
-            version: z.string().optional(),
-            operatingSystems: z.string().optional(),
-            filename: z.string().optional(),
-            updateTrack: z.string().optional()
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string()
         })
     })
 });
@@ -745,7 +769,7 @@ export const zAgentBinaryPatch = z.object({
 export const zAgentBinaryResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
@@ -773,7 +797,7 @@ export const zAgentBinaryResponse = z.object({
 export const zAgentBinaryPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -792,7 +816,7 @@ export const zAgentBinaryPostPatchResponse = z.object({
 export const zAgentBinaryListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
@@ -820,7 +844,7 @@ export const zAgentBinaryListResponse = z.object({
 export const zAgentErrorResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
@@ -889,7 +913,7 @@ export const zAgentErrorResponse = z.object({
 export const zAgentErrorListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
@@ -972,7 +996,7 @@ export const zAgentErrorRelationTaskGetResponse = z.object({
 export const zAgentStatResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
@@ -986,7 +1010,11 @@ export const zAgentStatResponse = z.object({
         type: z.literal('agentStat'),
         attributes: z.object({
             agentId: z.int(),
-            statType: z.int(),
+            statType: z.union([
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
             time: z.number(),
             value: z.array(z.int())
         })
@@ -998,7 +1026,7 @@ export const zAgentStatResponse = z.object({
 export const zAgentStatListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
@@ -1012,7 +1040,11 @@ export const zAgentStatListResponse = z.object({
         type: z.literal('agentStat'),
         attributes: z.object({
             agentId: z.int(),
-            statType: z.int(),
+            statType: z.union([
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
             time: z.number(),
             value: z.array(z.int())
         })
@@ -1021,32 +1053,32 @@ export const zAgentStatListResponse = z.object({
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
-export const zJwtApiKeyCreate = z.object({
+export const zApiTokenCreate = z.object({
     data: z.object({
-        type: z.literal('jwtApiKey'),
+        type: z.literal('apiToken'),
         attributes: z.object({
-            scopes: z.array(z.int()).optional(),
-            startValid: z.number().optional(),
-            endValid: z.number().optional(),
-            userId: z.int().optional(),
+            scopes: z.array(z.int()),
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean()
+        })
+    })
+});
+
+export const zApiTokenPatch = z.object({
+    data: z.object({
+        type: z.literal('apiToken'),
+        attributes: z.object({
             isRevoked: z.boolean().optional()
         })
     })
 });
 
-export const zJwtApiKeyPatch = z.object({
-    data: z.object({
-        type: z.literal('jwtApiKey'),
-        attributes: z.object({
-            isRevoked: z.boolean().optional()
-        })
-    })
-});
-
-export const zJwtApiKeyResponse = z.object({
+export const zApiTokenResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
@@ -1057,7 +1089,7 @@ export const zJwtApiKeyResponse = z.object({
     }).optional(),
     data: z.object({
         id: z.int(),
-        type: z.literal('jwtApiKey'),
+        type: z.literal('apiToken'),
         attributes: z.object({
             startValid: z.number(),
             endValid: z.number(),
@@ -1082,7 +1114,7 @@ export const zJwtApiKeyResponse = z.object({
         id: z.int().optional(),
         type: z.literal('user').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -1102,14 +1134,14 @@ export const zJwtApiKeyResponse = z.object({
     })).optional()
 });
 
-export const zJwtApiKeyPostPatchResponse = z.object({
+export const zApiTokenPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
-        type: z.literal('jwtApiKey'),
+        type: z.literal('apiToken'),
         attributes: z.object({
             startValid: z.number(),
             endValid: z.number(),
@@ -1120,10 +1152,10 @@ export const zJwtApiKeyPostPatchResponse = z.object({
     })
 });
 
-export const zJwtApiKeyListResponse = z.object({
+export const zApiTokenListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
@@ -1134,7 +1166,7 @@ export const zJwtApiKeyListResponse = z.object({
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
-        type: z.literal('jwtApiKey'),
+        type: z.literal('apiToken'),
         attributes: z.object({
             startValid: z.number(),
             endValid: z.number(),
@@ -1159,7 +1191,7 @@ export const zJwtApiKeyListResponse = z.object({
         id: z.int().optional(),
         type: z.literal('user').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -1179,14 +1211,14 @@ export const zJwtApiKeyListResponse = z.object({
     })).optional()
 });
 
-export const zJwtApiKeyRelationUser = z.object({
+export const zApiTokenRelationUser = z.object({
     data: z.object({
         type: z.literal('user'),
         id: z.int().default(1)
     })
 });
 
-export const zJwtApiKeyRelationUserGetResponse = z.object({
+export const zApiTokenRelationUserGetResponse = z.object({
     data: z.object({
         type: z.literal('user'),
         id: z.int().default(1)
@@ -1196,7 +1228,7 @@ export const zJwtApiKeyRelationUserGetResponse = z.object({
 export const zChunkResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
@@ -1217,7 +1249,19 @@ export const zChunkResponse = z.object({
             solveTime: z.number(),
             checkpoint: z.number(),
             progress: z.int(),
-            state: z.int(),
+            state: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3),
+                z.literal(4),
+                z.literal(5),
+                z.literal(6),
+                z.literal(7),
+                z.literal(8),
+                z.literal(9),
+                z.literal(10)
+            ]),
             cracked: z.int(),
             speed: z.number()
         })
@@ -1281,7 +1325,7 @@ export const zChunkResponse = z.object({
 export const zChunkListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
@@ -1302,7 +1346,19 @@ export const zChunkListResponse = z.object({
             solveTime: z.number(),
             checkpoint: z.number(),
             progress: z.int(),
-            state: z.int(),
+            state: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3),
+                z.literal(4),
+                z.literal(5),
+                z.literal(6),
+                z.literal(7),
+                z.literal(8),
+                z.literal(9),
+                z.literal(10)
+            ]),
             cracked: z.int(),
             speed: z.number()
         })
@@ -1390,7 +1446,7 @@ export const zConfigPatch = z.object({
 export const zConfigResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/configs?page[size]=25'),
@@ -1433,7 +1489,7 @@ export const zConfigResponse = z.object({
 export const zConfigPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -1449,7 +1505,7 @@ export const zConfigPostPatchResponse = z.object({
 export const zConfigListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/configs?page[size]=25'),
@@ -1506,7 +1562,7 @@ export const zConfigRelationConfigSectionGetResponse = z.object({
 export const zConfigSectionResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
@@ -1529,7 +1585,7 @@ export const zConfigSectionResponse = z.object({
 export const zConfigSectionListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
@@ -1553,10 +1609,10 @@ export const zCrackerBinaryCreate = z.object({
     data: z.object({
         type: z.literal('crackerBinary'),
         attributes: z.object({
-            crackerBinaryTypeId: z.int().optional(),
-            version: z.string().optional(),
-            downloadUrl: z.string().optional(),
-            binaryName: z.string().optional()
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
         })
     })
 });
@@ -1575,7 +1631,7 @@ export const zCrackerBinaryPatch = z.object({
 export const zCrackerBinaryResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
@@ -1653,7 +1709,7 @@ export const zCrackerBinaryResponse = z.object({
 export const zCrackerBinaryPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -1670,7 +1726,7 @@ export const zCrackerBinaryPostPatchResponse = z.object({
 export const zCrackerBinaryListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
@@ -1763,7 +1819,7 @@ export const zCrackerBinaryTypeCreate = z.object({
     data: z.object({
         type: z.literal('crackerBinaryType'),
         attributes: z.object({
-            typeName: z.string().optional()
+            typeName: z.string()
         })
     })
 });
@@ -1781,7 +1837,7 @@ export const zCrackerBinaryTypePatch = z.object({
 export const zCrackerBinaryTypeResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
@@ -1857,7 +1913,7 @@ export const zCrackerBinaryTypeResponse = z.object({
 export const zCrackerBinaryTypePostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -1872,7 +1928,7 @@ export const zCrackerBinaryTypePostPatchResponse = z.object({
 export const zCrackerBinaryTypeListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
@@ -1963,12 +2019,17 @@ export const zFileCreate = z.object({
     data: z.object({
         type: z.literal('file'),
         attributes: z.object({
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            filename: z.string().optional(),
-            isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
-            accessGroupId: z.int().optional()
+            sourceType: z.string(),
+            sourceData: z.string(),
+            filename: z.string(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int()
         })
     })
 });
@@ -1978,7 +2039,12 @@ export const zFilePatch = z.object({
         type: z.literal('file'),
         attributes: z.object({
             accessGroupId: z.int().optional(),
-            fileType: z.int().optional(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]).optional(),
             filename: z.string().optional(),
             isSecret: z.boolean().optional()
         })
@@ -1988,7 +2054,7 @@ export const zFilePatch = z.object({
 export const zFileResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/files?page[size]=25'),
@@ -2004,7 +2070,12 @@ export const zFileResponse = z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
-            fileType: z.int(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
             accessGroupId: z.int(),
             lineCount: z.number()
         })
@@ -2039,7 +2110,12 @@ export const zFileSingleResponse = z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
-            fileType: z.int(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
             accessGroupId: z.int(),
             lineCount: z.number()
         })
@@ -2069,7 +2145,7 @@ export const zFileSingleResponse = z.object({
 export const zFilePostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -2078,7 +2154,12 @@ export const zFilePostPatchResponse = z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
-            fileType: z.int(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
             accessGroupId: z.int(),
             lineCount: z.number()
         })
@@ -2088,7 +2169,7 @@ export const zFilePostPatchResponse = z.object({
 export const zFileListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/files?page[size]=25'),
@@ -2104,7 +2185,12 @@ export const zFileListResponse = z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
-            fileType: z.int(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
             accessGroupId: z.int(),
             lineCount: z.number()
         })
@@ -2145,30 +2231,30 @@ export const zFileRelationAccessGroupGetResponse = z.object({
     })
 });
 
-export const zRightGroupCreate = z.object({
+export const zGlobalPermissionGroupCreate = z.object({
     data: z.object({
-        type: z.literal('rightGroup'),
+        type: z.literal('globalPermissionGroup'),
         attributes: z.object({
-            name: z.string().optional(),
-            permissions: z.record(z.string(), z.unknown()).optional()
+            name: z.string(),
+            permissions: z.record(z.string(), z.boolean()).optional()
         })
     })
 });
 
-export const zRightGroupPatch = z.object({
+export const zGlobalPermissionGroupPatch = z.object({
     data: z.object({
-        type: z.literal('rightGroup'),
+        type: z.literal('globalPermissionGroup'),
         attributes: z.object({
             name: z.string().optional(),
-            permissions: z.record(z.string(), z.unknown()).optional()
+            permissions: z.record(z.string(), z.boolean()).optional()
         })
     })
 });
 
-export const zRightGroupResponse = z.object({
+export const zGlobalPermissionGroupResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
@@ -2179,10 +2265,10 @@ export const zRightGroupResponse = z.object({
     }).optional(),
     data: z.object({
         id: z.int(),
-        type: z.literal('rightGroup'),
+        type: z.literal('globalPermissionGroup'),
         attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.unknown())
+            permissions: z.record(z.string(), z.boolean())
         })
     }),
     relationships: z.object({
@@ -2201,7 +2287,7 @@ export const zRightGroupResponse = z.object({
         id: z.int().optional(),
         type: z.literal('userMembers').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -2221,25 +2307,25 @@ export const zRightGroupResponse = z.object({
     })).optional()
 });
 
-export const zRightGroupPostPatchResponse = z.object({
+export const zGlobalPermissionGroupPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
-        type: z.literal('rightGroup'),
+        type: z.literal('globalPermissionGroup'),
         attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.unknown())
+            permissions: z.record(z.string(), z.boolean())
         })
     })
 });
 
-export const zRightGroupListResponse = z.object({
+export const zGlobalPermissionGroupListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
@@ -2250,10 +2336,10 @@ export const zRightGroupListResponse = z.object({
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
-        type: z.literal('rightGroup'),
+        type: z.literal('globalPermissionGroup'),
         attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.unknown())
+            permissions: z.record(z.string(), z.boolean())
         })
     })),
     relationships: z.object({
@@ -2272,7 +2358,7 @@ export const zRightGroupListResponse = z.object({
         id: z.int().optional(),
         type: z.literal('userMembers').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -2292,14 +2378,14 @@ export const zRightGroupListResponse = z.object({
     })).optional()
 });
 
-export const zRightGroupRelationUserMembers = z.object({
+export const zGlobalPermissionGroupRelationUserMembers = z.object({
     data: z.array(z.object({
         type: z.literal('userMembers'),
         id: z.int().default(1)
     }))
 });
 
-export const zRightGroupRelationUserMembersGetResponse = z.object({
+export const zGlobalPermissionGroupRelationUserMembersGetResponse = z.object({
     data: z.array(z.object({
         type: z.literal('userMembers'),
         id: z.int().default(1)
@@ -2309,7 +2395,7 @@ export const zRightGroupRelationUserMembersGetResponse = z.object({
 export const zHashResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
@@ -2388,7 +2474,7 @@ export const zHashResponse = z.object({
 export const zHashListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
@@ -2483,26 +2569,26 @@ export const zHashlistCreate = z.object({
         type: z.literal('hashlist'),
         attributes: z.object({
             hashlistSeperator: z.string().optional(),
-            sourceType: z.string().optional(),
-            sourceData: z.string().optional(),
-            name: z.string().optional(),
+            sourceType: z.string(),
+            sourceData: z.string(),
+            name: z.string(),
             format: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            hashTypeId: z.int().optional(),
-            hashCount: z.int().optional(),
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
             separator: z.string().optional(),
-            isSecret: z.boolean().optional(),
-            isHexSalt: z.boolean().optional(),
-            isSalted: z.boolean().optional(),
-            accessGroupId: z.int().optional(),
-            notes: z.string().optional(),
-            useBrain: z.boolean().optional(),
-            brainFeatures: z.int().optional(),
-            isArchived: z.boolean().optional()
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
         })
     })
 });
@@ -2523,7 +2609,7 @@ export const zHashlistPatch = z.object({
 export const zHashlistResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
@@ -2758,7 +2844,7 @@ export const zHashlistSingleResponse = z.object({
 export const zHashlistPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -2790,7 +2876,7 @@ export const zHashlistPostPatchResponse = z.object({
 export const zHashlistListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
@@ -2928,10 +3014,10 @@ export const zHashTypeCreate = z.object({
     data: z.object({
         type: z.literal('hashType'),
         attributes: z.object({
-            hashTypeId: z.int().optional(),
-            description: z.string().optional(),
-            isSalted: z.boolean().optional(),
-            isSlowHash: z.boolean().optional()
+            hashTypeId: z.int(),
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
         })
     })
 });
@@ -2950,7 +3036,7 @@ export const zHashTypePatch = z.object({
 export const zHashTypeResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
@@ -2975,7 +3061,7 @@ export const zHashTypeResponse = z.object({
 export const zHashTypePostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -2991,7 +3077,7 @@ export const zHashTypePostPatchResponse = z.object({
 export const zHashTypeListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
@@ -3016,7 +3102,7 @@ export const zHashTypeListResponse = z.object({
 export const zHealthCheckAgentResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
@@ -3031,7 +3117,11 @@ export const zHealthCheckAgentResponse = z.object({
         attributes: z.object({
             healthCheckId: z.int(),
             agentId: z.int(),
-            status: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
             cracked: z.int(),
             numGpus: z.int(),
             start: z.number(),
@@ -3067,8 +3157,12 @@ export const zHealthCheckAgentResponse = z.object({
         attributes: z.object({
             healthCheckId: z.int().optional(),
             time: z.number().optional(),
-            status: z.int().optional(),
-            checkType: z.int().optional(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]).optional(),
+            checkType: z.union([z.literal(0), z.literal(3200)]).optional(),
             hashtypeId: z.int().optional(),
             crackerBinaryId: z.int().optional(),
             expectedCracks: z.int().optional(),
@@ -3080,7 +3174,7 @@ export const zHealthCheckAgentResponse = z.object({
 export const zHealthCheckAgentListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
@@ -3095,7 +3189,11 @@ export const zHealthCheckAgentListResponse = z.object({
         attributes: z.object({
             healthCheckId: z.int(),
             agentId: z.int(),
-            status: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
             cracked: z.int(),
             numGpus: z.int(),
             start: z.number(),
@@ -3131,8 +3229,12 @@ export const zHealthCheckAgentListResponse = z.object({
         attributes: z.object({
             healthCheckId: z.int().optional(),
             time: z.number().optional(),
-            status: z.int().optional(),
-            checkType: z.int().optional(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]).optional(),
+            checkType: z.union([z.literal(0), z.literal(3200)]).optional(),
             hashtypeId: z.int().optional(),
             crackerBinaryId: z.int().optional(),
             expectedCracks: z.int().optional(),
@@ -3159,9 +3261,9 @@ export const zHealthCheckCreate = z.object({
     data: z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
-            checkType: z.int().optional(),
-            hashtypeId: z.int().optional(),
-            crackerBinaryId: z.int().optional()
+            checkType: z.union([z.literal(0), z.literal(3200)]),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int()
         })
     })
 });
@@ -3170,7 +3272,7 @@ export const zHealthCheckPatch = z.object({
     data: z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
-            checkType: z.int().optional()
+            checkType: z.union([z.literal(0), z.literal(3200)]).optional()
         })
     })
 });
@@ -3178,7 +3280,7 @@ export const zHealthCheckPatch = z.object({
 export const zHealthCheckResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
@@ -3192,8 +3294,12 @@ export const zHealthCheckResponse = z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
             time: z.number(),
-            status: z.int(),
-            checkType: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([z.literal(0), z.literal(3200)]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3239,7 +3345,11 @@ export const zHealthCheckResponse = z.object({
             healthCheckAgentId: z.int().optional(),
             healthCheckId: z.int().optional(),
             agentId: z.int().optional(),
-            status: z.int().optional(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]).optional(),
             cracked: z.int().optional(),
             numGpus: z.int().optional(),
             start: z.number().optional(),
@@ -3252,15 +3362,19 @@ export const zHealthCheckResponse = z.object({
 export const zHealthCheckPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
         type: z.literal('healthCheck'),
         attributes: z.object({
             time: z.number(),
-            status: z.int(),
-            checkType: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([z.literal(0), z.literal(3200)]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3272,7 +3386,7 @@ export const zHealthCheckPostPatchResponse = z.object({
 export const zHealthCheckListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
@@ -3286,8 +3400,12 @@ export const zHealthCheckListResponse = z.object({
         type: z.literal('healthCheck'),
         attributes: z.object({
             time: z.number(),
-            status: z.int(),
-            checkType: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([z.literal(0), z.literal(3200)]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
@@ -3333,7 +3451,11 @@ export const zHealthCheckListResponse = z.object({
             healthCheckAgentId: z.int().optional(),
             healthCheckId: z.int().optional(),
             agentId: z.int().optional(),
-            status: z.int().optional(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]).optional(),
             cracked: z.int().optional(),
             numGpus: z.int().optional(),
             start: z.number().optional(),
@@ -3374,7 +3496,7 @@ export const zLogEntryPatch = z.object({
 export const zLogEntryResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
@@ -3387,9 +3509,14 @@ export const zLogEntryResponse = z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.string(),
+            issuer: z.enum(['API', 'User']),
             issuerId: z.string(),
-            level: z.string(),
+            level: z.enum([
+                'warning',
+                'error',
+                'fatal error',
+                'information'
+            ]),
             message: z.string(),
             time: z.number()
         })
@@ -3401,15 +3528,20 @@ export const zLogEntryResponse = z.object({
 export const zLogEntryPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.string(),
+            issuer: z.enum(['API', 'User']),
             issuerId: z.string(),
-            level: z.string(),
+            level: z.enum([
+                'warning',
+                'error',
+                'fatal error',
+                'information'
+            ]),
             message: z.string(),
             time: z.number()
         })
@@ -3419,7 +3551,7 @@ export const zLogEntryPostPatchResponse = z.object({
 export const zLogEntryListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
@@ -3432,9 +3564,14 @@ export const zLogEntryListResponse = z.object({
         id: z.int(),
         type: z.literal('logEntry'),
         attributes: z.object({
-            issuer: z.string(),
+            issuer: z.enum(['API', 'User']),
             issuerId: z.string(),
-            level: z.string(),
+            level: z.enum([
+                'warning',
+                'error',
+                'fatal error',
+                'information'
+            ]),
             message: z.string(),
             time: z.number()
         })
@@ -3447,10 +3584,32 @@ export const zNotificationSettingCreate = z.object({
     data: z.object({
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            actionFilter: z.string().optional(),
-            action: z.string().optional(),
-            notification: z.string().optional(),
-            receiver: z.string().optional()
+            actionFilter: z.string(),
+            action: z.enum([
+                'createNotification',
+                'setActive',
+                'deleteNotification'
+            ]),
+            notification: z.enum([
+                'taskComplete',
+                'agentError',
+                'ownAgentError',
+                'logError',
+                'newTask',
+                'newHashlist',
+                'hashlistAllCracked',
+                'hashlistCrackedHash',
+                'userCreated',
+                'userDeleted',
+                'userLoginFailed',
+                'logWarn',
+                'logFatal',
+                'newAgent',
+                'deleteTask',
+                'deleteHashlist',
+                'deleteAgent'
+            ]),
+            receiver: z.string()
         })
     })
 });
@@ -3459,9 +3618,31 @@ export const zNotificationSettingPatch = z.object({
     data: z.object({
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string().optional(),
+            action: z.enum([
+                'createNotification',
+                'setActive',
+                'deleteNotification'
+            ]).optional(),
             isActive: z.boolean().optional(),
-            notification: z.string().optional(),
+            notification: z.enum([
+                'taskComplete',
+                'agentError',
+                'ownAgentError',
+                'logError',
+                'newTask',
+                'newHashlist',
+                'hashlistAllCracked',
+                'hashlistCrackedHash',
+                'userCreated',
+                'userDeleted',
+                'userLoginFailed',
+                'logWarn',
+                'logFatal',
+                'newAgent',
+                'deleteTask',
+                'deleteHashlist',
+                'deleteAgent'
+            ]).optional(),
             receiver: z.string().optional()
         })
     })
@@ -3470,7 +3651,7 @@ export const zNotificationSettingPatch = z.object({
 export const zNotificationSettingResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
@@ -3483,9 +3664,31 @@ export const zNotificationSettingResponse = z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string(),
+            action: z.enum([
+                'createNotification',
+                'setActive',
+                'deleteNotification'
+            ]),
             objectId: z.int(),
-            notification: z.string(),
+            notification: z.enum([
+                'taskComplete',
+                'agentError',
+                'ownAgentError',
+                'logError',
+                'newTask',
+                'newHashlist',
+                'hashlistAllCracked',
+                'hashlistCrackedHash',
+                'userCreated',
+                'userDeleted',
+                'userLoginFailed',
+                'logWarn',
+                'logFatal',
+                'newAgent',
+                'deleteTask',
+                'deleteHashlist',
+                'deleteAgent'
+            ]),
             userId: z.int(),
             receiver: z.string(),
             isActive: z.boolean()
@@ -3507,7 +3710,7 @@ export const zNotificationSettingResponse = z.object({
         id: z.int().optional(),
         type: z.literal('user').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -3530,15 +3733,37 @@ export const zNotificationSettingResponse = z.object({
 export const zNotificationSettingPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string(),
+            action: z.enum([
+                'createNotification',
+                'setActive',
+                'deleteNotification'
+            ]),
             objectId: z.int(),
-            notification: z.string(),
+            notification: z.enum([
+                'taskComplete',
+                'agentError',
+                'ownAgentError',
+                'logError',
+                'newTask',
+                'newHashlist',
+                'hashlistAllCracked',
+                'hashlistCrackedHash',
+                'userCreated',
+                'userDeleted',
+                'userLoginFailed',
+                'logWarn',
+                'logFatal',
+                'newAgent',
+                'deleteTask',
+                'deleteHashlist',
+                'deleteAgent'
+            ]),
             userId: z.int(),
             receiver: z.string(),
             isActive: z.boolean()
@@ -3549,7 +3774,7 @@ export const zNotificationSettingPostPatchResponse = z.object({
 export const zNotificationSettingListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
@@ -3562,9 +3787,31 @@ export const zNotificationSettingListResponse = z.object({
         id: z.int(),
         type: z.literal('notificationSetting'),
         attributes: z.object({
-            action: z.string(),
+            action: z.enum([
+                'createNotification',
+                'setActive',
+                'deleteNotification'
+            ]),
             objectId: z.int(),
-            notification: z.string(),
+            notification: z.enum([
+                'taskComplete',
+                'agentError',
+                'ownAgentError',
+                'logError',
+                'newTask',
+                'newHashlist',
+                'hashlistAllCracked',
+                'hashlistCrackedHash',
+                'userCreated',
+                'userDeleted',
+                'userLoginFailed',
+                'logWarn',
+                'logFatal',
+                'newAgent',
+                'deleteTask',
+                'deleteHashlist',
+                'deleteAgent'
+            ]),
             userId: z.int(),
             receiver: z.string(),
             isActive: z.boolean()
@@ -3586,7 +3833,7 @@ export const zNotificationSettingListResponse = z.object({
         id: z.int().optional(),
         type: z.literal('user').optional(),
         attributes: z.object({
-            userId: z.int().optional(),
+            id: z.int().optional(),
             name: z.string().optional(),
             email: z.string().optional(),
             passwordHash: z.string().optional(),
@@ -3624,12 +3871,12 @@ export const zPreprocessorCreate = z.object({
     data: z.object({
         type: z.literal('preprocessor'),
         attributes: z.object({
-            name: z.string().optional(),
-            url: z.string().optional(),
-            binaryName: z.string().optional(),
-            keyspaceCommand: z.string().optional(),
-            skipCommand: z.string().optional(),
-            limitCommand: z.string().optional()
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
         })
     })
 });
@@ -3651,7 +3898,7 @@ export const zPreprocessorPatch = z.object({
 export const zPreprocessorResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
@@ -3679,7 +3926,7 @@ export const zPreprocessorResponse = z.object({
 export const zPreprocessorPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -3698,7 +3945,7 @@ export const zPreprocessorPostPatchResponse = z.object({
 export const zPreprocessorListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
@@ -3723,30 +3970,30 @@ export const zPreprocessorListResponse = z.object({
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
-export const zPretaskCreate = z.object({
+export const zPreTaskCreate = z.object({
     data: z.object({
-        type: z.literal('pretask'),
+        type: z.literal('preTask'),
         attributes: z.object({
-            files: z.array(z.int()).optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
-            isMaskImport: z.boolean().optional(),
-            crackerBinaryTypeId: z.int().optional()
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
         })
     })
 });
 
-export const zPretaskPatch = z.object({
+export const zPreTaskPatch = z.object({
     data: z.object({
-        type: z.literal('pretask'),
+        type: z.literal('preTask'),
         attributes: z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
@@ -3763,10 +4010,10 @@ export const zPretaskPatch = z.object({
     })
 });
 
-export const zPretaskResponse = z.object({
+export const zPreTaskResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
@@ -3777,7 +4024,7 @@ export const zPretaskResponse = z.object({
     }).optional(),
     data: z.object({
         id: z.int(),
-        type: z.literal('pretask'),
+        type: z.literal('preTask'),
         attributes: z.object({
             taskName: z.string(),
             attackCmd: z.string(),
@@ -3816,21 +4063,26 @@ export const zPretaskResponse = z.object({
             filename: z.string().optional(),
             size: z.number().optional(),
             isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]).optional(),
             accessGroupId: z.int().optional(),
             lineCount: z.number().optional()
         }).optional()
     })).optional()
 });
 
-export const zPretaskPostPatchResponse = z.object({
+export const zPreTaskPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
-        type: z.literal('pretask'),
+        type: z.literal('preTask'),
         attributes: z.object({
             taskName: z.string(),
             attackCmd: z.string(),
@@ -3849,10 +4101,10 @@ export const zPretaskPostPatchResponse = z.object({
     })
 });
 
-export const zPretaskListResponse = z.object({
+export const zPreTaskListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
@@ -3863,7 +4115,7 @@ export const zPretaskListResponse = z.object({
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretask'),
+        type: z.literal('preTask'),
         attributes: z.object({
             taskName: z.string(),
             attackCmd: z.string(),
@@ -3902,21 +4154,26 @@ export const zPretaskListResponse = z.object({
             filename: z.string().optional(),
             size: z.number().optional(),
             isSecret: z.boolean().optional(),
-            fileType: z.int().optional(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]).optional(),
             accessGroupId: z.int().optional(),
             lineCount: z.number().optional()
         }).optional()
     })).optional()
 });
 
-export const zPretaskRelationPretaskFiles = z.object({
+export const zPreTaskRelationPretaskFiles = z.object({
     data: z.array(z.object({
         type: z.literal('pretaskFiles'),
         id: z.int().default(1)
     }))
 });
 
-export const zPretaskRelationPretaskFilesGetResponse = z.object({
+export const zPreTaskRelationPretaskFilesGetResponse = z.object({
     data: z.array(z.object({
         type: z.literal('pretaskFiles'),
         id: z.int().default(1)
@@ -3926,7 +4183,7 @@ export const zPretaskRelationPretaskFilesGetResponse = z.object({
 export const zSpeedResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
@@ -4004,7 +4261,7 @@ export const zSpeedResponse = z.object({
 export const zSpeedListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
@@ -4097,8 +4354,8 @@ export const zSupertaskCreate = z.object({
     data: z.object({
         type: z.literal('supertask'),
         attributes: z.object({
-            pretasks: z.array(z.int()).optional(),
-            supertaskName: z.string().optional()
+            pretasks: z.array(z.int()),
+            supertaskName: z.string()
         })
     })
 });
@@ -4115,7 +4372,7 @@ export const zSupertaskPatch = z.object({
 export const zSupertaskResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
@@ -4210,7 +4467,7 @@ export const zSupertaskSingleResponse = z.object({
 export const zSupertaskPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -4224,7 +4481,7 @@ export const zSupertaskPostPatchResponse = z.object({
 export const zSupertaskListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
@@ -4292,28 +4549,28 @@ export const zTaskCreate = z.object({
     data: z.object({
         type: z.literal('task'),
         attributes: z.object({
-            hashlistId: z.int().optional(),
-            files: z.array(z.int()).optional(),
-            taskName: z.string().optional(),
-            attackCmd: z.string().optional(),
-            chunkTime: z.int().optional(),
-            statusTimer: z.int().optional(),
-            priority: z.int().optional(),
-            maxAgents: z.int().optional(),
+            hashlistId: z.int(),
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            priority: z.int(),
+            maxAgents: z.int(),
             color: z.string().optional(),
-            isSmall: z.boolean().optional(),
-            isCpuTask: z.boolean().optional(),
-            useNewBench: z.boolean().optional(),
-            skipKeyspace: z.number().optional(),
-            crackerBinaryId: z.int().optional(),
-            crackerBinaryTypeId: z.int().optional(),
-            isArchived: z.boolean().optional(),
-            notes: z.string().optional(),
-            staticChunks: z.int().optional(),
-            chunkSize: z.number().optional(),
-            forcePipe: z.boolean().optional(),
-            preprocessorId: z.int().optional(),
-            preprocessorCommand: z.string().optional()
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
         })
     })
 });
@@ -4340,7 +4597,7 @@ export const zTaskPatch = z.object({
 export const zTaskResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
@@ -4469,7 +4726,7 @@ export const zTaskResponse = z.object({
 export const zTaskPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -4518,7 +4775,7 @@ export const zTaskPostPatchResponse = z.object({
 export const zTaskListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
@@ -4674,7 +4931,7 @@ export const zTaskWrapperPatch = z.object({
 export const zTaskWrapperResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
@@ -4887,7 +5144,7 @@ export const zTaskWrapperSingleResponse = z.object({
 export const zTaskWrapperPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -4908,7 +5165,7 @@ export const zTaskWrapperPostPatchResponse = z.object({
 export const zTaskWrapperListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
@@ -5035,9 +5292,9 @@ export const zUserCreate = z.object({
     data: z.object({
         type: z.literal('user'),
         attributes: z.object({
-            name: z.string().optional(),
-            email: z.string().optional(),
-            globalPermissionGroupId: z.int().optional()
+            name: z.string(),
+            email: z.string(),
+            globalPermissionGroupId: z.int()
         })
     })
 });
@@ -5057,7 +5314,7 @@ export const zUserPatch = z.object({
 export const zUserResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/users?page[size]=25'),
@@ -5120,7 +5377,7 @@ export const zUserResponse = z.object({
 export const zUserPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
@@ -5146,7 +5403,7 @@ export const zUserPostPatchResponse = z.object({
 export const zUserListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/users?page[size]=25'),
@@ -5220,28 +5477,28 @@ export const zUserRelationAccessGroupsGetResponse = z.object({
     }))
 });
 
-export const zRegVoucherCreate = z.object({
+export const zVoucherCreate = z.object({
     data: z.object({
-        type: z.literal('regVoucher'),
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string()
+        })
+    })
+});
+
+export const zVoucherPatch = z.object({
+    data: z.object({
+        type: z.literal('voucher'),
         attributes: z.object({
             voucher: z.string().optional()
         })
     })
 });
 
-export const zRegVoucherPatch = z.object({
-    data: z.object({
-        type: z.literal('regVoucher'),
-        attributes: z.object({
-            voucher: z.string().optional()
-        })
-    })
-});
-
-export const zRegVoucherResponse = z.object({
+export const zVoucherResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
@@ -5252,7 +5509,7 @@ export const zRegVoucherResponse = z.object({
     }).optional(),
     data: z.object({
         id: z.int(),
-        type: z.literal('regVoucher'),
+        type: z.literal('voucher'),
         attributes: z.object({
             voucher: z.string(),
             time: z.number()
@@ -5262,14 +5519,14 @@ export const zRegVoucherResponse = z.object({
     included: z.array(z.record(z.string(), z.unknown())).optional()
 });
 
-export const zRegVoucherPostPatchResponse = z.object({
+export const zVoucherPostPatchResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     data: z.object({
         id: z.int(),
-        type: z.literal('regVoucher'),
+        type: z.literal('voucher'),
         attributes: z.object({
             voucher: z.string(),
             time: z.number()
@@ -5277,10 +5534,10 @@ export const zRegVoucherPostPatchResponse = z.object({
     })
 });
 
-export const zRegVoucherListResponse = z.object({
+export const zVoucherListResponse = z.object({
     jsonapi: z.object({
         version: z.string().default('1.1'),
-        ext: z.string().optional().default('https://jsonapi.org/profiles/ethanresnick/cursor-pagination')
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
     }),
     links: z.object({
         self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
@@ -5291,7 +5548,7 @@ export const zRegVoucherListResponse = z.object({
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
-        type: z.literal('regVoucher'),
+        type: z.literal('voucher'),
         attributes: z.object({
             voucher: z.string(),
             time: z.number()
@@ -5850,7 +6107,7 @@ export const zGetAgentassignmentsData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsResponse = zAssignmentListResponse;
+export const zGetAgentassignmentsResponse = zAgentAssignmentListResponse;
 
 export const zPatchAgentassignmentsData = z.object({
     body: z.never().optional(),
@@ -5859,7 +6116,7 @@ export const zPatchAgentassignmentsData = z.object({
 });
 
 export const zPostAgentassignmentsData = z.object({
-    body: zAssignmentCreate,
+    body: zAgentAssignmentCreate,
     path: z.never().optional(),
     query: z.never().optional()
 });
@@ -5867,7 +6124,7 @@ export const zPostAgentassignmentsData = z.object({
 /**
  * successful operation
  */
-export const zPostAgentassignmentsResponse = zAssignmentPostPatchResponse;
+export const zPostAgentassignmentsResponse = zAgentAssignmentPostPatchResponse;
 
 export const zGetAgentassignmentsCountData = z.object({
     body: z.never().optional(),
@@ -5884,7 +6141,7 @@ export const zGetAgentassignmentsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsCountResponse = zAssignmentListResponse;
+export const zGetAgentassignmentsCountResponse = zAgentAssignmentListResponse;
 
 export const zGetAgentassignmentsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -5898,7 +6155,7 @@ export const zGetAgentassignmentsByIdByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdByRelationResponse = zAssignmentRelationTaskGetResponse;
+export const zGetAgentassignmentsByIdByRelationResponse = zAgentAssignmentRelationTaskGetResponse;
 
 export const zGetAgentassignmentsByIdRelationshipsByRelationData = z.object({
     body: z.never().optional(),
@@ -5912,10 +6169,10 @@ export const zGetAgentassignmentsByIdRelationshipsByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdRelationshipsByRelationResponse = zAssignmentResponse;
+export const zGetAgentassignmentsByIdRelationshipsByRelationResponse = zAgentAssignmentResponse;
 
 export const zPatchAgentassignmentsByIdRelationshipsByRelationData = z.object({
-    body: zAssignmentRelationTask,
+    body: zAgentAssignmentRelationTask,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -5954,10 +6211,10 @@ export const zGetAgentassignmentsByIdData = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdResponse = zAssignmentResponse;
+export const zGetAgentassignmentsByIdResponse = zAgentAssignmentResponse;
 
 export const zPatchAgentassignmentsByIdData = z.object({
-    body: zAssignmentPatch,
+    body: zAgentAssignmentPatch,
     path: z.object({
         id: z.int()
     }),
@@ -5967,7 +6224,7 @@ export const zPatchAgentassignmentsByIdData = z.object({
 /**
  * successful operation
  */
-export const zPatchAgentassignmentsByIdResponse = zAssignmentPostPatchResponse;
+export const zPatchAgentassignmentsByIdResponse = zAgentAssignmentPostPatchResponse;
 
 export const zDeleteAgentbinariesData = z.object({
     body: z.never().optional(),
@@ -6266,7 +6523,7 @@ export const zGetApiTokensData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensResponse = zJwtApiKeyListResponse;
+export const zGetApiTokensResponse = zApiTokenListResponse;
 
 export const zPatchApiTokensData = z.object({
     body: z.never().optional(),
@@ -6275,7 +6532,7 @@ export const zPatchApiTokensData = z.object({
 });
 
 export const zPostApiTokensData = z.object({
-    body: zJwtApiKeyCreate,
+    body: zApiTokenCreate,
     path: z.never().optional(),
     query: z.never().optional()
 });
@@ -6283,7 +6540,7 @@ export const zPostApiTokensData = z.object({
 /**
  * successful operation
  */
-export const zPostApiTokensResponse = zJwtApiKeyPostPatchResponse;
+export const zPostApiTokensResponse = zApiTokenPostPatchResponse;
 
 export const zGetApiTokensCountData = z.object({
     body: z.never().optional(),
@@ -6300,7 +6557,7 @@ export const zGetApiTokensCountData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensCountResponse = zJwtApiKeyListResponse;
+export const zGetApiTokensCountResponse = zApiTokenListResponse;
 
 export const zGetApiTokensByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -6314,7 +6571,7 @@ export const zGetApiTokensByIdByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensByIdByRelationResponse = zJwtApiKeyRelationUserGetResponse;
+export const zGetApiTokensByIdByRelationResponse = zApiTokenRelationUserGetResponse;
 
 export const zGetApiTokensByIdRelationshipsByRelationData = z.object({
     body: z.never().optional(),
@@ -6328,10 +6585,10 @@ export const zGetApiTokensByIdRelationshipsByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensByIdRelationshipsByRelationResponse = zJwtApiKeyResponse;
+export const zGetApiTokensByIdRelationshipsByRelationResponse = zApiTokenResponse;
 
 export const zPatchApiTokensByIdRelationshipsByRelationData = z.object({
-    body: zJwtApiKeyRelationUser,
+    body: zApiTokenRelationUser,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -6370,10 +6627,10 @@ export const zGetApiTokensByIdData = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensByIdResponse = zJwtApiKeyResponse;
+export const zGetApiTokensByIdResponse = zApiTokenResponse;
 
 export const zPatchApiTokensByIdData = z.object({
-    body: zJwtApiKeyPatch,
+    body: zApiTokenPatch,
     path: z.object({
         id: z.int()
     }),
@@ -6383,7 +6640,7 @@ export const zPatchApiTokensByIdData = z.object({
 /**
  * successful operation
  */
-export const zPatchApiTokensByIdResponse = zJwtApiKeyPostPatchResponse;
+export const zPatchApiTokensByIdResponse = zApiTokenPostPatchResponse;
 
 export const zGetChunksData = z.object({
     body: z.never().optional(),
@@ -7132,7 +7389,7 @@ export const zGetGlobalpermissiongroupsData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsResponse = zRightGroupListResponse;
+export const zGetGlobalpermissiongroupsResponse = zGlobalPermissionGroupListResponse;
 
 export const zPatchGlobalpermissiongroupsData = z.object({
     body: z.never().optional(),
@@ -7141,7 +7398,7 @@ export const zPatchGlobalpermissiongroupsData = z.object({
 });
 
 export const zPostGlobalpermissiongroupsData = z.object({
-    body: zRightGroupCreate,
+    body: zGlobalPermissionGroupCreate,
     path: z.never().optional(),
     query: z.never().optional()
 });
@@ -7149,7 +7406,7 @@ export const zPostGlobalpermissiongroupsData = z.object({
 /**
  * successful operation
  */
-export const zPostGlobalpermissiongroupsResponse = zRightGroupPostPatchResponse;
+export const zPostGlobalpermissiongroupsResponse = zGlobalPermissionGroupPostPatchResponse;
 
 export const zGetGlobalpermissiongroupsCountData = z.object({
     body: z.never().optional(),
@@ -7166,7 +7423,7 @@ export const zGetGlobalpermissiongroupsCountData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsCountResponse = zRightGroupListResponse;
+export const zGetGlobalpermissiongroupsCountResponse = zGlobalPermissionGroupListResponse;
 
 export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -7180,10 +7437,10 @@ export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdByRelationResponse = zRightGroupRelationUserMembersGetResponse;
+export const zGetGlobalpermissiongroupsByIdByRelationResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
 
 export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-    body: zRightGroupRelationUserMembers,
+    body: zGlobalPermissionGroupRelationUserMembers,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -7208,10 +7465,10 @@ export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationData = z.objec
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = zRightGroupResponse;
+export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = zGlobalPermissionGroupResponse;
 
 export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-    body: zRightGroupRelationUserMembers,
+    body: zGlobalPermissionGroupRelationUserMembers,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -7264,10 +7521,10 @@ export const zGetGlobalpermissiongroupsByIdData = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdResponse = zRightGroupResponse;
+export const zGetGlobalpermissiongroupsByIdResponse = zGlobalPermissionGroupResponse;
 
 export const zPatchGlobalpermissiongroupsByIdData = z.object({
-    body: zRightGroupPatch,
+    body: zGlobalPermissionGroupPatch,
     path: z.object({
         id: z.int()
     }),
@@ -7277,7 +7534,7 @@ export const zPatchGlobalpermissiongroupsByIdData = z.object({
 /**
  * successful operation
  */
-export const zPatchGlobalpermissiongroupsByIdResponse = zRightGroupPostPatchResponse;
+export const zPatchGlobalpermissiongroupsByIdResponse = zGlobalPermissionGroupPostPatchResponse;
 
 export const zGetHashesData = z.object({
     body: z.never().optional(),
@@ -8252,7 +8509,7 @@ export const zGetPretasksData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksResponse = zPretaskListResponse;
+export const zGetPretasksResponse = zPreTaskListResponse;
 
 export const zPatchPretasksData = z.object({
     body: z.never().optional(),
@@ -8261,7 +8518,7 @@ export const zPatchPretasksData = z.object({
 });
 
 export const zPostPretasksData = z.object({
-    body: zPretaskCreate,
+    body: zPreTaskCreate,
     path: z.never().optional(),
     query: z.never().optional()
 });
@@ -8269,7 +8526,7 @@ export const zPostPretasksData = z.object({
 /**
  * successful operation
  */
-export const zPostPretasksResponse = zPretaskPostPatchResponse;
+export const zPostPretasksResponse = zPreTaskPostPatchResponse;
 
 export const zGetPretasksCountData = z.object({
     body: z.never().optional(),
@@ -8286,7 +8543,7 @@ export const zGetPretasksCountData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksCountResponse = zPretaskListResponse;
+export const zGetPretasksCountResponse = zPreTaskListResponse;
 
 export const zGetPretasksByIdByRelationData = z.object({
     body: z.never().optional(),
@@ -8300,10 +8557,10 @@ export const zGetPretasksByIdByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksByIdByRelationResponse = zPretaskRelationPretaskFilesGetResponse;
+export const zGetPretasksByIdByRelationResponse = zPreTaskRelationPretaskFilesGetResponse;
 
 export const zDeletePretasksByIdRelationshipsByRelationData = z.object({
-    body: zPretaskRelationPretaskFiles,
+    body: zPreTaskRelationPretaskFiles,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -8328,10 +8585,10 @@ export const zGetPretasksByIdRelationshipsByRelationData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksByIdRelationshipsByRelationResponse = zPretaskResponse;
+export const zGetPretasksByIdRelationshipsByRelationResponse = zPreTaskResponse;
 
 export const zPatchPretasksByIdRelationshipsByRelationData = z.object({
-    body: zPretaskRelationPretaskFiles,
+    body: zPreTaskRelationPretaskFiles,
     path: z.object({
         id: z.int(),
         relation: z.string()
@@ -8384,10 +8641,10 @@ export const zGetPretasksByIdData = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksByIdResponse = zPretaskResponse;
+export const zGetPretasksByIdResponse = zPreTaskResponse;
 
 export const zPatchPretasksByIdData = z.object({
-    body: zPretaskPatch,
+    body: zPreTaskPatch,
     path: z.object({
         id: z.int()
     }),
@@ -8397,7 +8654,7 @@ export const zPatchPretasksByIdData = z.object({
 /**
  * successful operation
  */
-export const zPatchPretasksByIdResponse = zPretaskPostPatchResponse;
+export const zPatchPretasksByIdResponse = zPreTaskPostPatchResponse;
 
 export const zGetSpeedsData = z.object({
     body: z.never().optional(),
@@ -9172,7 +9429,7 @@ export const zGetVouchersData = z.object({
 /**
  * successful operation
  */
-export const zGetVouchersResponse = zRegVoucherListResponse;
+export const zGetVouchersResponse = zVoucherListResponse;
 
 export const zPatchVouchersData = z.object({
     body: z.never().optional(),
@@ -9181,7 +9438,7 @@ export const zPatchVouchersData = z.object({
 });
 
 export const zPostVouchersData = z.object({
-    body: zRegVoucherCreate,
+    body: zVoucherCreate,
     path: z.never().optional(),
     query: z.never().optional()
 });
@@ -9189,7 +9446,7 @@ export const zPostVouchersData = z.object({
 /**
  * successful operation
  */
-export const zPostVouchersResponse = zRegVoucherPostPatchResponse;
+export const zPostVouchersResponse = zVoucherPostPatchResponse;
 
 export const zGetVouchersCountData = z.object({
     body: z.never().optional(),
@@ -9206,7 +9463,7 @@ export const zGetVouchersCountData = z.object({
 /**
  * successful operation
  */
-export const zGetVouchersCountResponse = zRegVoucherListResponse;
+export const zGetVouchersCountResponse = zVoucherListResponse;
 
 export const zDeleteVouchersByIdData = z.object({
     body: z.record(z.string(), z.unknown()),
@@ -9234,10 +9491,10 @@ export const zGetVouchersByIdData = z.object({
 /**
  * successful operation
  */
-export const zGetVouchersByIdResponse = zRegVoucherResponse;
+export const zGetVouchersByIdResponse = zVoucherResponse;
 
 export const zPatchVouchersByIdData = z.object({
-    body: zRegVoucherPatch,
+    body: zVoucherPatch,
     path: z.object({
         id: z.int()
     }),
@@ -9247,7 +9504,7 @@ export const zPatchVouchersByIdData = z.object({
 /**
  * successful operation
  */
-export const zPatchVouchersByIdResponse = zRegVoucherPostPatchResponse;
+export const zPatchVouchersByIdResponse = zVoucherPostPatchResponse;
 
 export const zPostAbortChunkData = z.object({
     body: zAbortChunkHelperApi,

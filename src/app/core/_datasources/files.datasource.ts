@@ -18,7 +18,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { zFileListResponse, zPretaskResponse, zTaskResponse } from '@generated/api/zod.gen';
+import { zFileListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * Data source class definition for files
@@ -100,11 +100,11 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         )
         .subscribe((response: ResponseWrapper) => {
           if (this.editIndex !== undefined && this.editType === 0) {
-            const tasks: JTask = this.serializer.deserialize(response, zTaskResponse) as JTask;
+            const tasks: JTask = this.serializer.deserialize(response, zTaskResponse);
 
             this.setData(tasks.files as JFile[]);
           } else if (this.editType === 1) {
-            const pretask: JPretask = this.serializer.deserialize(response, zPretaskResponse) as JPretask;
+            const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
             if (!this.editType) {
               const nextLink = response.links.next;

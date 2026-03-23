@@ -14,7 +14,7 @@ import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { zPretaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
+import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
@@ -111,7 +111,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-      return this.serializer.deserialize(response, zPretaskListResponse) as JPretask[];
+      return this.serializer.deserialize(response, zPreTaskListResponse);
     } catch {
       return [];
     }
@@ -129,7 +129,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         )
       );
 
-      return this.serializer.deserialize(response, zSupertaskResponse) as JSuperTask;
+      return this.serializer.deserialize(response, zSupertaskResponse);
     } catch {
       return null;
     }
@@ -170,7 +170,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
         this.setPaginationConfig(this.pageSize, length, after, before, this.index);
 
-        return this.serializer.deserialize(response, zPretaskListResponse) as JPretask[];
+        return this.serializer.deserialize(response, zPreTaskListResponse);
       } catch {
         return [];
       }

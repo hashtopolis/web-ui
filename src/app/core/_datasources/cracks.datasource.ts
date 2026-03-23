@@ -86,7 +86,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
           })
         )
       );
-      return this.serializer.deserialize(response, zTaskResponse) as JTask;
+      return this.serializer.deserialize(response, zTaskResponse);
     } catch {
       return null;
     }

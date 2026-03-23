@@ -16,7 +16,7 @@ import { JUser } from '@models/user.model';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { zAgentListResponse, zAssignmentListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -71,7 +71,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const agents: JAgent[] = this.serializer.deserialize(response, zAgentListResponse) as JAgent[];
+        const agents: JAgent[] = this.serializer.deserialize(response, zAgentListResponse);
 
         if (agents && agents.length > 0) {
           agents.forEach((agent: JAgent) => {
@@ -109,7 +109,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAssignmentListResponse) as JAgentAssignment[];
+        const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAgentAssignmentListResponse);
         if (assignments && assignments.length > 0) {
           const userIds: Array<number> = assignments
             .map((assignment) => assignment.agent.userId)
@@ -180,7 +180,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             })
           )
         );
-        users = this.serializer.deserialize(response, zUserListResponse) as JUser[];
+        users = this.serializer.deserialize(response, zUserListResponse);
       } catch {
         // Error already handled via handleFilterError
       }
