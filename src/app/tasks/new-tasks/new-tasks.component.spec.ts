@@ -21,6 +21,7 @@ import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component'
 import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -67,16 +68,36 @@ const MOCK_HASHLISTS_RESPONSE = {
 };
 
 const MOCK_EMPTY_HASHLISTS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [],
   included: []
 };
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
-  data: [{ id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }],
-  included: []
+  jsonapi: { version: '1.1', ext: [] },
+  data: [
+    {
+      id: 1,
+      type: 'crackerBinaryType',
+      attributes: { typeName: 'hashcat', isChunkingAvailable: true },
+      relationships: {
+        crackerVersions: {
+          data: [{ type: 'crackerBinary', id: 10 }]
+        }
+      }
+    }
+  ],
+  included: [
+    {
+      id: 10,
+      type: 'crackerBinary',
+      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+    }
+  ]
 };
 
 const MOCK_CRACKERS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 10,
@@ -88,11 +109,13 @@ const MOCK_CRACKERS_RESPONSE = {
 };
 
 const MOCK_CRACKERS_EMPTY_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [],
   included: []
 };
 
 const MOCK_PREPROCESSORS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -679,6 +702,7 @@ describe('NewTasksComponent', () => {
 
     it('should select the last version by default', async () => {
       const multiVersionResponse = {
+        jsonapi: { version: '1.1', ext: [] },
         data: [
           {
             id: 10,

@@ -25,6 +25,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 
 const mockAccessGroups: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -45,6 +46,7 @@ const mockAccessGroups: ResponseWrapper = {
 };
 
 const mockHashtypes: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 2500,
@@ -78,6 +80,7 @@ const mockHashtypes: ResponseWrapper = {
 };
 
 const mockConfigs: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 66,
     type: 'config',

@@ -24,6 +24,7 @@ describe('NewUserComponent', () => {
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
   const mockPermissionResponse: ResponseWrapper = {
+    jsonapi: { version: '1.1', ext: [] },
     data: [
       {
         id: 1,
