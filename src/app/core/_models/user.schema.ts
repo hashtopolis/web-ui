@@ -4,7 +4,7 @@ export const JUserSchema = z
   .object({
     id: z.number(),
     type: z.string(),
-    email: z.string().email(),
+    email: z.string(),
     name: z.string(),
     registeredSince: z.number(),
     isComputedPassword: z.boolean(),
