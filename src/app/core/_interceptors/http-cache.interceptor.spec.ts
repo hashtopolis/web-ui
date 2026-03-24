@@ -178,6 +178,86 @@ describe('HttpCacheInterceptor', () => {
     firstReq.flush(testData);
   });
 
+  describe('Cache-Control header (RFC 5861)', () => {
+    let cacheService: HttpCacheService;
+
+    beforeEach(() => {
+      cacheService = TestBed.inject(HttpCacheService);
+    });
+
+    it('should use max-age and stale-while-revalidate from response headers', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=10, stale-while-revalidate=20' } });
+
+      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 10_000, 20_000);
+    });
+
+    it('should fall back to defaults when Cache-Control header is absent', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true });
+
+      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 30_000, 60_000);
+    });
+
+    it('should not cache when Cache-Control: no-store is present', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set');
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true }, { headers: { 'Cache-Control': 'no-store' } });
+
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not cache when Cache-Control: no-cache is present', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set');
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true }, { headers: { 'Cache-Control': 'no-cache' } });
+
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not cache when Cache-Control: private is present', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set');
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true }, { headers: { 'Cache-Control': 'private' } });
+
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to default stale window when only max-age is present', () => {
+      const testUrl = 'https://api.test.com/data';
+      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+
+      httpClient.get(testUrl).subscribe();
+
+      const req = httpMock.expectOne(testUrl);
+      req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=5' } });
+
+      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 5_000, 60_000);
+    });
+  });
+
   describe('stale-while-revalidate', () => {
     let cacheService: HttpCacheService;
 
