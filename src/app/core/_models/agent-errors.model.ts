@@ -1,5 +1,5 @@
-import { BaseModel } from './base.model';
-import { JTask } from './task.model';
+import { BaseModel } from '@models/base.model';
+import { JTask } from '@models/task.model';
 
 export interface JAgentErrors extends BaseModel {
   agentId: number;
