@@ -46,8 +46,7 @@ export class LogsDataSource extends BaseDataSource<JLog> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          // @TODO: Type Assertion, remove if possible
-          const logs: JLog[] = this.serializer.deserialize(response, zLogEntryListResponse) as JLog[];
+          const logs: JLog[] = this.serializer.deserialize(response, zLogEntryListResponse);
           /*
             this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it
           */

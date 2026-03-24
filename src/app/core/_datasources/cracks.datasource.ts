@@ -35,7 +35,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    * Load cracked hashes from server
    * @return Promise of cracked hashes
    */
-  async loadCrackedHashes(query?: Filter) {
+  async loadCrackedHashes(query?: Filter): Promise<JHash[]> {
     if (query) {
       this._currentFilter = query;
     }
@@ -65,7 +65,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-      return this.serializer.deserialize(response, zHashListResponse) as JHash[];
+      return this.serializer.deserialize(response, zHashListResponse, { include: ['chunk'] as const });
     } catch {
       return [];
     }

@@ -30,8 +30,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          // @TODO: Type Assertion, remove if possible
-          const superTask = this.serializer.deserialize(response, zSupertaskResponse) as JSuperTask;
+          const superTask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse, { include: ['pretasks'] as const });
           const pretasks = superTask.pretasks;
           this.setData(pretasks);
         })
