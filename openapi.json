@@ -62,7 +62,7 @@
             "name": "include",
             "in": "query",
             "schema": { "type": "string" },
-            "description": "Items to include, comma seperated. Possible options: userMembers,agentMembers"
+            "description": "Items to include, comma seperated. Possible options: Array"
           }
         ],
         "summary": "List AccessGroups",

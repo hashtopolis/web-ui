@@ -5,8 +5,6 @@
 
 import { z } from 'zod';
 
-// ── Agent ───────────────────────────────────────────────────────
-
 export const zJAgent = z.object({
   id: z.number(),
   type: z.literal('agent'),
@@ -22,12 +20,10 @@ export const zJAgent = z.object({
   lastAct: z.string(),
   lastTime: z.number(),
   lastIp: z.string(),
-  userId: z.number(),
+  userId: z.number().nullable(),
   cpuOnly: z.boolean(),
   clientSignature: z.string(),
 }).passthrough();
-
-// ── Chunk ───────────────────────────────────────────────────────
 
 export const zJChunk = z.object({
   id: z.number(),
@@ -45,8 +41,6 @@ export const zJChunk = z.object({
   speed: z.number(),
 }).passthrough();
 
-// ── File ────────────────────────────────────────────────────────
-
 export const zJFile = z.object({
   id: z.number(),
   type: z.literal('file'),
@@ -57,8 +51,6 @@ export const zJFile = z.object({
   accessGroupId: z.number(),
   lineCount: z.number(),
 }).passthrough();
-
-// ── Health Check ────────────────────────────────────────────────
 
 export const zJHealthCheck = z.object({
   id: z.number(),
@@ -72,8 +64,6 @@ export const zJHealthCheck = z.object({
   time: z.number(),
 }).passthrough();
 
-// ── Health Check Agent ──────────────────────────────────────────
-
 export const zJHealthCheckAgent = z.object({
   id: z.number(),
   type: z.literal('healthCheckAgent'),
@@ -86,8 +76,6 @@ export const zJHealthCheckAgent = z.object({
   end: z.number(),
   errors: z.string(),
 }).passthrough();
-
-// ── Notification Setting ────────────────────────────────────────
 
 export const zJNotification = z.object({
   id: z.number(),
