@@ -1,3 +1,5 @@
+import { zPreTaskListResponse } from '@generated/api/zod.gen';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,7 +16,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { zPreTaskListResponse } from '@generated/api/zod.gen';
 
 /**
  * Component class to create a new supertask

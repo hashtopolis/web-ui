@@ -1,3 +1,4 @@
+import { zPreprocessorResponse } from '@generated/api/zod.gen';
 import { Subscription, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -22,7 +23,6 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
-import { zPreprocessorResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-preprocessor',

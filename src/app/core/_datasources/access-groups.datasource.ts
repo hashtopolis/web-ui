@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -11,8 +12,6 @@ import { SERV } from '@services/main.config';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-import { zAccessGroupListResponse } from '@generated/api/zod.gen';
 
 export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   private _currentFilter: Filter = null;

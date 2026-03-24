@@ -1,3 +1,4 @@
+import { zHashlistResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';
@@ -7,7 +8,6 @@ import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { zHashlistResponse } from '@generated/api/zod.gen';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;

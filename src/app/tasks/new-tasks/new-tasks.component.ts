@@ -1,3 +1,9 @@
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse,
+  zPreprocessorListResponse
+} from '@generated/api/zod.gen';
 import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -6,7 +12,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JCrackerBinaryType, JCrackerBinary, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JPreprocessor } from '@models/preprocessor.model';
@@ -35,8 +41,6 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 import { environment } from '@src/environments/environment';
-
-import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistListResponse, zPreprocessorListResponse } from '@generated/api/zod.gen';
 
 type FileId = number;
 
@@ -204,7 +208,9 @@ export class NewTasksComponent implements OnInit {
   private async loadCrackerSelectOptions(): Promise<void> {
     try {
       const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES));
-      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse));
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
 
       let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
@@ -222,7 +228,10 @@ export class NewTasksComponent implements OnInit {
 
       const versionResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
 
-      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(versionResponse, zCrackerBinaryListResponse);
+      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
+        versionResponse,
+        zCrackerBinaryListResponse
+      );
 
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 

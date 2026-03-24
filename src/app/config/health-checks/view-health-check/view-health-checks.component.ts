@@ -1,3 +1,5 @@
+import { zHealthCheckResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -14,7 +16,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-import { zHealthCheckResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-view-health-checks',

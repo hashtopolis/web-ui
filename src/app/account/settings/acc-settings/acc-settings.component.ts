@@ -15,8 +15,8 @@ import { SERV } from '@services/main.config';
 
 import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { zUserResponse } from '@src/generated/api/zod.gen';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
+import { zUserResponse } from '@src/generated/api/zod.gen';
 
 export interface UpdateUserPassword {
   oldPassword: string;

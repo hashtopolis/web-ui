@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { TJsonApiLinks } from 'jsona/lib/JsonaTypes';
+import { z } from 'zod';
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -25,7 +25,7 @@ type JsonaRuntimeProps = {
 // ── Relationship resolution types ────────────────────────────────
 
 /** Extract the typed relationships object from a JSON:API envelope. */
-type ExtractRelationships<T> = T extends { relationships?: infer R } ? NonNullable<R> : {};
+type ExtractRelationships<T> = T extends { relationships?: infer R } ? NonNullable<R> : Record<string, never>;
 
 /** Extract the union of included resource types from a JSON:API envelope. */
 type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;
@@ -37,6 +37,7 @@ type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;
  * To-one  (single data) → FlattenItem<Match> | null
  */
 type ResolveRel<K extends string, Rel, IncUnion> =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   NonNullable<Rel extends { data?: infer D } ? D : never> extends readonly any[]
     ? FlattenItem<Extract<IncUnion, { type: K }>>[]
     : FlattenItem<Extract<IncUnion, { type: K }>> | null;

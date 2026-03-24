@@ -1,3 +1,4 @@
+import { zChunkListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -10,8 +11,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zChunkListResponse } from '@generated/api/zod.gen';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;

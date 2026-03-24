@@ -1,3 +1,4 @@
+import { zHealthCheckAgentListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
@@ -8,8 +9,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zHealthCheckAgentListResponse } from '@generated/api/zod.gen';
 
 export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
   private _healthCheckId = 0;
@@ -39,7 +38,10 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
           finalize(() => (this.loading = false))
         )
         .subscribe((healthCheckResponse: ResponseWrapper) => {
-          const healthChecksAgent: JHealthCheckAgent[] = this.serializer.deserialize(healthCheckResponse, zHealthCheckAgentListResponse);
+          const healthChecksAgent: JHealthCheckAgent[] = this.serializer.deserialize(
+            healthCheckResponse,
+            zHealthCheckAgentListResponse
+          );
 
           const length = healthCheckResponse.meta.page.total_elements;
           const nextLink = healthCheckResponse.links.next;

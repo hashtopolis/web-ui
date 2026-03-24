@@ -2,6 +2,7 @@
  * Contains data source for agents resource
  * @module
  */
+import { zAgentErrorListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JAgentErrors } from '@models/agent-errors.model';
@@ -12,8 +13,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zAgentErrorListResponse } from '@generated/api/zod.gen';
 
 export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
   private _agentId = 0;

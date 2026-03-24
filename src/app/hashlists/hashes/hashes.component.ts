@@ -1,3 +1,5 @@
+import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -14,7 +16,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
-import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes

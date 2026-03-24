@@ -1,6 +1,7 @@
 /**
  * This module contains the component class to create a new hashlist
  */
+import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod.gen';
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -28,7 +29,6 @@ import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hashlist/new-hashlist.form';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-hashlist',

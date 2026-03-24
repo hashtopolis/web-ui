@@ -1,5 +1,6 @@
-import { JsonAPISerializer } from './serializer-service';
-import { zUserResponse, zUserListResponse, zAccessGroupListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupListResponse, zUserListResponse, zUserResponse } from '@generated/api/zod.gen';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 
 describe('JsonAPISerializer', () => {
   let serializer: JsonAPISerializer;

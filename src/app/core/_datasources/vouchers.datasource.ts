@@ -1,3 +1,4 @@
+import { zVoucherListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { Filter } from '@models/request-params.model';
@@ -7,8 +8,6 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JVoucher } from '@src/app/core/_models/voucher.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-import { zVoucherListResponse } from '@generated/api/zod.gen';
 
 export class VouchersDataSource extends BaseDataSource<JVoucher> {
   loadAll(query?: Filter): void {

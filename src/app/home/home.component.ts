@@ -1,3 +1,4 @@
+import { zHashListResponse } from '@generated/api/zod.gen';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -22,7 +23,6 @@ import { RequestParamBuilder } from '@src/app/core/_services/params/builder-impl
 import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
-import { zHashListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-home',

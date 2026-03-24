@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -24,7 +25,6 @@ import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.gua
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.

@@ -1,6 +1,8 @@
 /**
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -14,8 +16,6 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-globalpermissionsgroups',

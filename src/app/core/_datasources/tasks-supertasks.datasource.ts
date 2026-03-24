@@ -1,3 +1,4 @@
+import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
@@ -9,8 +10,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod.gen';
 
 export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   private _supertTaskId = 0;

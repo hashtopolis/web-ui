@@ -1,3 +1,5 @@
+import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
+
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -21,8 +23,6 @@ import { PretasksTableComponent } from '@components/tables/pretasks-table/pretas
 
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-supertasks',

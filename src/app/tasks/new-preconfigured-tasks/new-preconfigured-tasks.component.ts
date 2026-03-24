@@ -1,3 +1,5 @@
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -20,8 +22,6 @@ import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigured-tasks/new-preconfigured-tasks.form';
-
-import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-preconfigured-tasks',
@@ -107,7 +107,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   loadData() {
     const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse));
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadCrackersSubscription$);

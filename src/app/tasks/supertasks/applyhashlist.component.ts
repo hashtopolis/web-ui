@@ -1,3 +1,9 @@
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse
+} from '@generated/api/zod.gen';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -21,8 +27,6 @@ import {
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistListResponse } from '@generated/api/zod.gen';
 
 /**
  * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
@@ -177,7 +181,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   loadCrackerSelectOptions() {
     // Load Cracker Types and Crackers Select Options
     const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse));
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       let id = '';
       if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {

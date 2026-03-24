@@ -1,6 +1,7 @@
 /**
  * This module contains the datasource definition for the preprocessors table component
  */
+import { zPreprocessorListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -13,8 +14,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zPreprocessorListResponse } from '@generated/api/zod.gen';
 
 export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
   private _currentFilter: Filter = null;

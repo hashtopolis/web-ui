@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -10,10 +11,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
-import { JTask } from '@models/task.model';
-import { JUser } from '@models/user.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -24,8 +24,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod.gen';
 
 import {
   EditAgentForm,

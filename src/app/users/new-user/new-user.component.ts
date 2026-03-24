@@ -1,6 +1,7 @@
 /**
  * This module contains the component to create a new user
  */
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
@@ -18,7 +19,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.form';
-import { zGlobalPermissionGroupListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-user',
@@ -47,7 +47,10 @@ export class NewUserComponent implements OnInit {
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS));
 
-      const permissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(response, zGlobalPermissionGroupListResponse);
+      const permissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+        response,
+        zGlobalPermissionGroupListResponse
+      );
       this.selectGlobalPermissionGroups = transformSelectOptions(permissionGroups, DEFAULT_FIELD_MAPPING);
     } catch {
       this.alert.showErrorMessage('Error fetching permission groups');

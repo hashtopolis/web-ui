@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse } from '@generated/api/zod.gen';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -23,7 +24,6 @@ import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
-import { zAccessGroupListResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files

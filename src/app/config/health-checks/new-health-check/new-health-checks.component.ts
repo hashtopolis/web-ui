@@ -1,8 +1,10 @@
+import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JCrackerBinaryType, JCrackerBinary, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -16,7 +18,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
-import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -86,7 +87,9 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse));
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);

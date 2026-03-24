@@ -1,3 +1,10 @@
+import {
+  zAgentAssignmentListResponse,
+  zAgentListResponse,
+  zHashTypeResponse,
+  zSpeedListResponse,
+  zTaskResponse
+} from '@generated/api/zod.gen';
 import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -10,12 +17,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
-import { JHashtype } from '@models/hashtype.model';
 import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 import { SpeedStat } from '@models/speed-stat.model';
+import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -34,8 +41,6 @@ import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { zAgentAssignmentListResponse, zAgentListResponse, zHashTypeResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -363,7 +368,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     const paramsAgentAssign = new RequestParamBuilder();
     paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
     this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(responseAssignments, zAgentAssignmentListResponse);
+      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(
+        responseAssignments,
+        zAgentAssignmentListResponse
+      );
       const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
         (agentAssignment) => agentAssignment.agentId
       );

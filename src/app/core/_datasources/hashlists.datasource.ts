@@ -1,3 +1,4 @@
+import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -12,8 +13,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
-
-import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;

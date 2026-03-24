@@ -1,3 +1,5 @@
+import { zConfigListResponse } from '@generated/api/zod.gen';
+
 import { Injectable } from '@angular/core';
 
 import { UiSettings, UisCacheName, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
@@ -9,7 +11,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { zConfigListResponse } from '@generated/api/zod.gen';
 import { environment } from '@src/environments/environment';
 
 @Injectable({

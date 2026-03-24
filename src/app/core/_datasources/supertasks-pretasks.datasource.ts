@@ -1,3 +1,4 @@
+import { zSupertaskResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';
@@ -8,8 +9,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zSupertaskResponse } from '@generated/api/zod.gen';
 
 export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
   private _supertTaskId = 0;
@@ -30,7 +29,9 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const superTask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse, { include: ['pretasks'] as const });
+          const superTask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse, {
+            include: ['pretasks'] as const
+          });
           const pretasks = superTask.pretasks;
           this.setData(pretasks);
         })

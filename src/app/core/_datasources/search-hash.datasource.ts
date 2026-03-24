@@ -1,3 +1,4 @@
+import { zHashListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHash, SearchHashModel } from '@models/hash.model';
@@ -10,8 +11,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
-import { zHashListResponse } from '@generated/api/zod.gen';
 
 export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   private search: string[];

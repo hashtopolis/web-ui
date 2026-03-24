@@ -1,5 +1,6 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -19,8 +20,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -122,7 +121,9 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(this.serializer.deserialize(response, zCrackerBinaryTypeListResponse));
+      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+      );
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });

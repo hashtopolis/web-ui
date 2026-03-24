@@ -1,4 +1,5 @@
 import { HashListFormat } from '@constants/hashlist.config';
+import { zHashlistListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -12,8 +13,6 @@ import { SERV } from '@services/main.config';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-import { zHashlistListResponse } from '@generated/api/zod.gen';
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;

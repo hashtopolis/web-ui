@@ -1,3 +1,4 @@
+import { zConfigListResponse } from '@generated/api/zod.gen';
 import { Subscription, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -17,8 +18,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import { zConfigListResponse } from '@generated/api/zod.gen';
 
 type ConfigValues = Record<string, string | boolean>;
 type ConfigIds = Record<string, number>;

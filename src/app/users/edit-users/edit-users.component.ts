@@ -1,11 +1,12 @@
+import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod.gen';
 import { finalize } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ResponseWrapper } from '@models/response.model';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -28,7 +29,6 @@ import {
   getEditUserForm,
   getUpdatePassForm
 } from '@src/app/users/edit-users/edit-user.form';
-import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-edit-users',
@@ -126,7 +126,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadAGPSubscription$ = this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
       .subscribe((response: ResponseWrapper) => {
-        const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(response, zGlobalPermissionGroupListResponse);
+        const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+          response,
+          zGlobalPermissionGroupListResponse
+        );
         this.selectGlobalPermissionGroups = transformSelectOptions(globalPermissionGroups, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();

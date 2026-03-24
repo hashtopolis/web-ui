@@ -8,7 +8,7 @@ import { JHashtype } from '@models/hashtype.model';
  * - `BRUTE_FORCE` Health check using brute-force attack
  * @enum
  */
- // @TODO: Check this
+// @TODO: Check this
 export enum HealthCheckType {
   MD5 = 0,
   BCRYPT = 3200

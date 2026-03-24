@@ -1,3 +1,4 @@
+import { zHashlistResponse } from '@generated/api/zod.gen';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
@@ -26,7 +27,6 @@ import {
 } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.form';
 import { SelectOption } from '@src/app/shared/utils/forms';
 import { handleEncode, removeFakePath } from '@src/app/shared/utils/forms';
-import { zHashlistResponse } from '@generated/api/zod.gen';
 
 /**
  * Component for import pre cracked hashes

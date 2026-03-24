@@ -1,3 +1,4 @@
+import { zAccessGroupResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JAccessGroup } from '@models/access-group.model';
@@ -11,8 +12,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zAccessGroupResponse } from '@generated/api/zod.gen';
 
 export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
   private _accessgroupId = 0;

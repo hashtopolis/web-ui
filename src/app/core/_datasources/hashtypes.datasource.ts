@@ -1,3 +1,4 @@
+import { zHashTypeListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -11,8 +12,6 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-import { zHashTypeListResponse } from '@generated/api/zod.gen';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   private _currentFilter: Filter = null;

@@ -1,3 +1,4 @@
+import { zTaskWrapperListResponse } from '@generated/api/zod.gen';
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -9,8 +10,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zTaskWrapperListResponse } from '@generated/api/zod.gen';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;

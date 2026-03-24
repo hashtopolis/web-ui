@@ -1,3 +1,4 @@
+import { zHashListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
@@ -8,8 +9,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zHashListResponse } from '@generated/api/zod.gen';
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;

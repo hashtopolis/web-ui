@@ -1,3 +1,4 @@
+import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod.gen';
 import { FilterType } from 'src/app/core/_models/request-params.model';
 
 import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
@@ -10,7 +11,6 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'task-visual',

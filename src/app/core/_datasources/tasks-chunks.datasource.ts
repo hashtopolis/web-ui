@@ -1,3 +1,4 @@
+import { zChunkListResponse, zTaskResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -11,8 +12,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zChunkListResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;

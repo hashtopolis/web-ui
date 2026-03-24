@@ -1,3 +1,4 @@
+import { zConfigListResponse } from '@generated/api/zod.gen';
 import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -19,8 +20,6 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { environment } from '@src/environments/environment';
-
-import { zConfigListResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-new-agent',

@@ -1,3 +1,4 @@
+import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -21,8 +22,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 @Component({
   selector: 'app-wrbulk',
@@ -112,7 +111,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   loadData() {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(this.serializer.deserialize(response, zCrackerBinaryTypeListResponse));
+      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+      );
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });

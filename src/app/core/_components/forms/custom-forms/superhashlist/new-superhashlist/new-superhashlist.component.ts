@@ -1,3 +1,5 @@
+import { zHashlistListResponse } from '@generated/api/zod.gen';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,8 +14,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import { zHashlistListResponse } from '@generated/api/zod.gen';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.

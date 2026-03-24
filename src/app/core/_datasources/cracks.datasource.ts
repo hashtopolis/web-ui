@@ -1,16 +1,14 @@
+import { zHashListResponse, zTaskResponse } from '@generated/api/zod.gen';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { zHashListResponse, zTaskResponse } from '@generated/api/zod.gen';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
   public length = 0;

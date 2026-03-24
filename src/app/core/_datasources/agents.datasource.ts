@@ -2,6 +2,7 @@
  * Contains data source for agents resource
  * @module
  */
+import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -15,8 +16,6 @@ import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
-import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 

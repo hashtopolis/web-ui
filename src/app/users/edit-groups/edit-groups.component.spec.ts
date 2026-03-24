@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -17,10 +18,8 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
-import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
-
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { zAccessGroupListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
 const mockAccessGroupResponse: ResponseWrapper = {
   data: {

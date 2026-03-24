@@ -1,3 +1,4 @@
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -11,8 +12,6 @@ import { SERV } from '@services/main.config';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
 
 export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
   private _currentFilter: Filter = null;
@@ -42,7 +41,9 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const crackers: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(this.serializer.deserialize(response, zCrackerBinaryTypeListResponse));
+          const crackers: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+            this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

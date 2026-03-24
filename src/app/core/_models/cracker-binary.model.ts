@@ -37,7 +37,7 @@ export const zCrackerBinary = z.object({
   binaryName: z.string(),
   crackerBinaryTypeId: z.number(),
   downloadUrl: z.string(),
-  version: z.string(),
+  version: z.string()
 });
 
 export const zCrackerBinaryType = z.object({
@@ -45,7 +45,7 @@ export const zCrackerBinaryType = z.object({
   type: z.string(),
   typeName: z.string(),
   isChunkingAvailable: z.boolean(),
-  crackerVersions: z.array(zCrackerBinary),
+  crackerVersions: z.array(zCrackerBinary)
 });
 
 export const zCrackerBinaryTypeList = z.array(zCrackerBinaryType);
