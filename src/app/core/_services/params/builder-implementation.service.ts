@@ -103,8 +103,8 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param include new include value
    * @returns object instance
    */
-  addAggregate(aggregate: string): IParamBuilder {
-    this.params.aggregate = this.addToArray<string>(this.params.aggregate, aggregate);
+  addAggregate(aggregateCategory: string, aggregateField: string): IParamBuilder {
+    this.params.aggregate[aggregateCategory] = this.addToArray<string>(this.params.aggregate[aggregateCategory], aggregateField);
     return this;
   }
 
@@ -141,6 +141,7 @@ export class RequestParamBuilder implements IParamBuilder {
     if (this.params.sortOrder) requestParams.sort = this.params.sortOrder;
     if (this.params.filters) requestParams.filter = this.params.filters;
     if (this.params.includeTotal !== undefined) requestParams.include_total = this.params.includeTotal;
+    if (this.params.aggregate !== undefined) requestParams.aggregate = this.params.aggregate;
     return requestParams;
   }
 

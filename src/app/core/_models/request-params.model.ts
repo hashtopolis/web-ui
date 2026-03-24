@@ -47,7 +47,7 @@ interface IRequestParams {
   // Array of Filter objects that have to be performed
   filter?: Array<Filter>;
   //array of aggregated fields to include ex. [active agents for tasks]
-  aggregate?: Array<string>;
+  aggregate?: Array<Array<string>>;
   //array of attributes to sort on where '-' implies descending order on ex. [id, -name]
   sort?: Array<string>;
   //Parameter for count endpoints to also include the count without filters
