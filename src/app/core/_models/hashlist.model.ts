@@ -18,7 +18,7 @@ export interface JHashlist extends BaseModel {
   isHexSalt: boolean;
   isSecret: boolean;
   isSalted: boolean;
-  separator: string;
+  separator?: string | null;
   useBrain: boolean;
   hashCount: number;
   cracked: number;

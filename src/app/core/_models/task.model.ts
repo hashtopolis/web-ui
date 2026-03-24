@@ -36,7 +36,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   keyspace: number;
   keyspaceProgress: number;
   files?: JFile[];
-  color: string;
+  color?: string | null;
   isSmall: boolean;
   isCpuTask: boolean;
   useNewBench: boolean;

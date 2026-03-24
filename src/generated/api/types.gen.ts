@@ -48,8 +48,8 @@ export type AccessGroupResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -82,7 +82,7 @@ export type AccessGroupResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'userMembers';
+        type: 'user';
         attributes: {
             name: string;
             email: string;
@@ -100,7 +100,7 @@ export type AccessGroupResponse = {
         };
     } | {
         id: number;
-        type: 'agentMembers';
+        type: 'agent';
         attributes: {
             agentName: string;
             uid: string;
@@ -114,7 +114,7 @@ export type AccessGroupResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -144,8 +144,8 @@ export type AccessGroupListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -178,7 +178,7 @@ export type AccessGroupListResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'userMembers';
+        type: 'user';
         attributes: {
             name: string;
             email: string;
@@ -196,7 +196,7 @@ export type AccessGroupListResponse = {
         };
     } | {
         id: number;
-        type: 'agentMembers';
+        type: 'agent';
         attributes: {
             agentName: string;
             uid: string;
@@ -210,7 +210,7 @@ export type AccessGroupListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -243,7 +243,7 @@ export type AgentPatch = {
             isTrusted?: boolean;
             os?: 0 | 1 | 2;
             uid?: string;
-            userId?: number;
+            userId?: number | null;
         };
     };
 };
@@ -257,8 +257,8 @@ export type AgentResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -276,7 +276,7 @@ export type AgentResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -373,13 +373,13 @@ export type AgentResponse = {
         };
     } | {
         id: number;
-        type: 'accessGroups';
+        type: 'accessGroup';
         attributes: {
             groupName: string;
         };
     } | {
         id: number;
-        type: 'agentStats';
+        type: 'agentStat';
         attributes: {
             agentId: number;
             statType: 1 | 2 | 3;
@@ -388,7 +388,7 @@ export type AgentResponse = {
         };
     } | {
         id: number;
-        type: 'agentErrors';
+        type: 'agentError';
         attributes: {
             agentId: number;
             taskId: number;
@@ -398,7 +398,7 @@ export type AgentResponse = {
         };
     } | {
         id: number;
-        type: 'chunks';
+        type: 'chunk';
         attributes: {
             taskId: number;
             skip: number;
@@ -414,10 +414,8 @@ export type AgentResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -426,7 +424,7 @@ export type AgentResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -444,7 +442,7 @@ export type AgentResponse = {
         };
     } | {
         id: number;
-        type: 'assignments';
+        type: 'agentAssignment';
         attributes: {
             taskId: number;
             agentId: number;
@@ -474,7 +472,7 @@ export type AgentPostPatchResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -490,8 +488,8 @@ export type AgentListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -509,7 +507,7 @@ export type AgentListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -606,13 +604,13 @@ export type AgentListResponse = {
         };
     } | {
         id: number;
-        type: 'accessGroups';
+        type: 'accessGroup';
         attributes: {
             groupName: string;
         };
     } | {
         id: number;
-        type: 'agentStats';
+        type: 'agentStat';
         attributes: {
             agentId: number;
             statType: 1 | 2 | 3;
@@ -621,7 +619,7 @@ export type AgentListResponse = {
         };
     } | {
         id: number;
-        type: 'agentErrors';
+        type: 'agentError';
         attributes: {
             agentId: number;
             taskId: number;
@@ -631,7 +629,7 @@ export type AgentListResponse = {
         };
     } | {
         id: number;
-        type: 'chunks';
+        type: 'chunk';
         attributes: {
             taskId: number;
             skip: number;
@@ -647,10 +645,8 @@ export type AgentListResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -659,7 +655,7 @@ export type AgentListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -677,7 +673,7 @@ export type AgentListResponse = {
         };
     } | {
         id: number;
-        type: 'assignments';
+        type: 'agentAssignment';
         attributes: {
             taskId: number;
             agentId: number;
@@ -706,7 +702,7 @@ export type AgentAssignmentCreate = {
         attributes: {
             taskId: number;
             agentId: number;
-            benchmark?: string;
+            benchmark: string;
         };
     };
 };
@@ -729,8 +725,8 @@ export type AgentAssignmentResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -779,7 +775,7 @@ export type AgentAssignmentResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -787,8 +783,6 @@ export type AgentAssignmentResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -797,7 +791,7 @@ export type AgentAssignmentResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -841,8 +835,8 @@ export type AgentAssignmentListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -891,7 +885,7 @@ export type AgentAssignmentListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -899,8 +893,6 @@ export type AgentAssignmentListResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -909,7 +901,7 @@ export type AgentAssignmentListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -977,8 +969,8 @@ export type AgentBinaryResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1026,8 +1018,8 @@ export type AgentBinaryListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1056,8 +1048,8 @@ export type AgentErrorResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1086,8 +1078,6 @@ export type AgentErrorResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -1096,7 +1086,7 @@ export type AgentErrorResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -1124,8 +1114,8 @@ export type AgentErrorListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1154,8 +1144,6 @@ export type AgentErrorListResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -1164,7 +1152,7 @@ export type AgentErrorListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -1206,8 +1194,8 @@ export type AgentStatResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1234,8 +1222,8 @@ export type AgentStatListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1284,8 +1272,8 @@ export type ApiTokenResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1295,7 +1283,7 @@ export type ApiTokenResponse = {
             endValid: number;
             userId: number;
             isRevoked: boolean;
-            token?: string;
+            token: string;
         };
     };
     relationships?: {
@@ -1344,7 +1332,7 @@ export type ApiTokenPostPatchResponse = {
             endValid: number;
             userId: number;
             isRevoked: boolean;
-            token?: string;
+            token: string;
         };
     };
 };
@@ -1358,8 +1346,8 @@ export type ApiTokenListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1369,7 +1357,7 @@ export type ApiTokenListResponse = {
             endValid: number;
             userId: number;
             isRevoked: boolean;
-            token?: string;
+            token: string;
         };
     }>;
     relationships?: {
@@ -1428,8 +1416,8 @@ export type ChunkResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1486,7 +1474,7 @@ export type ChunkResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -1494,8 +1482,6 @@ export type ChunkResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -1504,7 +1490,7 @@ export type ChunkResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -1532,8 +1518,8 @@ export type ChunkListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1590,7 +1576,7 @@ export type ChunkListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -1598,8 +1584,6 @@ export type ChunkListResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -1608,7 +1592,7 @@ export type ChunkListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -1660,8 +1644,8 @@ export type ConfigResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1718,8 +1702,8 @@ export type ConfigListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1774,8 +1758,8 @@ export type ConfigSectionResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1799,8 +1783,8 @@ export type ConfigSectionListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1847,8 +1831,8 @@ export type CrackerBinaryResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -1891,10 +1875,8 @@ export type CrackerBinaryResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -1903,7 +1885,7 @@ export type CrackerBinaryResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -1948,8 +1930,8 @@ export type CrackerBinaryListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -1992,10 +1974,8 @@ export type CrackerBinaryListResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -2004,7 +1984,7 @@ export type CrackerBinaryListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -2065,8 +2045,8 @@ export type CrackerBinaryTypeResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -2100,7 +2080,7 @@ export type CrackerBinaryTypeResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'crackerVersions';
+        type: 'crackerBinary';
         attributes: {
             crackerBinaryTypeId: number;
             version: string;
@@ -2109,10 +2089,8 @@ export type CrackerBinaryTypeResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -2121,7 +2099,7 @@ export type CrackerBinaryTypeResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -2164,8 +2142,8 @@ export type CrackerBinaryTypeListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -2199,7 +2177,7 @@ export type CrackerBinaryTypeListResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'crackerVersions';
+        type: 'crackerBinary';
         attributes: {
             crackerBinaryTypeId: number;
             version: string;
@@ -2208,10 +2186,8 @@ export type CrackerBinaryTypeListResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -2220,7 +2196,7 @@ export type CrackerBinaryTypeListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -2288,8 +2264,8 @@ export type FileResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -2386,8 +2362,8 @@ export type FileListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -2441,7 +2417,7 @@ export type GlobalPermissionGroupCreate = {
         type: 'globalPermissionGroup';
         attributes: {
             name: string;
-            permissions?: {
+            permissions: {
                 [key: string]: boolean;
             };
         };
@@ -2469,8 +2445,8 @@ export type GlobalPermissionGroupResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -2496,7 +2472,7 @@ export type GlobalPermissionGroupResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'userMembers';
+        type: 'user';
         attributes: {
             name: string;
             email: string;
@@ -2541,8 +2517,8 @@ export type GlobalPermissionGroupListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -2568,7 +2544,7 @@ export type GlobalPermissionGroupListResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'userMembers';
+        type: 'user';
         attributes: {
             name: string;
             email: string;
@@ -2610,8 +2586,8 @@ export type HashResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -2669,14 +2645,11 @@ export type HashResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -2699,8 +2672,8 @@ export type HashListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -2758,14 +2731,11 @@ export type HashListResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -2797,14 +2767,14 @@ export type HashlistCreate = {
     data: {
         type: 'hashlist';
         attributes: {
-            hashlistSeperator?: string;
+            hashlistSeperator?: string | null;
             sourceType: string;
             sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator?: string;
+            separator?: string | null;
             isSecret: boolean;
             isHexSalt: boolean;
             isSalted: boolean;
@@ -2839,8 +2809,8 @@ export type HashlistResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -2850,7 +2820,7 @@ export type HashlistResponse = {
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -2930,7 +2900,7 @@ export type HashlistResponse = {
         };
     } | {
         id: number;
-        type: 'hashes';
+        type: 'hash';
         attributes: {
             hashlistId: number;
             hash: string;
@@ -2943,16 +2913,13 @@ export type HashlistResponse = {
         };
     } | {
         id: number;
-        type: 'hashlists';
+        type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -2965,10 +2932,8 @@ export type HashlistResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -2977,7 +2942,7 @@ export type HashlistResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -3005,7 +2970,7 @@ export type HashlistSingleResponse = {
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -3085,7 +3050,7 @@ export type HashlistSingleResponse = {
         };
     } | {
         id: number;
-        type: 'hashes';
+        type: 'hash';
         attributes: {
             hashlistId: number;
             hash: string;
@@ -3098,16 +3063,13 @@ export type HashlistSingleResponse = {
         };
     } | {
         id: number;
-        type: 'hashlists';
+        type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -3120,10 +3082,8 @@ export type HashlistSingleResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -3132,7 +3092,7 @@ export type HashlistSingleResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -3164,7 +3124,7 @@ export type HashlistPostPatchResponse = {
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -3187,8 +3147,8 @@ export type HashlistListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -3198,7 +3158,7 @@ export type HashlistListResponse = {
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -3278,7 +3238,7 @@ export type HashlistListResponse = {
         };
     } | {
         id: number;
-        type: 'hashes';
+        type: 'hash';
         attributes: {
             hashlistId: number;
             hash: string;
@@ -3291,16 +3251,13 @@ export type HashlistListResponse = {
         };
     } | {
         id: number;
-        type: 'hashlists';
+        type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -3313,10 +3270,8 @@ export type HashlistListResponse = {
         };
     } | {
         id: number;
-        type: 'tasks';
+        type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -3325,7 +3280,7 @@ export type HashlistListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -3390,8 +3345,8 @@ export type HashTypeResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -3433,8 +3388,8 @@ export type HashTypeListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -3460,8 +3415,8 @@ export type HealthCheckAgentResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -3515,7 +3470,7 @@ export type HealthCheckAgentResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -3543,8 +3498,8 @@ export type HealthCheckAgentListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -3598,7 +3553,7 @@ export type HealthCheckAgentListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -3660,8 +3615,8 @@ export type HealthCheckResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -3727,7 +3682,7 @@ export type HealthCheckResponse = {
         };
     } | {
         id: number;
-        type: 'healthCheckAgents';
+        type: 'healthCheckAgent';
         attributes: {
             healthCheckId: number;
             agentId: number;
@@ -3770,8 +3725,8 @@ export type HealthCheckListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -3837,7 +3792,7 @@ export type HealthCheckListResponse = {
         };
     } | {
         id: number;
-        type: 'healthCheckAgents';
+        type: 'healthCheckAgent';
         attributes: {
             healthCheckId: number;
             agentId: number;
@@ -3892,8 +3847,8 @@ export type LogEntryResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -3939,8 +3894,8 @@ export type LogEntryListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -3992,8 +3947,8 @@ export type NotificationSettingResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4068,8 +4023,8 @@ export type NotificationSettingListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -4167,8 +4122,8 @@ export type PreprocessorResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4216,8 +4171,8 @@ export type PreprocessorListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -4286,8 +4241,8 @@ export type PreTaskResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4305,7 +4260,7 @@ export type PreTaskResponse = {
             maxAgents: number;
             isMaskImport: boolean;
             crackerBinaryTypeId: number;
-            auxiliaryKeyspace?: number;
+            auxiliaryKeyspace: number;
         };
     };
     relationships?: {
@@ -4322,10 +4277,8 @@ export type PreTaskResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'pretaskFiles';
+        type: 'file';
         attributes: {
-            sourceType: string;
-            sourceData: string;
             filename: string;
             size: number;
             isSecret: boolean;
@@ -4357,7 +4310,7 @@ export type PreTaskPostPatchResponse = {
             maxAgents: number;
             isMaskImport: boolean;
             crackerBinaryTypeId: number;
-            auxiliaryKeyspace?: number;
+            auxiliaryKeyspace: number;
         };
     };
 };
@@ -4371,8 +4324,8 @@ export type PreTaskListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -4390,7 +4343,7 @@ export type PreTaskListResponse = {
             maxAgents: number;
             isMaskImport: boolean;
             crackerBinaryTypeId: number;
-            auxiliaryKeyspace?: number;
+            auxiliaryKeyspace: number;
         };
     }>;
     relationships?: {
@@ -4407,10 +4360,8 @@ export type PreTaskListResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'pretaskFiles';
+        type: 'file';
         attributes: {
-            sourceType: string;
-            sourceData: string;
             filename: string;
             size: number;
             isSecret: boolean;
@@ -4444,8 +4395,8 @@ export type SpeedResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4495,7 +4446,7 @@ export type SpeedResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -4503,8 +4454,6 @@ export type SpeedResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -4513,7 +4462,7 @@ export type SpeedResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -4541,8 +4490,8 @@ export type SpeedListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -4592,7 +4541,7 @@ export type SpeedListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
@@ -4600,8 +4549,6 @@ export type SpeedListResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -4610,7 +4557,7 @@ export type SpeedListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -4671,8 +4618,8 @@ export type SupertaskResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4695,9 +4642,8 @@ export type SupertaskResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'pretasks';
+        type: 'preTask';
         attributes: {
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -4736,9 +4682,8 @@ export type SupertaskSingleResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'pretasks';
+        type: 'preTask';
         attributes: {
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -4778,8 +4723,8 @@ export type SupertaskListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -4802,9 +4747,8 @@ export type SupertaskListResponse = {
     };
     included?: Array<{
         id: number;
-        type: 'pretasks';
+        type: 'preTask';
         attributes: {
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -4847,7 +4791,7 @@ export type TaskCreate = {
             statusTimer: number;
             priority: number;
             maxAgents: number;
-            color?: string;
+            color?: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -4871,7 +4815,7 @@ export type TaskPatch = {
         attributes: {
             attackCmd?: string;
             chunkTime?: number;
-            color?: string;
+            color?: string | null;
             isArchived?: boolean;
             isCpuTask?: boolean;
             isSmall?: boolean;
@@ -4893,8 +4837,8 @@ export type TaskResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -4908,7 +4852,7 @@ export type TaskResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -4923,14 +4867,14 @@ export type TaskResponse = {
             forcePipe: boolean;
             preprocessorId: number;
             preprocessorCommand: string;
-            activeAgents?: number;
-            dispatched?: string;
-            searched?: string;
-            status?: 0 | 1 | 2 | 3;
-            estimatedTime?: number;
-            timeSpent?: number;
-            currentSpeed?: number;
-            cprogress?: number;
+            activeAgents: number;
+            dispatched: string;
+            searched: string;
+            status: 0 | 1 | 2 | 3;
+            estimatedTime: number;
+            timeSpent: number;
+            currentSpeed: number;
+            cprogress: number;
         };
     };
     relationships?: {
@@ -5015,14 +4959,11 @@ export type TaskResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -5035,7 +4976,7 @@ export type TaskResponse = {
         };
     } | {
         id: number;
-        type: 'assignedAgents';
+        type: 'agent';
         attributes: {
             agentName: string;
             uid: string;
@@ -5049,16 +4990,14 @@ export type TaskResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
     } | {
         id: number;
-        type: 'files';
+        type: 'file';
         attributes: {
-            sourceType: string;
-            sourceData: string;
             filename: string;
             size: number;
             isSecret: boolean;
@@ -5068,7 +5007,7 @@ export type TaskResponse = {
         };
     } | {
         id: number;
-        type: 'speeds';
+        type: 'speed';
         attributes: {
             agentId: number;
             taskId: number;
@@ -5095,7 +5034,7 @@ export type TaskPostPatchResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -5110,14 +5049,14 @@ export type TaskPostPatchResponse = {
             forcePipe: boolean;
             preprocessorId: number;
             preprocessorCommand: string;
-            activeAgents?: number;
-            dispatched?: string;
-            searched?: string;
-            status?: 0 | 1 | 2 | 3;
-            estimatedTime?: number;
-            timeSpent?: number;
-            currentSpeed?: number;
-            cprogress?: number;
+            activeAgents: number;
+            dispatched: string;
+            searched: string;
+            status: 0 | 1 | 2 | 3;
+            estimatedTime: number;
+            timeSpent: number;
+            currentSpeed: number;
+            cprogress: number;
         };
     };
 };
@@ -5131,8 +5070,8 @@ export type TaskListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -5146,7 +5085,7 @@ export type TaskListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -5161,14 +5100,14 @@ export type TaskListResponse = {
             forcePipe: boolean;
             preprocessorId: number;
             preprocessorCommand: string;
-            activeAgents?: number;
-            dispatched?: string;
-            searched?: string;
-            status?: 0 | 1 | 2 | 3;
-            estimatedTime?: number;
-            timeSpent?: number;
-            currentSpeed?: number;
-            cprogress?: number;
+            activeAgents: number;
+            dispatched: string;
+            searched: string;
+            status: 0 | 1 | 2 | 3;
+            estimatedTime: number;
+            timeSpent: number;
+            currentSpeed: number;
+            cprogress: number;
         };
     }>;
     relationships?: {
@@ -5253,14 +5192,11 @@ export type TaskListResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -5273,7 +5209,7 @@ export type TaskListResponse = {
         };
     } | {
         id: number;
-        type: 'assignedAgents';
+        type: 'agent';
         attributes: {
             agentName: string;
             uid: string;
@@ -5287,16 +5223,14 @@ export type TaskListResponse = {
             lastAct: string;
             lastTime: number;
             lastIp: string;
-            userId: number;
+            userId: number | null;
             cpuOnly: boolean;
             clientSignature: string;
         };
     } | {
         id: number;
-        type: 'files';
+        type: 'file';
         attributes: {
-            sourceType: string;
-            sourceData: string;
             filename: string;
             size: number;
             isSecret: boolean;
@@ -5306,7 +5240,7 @@ export type TaskListResponse = {
         };
     } | {
         id: number;
-        type: 'speeds';
+        type: 'speed';
         attributes: {
             agentId: number;
             taskId: number;
@@ -5352,8 +5286,8 @@ export type TaskWrapperResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -5431,14 +5365,11 @@ export type TaskWrapperResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -5461,8 +5392,6 @@ export type TaskWrapperResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -5471,37 +5400,7 @@ export type TaskWrapperResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
-            isSmall: boolean;
-            isCpuTask: boolean;
-            useNewBench: boolean;
-            skipKeyspace: number;
-            crackerBinaryId: number;
-            crackerBinaryTypeId: number;
-            taskWrapperId: number;
-            isArchived: boolean;
-            notes: string;
-            staticChunks: number;
-            chunkSize: number;
-            forcePipe: boolean;
-            preprocessorId: number;
-            preprocessorCommand: string;
-        };
-    } | {
-        id: number;
-        type: 'tasks';
-        attributes: {
-            hashlistId: number;
-            files: Array<number>;
-            taskName: string;
-            attackCmd: string;
-            chunkTime: number;
-            statusTimer: number;
-            keyspace: number;
-            keyspaceProgress: number;
-            priority: number;
-            maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -5597,14 +5496,11 @@ export type TaskWrapperSingleResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -5627,8 +5523,6 @@ export type TaskWrapperSingleResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -5637,37 +5531,7 @@ export type TaskWrapperSingleResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
-            isSmall: boolean;
-            isCpuTask: boolean;
-            useNewBench: boolean;
-            skipKeyspace: number;
-            crackerBinaryId: number;
-            crackerBinaryTypeId: number;
-            taskWrapperId: number;
-            isArchived: boolean;
-            notes: string;
-            staticChunks: number;
-            chunkSize: number;
-            forcePipe: boolean;
-            preprocessorId: number;
-            preprocessorCommand: string;
-        };
-    } | {
-        id: number;
-        type: 'tasks';
-        attributes: {
-            hashlistId: number;
-            files: Array<number>;
-            taskName: string;
-            attackCmd: string;
-            chunkTime: number;
-            statusTimer: number;
-            keyspace: number;
-            keyspaceProgress: number;
-            priority: number;
-            maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -5716,8 +5580,8 @@ export type TaskWrapperListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -5795,14 +5659,11 @@ export type TaskWrapperListResponse = {
         id: number;
         type: 'hashlist';
         attributes: {
-            hashlistSeperator: string;
-            sourceType: string;
-            sourceData: string;
             name: string;
             format: 0 | 1 | 2 | 3;
             hashTypeId: number;
             hashCount: number;
-            separator: string;
+            separator: string | null;
             cracked: number;
             isSecret: boolean;
             isHexSalt: boolean;
@@ -5825,8 +5686,6 @@ export type TaskWrapperListResponse = {
         id: number;
         type: 'task';
         attributes: {
-            hashlistId: number;
-            files: Array<number>;
             taskName: string;
             attackCmd: string;
             chunkTime: number;
@@ -5835,37 +5694,7 @@ export type TaskWrapperListResponse = {
             keyspaceProgress: number;
             priority: number;
             maxAgents: number;
-            color: string;
-            isSmall: boolean;
-            isCpuTask: boolean;
-            useNewBench: boolean;
-            skipKeyspace: number;
-            crackerBinaryId: number;
-            crackerBinaryTypeId: number;
-            taskWrapperId: number;
-            isArchived: boolean;
-            notes: string;
-            staticChunks: number;
-            chunkSize: number;
-            forcePipe: boolean;
-            preprocessorId: number;
-            preprocessorCommand: string;
-        };
-    } | {
-        id: number;
-        type: 'tasks';
-        attributes: {
-            hashlistId: number;
-            files: Array<number>;
-            taskName: string;
-            attackCmd: string;
-            chunkTime: number;
-            statusTimer: number;
-            keyspace: number;
-            keyspaceProgress: number;
-            priority: number;
-            maxAgents: number;
-            color: string;
+            color: string | null;
             isSmall: boolean;
             isCpuTask: boolean;
             useNewBench: boolean;
@@ -5930,8 +5759,8 @@ export type UserResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -5985,7 +5814,7 @@ export type UserResponse = {
         };
     } | {
         id: number;
-        type: 'accessGroups';
+        type: 'accessGroup';
         attributes: {
             groupName: string;
         };
@@ -6027,8 +5856,8 @@ export type UserListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;
@@ -6082,7 +5911,7 @@ export type UserListResponse = {
         };
     } | {
         id: number;
-        type: 'accessGroups';
+        type: 'accessGroup';
         attributes: {
             groupName: string;
         };
@@ -6130,8 +5959,8 @@ export type VoucherResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: {
         id: number;
@@ -6171,8 +6000,8 @@ export type VoucherListResponse = {
         self: string;
         first?: string;
         last?: string;
-        next?: string;
-        previous?: string;
+        next?: string | null;
+        previous?: string | null;
     };
     data: Array<{
         id: number;

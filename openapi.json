@@ -11280,8 +11280,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -11356,7 +11359,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "userMembers" },
+                    "type": { "type": "string", "const": "user" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -11397,7 +11400,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentMembers" },
+                    "type": { "type": "string", "const": "agent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -11442,7 +11445,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -11509,8 +11512,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/accessgroups?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/accessgroups?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -11588,7 +11594,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "userMembers" },
+                    "type": { "type": "string", "const": "user" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -11629,7 +11635,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentMembers" },
+                    "type": { "type": "string", "const": "agent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -11674,7 +11680,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -11753,7 +11759,7 @@
                     ]
                   },
                   "uid": { "type": "string" },
-                  "userId": { "type": "integer" }
+                  "userId": { "type": ["integer", "null"] }
                 }
               }
             }
@@ -11783,8 +11789,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agents?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/agents?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -11837,7 +11843,7 @@
                   "lastAct": { "type": "string" },
                   "lastTime": { "type": "integer", "format": "int64" },
                   "lastIp": { "type": "string" },
-                  "userId": { "type": "integer" },
+                  "userId": { "type": ["integer", "null"] },
                   "cpuOnly": { "type": "boolean" },
                   "clientSignature": { "type": "string" }
                 }
@@ -12062,7 +12068,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "accessGroups" },
+                    "type": { "type": "string", "const": "accessGroup" },
                     "attributes": {
                       "type": "object",
                       "required": ["groupName"],
@@ -12075,7 +12081,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentStats" },
+                    "type": { "type": "string", "const": "agentStat" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "statType", "time", "value"],
@@ -12099,7 +12105,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentErrors" },
+                    "type": { "type": "string", "const": "agentError" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "taskId", "chunkId", "time", "error"],
@@ -12118,7 +12124,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "chunks" },
+                    "type": { "type": "string", "const": "chunk" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -12169,12 +12175,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -12200,8 +12204,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -12210,7 +12212,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -12234,7 +12236,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "assignments" },
+                    "type": { "type": "string", "const": "agentAssignment" },
                     "attributes": {
                       "type": "object",
                       "required": ["taskId", "agentId", "benchmark"],
@@ -12318,7 +12320,7 @@
                   "lastAct": { "type": "string" },
                   "lastTime": { "type": "integer", "format": "int64" },
                   "lastIp": { "type": "string" },
-                  "userId": { "type": "integer" },
+                  "userId": { "type": ["integer", "null"] },
                   "cpuOnly": { "type": "boolean" },
                   "clientSignature": { "type": "string" }
                 }
@@ -12350,8 +12352,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agents?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agents?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/agents?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -12406,7 +12408,7 @@
                     "lastAct": { "type": "string" },
                     "lastTime": { "type": "integer", "format": "int64" },
                     "lastIp": { "type": "string" },
-                    "userId": { "type": "integer" },
+                    "userId": { "type": ["integer", "null"] },
                     "cpuOnly": { "type": "boolean" },
                     "clientSignature": { "type": "string" }
                   }
@@ -12632,7 +12634,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "accessGroups" },
+                    "type": { "type": "string", "const": "accessGroup" },
                     "attributes": {
                       "type": "object",
                       "required": ["groupName"],
@@ -12645,7 +12647,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentStats" },
+                    "type": { "type": "string", "const": "agentStat" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "statType", "time", "value"],
@@ -12669,7 +12671,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "agentErrors" },
+                    "type": { "type": "string", "const": "agentError" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "taskId", "chunkId", "time", "error"],
@@ -12688,7 +12690,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "chunks" },
+                    "type": { "type": "string", "const": "chunk" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -12739,12 +12741,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -12770,8 +12770,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -12780,7 +12778,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -12804,7 +12802,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "assignments" },
+                    "type": { "type": "string", "const": "agentAssignment" },
                     "attributes": {
                       "type": "object",
                       "required": ["taskId", "agentId", "benchmark"],
@@ -12872,7 +12870,7 @@
                   "agentId": { "type": "integer" },
                   "benchmark": { "type": "string" }
                 },
-                "required": ["taskId", "agentId"]
+                "required": ["taskId", "agentId", "benchmark"]
               }
             }
           }
@@ -12915,8 +12913,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13044,7 +13048,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -13060,8 +13064,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -13087,8 +13089,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -13097,7 +13097,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -13180,8 +13180,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentassignments?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentassignments?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13312,7 +13318,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -13328,8 +13334,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -13355,8 +13359,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -13365,7 +13367,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -13482,8 +13484,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13571,8 +13579,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentbinaries?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentbinaries?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13632,8 +13646,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13696,8 +13713,6 @@
                 "attributes": {
                   "type": "object",
                   "required": [
-                    "hashlistId",
-                    "files",
                     "taskName",
                     "attackCmd",
                     "chunkTime",
@@ -13723,8 +13738,6 @@
                     "preprocessorCommand"
                   ],
                   "properties": {
-                    "hashlistId": { "type": "integer" },
-                    "files": { "type": "array", "items": { "type": "integer" } },
                     "taskName": { "type": "string" },
                     "attackCmd": { "type": "string" },
                     "chunkTime": { "type": "integer" },
@@ -13733,7 +13746,7 @@
                     "keyspaceProgress": { "type": "integer", "format": "int64" },
                     "priority": { "type": "integer" },
                     "maxAgents": { "type": "integer" },
-                    "color": { "type": "string" },
+                    "color": { "type": ["string", "null"] },
                     "isSmall": { "type": "boolean" },
                     "isCpuTask": { "type": "boolean" },
                     "useNewBench": { "type": "boolean" },
@@ -13778,8 +13791,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agenterrors?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agenterrors?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -13845,8 +13861,6 @@
                 "attributes": {
                   "type": "object",
                   "required": [
-                    "hashlistId",
-                    "files",
                     "taskName",
                     "attackCmd",
                     "chunkTime",
@@ -13872,8 +13886,6 @@
                     "preprocessorCommand"
                   ],
                   "properties": {
-                    "hashlistId": { "type": "integer" },
-                    "files": { "type": "array", "items": { "type": "integer" } },
                     "taskName": { "type": "string" },
                     "attackCmd": { "type": "string" },
                     "chunkTime": { "type": "integer" },
@@ -13882,7 +13894,7 @@
                     "keyspaceProgress": { "type": "integer", "format": "int64" },
                     "priority": { "type": "integer" },
                     "maxAgents": { "type": "integer" },
-                    "color": { "type": "string" },
+                    "color": { "type": ["string", "null"] },
                     "isSmall": { "type": "boolean" },
                     "isCpuTask": { "type": "boolean" },
                     "useNewBench": { "type": "boolean" },
@@ -13949,8 +13961,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -14004,8 +14019,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/agentstats?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/agentstats?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -14100,8 +14118,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -14112,7 +14133,7 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked"],
+                "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
@@ -14223,7 +14244,7 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked"],
+                "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
@@ -14259,8 +14280,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/apiTokens?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/apiTokens?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -14273,7 +14297,7 @@
                 "type": { "type": "string", "const": "apiToken" },
                 "attributes": {
                   "type": "object",
-                  "required": ["startValid", "endValid", "userId", "isRevoked"],
+                  "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
                   "properties": {
                     "startValid": { "type": "integer", "format": "int64" },
                     "endValid": { "type": "integer", "format": "int64" },
@@ -14406,8 +14430,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/chunks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/chunks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -14569,7 +14593,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -14585,8 +14609,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -14612,8 +14634,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -14622,7 +14642,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -14670,8 +14690,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/chunks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/chunks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/chunks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -14836,7 +14856,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -14852,8 +14872,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -14879,8 +14897,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -14889,7 +14905,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -14976,8 +14992,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/configs?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/configs?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -15106,8 +15122,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/configs?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/configs?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/configs?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -15232,8 +15248,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/configsections?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/configsections?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -15276,8 +15298,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/configsections?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/configsections?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/configsections?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -15367,8 +15395,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/crackers?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/crackers?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -15466,12 +15494,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -15497,8 +15523,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -15507,7 +15531,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -15591,8 +15615,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/crackers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/crackers?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/crackers?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -15693,12 +15717,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -15724,8 +15746,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -15734,7 +15754,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -15851,8 +15871,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -15930,7 +15953,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "crackerVersions" },
+                    "type": { "type": "string", "const": "crackerBinary" },
                     "attributes": {
                       "type": "object",
                       "required": ["crackerBinaryTypeId", "version", "downloadUrl", "binaryName"],
@@ -15948,12 +15971,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -15979,8 +16000,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -15989,7 +16008,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -16068,8 +16087,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/crackertypes?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/crackertypes?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -16150,7 +16172,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "crackerVersions" },
+                    "type": { "type": "string", "const": "crackerBinary" },
                     "attributes": {
                       "type": "object",
                       "required": ["crackerBinaryTypeId", "version", "downloadUrl", "binaryName"],
@@ -16168,12 +16190,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -16199,8 +16219,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -16209,7 +16227,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -16352,8 +16370,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/files?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/files?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/files?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -16584,8 +16602,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/files?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/files?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/files?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/files?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -16712,7 +16730,7 @@
                   "name": { "type": "string" },
                   "permissions": { "type": "object", "additionalProperties": { "type": "boolean" } }
                 },
-                "required": ["name"]
+                "required": ["name", "permissions"]
               }
             }
           }
@@ -16764,9 +16782,12 @@
                 "type": "string",
                 "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500"
               },
-              "next": { "type": "string", "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25" },
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25"
+              },
               "previous": {
-                "type": "string",
+                "type": ["string", "null"],
                 "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25"
               }
             }
@@ -16825,7 +16846,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "userMembers" },
+                "type": { "type": "string", "const": "user" },
                 "attributes": {
                   "type": "object",
                   "required": [
@@ -16924,9 +16945,12 @@
                 "type": "string",
                 "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500"
               },
-              "next": { "type": "string", "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25" },
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25"
+              },
               "previous": {
-                "type": "string",
+                "type": ["string", "null"],
                 "default": "/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25"
               }
             }
@@ -16988,7 +17012,7 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "userMembers" },
+                "type": { "type": "string", "const": "user" },
                 "attributes": {
                   "type": "object",
                   "required": [
@@ -17084,8 +17108,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashes?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/hashes?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -17237,9 +17261,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -17256,9 +17277,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -17270,7 +17288,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -17313,8 +17331,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashes?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/hashes?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -17469,9 +17487,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -17488,9 +17503,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -17502,7 +17514,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -17562,7 +17574,7 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "hashlistSeperator": { "type": "string" },
+                  "hashlistSeperator": { "type": ["string", "null"] },
                   "sourceType": { "type": "string" },
                   "sourceData": { "type": "string" },
                   "name": { "type": "string" },
@@ -17576,7 +17588,7 @@
                   },
                   "hashTypeId": { "type": "integer" },
                   "hashCount": { "type": "integer" },
-                  "separator": { "type": "string" },
+                  "separator": { "type": ["string", "null"] },
                   "isSecret": { "type": "boolean" },
                   "isHexSalt": { "type": "boolean" },
                   "isSalted": { "type": "boolean" },
@@ -17653,8 +17665,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -17693,7 +17708,7 @@
                   },
                   "hashTypeId": { "type": "integer" },
                   "hashCount": { "type": "integer" },
-                  "separator": { "type": "string" },
+                  "separator": { "type": ["string", "null"] },
                   "cracked": { "type": "integer" },
                   "isSecret": { "type": "boolean" },
                   "isHexSalt": { "type": "boolean" },
@@ -17869,7 +17884,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashes" },
+                    "type": { "type": "string", "const": "hash" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -17900,13 +17915,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashlists" },
+                    "type": { "type": "string", "const": "hashlist" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -17923,9 +17935,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -17937,7 +17946,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -17956,12 +17965,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -17987,8 +17994,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -17997,7 +18002,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -18062,7 +18067,7 @@
                   },
                   "hashTypeId": { "type": "integer" },
                   "hashCount": { "type": "integer" },
-                  "separator": { "type": "string" },
+                  "separator": { "type": ["string", "null"] },
                   "cracked": { "type": "integer" },
                   "isSecret": { "type": "boolean" },
                   "isHexSalt": { "type": "boolean" },
@@ -18238,7 +18243,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashes" },
+                    "type": { "type": "string", "const": "hash" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -18269,13 +18274,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashlists" },
+                    "type": { "type": "string", "const": "hashlist" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -18292,9 +18294,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -18306,7 +18305,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -18325,12 +18324,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -18356,8 +18353,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -18366,7 +18361,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -18443,7 +18438,7 @@
                   },
                   "hashTypeId": { "type": "integer" },
                   "hashCount": { "type": "integer" },
-                  "separator": { "type": "string" },
+                  "separator": { "type": ["string", "null"] },
                   "cracked": { "type": "integer" },
                   "isSecret": { "type": "boolean" },
                   "isHexSalt": { "type": "boolean" },
@@ -18482,8 +18477,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashlists?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/hashlists?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -18524,7 +18522,7 @@
                     },
                     "hashTypeId": { "type": "integer" },
                     "hashCount": { "type": "integer" },
-                    "separator": { "type": "string" },
+                    "separator": { "type": ["string", "null"] },
                     "cracked": { "type": "integer" },
                     "isSecret": { "type": "boolean" },
                     "isHexSalt": { "type": "boolean" },
@@ -18701,7 +18699,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashes" },
+                    "type": { "type": "string", "const": "hash" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -18732,13 +18730,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "hashlists" },
+                    "type": { "type": "string", "const": "hashlist" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -18755,9 +18750,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -18769,7 +18761,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -18788,12 +18780,10 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
+                    "type": { "type": "string", "const": "task" },
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -18819,8 +18809,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -18829,7 +18817,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -18955,8 +18943,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -19038,8 +19029,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/hashtypes?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/hashtypes?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -19089,8 +19083,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -19232,7 +19232,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -19308,8 +19308,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -19454,7 +19460,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -19609,8 +19615,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -19782,7 +19791,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "healthCheckAgents" },
+                    "type": { "type": "string", "const": "healthCheckAgent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -19901,8 +19910,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/healthchecks?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/healthchecks?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20077,7 +20089,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "healthCheckAgents" },
+                    "type": { "type": "string", "const": "healthCheckAgent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -20200,8 +20212,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/logentries?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/logentries?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20311,8 +20326,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/logentries?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/logentries?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/logentries?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20473,8 +20491,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/notifications?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/notifications?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20686,8 +20710,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/notifications?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/notifications?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/notifications?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20909,8 +20939,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -20998,8 +21034,14 @@
               "self": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=25" }
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/preprocessors?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/preprocessors?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -21127,8 +21169,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -21151,7 +21193,8 @@
                   "priority",
                   "maxAgents",
                   "isMaskImport",
-                  "crackerBinaryTypeId"
+                  "crackerBinaryTypeId",
+                  "auxiliaryKeyspace"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -21206,22 +21249,11 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretaskFiles" },
+                "type": { "type": "string", "const": "file" },
                 "attributes": {
                   "type": "object",
-                  "required": [
-                    "sourceType",
-                    "sourceData",
-                    "filename",
-                    "size",
-                    "isSecret",
-                    "fileType",
-                    "accessGroupId",
-                    "lineCount"
-                  ],
+                  "required": ["filename", "size", "isSecret", "fileType", "accessGroupId", "lineCount"],
                   "properties": {
-                    "sourceType": { "type": "string" },
-                    "sourceData": { "type": "string" },
                     "filename": { "type": "string" },
                     "size": { "type": "integer", "format": "int64" },
                     "isSecret": { "type": "boolean" },
@@ -21278,7 +21310,8 @@
                   "priority",
                   "maxAgents",
                   "isMaskImport",
-                  "crackerBinaryTypeId"
+                  "crackerBinaryTypeId",
+                  "auxiliaryKeyspace"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -21323,8 +21356,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/pretasks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/pretasks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -21349,7 +21382,8 @@
                     "priority",
                     "maxAgents",
                     "isMaskImport",
-                    "crackerBinaryTypeId"
+                    "crackerBinaryTypeId",
+                    "auxiliaryKeyspace"
                   ],
                   "properties": {
                     "taskName": { "type": "string" },
@@ -21405,22 +21439,11 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretaskFiles" },
+                "type": { "type": "string", "const": "file" },
                 "attributes": {
                   "type": "object",
-                  "required": [
-                    "sourceType",
-                    "sourceData",
-                    "filename",
-                    "size",
-                    "isSecret",
-                    "fileType",
-                    "accessGroupId",
-                    "lineCount"
-                  ],
+                  "required": ["filename", "size", "isSecret", "fileType", "accessGroupId", "lineCount"],
                   "properties": {
-                    "sourceType": { "type": "string" },
-                    "sourceData": { "type": "string" },
                     "filename": { "type": "string" },
                     "size": { "type": "integer", "format": "int64" },
                     "isSecret": { "type": "boolean" },
@@ -21498,8 +21521,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/speeds?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/speeds?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -21628,7 +21651,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -21644,8 +21667,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -21671,8 +21692,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -21681,7 +21700,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -21729,8 +21748,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/speeds?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/speeds?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/speeds?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -21862,7 +21881,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -21878,8 +21897,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -21905,8 +21922,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -21915,7 +21930,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -22020,8 +22035,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -22072,11 +22090,10 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretasks" },
+                "type": { "type": "string", "const": "preTask" },
                 "attributes": {
                   "type": "object",
                   "required": [
-                    "files",
                     "taskName",
                     "attackCmd",
                     "chunkTime",
@@ -22091,7 +22108,6 @@
                     "crackerBinaryTypeId"
                   ],
                   "properties": {
-                    "files": { "type": "array", "items": { "type": "integer" } },
                     "taskName": { "type": "string" },
                     "attackCmd": { "type": "string" },
                     "chunkTime": { "type": "integer" },
@@ -22163,11 +22179,10 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretasks" },
+                "type": { "type": "string", "const": "preTask" },
                 "attributes": {
                   "type": "object",
                   "required": [
-                    "files",
                     "taskName",
                     "attackCmd",
                     "chunkTime",
@@ -22182,7 +22197,6 @@
                     "crackerBinaryTypeId"
                   ],
                   "properties": {
-                    "files": { "type": "array", "items": { "type": "integer" } },
                     "taskName": { "type": "string" },
                     "attackCmd": { "type": "string" },
                     "chunkTime": { "type": "integer" },
@@ -22256,8 +22270,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/supertasks?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/supertasks?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -22311,11 +22328,10 @@
               "required": ["id", "type", "attributes"],
               "properties": {
                 "id": { "type": "integer" },
-                "type": { "type": "string", "const": "pretasks" },
+                "type": { "type": "string", "const": "preTask" },
                 "attributes": {
                   "type": "object",
                   "required": [
-                    "files",
                     "taskName",
                     "attackCmd",
                     "chunkTime",
@@ -22330,7 +22346,6 @@
                     "crackerBinaryTypeId"
                   ],
                   "properties": {
-                    "files": { "type": "array", "items": { "type": "integer" } },
                     "taskName": { "type": "string" },
                     "attackCmd": { "type": "string" },
                     "chunkTime": { "type": "integer" },
@@ -22404,7 +22419,7 @@
                   "statusTimer": { "type": "integer" },
                   "priority": { "type": "integer" },
                   "maxAgents": { "type": "integer" },
-                  "color": { "type": "string" },
+                  "color": { "type": ["string", "null"] },
                   "isSmall": { "type": "boolean" },
                   "isCpuTask": { "type": "boolean" },
                   "useNewBench": { "type": "boolean" },
@@ -22461,7 +22476,7 @@
                 "properties": {
                   "attackCmd": { "type": "string" },
                   "chunkTime": { "type": "integer" },
-                  "color": { "type": "string" },
+                  "color": { "type": ["string", "null"] },
                   "isArchived": { "type": "boolean" },
                   "isCpuTask": { "type": "boolean" },
                   "isSmall": { "type": "boolean" },
@@ -22499,8 +22514,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/tasks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/tasks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -22534,7 +22549,15 @@
                   "chunkSize",
                   "forcePipe",
                   "preprocessorId",
-                  "preprocessorCommand"
+                  "preprocessorCommand",
+                  "activeAgents",
+                  "dispatched",
+                  "searched",
+                  "status",
+                  "estimatedTime",
+                  "timeSpent",
+                  "currentSpeed",
+                  "cprogress"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -22545,7 +22568,7 @@
                   "keyspaceProgress": { "type": "integer", "format": "int64" },
                   "priority": { "type": "integer" },
                   "maxAgents": { "type": "integer" },
-                  "color": { "type": "string" },
+                  "color": { "type": ["string", "null"] },
                   "isSmall": { "type": "boolean" },
                   "isCpuTask": { "type": "boolean" },
                   "useNewBench": { "type": "boolean" },
@@ -22773,9 +22796,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -22792,9 +22812,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -22806,7 +22823,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -22825,7 +22842,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "assignedAgents" },
+                    "type": { "type": "string", "const": "agent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -22870,7 +22887,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -22882,22 +22899,11 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "files" },
+                    "type": { "type": "string", "const": "file" },
                     "attributes": {
                       "type": "object",
-                      "required": [
-                        "sourceType",
-                        "sourceData",
-                        "filename",
-                        "size",
-                        "isSecret",
-                        "fileType",
-                        "accessGroupId",
-                        "lineCount"
-                      ],
+                      "required": ["filename", "size", "isSecret", "fileType", "accessGroupId", "lineCount"],
                       "properties": {
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "filename": { "type": "string" },
                         "size": { "type": "integer", "format": "int64" },
                         "isSecret": { "type": "boolean" },
@@ -22920,7 +22926,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "speeds" },
+                    "type": { "type": "string", "const": "speed" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "taskId", "speed", "time"],
@@ -22986,7 +22992,15 @@
                   "chunkSize",
                   "forcePipe",
                   "preprocessorId",
-                  "preprocessorCommand"
+                  "preprocessorCommand",
+                  "activeAgents",
+                  "dispatched",
+                  "searched",
+                  "status",
+                  "estimatedTime",
+                  "timeSpent",
+                  "currentSpeed",
+                  "cprogress"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -22997,7 +23011,7 @@
                   "keyspaceProgress": { "type": "integer", "format": "int64" },
                   "priority": { "type": "integer" },
                   "maxAgents": { "type": "integer" },
-                  "color": { "type": "string" },
+                  "color": { "type": ["string", "null"] },
                   "isSmall": { "type": "boolean" },
                   "isCpuTask": { "type": "boolean" },
                   "useNewBench": { "type": "boolean" },
@@ -23056,8 +23070,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/tasks?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/tasks?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/tasks?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -23093,7 +23107,15 @@
                     "chunkSize",
                     "forcePipe",
                     "preprocessorId",
-                    "preprocessorCommand"
+                    "preprocessorCommand",
+                    "activeAgents",
+                    "dispatched",
+                    "searched",
+                    "status",
+                    "estimatedTime",
+                    "timeSpent",
+                    "currentSpeed",
+                    "cprogress"
                   ],
                   "properties": {
                     "taskName": { "type": "string" },
@@ -23104,7 +23126,7 @@
                     "keyspaceProgress": { "type": "integer", "format": "int64" },
                     "priority": { "type": "integer" },
                     "maxAgents": { "type": "integer" },
-                    "color": { "type": "string" },
+                    "color": { "type": ["string", "null"] },
                     "isSmall": { "type": "boolean" },
                     "isCpuTask": { "type": "boolean" },
                     "useNewBench": { "type": "boolean" },
@@ -23333,9 +23355,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -23352,9 +23371,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -23366,7 +23382,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -23385,7 +23401,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "assignedAgents" },
+                    "type": { "type": "string", "const": "agent" },
                     "attributes": {
                       "type": "object",
                       "required": [
@@ -23430,7 +23446,7 @@
                         "lastAct": { "type": "string" },
                         "lastTime": { "type": "integer", "format": "int64" },
                         "lastIp": { "type": "string" },
-                        "userId": { "type": "integer" },
+                        "userId": { "type": ["integer", "null"] },
                         "cpuOnly": { "type": "boolean" },
                         "clientSignature": { "type": "string" }
                       }
@@ -23442,22 +23458,11 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "files" },
+                    "type": { "type": "string", "const": "file" },
                     "attributes": {
                       "type": "object",
-                      "required": [
-                        "sourceType",
-                        "sourceData",
-                        "filename",
-                        "size",
-                        "isSecret",
-                        "fileType",
-                        "accessGroupId",
-                        "lineCount"
-                      ],
+                      "required": ["filename", "size", "isSecret", "fileType", "accessGroupId", "lineCount"],
                       "properties": {
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "filename": { "type": "string" },
                         "size": { "type": "integer", "format": "int64" },
                         "isSecret": { "type": "boolean" },
@@ -23480,7 +23485,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "speeds" },
+                    "type": { "type": "string", "const": "speed" },
                     "attributes": {
                       "type": "object",
                       "required": ["agentId", "taskId", "speed", "time"],
@@ -23579,8 +23584,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -23772,9 +23780,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -23791,9 +23796,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -23805,7 +23807,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -23845,8 +23847,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -23872,8 +23872,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -23882,72 +23880,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
-                        "isSmall": { "type": "boolean" },
-                        "isCpuTask": { "type": "boolean" },
-                        "useNewBench": { "type": "boolean" },
-                        "skipKeyspace": { "type": "integer", "format": "int64" },
-                        "crackerBinaryId": { "type": "integer" },
-                        "crackerBinaryTypeId": { "type": "integer" },
-                        "taskWrapperId": { "type": "integer" },
-                        "isArchived": { "type": "boolean" },
-                        "notes": { "type": "string" },
-                        "staticChunks": { "type": "integer" },
-                        "chunkSize": { "type": "integer", "format": "int64" },
-                        "forcePipe": { "type": "boolean" },
-                        "preprocessorId": { "type": "integer" },
-                        "preprocessorCommand": { "type": "string" }
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "object",
-                  "required": ["id", "type", "attributes"],
-                  "properties": {
-                    "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
-                    "attributes": {
-                      "type": "object",
-                      "required": [
-                        "hashlistId",
-                        "files",
-                        "taskName",
-                        "attackCmd",
-                        "chunkTime",
-                        "statusTimer",
-                        "keyspace",
-                        "keyspaceProgress",
-                        "priority",
-                        "maxAgents",
-                        "color",
-                        "isSmall",
-                        "isCpuTask",
-                        "useNewBench",
-                        "skipKeyspace",
-                        "crackerBinaryId",
-                        "crackerBinaryTypeId",
-                        "taskWrapperId",
-                        "isArchived",
-                        "notes",
-                        "staticChunks",
-                        "chunkSize",
-                        "forcePipe",
-                        "preprocessorId",
-                        "preprocessorCommand"
-                      ],
-                      "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
-                        "taskName": { "type": "string" },
-                        "attackCmd": { "type": "string" },
-                        "chunkTime": { "type": "integer" },
-                        "statusTimer": { "type": "integer" },
-                        "keyspace": { "type": "integer", "format": "int64" },
-                        "keyspaceProgress": { "type": "integer", "format": "int64" },
-                        "priority": { "type": "integer" },
-                        "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -24165,9 +24098,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -24184,9 +24114,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -24198,7 +24125,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -24238,8 +24165,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -24265,8 +24190,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -24275,72 +24198,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
-                        "isSmall": { "type": "boolean" },
-                        "isCpuTask": { "type": "boolean" },
-                        "useNewBench": { "type": "boolean" },
-                        "skipKeyspace": { "type": "integer", "format": "int64" },
-                        "crackerBinaryId": { "type": "integer" },
-                        "crackerBinaryTypeId": { "type": "integer" },
-                        "taskWrapperId": { "type": "integer" },
-                        "isArchived": { "type": "boolean" },
-                        "notes": { "type": "string" },
-                        "staticChunks": { "type": "integer" },
-                        "chunkSize": { "type": "integer", "format": "int64" },
-                        "forcePipe": { "type": "boolean" },
-                        "preprocessorId": { "type": "integer" },
-                        "preprocessorCommand": { "type": "string" }
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "object",
-                  "required": ["id", "type", "attributes"],
-                  "properties": {
-                    "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
-                    "attributes": {
-                      "type": "object",
-                      "required": [
-                        "hashlistId",
-                        "files",
-                        "taskName",
-                        "attackCmd",
-                        "chunkTime",
-                        "statusTimer",
-                        "keyspace",
-                        "keyspaceProgress",
-                        "priority",
-                        "maxAgents",
-                        "color",
-                        "isSmall",
-                        "isCpuTask",
-                        "useNewBench",
-                        "skipKeyspace",
-                        "crackerBinaryId",
-                        "crackerBinaryTypeId",
-                        "taskWrapperId",
-                        "isArchived",
-                        "notes",
-                        "staticChunks",
-                        "chunkSize",
-                        "forcePipe",
-                        "preprocessorId",
-                        "preprocessorCommand"
-                      ],
-                      "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
-                        "taskName": { "type": "string" },
-                        "attackCmd": { "type": "string" },
-                        "chunkTime": { "type": "integer" },
-                        "statusTimer": { "type": "integer" },
-                        "keyspace": { "type": "integer", "format": "int64" },
-                        "keyspaceProgress": { "type": "integer", "format": "int64" },
-                        "priority": { "type": "integer" },
-                        "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -24442,8 +24300,11 @@
               "self": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/taskwrappers?page[size]=25&page[after]=25" },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrappers?page[size]=25&page[before]=25"
+              }
             }
           },
           "data": {
@@ -24638,9 +24499,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistSeperator",
-                        "sourceType",
-                        "sourceData",
                         "name",
                         "format",
                         "hashTypeId",
@@ -24657,9 +24515,6 @@
                         "isArchived"
                       ],
                       "properties": {
-                        "hashlistSeperator": { "type": "string" },
-                        "sourceType": { "type": "string" },
-                        "sourceData": { "type": "string" },
                         "name": { "type": "string" },
                         "format": {
                           "oneOf": [
@@ -24671,7 +24526,7 @@
                         },
                         "hashTypeId": { "type": "integer" },
                         "hashCount": { "type": "integer" },
-                        "separator": { "type": "string" },
+                        "separator": { "type": ["string", "null"] },
                         "cracked": { "type": "integer" },
                         "isSecret": { "type": "boolean" },
                         "isHexSalt": { "type": "boolean" },
@@ -24711,8 +24566,6 @@
                     "attributes": {
                       "type": "object",
                       "required": [
-                        "hashlistId",
-                        "files",
                         "taskName",
                         "attackCmd",
                         "chunkTime",
@@ -24738,8 +24591,6 @@
                         "preprocessorCommand"
                       ],
                       "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
                         "taskName": { "type": "string" },
                         "attackCmd": { "type": "string" },
                         "chunkTime": { "type": "integer" },
@@ -24748,72 +24599,7 @@
                         "keyspaceProgress": { "type": "integer", "format": "int64" },
                         "priority": { "type": "integer" },
                         "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
-                        "isSmall": { "type": "boolean" },
-                        "isCpuTask": { "type": "boolean" },
-                        "useNewBench": { "type": "boolean" },
-                        "skipKeyspace": { "type": "integer", "format": "int64" },
-                        "crackerBinaryId": { "type": "integer" },
-                        "crackerBinaryTypeId": { "type": "integer" },
-                        "taskWrapperId": { "type": "integer" },
-                        "isArchived": { "type": "boolean" },
-                        "notes": { "type": "string" },
-                        "staticChunks": { "type": "integer" },
-                        "chunkSize": { "type": "integer", "format": "int64" },
-                        "forcePipe": { "type": "boolean" },
-                        "preprocessorId": { "type": "integer" },
-                        "preprocessorCommand": { "type": "string" }
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "object",
-                  "required": ["id", "type", "attributes"],
-                  "properties": {
-                    "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "tasks" },
-                    "attributes": {
-                      "type": "object",
-                      "required": [
-                        "hashlistId",
-                        "files",
-                        "taskName",
-                        "attackCmd",
-                        "chunkTime",
-                        "statusTimer",
-                        "keyspace",
-                        "keyspaceProgress",
-                        "priority",
-                        "maxAgents",
-                        "color",
-                        "isSmall",
-                        "isCpuTask",
-                        "useNewBench",
-                        "skipKeyspace",
-                        "crackerBinaryId",
-                        "crackerBinaryTypeId",
-                        "taskWrapperId",
-                        "isArchived",
-                        "notes",
-                        "staticChunks",
-                        "chunkSize",
-                        "forcePipe",
-                        "preprocessorId",
-                        "preprocessorCommand"
-                      ],
-                      "properties": {
-                        "hashlistId": { "type": "integer" },
-                        "files": { "type": "array", "items": { "type": "integer" } },
-                        "taskName": { "type": "string" },
-                        "attackCmd": { "type": "string" },
-                        "chunkTime": { "type": "integer" },
-                        "statusTimer": { "type": "integer" },
-                        "keyspace": { "type": "integer", "format": "int64" },
-                        "keyspaceProgress": { "type": "integer", "format": "int64" },
-                        "priority": { "type": "integer" },
-                        "maxAgents": { "type": "integer" },
-                        "color": { "type": "string" },
+                        "color": { "type": ["string", "null"] },
                         "isSmall": { "type": "boolean" },
                         "isCpuTask": { "type": "boolean" },
                         "useNewBench": { "type": "boolean" },
@@ -24939,8 +24725,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/users?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/users?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/users?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -25067,7 +24853,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "accessGroups" },
+                    "type": { "type": "string", "const": "accessGroup" },
                     "attributes": {
                       "type": "object",
                       "required": ["groupName"],
@@ -25163,8 +24949,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/users?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/users?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/users?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/users?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -25294,7 +25080,7 @@
                   "required": ["id", "type", "attributes"],
                   "properties": {
                     "id": { "type": "integer" },
-                    "type": { "type": "string", "const": "accessGroups" },
+                    "type": { "type": "string", "const": "accessGroup" },
                     "attributes": {
                       "type": "object",
                       "required": ["groupName"],
@@ -25397,8 +25183,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=25" }
             }
           },
           "data": {
@@ -25472,8 +25258,8 @@
               "self": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25" },
               "first": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=0" },
               "last": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=500" },
-              "next": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=25" },
-              "previous": { "type": "string", "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=25" }
+              "next": { "type": ["string", "null"], "default": "/api/v2/ui/vouchers?page[size]=25&page[after]=25" },
+              "previous": { "type": ["string", "null"], "default": "/api/v2/ui/vouchers?page[size]=25&page[before]=25" }
             }
           },
           "data": {

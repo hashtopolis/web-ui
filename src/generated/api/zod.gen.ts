@@ -46,8 +46,8 @@ export const zAccessGroupResponse = z.object({
         self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -80,7 +80,7 @@ export const zAccessGroupResponse = z.object({
     }).optional(),
     included: z.array(z.union([z.object({
             id: z.int(),
-            type: z.literal('userMembers'),
+            type: z.literal('user'),
             attributes: z.object({
                 name: z.string(),
                 email: z.string(),
@@ -98,7 +98,7 @@ export const zAccessGroupResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('agentMembers'),
+            type: z.literal('agent'),
             attributes: z.object({
                 agentName: z.string(),
                 uid: z.string(),
@@ -120,7 +120,7 @@ export const zAccessGroupResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -150,8 +150,8 @@ export const zAccessGroupListResponse = z.object({
         self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -184,7 +184,7 @@ export const zAccessGroupListResponse = z.object({
     }).optional(),
     included: z.array(z.union([z.object({
             id: z.int(),
-            type: z.literal('userMembers'),
+            type: z.literal('user'),
             attributes: z.object({
                 name: z.string(),
                 email: z.string(),
@@ -202,7 +202,7 @@ export const zAccessGroupListResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('agentMembers'),
+            type: z.literal('agent'),
             attributes: z.object({
                 agentName: z.string(),
                 uid: z.string(),
@@ -224,7 +224,7 @@ export const zAccessGroupListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -265,7 +265,7 @@ export const zAgentPatch = z.object({
                 z.literal(2)
             ]).optional(),
             uid: z.string().optional(),
-            userId: z.int().optional()
+            userId: z.int().nullish()
         })
     })
 });
@@ -279,8 +279,8 @@ export const zAgentResponse = z.object({
         self: z.string().default('/api/v2/ui/agents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -306,7 +306,7 @@ export const zAgentResponse = z.object({
             lastAct: z.string(),
             lastTime: z.number(),
             lastIp: z.string(),
-            userId: z.int(),
+            userId: z.int().nullable(),
             cpuOnly: z.boolean(),
             clientSignature: z.string()
         })
@@ -405,14 +405,14 @@ export const zAgentResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('accessGroups'),
+            type: z.literal('accessGroup'),
             attributes: z.object({
                 groupName: z.string()
             })
         }),
         z.object({
             id: z.int(),
-            type: z.literal('agentStats'),
+            type: z.literal('agentStat'),
             attributes: z.object({
                 agentId: z.int(),
                 statType: z.union([
@@ -426,7 +426,7 @@ export const zAgentResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('agentErrors'),
+            type: z.literal('agentError'),
             attributes: z.object({
                 agentId: z.int(),
                 taskId: z.int(),
@@ -437,7 +437,7 @@ export const zAgentResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('chunks'),
+            type: z.literal('chunk'),
             attributes: z.object({
                 taskId: z.int(),
                 skip: z.int(),
@@ -466,10 +466,8 @@ export const zAgentResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -478,7 +476,7 @@ export const zAgentResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -497,7 +495,7 @@ export const zAgentResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('assignments'),
+            type: z.literal('agentAssignment'),
             attributes: z.object({
                 taskId: z.int(),
                 agentId: z.int(),
@@ -536,7 +534,7 @@ export const zAgentPostPatchResponse = z.object({
             lastAct: z.string(),
             lastTime: z.number(),
             lastIp: z.string(),
-            userId: z.int(),
+            userId: z.int().nullable(),
             cpuOnly: z.boolean(),
             clientSignature: z.string()
         })
@@ -552,8 +550,8 @@ export const zAgentListResponse = z.object({
         self: z.string().default('/api/v2/ui/agents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -579,7 +577,7 @@ export const zAgentListResponse = z.object({
             lastAct: z.string(),
             lastTime: z.number(),
             lastIp: z.string(),
-            userId: z.int(),
+            userId: z.int().nullable(),
             cpuOnly: z.boolean(),
             clientSignature: z.string()
         })
@@ -678,14 +676,14 @@ export const zAgentListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('accessGroups'),
+            type: z.literal('accessGroup'),
             attributes: z.object({
                 groupName: z.string()
             })
         }),
         z.object({
             id: z.int(),
-            type: z.literal('agentStats'),
+            type: z.literal('agentStat'),
             attributes: z.object({
                 agentId: z.int(),
                 statType: z.union([
@@ -699,7 +697,7 @@ export const zAgentListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('agentErrors'),
+            type: z.literal('agentError'),
             attributes: z.object({
                 agentId: z.int(),
                 taskId: z.int(),
@@ -710,7 +708,7 @@ export const zAgentListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('chunks'),
+            type: z.literal('chunk'),
             attributes: z.object({
                 taskId: z.int(),
                 skip: z.int(),
@@ -739,10 +737,8 @@ export const zAgentListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -751,7 +747,7 @@ export const zAgentListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -770,7 +766,7 @@ export const zAgentListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('assignments'),
+            type: z.literal('agentAssignment'),
             attributes: z.object({
                 taskId: z.int(),
                 agentId: z.int(),
@@ -800,7 +796,7 @@ export const zAgentAssignmentCreate = z.object({
         attributes: z.object({
             taskId: z.int(),
             agentId: z.int(),
-            benchmark: z.string().optional()
+            benchmark: z.string()
         })
     })
 });
@@ -823,8 +819,8 @@ export const zAgentAssignmentResponse = z.object({
         self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -881,7 +877,7 @@ export const zAgentAssignmentResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -889,8 +885,6 @@ export const zAgentAssignmentResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -899,7 +893,7 @@ export const zAgentAssignmentResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -943,8 +937,8 @@ export const zAgentAssignmentListResponse = z.object({
         self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1001,7 +995,7 @@ export const zAgentAssignmentListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -1009,8 +1003,6 @@ export const zAgentAssignmentListResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -1019,7 +1011,7 @@ export const zAgentAssignmentListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -1087,8 +1079,8 @@ export const zAgentBinaryResponse = z.object({
         self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1134,8 +1126,8 @@ export const zAgentBinaryListResponse = z.object({
         self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1162,8 +1154,8 @@ export const zAgentErrorResponse = z.object({
         self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1192,8 +1184,6 @@ export const zAgentErrorResponse = z.object({
         id: z.int(),
         type: z.literal('task'),
         attributes: z.object({
-            hashlistId: z.int(),
-            files: z.array(z.int()),
             taskName: z.string(),
             attackCmd: z.string(),
             chunkTime: z.int(),
@@ -1202,7 +1192,7 @@ export const zAgentErrorResponse = z.object({
             keyspaceProgress: z.number(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string(),
+            color: z.string().nullable(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -1230,8 +1220,8 @@ export const zAgentErrorListResponse = z.object({
         self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1260,8 +1250,6 @@ export const zAgentErrorListResponse = z.object({
         id: z.int(),
         type: z.literal('task'),
         attributes: z.object({
-            hashlistId: z.int(),
-            files: z.array(z.int()),
             taskName: z.string(),
             attackCmd: z.string(),
             chunkTime: z.int(),
@@ -1270,7 +1258,7 @@ export const zAgentErrorListResponse = z.object({
             keyspaceProgress: z.number(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string(),
+            color: z.string().nullable(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -1312,8 +1300,8 @@ export const zAgentStatResponse = z.object({
         self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1342,8 +1330,8 @@ export const zAgentStatListResponse = z.object({
         self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1394,8 +1382,8 @@ export const zApiTokenResponse = z.object({
         self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1405,7 +1393,7 @@ export const zApiTokenResponse = z.object({
             endValid: z.number(),
             userId: z.int(),
             isRevoked: z.boolean(),
-            token: z.string().optional()
+            token: z.string()
         })
     }),
     relationships: z.object({
@@ -1454,7 +1442,7 @@ export const zApiTokenPostPatchResponse = z.object({
             endValid: z.number(),
             userId: z.int(),
             isRevoked: z.boolean(),
-            token: z.string().optional()
+            token: z.string()
         })
     })
 });
@@ -1468,8 +1456,8 @@ export const zApiTokenListResponse = z.object({
         self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1479,7 +1467,7 @@ export const zApiTokenListResponse = z.object({
             endValid: z.number(),
             userId: z.int(),
             isRevoked: z.boolean(),
-            token: z.string().optional()
+            token: z.string()
         })
     })),
     relationships: z.object({
@@ -1538,8 +1526,8 @@ export const zChunkResponse = z.object({
         self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1616,7 +1604,7 @@ export const zChunkResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -1624,8 +1612,6 @@ export const zChunkResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -1634,7 +1620,7 @@ export const zChunkResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -1662,8 +1648,8 @@ export const zChunkListResponse = z.object({
         self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1740,7 +1726,7 @@ export const zChunkListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -1748,8 +1734,6 @@ export const zChunkListResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -1758,7 +1742,7 @@ export const zChunkListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -1810,8 +1794,8 @@ export const zConfigResponse = z.object({
         self: z.string().default('/api/v2/ui/configs?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1868,8 +1852,8 @@ export const zConfigListResponse = z.object({
         self: z.string().default('/api/v2/ui/configs?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1924,8 +1908,8 @@ export const zConfigSectionResponse = z.object({
         self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -1947,8 +1931,8 @@ export const zConfigSectionListResponse = z.object({
         self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -1993,8 +1977,8 @@ export const zCrackerBinaryResponse = z.object({
         self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -2037,10 +2021,8 @@ export const zCrackerBinaryResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -2049,7 +2031,7 @@ export const zCrackerBinaryResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -2094,8 +2076,8 @@ export const zCrackerBinaryListResponse = z.object({
         self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -2138,10 +2120,8 @@ export const zCrackerBinaryListResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -2150,7 +2130,7 @@ export const zCrackerBinaryListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -2211,8 +2191,8 @@ export const zCrackerBinaryTypeResponse = z.object({
         self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -2246,7 +2226,7 @@ export const zCrackerBinaryTypeResponse = z.object({
     }).optional(),
     included: z.array(z.union([z.object({
             id: z.int(),
-            type: z.literal('crackerVersions'),
+            type: z.literal('crackerBinary'),
             attributes: z.object({
                 crackerBinaryTypeId: z.int(),
                 version: z.string(),
@@ -2255,10 +2235,8 @@ export const zCrackerBinaryTypeResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -2267,7 +2245,7 @@ export const zCrackerBinaryTypeResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -2310,8 +2288,8 @@ export const zCrackerBinaryTypeListResponse = z.object({
         self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -2345,7 +2323,7 @@ export const zCrackerBinaryTypeListResponse = z.object({
     }).optional(),
     included: z.array(z.union([z.object({
             id: z.int(),
-            type: z.literal('crackerVersions'),
+            type: z.literal('crackerBinary'),
             attributes: z.object({
                 crackerBinaryTypeId: z.int(),
                 version: z.string(),
@@ -2354,10 +2332,8 @@ export const zCrackerBinaryTypeListResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -2366,7 +2342,7 @@ export const zCrackerBinaryTypeListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -2444,8 +2420,8 @@ export const zFileResponse = z.object({
         self: z.string().default('/api/v2/ui/files?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -2557,8 +2533,8 @@ export const zFileListResponse = z.object({
         self: z.string().default('/api/v2/ui/files?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -2617,7 +2593,7 @@ export const zGlobalPermissionGroupCreate = z.object({
         type: z.literal('globalPermissionGroup'),
         attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.boolean()).optional()
+            permissions: z.record(z.string(), z.boolean())
         })
     })
 });
@@ -2641,8 +2617,8 @@ export const zGlobalPermissionGroupResponse = z.object({
         self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -2666,7 +2642,7 @@ export const zGlobalPermissionGroupResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('userMembers'),
+        type: z.literal('user'),
         attributes: z.object({
             name: z.string(),
             email: z.string(),
@@ -2709,8 +2685,8 @@ export const zGlobalPermissionGroupListResponse = z.object({
         self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -2734,7 +2710,7 @@ export const zGlobalPermissionGroupListResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('userMembers'),
+        type: z.literal('user'),
         attributes: z.object({
             name: z.string(),
             email: z.string(),
@@ -2776,8 +2752,8 @@ export const zHashResponse = z.object({
         self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -2847,9 +2823,6 @@ export const zHashResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -2859,7 +2832,7 @@ export const zHashResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -2882,8 +2855,8 @@ export const zHashListResponse = z.object({
         self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -2953,9 +2926,6 @@ export const zHashListResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -2965,7 +2935,7 @@ export const zHashListResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -2997,7 +2967,7 @@ export const zHashlistCreate = z.object({
     data: z.object({
         type: z.literal('hashlist'),
         attributes: z.object({
-            hashlistSeperator: z.string().optional(),
+            hashlistSeperator: z.string().nullish(),
             sourceType: z.string(),
             sourceData: z.string(),
             name: z.string(),
@@ -3009,7 +2979,7 @@ export const zHashlistCreate = z.object({
             ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
-            separator: z.string().optional(),
+            separator: z.string().nullish(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
             isSalted: z.boolean(),
@@ -3044,8 +3014,8 @@ export const zHashlistResponse = z.object({
         self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -3060,7 +3030,7 @@ export const zHashlistResponse = z.object({
             ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
-            separator: z.string(),
+            separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
@@ -3143,7 +3113,7 @@ export const zHashlistResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashes'),
+            type: z.literal('hash'),
             attributes: z.object({
                 hashlistId: z.int(),
                 hash: z.string(),
@@ -3157,11 +3127,8 @@ export const zHashlistResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashlists'),
+            type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -3171,7 +3138,7 @@ export const zHashlistResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -3185,10 +3152,8 @@ export const zHashlistResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -3197,7 +3162,7 @@ export const zHashlistResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -3231,7 +3196,7 @@ export const zHashlistSingleResponse = z.object({
             ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
-            separator: z.string(),
+            separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
@@ -3314,7 +3279,7 @@ export const zHashlistSingleResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashes'),
+            type: z.literal('hash'),
             attributes: z.object({
                 hashlistId: z.int(),
                 hash: z.string(),
@@ -3328,11 +3293,8 @@ export const zHashlistSingleResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashlists'),
+            type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -3342,7 +3304,7 @@ export const zHashlistSingleResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -3356,10 +3318,8 @@ export const zHashlistSingleResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -3368,7 +3328,7 @@ export const zHashlistSingleResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -3406,7 +3366,7 @@ export const zHashlistPostPatchResponse = z.object({
             ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
-            separator: z.string(),
+            separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
@@ -3429,8 +3389,8 @@ export const zHashlistListResponse = z.object({
         self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -3445,7 +3405,7 @@ export const zHashlistListResponse = z.object({
             ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
-            separator: z.string(),
+            separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
@@ -3528,7 +3488,7 @@ export const zHashlistListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashes'),
+            type: z.literal('hash'),
             attributes: z.object({
                 hashlistId: z.int(),
                 hash: z.string(),
@@ -3542,11 +3502,8 @@ export const zHashlistListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('hashlists'),
+            type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -3556,7 +3513,7 @@ export const zHashlistListResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -3570,10 +3527,8 @@ export const zHashlistListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('tasks'),
+            type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -3582,7 +3537,7 @@ export const zHashlistListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -3648,8 +3603,8 @@ export const zHashTypeResponse = z.object({
         self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -3689,8 +3644,8 @@ export const zHashTypeListResponse = z.object({
         self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -3714,8 +3669,8 @@ export const zHealthCheckAgentResponse = z.object({
         self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -3781,7 +3736,7 @@ export const zHealthCheckAgentResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -3816,8 +3771,8 @@ export const zHealthCheckAgentListResponse = z.object({
         self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -3883,7 +3838,7 @@ export const zHealthCheckAgentListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -3958,8 +3913,8 @@ export const zHealthCheckResponse = z.object({
         self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4035,7 +3990,7 @@ export const zHealthCheckResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('healthCheckAgents'),
+            type: z.literal('healthCheckAgent'),
             attributes: z.object({
                 healthCheckId: z.int(),
                 agentId: z.int(),
@@ -4090,8 +4045,8 @@ export const zHealthCheckListResponse = z.object({
         self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -4167,7 +4122,7 @@ export const zHealthCheckListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('healthCheckAgents'),
+            type: z.literal('healthCheckAgent'),
             attributes: z.object({
                 healthCheckId: z.int(),
                 agentId: z.int(),
@@ -4223,8 +4178,8 @@ export const zLogEntryResponse = z.object({
         self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4284,8 +4239,8 @@ export const zLogEntryListResponse = z.object({
         self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -4387,8 +4342,8 @@ export const zNotificationSettingResponse = z.object({
         self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4507,8 +4462,8 @@ export const zNotificationSettingListResponse = z.object({
         self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -4628,8 +4583,8 @@ export const zPreprocessorResponse = z.object({
         self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4675,8 +4630,8 @@ export const zPreprocessorListResponse = z.object({
         self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -4743,8 +4698,8 @@ export const zPreTaskResponse = z.object({
         self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4762,7 +4717,7 @@ export const zPreTaskResponse = z.object({
             maxAgents: z.int(),
             isMaskImport: z.boolean(),
             crackerBinaryTypeId: z.int(),
-            auxiliaryKeyspace: z.int().optional()
+            auxiliaryKeyspace: z.int()
         })
     }),
     relationships: z.object({
@@ -4779,10 +4734,8 @@ export const zPreTaskResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretaskFiles'),
+        type: z.literal('file'),
         attributes: z.object({
-            sourceType: z.string(),
-            sourceData: z.string(),
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
@@ -4819,7 +4772,7 @@ export const zPreTaskPostPatchResponse = z.object({
             maxAgents: z.int(),
             isMaskImport: z.boolean(),
             crackerBinaryTypeId: z.int(),
-            auxiliaryKeyspace: z.int().optional()
+            auxiliaryKeyspace: z.int()
         })
     })
 });
@@ -4833,8 +4786,8 @@ export const zPreTaskListResponse = z.object({
         self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -4852,7 +4805,7 @@ export const zPreTaskListResponse = z.object({
             maxAgents: z.int(),
             isMaskImport: z.boolean(),
             crackerBinaryTypeId: z.int(),
-            auxiliaryKeyspace: z.int().optional()
+            auxiliaryKeyspace: z.int()
         })
     })),
     relationships: z.object({
@@ -4869,10 +4822,8 @@ export const zPreTaskListResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretaskFiles'),
+        type: z.literal('file'),
         attributes: z.object({
-            sourceType: z.string(),
-            sourceData: z.string(),
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
@@ -4911,8 +4862,8 @@ export const zSpeedResponse = z.object({
         self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -4970,7 +4921,7 @@ export const zSpeedResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -4978,8 +4929,6 @@ export const zSpeedResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -4988,7 +4937,7 @@ export const zSpeedResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -5016,8 +4965,8 @@ export const zSpeedListResponse = z.object({
         self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -5075,7 +5024,7 @@ export const zSpeedListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
@@ -5083,8 +5032,6 @@ export const zSpeedListResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -5093,7 +5040,7 @@ export const zSpeedListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -5154,8 +5101,8 @@ export const zSupertaskResponse = z.object({
         self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -5178,9 +5125,8 @@ export const zSupertaskResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretasks'),
+        type: z.literal('preTask'),
         attributes: z.object({
-            files: z.array(z.int()),
             taskName: z.string(),
             attackCmd: z.string(),
             chunkTime: z.int(),
@@ -5219,9 +5165,8 @@ export const zSupertaskSingleResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretasks'),
+        type: z.literal('preTask'),
         attributes: z.object({
-            files: z.array(z.int()),
             taskName: z.string(),
             attackCmd: z.string(),
             chunkTime: z.int(),
@@ -5261,8 +5206,8 @@ export const zSupertaskListResponse = z.object({
         self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -5285,9 +5230,8 @@ export const zSupertaskListResponse = z.object({
     }).optional(),
     included: z.array(z.object({
         id: z.int(),
-        type: z.literal('pretasks'),
+        type: z.literal('preTask'),
         attributes: z.object({
-            files: z.array(z.int()),
             taskName: z.string(),
             attackCmd: z.string(),
             chunkTime: z.int(),
@@ -5330,7 +5274,7 @@ export const zTaskCreate = z.object({
             statusTimer: z.int(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string().optional(),
+            color: z.string().nullish(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -5354,7 +5298,7 @@ export const zTaskPatch = z.object({
         attributes: z.object({
             attackCmd: z.string().optional(),
             chunkTime: z.int().optional(),
-            color: z.string().optional(),
+            color: z.string().nullish(),
             isArchived: z.boolean().optional(),
             isCpuTask: z.boolean().optional(),
             isSmall: z.boolean().optional(),
@@ -5376,8 +5320,8 @@ export const zTaskResponse = z.object({
         self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -5391,7 +5335,7 @@ export const zTaskResponse = z.object({
             keyspaceProgress: z.number(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string(),
+            color: z.string().nullable(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -5406,19 +5350,19 @@ export const zTaskResponse = z.object({
             forcePipe: z.boolean(),
             preprocessorId: z.int(),
             preprocessorCommand: z.string(),
-            activeAgents: z.int().optional(),
-            dispatched: z.string().optional(),
-            searched: z.string().optional(),
+            activeAgents: z.int(),
+            dispatched: z.string(),
+            searched: z.string(),
             status: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            estimatedTime: z.int().optional(),
-            timeSpent: z.int().optional(),
-            currentSpeed: z.int().optional(),
-            cprogress: z.int().optional()
+            ]),
+            estimatedTime: z.int(),
+            timeSpent: z.int(),
+            currentSpeed: z.int(),
+            cprogress: z.int()
         })
     }),
     relationships: z.object({
@@ -5506,9 +5450,6 @@ export const zTaskResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -5518,7 +5459,7 @@ export const zTaskResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -5532,7 +5473,7 @@ export const zTaskResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('assignedAgents'),
+            type: z.literal('agent'),
             attributes: z.object({
                 agentName: z.string(),
                 uid: z.string(),
@@ -5554,17 +5495,15 @@ export const zTaskResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
         }),
         z.object({
             id: z.int(),
-            type: z.literal('files'),
+            type: z.literal('file'),
             attributes: z.object({
-                sourceType: z.string(),
-                sourceData: z.string(),
                 filename: z.string(),
                 size: z.number(),
                 isSecret: z.boolean(),
@@ -5580,7 +5519,7 @@ export const zTaskResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('speeds'),
+            type: z.literal('speed'),
             attributes: z.object({
                 agentId: z.int(),
                 taskId: z.int(),
@@ -5608,7 +5547,7 @@ export const zTaskPostPatchResponse = z.object({
             keyspaceProgress: z.number(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string(),
+            color: z.string().nullable(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -5623,19 +5562,19 @@ export const zTaskPostPatchResponse = z.object({
             forcePipe: z.boolean(),
             preprocessorId: z.int(),
             preprocessorCommand: z.string(),
-            activeAgents: z.int().optional(),
-            dispatched: z.string().optional(),
-            searched: z.string().optional(),
+            activeAgents: z.int(),
+            dispatched: z.string(),
+            searched: z.string(),
             status: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            estimatedTime: z.int().optional(),
-            timeSpent: z.int().optional(),
-            currentSpeed: z.int().optional(),
-            cprogress: z.int().optional()
+            ]),
+            estimatedTime: z.int(),
+            timeSpent: z.int(),
+            currentSpeed: z.int(),
+            cprogress: z.int()
         })
     })
 });
@@ -5649,8 +5588,8 @@ export const zTaskListResponse = z.object({
         self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -5664,7 +5603,7 @@ export const zTaskListResponse = z.object({
             keyspaceProgress: z.number(),
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string(),
+            color: z.string().nullable(),
             isSmall: z.boolean(),
             isCpuTask: z.boolean(),
             useNewBench: z.boolean(),
@@ -5679,19 +5618,19 @@ export const zTaskListResponse = z.object({
             forcePipe: z.boolean(),
             preprocessorId: z.int(),
             preprocessorCommand: z.string(),
-            activeAgents: z.int().optional(),
-            dispatched: z.string().optional(),
-            searched: z.string().optional(),
+            activeAgents: z.int(),
+            dispatched: z.string(),
+            searched: z.string(),
             status: z.union([
                 z.literal(0),
                 z.literal(1),
                 z.literal(2),
                 z.literal(3)
-            ]).optional(),
-            estimatedTime: z.int().optional(),
-            timeSpent: z.int().optional(),
-            currentSpeed: z.int().optional(),
-            cprogress: z.int().optional()
+            ]),
+            estimatedTime: z.int(),
+            timeSpent: z.int(),
+            currentSpeed: z.int(),
+            cprogress: z.int()
         })
     })),
     relationships: z.object({
@@ -5779,9 +5718,6 @@ export const zTaskListResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -5791,7 +5727,7 @@ export const zTaskListResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -5805,7 +5741,7 @@ export const zTaskListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('assignedAgents'),
+            type: z.literal('agent'),
             attributes: z.object({
                 agentName: z.string(),
                 uid: z.string(),
@@ -5827,17 +5763,15 @@ export const zTaskListResponse = z.object({
                 lastAct: z.string(),
                 lastTime: z.number(),
                 lastIp: z.string(),
-                userId: z.int(),
+                userId: z.int().nullable(),
                 cpuOnly: z.boolean(),
                 clientSignature: z.string()
             })
         }),
         z.object({
             id: z.int(),
-            type: z.literal('files'),
+            type: z.literal('file'),
             attributes: z.object({
-                sourceType: z.string(),
-                sourceData: z.string(),
                 filename: z.string(),
                 size: z.number(),
                 isSecret: z.boolean(),
@@ -5853,7 +5787,7 @@ export const zTaskListResponse = z.object({
         }),
         z.object({
             id: z.int(),
-            type: z.literal('speeds'),
+            type: z.literal('speed'),
             attributes: z.object({
                 agentId: z.int(),
                 taskId: z.int(),
@@ -5900,8 +5834,8 @@ export const zTaskWrapperResponse = z.object({
         self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -5984,9 +5918,6 @@ export const zTaskWrapperResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -5996,7 +5927,7 @@ export const zTaskWrapperResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -6021,8 +5952,6 @@ export const zTaskWrapperResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -6031,38 +5960,7 @@ export const zTaskWrapperResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
-                isSmall: z.boolean(),
-                isCpuTask: z.boolean(),
-                useNewBench: z.boolean(),
-                skipKeyspace: z.number(),
-                crackerBinaryId: z.int(),
-                crackerBinaryTypeId: z.int(),
-                taskWrapperId: z.int(),
-                isArchived: z.boolean(),
-                notes: z.string(),
-                staticChunks: z.int(),
-                chunkSize: z.number(),
-                forcePipe: z.boolean(),
-                preprocessorId: z.int(),
-                preprocessorCommand: z.string()
-            })
-        }),
-        z.object({
-            id: z.int(),
-            type: z.literal('tasks'),
-            attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
-                taskName: z.string(),
-                attackCmd: z.string(),
-                chunkTime: z.int(),
-                statusTimer: z.int(),
-                keyspace: z.number(),
-                keyspaceProgress: z.number(),
-                priority: z.int(),
-                maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -6164,9 +6062,6 @@ export const zTaskWrapperSingleResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -6176,7 +6071,7 @@ export const zTaskWrapperSingleResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -6201,8 +6096,6 @@ export const zTaskWrapperSingleResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -6211,38 +6104,7 @@ export const zTaskWrapperSingleResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
-                isSmall: z.boolean(),
-                isCpuTask: z.boolean(),
-                useNewBench: z.boolean(),
-                skipKeyspace: z.number(),
-                crackerBinaryId: z.int(),
-                crackerBinaryTypeId: z.int(),
-                taskWrapperId: z.int(),
-                isArchived: z.boolean(),
-                notes: z.string(),
-                staticChunks: z.int(),
-                chunkSize: z.number(),
-                forcePipe: z.boolean(),
-                preprocessorId: z.int(),
-                preprocessorCommand: z.string()
-            })
-        }),
-        z.object({
-            id: z.int(),
-            type: z.literal('tasks'),
-            attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
-                taskName: z.string(),
-                attackCmd: z.string(),
-                chunkTime: z.int(),
-                statusTimer: z.int(),
-                keyspace: z.number(),
-                keyspaceProgress: z.number(),
-                priority: z.int(),
-                maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -6295,8 +6157,8 @@ export const zTaskWrapperListResponse = z.object({
         self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -6379,9 +6241,6 @@ export const zTaskWrapperListResponse = z.object({
             id: z.int(),
             type: z.literal('hashlist'),
             attributes: z.object({
-                hashlistSeperator: z.string(),
-                sourceType: z.string(),
-                sourceData: z.string(),
                 name: z.string(),
                 format: z.union([
                     z.literal(0),
@@ -6391,7 +6250,7 @@ export const zTaskWrapperListResponse = z.object({
                 ]),
                 hashTypeId: z.int(),
                 hashCount: z.int(),
-                separator: z.string(),
+                separator: z.string().nullable(),
                 cracked: z.int(),
                 isSecret: z.boolean(),
                 isHexSalt: z.boolean(),
@@ -6416,8 +6275,6 @@ export const zTaskWrapperListResponse = z.object({
             id: z.int(),
             type: z.literal('task'),
             attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
                 taskName: z.string(),
                 attackCmd: z.string(),
                 chunkTime: z.int(),
@@ -6426,38 +6283,7 @@ export const zTaskWrapperListResponse = z.object({
                 keyspaceProgress: z.number(),
                 priority: z.int(),
                 maxAgents: z.int(),
-                color: z.string(),
-                isSmall: z.boolean(),
-                isCpuTask: z.boolean(),
-                useNewBench: z.boolean(),
-                skipKeyspace: z.number(),
-                crackerBinaryId: z.int(),
-                crackerBinaryTypeId: z.int(),
-                taskWrapperId: z.int(),
-                isArchived: z.boolean(),
-                notes: z.string(),
-                staticChunks: z.int(),
-                chunkSize: z.number(),
-                forcePipe: z.boolean(),
-                preprocessorId: z.int(),
-                preprocessorCommand: z.string()
-            })
-        }),
-        z.object({
-            id: z.int(),
-            type: z.literal('tasks'),
-            attributes: z.object({
-                hashlistId: z.int(),
-                files: z.array(z.int()),
-                taskName: z.string(),
-                attackCmd: z.string(),
-                chunkTime: z.int(),
-                statusTimer: z.int(),
-                keyspace: z.number(),
-                keyspaceProgress: z.number(),
-                priority: z.int(),
-                maxAgents: z.int(),
-                color: z.string(),
+                color: z.string().nullable(),
                 isSmall: z.boolean(),
                 isCpuTask: z.boolean(),
                 useNewBench: z.boolean(),
@@ -6523,8 +6349,8 @@ export const zUserResponse = z.object({
         self: z.string().default('/api/v2/ui/users?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -6576,7 +6402,7 @@ export const zUserResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('accessGroups'),
+            type: z.literal('accessGroup'),
             attributes: z.object({
                 groupName: z.string()
             })
@@ -6618,8 +6444,8 @@ export const zUserListResponse = z.object({
         self: z.string().default('/api/v2/ui/users?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
@@ -6671,7 +6497,7 @@ export const zUserListResponse = z.object({
             })
         }), z.object({
             id: z.int(),
-            type: z.literal('accessGroups'),
+            type: z.literal('accessGroup'),
             attributes: z.object({
                 groupName: z.string()
             })
@@ -6719,8 +6545,8 @@ export const zVoucherResponse = z.object({
         self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.object({
         id: z.int(),
@@ -6758,8 +6584,8 @@ export const zVoucherListResponse = z.object({
         self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
         first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
         last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
-        next: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
-        previous: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
+        next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
     }).optional(),
     data: z.array(z.object({
         id: z.int(),
