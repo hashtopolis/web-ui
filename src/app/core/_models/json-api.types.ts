@@ -62,12 +62,12 @@ type RequireKeys<T, K extends string> = [K] extends [never]
  * { id, type, attributes: { name } } → { id, type, name }
  */
 type FlattenItem<D> = D extends { attributes?: infer A }
-  ? Omit<D, 'attributes' | 'relationships'> & NonNullable<A> & JsonaRuntimeProps
+  ? Omit<D, 'attributes' | 'relationships'> & Required<NonNullable<A>> & JsonaRuntimeProps
   : D & JsonaRuntimeProps;
 
 /** Flatten data item + attach resolved relationship properties. */
 type FlattenItemWithRels<D, Rels, IncUnion> = D extends { attributes?: infer A }
-  ? Omit<D, 'attributes' | 'relationships'> & NonNullable<A> & RelationshipMap<Rels, IncUnion> & JsonaRuntimeProps
+  ? Omit<D, 'attributes' | 'relationships'> & Required<NonNullable<A>> & RelationshipMap<Rels, IncUnion> & JsonaRuntimeProps
   : D & JsonaRuntimeProps;
 
 // ── Main types ───────────────────────────────────────────────────

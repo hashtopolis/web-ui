@@ -17,8 +17,6 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
-import { zJAgent } from '@models/schemas';
-import { z } from 'zod';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -73,7 +71,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const agents: JAgent[] = z.array(zJAgent).parse(this.serializer.deserialize(response, zAgentListResponse));
+        const agents: JAgent[] = this.serializer.deserialize(response, zAgentListResponse);
 
         if (agents && agents.length > 0) {
           agents.forEach((agent: JAgent) => {

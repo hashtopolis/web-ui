@@ -15,7 +15,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { zHealthCheckResponse } from '@generated/api/zod.gen';
-import { zJHealthCheck } from '@models/schemas';
 
 @Component({
   selector: 'app-view-health-checks',
@@ -81,7 +80,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
-        const healthCheck: JHealthCheck = zJHealthCheck.parse(new JsonAPISerializer().deserialize(response, zHealthCheckResponse));
+        const healthCheck: JHealthCheck = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
         this.healthc = healthCheck;
       });
     this.unsubscribeService.add(loadSubscription$);

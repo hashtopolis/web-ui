@@ -36,8 +36,6 @@ import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attac
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 import { zAgentAssignmentListResponse, zAgentListResponse, zHashTypeResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod.gen';
-import { zJAgent } from '@models/schemas';
-import { z } from 'zod';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -354,7 +352,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      const agents: JAgent[] = z.array(zJAgent).parse(this.serializer.deserialize(responseAgents, zAgentListResponse));
+      const agents: JAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.availAgents = agents;
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;

@@ -32,8 +32,6 @@ import {
   getAddUsersForm
 } from '@src/app/users/edit-groups/edit-groups.form';
 import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
-import { zJAgent } from '@models/schemas';
-import { z } from 'zod';
 
 @Component({
   selector: 'app-edit-groups',
@@ -179,7 +177,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents: JAgent[] = z.array(zJAgent).parse(new JsonAPISerializer().deserialize(response, zAgentListResponse));
+        const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {

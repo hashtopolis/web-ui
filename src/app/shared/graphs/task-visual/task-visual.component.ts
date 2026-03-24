@@ -11,8 +11,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod.gen';
-import { zJChunk } from '@models/schemas';
-import { z } from 'zod';
 
 @Component({
   selector: 'task-visual',
@@ -82,7 +80,7 @@ export class TaskVisualComponent implements AfterViewInit {
         if (taskWrappers[0].taskType === TaskType.SUPERTASK && this.view === 'supertask') {
           for (let i = 0; i < taskWrappers.length; i++) {
             this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-              const chunks: JChunk[] = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse));
+              const chunks: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse);
 
               const progress = [];
               let cracked = [];
@@ -124,7 +122,7 @@ export class TaskVisualComponent implements AfterViewInit {
           }
         } else {
           this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-            const ch: JChunk[] = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse)); // Get chunks by id
+            const ch: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse); // Get chunks by id
 
             // Getting variables
             const keyspace = Number(this.tkeyspace); // Get Keyspace Progress
