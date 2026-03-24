@@ -1,11 +1,11 @@
 import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { HttpCacheService } from '@services/shared/http-cache.service';
+import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('HttpCacheInterceptor', () => {
@@ -176,5 +176,66 @@ describe('HttpCacheInterceptor', () => {
 
     const firstReq = httpMock.expectOne(testUrl);
     firstReq.flush(testData);
+  });
+
+  describe('stale-while-revalidate', () => {
+    let cacheService: HttpCacheService;
+
+    beforeEach(() => {
+      cacheService = TestBed.inject(HttpCacheService);
+    });
+
+    it('should serve a stale response immediately and trigger a background revalidation', () => {
+      const testUrl = 'https://api.test.com/data';
+      const staleData = { id: 1, name: 'Stale' };
+      const freshData = { id: 1, name: 'Fresh' };
+
+      // Seed the cache with a stale entry by manipulating the service directly
+      const staleResult: CacheGetResult = {
+        response: new HttpResponse({
+          body: staleData,
+          status: 200,
+          statusText: 'OK'
+        }),
+        isStale: true
+      };
+      spyOn(cacheService, 'get').and.returnValue(staleResult);
+      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+
+      let receivedData: unknown;
+      httpClient.get(testUrl).subscribe((data) => {
+        receivedData = data;
+      });
+
+      // The stale response should be returned synchronously without any network request for the caller
+      expect(receivedData).toEqual(staleData);
+
+      // A background revalidation request must have been fired
+      const revalidationReq = httpMock.expectOne(testUrl);
+      revalidationReq.flush(freshData);
+
+      // The background response should update the cache
+      expect(setSpy).toHaveBeenCalled();
+    });
+
+    it('should not trigger a background revalidation for a fresh cache hit', () => {
+      const testUrl = 'https://api.test.com/data';
+      const cachedData = { id: 1, name: 'Fresh' };
+
+      const freshResult: CacheGetResult = {
+        response: new HttpResponse({
+          body: cachedData,
+          status: 200,
+          statusText: 'OK'
+        }),
+        isStale: false
+      };
+      spyOn(cacheService, 'get').and.returnValue(freshResult);
+
+      httpClient.get(testUrl).subscribe();
+
+      // No network request should be made for a fresh hit
+      httpMock.expectNone(testUrl);
+    });
   });
 });

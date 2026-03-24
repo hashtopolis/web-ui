@@ -14,6 +14,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { HttpCacheService } from '@services/shared/http-cache.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -97,7 +98,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   protected permissionService: PermissionService;
   public util: UISettingsUtilityClass;
   autoRefreshService: AutoRefreshService;
+  private cacheService: HttpCacheService;
   private autoRefreshSubscription: Subscription;
+  /** Cursor that was used to load the currently displayed page, restored before each auto-refresh reload. */
+  private _refreshPageAfter: number | string | null | undefined = undefined;
+  private _refreshPageBefore: number | string | null | undefined = undefined;
 
   // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(protected injector: Injector) {
@@ -107,6 +112,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.permissionService = injector.get(PermissionService);
     this.serializer = new JsonAPISerializer();
     this.autoRefreshService = injector.get(AutoRefreshService);
+    this.cacheService = injector.get(HttpCacheService);
 
     const chunktime = this.uiService.getUISettings()?.chunktime;
     if (chunktime !== undefined) {
@@ -356,6 +362,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     pageBefore: number | string | null,
     index: number
   ): void {
+    // Capture the cursors that were actually used to load this page before overwriting with the
+    // next/prev page cursors returned by the API. Auto-refresh uses these to reload the same page.
+    this._refreshPageAfter = this.pageAfter;
+    this._refreshPageBefore = this.pageBefore;
     this.pageSize = pageSize;
     this.totalItems = totalItems;
     this.pageAfter = pageAfter;
@@ -389,6 +399,16 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   abstract reload(): void;
+
+  /**
+   * Invalidates the HTTP cache and reloads the current page.
+   * Use this for explicit user-initiated reloads (e.g. the reload button) so the
+   * response is always fetched from the network rather than served from cache.
+   */
+  forceReload(): void {
+    this.cacheService.invalidate();
+    this.reload();
+  }
 
   /**
    * Convert all JChunk objects related to a task or agent to a ChunkData object
@@ -460,6 +480,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.autoRefreshEnabled = flag; // Keep the flag in sync
     this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
     this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.cacheService.invalidate();
+      this.pageAfter = this._refreshPageAfter;
+      this.pageBefore = this._refreshPageBefore;
       this.reload();
     });
   }
@@ -486,6 +509,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.autoRefreshEnabled = true; // Keep the flag in sync
     this.autoRefreshService.startAutoRefresh({ immediate: false });
     this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.cacheService.invalidate();
+      this.pageAfter = this._refreshPageAfter;
+      this.pageBefore = this._refreshPageBefore;
       this.reload();
     });
   }

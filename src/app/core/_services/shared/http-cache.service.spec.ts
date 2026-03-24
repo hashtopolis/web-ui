@@ -36,7 +36,8 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.isStale).toBeFalse();
   });
 
   it('should return null for uncached requests', () => {
@@ -63,7 +64,7 @@ describe('HttpCacheService', () => {
 
     // User 1 should get the cached response
     const cached1 = service.get(req1);
-    expect(cached1?.body).toEqual({ user: 'user-1' });
+    expect(cached1?.response.body).toEqual({ user: 'user-1' });
 
     // User 2 should not get user 1's cache
     const cached2 = service.get(req2);
@@ -98,7 +99,7 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
   });
 
   it('should invalidate cache on command', () => {
@@ -118,7 +119,7 @@ describe('HttpCacheService', () => {
     expect(cached).toBeNull();
   });
 
-  it('should respect TTL expiration', (done) => {
+  it('should mark entries as stale after TTL but keep serving them within the stale window', (done) => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
       body: { id: 1, name: 'Test' },
@@ -126,14 +127,34 @@ describe('HttpCacheService', () => {
       statusText: 'OK'
     });
 
-    service.set(req, res, 100); // Expires in 100ms
+    service.set(req, res, 100, 5_000); // TTL 100ms, stale window 5s
 
-    let cached = service.get(req);
-    expect(cached).toBeTruthy();
+    const fresh = service.get(req);
+    expect(fresh).toBeTruthy();
+    expect(fresh?.isStale).toBeFalse();
 
     setTimeout(() => {
-      cached = service.get(req);
-      expect(cached).toBeNull();
+      const stale = service.get(req);
+      expect(stale).toBeTruthy();
+      expect(stale?.isStale).toBeTrue();
+      expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
+      done();
+    }, 150);
+  });
+
+  it('should return null once the stale window has also elapsed', (done) => {
+    const req = new HttpRequest('GET', 'https://api.test.com/data');
+    const res = new HttpResponse({
+      body: { id: 1, name: 'Test' },
+      status: 200,
+      statusText: 'OK'
+    });
+
+    service.set(req, res, 50, 50); // TTL 50ms, stale window 50ms → fully expired after 100ms
+
+    setTimeout(() => {
+      const result = service.get(req);
+      expect(result).toBeNull();
       done();
     }, 150);
   });
@@ -164,9 +185,23 @@ describe('HttpCacheService', () => {
 
     // Clear memory cache to force retrieval from sessionStorage
     const cached = service.get(req);
-    expect(cached?.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
 
     // Verify that data is in sessionStorage (as a sanity check)
     expect(sessionStorage.length).toBeGreaterThan(0);
+  });
+
+  it('should return isStale false for a fresh entry', () => {
+    const req = new HttpRequest('GET', 'https://api.test.com/data');
+    const res = new HttpResponse({
+      body: { id: 1, name: 'Test' },
+      status: 200,
+      statusText: 'OK'
+    });
+
+    service.set(req, res, 30_000, 60_000);
+    const result = service.get(req);
+
+    expect(result?.isStale).toBeFalse();
   });
 });

@@ -1,5 +1,5 @@
 import { HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
@@ -13,10 +13,21 @@ interface SerializedHttpResponse {
 
 interface CacheEntry {
   expires: number;
+  staleUntil: number;
   response: SerializedHttpResponse;
 }
 
+/**
+ * Result of a cache lookup, including whether the entry is still fresh.
+ */
+export interface CacheGetResult {
+  response: HttpResponse<unknown>;
+  /** True when the TTL has elapsed but the entry is still within the stale window. */
+  isStale: boolean;
+}
+
 const DEFAULT_TTL_MS = 30_000; // Safe default to avoid stale data
+const DEFAULT_STALE_WINDOW_MS = 60_000; // Extra time to serve stale data while revalidating in background
 const CACHE_PREFIX = 'htp-cache:'; // 'htp' = hashtopolis
 
 @Injectable({
@@ -25,9 +36,15 @@ const CACHE_PREFIX = 'htp-cache:'; // 'htp' = hashtopolis
 export class HttpCacheService {
   private readonly memoryCache = new Map<string, CacheEntry>();
 
-  constructor(private sessionStorage: SessionStorageService<CacheEntry>) {}
+  private readonly sessionStorage = inject<SessionStorageService<CacheEntry>>(SessionStorageService);
 
-  get(req: HttpRequest<unknown>): HttpResponse<unknown> | null {
+  /**
+   * Retrieves a cached response for the given request.
+   *
+   * @param req - The outgoing HTTP request used as a cache key
+   * @returns A result with a staleness flag, or null if the entry is absent or fully expired
+   */
+  get(req: HttpRequest<unknown>): CacheGetResult | null {
     const key = this.getKey(req);
 
     const entry = this.memoryCache.get(key) ?? this.sessionStorage.getItem(key);
@@ -35,16 +52,30 @@ export class HttpCacheService {
       return null;
     }
 
-    if (entry.expires && entry.expires <= Date.now()) {
+    const now = Date.now();
+    if (entry.staleUntil <= now) {
       this.delete(key);
       return null;
     }
 
     this.memoryCache.set(key, entry);
-    return this.deserialize(entry.response);
+    return { response: this.deserialize(entry.response), isStale: entry.expires <= now };
   }
 
-  set(req: HttpRequest<unknown>, res: HttpResponse<unknown>, ttlMs: number = DEFAULT_TTL_MS): void {
+  /**
+   * Stores a response in the cache with a fresh TTL and an optional stale window.
+   *
+   * @param req - The HTTP request used as the cache key
+   * @param res - The HTTP response to store
+   * @param ttlMs - Milliseconds before the entry becomes stale
+   * @param staleWindowMs - Extra milliseconds to serve stale data while revalidating in the background
+   */
+  set(
+    req: HttpRequest<unknown>,
+    res: HttpResponse<unknown>,
+    ttlMs: number = DEFAULT_TTL_MS,
+    staleWindowMs: number = DEFAULT_STALE_WINDOW_MS
+  ): void {
     if (ttlMs <= 0) {
       return; // Do not cache
     }
@@ -55,13 +86,15 @@ export class HttpCacheService {
     }
 
     const key = this.getKey(req);
+    const now = Date.now();
     const entry: CacheEntry = {
-      expires: ttlMs ? Date.now() + ttlMs : 0,
+      expires: now + ttlMs,
+      staleUntil: now + ttlMs + staleWindowMs,
       response: this.serialize(res)
     };
 
     this.memoryCache.set(key, entry);
-    this.sessionStorage.setItem(key, entry, ttlMs);
+    this.sessionStorage.setItem(key, entry, ttlMs + staleWindowMs);
   }
 
   /**
@@ -147,10 +180,6 @@ export class HttpCacheService {
     }
 
     // Exclude binary types
-    if (res.body instanceof Blob || res.body instanceof ArrayBuffer) {
-      return false;
-    }
-
-    return true;
+    return !(res.body instanceof Blob || res.body instanceof ArrayBuffer);
   }
 }

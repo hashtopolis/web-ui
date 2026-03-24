@@ -105,6 +105,7 @@ describe('SessionStorageService', () => {
     });
 
     it('getItem should remove key and return null when stored data fails schema', () => {
+      spyOn(console, 'error');
       const key = 'schemaInvalid';
       // Write invalid data without schema validation
       service.setItem(key, { name: 123, count: 'bad' }, 1000);
@@ -190,6 +191,7 @@ describe('SessionStorageService', () => {
     });
 
     it('getItem should return defaultValue when schema validation fails', () => {
+      spyOn(console, 'error');
       service.setItem('bad', { name: 999, count: 'bad' }, 1000);
 
       const result = service.getItem('bad', testSchema, defaultObj);
@@ -210,6 +212,26 @@ describe('SessionStorageService', () => {
     it('getItem should return defaultValue without schema when key is missing', () => {
       const result = service.getItem('nope', undefined, 'fallback');
       expect(result).toBe('fallback');
+    });
+  });
+
+  // --- QuotaExceededError handling ---
+
+  describe('QuotaExceededError handling', () => {
+    it('should warn and not throw when sessionStorage quota is exceeded', () => {
+      spyOn(console, 'warn');
+      const quotaError = new DOMException('QuotaExceededError', 'QuotaExceededError');
+      spyOn(sessionStorage, 'setItem').and.throwError(quotaError);
+
+      expect(() => service.setItem('key', 'value', 1000)).not.toThrow();
+      expect(console.warn).toHaveBeenCalledWith(jasmine.stringContaining('quota exceeded'));
+    });
+
+    it('should re-throw non-quota DOMExceptions', () => {
+      const securityError = new DOMException('Access denied', 'SecurityError');
+      spyOn(sessionStorage, 'setItem').and.throwError(securityError);
+
+      expect(() => service.setItem('key', 'value', 1000)).toThrowError(DOMException);
     });
   });
 
