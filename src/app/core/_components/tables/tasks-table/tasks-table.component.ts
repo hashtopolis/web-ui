@@ -4,7 +4,8 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JHashlist } from '@models/hashlist.model';
-import { JTask, JTaskWrapper, TaskAttributes, TaskType } from '@models/task.model';
+import { getTaskWrapperStatus } from '@models/task.business';
+import { JTask, JTaskWrapper, TaskAttributes, TaskStatus, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -22,7 +23,6 @@ import {
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
-  TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
@@ -205,12 +205,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.tasks[0]?.activeAgents + '';
+            return wrapper.tasks[0]?.totalAssignedAgents + '';
           } else {
             return '';
           }
         },
-        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.activeAgents ?? 0) + ''
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.totalAssignedAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
@@ -505,11 +505,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   // --- Render functions ---
 
   renderStatusIcons(wrapper: JTaskWrapper): HTTableIcon {
-    if (wrapper.taskType !== TaskType.SUPERTASK) {
-      return { name: '' };
-    }
-
-    const status = this.getTaskStatus(wrapper);
+    const status = getTaskWrapperStatus(wrapper);
     if (status === TaskStatus.RUNNING) {
       return {
         name: 'radio_button_checked',
@@ -517,16 +513,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         tooltip: 'In Progress'
       };
     }
-
     return { name: '' };
   }
 
   private getTaskStatusLabel(wrapper: JTaskWrapper): string {
-    if (wrapper.taskType !== TaskType.SUPERTASK) {
-      return '';
-    }
-
-    return this.getTaskStatus(wrapper) === TaskStatus.RUNNING ? 'Running' : '';
+    return getTaskWrapperStatus(wrapper) === TaskStatus.RUNNING ? 'Running' : '';
   }
 
   private renderIsSmallIcon(wrapper: JTaskWrapper): HTTableIcon {
@@ -565,30 +556,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     dialogRef.afterClosed().subscribe();
   }
 
-  private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
-    if (!wrapper?.tasks?.length) {
-      return TaskStatus.INVALID;
-    }
-
-    if (wrapper.taskType === TaskType.SUPERTASK) {
-      if (wrapper.tasks.some((task: JTask) => (task.activeAgents || 0) > 0)) {
-        return TaskStatus.RUNNING;
-      }
-
-      if (wrapper.tasks.every((task: JTask) => this.isTaskCompleted(task))) {
-        return TaskStatus.COMPLETED;
-      }
-
-      return TaskStatus.IDLE;
-    }
-
-    // Only show status indicators for supertasks in this view
-    return TaskStatus.INVALID;
-  }
-
-  private isTaskCompleted(task: JTask): boolean {
-    return task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100;
-  }
   // --- Action functions ---
 
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
@@ -830,7 +797,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks?.[0];
       const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
-      const isRunning = (task?.activeAgents ?? 0) > 0;
+      const isRunning = task?.status === TaskStatus.RUNNING;
       const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${task?.id}`;
       const totalHashes = wrapper.hashlist?.hashCount ?? 0;
       const crackedHashes = wrapper.cracked ?? 0;

@@ -84,6 +84,14 @@ export default defineConfig([
         }
       ],
 
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.property.name='location'][property.name='reload']",
+          message: "Use ReloadService.reloadPage() instead of window.location.reload()."
+        }
+      ],
+
       'import/order': [
         'error',
         {
@@ -149,6 +157,13 @@ export default defineConfig([
     files: ['**/*.service.ts'],
     rules: {
       '@angular-eslint/prefer-inject': 'off'
+    }
+  },
+  // === Allow window.location.reload() only in ReloadService ===
+  {
+    files: ['**/reload.service.ts'],
+    rules: {
+      'no-restricted-syntax': 'off'
     }
   },
 ]);

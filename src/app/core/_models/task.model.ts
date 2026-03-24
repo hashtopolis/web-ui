@@ -31,6 +31,7 @@ export interface TaskAttributes extends BaseModel {
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
   activeAgents?: number;
+  totalAssignedAgents?: number;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
@@ -87,4 +88,20 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
   taskWrapperName: string;
   tasks?: JTask[];
   chunkData?: ChunkData;
+}
+
+export enum TaskStatus {
+  RUNNING = 1,
+  IDLE = 2,
+  COMPLETED = 3
+}
+
+export interface TaskCompletionData {
+  keyspace: number;
+  keyspaceProgress: number;
+  searched: string;
+}
+
+export interface TaskStatusData extends TaskCompletionData {
+  totalAssignedAgents: number;
 }
