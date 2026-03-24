@@ -22,8 +22,46 @@ import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
   data: [
-    { id: '1', type: 'HashLists', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
-    { id: '2', type: 'HashLists', attributes: { name: 'second-hashlist', isArchived: false, hashTypeId: 1 } }
+    {
+      id: 1,
+      type: 'hashlist',
+      attributes: {
+        name: 'test-hashlist',
+        format: 0,
+        hashTypeId: 0,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    },
+    {
+      id: 2,
+      type: 'hashlist',
+      attributes: {
+        name: 'second-hashlist',
+        format: 0,
+        hashTypeId: 1,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    }
   ],
   included: []
 };
@@ -34,13 +72,17 @@ const MOCK_EMPTY_HASHLISTS_RESPONSE = {
 };
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
-  data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
+  data: [{ id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }],
   included: []
 };
 
 const MOCK_CRACKERS_RESPONSE = {
   data: [
-    { id: '10', type: 'Crackers', attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' } }
+    {
+      id: 10,
+      type: 'crackerBinary',
+      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+    }
   ],
   included: []
 };
@@ -51,7 +93,20 @@ const MOCK_CRACKERS_EMPTY_RESPONSE = {
 };
 
 const MOCK_PREPROCESSORS_RESPONSE = {
-  data: [{ id: '1', type: 'Preprocessors', attributes: { name: 'prince' } }],
+  data: [
+    {
+      id: 1,
+      type: 'preprocessor',
+      attributes: {
+        name: 'prince',
+        url: 'https://example.com/prince',
+        binaryName: 'pp64.bin',
+        keyspaceCommand: '--keyspace',
+        skipCommand: '--skip',
+        limitCommand: '--limit'
+      }
+    }
+  ],
   included: []
 };
 
@@ -626,14 +681,14 @@ describe('NewTasksComponent', () => {
       const multiVersionResponse = {
         data: [
           {
-            id: '10',
-            type: 'Crackers',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5' }
+            id: 10,
+            type: 'crackerBinary',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
           },
           {
-            id: '11',
-            type: 'Crackers',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' }
+            id: 11,
+            type: 'crackerBinary',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
         ],
         included: []

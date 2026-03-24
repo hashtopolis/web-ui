@@ -28,14 +28,14 @@ const mockAccessGroups: ResponseWrapper = {
   data: [
     {
       id: 1,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'Admin'
       }
     },
     {
       id: 2,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'User'
       }
@@ -48,7 +48,7 @@ const mockHashtypes: ResponseWrapper = {
   data: [
     {
       id: 2500,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'MD5',
         isSalted: true,
@@ -57,7 +57,7 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 0,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'SHA1',
         isSalted: false,
@@ -66,7 +66,7 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 16800,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'WPA/WPA2',
         isSalted: true,
@@ -80,7 +80,7 @@ const mockHashtypes: ResponseWrapper = {
 const mockConfigs: ResponseWrapper = {
   data: {
     id: 66,
-    type: 'configs',
+    type: 'config',
     attributes: {
       configSectionId: 1,
       item: 'Enable Brain',

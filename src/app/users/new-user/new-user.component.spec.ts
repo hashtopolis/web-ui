@@ -26,16 +26,16 @@ describe('NewUserComponent', () => {
   const mockPermissionResponse: ResponseWrapper = {
     data: [
       {
-        id: '1',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 1,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Default Group',
           permissions: {}
         }
       },
       {
-        id: '2',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 2,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Custom Group',
           permissions: {}
