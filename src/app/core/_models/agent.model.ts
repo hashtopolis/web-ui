@@ -25,7 +25,7 @@ export interface JAgent extends BaseModel {
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId: number | null;
+  userId?: number | null;
   user?: JUser;
   cpuOnly: boolean;
   clientSignature: string;

@@ -82,7 +82,7 @@ export class TaskVisualComponent implements AfterViewInit {
         if (taskWrappers[0].taskType === TaskType.SUPERTASK && this.view === 'supertask') {
           for (let i = 0; i < taskWrappers.length; i++) {
             this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-              const chunks = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse)) as JChunk[];
+              const chunks: JChunk[] = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse));
 
               const progress = [];
               let cracked = [];
@@ -124,7 +124,7 @@ export class TaskVisualComponent implements AfterViewInit {
           }
         } else {
           this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-            const ch = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse)) as JChunk[]; // Get chunks by id
+            const ch: JChunk[] = z.array(zJChunk).parse(new JsonAPISerializer().deserialize(response, zChunkListResponse)); // Get chunks by id
 
             // Getting variables
             const keyspace = Number(this.tkeyspace); // Get Keyspace Progress

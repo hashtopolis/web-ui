@@ -354,7 +354,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      this.availAgents = z.array(zJAgent).parse(this.serializer.deserialize(responseAgents, zAgentListResponse)) as JAgent[];
+      const agents: JAgent[] = z.array(zJAgent).parse(this.serializer.deserialize(responseAgents, zAgentListResponse));
+      this.availAgents = agents;
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;
     });

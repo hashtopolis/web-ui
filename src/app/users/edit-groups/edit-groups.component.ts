@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { FilterType } from '@models/request-params.model';
+import { JUser } from '@models/user.model';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -30,7 +31,7 @@ import {
   getAddAgentsForm,
   getAddUsersForm
 } from '@src/app/users/edit-groups/edit-groups.form';
-import { zAccessGroupListResponse, zAccessGroupResponse, zAgentListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { zJAgent } from '@models/schemas';
 import { z } from 'zod';
 
@@ -152,7 +153,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         const requestParams = requestParamBuilder.create();
 
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
-        const users: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+        const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
         this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
       }
     } catch (error) {
@@ -178,7 +179,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents = z.array(zJAgent).parse(new JsonAPISerializer().deserialize(response, zAgentListResponse)) as JAgent[];
+        const agents: JAgent[] = z.array(zJAgent).parse(new JsonAPISerializer().deserialize(response, zAgentListResponse));
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {

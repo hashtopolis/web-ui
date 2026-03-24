@@ -44,7 +44,7 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
           finalize(() => (this.loading = false))
         )
         .subscribe(([response]: [ResponseWrapper]) => {
-          const healthChecks = z.array(zJHealthCheck).parse(this.serializer.deserialize(response, zHealthCheckListResponse)) as JHealthCheck[];
+          const healthChecks: JHealthCheck[] = z.array(zJHealthCheck).parse(this.serializer.deserialize(response, zHealthCheckListResponse));
 
           healthChecks.forEach((healthCheck: JHealthCheck) => {
             healthCheck.hashTypeDescription = healthCheck.hashType?.description;

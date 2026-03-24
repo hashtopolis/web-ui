@@ -139,7 +139,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         if (this.roleService.hasRole('editSupertaskPreTasks')) {
           const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
             const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
-            const availablePretasks = this.getAvailablePretasks((supertask as any).pretasks as JPretask[], pretasks);
+            const availablePretasks = this.getAvailablePretasks(supertask.pretasks ?? [], pretasks);
 
             this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
             this.isLoading = false;
@@ -173,7 +173,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
               // still try to load pretasks list for selection
               const loadPTSubscription2$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
                 const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
-                const availablePretasks = this.getAvailablePretasks((supertask2 as any).pretasks as JPretask[], pretasks);
+                const availablePretasks = this.getAvailablePretasks(supertask2.pretasks ?? [], pretasks);
                 this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
                 this.isLoading = false;
                 this.changeDetectorRef.detectChanges();

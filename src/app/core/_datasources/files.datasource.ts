@@ -119,7 +119,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
             this.setData(pretask.pretaskFiles as JFile[]);
           } else {
-            const files = z.array(zJFile).parse(this.serializer.deserialize(response, zFileListResponse)) as JFile[];
+            const files: JFile[] = z.array(zJFile).parse(this.serializer.deserialize(response, zFileListResponse));
 
             const nextLink = response.links.next;
             const prevLink = response.links.prev;

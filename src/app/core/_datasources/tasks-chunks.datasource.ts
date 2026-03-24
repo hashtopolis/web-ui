@@ -85,7 +85,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
         finalize(() => (this.loading = false))
       )
       .subscribe((response: ResponseWrapper) => {
-        const chunks = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse)) as JChunk[];
+        const chunks: JChunk[] = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse));
 
         const chunksToShow: JChunk[] = chunks.map((chunk: JChunk) => {
           if (chunk.agent) {

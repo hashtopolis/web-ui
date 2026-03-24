@@ -139,7 +139,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'chunkshash':
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const chunk = zJChunk.parse(new JsonAPISerializer().deserialize(response, zChunkResponse)) as JChunk;
+            const chunk: JChunk = zJChunk.parse(new JsonAPISerializer().deserialize(response, zChunkResponse));
             this.titleName = String(chunk.id);
           });
           break;

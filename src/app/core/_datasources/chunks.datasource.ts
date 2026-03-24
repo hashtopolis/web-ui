@@ -52,7 +52,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
         finalize(() => (this.loading = false))
       )
       .subscribe(([response]: [ResponseWrapper]) => {
-        const assignedChunks = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse)) as JChunk[];
+        const assignedChunks: JChunk[] = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse));
 
         assignedChunks.forEach((chunk: JChunk) => {
           if (chunk.task != undefined) {

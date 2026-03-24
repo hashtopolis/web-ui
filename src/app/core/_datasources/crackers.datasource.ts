@@ -51,7 +51,7 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
           const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-          this.setData(crackers as JCrackerBinaryType[]);
+          this.setData(crackers);
         })
     );
   }

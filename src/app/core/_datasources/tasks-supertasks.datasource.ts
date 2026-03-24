@@ -58,7 +58,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
                 .getAll(SERV.CHUNKS, chunkParams.create())
                 .pipe(finalize(() => this.setData(subtasks)))
                 .subscribe((chunkResponse: ResponseWrapper) => {
-                  const chunks = z.array(zJChunk).parse(this.serializer.deserialize(chunkResponse, zChunkListResponse)) as JChunk[];
+                  const chunks: JChunk[] = z.array(zJChunk).parse(this.serializer.deserialize(chunkResponse, zChunkListResponse));
                   subtasks.forEach((task) => {
                     task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
                   });

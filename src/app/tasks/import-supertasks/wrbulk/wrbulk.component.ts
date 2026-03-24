@@ -152,7 +152,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         const fileName: string = await new Promise((resolve, reject) => {
           const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
             next: (response: ResponseWrapper) => {
-              const file = zJFile.parse(new JsonAPISerializer().deserialize(response, zFileResponse)) as JFile;
+              const file: JFile = zJFile.parse(new JsonAPISerializer().deserialize(response, zFileResponse));
               resolve(file.filename);
             },
             error: reject

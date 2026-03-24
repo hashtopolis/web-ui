@@ -188,7 +188,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse)) as JAgent;
+      const agent: JAgent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse));
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -211,7 +211,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse)) as JAgent;
+        const agent: JAgent = zJAgent.parse(this.serializer.deserialize(response, zAgentResponse));
         this.showagent = agent;
         this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
         return;
@@ -234,7 +234,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const loadTasksSubscription$ = this.gs
       .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
       .subscribe((response: ResponseWrapper) => {
-        console.log('RESPONSE: ', response);
         const tasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
@@ -306,7 +305,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .create();
 
     const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse)) as JChunk[];
+      const chunks: JChunk[] = z.array(zJChunk).parse(this.serializer.deserialize(response, zChunkListResponse));
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
         const tasks: JTask[] = this.serializer.deserialize(tasksResponse, zTaskListResponse);

@@ -41,7 +41,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
           finalize(() => (this.loading = false))
         )
         .subscribe((healthCheckResponse: ResponseWrapper) => {
-          const healthChecksAgent = z.array(zJHealthCheckAgent).parse(this.serializer.deserialize(healthCheckResponse, zHealthCheckAgentListResponse)) as JHealthCheckAgent[];
+          const healthChecksAgent: JHealthCheckAgent[] = z.array(zJHealthCheckAgent).parse(this.serializer.deserialize(healthCheckResponse, zHealthCheckAgentListResponse));
 
           const length = healthCheckResponse.meta.page.total_elements;
           const nextLink = healthCheckResponse.links.next;
