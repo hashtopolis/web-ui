@@ -302,6 +302,8 @@ progress::-webkit-progress-value {
 
 .custom-chip-grid {
   width: 100%;
+  min-width: 300px;
+  max-width: 600px;
 }
 
 .custom-chip-grid mat-chip-row button[matchipremove] {
@@ -314,6 +316,16 @@ progress::-webkit-progress-value {
   background-color: colors.$search-text-highlight-color;
 }
 
+// Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport handle
+// scrolling instead of the mat-autocomplete overlay panel itself.
+.multiselect-virtual-panel {
+  overflow: hidden !important;
+  padding: 0 !important;
+
+  cdk-virtual-scroll-viewport {
+    width: 100%;
+  }
+}
 
 /*
   08- End
