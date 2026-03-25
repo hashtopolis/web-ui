@@ -1,4 +1,4 @@
-import { Observable, of, tap } from 'rxjs';
+import { Observable, concat, of, tap } from 'rxjs';
 
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
@@ -45,7 +45,7 @@ export class HttpCacheInterceptor implements HttpInterceptor {
     if (cached) {
       if (cached.isStale) {
         // Serve stale data immediately; refresh the cache in the background
-        this.revalidate(req, next);
+        return concat(of(cached.response), this.revalidate(req, next));
       }
       return of(cached.response);
     }
@@ -66,18 +66,15 @@ export class HttpCacheInterceptor implements HttpInterceptor {
    * @param req - The original GET request to revalidate
    * @param next - The next handler in the interceptor chain
    */
-  private revalidate(req: HttpRequest<unknown>, next: HttpHandler): void {
-    next
-      .handle(req)
-      .pipe(
-        tap((event) => {
-          if (event instanceof HttpResponse) {
-            const ttl = this.resolveCacheTtl(event);
-            if (ttl) this.cache.set(req, event, ttl.ttlMs, ttl.staleWindowMs);
-          }
-        })
-      )
-      .subscribe();
+  private revalidate(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    return next.handle(req).pipe(
+      tap((event) => {
+        if (event instanceof HttpResponse) {
+          const ttl = this.resolveCacheTtl(event);
+          if (ttl) this.cache.set(req, event, ttl.ttlMs, ttl.staleWindowMs);
+        }
+      })
+    );
   }
 
   /**
