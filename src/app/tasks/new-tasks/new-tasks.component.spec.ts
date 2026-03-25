@@ -284,14 +284,16 @@ describe('NewTasksComponent', () => {
         hashlistId: 1,
         attackCmd: '-a 0 #HL# dict.txt',
         priority: 0,
-        crackerBinaryTypeId: 1,
         crackerBinaryId: 10
       });
       component.form.updateValueAndValidity();
 
+      const payload = { ...component.form.value };
+      delete payload.crackerBinaryTypeId;
+
       await component['onSubmit']();
 
-      expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.TASKS, component.form.value);
+      expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.TASKS, payload);
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New Task created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
     });
