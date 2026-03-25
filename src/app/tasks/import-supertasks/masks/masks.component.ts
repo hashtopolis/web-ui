@@ -19,6 +19,7 @@ import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { parseHcmaskLine } from '@src/app/shared/utils/hcmask';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -138,8 +139,11 @@ export class MasksComponent implements OnInit, OnDestroy {
     return new Promise<number[]>((resolve, reject) => {
       const preTasksIds: number[] = [];
 
-      // Split masks from form.masks by line break and create an array to iterate
-      const masksArray: string[] = form.masks.split('\n');
+      // Split masks from form.masks by line break, filter empty lines
+      const masksArray: string[] = form.masks
+        .split('\n')
+        .map((l: string) => l.trim())
+        .filter((l: string) => l.length > 0);
 
       // Create an array to hold all subscription promises
       const subscriptionPromises: Promise<void>[] = [];
@@ -150,9 +154,14 @@ export class MasksComponent implements OnInit, OnDestroy {
         if (form.optFlag) {
           attackCmdSuffix = '-O';
         }
+
+        // Parse hcmask format: [charset1,][charset2,][charset3,][charset4,]mask
+        const { mask, charsetFlags } = parseHcmaskLine(maskline);
+        const attackCmd = `#HL# -a 3 ${charsetFlags} ${mask} ${attackCmdSuffix}`.replace(/\s+/g, ' ').trim();
+
         const payload = {
-          taskName: maskline,
-          attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
+          taskName: mask,
+          attackCmd,
           maxAgents: form.maxAgents,
           chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
           statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
