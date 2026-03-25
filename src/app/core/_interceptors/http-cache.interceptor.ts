@@ -5,6 +5,9 @@ import { Injectable, inject } from '@angular/core';
 
 import { HttpCacheService } from '@services/shared/http-cache.service';
 
+export const DEFAULT_TTL_MS = 1;
+export const DEFAULT_STALE_TIME_MS = 1_800_000; // 30min
+
 /**
  * HTTP cache interceptor implementing a stale-while-revalidate strategy.
  *
@@ -22,9 +25,8 @@ import { HttpCacheService } from '@services/shared/http-cache.service';
  */
 @Injectable()
 export class HttpCacheInterceptor implements HttpInterceptor {
-  private readonly defaultTtlMs = 1;
-  // 30 Minuten
-  private readonly defaultStaleWindowMs = 1_800_000;
+  private readonly defaultTtlMs = DEFAULT_TTL_MS;
+  private readonly defaultStaleWindowMs = DEFAULT_STALE_TIME_MS;
 
   private readonly cache = inject(HttpCacheService);
 

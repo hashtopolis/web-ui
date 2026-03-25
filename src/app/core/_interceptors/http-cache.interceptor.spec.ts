@@ -7,6 +7,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
+import { DEFAULT_STALE_TIME_MS } from './http-cache.interceptor';
 
 describe('HttpCacheInterceptor', () => {
   let httpClient: HttpClient;
@@ -206,7 +207,7 @@ describe('HttpCacheInterceptor', () => {
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 30_000, 60_000);
+      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 30_000, DEFAULT_);
     });
 
     it('should not cache when Cache-Control: no-store is present', () => {
@@ -254,7 +255,7 @@ describe('HttpCacheInterceptor', () => {
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=5' } });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 5_000, 60_000);
+      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 5_000, DEFAULT_STALE_TIME_MS);
     });
   });
 
