@@ -61,6 +61,28 @@ describe('parseHcmaskLine', () => {
     expect(result.charsetFlags).toBe('-1 ?l -2 ?u -3 ?d -4 ?s');
   });
 
+  // --- Fallback: commas present but mask does not reference custom charsets ---
+
+  it('should treat as plain mask when mask does not reference ?1 (no hcmask format)', () => {
+    // e.g. someone typed a mask that happens to contain a comma
+    const result = parseHcmaskLine('?l?d,?d?d?d?d');
+    expect(result.mask).toBe('?l?d,?d?d?d?d');
+    expect(result.charsetFlags).toBe('');
+  });
+
+  it('should treat as plain mask when two fields but mask does not reference ?1', () => {
+    const result = parseHcmaskLine('hello,world');
+    expect(result.mask).toBe('hello,world');
+    expect(result.charsetFlags).toBe('');
+  });
+
+  it('should treat as plain mask when charset defined but not referenced in mask', () => {
+    // charset1 = ?l?d, but mask only uses built-in ?d — never ?1
+    const result = parseHcmaskLine('?l?d,?d?d?d?l?l');
+    expect(result.mask).toBe('?l?d,?d?d?d?l?l');
+    expect(result.charsetFlags).toBe('');
+  });
+
   // --- Real-world hcmask examples ---
 
   it('should handle hex charset definition', () => {

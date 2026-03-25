@@ -24,10 +24,16 @@ export function parseHcmaskLine(line: string): {
   // Max 4 custom charsets; last field is the mask
   const maxCharsets = Math.min(parts.length - 1, 4);
   const mask = parts.slice(maxCharsets).join(',');
-  const charsetFlags = parts
-    .slice(0, maxCharsets)
-    .map((cs, i) => `-${i + 1} ${cs}`)
-    .join(' ');
+  const charsetDefs = parts.slice(0, maxCharsets);
+
+  // Validate: the mask must reference at least one of the defined custom charsets (?1–?4).
+  // If it doesn't, the line is not valid hcmask format — treat it as a plain mask.
+  const usesCustomCharset = charsetDefs.some((_, i) => mask.includes(`?${i + 1}`));
+  if (!usesCustomCharset) {
+    return { mask: line, charsetFlags: '' };
+  }
+
+  const charsetFlags = charsetDefs.map((cs, i) => `-${i + 1} ${cs}`).join(' ');
 
   return { mask, charsetFlags };
 }
