@@ -35,16 +35,15 @@ jobs:
             **/*.js
             !**/*.spec.ts
 
-      - name: Run ESLint on changed files
+      - name: Run ESLint and Prettier on changed files
         if: steps.changed-files.outputs.all_changed_files != ''
         run: |
           FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          echo "Linting files: $FILES"
-          npx eslint $FILES
-
-      - name: Run Prettier check on changed files
-        if: steps.changed-files.outputs.all_changed_files != ''
-        run: echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | xargs npx prettier --check
+          eslint_exit=0
+          prettier_exit=0
+          npx eslint $FILES || eslint_exit=$?
+          echo "$FILES" | tr ' ' '\n' | xargs npx prettier --check || prettier_exit=$?
+          exit $((eslint_exit | prettier_exit))
 
   build:
     name: Run Tests & Build
@@ -69,3 +68,40 @@ jobs:
 
       - name: Build the project
         run: npm run build --if-present
+
+  e2e:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox webkit
+
+      - name: Run Playwright tests
+        run: npx playwright test
+

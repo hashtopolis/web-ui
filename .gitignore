@@ -47,3 +47,11 @@ git-version.json
 # Config file
 config.json
 .devcontainer/.env
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Claude code
+CLAUDE.md
