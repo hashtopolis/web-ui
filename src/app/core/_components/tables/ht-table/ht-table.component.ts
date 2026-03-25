@@ -602,7 +602,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataSource.pageBefore = tableSettings['before'];
     this.dataSource.index = tableSettings['index'];
     // Note: totalItems is NOT restored from localStorage as it should always come from the API response
-    this.dataSource.reload();
+    this.dataSource.forceReload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
