@@ -22,8 +22,9 @@ import { HttpCacheService } from '@services/shared/http-cache.service';
  */
 @Injectable()
 export class HttpCacheInterceptor implements HttpInterceptor {
-  private readonly defaultTtlMs = 30_000;
-  private readonly defaultStaleWindowMs = 60_000;
+  private readonly defaultTtlMs = 1;
+  // 30 Minuten
+  private readonly defaultStaleWindowMs = 1_800_000;
 
   private readonly cache = inject(HttpCacheService);
 
