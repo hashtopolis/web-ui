@@ -1,3 +1,4 @@
+import { zChunkListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -48,8 +49,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
         finalize(() => (this.loading = false))
       )
       .subscribe(([response]: [ResponseWrapper]) => {
-        const responseBody = { data: response.data, included: response.included };
-        const assignedChunks = this.serializer.deserialize<JChunk[]>(responseBody);
+        const assignedChunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
         assignedChunks.forEach((chunk: JChunk) => {
           if (chunk.task != undefined) {

@@ -1,3 +1,4 @@
+import { zConfigListResponse } from '@generated/api/zod.gen';
 import { Subscription, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -135,8 +136,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = this.gs
       .getAll(this.serviceConfig, { page: { size: 500 } })
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const config = this.serializer.deserialize<JConfig[]>(responseBody);
+        const config: JConfig[] = this.serializer.deserialize(response, zConfigListResponse);
 
         this.formValues = config.reduce<ConfigValues>((configValues, item) => {
           let value: string | boolean = item.value;

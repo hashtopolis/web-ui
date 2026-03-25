@@ -1,3 +1,4 @@
+import { zTaskWrapperListResponse } from '@generated/api/zod.gen';
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -69,10 +70,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers = this.serializer.deserialize<JTaskWrapper[]>({
-            data: response.data,
-            included: response.included
-          });
+          const taskWrappers: JTaskWrapper[] = this.serializer.deserialize(response, zTaskWrapperListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

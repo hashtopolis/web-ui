@@ -1,3 +1,4 @@
+import { zHashTypeListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -39,8 +40,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
+          const hashtypes: JHashtype[] = this.serializer.deserialize(response, zHashTypeListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

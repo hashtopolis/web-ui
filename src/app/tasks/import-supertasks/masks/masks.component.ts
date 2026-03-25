@@ -1,10 +1,12 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { JPretask } from '@models/pretask.model';
 
@@ -15,7 +17,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -120,8 +121,9 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+      );
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
@@ -169,9 +171,7 @@ export class MasksComponent implements OnInit, OnDestroy {
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
           const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            const pretask = new JsonAPISerializer().deserialize<JPretask>({
-              data: result.data
-            });
+            const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPreTaskResponse);
             preTasksIds.push(pretask.id);
             resolve(); // Resolve the promise when subscription completes
           }, reject); // Reject the promise if there's an error

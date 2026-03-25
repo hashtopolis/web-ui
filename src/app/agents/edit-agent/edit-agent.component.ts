@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,7 +14,6 @@ import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
-import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -184,8 +184,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const responseBody = { data: response.data, included: response.included };
-      const agent = this.serializer.deserialize<JAgent>(responseBody);
+      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -208,8 +207,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const responseBody = { data: response.data, included: response.included };
-        const agent = this.serializer.deserialize<JAgent>(responseBody);
+        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
         this.showagent = agent;
         this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
         return;
@@ -232,8 +230,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const loadTasksSubscription$ = this.gs
       .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+        const tasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
 
@@ -246,9 +243,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   private loadSelectUsers(): void {
     const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
       this.selectUsers = transformSelectOptions(
-        this.serializer.deserialize<JUser[]>(responseBody),
+        this.serializer.deserialize(response, zUserListResponse),
         DEFAULT_FIELD_MAPPING
       );
     });
@@ -305,12 +301,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .create();
 
     const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunksBody = { data: response.data, included: response.included };
-      const chunks = this.serializer.deserialize<JChunk[]>(chunksBody);
+      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasksBody = { data: tasksResponse.data, included: tasksResponse.included };
-        const tasks = this.serializer.deserialize<JTask[]>(tasksBody);
+        const tasks: JTask[] = this.serializer.deserialize(tasksResponse, zTaskListResponse);
 
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);

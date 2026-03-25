@@ -1,3 +1,4 @@
+import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod.gen';
 import { finalize } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -115,7 +116,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loaduserAGPSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
         this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
@@ -125,10 +126,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadAGPSubscription$ = this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
       .subscribe((response: ResponseWrapper) => {
-        const globalPermissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
-          data: response.data,
-          included: response.included
-        });
+        const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+          response,
+          zGlobalPermissionGroupListResponse
+        );
         this.selectGlobalPermissionGroups = transformSelectOptions(globalPermissionGroups, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
@@ -146,7 +147,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
         this.updateForm.setValue({
           id: user.id,

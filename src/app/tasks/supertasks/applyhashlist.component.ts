@@ -1,8 +1,14 @@
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse
+} from '@generated/api/zod.gen';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -158,10 +164,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
-          data: response.data,
-          included: response.included
-        });
+        const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
@@ -178,10 +181,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   loadCrackerSelectOptions() {
     // Load Cracker Types and Crackers Select Options
     const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       let id = '';
       if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
@@ -195,10 +197,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       const loadCrackersSubscription$ = this.gs
         .getAll(SERV.CRACKERS, requestParams)
         .subscribe((response: ResponseWrapper) => {
-          const crackers = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-            data: response.data,
-            included: response.included
-          });
+          const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
           this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
           this.form.get('crackerBinaryTypeId').patchValue(lastItem);
@@ -222,10 +221,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        const crackers = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-          data: response.data,
-          included: response.included
-        });
+        const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
         this.form.get('crackerBinaryTypeId').patchValue(lastItem);

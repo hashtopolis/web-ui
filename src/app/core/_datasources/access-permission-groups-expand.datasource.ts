@@ -1,10 +1,10 @@
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -40,7 +40,11 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const globalPermissionGroup = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>(response);
+          const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(
+            response,
+            zGlobalPermissionGroupResponse,
+            { include: ['userMembers'] as const }
+          );
           let data: (UserPermissions | JUser)[];
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);

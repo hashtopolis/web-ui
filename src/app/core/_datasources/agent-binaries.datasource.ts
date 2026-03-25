@@ -1,3 +1,4 @@
+import { zAgentBinaryListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -41,8 +42,7 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const agentBinaries = this.serializer.deserialize<JAgentBinary[]>(responseData);
+          const agentBinaries: JAgentBinary[] = this.serializer.deserialize(response, zAgentBinaryListResponse);
           const length = response.meta.page.total_elements;
 
           const nextLink = response.links.next;

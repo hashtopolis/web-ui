@@ -1,8 +1,10 @@
+import { zHashListResponse } from '@generated/api/zod.gen';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
+import { JHash } from '@models/hash.model';
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
@@ -12,7 +14,6 @@ import { ThemeService } from '@services/shared/theme.service';
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
-import { JHash } from '@src/app/core/_models/hash.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
@@ -352,10 +353,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.HASHES, params).pipe(
       map((res: ResponseWrapper) => {
-        const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-          data: res.data,
-          included: res.included
-        });
+        const hashes: JHash[] = new JsonAPISerializer().deserialize(res, zHashListResponse);
 
         const formattedDates: string[] = hashes.map((h) => formatUnixTimestamp(h.timeCracked, 'yyyy-MM-dd'));
         const dateCounts = this.countOccurrences(formattedDates);

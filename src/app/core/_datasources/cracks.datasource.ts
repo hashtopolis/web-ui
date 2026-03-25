@@ -1,11 +1,10 @@
+import { zHashListResponse, zTaskResponse } from '@generated/api/zod.gen';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -34,7 +33,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    * Load cracked hashes from server
    * @return Promise of cracked hashes
    */
-  async loadCrackedHashes(query?: Filter) {
+  async loadCrackedHashes(query?: Filter): Promise<JHash[]> {
     if (query) {
       this._currentFilter = query;
     }
@@ -64,8 +63,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-      const serializer = new JsonAPISerializer();
-      return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
+      return this.serializer.deserialize(response, zHashListResponse, { include: ['chunk'] as const });
     } catch {
       return [];
     }
@@ -86,7 +84,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
           })
         )
       );
-      return new JsonAPISerializer().deserialize<JTask>({ data: response.data, included: response.included });
+      return this.serializer.deserialize(response, zTaskResponse);
     } catch {
       return null;
     }

@@ -1,11 +1,14 @@
+import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { FilterType } from '@models/request-params.model';
+import { JUser } from '@models/user.model';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -15,7 +18,6 @@ import { AccessGroupsAgentsTableComponent } from '@components/tables/access-grou
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { AGENT_MAPPING, DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
@@ -128,10 +130,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
       );
 
-      this.accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-        data: response.data,
-        included: response.included
-      });
+      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse) as JAccessGroup;
     } catch (error) {
       console.error('Failed to load access group data:', error);
     }
@@ -152,10 +151,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         const requestParams = requestParamBuilder.create();
 
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
-        const users = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-          data: response.data,
-          included: response.included
-        });
+        const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
         this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
       }
     } catch (error) {
@@ -181,10 +177,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents = new JsonAPISerializer().deserialize<JAgent[]>({
-          data: response.data,
-          included: response.included
-        });
+        const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {

@@ -1,8 +1,9 @@
+import { zHashlistListResponse } from '@generated/api/zod.gen';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -84,10 +85,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+        this.selectHashlists = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

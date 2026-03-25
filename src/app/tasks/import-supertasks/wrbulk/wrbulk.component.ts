@@ -1,10 +1,11 @@
+import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { JPretask } from '@models/pretask.model';
@@ -110,8 +111,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   loadData() {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+      );
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
@@ -150,10 +152,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         const fileName: string = await new Promise((resolve, reject) => {
           const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
             next: (response: ResponseWrapper) => {
-              const file = new JsonAPISerializer().deserialize<JFile>({
-                data: response.data,
-                included: response.included
-              });
+              const file: JFile = new JsonAPISerializer().deserialize(response, zFileResponse);
               resolve(file.filename);
             },
             error: reject
@@ -167,7 +166,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         payload.attackCmd = updatedAttackCmd;
 
         const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
-        const pretask = new JsonAPISerializer().deserialize<JPretask>({ data: result.data, included: result.included });
+        const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPreTaskResponse);
         preTasksIds.push(pretask.id);
       });
 

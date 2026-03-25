@@ -1,3 +1,4 @@
+import { zNotificationSettingListResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -40,8 +41,10 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const notifications = this.serializer.deserialize<JNotification[]>(responseData);
+          const notifications: JNotification[] = this.serializer.deserialize(
+            response,
+            zNotificationSettingListResponse
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

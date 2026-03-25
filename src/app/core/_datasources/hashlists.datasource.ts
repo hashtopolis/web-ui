@@ -1,3 +1,4 @@
+import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod.gen';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -59,12 +60,8 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const responseData = { data: response.data, included: response.included };
-            const superHashList: JHashlist = this.serializer.deserialize<JHashlist>({
-              data: responseData.data,
-              included: responseData.included
-            });
-            this.setData(superHashList.hashlists);
+            const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse);
+            this.setData(superHashList.hashlists as JHashlist[]);
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
@@ -103,8 +100,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const responseData = { data: response.data, included: response.included };
-            const deserialized = this.serializer.deserialize<JHashlist[]>(responseData);
+            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
             if (!deserialized || !Array.isArray(deserialized)) {
               return; // Safety check: if deserialize returns null or non-array, exit
             }

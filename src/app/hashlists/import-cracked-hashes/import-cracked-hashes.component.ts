@@ -1,3 +1,4 @@
+import { zHashlistResponse } from '@generated/api/zod.gen';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
@@ -359,10 +360,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         include: ['tasks,hashlists,hashType']
       })
       .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
         this.type = hashlist.format;
         this.hashtype = hashlist.hashType;
 

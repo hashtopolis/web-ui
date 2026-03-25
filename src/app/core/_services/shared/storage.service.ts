@@ -1,3 +1,5 @@
+import { zConfigListResponse } from '@generated/api/zod.gen';
+
 import { Injectable } from '@angular/core';
 
 import { UiSettings, UisCacheName, uisCacheNames, uisSettingsSchema } from '@models/config-ui.schema';
@@ -46,10 +48,7 @@ export class UIConfigService {
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     this.gs.getAll(SERV.CONFIGS, params).subscribe({
       next: (response: ResponseWrapper) => {
-        const configs = new JsonAPISerializer().deserialize<JConfig[]>({
-          data: response.data,
-          included: response.included
-        });
+        const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
         const raw = convertNameValueConfigPairs(configs, this.cachevar);
         raw['_timestamp'] = Date.now();
         raw['_expiresin'] = this.cexprity;

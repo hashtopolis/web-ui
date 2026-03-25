@@ -1,3 +1,5 @@
+import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod.gen';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -137,10 +139,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'chunkshash':
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const chunk = new JsonAPISerializer().deserialize<JChunk>({
-              data: response.data,
-              included: response.included
-            });
+            const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
             this.titleName = String(chunk.id);
           });
           break;
@@ -148,10 +147,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'taskhas':
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task = new JsonAPISerializer().deserialize<JTask>({
-              data: response.data,
-              included: response.included
-            });
+            const task: JTask = new JsonAPISerializer().deserialize(response, zTaskResponse);
             this.titleName = task.taskName;
           });
           break;
@@ -159,10 +155,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'hashlisthash':
           this.whichView = 'hashlists';
           this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-              data: response.data,
-              included: response.included
-            });
+            const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
             this.titleName = hashlist.name;
           });
           break;
