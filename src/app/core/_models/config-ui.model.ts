@@ -195,10 +195,10 @@ const _uiConfigDefault = {
         AgentErrorTableCol.MESSAGE
       ],
       order: {
-        id: AgentErrorTableCol.ID,
-        dataKey: 'id',
+        id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
