@@ -22,7 +22,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -386,10 +386,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param {any} column - The column that was clicked for sorting.
    * @returns {void}
    */
-  onColumnHeaderClick(column: any): void {
-    const sorting = {
-      ...column,
-      direction: this.dataSource.sort['_direction']
+  onColumnHeaderClick(column: HTTableColumn): void {
+    const sorting: Sorting = {
+      id: column.id,
+      dataKey: column.dataKey,
+      isSortable: column.isSortable,
+      direction: this.dataSource.sort['_direction'],
+      ...(column.parent ? { parent: column.parent } : {})
     };
     this.dataSource.sortingColumn = sorting;
     if (!this.isDetailPage) {
