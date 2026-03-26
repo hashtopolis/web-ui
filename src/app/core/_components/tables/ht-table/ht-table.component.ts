@@ -22,7 +22,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -387,7 +387,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @returns {void}
    */
   onColumnHeaderClick(column: HTTableColumn): void {
-    const sorting: SortingColumn = {
+    const sorting: Sorting = {
       id: column.id,
       dataKey: column.dataKey,
       isSortable: column.isSortable,

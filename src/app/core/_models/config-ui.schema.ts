@@ -78,15 +78,13 @@ export type UiSettings = z.infer<typeof uisSettingsSchema>;
  * Zod schema for the Sorting / TableOrder shape.
  * Numeric fields use `z.coerce.number()` to handle values stored as strings.
  */
-export const sortingSchema = z
-  .object({
-    id: z.coerce.number(),
-    dataKey: z.string(),
-    isSortable: z.boolean(),
-    direction: z.enum(['asc', 'desc']),
-    parent: z.string().optional()
-  })
-  .strict();
+export const sortingSchema = z.object({
+  id: z.coerce.number(),
+  dataKey: z.string(),
+  isSortable: z.boolean(),
+  direction: z.enum(['asc', 'desc', '']),
+  parent: z.string().optional()
+});
 
 /**
  * Zod schema for a single table configuration entry.

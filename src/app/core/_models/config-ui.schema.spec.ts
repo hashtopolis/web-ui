@@ -412,7 +412,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
     }
   }
 
-  it('should reject unknown fields on the sorting object (strict)', () => {
+  it('should strip unknown fields on the sorting object', () => {
     const withExtra = {
       id: 1,
       dataKey: 'taskName',
@@ -424,6 +424,11 @@ describe('sortingSchema – sort parameter round-trip', () => {
     };
 
     const result = sortingSchema.safeParse(withExtra);
-    expect(result.success).toBeFalse();
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      expect(result.data['render']).toBeUndefined();
+      expect(result.data['routerLink']).toBeUndefined();
+      expect(result.data.parent).toBe('task');
+    }
   });
 });

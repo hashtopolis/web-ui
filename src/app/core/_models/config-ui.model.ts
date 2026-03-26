@@ -92,7 +92,7 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: 'asc' | 'desc';
+  direction: 'asc' | 'desc' | '';
   parent?: string;
 }
 
