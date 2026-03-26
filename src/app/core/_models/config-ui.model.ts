@@ -93,6 +93,7 @@ export interface Sorting {
   dataKey: string;
   isSortable: boolean;
   direction: 'asc' | 'desc';
+  parent?: string;
 }
 
 const _uiConfigDefault = {

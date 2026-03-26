@@ -386,10 +386,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param {any} column - The column that was clicked for sorting.
    * @returns {void}
    */
-  onColumnHeaderClick(column: any): void {
-    const sorting = {
-      ...column,
-      direction: this.dataSource.sort['_direction']
+  onColumnHeaderClick(column: HTTableColumn): void {
+    const sorting: SortingColumn = {
+      id: column.id,
+      dataKey: column.dataKey,
+      isSortable: column.isSortable,
+      direction: this.dataSource.sort['_direction'],
+      ...(column.parent ? { parent: column.parent } : {})
     };
     this.dataSource.sortingColumn = sorting;
     if (!this.isDetailPage) {
