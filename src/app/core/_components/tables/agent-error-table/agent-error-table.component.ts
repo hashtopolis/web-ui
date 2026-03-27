@@ -65,6 +65,8 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       },
       {
         id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
+        isSortable: true,
         render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError),
         export: async (agentError: JAgentErrors) => formatUnixTimestamp(agentError.time, this.dateFormat)
       },
