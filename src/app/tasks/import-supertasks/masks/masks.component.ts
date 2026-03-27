@@ -1,18 +1,16 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { HorizontalNav } from '@models/horizontalnav.model';
-import { JPretask } from '@models/pretask.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
@@ -41,9 +39,7 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
 
   private unsubscribeService = inject(UnsubscribeService);
-  private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
-  private uiService = inject(UIConfigService);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
   private router = inject(Router);
@@ -129,107 +125,42 @@ export class MasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create Pretasks
-   * Name: first line of mask
-   * Attack: #HL# -a 3 {mask} {options}
-   * Options: Flag -O (Optimize)
+   * Handles the submission of the form to create a new super task via the backend helper.
+   * The backend handles all hcmask parsing, pretask creation and supertask creation.
    */
-  private async preTasks(form): Promise<number[]> {
-    return new Promise<number[]>((resolve, reject) => {
-      const preTasksIds: number[] = [];
+  onSubmit(): void {
+    if (this.createForm.valid) {
+      this.isLoading = true;
+      const form = this.createForm.value;
+      const payload = {
+        name: form.name,
+        masks: form.masks,
+        isCpu: form.isCpuTask,
+        isSmall: form.isSmall,
+        optimized: form.optFlag,
+        crackerBinaryTypeId: form.crackerBinaryId,
+        benchtype: form.useNewBench ? 'speed' : 'runtime',
+        maxAgents: form.maxAgents
+      };
 
-      // Split masks from form.masks by line break and create an array to iterate
-      const masksArray: string[] = form.masks.split('\n');
-
-      // Create an array to hold all subscription promises
-      const subscriptionPromises: Promise<void>[] = [];
-
-      // Iterate over the masks array
-      masksArray.forEach((maskline, index) => {
-        let attackCmdSuffix = '';
-        if (form.optFlag) {
-          attackCmdSuffix = '-O';
+      const subscription$ = this.gs.chelper(SERV.HELPER, 'maskSupertaskBuilder', payload).subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New Supertask Mask created');
+          this.router.navigate(['/tasks/supertasks']);
+        },
+        error: (error) => {
+          console.error('Error creating mask supertask:', error);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
         }
-        const payload = {
-          taskName: maskline,
-          attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
-          maxAgents: form.maxAgents,
-          chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
-          statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
-          priority: index + 1,
-          color: '',
-          isCpuTask: form.isCpuTask,
-          crackerBinaryTypeId: form.crackerBinaryId,
-          isSmall: form.isSmall,
-          useNewBench: form.useNewBench,
-          isMaskImport: true,
-          files: []
-        };
-
-        // Create a subscription promise and push it to the array
-        const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            const pretask = new JsonAPISerializer().deserialize<JPretask>({
-              data: result.data
-            });
-            preTasksIds.push(pretask.id);
-            resolve(); // Resolve the promise when subscription completes
-          }, reject); // Reject the promise if there's an error
-          this.unsubscribeService.add(onSubmitSubscription$);
-        });
-
-        subscriptionPromises.push(subscriptionPromise);
       });
 
-      // Wait for all subscription promises to resolve
-      Promise.all(subscriptionPromises)
-        .then(() => {
-          resolve(preTasksIds);
-        })
-        .catch(reject);
-    });
-  }
-
-  /**
-   * Handles the submission of the form to create a new super task.
-   * If the form is valid, it asynchronously performs the following steps:
-   * 1. Calls preTasks to create preTasks based on the form data.
-   * 2. Calls superTask with the created preTasks IDs and the super task name.
-   * Any errors that occur during the process are caught and logged.
-   * @returns {Promise<void>} A promise that resolves when the submission process is completed.
-   */
-  async onSubmit(): Promise<void> {
-    if (this.createForm.valid) {
-      try {
-        this.isLoading = true; // Show spinner
-        const ids = await this.preTasks(this.createForm.value);
-        this.superTask(this.createForm.value.name, ids);
-      } catch (error) {
-        console.error('Error in preTasks:', error);
-        // Handle error if needed
-      } finally {
-        this.isLoading = false; // Hide spinner regardless of success or error
-      }
+      this.unsubscribeService.add(subscription$);
     } else {
       this.createForm.markAllAsTouched();
       this.createForm.updateValueAndValidity();
     }
-  }
-
-  /**
-   * Creates a new super task with the given name and preTasks IDs.
-   * @param {string} name - The name of the super task.
-   * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
-   * @returns {void}
-   */
-  private superTask(name: string, ids: number[]) {
-    const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.showSuccessMessage('New Supertask Mask created');
-      this.router.navigate(['/tasks/supertasks']);
-    });
-
-    this.unsubscribeService.add(createSubscription$);
-    this.isLoading = false;
   }
 }
