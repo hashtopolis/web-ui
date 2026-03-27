@@ -1,13 +1,9 @@
-import { firstValueFrom } from 'rxjs';
-
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType } from '@models/cracker-binary.model';
-import { JFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
-import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -119,63 +115,38 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create pre-tasks asynchronously.
+   * Create pre-tasks and supertask via the backend helper.
    *
    * @param {Object} form - The form data containing task configurations.
-   * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<number[]> {
-    const preTasksIds: number[] = [];
-    const iterFiles: number[] = form.iterFiles;
+  private createSupertask(form): void {
+    const payload = {
+      name: form.name,
+      command: form.attackCmd,
+      isCpu: form.isCpuTask,
+      isSmall: form.isSmall,
+      crackerBinaryTypeId: form.crackerBinaryId,
+      benchtype: form.useNewBench ? 'speed' : 'runtime',
+      maxAgents: form.maxAgents,
+      basefiles: form.baseFiles,
+      iterfiles: form.iterFiles
+    };
 
-    try {
-      const promises = iterFiles.map(async (iter, index) => {
-        const payload = {
-          taskName: '',
-          attackCmd: '',
-          maxAgents: form.maxAgents,
-          chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
-          statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
-          priority: index + 1,
-          color: '',
-          isCpuTask: form.isCpuTask,
-          crackerBinaryTypeId: form.crackerBinaryId,
-          isSmall: form.isSmall,
-          useNewBench: form.useNewBench,
-          isMaskImport: true,
-          files: form.baseFiles
-        };
+    const subscription$ = this.gs.chelper(SERV.HELPER, 'bulkSupertaskBuilder', payload).subscribe({
+      next: () => {
+        this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
+        this.router.navigate(['/tasks/supertasks']);
+      },
+      error: (error) => {
+        console.error('Error creating bulk supertask:', error);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
 
-        // Get file name
-        const fileName: string = await new Promise((resolve, reject) => {
-          const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
-            next: (response: ResponseWrapper) => {
-              const file = new JsonAPISerializer().deserialize<JFile>({
-                data: response.data,
-                included: response.included
-              });
-              resolve(file.filename);
-            },
-            error: reject
-          });
-
-          this.unsubscribeService.add(fileSubscription$);
-        });
-
-        const updatedAttackCmd = form.attackCmd.replace('FILE', fileName);
-        payload.taskName = form.name + ' + ' + fileName;
-        payload.attackCmd = updatedAttackCmd;
-
-        const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
-        const pretask = new JsonAPISerializer().deserialize<JPretask>({ data: result.data, included: result.included });
-        preTasksIds.push(pretask.id);
-      });
-
-      await Promise.all(promises);
-      return preTasksIds;
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    this.unsubscribeService.add(subscription$);
   }
 
   /**
@@ -232,35 +203,16 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         }
 
         this.isLoading = true; // Show spinner
-        const ids = await this.preTasks(formValue);
-        this.superTask(formValue.name, ids);
+        this.createSupertask(formValue);
       } catch (error) {
         console.error('Error when importing supertask:', error);
-        // Handle error if needed
       } finally {
-        this.isLoading = false; // Hide spinner regardless of success or error
+        this.isLoading = false;
       }
     } else {
       this.createForm.markAllAsTouched();
       this.createForm.updateValueAndValidity();
     }
-  }
-
-  /**
-   * Creates a new super task with the given name and preTasks IDs.
-   * @param {string} name - The name of the super task.
-   * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
-   * @returns {void}
-   */
-  private superTask(name: string, ids: number[]) {
-    const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
-      this.router.navigate(['/tasks/supertasks']);
-    });
-
-    this.unsubscribeService.add(createSubscription$);
-    this.isLoading = false;
   }
 
   /**
