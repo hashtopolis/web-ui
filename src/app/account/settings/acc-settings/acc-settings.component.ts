@@ -14,6 +14,7 @@ import { SERV } from '@services/main.config';
 import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
 import { JUserSchema } from '@src/app/core/_models/user.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
 
 export interface UpdateUserPassword {
@@ -85,6 +86,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.createForm();
     this.loadUserSettings();
     this.createUpdatePassForm();
+
+    this.form.markAllAsTouched();
+    this.form.updateValueAndValidity();
   }
 
   /**
@@ -102,7 +106,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
-      email: new FormControl('', [Validators.required, Validators.email])
+      email: new FormControl('', [Validators.required, emailValidator])
     });
   }
 

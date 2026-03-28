@@ -3,6 +3,8 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { emailValidator } from '@src/app/core/_validators/email.validator';
+
 /**
  * Interface definition for NewUserForm
  * @prop username                     Username
@@ -24,7 +26,7 @@ export interface NewUserForm {
 export const getNewUserForm = () => {
   return new FormGroup<NewUserForm>({
     username: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
+    email: new FormControl('', [Validators.required, emailValidator]),
     globalPermissionGroupId: new FormControl(undefined, [Validators.required]),
     isValid: new FormControl(false)
   });
