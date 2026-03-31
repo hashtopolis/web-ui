@@ -1,5 +1,6 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -205,15 +206,58 @@ describe('NewFilesComponent', () => {
   });
 
   describe('Access group scoping', () => {
-    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
+    it('should fetch access groups via getRelationships with X-Skip-Error-Dialog header', () => {
       setup('wordlist-new');
       const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
 
-      // Component must use getRelationships to get user-scoped access groups
-      expect(gs.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+      const callArgs = gs.getRelationships.calls.mostRecent().args;
+      expect(callArgs[0]).toEqual(SERV.USERS);
+      expect(callArgs[1]).toBe(1);
+      expect(callArgs[2]).toBe(RelationshipType.ACCESSGROUPS);
+      expect(callArgs[3]).toBeDefined();
+      expect(callArgs[3].headers).toBeInstanceOf(HttpHeaders);
+      expect(callArgs[3].headers.get('X-Skip-Error-Dialog')).toBe('true');
 
       // getAll must NOT be called — the component should not fetch all access groups
       expect(gs.getAll).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to default access group when getRelationships returns error (403)', async () => {
+      TestBed.overrideProvider(GlobalService, {
+        useValue: {
+          ...new MockGlobalService(),
+          getRelationships: jasmine
+            .createSpy('getRelationships')
+            .and.returnValue(throwError(() => new Error('403 Forbidden'))),
+          userId: 1
+        }
+      });
+      TestBed.overrideProvider(ActivatedRoute, {
+        useValue: { data: of({ kind: 'wordlist-new' }) }
+      });
+
+      fixture = TestBed.createComponent(NewFilesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.selectAccessgroup.length).toBe(1);
+      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
+      expect(component.form.get('accessGroupId').value).toBe(1);
+      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.isLoading).toBeFalse();
+    });
+
+    it('should fall back to default access group when response has empty data', async () => {
+      // Default mock already returns { data: [], included: [] } → empty → triggers fallback
+      setup('wordlist-new');
+      await fixture.whenStable();
+
+      expect(component.selectAccessgroup.length).toBe(1);
+      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
+      expect(component.form.get('accessGroupId').value).toBe(1);
+      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.isLoading).toBeFalse();
     });
 
     it('should correctly transform access group API data to select options', () => {

@@ -276,9 +276,14 @@ export class GlobalService {
       .pipe(debounceTime(2000));
   }
 
-  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<any> {
+  getRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    options?: { headers?: HttpHeaders }
+  ): Observable<any> {
     return this.http
-      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType, options)
       .pipe(debounceTime(2000));
   }
 
