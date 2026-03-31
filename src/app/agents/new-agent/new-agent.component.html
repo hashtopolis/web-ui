@@ -2,16 +2,23 @@
   <app-page-title title="New Agent" [subbutton]="false"></app-page-title>
   <mat-stepper #stepper>
     <mat-step label="Download Agent Binary" state="download">
-      <app-agent-binaries-table
-
-        [isSelectable]="false"
-      ></app-agent-binaries-table>
+      @if (canReadAgentBinaries) {
+        <app-agent-binaries-table
+          [isSelectable]="false"
+        ></app-agent-binaries-table>
+      }
       <div class="highlight-box">
-        <p>
-          <strong>Download the agent binary</strong> and execute it on the
-          client server. You can download an agent binary by clicking on the
-          action menu (...) in the agent binaries table above.
-        </p>
+        @if (canReadAgentBinaries) {
+          <p>
+            <strong>Download the agent binary</strong> and execute it on the
+            client server. You can download an agent binary by clicking on the
+            action menu (...) in the agent binaries table above.
+          </p>
+        } @else {
+          <p>
+            You do not have permission to view agent binaries. You can skip this step and proceed to register the agent.
+          </p>
+        }
       </div>
       <div>
         <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
@@ -53,16 +60,17 @@
       </form>
       <app-vouchers-table #table></app-vouchers-table>
       <div class="highlight-box">
-        <p *ngIf="!allowMultiVoucher; else multipleVouchersMessage">
-          <strong>Generate a voucher</strong> to register the agent. Note that once the voucher
-          is used it will be automatically deleted.
-        </p>
-        <ng-template #multipleVouchersMessage>
+        @if (!allowMultiVoucher) {
+          <p>
+            <strong>Generate a voucher</strong> to register the agent. Note that once the voucher
+            is used it will be automatically deleted.
+          </p>
+        } @else {
           <p>
             <strong>Generate vouchers</strong> to register agents. Vouchers remain available when the
             "Register Multiple Agents Using Voucher(s)" option is enabled.
           </p>
-        </ng-template>
+        }
       </div>
       <div>
         <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>

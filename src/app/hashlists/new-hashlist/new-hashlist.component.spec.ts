@@ -1,5 +1,6 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -245,7 +246,7 @@ describe('NewHashlistComponent', () => {
       tick();
 
       const expectedPayload = {
-        ...component.form.value,
+        ...component.form.getRawValue(),
         sourceType: 'import',
         sourceData: 'hashes.txt'
       };
@@ -321,9 +322,45 @@ describe('NewHashlistComponent', () => {
   });
 
   describe('Access group scoping', () => {
-    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
-      expect(gsSpy.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+    it('should fetch access groups via getRelationships with X-Skip-Error-Dialog header', () => {
+      const callArgs = gsSpy.getRelationships.calls.mostRecent().args;
+      expect(callArgs[0]).toEqual(SERV.USERS);
+      expect(callArgs[1]).toBe(1);
+      expect(callArgs[2]).toBe(RelationshipType.ACCESSGROUPS);
+      expect(callArgs[3]).toBeDefined();
+      expect(callArgs[3].headers).toBeInstanceOf(HttpHeaders);
+      expect(callArgs[3].headers.get('X-Skip-Error-Dialog')).toBe('true');
+
+      // getAll must NOT be called for access groups
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
+    });
+
+    it('should fall back to default access group when getRelationships returns error (403)', () => {
+      // Re-create component with error response
+      gsSpy.getRelationships.and.returnValue(throwError(() => new Error('403 Forbidden')));
+      fixture = TestBed.createComponent(NewHashlistComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.selectAccessgroup.length).toBe(1);
+      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
+      expect(component.form.get('accessGroupId').value).toBe(1);
+      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.isLoadingAccessGroups).toBeFalse();
+    });
+
+    it('should fall back to default access group when response has empty data', () => {
+      // Re-create component with empty access groups
+      gsSpy.getRelationships.and.returnValue(of({ data: [], included: [] }));
+      fixture = TestBed.createComponent(NewHashlistComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.selectAccessgroup.length).toBe(1);
+      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
+      expect(component.form.get('accessGroupId').value).toBe(1);
+      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.isLoadingAccessGroups).toBeFalse();
     });
   });
 });
