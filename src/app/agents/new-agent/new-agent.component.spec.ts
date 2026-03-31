@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -13,6 +14,7 @@ import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 
@@ -28,7 +30,7 @@ import { TableModule } from '@src/app/shared/table/table-actions.module';
   standalone: false
 })
 export class MockAgentBinariesTableComponent {
-  @Input() isSelectable: boolean;
+  @Input() isSelectable: boolean = false;
 }
 
 // Voucher table mock
@@ -48,6 +50,7 @@ describe('NewAgentComponent', () => {
   let alertServiceSpy: jasmine.SpyObj<AlertService>;
   let configServiceSpy: jasmine.SpyObj<ConfigService>;
   let globalServiceSpy: jasmine.SpyObj<GlobalService>;
+  let permissionServiceSpy: jasmine.SpyObj<PermissionService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
@@ -55,6 +58,8 @@ describe('NewAgentComponent', () => {
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
     configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
+    permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['hasPermissionSync']);
+    permissionServiceSpy.hasPermissionSync.and.returnValue(true);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     // Provide default stub for configService.getEndpoint()
@@ -80,6 +85,7 @@ describe('NewAgentComponent', () => {
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: ConfigService, useValue: configServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
+        { provide: PermissionService, useValue: permissionServiceSpy },
         { provide: Router, useValue: routerSpy }
       ]
     }).compileComponents();
@@ -174,5 +180,44 @@ describe('NewAgentComponent', () => {
     component.newVoucherSubscription = jasmine.createSpyObj('Subscription', ['unsubscribe']);
     component.ngOnDestroy();
     expect(component.newVoucherSubscription.unsubscribe).toHaveBeenCalled();
+  });
+
+  it('should allow agent creation for a user without AccessGroup.READ permission', fakeAsync(() => {
+    // Simulate a user who lacks AccessGroup.READ but retains Agent.CREATE, Agent.READ and Voucher.READ
+    // This is the exact scenario described in issue #1955
+    permissionServiceSpy.hasPermissionSync.and.callFake((perm: string) => perm !== Perm.GroupAccess.READ);
+
+    fixture = TestBed.createComponent(NewAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    // Component initializes without errors
+    expect(component).toBeTruthy();
+
+    // User can still create a voucher — the actual agent registration action
+    const voucher = 'fy7vjq56';
+    component.form.controls['voucher'].setValue(voucher);
+    component.table = jasmine.createSpyObj('VouchersTableComponent', ['reload']);
+    globalServiceSpy.create.and.returnValue(of({}));
+
+    component.onSubmit();
+    tick();
+
+    expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.VOUCHER, { voucher: voucher });
+    expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New voucher successfully created!');
+  }));
+
+  it('should not make any access group API call during agent creation', () => {
+    // Agent creation does not require or fetch access groups — verifies no extraneous dependency
+    const calledEndpoints = globalServiceSpy.getAll.calls.allArgs().map((args: unknown[]) => args[0]);
+    expect(calledEndpoints).not.toContain(SERV.ACCESS_GROUPS);
+  });
+
+  it('should hide agent binaries table and avoid 403 when user lacks AgentBinary.READ permission', () => {
+    // Secondary fix: users without AgentBinary.READ won't trigger a 403 on the binaries endpoint
+    component.canReadAgentBinaries = false;
+    fixture.detectChanges();
+    const table = fixture.nativeElement.querySelector('app-agent-binaries-table');
+    expect(table).toBeNull();
   });
 });

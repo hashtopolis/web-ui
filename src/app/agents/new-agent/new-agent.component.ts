@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -10,6 +11,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
+import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
@@ -30,6 +32,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   private alertService = inject(AlertService);
   private cs = inject(ConfigService);
   private gs = inject(GlobalService);
+  private permissionService = inject(PermissionService);
   private router = inject(Router);
 
   form: FormGroup<VoucherForm> = new FormGroup<VoucherForm>({
@@ -38,6 +41,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   agentURL: string;
   newVoucherSubscription: Subscription;
   allowMultiVoucher = false;
+  canReadAgentBinaries = this.permissionService.hasPermissionSync(Perm.AgentBinary.READ);
 
   @ViewChild('table') table: VouchersTableComponent;
 
