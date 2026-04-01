@@ -120,7 +120,7 @@ export async function mockLoginFlow(page: Page): Promise<void> {
     })
   );
 
-  // 1. Auth token — the primary login endpoint.
+  // Auth token — the primary login endpoint.
   await page.route('**/auth/token', (route) =>
     route.fulfill({
       status: 200,
@@ -129,7 +129,7 @@ export async function mockLoginFlow(page: Page): Promise<void> {
     })
   );
 
-  // 2. User permissions — loaded by PermissionService immediately after login.
+  // User permissions — loaded by PermissionService immediately after login.
   await page.route('**/helper/getUserPermission', (route) =>
     route.fulfill({
       status: 200,
@@ -166,7 +166,7 @@ export async function mockHashlistsFlow(page: Page): Promise<void> {
     permAccessGroupRead: true
   });
 
-  // Catch-all — lowest priority (registered first).
+  // Catch-all — lowest priority
   await page.route('**/api/v2/**', (route) =>
     route.fulfill({
       status: 200,
@@ -215,8 +215,8 @@ export async function mockHashlistsFlow(page: Page): Promise<void> {
     })
   );
 
-  // Access groups — populates the access group select on the create form.
-  await page.route('**/ui/accessgroups*', (route) =>
+  // Access groups — the create form loads these via the user relationship endpoint.
+  await page.route('**/ui/users/*/accessGroups*', (route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/vnd.api+json',

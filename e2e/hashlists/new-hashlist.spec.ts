@@ -27,35 +27,28 @@ test.describe('New Hashlist form', () => {
   });
 
   test('creates a hashlist via paste and redirects to the list', async ({ page }) => {
-    // Wait for form dependencies to finish loading
-    await expect(page.getByPlaceholder('Hashtypes...')).toBeVisible();
+    await expect(page.getByTestId('hashtypes-input')).toBeVisible();
 
-    // Fill in the hashlist name
     await page.getByTestId('name-input').locator('input').fill('Test Hashlist');
 
-    // Select a hash type from the autocomplete
+    // Hashtypes Autocomplete
     await page.getByTestId('hashtypes-input').locator('input').fill('MD5');
     await page.getByRole('option', { name: /1 - MD5/ }).click();
 
-    // Select an access group.
-    // Use keyboard to open: mat-label overlays the select and blocks pointer events.
-    await page.getByTestId('access-group-select').locator('[role="combobox"]').press('Enter');
+    // Access Group Select (using role + force to bypass label overlays)
+    await page.getByTestId('access-group-select').locator('.mat-mdc-select-trigger').click({ force: true });
     await page.getByRole('option', { name: 'Default' }).click();
 
-    // Switch source type to paste — same keyboard pattern.
-    await page.getByTestId('hash-source-select').locator('[role="combobox"]').press('Enter');
+    // Source Type Select — focus the mat-select then open with Space to avoid CDK overlay conflicts.
+    await page.getByTestId('hash-source-select').locator('mat-select').focus();
+    await page.keyboard.press('Space');
     await page.getByRole('option', { name: 'Paste Hash(es)' }).click();
 
-    // Paste some hashes.
-    // Scoped via data-testid so the test does not break on label renames.
-    // force: true is required because cdkTextareaAutosize initialises with zero
-    // computed height in Firefox, making Playwright consider it not visible.
     await page
       .getByTestId('paste-hashes-input')
       .locator('textarea')
       .fill('5d41402abc4b2a76b9719d911017c592', { force: true });
 
-    // Submit and verify redirect
     await page.getByRole('button', { name: 'Create' }).click();
     await expect(page).toHaveURL(/#\/hashlists\/hashlist/, { timeout: 10_000 });
   });
