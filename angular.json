@@ -104,12 +104,18 @@
           "builder": "@angular/build:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": ["src/polyfills.ts"],
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "inlineStyleLanguage": "scss",
             "stylePreprocessorOptions": {
-              "includePaths": ["src/styles", "node_modules", "."]
+              "includePaths": [
+                "src/styles",
+                "node_modules",
+                "."
+              ]
             },
             "assets": [
               "src/styles/styles.scss"
@@ -130,6 +136,17 @@
               "src/**/*.ts",
               "src/**/*.html"
             ]
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "hashtopolis:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "hashtopolis:serve:production"
+            }
           }
         }
       }
