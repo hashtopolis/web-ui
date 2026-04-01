@@ -5,7 +5,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <div class="flex flex-wrap items-center gap-2">
-      <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
+      <input-text title="Name" formControlName="name" [isRequired]="true" data-testid="name-input"></input-text>
     </div>
 
     @if (!isLoadingHashtypes) {
@@ -19,6 +19,7 @@
           formControlName="hashTypeId"
           [multiselectEnabled]="false"
           [mergeIdAndName]="true"
+          data-testid="hashtypes-input"
         ></input-multiselect>
         <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
           <mat-icon>help</mat-icon>
@@ -34,7 +35,7 @@
     <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
     <div class="flex flex-wrap items-center gap-2">
-      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
+      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true" data-testid="access-group-select"></input-select>
       <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
     </div>
 
@@ -63,7 +64,7 @@
 
     <div class="flex flex-wrap items-center gap-2">
       <div class="flex flex-col">
-        <input-select title="Hash Source" formControlName="sourceType" [items]="selectSource"></input-select>
+        <input-select title="Hash Source" formControlName="sourceType" [items]="selectSource" data-testid="hash-source-select"></input-select>
       </div>
       <div class="flex flex-col" style="position: relative; top: -10px;">
         <input-check title="Secret Data" formControlName="isSecret"></input-check>
@@ -72,7 +73,7 @@
 
     @if (sourceType === 'paste') {
       <div>
-        <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
+        <input-text-area title="Paste Hash(es)" formControlName="sourceData" data-testid="paste-hashes-input"></input-text-area>
         <grid-buttons>
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
           <button-submit [name]="'Create'"></button-submit>
