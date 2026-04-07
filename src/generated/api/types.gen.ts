@@ -442,7 +442,7 @@ export type AgentResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -681,7 +681,7 @@ export type AgentListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -821,7 +821,7 @@ export type AgentAssignmentResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -934,7 +934,7 @@ export type AgentAssignmentListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -1120,7 +1120,7 @@ export type AgentErrorResponse = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: number | null;
       taskWrapperId: number;
       isArchived: boolean;
       notes: string;
@@ -1186,7 +1186,7 @@ export type AgentErrorListResponse = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: number | null;
       taskWrapperId: number;
       isArchived: boolean;
       notes: string;
@@ -1526,7 +1526,7 @@ export type ChunkResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -1631,7 +1631,7 @@ export type ChunkListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -1927,7 +1927,7 @@ export type CrackerBinaryResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -2029,7 +2029,7 @@ export type CrackerBinaryListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -2147,7 +2147,7 @@ export type CrackerBinaryTypeResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -2247,7 +2247,7 @@ export type CrackerBinaryTypeListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -3005,7 +3005,7 @@ export type HashlistResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -3161,7 +3161,7 @@ export type HashlistSingleResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -3355,7 +3355,7 @@ export type HashlistListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -4639,7 +4639,7 @@ export type SpeedResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -4737,7 +4737,7 @@ export type SpeedListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -4972,7 +4972,7 @@ export type TaskCreate = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId?: number | null;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -5033,7 +5033,7 @@ export type TaskResponse = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: number | null;
       taskWrapperId: number;
       isArchived: boolean;
       notes: string;
@@ -5222,7 +5222,7 @@ export type TaskPostPatchResponse = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: number | null;
       taskWrapperId: number;
       isArchived: boolean;
       notes: string;
@@ -5273,7 +5273,7 @@ export type TaskListResponse = {
       useNewBench: boolean;
       skipKeyspace: number;
       crackerBinaryId: number;
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: number | null;
       taskWrapperId: number;
       isArchived: boolean;
       notes: string;
@@ -5599,7 +5599,7 @@ export type TaskWrapperResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -5735,7 +5735,7 @@ export type TaskWrapperSingleResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
@@ -5903,7 +5903,7 @@ export type TaskWrapperListResponse = {
           useNewBench: boolean;
           skipKeyspace: number;
           crackerBinaryId: number;
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: number | null;
           taskWrapperId: number;
           isArchived: boolean;
           notes: string;
