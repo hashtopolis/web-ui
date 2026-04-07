@@ -14133,7 +14133,7 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
+                "required": ["startValid", "endValid", "userId", "isRevoked"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
@@ -14244,7 +14244,7 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
+                "required": ["startValid", "endValid", "userId", "isRevoked"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
@@ -14297,7 +14297,7 @@
                 "type": { "type": "string", "const": "apiToken" },
                 "attributes": {
                   "type": "object",
-                  "required": ["startValid", "endValid", "userId", "isRevoked", "token"],
+                  "required": ["startValid", "endValid", "userId", "isRevoked"],
                   "properties": {
                     "startValid": { "type": "integer", "format": "int64" },
                     "endValid": { "type": "integer", "format": "int64" },
@@ -21193,8 +21193,7 @@
                   "priority",
                   "maxAgents",
                   "isMaskImport",
-                  "crackerBinaryTypeId",
-                  "auxiliaryKeyspace"
+                  "crackerBinaryTypeId"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -21310,8 +21309,7 @@
                   "priority",
                   "maxAgents",
                   "isMaskImport",
-                  "crackerBinaryTypeId",
-                  "auxiliaryKeyspace"
+                  "crackerBinaryTypeId"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -21382,8 +21380,7 @@
                     "priority",
                     "maxAgents",
                     "isMaskImport",
-                    "crackerBinaryTypeId",
-                    "auxiliaryKeyspace"
+                    "crackerBinaryTypeId"
                   ],
                   "properties": {
                     "taskName": { "type": "string" },
@@ -22548,15 +22545,7 @@
                   "chunkSize",
                   "forcePipe",
                   "preprocessorId",
-                  "preprocessorCommand",
-                  "activeAgents",
-                  "dispatched",
-                  "searched",
-                  "status",
-                  "estimatedTime",
-                  "timeSpent",
-                  "currentSpeed",
-                  "cprogress"
+                  "preprocessorCommand"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -22991,15 +22980,7 @@
                   "chunkSize",
                   "forcePipe",
                   "preprocessorId",
-                  "preprocessorCommand",
-                  "activeAgents",
-                  "dispatched",
-                  "searched",
-                  "status",
-                  "estimatedTime",
-                  "timeSpent",
-                  "currentSpeed",
-                  "cprogress"
+                  "preprocessorCommand"
                 ],
                 "properties": {
                   "taskName": { "type": "string" },
@@ -23106,15 +23087,7 @@
                     "chunkSize",
                     "forcePipe",
                     "preprocessorId",
-                    "preprocessorCommand",
-                    "activeAgents",
-                    "dispatched",
-                    "searched",
-                    "status",
-                    "estimatedTime",
-                    "timeSpent",
-                    "currentSpeed",
-                    "cprogress"
+                    "preprocessorCommand"
                   ],
                   "properties": {
                     "taskName": { "type": "string" },
