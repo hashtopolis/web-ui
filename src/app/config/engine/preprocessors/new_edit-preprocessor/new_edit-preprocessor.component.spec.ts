@@ -24,9 +24,10 @@ describe('NewEditPreprocessorComponent', () => {
   let httpMock: HttpTestingController;
 
   const preprocessorResponse = {
+    jsonapi: { version: '1.1', ext: [] },
     data: {
-      id: '9',
-      type: SERV.PREPROCESSORS.RESOURCE,
+      id: 9,
+      type: 'preprocessor',
       attributes: {
         name: 'Test Preprocessor',
         binaryName: 'test-preprocessor.bin',

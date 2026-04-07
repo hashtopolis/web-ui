@@ -22,9 +22,10 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
 const mockAccessGroupResponse: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: {
-    id: '1',
-    type: SERV.ACCESS_GROUPS.RESOURCE,
+    id: 1,
+    type: 'accessGroup',
     attributes: {
       groupName: 'Test Group'
     }
@@ -132,7 +133,7 @@ describe('EditGroupsComponent', () => {
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     mockGlobalService.get.and.returnValue(of(mockAccessGroupResponse));
-    mockGlobalService.getAll.and.returnValue(of({ data: [], included: [] }));
+    mockGlobalService.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
 
     await TestBed.configureTestingModule({
       declarations: [EditGroupsComponent],

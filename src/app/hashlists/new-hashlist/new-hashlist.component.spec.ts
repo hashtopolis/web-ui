@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -122,6 +123,7 @@ describe('NewHashlistComponent', () => {
         InputModule,
         ButtonsModule,
         ComponentsModule,
+        MatProgressBarModule,
         MatProgressSpinnerModule,
         MatIconModule
       ],
