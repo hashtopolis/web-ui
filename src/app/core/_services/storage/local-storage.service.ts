@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 
 import { BaseStorageService, StorageWrapper } from '@services/storage/base-storage.service';
 
+import { environment } from '@src/environments/environment';
+
 /**
  * A storage service implementation that uses browser's local storage to store and retrieve data
  * with optional expiration.
@@ -47,7 +49,9 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
-        console.log('value: ', value);
+        if (!environment.production) {
+          console.warn('value: ', value);
+        }
         console.error(`Schema validation failed for "${key}", using default:`, result.error.issues);
         // self heal, value is removed and the default value is used
         localStorage.removeItem(key);
@@ -77,7 +81,9 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
-        console.log('value: ', value);
+        if (!environment.production) {
+          console.warn('value: ', value);
+        }
         console.error(`Storage write validation failed for key "${key}":`, result.error.issues);
         return;
       }

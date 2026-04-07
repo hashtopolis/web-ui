@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { environment } from '@src/environments/environment';
+
 /**
  * Typed wrapper around the native `Storage` API that replaces the global `localStorage`.
  *
@@ -82,7 +84,9 @@ export class TypedStorage<T = unknown> {
     if (effectiveSchema) {
       const result = effectiveSchema.safeParse(value);
       if (!result.success) {
-        console.log('value: ', value);
+        if (!environment.production) {
+          console.warn('value: ', value);
+        }
         console.error(`Storage write validation failed for "${key}":`, result.error.issues);
         return;
       }
