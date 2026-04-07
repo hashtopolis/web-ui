@@ -82,6 +82,7 @@ export class TypedStorage<T = unknown> {
     if (effectiveSchema) {
       const result = effectiveSchema.safeParse(value);
       if (!result.success) {
+        console.log('value: ', value);
         console.error(`Storage write validation failed for "${key}":`, result.error.issues);
         return;
       }

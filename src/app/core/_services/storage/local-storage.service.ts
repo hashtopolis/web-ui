@@ -47,6 +47,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
+        console.log('value: ', value);
         console.error(`Schema validation failed for "${key}", using default:`, result.error.issues);
         // self heal, value is removed and the default value is used
         localStorage.removeItem(key);
@@ -76,6 +77,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
+        console.log('value: ', value);
         console.error(`Storage write validation failed for key "${key}":`, result.error.issues);
         return;
       }
