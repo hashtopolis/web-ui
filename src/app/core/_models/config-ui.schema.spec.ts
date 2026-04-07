@@ -409,7 +409,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
     { table: 'users', dataKey: 'name', id: 1 },
     { table: 'hashlists', dataKey: 'id', id: 0 },
     { table: 'files', dataKey: 'filename', id: 1 },
-    { table: 'cracks', dataKey: 'timeCracked', id: 0 },
+    { table: 'cracks', dataKey: 'timeCracked', id: 0 }
   ];
 
   for (const direction of ['asc', 'desc'] as const) {
