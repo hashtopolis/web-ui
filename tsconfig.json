@@ -3,30 +3,14 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@src/*": [
-        "./src/*"
-      ],
-      "@models/*": [
-        "./src/app/core/_models/*"
-      ],
-      "@components/*": [
-        "./src/app/core/_components/*"
-      ],
-      "@datasources/*": [
-        "./src/app/core/_datasources/*"
-      ],
-      "@services/*": [
-        "./src/app/core/_services/*"
-      ],
-      "@constants/*": [
-        "./src/app/core/_constants/*"
-      ],
-      "@interceptors/*": [
-        "./src/app/core/_interceptors/*"
-      ],
-      "@generated/*": [
-        "./src/generated/*"
-      ]
+      "@src/*": ["./src/*"],
+      "@models/*": ["./src/app/core/_models/*"],
+      "@components/*": ["./src/app/core/_components/*"],
+      "@datasources/*": ["./src/app/core/_datasources/*"],
+      "@services/*": ["./src/app/core/_services/*"],
+      "@constants/*": ["./src/app/core/_constants/*"],
+      "@interceptors/*": ["./src/app/core/_interceptors/*"],
+      "@generated/*": ["./src/generated/*"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
@@ -45,14 +29,8 @@
     "target": "ES2022",
     "module": "ES2022",
     "allowJs": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "src/decs.d.ts"
-    ],
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
+    "typeRoots": ["node_modules/@types", "src/decs.d.ts"],
+    "lib": ["ES2022", "dom"],
     "useDefineForClassFields": false,
     "skipLibCheck": true
   },
