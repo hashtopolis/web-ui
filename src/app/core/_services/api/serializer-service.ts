@@ -14,9 +14,11 @@ import {
 } from 'jsona/lib/JsonaTypes';
 import { z } from 'zod';
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { JsonApiPayload, RelationshipKeysOfSchema } from '@models/json-api.types';
+import { AlertService } from '@services/shared/alert.service';
+import { environment } from '@src/environments/environment';
 
 interface IncludeOptions<K extends string> extends TDeserializeOptions {
   include: readonly K[];
@@ -30,9 +32,15 @@ interface IncludeOptions<K extends string> extends TDeserializeOptions {
 })
 export class JsonAPISerializer {
   private formatter: Jsona;
+  private alertService: AlertService | null;
 
   constructor() {
     this.formatter = new Jsona();
+    try {
+      this.alertService = inject(AlertService);
+    } catch {
+      this.alertService = null;
+    }
   }
 
   /**
@@ -96,7 +104,10 @@ export class JsonAPISerializer {
     const parseResult = schema.safeParse(body);
     if (!parseResult.success) {
       console.error('API response validation failed', parseResult.error);
-      throw parseResult.error;
+      if (!environment.production) {
+        this.alertService?.showErrorMessage('API response validation failed: ' + parseResult.error.message);
+        throw parseResult.error;
+      }
     }
   }
 }
