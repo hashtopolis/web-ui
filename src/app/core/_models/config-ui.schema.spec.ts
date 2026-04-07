@@ -1,5 +1,5 @@
 import { uiConfigDefault } from '@models/config-ui.model';
-import { uiConfigSchema, uisSettingsSchema } from '@models/config-ui.schema';
+import { sortingSchema, uiConfigSchema, uisSettingsSchema } from '@models/config-ui.schema';
 
 describe('uiConfigSchema', () => {
   // Use a deep copy to avoid interference from other tests that mutate the
@@ -141,6 +141,28 @@ describe('uiConfigSchema', () => {
       const table = result.data.tableSettings['myTable'];
       expect(table['before']).toBe(5);
       expect(table['index']).toBe(3);
+    }
+  });
+
+  it('should preserve the parent field in sorting order (relationship sort)', () => {
+    const config = {
+      ...defaults,
+      tableSettings: {
+        tasksTable: {
+          columns: [1, 2],
+          page: 25,
+          search: '',
+          order: { id: 2, dataKey: 'taskName', isSortable: true, direction: 'asc', parent: 'task' }
+        }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      const order = result.data.tableSettings['tasksTable']['order'];
+      expect(order).toBeDefined();
+      expect(order['parent']).toBe('task');
     }
   });
 
@@ -323,6 +345,90 @@ describe('uisSettingsSchema', () => {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.statustimer).toBe(5);
       expect(result.data.agentTempThreshold1).toBe(75);
+    }
+  });
+});
+
+/**
+ * Replicates the sort parameter construction from
+ * RequestParamBuilder.addSorting (builder-implementation.service.ts).
+ */
+function buildSortParam(col: { dataKey: string; direction: string; parent?: string }): string {
+  const direction = col.direction === 'asc' ? '' : '-';
+  const parent = col.parent ? `${col.parent}.` : '';
+  return `${direction}${parent}${col.dataKey}`;
+}
+
+describe('sortingSchema – sort parameter round-trip', () => {
+  /**
+   * Every sortable column across all tables. Columns with a `parent` field
+   * produce a relationship sort like "task.taskName"; the rest produce a
+   * simple sort like "priority".
+   */
+  const sortableColumns: { table: string; dataKey: string; id: number; parent?: string }[] = [
+    // tasks-table (the only table with parent-based sort columns)
+    { table: 'tasks', dataKey: 'taskWrapperId', id: 0 },
+    { table: 'tasks', dataKey: 'taskType', id: 1 },
+    { table: 'tasks', dataKey: 'taskName', id: 2, parent: 'task' },
+    { table: 'tasks', dataKey: 'hashlistId', id: 5, parent: 'hashlist' },
+    { table: 'tasks', dataKey: 'cracked', id: 7 },
+    { table: 'tasks', dataKey: 'groupName', id: 9, parent: 'accessGroup' },
+    { table: 'tasks', dataKey: 'isSmall', id: 10, parent: 'task' },
+    { table: 'tasks', dataKey: 'isCpuTask', id: 11, parent: 'task' },
+    { table: 'tasks', dataKey: 'priority', id: 12 },
+    { table: 'tasks', dataKey: 'maxAgents', id: 13 },
+    // Representative columns from other tables (no parent)
+    { table: 'agents', dataKey: 'id', id: 0 },
+    { table: 'agents', dataKey: 'agentName', id: 1 },
+    { table: 'users', dataKey: 'name', id: 1 },
+    { table: 'hashlists', dataKey: 'id', id: 0 },
+    { table: 'files', dataKey: 'filename', id: 1 },
+    { table: 'cracks', dataKey: 'timeCracked', id: 0 },
+  ];
+
+  for (const direction of ['asc', 'desc'] as const) {
+    for (const col of sortableColumns) {
+      const label = col.parent ? `${col.parent}.${col.dataKey}` : col.dataKey;
+
+      it(`[${col.table}] sort=${direction === 'desc' ? '-' : ''}${label} should survive schema round-trip`, () => {
+        // 1. Build the sorting object as onColumnHeaderClick would
+        const initial = {
+          id: col.id,
+          dataKey: col.dataKey,
+          isSortable: true as const,
+          direction,
+          ...(col.parent ? { parent: col.parent } : {})
+        };
+
+        // 2. Round-trip through sortingSchema (simulates localStorage save + restore)
+        const result = sortingSchema.safeParse(initial);
+        expect(result.success).toBeTrue();
+
+        // 3. The sort parameter sent to the API must be identical
+        const expected = buildSortParam(initial);
+        const actual = buildSortParam(result.data as typeof initial);
+        expect(actual).toBe(expected);
+      });
+    }
+  }
+
+  it('should strip unknown fields on the sorting object', () => {
+    const withExtra = {
+      id: 1,
+      dataKey: 'taskName',
+      isSortable: true,
+      direction: 'asc' as const,
+      parent: 'task',
+      render: 'should not survive',
+      routerLink: 'should not survive'
+    };
+
+    const result = sortingSchema.safeParse(withExtra);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      expect(result.data['render']).toBeUndefined();
+      expect(result.data['routerLink']).toBeUndefined();
+      expect(result.data.parent).toBe('task');
     }
   });
 });

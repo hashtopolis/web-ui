@@ -92,7 +92,8 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: 'asc' | 'desc';
+  direction: 'asc' | 'desc' | '';
+  parent?: string;
 }
 
 const _uiConfigDefault = {
@@ -195,10 +196,10 @@ const _uiConfigDefault = {
         AgentErrorTableCol.MESSAGE
       ],
       order: {
-        id: AgentErrorTableCol.ID,
-        dataKey: 'id',
+        id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },

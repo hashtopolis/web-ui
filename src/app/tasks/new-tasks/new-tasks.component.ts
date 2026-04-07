@@ -398,7 +398,11 @@ export class NewTasksComponent implements OnInit {
   protected onSubmit(): void {
     if (this.form.valid) {
       this.isCreatingLoading = true;
-      this.gs.create(SERV.TASKS, this.form.value).subscribe({
+
+      const payload = { ...this.form.value };
+      delete payload.crackerBinaryTypeId;
+
+      this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {
           this.alert.showSuccessMessage('New Task created');
           this.isCreatingLoading = false;

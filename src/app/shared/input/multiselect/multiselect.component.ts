@@ -1,13 +1,15 @@
-import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { Subject, combineLatest } from 'rxjs';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   ViewChild,
   forwardRef,
@@ -41,7 +43,7 @@ import { SelectOption, extractIds } from '@src/app/shared/utils/forms';
 })
 export class InputMultiSelectComponent
   extends AbstractInputComponent<number | number[]>
-  implements AfterViewInit, OnChanges
+  implements AfterViewInit, OnChanges, OnDestroy
 {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
@@ -60,14 +62,16 @@ export class InputMultiSelectComponent
   @Input() initialHashlistId: string | number;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
+  @ViewChild(CdkVirtualScrollViewport) virtualViewport: CdkVirtualScrollViewport;
 
   private searchInputSubject = new Subject<string>();
   private itemsSubject = new Subject<SelectOption[]>();
-  private maxItems = 50;
+  private destroy$ = new Subject<void>();
   private _items: SelectOption[] = [];
   private availableItems: SelectOption[] = [];
 
-  filteredItems: Observable<SelectOption[]>;
+  readonly itemSize = 48;
+  filteredItems: SelectOption[] = [];
   searchTerm = '';
 
   // Visual chips
@@ -82,14 +86,15 @@ export class InputMultiSelectComponent
 
   constructor() {
     super();
-    this.filteredItems = combineLatest([
-      this.searchInputSubject.pipe(startWith('')),
-      this.itemsSubject.pipe(startWith(this.availableItems))
-    ]).pipe(
-      map(([searchTerm]) => {
-        return searchTerm ? this._filter(searchTerm) : this.getUnselectedItems();
-      })
-    );
+    combineLatest([this.searchInputSubject.pipe(startWith('')), this.itemsSubject.pipe(startWith(this.availableItems))])
+      .pipe(
+        map(([searchTerm]) => (searchTerm ? this._filter(searchTerm) : this.getUnselectedItems())),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((items) => {
+        this.filteredItems = items;
+        this.cdr.markForCheck();
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -116,12 +121,41 @@ export class InputMultiSelectComponent
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Called when the autocomplete panel opens. Gives the CDK virtual scroll
+   * viewport a chance to measure its size after the overlay becomes visible.
+   */
+  onPanelOpened(): void {
+    setTimeout(() => {
+      this.virtualViewport?.checkViewportSize();
+      this.cdr.markForCheck();
+    });
+  }
+
+  /**
+   * Returns the height for the virtual scroll viewport, capped at 5 visible rows.
+   *
+   * @returns Height in pixels
+   */
+  get viewportHeight(): number {
+    return Math.min(this.filteredItems.length, 5) * this.itemSize;
+  }
+
   public addChip(item: SelectOption): void {
     if (!this.selectedItems.find((i) => i.id === item.id)) {
       // Update visual array
       if (this.multiselectEnabled) {
         this.selectedItems.push(item);
       } else {
+        // In single-select mode, restore the previously selected item to available
+        if (this.selectedItems.length > 0) {
+          this.availableItems = [...this.availableItems, this.selectedItems[0]];
+        }
         this.selectedItems = [item];
       }
 
@@ -252,9 +286,6 @@ export class InputMultiSelectComponent
       const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       if (nameToSearch.includes(filterValue)) {
         results.push(item);
-        if (results.length === this.maxItems) {
-          break;
-        }
       }
     }
     return results;
@@ -304,16 +335,7 @@ export class InputMultiSelectComponent
    * @returns {SelectOption[]} - The array of unselected items.
    */
   private getUnselectedItems(): SelectOption[] {
-    const results: SelectOption[] = [];
-    for (const item of this.availableItems) {
-      if (!this.selectedItems.find((s) => s.id === item.id)) {
-        results.push(item);
-        if (results.length === this.maxItems) {
-          break;
-        }
-      }
-    }
-    return results;
+    return this.availableItems.filter((item) => !this.selectedItems.find((s) => s.id === item.id));
   }
 
   override writeValue(newValue: number | number[] | null): void {
@@ -330,11 +352,10 @@ export class InputMultiSelectComponent
     } else {
       // Convert number/number[] to SelectOption/SelectOption[]
       const ids = Array.isArray(newValue) ? newValue : [newValue];
-      const selectedOptions = ids
+
+      this.selectedItems = ids
         .map((id) => this._items.find((item) => Number(item.id) === Number(id)))
         .filter((item): item is SelectOption => item !== undefined);
-
-      this.selectedItems = selectedOptions;
       this.chipGridValidation = [...this.selectedItems];
 
       // Remove selected items from available

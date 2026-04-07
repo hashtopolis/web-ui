@@ -82,7 +82,8 @@ export const sortingSchema = z.object({
   id: z.coerce.number(),
   dataKey: z.string(),
   isSortable: z.boolean(),
-  direction: z.enum(['asc', 'desc'])
+  direction: z.enum(['asc', 'desc', '']),
+  parent: z.string().optional()
 });
 
 /**
