@@ -10,7 +10,7 @@ export interface JChunk extends BaseModel {
   taskId: number;
   taskName?: string;
   task?: JTask;
-  format: string;
+  format?: string;
   skip: number;
   length: number;
   agentId: number;

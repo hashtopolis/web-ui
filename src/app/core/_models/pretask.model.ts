@@ -14,7 +14,7 @@ export interface JPretask extends BaseModel {
   isMaskImport: boolean;
   isSmall: boolean;
   maxAgents: number;
-  pretaskFiles: JFile[];
+  pretaskFiles?: JFile[];
   priority: number;
   statusTimer: number;
   taskName: string;

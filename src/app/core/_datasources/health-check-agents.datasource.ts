@@ -1,10 +1,10 @@
+import { zHealthCheckAgentListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -38,10 +38,10 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
           finalize(() => (this.loading = false))
         )
         .subscribe((healthCheckResponse: ResponseWrapper) => {
-          const healthChecksAgent = new JsonAPISerializer().deserialize<JHealthCheckAgent[]>({
-            data: healthCheckResponse.data,
-            included: healthCheckResponse.included
-          });
+          const healthChecksAgent: JHealthCheckAgent[] = this.serializer.deserialize(
+            healthCheckResponse,
+            zHealthCheckAgentListResponse
+          );
 
           const length = healthCheckResponse.meta.page.total_elements;
           const nextLink = healthCheckResponse.links.next;

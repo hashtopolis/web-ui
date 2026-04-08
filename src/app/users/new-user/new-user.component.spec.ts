@@ -24,18 +24,19 @@ describe('NewUserComponent', () => {
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
   const mockPermissionResponse: ResponseWrapper = {
+    jsonapi: { version: '1.1', ext: [] },
     data: [
       {
-        id: '1',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 1,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Default Group',
           permissions: {}
         }
       },
       {
-        id: '2',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 2,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Custom Group',
           permissions: {}

@@ -1,6 +1,7 @@
 /**
  * This module contains the datasource definition for the preprocessors table component
  */
+import { zPreprocessorListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -42,8 +43,7 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
+          const preprocessors: JPreprocessor[] = this.serializer.deserialize(response, zPreprocessorListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

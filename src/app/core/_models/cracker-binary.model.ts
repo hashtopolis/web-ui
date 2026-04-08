@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { BaseModel } from '@models/base.model';
 
 /**
@@ -24,3 +26,26 @@ export interface JCrackerBinaryType extends BaseModel {
   isChunkingAvailable: boolean;
   typeName: string;
 }
+
+/**
+ * Zod schema for validating deserialized (flat) cracker binary objects.
+ * Use after jsona.deserialize() to validate that relationship data was included.
+ */
+export const zCrackerBinary = z.object({
+  id: z.number(),
+  type: z.string(),
+  binaryName: z.string(),
+  crackerBinaryTypeId: z.number(),
+  downloadUrl: z.string(),
+  version: z.string()
+});
+
+export const zCrackerBinaryType = z.object({
+  id: z.number(),
+  type: z.string(),
+  typeName: z.string(),
+  isChunkingAvailable: z.boolean(),
+  crackerVersions: z.array(zCrackerBinary)
+});
+
+export const zCrackerBinaryTypeList = z.array(zCrackerBinaryType);
