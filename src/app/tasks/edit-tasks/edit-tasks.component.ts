@@ -4,7 +4,7 @@ import {
   zHashTypeResponse,
   zSpeedListResponse,
   zTaskResponse
-} from '@generated/api/zod.gen';
+} from '@generated/api/zod';
 import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';

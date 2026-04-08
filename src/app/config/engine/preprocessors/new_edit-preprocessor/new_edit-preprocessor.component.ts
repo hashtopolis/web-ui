@@ -1,4 +1,4 @@
-import { zPreprocessorResponse } from '@generated/api/zod.gen';
+import { zPreprocessorResponse } from '@generated/api/zod';
 import { Subscription, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';

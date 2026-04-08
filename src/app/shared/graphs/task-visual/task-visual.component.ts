@@ -1,4 +1,4 @@
-import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod.gen';
+import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod';
 import { FilterType } from 'src/app/core/_models/request-params.model';
 
 import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';

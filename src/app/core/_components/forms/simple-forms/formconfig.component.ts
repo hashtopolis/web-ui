@@ -1,4 +1,4 @@
-import { zConfigListResponse } from '@generated/api/zod.gen';
+import { zConfigListResponse } from '@generated/api/zod';
 import { Subscription, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';

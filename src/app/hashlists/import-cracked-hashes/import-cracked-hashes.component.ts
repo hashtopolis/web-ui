@@ -1,4 +1,4 @@
-import { zHashlistResponse } from '@generated/api/zod.gen';
+import { zHashlistResponse } from '@generated/api/zod';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';

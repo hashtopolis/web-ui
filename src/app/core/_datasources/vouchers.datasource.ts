@@ -1,4 +1,4 @@
-import { zVoucherListResponse } from '@generated/api/zod.gen';
+import { zVoucherListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { Filter } from '@models/request-params.model';

@@ -1,4 +1,4 @@
-import { zConfigListResponse } from '@generated/api/zod.gen';
+import { zConfigListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';

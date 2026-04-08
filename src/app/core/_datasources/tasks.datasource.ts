@@ -1,4 +1,4 @@
-import { zTaskWrapperListResponse } from '@generated/api/zod.gen';
+import { zTaskWrapperListResponse } from '@generated/api/zod';
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 

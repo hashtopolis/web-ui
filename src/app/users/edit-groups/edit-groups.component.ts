@@ -1,4 +1,4 @@
-import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';

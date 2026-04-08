@@ -1,4 +1,4 @@
-import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod.gen';
+import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';

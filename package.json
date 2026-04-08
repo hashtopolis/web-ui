@@ -15,10 +15,10 @@
     "build:ci": "ng build --configuration production",
     "format": "npx prettier 'src/**/*.{js,jsx,ts,tsx,html,css,scss}' --write",
     "lint": "ng lint",
-    "check-types": "NODE_OPTIONS='--max-old-space-size=8192' tsc --noEmit",
+    "check-types": "tsc --noEmit",
     "clean": "rm -rf package-lock.json npm-shrinkwrap.json node_modules;npm cache clean --force;npm cache verify",
     "fetch:openapi": "curl -s -o openapi.json http://localhost:8080/api/v2/openapi-compliant.json && npx prettier --write openapi.json",
-    "generate:api": "openapi-ts -f openapi-ts.config.mjs && node scripts/postprocess-zod.mjs",
+    "generate:api": "openapi-ts -f openapi-ts.config.mjs && node scripts/split-generated.mjs",
     "generate": "npm run fetch:openapi && npm run generate:api",
     "lint:openapi": "redocly lint openapi.json && spectral lint -D openapi.json"
   },

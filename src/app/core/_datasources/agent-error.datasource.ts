@@ -2,7 +2,7 @@
  * Contains data source for agents resource
  * @module
  */
-import { zAgentErrorListResponse } from '@generated/api/zod.gen';
+import { zAgentErrorListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JAgentErrors } from '@models/agent-errors.model';

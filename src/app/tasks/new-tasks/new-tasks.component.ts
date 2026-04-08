@@ -3,7 +3,7 @@ import {
   zCrackerBinaryTypeListResponse,
   zHashlistListResponse,
   zPreprocessorListResponse
-} from '@generated/api/zod.gen';
+} from '@generated/api/zod';
 import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';

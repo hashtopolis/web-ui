@@ -1,4 +1,4 @@
-import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';

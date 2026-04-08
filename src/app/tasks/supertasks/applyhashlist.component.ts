@@ -2,7 +2,7 @@ import {
   zCrackerBinaryListResponse,
   zCrackerBinaryTypeListResponse,
   zHashlistListResponse
-} from '@generated/api/zod.gen';
+} from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';

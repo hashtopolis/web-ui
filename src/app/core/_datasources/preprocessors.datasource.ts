@@ -1,7 +1,7 @@
 /**
  * This module contains the datasource definition for the preprocessors table component
  */
-import { zPreprocessorListResponse } from '@generated/api/zod.gen';
+import { zPreprocessorListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

@@ -1,4 +1,4 @@
-import { zPreTaskListResponse } from '@generated/api/zod.gen';
+import { zPreTaskListResponse } from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';

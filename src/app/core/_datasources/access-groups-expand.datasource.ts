@@ -1,4 +1,4 @@
-import { zAccessGroupResponse } from '@generated/api/zod.gen';
+import { zAccessGroupResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JAccessGroup } from '@models/access-group.model';

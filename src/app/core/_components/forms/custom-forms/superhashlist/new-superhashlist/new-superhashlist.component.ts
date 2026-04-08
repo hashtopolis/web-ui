@@ -1,4 +1,4 @@
-import { zHashlistListResponse } from '@generated/api/zod.gen';
+import { zHashlistListResponse } from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';

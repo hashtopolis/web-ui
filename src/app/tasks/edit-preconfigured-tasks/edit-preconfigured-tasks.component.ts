@@ -1,4 +1,4 @@
-import { zPreTaskResponse } from '@generated/api/zod.gen';
+import { zPreTaskResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';

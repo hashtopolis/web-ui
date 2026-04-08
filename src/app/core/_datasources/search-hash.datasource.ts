@@ -1,4 +1,4 @@
-import { zHashListResponse } from '@generated/api/zod.gen';
+import { zHashListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHash, SearchHashModel } from '@models/hash.model';

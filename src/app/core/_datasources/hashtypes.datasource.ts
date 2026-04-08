@@ -1,4 +1,4 @@
-import { zHashTypeListResponse } from '@generated/api/zod.gen';
+import { zHashTypeListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

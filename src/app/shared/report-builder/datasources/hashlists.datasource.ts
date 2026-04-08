@@ -1,4 +1,4 @@
-import { zHashlistResponse } from '@generated/api/zod.gen';
+import { zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';

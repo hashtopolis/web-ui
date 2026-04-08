@@ -1,4 +1,4 @@
-import { zUserListResponse } from '@generated/api/zod.gen';
+import { zUserListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

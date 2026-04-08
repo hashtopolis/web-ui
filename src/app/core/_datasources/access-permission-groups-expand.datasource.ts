@@ -1,4 +1,4 @@
-import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permission-group.model';

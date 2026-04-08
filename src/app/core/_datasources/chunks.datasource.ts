@@ -1,4 +1,4 @@
-import { zChunkListResponse } from '@generated/api/zod.gen';
+import { zChunkListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

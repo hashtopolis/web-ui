@@ -1,4 +1,4 @@
-import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod.gen';
+import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';

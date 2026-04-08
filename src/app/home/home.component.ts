@@ -1,4 +1,4 @@
-import { zHashListResponse } from '@generated/api/zod.gen';
+import { zHashListResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';

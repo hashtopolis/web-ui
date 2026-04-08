@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse, zUserListResponse, zUserResponse } from '@generated/api/zod.gen';
+import { zAccessGroupListResponse, zUserListResponse, zUserResponse } from '@generated/api/zod';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 

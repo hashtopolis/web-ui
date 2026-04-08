@@ -1,7 +1,7 @@
 /**
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
-import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

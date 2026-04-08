@@ -2,7 +2,7 @@
  * Contains data source for agents resource
  * @module
  */
-import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

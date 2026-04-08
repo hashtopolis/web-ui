@@ -1,4 +1,4 @@
-import { zHealthCheckAgentListResponse } from '@generated/api/zod.gen';
+import { zHealthCheckAgentListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHealthCheckAgent } from '@models/health-check.model';

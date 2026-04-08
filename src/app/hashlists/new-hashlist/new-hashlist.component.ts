@@ -1,7 +1,7 @@
 /**
  * This module contains the component class to create a new hashlist
  */
-import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';

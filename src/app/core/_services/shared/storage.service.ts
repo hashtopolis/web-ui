@@ -1,4 +1,4 @@
-import { zConfigListResponse } from '@generated/api/zod.gen';
+import { zConfigListResponse } from '@generated/api/zod';
 
 import { Injectable } from '@angular/core';
 

@@ -1,4 +1,4 @@
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
+import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';

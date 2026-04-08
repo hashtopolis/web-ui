@@ -1,4 +1,4 @@
-import { zGlobalPermissionGroupResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { BehaviorSubject, Observable, forkJoin, map, take } from 'rxjs';
 
 import { Injectable } from '@angular/core';

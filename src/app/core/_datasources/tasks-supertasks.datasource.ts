@@ -1,4 +1,4 @@
-import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod.gen';
+import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';

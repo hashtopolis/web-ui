@@ -1,5 +1,5 @@
 // typescript
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod.gen';
+import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

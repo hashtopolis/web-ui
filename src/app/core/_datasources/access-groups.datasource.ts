@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';

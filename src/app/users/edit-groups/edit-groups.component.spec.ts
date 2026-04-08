@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse, zUserListResponse } from '@generated/api/zod.gen';
+import { zAccessGroupListResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';

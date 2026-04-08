@@ -1,4 +1,4 @@
-import { zSupertaskResponse } from '@generated/api/zod.gen';
+import { zSupertaskResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';

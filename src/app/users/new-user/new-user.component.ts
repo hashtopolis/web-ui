@@ -1,7 +1,7 @@
 /**
  * This module contains the component to create a new user
  */
-import { zGlobalPermissionGroupListResponse } from '@generated/api/zod.gen';
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';

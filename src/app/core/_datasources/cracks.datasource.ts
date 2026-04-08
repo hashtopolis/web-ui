@@ -1,4 +1,4 @@
-import { zHashListResponse, zTaskResponse } from '@generated/api/zod.gen';
+import { zHashListResponse, zTaskResponse } from '@generated/api/zod';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';

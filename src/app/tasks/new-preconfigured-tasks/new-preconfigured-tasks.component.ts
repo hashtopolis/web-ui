@@ -1,4 +1,4 @@
-import { zCrackerBinaryTypeListResponse } from '@generated/api/zod.gen';
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';

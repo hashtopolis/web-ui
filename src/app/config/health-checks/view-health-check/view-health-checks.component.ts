@@ -1,4 +1,4 @@
-import { zHealthCheckResponse } from '@generated/api/zod.gen';
+import { zHealthCheckResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';

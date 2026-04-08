@@ -3,724 +3,1415 @@
 import * as z from 'zod';
 
 export const zErrorResponse = z.object({
-  title: z.string().optional(),
-  type: z.string().optional(),
-  status: z.int()
+    title: z.string().optional(),
+    type: z.string().optional(),
+    status: z.int()
 });
 
 export const zNotFoundResponse = z.object({
-  message: z.string(),
-  exception: z
-    .object({
-      type: z.string().optional(),
-      code: z.int().optional(),
-      message: z.string().optional(),
-      file: z.string().optional(),
-      line: z.int().optional()
-    })
-    .optional()
+    message: z.string(),
+    exception: z.object({
+        type: z.string().optional(),
+        code: z.int().optional(),
+        message: z.string().optional(),
+        file: z.string().optional(),
+        line: z.int().optional()
+    }).optional()
 });
 
 export const zAccessGroupCreate = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    attributes: z.object({
-      groupName: z.string()
+    data: z.object({
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string()
+        })
     })
-  })
 });
 
 export const zAccessGroupPatch = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    attributes: z.object({
-      groupName: z.string().optional()
+    data: z.object({
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zAccessGroupResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('accessGroup'),
-    attributes: z.object({
-      groupName: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      agentMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('user'),
-          attributes: z.object({
-            name: z.string(),
-            email: z.string(),
-            isValid: z.boolean(),
-            isComputedPassword: z.boolean(),
-            lastLoginDate: z.number(),
-            registeredSince: z.number(),
-            sessionLifetime: z.int(),
-            globalPermissionGroupId: z.int(),
-            yubikey: z.string(),
-            otp1: z.string(),
-            otp2: z.string(),
-            otp3: z.string(),
-            otp4: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        agentMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        })])).optional()
 });
 
 export const zAccessGroupPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('accessGroup'),
-    attributes: z.object({
-      groupName: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string()
+        })
     })
-  })
 });
 
 export const zAccessGroupListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('accessGroup'),
-      attributes: z.object({
-        groupName: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      agentMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('user'),
-          attributes: z.object({
-            name: z.string(),
-            email: z.string(),
-            isValid: z.boolean(),
-            isComputedPassword: z.boolean(),
-            lastLoginDate: z.number(),
-            registeredSince: z.number(),
-            sessionLifetime: z.int(),
-            globalPermissionGroupId: z.int(),
-            yubikey: z.string(),
-            otp1: z.string(),
-            otp2: z.string(),
-            otp3: z.string(),
-            otp4: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/accessgroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/accessgroups?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('accessGroup'),
+        attributes: z.object({
+            groupName: z.string()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        agentMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/accessgroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        })])).optional()
 });
 
 export const zAccessGroupRelationAgentMembers = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('agentMembers'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('agentMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAccessGroupRelationAgentMembersGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('agentMembers'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('agentMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zAgentPatch = z.object({
-  data: z.object({
-    type: z.literal('agent'),
-    attributes: z.object({
-      agentName: z.string().optional(),
-      cmdPars: z.string().optional(),
-      cpuOnly: z.boolean().optional(),
-      ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
-      isActive: z.boolean().optional(),
-      isTrusted: z.boolean().optional(),
-      os: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
-      uid: z.string().optional(),
-      userId: z.int().nullish()
+    data: z.object({
+        type: z.literal('agent'),
+        attributes: z.object({
+            agentName: z.string().optional(),
+            cmdPars: z.string().optional(),
+            cpuOnly: z.boolean().optional(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
+            isActive: z.boolean().optional(),
+            isTrusted: z.boolean().optional(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]).optional(),
+            uid: z.string().optional(),
+            userId: z.int().nullish()
+        })
     })
-  })
 });
 
 export const zAgentResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agents?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agent'),
-    attributes: z.object({
-      agentName: z.string(),
-      uid: z.string(),
-      os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-      devices: z.string(),
-      cmdPars: z.string(),
-      ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-      isActive: z.boolean(),
-      isTrusted: z.boolean(),
-      token: z.string(),
-      lastAct: z.string(),
-      lastTime: z.number(),
-      lastIp: z.string(),
-      userId: z.int().nullable(),
-      cpuOnly: z.boolean(),
-      clientSignature: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroups: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
-          related: z.string().default('/api/v2/ui/agents/accessGroups')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('accessGroup'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      agentErrors: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
-          related: z.string().default('/api/v2/ui/agents/agentErrors')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentError'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      agentStats: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
-          related: z.string().default('/api/v2/ui/agents/agentStats')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentStat'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      assignments: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
-          related: z.string().default('/api/v2/ui/agents/assignments')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentAssignment'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      chunks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
-          related: z.string().default('/api/v2/ui/agents/chunks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('chunk'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/agents/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/user'),
-          related: z.string().default('/api/v2/ui/agents/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('user'),
-          attributes: z.object({
-            name: z.string(),
-            email: z.string(),
-            isValid: z.boolean(),
-            isComputedPassword: z.boolean(),
-            lastLoginDate: z.number(),
-            registeredSince: z.number(),
-            sessionLifetime: z.int(),
-            globalPermissionGroupId: z.int(),
-            yubikey: z.string(),
-            otp1: z.string(),
-            otp2: z.string(),
-            otp3: z.string(),
-            otp4: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentStat'),
-          attributes: z.object({
-            agentId: z.int(),
-            statType: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-            time: z.number(),
-            value: z.array(z.int())
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentError'),
-          attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
-            chunkId: z.int(),
-            time: z.number(),
-            error: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('chunk'),
-          attributes: z.object({
-            taskId: z.int(),
-            skip: z.int(),
-            length: z.int(),
-            agentId: z.int(),
-            dispatchTime: z.number(),
-            solveTime: z.number(),
-            checkpoint: z.number(),
-            progress: z.int(),
-            state: z.union([
-              z.literal(0),
-              z.literal(1),
-              z.literal(2),
-              z.literal(3),
-              z.literal(4),
-              z.literal(5),
-              z.literal(6),
-              z.literal(7),
-              z.literal(8),
-              z.literal(9),
-              z.literal(10)
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agent'),
+        attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
             ]),
-            cracked: z.int(),
-            speed: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentAssignment'),
-          attributes: z.object({
-            taskId: z.int(),
-            agentId: z.int(),
-            benchmark: z.string()
-          })
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int().nullable(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/agents/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
+        agentErrors: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
+                related: z.string().default('/api/v2/ui/agents/agentErrors')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentError'),
+                id: z.int()
+            })).optional()
+        }),
+        agentStats: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
+                related: z.string().default('/api/v2/ui/agents/agentStats')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentStat'),
+                id: z.int()
+            })).optional()
+        }),
+        assignments: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
+                related: z.string().default('/api/v2/ui/agents/assignments')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentAssignment'),
+                id: z.int()
+            })).optional()
+        }),
+        chunks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
+                related: z.string().default('/api/v2/ui/agents/chunks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/agents/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        }),
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/user'),
+                related: z.string().default('/api/v2/ui/agents/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentStat'),
+            attributes: z.object({
+                agentId: z.int(),
+                statType: z.union([
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                time: z.number(),
+                value: z.array(z.int())
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentError'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                chunkId: z.int(),
+                time: z.number(),
+                error: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentAssignment'),
+            attributes: z.object({
+                taskId: z.int(),
+                agentId: z.int(),
+                benchmark: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zAgentPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agent'),
-    attributes: z.object({
-      agentName: z.string(),
-      uid: z.string(),
-      os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-      devices: z.string(),
-      cmdPars: z.string(),
-      ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-      isActive: z.boolean(),
-      isTrusted: z.boolean(),
-      token: z.string(),
-      lastAct: z.string(),
-      lastTime: z.number(),
-      lastIp: z.string(),
-      userId: z.int().nullable(),
-      cpuOnly: z.boolean(),
-      clientSignature: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agent'),
+        attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int().nullable(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+        })
     })
-  })
 });
 
 export const zAgentListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agents?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('agent'),
-      attributes: z.object({
-        agentName: z.string(),
-        uid: z.string(),
-        os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-        devices: z.string(),
-        cmdPars: z.string(),
-        ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-        isActive: z.boolean(),
-        isTrusted: z.boolean(),
-        token: z.string(),
-        lastAct: z.string(),
-        lastTime: z.number(),
-        lastIp: z.string(),
-        userId: z.int().nullable(),
-        cpuOnly: z.boolean(),
-        clientSignature: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      accessGroups: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
-          related: z.string().default('/api/v2/ui/agents/accessGroups')
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agents?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agent'),
+        attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2)
+            ]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.int().nullable(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+        })
+    })),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/agents/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('accessGroup'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      agentErrors: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
-          related: z.string().default('/api/v2/ui/agents/agentErrors')
+        agentErrors: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentErrors'),
+                related: z.string().default('/api/v2/ui/agents/agentErrors')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentError'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentError'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      agentStats: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
-          related: z.string().default('/api/v2/ui/agents/agentStats')
+        agentStats: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/agentStats'),
+                related: z.string().default('/api/v2/ui/agents/agentStats')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentStat'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentStat'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      assignments: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
-          related: z.string().default('/api/v2/ui/agents/assignments')
+        assignments: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/assignments'),
+                related: z.string().default('/api/v2/ui/agents/assignments')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agentAssignment'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agentAssignment'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      chunks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
-          related: z.string().default('/api/v2/ui/agents/chunks')
+        chunks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/chunks'),
+                related: z.string().default('/api/v2/ui/agents/chunks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('chunk'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/agents/tasks')
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/agents/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
         }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agents/relationships/user'),
-          related: z.string().default('/api/v2/ui/agents/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agents/relationships/user'),
+                related: z.string().default('/api/v2/ui/agents/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([
         z.object({
-          id: z.int(),
-          type: z.literal('user'),
-          attributes: z.object({
+            id: z.int(),
+            type: z.literal('user'),
+            attributes: z.object({
+                name: z.string(),
+                email: z.string(),
+                isValid: z.boolean(),
+                isComputedPassword: z.boolean(),
+                lastLoginDate: z.number(),
+                registeredSince: z.number(),
+                sessionLifetime: z.int(),
+                globalPermissionGroupId: z.int(),
+                yubikey: z.string(),
+                otp1: z.string(),
+                otp2: z.string(),
+                otp3: z.string(),
+                otp4: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentStat'),
+            attributes: z.object({
+                agentId: z.int(),
+                statType: z.union([
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                time: z.number(),
+                value: z.array(z.int())
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentError'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                chunkId: z.int(),
+                time: z.number(),
+                error: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agentAssignment'),
+            attributes: z.object({
+                taskId: z.int(),
+                agentId: z.int(),
+                benchmark: z.string()
+            })
+        })
+    ])).optional()
+});
+
+export const zAgentRelationAssignments = z.object({
+    data: z.array(z.object({
+        type: z.literal('assignments'),
+        id: z.int().default(1)
+    }))
+});
+
+export const zAgentRelationAssignmentsGetResponse = z.object({
+    data: z.array(z.object({
+        type: z.literal('assignments'),
+        id: z.int().default(1)
+    }))
+});
+
+export const zAgentAssignmentCreate = z.object({
+    data: z.object({
+        type: z.literal('agentAssignment'),
+        attributes: z.object({
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    })
+});
+
+export const zAgentAssignmentPatch = z.object({
+    data: z.object({
+        type: z.literal('agentAssignment'),
+        attributes: z.object({
+            benchmark: z.string().optional()
+        })
+    })
+});
+
+export const zAgentAssignmentResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentAssignment'),
+        attributes: z.object({
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    }),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
+                related: z.string().default('/api/v2/ui/agentassignments/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
+                related: z.string().default('/api/v2/ui/agentassignments/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
+});
+
+export const zAgentAssignmentPostPatchResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentAssignment'),
+        attributes: z.object({
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    })
+});
+
+export const zAgentAssignmentListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentAssignment'),
+        attributes: z.object({
+            taskId: z.int(),
+            agentId: z.int(),
+            benchmark: z.string()
+        })
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
+                related: z.string().default('/api/v2/ui/agentassignments/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
+                related: z.string().default('/api/v2/ui/agentassignments/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
+});
+
+export const zAgentAssignmentRelationTask = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAgentAssignmentRelationTaskGetResponse = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAgentBinaryCreate = z.object({
+    data: z.object({
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string()
+        })
+    })
+});
+
+export const zAgentBinaryPatch = z.object({
+    data: z.object({
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string().optional(),
+            filename: z.string().optional(),
+            operatingSystems: z.string().optional(),
+            updateTrack: z.string().optional(),
+            version: z.string().optional()
+        })
+    })
+});
+
+export const zAgentBinaryResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
+});
+
+export const zAgentBinaryPostPatchResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    })
+});
+
+export const zAgentBinaryListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentBinary'),
+        attributes: z.object({
+            binaryType: z.string(),
+            version: z.string(),
+            operatingSystems: z.string(),
+            filename: z.string(),
+            updateTrack: z.string(),
+            updateAvailable: z.string()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
+});
+
+export const zAgentErrorResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentError'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            chunkId: z.int(),
+            time: z.number(),
+            error: z.string()
+        })
+    }),
+    relationships: z.object({
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
+                related: z.string().default('/api/v2/ui/agenterrors/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+        })
+    })).optional()
+});
+
+export const zAgentErrorListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentError'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            chunkId: z.int(),
+            time: z.number(),
+            error: z.string()
+        })
+    })),
+    relationships: z.object({
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
+                related: z.string().default('/api/v2/ui/agenterrors/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+        })
+    })).optional()
+});
+
+export const zAgentErrorRelationTask = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAgentErrorRelationTaskGetResponse = z.object({
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
+});
+
+export const zAgentStatResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('agentStat'),
+        attributes: z.object({
+            agentId: z.int(),
+            statType: z.union([
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
+            time: z.number(),
+            value: z.array(z.int())
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
+});
+
+export const zAgentStatListResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('agentStat'),
+        attributes: z.object({
+            agentId: z.int(),
+            statType: z.union([
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
+            time: z.number(),
+            value: z.array(z.int())
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
+});
+
+export const zApiTokenCreate = z.object({
+    data: z.object({
+        type: z.literal('apiToken'),
+        attributes: z.object({
+            scopes: z.array(z.int()),
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean()
+        })
+    })
+});
+
+export const zApiTokenPatch = z.object({
+    data: z.object({
+        type: z.literal('apiToken'),
+        attributes: z.object({
+            isRevoked: z.boolean().optional()
+        })
+    })
+});
+
+export const zApiTokenResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('apiToken'),
+        attributes: z.object({
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
+    }),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
+                related: z.string().default('/api/v2/ui/apiTokens/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
+        id: z.int(),
+        type: z.literal('user'),
+        attributes: z.object({
             name: z.string(),
             email: z.string(),
             isValid: z.boolean(),
@@ -734,2723 +1425,1609 @@ export const zAgentListResponse = z.object({
             otp2: z.string(),
             otp3: z.string(),
             otp4: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentStat'),
-          attributes: z.object({
-            agentId: z.int(),
-            statType: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-            time: z.number(),
-            value: z.array(z.int())
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentError'),
-          attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
-            chunkId: z.int(),
-            time: z.number(),
-            error: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('chunk'),
-          attributes: z.object({
-            taskId: z.int(),
-            skip: z.int(),
-            length: z.int(),
-            agentId: z.int(),
-            dispatchTime: z.number(),
-            solveTime: z.number(),
-            checkpoint: z.number(),
-            progress: z.int(),
-            state: z.union([
-              z.literal(0),
-              z.literal(1),
-              z.literal(2),
-              z.literal(3),
-              z.literal(4),
-              z.literal(5),
-              z.literal(6),
-              z.literal(7),
-              z.literal(8),
-              z.literal(9),
-              z.literal(10)
-            ]),
-            cracked: z.int(),
-            speed: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agentAssignment'),
-          attributes: z.object({
-            taskId: z.int(),
-            agentId: z.int(),
-            benchmark: z.string()
-          })
         })
-      ])
-    )
-    .optional()
-});
-
-export const zAgentRelationAssignments = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('assignments'),
-      id: z.int().default(1)
-    })
-  )
-});
-
-export const zAgentRelationAssignmentsGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('assignments'),
-      id: z.int().default(1)
-    })
-  )
-});
-
-export const zAgentAssignmentCreate = z.object({
-  data: z.object({
-    type: z.literal('agentAssignment'),
-    attributes: z.object({
-      taskId: z.int(),
-      agentId: z.int(),
-      benchmark: z.string()
-    })
-  })
-});
-
-export const zAgentAssignmentPatch = z.object({
-  data: z.object({
-    type: z.literal('agentAssignment'),
-    attributes: z.object({
-      benchmark: z.string().optional()
-    })
-  })
-});
-
-export const zAgentAssignmentResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentAssignment'),
-    attributes: z.object({
-      taskId: z.int(),
-      agentId: z.int(),
-      benchmark: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
-          related: z.string().default('/api/v2/ui/agentassignments/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
-          related: z.string().default('/api/v2/ui/agentassignments/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
-        })
-      ])
-    )
-    .optional()
-});
-
-export const zAgentAssignmentPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentAssignment'),
-    attributes: z.object({
-      taskId: z.int(),
-      agentId: z.int(),
-      benchmark: z.string()
-    })
-  })
-});
-
-export const zAgentAssignmentListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentassignments?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentassignments?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('agentAssignment'),
-      attributes: z.object({
-        taskId: z.int(),
-        agentId: z.int(),
-        benchmark: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agentassignments/relationships/agent'),
-          related: z.string().default('/api/v2/ui/agentassignments/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agentassignments/relationships/task'),
-          related: z.string().default('/api/v2/ui/agentassignments/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
-        })
-      ])
-    )
-    .optional()
-});
-
-export const zAgentAssignmentRelationTask = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
-});
-
-export const zAgentAssignmentRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
-});
-
-export const zAgentBinaryCreate = z.object({
-  data: z.object({
-    type: z.literal('agentBinary'),
-    attributes: z.object({
-      binaryType: z.string(),
-      version: z.string(),
-      operatingSystems: z.string(),
-      filename: z.string(),
-      updateTrack: z.string()
-    })
-  })
-});
-
-export const zAgentBinaryPatch = z.object({
-  data: z.object({
-    type: z.literal('agentBinary'),
-    attributes: z.object({
-      binaryType: z.string().optional(),
-      filename: z.string().optional(),
-      operatingSystems: z.string().optional(),
-      updateTrack: z.string().optional(),
-      version: z.string().optional()
-    })
-  })
-});
-
-export const zAgentBinaryResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentBinary'),
-    attributes: z.object({
-      binaryType: z.string(),
-      version: z.string(),
-      operatingSystems: z.string(),
-      filename: z.string(),
-      updateTrack: z.string(),
-      updateAvailable: z.string()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
-});
-
-export const zAgentBinaryPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentBinary'),
-    attributes: z.object({
-      binaryType: z.string(),
-      version: z.string(),
-      operatingSystems: z.string(),
-      filename: z.string(),
-      updateTrack: z.string(),
-      updateAvailable: z.string()
-    })
-  })
-});
-
-export const zAgentBinaryListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentbinaries?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentbinaries?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('agentBinary'),
-      attributes: z.object({
-        binaryType: z.string(),
-        version: z.string(),
-        operatingSystems: z.string(),
-        filename: z.string(),
-        updateTrack: z.string(),
-        updateAvailable: z.string()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
-});
-
-export const zAgentErrorResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentError'),
-    attributes: z.object({
-      agentId: z.int(),
-      taskId: z.int(),
-      chunkId: z.int(),
-      time: z.number(),
-      error: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
-          related: z.string().default('/api/v2/ui/agenterrors/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
-        id: z.int(),
-        type: z.literal('task'),
-        attributes: z.object({
-          taskName: z.string(),
-          attackCmd: z.string(),
-          chunkTime: z.int(),
-          statusTimer: z.int(),
-          keyspace: z.number(),
-          keyspaceProgress: z.number(),
-          priority: z.int(),
-          maxAgents: z.int(),
-          color: z.string().nullable(),
-          isSmall: z.boolean(),
-          isCpuTask: z.boolean(),
-          useNewBench: z.boolean(),
-          skipKeyspace: z.number(),
-          crackerBinaryId: z.int(),
-          crackerBinaryTypeId: z.int().nullable(),
-          taskWrapperId: z.int(),
-          isArchived: z.boolean(),
-          notes: z.string(),
-          staticChunks: z.int(),
-          chunkSize: z.number(),
-          forcePipe: z.boolean(),
-          preprocessorId: z.int(),
-          preprocessorCommand: z.string()
-        })
-      })
-    )
-    .optional()
-});
-
-export const zAgentErrorListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agenterrors?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agenterrors?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('agentError'),
-      attributes: z.object({
-        agentId: z.int(),
-        taskId: z.int(),
-        chunkId: z.int(),
-        time: z.number(),
-        error: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/agenterrors/relationships/task'),
-          related: z.string().default('/api/v2/ui/agenterrors/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
-        id: z.int(),
-        type: z.literal('task'),
-        attributes: z.object({
-          taskName: z.string(),
-          attackCmd: z.string(),
-          chunkTime: z.int(),
-          statusTimer: z.int(),
-          keyspace: z.number(),
-          keyspaceProgress: z.number(),
-          priority: z.int(),
-          maxAgents: z.int(),
-          color: z.string().nullable(),
-          isSmall: z.boolean(),
-          isCpuTask: z.boolean(),
-          useNewBench: z.boolean(),
-          skipKeyspace: z.number(),
-          crackerBinaryId: z.int(),
-          crackerBinaryTypeId: z.int().nullable(),
-          taskWrapperId: z.int(),
-          isArchived: z.boolean(),
-          notes: z.string(),
-          staticChunks: z.int(),
-          chunkSize: z.number(),
-          forcePipe: z.boolean(),
-          preprocessorId: z.int(),
-          preprocessorCommand: z.string()
-        })
-      })
-    )
-    .optional()
-});
-
-export const zAgentErrorRelationTask = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
-});
-
-export const zAgentErrorRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
-});
-
-export const zAgentStatResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('agentStat'),
-    attributes: z.object({
-      agentId: z.int(),
-      statType: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-      time: z.number(),
-      value: z.array(z.int())
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
-});
-
-export const zAgentStatListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/agentstats?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/agentstats?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/agentstats?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('agentStat'),
-      attributes: z.object({
-        agentId: z.int(),
-        statType: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-        time: z.number(),
-        value: z.array(z.int())
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
-});
-
-export const zApiTokenCreate = z.object({
-  data: z.object({
-    type: z.literal('apiToken'),
-    attributes: z.object({
-      scopes: z.array(z.int()),
-      startValid: z.number(),
-      endValid: z.number(),
-      userId: z.int(),
-      isRevoked: z.boolean()
-    })
-  })
-});
-
-export const zApiTokenPatch = z.object({
-  data: z.object({
-    type: z.literal('apiToken'),
-    attributes: z.object({
-      isRevoked: z.boolean().optional()
-    })
-  })
-});
-
-export const zApiTokenResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('apiToken'),
-    attributes: z.object({
-      startValid: z.number(),
-      endValid: z.number(),
-      userId: z.int(),
-      isRevoked: z.boolean(),
-      token: z.string().optional()
-    })
-  }),
-  relationships: z
-    .object({
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
-          related: z.string().default('/api/v2/ui/apiTokens/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
-        id: z.int(),
-        type: z.literal('user'),
-        attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
-        })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zApiTokenPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('apiToken'),
-    attributes: z.object({
-      startValid: z.number(),
-      endValid: z.number(),
-      userId: z.int(),
-      isRevoked: z.boolean(),
-      token: z.string().optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('apiToken'),
+        attributes: z.object({
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
     })
-  })
 });
 
 export const zApiTokenListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('apiToken'),
-      attributes: z.object({
-        startValid: z.number(),
-        endValid: z.number(),
-        userId: z.int(),
-        isRevoked: z.boolean(),
-        token: z.string().optional()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
-          related: z.string().default('/api/v2/ui/apiTokens/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/apiTokens?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/apiTokens?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('apiToken'),
+        attributes: z.object({
+            startValid: z.number(),
+            endValid: z.number(),
+            userId: z.int(),
+            isRevoked: z.boolean(),
+            token: z.string().optional()
+        })
+    })),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/apiTokens/relationships/user'),
+                related: z.string().default('/api/v2/ui/apiTokens/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('user'),
         attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zApiTokenRelationUser = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zApiTokenRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zChunkResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('chunk'),
-    attributes: z.object({
-      taskId: z.int(),
-      skip: z.int(),
-      length: z.int(),
-      agentId: z.int(),
-      dispatchTime: z.number(),
-      solveTime: z.number(),
-      checkpoint: z.number(),
-      progress: z.int(),
-      state: z.union([
-        z.literal(0),
-        z.literal(1),
-        z.literal(2),
-        z.literal(3),
-        z.literal(4),
-        z.literal(5),
-        z.literal(6),
-        z.literal(7),
-        z.literal(8),
-        z.literal(9),
-        z.literal(10)
-      ]),
-      cracked: z.int(),
-      speed: z.number()
-    })
-  }),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
-          related: z.string().default('/api/v2/ui/chunks/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/chunks/relationships/task'),
-          related: z.string().default('/api/v2/ui/chunks/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('chunk'),
+        attributes: z.object({
+            taskId: z.int(),
+            skip: z.int(),
+            length: z.int(),
+            agentId: z.int(),
+            dispatchTime: z.number(),
+            solveTime: z.number(),
+            checkpoint: z.number(),
+            progress: z.int(),
+            state: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3),
+                z.literal(4),
+                z.literal(5),
+                z.literal(6),
+                z.literal(7),
+                z.literal(8),
+                z.literal(9),
+                z.literal(10)
+            ]),
+            cracked: z.int(),
+            speed: z.number()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
+                related: z.string().default('/api/v2/ui/chunks/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/task'),
+                related: z.string().default('/api/v2/ui/chunks/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zChunkListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('chunk'),
-      attributes: z.object({
-        taskId: z.int(),
-        skip: z.int(),
-        length: z.int(),
-        agentId: z.int(),
-        dispatchTime: z.number(),
-        solveTime: z.number(),
-        checkpoint: z.number(),
-        progress: z.int(),
-        state: z.union([
-          z.literal(0),
-          z.literal(1),
-          z.literal(2),
-          z.literal(3),
-          z.literal(4),
-          z.literal(5),
-          z.literal(6),
-          z.literal(7),
-          z.literal(8),
-          z.literal(9),
-          z.literal(10)
-        ]),
-        cracked: z.int(),
-        speed: z.number()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
-          related: z.string().default('/api/v2/ui/chunks/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/chunks/relationships/task'),
-          related: z.string().default('/api/v2/ui/chunks/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/chunks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/chunks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/chunks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('chunk'),
+        attributes: z.object({
+            taskId: z.int(),
+            skip: z.int(),
+            length: z.int(),
+            agentId: z.int(),
+            dispatchTime: z.number(),
+            solveTime: z.number(),
+            checkpoint: z.number(),
+            progress: z.int(),
+            state: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3),
+                z.literal(4),
+                z.literal(5),
+                z.literal(6),
+                z.literal(7),
+                z.literal(8),
+                z.literal(9),
+                z.literal(10)
+            ]),
+            cracked: z.int(),
+            speed: z.number()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/agent'),
+                related: z.string().default('/api/v2/ui/chunks/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/chunks/relationships/task'),
+                related: z.string().default('/api/v2/ui/chunks/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zChunkRelationTask = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zChunkRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigPatch = z.object({
-  data: z.object({
-    type: z.literal('config'),
-    attributes: z.object({
-      item: z.string().optional(),
-      value: z.string().optional()
+    data: z.object({
+        type: z.literal('config'),
+        attributes: z.object({
+            item: z.string().optional(),
+            value: z.string().optional()
+        })
     })
-  })
 });
 
 export const zConfigResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/configs?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('config'),
-    attributes: z.object({
-      configSectionId: z.int(),
-      item: z.string(),
-      value: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      configSection: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
-          related: z.string().default('/api/v2/ui/configs/configSection')
-        }),
-        data: z
-          .object({
-            type: z.literal('configSection'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configs?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('config'),
+        attributes: z.object({
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
+    }),
+    relationships: z.object({
+        configSection: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
+                related: z.string().default('/api/v2/ui/configs/configSection')
+            }),
+            data: z.object({
+                type: z.literal('configSection'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('configSection'),
         attributes: z.object({
-          sectionName: z.string()
+            sectionName: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zConfigPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('config'),
-    attributes: z.object({
-      configSectionId: z.int(),
-      item: z.string(),
-      value: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('config'),
+        attributes: z.object({
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
     })
-  })
 });
 
 export const zConfigListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/configs?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('config'),
-      attributes: z.object({
-        configSectionId: z.int(),
-        item: z.string(),
-        value: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      configSection: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
-          related: z.string().default('/api/v2/ui/configs/configSection')
-        }),
-        data: z
-          .object({
-            type: z.literal('configSection'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configs?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configs?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configs?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('config'),
+        attributes: z.object({
+            configSectionId: z.int(),
+            item: z.string(),
+            value: z.string()
+        })
+    })),
+    relationships: z.object({
+        configSection: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
+                related: z.string().default('/api/v2/ui/configs/configSection')
+            }),
+            data: z.object({
+                type: z.literal('configSection'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('configSection'),
         attributes: z.object({
-          sectionName: z.string()
+            sectionName: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zConfigRelationConfigSection = z.object({
-  data: z.object({
-    type: z.literal('configSection'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('configSection'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigRelationConfigSectionGetResponse = z.object({
-  data: z.object({
-    type: z.literal('configSection'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('configSection'),
+        id: z.int().default(1)
+    })
 });
 
 export const zConfigSectionResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('configSection'),
-    attributes: z.object({
-      sectionName: z.string()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('configSection'),
+        attributes: z.object({
+            sectionName: z.string()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zConfigSectionListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('configSection'),
-      attributes: z.object({
-        sectionName: z.string()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/configsections?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/configsections?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/configsections?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('configSection'),
+        attributes: z.object({
+            sectionName: z.string()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zCrackerBinaryCreate = z.object({
-  data: z.object({
-    type: z.literal('crackerBinary'),
-    attributes: z.object({
-      crackerBinaryTypeId: z.int(),
-      version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
+    data: z.object({
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryPatch = z.object({
-  data: z.object({
-    type: z.literal('crackerBinary'),
-    attributes: z.object({
-      binaryName: z.string().optional(),
-      downloadUrl: z.string().optional(),
-      version: z.string().optional()
+    data: z.object({
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+            binaryName: z.string().optional(),
+            downloadUrl: z.string().optional(),
+            version: z.string().optional()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('crackerBinary'),
-    attributes: z.object({
-      crackerBinaryTypeId: z.int(),
-      version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/crackers/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinaryType'),
-          attributes: z.object({
-            typeName: z.string(),
-            isChunkingAvailable: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        crackerBinaryType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('crackerBinary'),
-    attributes: z.object({
-      crackerBinaryTypeId: z.int(),
-      version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('crackerBinary'),
-      attributes: z.object({
-        crackerBinaryTypeId: z.int(),
-        version: z.string(),
-        downloadUrl: z.string(),
-        binaryName: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/crackers/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinaryType'),
-          attributes: z.object({
-            typeName: z.string(),
-            isChunkingAvailable: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+            crackerBinaryTypeId: z.int(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        crackerBinaryType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryRelationTasks = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zCrackerBinaryRelationTasksGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zCrackerBinaryTypeCreate = z.object({
-  data: z.object({
-    type: z.literal('crackerBinaryType'),
-    attributes: z.object({
-      typeName: z.string()
+    data: z.object({
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryTypePatch = z.object({
-  data: z.object({
-    type: z.literal('crackerBinaryType'),
-    attributes: z.object({
-      isChunkingAvailable: z.boolean().optional(),
-      typeName: z.string().optional()
+    data: z.object({
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            isChunkingAvailable: z.boolean().optional(),
+            typeName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryTypeResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('crackerBinaryType'),
-    attributes: z.object({
-      typeName: z.string(),
-      isChunkingAvailable: z.boolean()
-    })
-  }),
-  relationships: z
-    .object({
-      crackerVersions: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
-          related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('crackerBinary'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/crackertypes/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        crackerVersions: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
+                related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
+            }),
+            data: z.array(z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackertypes/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryTypePostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('crackerBinaryType'),
-    attributes: z.object({
-      typeName: z.string(),
-      isChunkingAvailable: z.boolean()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
+        })
     })
-  })
 });
 
 export const zCrackerBinaryTypeListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('crackerBinaryType'),
-      attributes: z.object({
-        typeName: z.string(),
-        isChunkingAvailable: z.boolean()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      crackerVersions: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
-          related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('crackerBinary'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/crackertypes/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/crackertypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/crackertypes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('crackerBinaryType'),
+        attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        crackerVersions: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/crackerVersions'),
+                related: z.string().default('/api/v2/ui/crackertypes/crackerVersions')
+            }),
+            data: z.array(z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/crackertypes/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/crackertypes/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zCrackerBinaryTypeRelationTasks = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zCrackerBinaryTypeRelationTasksGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zFileCreate = z.object({
-  data: z.object({
-    type: z.literal('file'),
-    attributes: z.object({
-      sourceType: z.string(),
-      sourceData: z.string(),
-      filename: z.string(),
-      isSecret: z.boolean(),
-      fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-      accessGroupId: z.int()
+    data: z.object({
+        type: z.literal('file'),
+        attributes: z.object({
+            sourceType: z.string(),
+            sourceData: z.string(),
+            filename: z.string(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int()
+        })
     })
-  })
 });
 
 export const zFilePatch = z.object({
-  data: z.object({
-    type: z.literal('file'),
-    attributes: z.object({
-      accessGroupId: z.int().optional(),
-      fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]).optional(),
-      filename: z.string().optional(),
-      isSecret: z.boolean().optional()
+    data: z.object({
+        type: z.literal('file'),
+        attributes: z.object({
+            accessGroupId: z.int().optional(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]).optional(),
+            filename: z.string().optional(),
+            isSecret: z.boolean().optional()
+        })
     })
-  })
 });
 
 export const zFileResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/files?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('file'),
-    attributes: z.object({
-      filename: z.string(),
-      size: z.number(),
-      isSecret: z.boolean(),
-      fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-      accessGroupId: z.int(),
-      lineCount: z.number()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/files/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/files?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
+        attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('accessGroup'),
         attributes: z.object({
-          groupName: z.string()
+            groupName: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zFileSingleResponse = z.object({
-  data: z.object({
-    id: z.int(),
-    type: z.literal('file'),
-    attributes: z.object({
-      filename: z.string(),
-      size: z.number(),
-      isSecret: z.boolean(),
-      fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-      accessGroupId: z.int(),
-      lineCount: z.number()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/files/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
+        attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('accessGroup'),
         attributes: z.object({
-          groupName: z.string()
+            groupName: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zFilePostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('file'),
-    attributes: z.object({
-      filename: z.string(),
-      size: z.number(),
-      isSecret: z.boolean(),
-      fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-      accessGroupId: z.int(),
-      lineCount: z.number()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('file'),
+        attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
     })
-  })
 });
 
 export const zFileListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/files?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('file'),
-      attributes: z.object({
-        filename: z.string(),
-        size: z.number(),
-        isSecret: z.boolean(),
-        fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-        accessGroupId: z.int(),
-        lineCount: z.number()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/files/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/files?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/files?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/files?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('file'),
+        attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
+        })
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/files/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/files/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('accessGroup'),
         attributes: z.object({
-          groupName: z.string()
+            groupName: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zFileRelationAccessGroup = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('accessGroup'),
+        id: z.int().default(1)
+    })
 });
 
 export const zFileRelationAccessGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('accessGroup'),
+        id: z.int().default(1)
+    })
 });
 
 export const zGlobalPermissionGroupCreate = z.object({
-  data: z.object({
-    type: z.literal('globalPermissionGroup'),
-    attributes: z.object({
-      name: z.string(),
-      permissions: z.record(z.string(), z.boolean())
+    data: z.object({
+        type: z.literal('globalPermissionGroup'),
+        attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.boolean())
+        })
     })
-  })
 });
 
 export const zGlobalPermissionGroupPatch = z.object({
-  data: z.object({
-    type: z.literal('globalPermissionGroup'),
-    attributes: z.object({
-      name: z.string().optional(),
-      permissions: z.record(z.string(), z.boolean()).optional()
+    data: z.object({
+        type: z.literal('globalPermissionGroup'),
+        attributes: z.object({
+            name: z.string().optional(),
+            permissions: z.record(z.string(), z.boolean()).optional()
+        })
     })
-  })
 });
 
 export const zGlobalPermissionGroupResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('globalPermissionGroup'),
-    attributes: z.object({
-      name: z.string(),
-      permissions: z.record(z.string(), z.boolean())
-    })
-  }),
-  relationships: z
-    .object({
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('globalPermissionGroup'),
+        attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.boolean())
+        })
+    }),
+    relationships: z.object({
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('user'),
         attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zGlobalPermissionGroupPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('globalPermissionGroup'),
-    attributes: z.object({
-      name: z.string(),
-      permissions: z.record(z.string(), z.boolean())
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('globalPermissionGroup'),
+        attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.boolean())
+        })
     })
-  })
 });
 
 export const zGlobalPermissionGroupListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('globalPermissionGroup'),
-      attributes: z.object({
-        name: z.string(),
-        permissions: z.record(z.string(), z.boolean())
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/globalpermissiongroups?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/globalpermissiongroups?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('globalPermissionGroup'),
+        attributes: z.object({
+            name: z.string(),
+            permissions: z.record(z.string(), z.boolean())
+        })
+    })),
+    relationships: z.object({
+        userMembers: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
+                related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
+            }),
+            data: z.array(z.object({
+                type: z.literal('user'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('user'),
         attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zGlobalPermissionGroupRelationUserMembers = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('userMembers'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('userMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zGlobalPermissionGroupRelationUserMembersGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('userMembers'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('userMembers'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hash'),
-    attributes: z.object({
-      hashlistId: z.int(),
-      hash: z.string(),
-      salt: z.string(),
-      plaintext: z.string(),
-      timeCracked: z.number(),
-      chunkId: z.int(),
-      isCracked: z.boolean(),
-      crackPos: z.number()
-    })
-  }),
-  relationships: z
-    .object({
-      chunk: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
-          related: z.string().default('/api/v2/ui/hashes/chunk')
-        }),
-        data: z
-          .object({
-            type: z.literal('chunk'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/hashes/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('chunk'),
-          attributes: z.object({
-            taskId: z.int(),
-            skip: z.int(),
-            length: z.int(),
-            agentId: z.int(),
-            dispatchTime: z.number(),
-            solveTime: z.number(),
-            checkpoint: z.number(),
-            progress: z.int(),
-            state: z.union([
-              z.literal(0),
-              z.literal(1),
-              z.literal(2),
-              z.literal(3),
-              z.literal(4),
-              z.literal(5),
-              z.literal(6),
-              z.literal(7),
-              z.literal(8),
-              z.literal(9),
-              z.literal(10)
-            ]),
-            cracked: z.int(),
-            speed: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hash'),
+        attributes: z.object({
+            hashlistId: z.int(),
+            hash: z.string(),
+            salt: z.string(),
+            plaintext: z.string(),
+            timeCracked: z.number(),
+            chunkId: z.int(),
+            isCracked: z.boolean(),
+            crackPos: z.number()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        chunk: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
+                related: z.string().default('/api/v2/ui/hashes/chunk')
+            }),
+            data: z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/hashes/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        })])).optional()
 });
 
 export const zHashListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('hash'),
-      attributes: z.object({
-        hashlistId: z.int(),
-        hash: z.string(),
-        salt: z.string(),
-        plaintext: z.string(),
-        timeCracked: z.number(),
-        chunkId: z.int(),
-        isCracked: z.boolean(),
-        crackPos: z.number()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      chunk: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
-          related: z.string().default('/api/v2/ui/hashes/chunk')
-        }),
-        data: z
-          .object({
-            type: z.literal('chunk'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/hashes/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('chunk'),
-          attributes: z.object({
-            taskId: z.int(),
-            skip: z.int(),
-            length: z.int(),
-            agentId: z.int(),
-            dispatchTime: z.number(),
-            solveTime: z.number(),
-            checkpoint: z.number(),
-            progress: z.int(),
-            state: z.union([
-              z.literal(0),
-              z.literal(1),
-              z.literal(2),
-              z.literal(3),
-              z.literal(4),
-              z.literal(5),
-              z.literal(6),
-              z.literal(7),
-              z.literal(8),
-              z.literal(9),
-              z.literal(10)
-            ]),
-            cracked: z.int(),
-            speed: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('hash'),
+        attributes: z.object({
+            hashlistId: z.int(),
+            hash: z.string(),
+            salt: z.string(),
+            plaintext: z.string(),
+            timeCracked: z.number(),
+            chunkId: z.int(),
+            isCracked: z.boolean(),
+            crackPos: z.number()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        chunk: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
+                related: z.string().default('/api/v2/ui/hashes/chunk')
+            }),
+            data: z.object({
+                type: z.literal('chunk'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/hashes/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('chunk'),
+            attributes: z.object({
+                taskId: z.int(),
+                skip: z.int(),
+                length: z.int(),
+                agentId: z.int(),
+                dispatchTime: z.number(),
+                solveTime: z.number(),
+                checkpoint: z.number(),
+                progress: z.int(),
+                state: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3),
+                    z.literal(4),
+                    z.literal(5),
+                    z.literal(6),
+                    z.literal(7),
+                    z.literal(8),
+                    z.literal(9),
+                    z.literal(10)
+                ]),
+                cracked: z.int(),
+                speed: z.number()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        })])).optional()
 });
 
 export const zHashRelationHashlist = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('hashlist'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHashRelationHashlistGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('hashlist'),
+        id: z.int().default(1)
+    })
 });
 
 export const zHashlistCreate = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    attributes: z.object({
-      hashlistSeperator: z.string().nullish(),
-      sourceType: z.string(),
-      sourceData: z.string(),
-      name: z.string(),
-      format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-      hashTypeId: z.int(),
-      hashCount: z.int(),
-      separator: z.string().nullish(),
-      isSecret: z.boolean(),
-      isHexSalt: z.boolean(),
-      isSalted: z.boolean(),
-      accessGroupId: z.int(),
-      notes: z.string(),
-      useBrain: z.boolean(),
-      brainFeatures: z.int(),
-      isArchived: z.boolean()
+    data: z.object({
+        type: z.literal('hashlist'),
+        attributes: z.object({
+            hashlistSeperator: z.string().nullish(),
+            sourceType: z.string(),
+            sourceData: z.string(),
+            name: z.string(),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string().nullish(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
     })
-  })
 });
 
 export const zHashlistPatch = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    attributes: z.object({
-      accessGroupId: z.int().optional(),
-      isArchived: z.boolean().optional(),
-      isSecret: z.boolean().optional(),
-      name: z.string().optional(),
-      notes: z.string().optional()
+    data: z.object({
+        type: z.literal('hashlist'),
+        attributes: z.object({
+            accessGroupId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            isSecret: z.boolean().optional(),
+            name: z.string().optional(),
+            notes: z.string().optional()
+        })
     })
-  })
 });
 
 export const zHashlistResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hashlist'),
-    attributes: z.object({
-      name: z.string(),
-      format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-      hashTypeId: z.int(),
-      hashCount: z.int(),
-      separator: z.string().nullable(),
-      cracked: z.int(),
-      isSecret: z.boolean(),
-      isHexSalt: z.boolean(),
-      isSalted: z.boolean(),
-      accessGroupId: z.int(),
-      notes: z.string(),
-      useBrain: z.boolean(),
-      brainFeatures: z.int(),
-      isArchived: z.boolean()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/hashlists/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/hashlists/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashes: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
-          related: z.string().default('/api/v2/ui/hashlists/hashes')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hash'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlists: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
-          related: z.string().default('/api/v2/ui/hashlists/hashlists')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hashlist'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/hashlists/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hash'),
-          attributes: z.object({
-            hashlistId: z.int(),
-            hash: z.string(),
-            salt: z.string(),
-            plaintext: z.string(),
-            timeCracked: z.number(),
-            chunkId: z.int(),
-            isCracked: z.boolean(),
-            crackPos: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
+        attributes: z.object({
             name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
             separator: z.string().nullable(),
@@ -3463,172 +3040,160 @@ export const zHashlistResponse = z.object({
             useBrain: z.boolean(),
             brainFeatures: z.int(),
             isArchived: z.boolean()
-          })
+        })
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashes: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlists: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
         }),
         z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hash'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
         })
-      ])
-    )
-    .optional()
+    ])).optional()
 });
 
 export const zHashlistSingleResponse = z.object({
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hashlist'),
-    attributes: z.object({
-      name: z.string(),
-      format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-      hashTypeId: z.int(),
-      hashCount: z.int(),
-      separator: z.string().nullable(),
-      cracked: z.int(),
-      isSecret: z.boolean(),
-      isHexSalt: z.boolean(),
-      isSalted: z.boolean(),
-      accessGroupId: z.int(),
-      notes: z.string(),
-      useBrain: z.boolean(),
-      brainFeatures: z.int(),
-      isArchived: z.boolean()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/hashlists/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/hashlists/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashes: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
-          related: z.string().default('/api/v2/ui/hashlists/hashes')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hash'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlists: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
-          related: z.string().default('/api/v2/ui/hashlists/hashlists')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hashlist'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/hashlists/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hash'),
-          attributes: z.object({
-            hashlistId: z.int(),
-            hash: z.string(),
-            salt: z.string(),
-            plaintext: z.string(),
-            timeCracked: z.number(),
-            chunkId: z.int(),
-            isCracked: z.boolean(),
-            crackPos: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
+        attributes: z.object({
             name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
             separator: z.string().nullable(),
@@ -3641,214 +3206,203 @@ export const zHashlistSingleResponse = z.object({
             useBrain: z.boolean(),
             brainFeatures: z.int(),
             isArchived: z.boolean()
-          })
+        })
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashes: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlists: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
         }),
         z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hash'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
         })
-      ])
-    )
-    .optional()
+    ])).optional()
 });
 
 export const zHashlistPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hashlist'),
-    attributes: z.object({
-      name: z.string(),
-      format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-      hashTypeId: z.int(),
-      hashCount: z.int(),
-      separator: z.string().nullable(),
-      cracked: z.int(),
-      isSecret: z.boolean(),
-      isHexSalt: z.boolean(),
-      isSalted: z.boolean(),
-      accessGroupId: z.int(),
-      notes: z.string(),
-      useBrain: z.boolean(),
-      brainFeatures: z.int(),
-      isArchived: z.boolean()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
+        attributes: z.object({
+            name: z.string(),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string().nullable(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+        })
     })
-  })
 });
 
 export const zHashlistListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('hashlist'),
-      attributes: z.object({
-        name: z.string(),
-        format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-        hashTypeId: z.int(),
-        hashCount: z.int(),
-        separator: z.string().nullable(),
-        cracked: z.int(),
-        isSecret: z.boolean(),
-        isHexSalt: z.boolean(),
-        isSalted: z.boolean(),
-        accessGroupId: z.int(),
-        notes: z.string(),
-        useBrain: z.boolean(),
-        brainFeatures: z.int(),
-        isArchived: z.boolean()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/hashlists/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/hashlists/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashes: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
-          related: z.string().default('/api/v2/ui/hashlists/hashes')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hash'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlists: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
-          related: z.string().default('/api/v2/ui/hashlists/hashlists')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('hashlist'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/hashlists/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hash'),
-          attributes: z.object({
-            hashlistId: z.int(),
-            hash: z.string(),
-            salt: z.string(),
-            plaintext: z.string(),
-            timeCracked: z.number(),
-            chunkId: z.int(),
-            isCracked: z.boolean(),
-            crackPos: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashlists?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashlists?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashlists?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('hashlist'),
+        attributes: z.object({
             name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            format: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]),
             hashTypeId: z.int(),
             hashCount: z.int(),
             separator: z.string().nullable(),
@@ -3861,3329 +3415,3261 @@ export const zHashlistListResponse = z.object({
             useBrain: z.boolean(),
             brainFeatures: z.int(),
             isArchived: z.boolean()
-          })
+        })
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/hashlists/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/hashlists/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashes: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashes'),
+                related: z.string().default('/api/v2/ui/hashlists/hashes')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hash'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlists: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/hashlists'),
+                related: z.string().default('/api/v2/ui/hashlists/hashlists')
+            }),
+            data: z.array(z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            })).optional()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/hashlists/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/hashlists/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
         }),
         z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hash'),
+            attributes: z.object({
+                hashlistId: z.int(),
+                hash: z.string(),
+                salt: z.string(),
+                plaintext: z.string(),
+                timeCracked: z.number(),
+                chunkId: z.int(),
+                isCracked: z.boolean(),
+                crackPos: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
         })
-      ])
-    )
-    .optional()
+    ])).optional()
 });
 
 export const zHashlistRelationTasks = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashlistRelationTasksGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHashTypeCreate = z.object({
-  data: z.object({
-    type: z.literal('hashType'),
-    attributes: z.object({
-      hashTypeId: z.int(),
-      description: z.string(),
-      isSalted: z.boolean(),
-      isSlowHash: z.boolean()
+    data: z.object({
+        type: z.literal('hashType'),
+        attributes: z.object({
+            hashTypeId: z.int(),
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
     })
-  })
 });
 
 export const zHashTypePatch = z.object({
-  data: z.object({
-    type: z.literal('hashType'),
-    attributes: z.object({
-      description: z.string().optional(),
-      isSalted: z.boolean().optional(),
-      isSlowHash: z.boolean().optional()
+    data: z.object({
+        type: z.literal('hashType'),
+        attributes: z.object({
+            description: z.string().optional(),
+            isSalted: z.boolean().optional(),
+            isSlowHash: z.boolean().optional()
+        })
     })
-  })
 });
 
 export const zHashTypeResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hashType'),
-    attributes: z.object({
-      description: z.string(),
-      isSalted: z.boolean(),
-      isSlowHash: z.boolean()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashType'),
+        attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zHashTypePostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hashType'),
-    attributes: z.object({
-      description: z.string(),
-      isSalted: z.boolean(),
-      isSlowHash: z.boolean()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('hashType'),
+        attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
     })
-  })
 });
 
 export const zHashTypeListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('hashType'),
-      attributes: z.object({
-        description: z.string(),
-        isSalted: z.boolean(),
-        isSlowHash: z.boolean()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/hashtypes?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/hashtypes?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('hashType'),
+        attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zHealthCheckAgentResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('healthCheckAgent'),
-    attributes: z.object({
-      healthCheckId: z.int(),
-      agentId: z.int(),
-      status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-      cracked: z.int(),
-      numGpus: z.int(),
-      start: z.number(),
-      end: z.number(),
-      errors: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
-          related: z.string().default('/api/v2/ui/healthcheckagents/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      healthCheck: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
-          related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
-        }),
-        data: z
-          .object({
-            type: z.literal('healthCheck'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('healthCheck'),
-          attributes: z.object({
-            time: z.number(),
-            status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-            checkType: z.union([z.literal(0), z.literal(3200)]),
-            hashtypeId: z.int(),
-            crackerBinaryId: z.int(),
-            expectedCracks: z.int(),
-            attackCmd: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheckAgent'),
+        attributes: z.object({
+            healthCheckId: z.int(),
+            agentId: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            cracked: z.int(),
+            numGpus: z.int(),
+            start: z.number(),
+            end: z.number(),
+            errors: z.string()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        healthCheck: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
+            }),
+            data: z.object({
+                type: z.literal('healthCheck'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('healthCheck'),
+            attributes: z.object({
+                time: z.number(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                checkType: z.union([
+                    z.literal(0),
+                    z.literal(3200)
+                ]),
+                hashtypeId: z.int(),
+                crackerBinaryId: z.int(),
+                expectedCracks: z.int(),
+                attackCmd: z.string()
+            })
+        })])).optional()
 });
 
 export const zHealthCheckAgentListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('healthCheckAgent'),
-      attributes: z.object({
-        healthCheckId: z.int(),
-        agentId: z.int(),
-        status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-        cracked: z.int(),
-        numGpus: z.int(),
-        start: z.number(),
-        end: z.number(),
-        errors: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
-          related: z.string().default('/api/v2/ui/healthcheckagents/agent')
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthcheckagents?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthcheckagents?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('healthCheckAgent'),
+        attributes: z.object({
+            healthCheckId: z.int(),
+            agentId: z.int(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            cracked: z.int(),
+            numGpus: z.int(),
+            start: z.number(),
+            end: z.number(),
+            errors: z.string()
+        })
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/agent'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
         }),
-        data: z
-          .object({
+        healthCheck: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
+                related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
+            }),
+            data: z.object({
+                type: z.literal('healthCheck'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
             type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      healthCheck: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthcheckagents/relationships/healthCheck'),
-          related: z.string().default('/api/v2/ui/healthcheckagents/healthCheck')
-        }),
-        data: z
-          .object({
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
             type: z.literal('healthCheck'),
-            id: z.int()
-          })
-          .nullish()
-      })
+            attributes: z.object({
+                time: z.number(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                checkType: z.union([
+                    z.literal(0),
+                    z.literal(3200)
+                ]),
+                hashtypeId: z.int(),
+                crackerBinaryId: z.int(),
+                expectedCracks: z.int(),
+                attackCmd: z.string()
+            })
+        })])).optional()
+});
+
+export const zHealthCheckAgentRelationHealthCheck = z.object({
+    data: z.object({
+        type: z.literal('healthCheck'),
+        id: z.int().default(1)
     })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('healthCheck'),
-          attributes: z.object({
+});
+
+export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
+    data: z.object({
+        type: z.literal('healthCheck'),
+        id: z.int().default(1)
+    })
+});
+
+export const zHealthCheckCreate = z.object({
+    data: z.object({
+        type: z.literal('healthCheck'),
+        attributes: z.object({
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int()
+        })
+    })
+});
+
+export const zHealthCheckPatch = z.object({
+    data: z.object({
+        type: z.literal('healthCheck'),
+        attributes: z.object({
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]).optional()
+        })
+    })
+});
+
+export const zHealthCheckResponse = z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheck'),
+        attributes: z.object({
             time: z.number(),
-            status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-            checkType: z.union([z.literal(0), z.literal(3200)]),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
             hashtypeId: z.int(),
             crackerBinaryId: z.int(),
             expectedCracks: z.int(),
             attackCmd: z.string()
-          })
         })
-      ])
-    )
-    .optional()
-});
-
-export const zHealthCheckAgentRelationHealthCheck = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    id: z.int().default(1)
-  })
-});
-
-export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    id: z.int().default(1)
-  })
-});
-
-export const zHealthCheckCreate = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    attributes: z.object({
-      checkType: z.union([z.literal(0), z.literal(3200)]),
-      hashtypeId: z.int(),
-      crackerBinaryId: z.int()
-    })
-  })
-});
-
-export const zHealthCheckPatch = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    attributes: z.object({
-      checkType: z.union([z.literal(0), z.literal(3200)]).optional()
-    })
-  })
-});
-
-export const zHealthCheckResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('healthCheck'),
-    attributes: z.object({
-      time: z.number(),
-      status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-      checkType: z.union([z.literal(0), z.literal(3200)]),
-      hashtypeId: z.int(),
-      crackerBinaryId: z.int(),
-      expectedCracks: z.int(),
-      attackCmd: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
+    }),
+    relationships: z.object({
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
         }),
-        data: z
-          .object({
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/healthchecks/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        healthCheckAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
+                related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('healthCheckAgent'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
             type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/healthchecks/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      healthCheckAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
-          related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('healthCheckAgent'),
-              id: z.int()
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
             })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
         }),
         z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
         }),
         z.object({
-          id: z.int(),
-          type: z.literal('healthCheckAgent'),
-          attributes: z.object({
-            healthCheckId: z.int(),
-            agentId: z.int(),
-            status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-            cracked: z.int(),
-            numGpus: z.int(),
-            start: z.number(),
-            end: z.number(),
-            errors: z.string()
-          })
+            id: z.int(),
+            type: z.literal('healthCheckAgent'),
+            attributes: z.object({
+                healthCheckId: z.int(),
+                agentId: z.int(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                cracked: z.int(),
+                numGpus: z.int(),
+                start: z.number(),
+                end: z.number(),
+                errors: z.string()
+            })
         })
-      ])
-    )
-    .optional()
+    ])).optional()
 });
 
 export const zHealthCheckPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('healthCheck'),
-    attributes: z.object({
-      time: z.number(),
-      status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-      checkType: z.union([z.literal(0), z.literal(3200)]),
-      hashtypeId: z.int(),
-      crackerBinaryId: z.int(),
-      expectedCracks: z.int(),
-      attackCmd: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('healthCheck'),
+        attributes: z.object({
+            time: z.number(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int(),
+            expectedCracks: z.int(),
+            attackCmd: z.string()
+        })
     })
-  })
 });
 
 export const zHealthCheckListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('healthCheck'),
-      attributes: z.object({
-        time: z.number(),
-        status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-        checkType: z.union([z.literal(0), z.literal(3200)]),
-        hashtypeId: z.int(),
-        crackerBinaryId: z.int(),
-        expectedCracks: z.int(),
-        attackCmd: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/healthchecks/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      healthCheckAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
-          related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('healthCheckAgent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('healthCheckAgent'),
-          attributes: z.object({
-            healthCheckId: z.int(),
-            agentId: z.int(),
-            status: z.union([z.literal(-1), z.literal(0), z.literal(1)]),
-            cracked: z.int(),
-            numGpus: z.int(),
-            start: z.number(),
-            end: z.number(),
-            errors: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/healthchecks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/healthchecks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('healthCheck'),
+        attributes: z.object({
+            time: z.number(),
+            status: z.union([
+                z.literal(-1),
+                z.literal(0),
+                z.literal(1)
+            ]),
+            checkType: z.union([
+                z.literal(0),
+                z.literal(3200)
+            ]),
+            hashtypeId: z.int(),
+            crackerBinaryId: z.int(),
+            expectedCracks: z.int(),
+            attackCmd: z.string()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/healthchecks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/healthchecks/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        healthCheckAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/healthchecks/relationships/healthCheckAgents'),
+                related: z.string().default('/api/v2/ui/healthchecks/healthCheckAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('healthCheckAgent'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('healthCheckAgent'),
+            attributes: z.object({
+                healthCheckId: z.int(),
+                agentId: z.int(),
+                status: z.union([
+                    z.literal(-1),
+                    z.literal(0),
+                    z.literal(1)
+                ]),
+                cracked: z.int(),
+                numGpus: z.int(),
+                start: z.number(),
+                end: z.number(),
+                errors: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zHealthCheckRelationHealthCheckAgents = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('healthCheckAgents'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('healthCheckAgents'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zHealthCheckRelationHealthCheckAgentsGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('healthCheckAgents'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('healthCheckAgents'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zLogEntryCreate = z.object({
-  data: z.object({
-    type: z.literal('logEntry'),
-    attributes: z.record(z.string(), z.unknown())
-  })
+    data: z.object({
+        type: z.literal('logEntry'),
+        attributes: z.record(z.string(), z.unknown())
+    })
 });
 
 export const zLogEntryPatch = z.object({
-  data: z.object({
-    type: z.literal('logEntry'),
-    attributes: z.record(z.string(), z.unknown())
-  })
+    data: z.object({
+        type: z.literal('logEntry'),
+        attributes: z.record(z.string(), z.unknown())
+    })
 });
 
 export const zLogEntryResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('logEntry'),
-    attributes: z.object({
-      issuer: z.union([z.literal('API'), z.literal('User')]),
-      issuerId: z.string(),
-      level: z.union([z.literal('warning'), z.literal('error'), z.literal('fatal error'), z.literal('information')]),
-      message: z.string(),
-      time: z.number()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('logEntry'),
+        attributes: z.object({
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
+            issuerId: z.string(),
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
+            ]),
+            message: z.string(),
+            time: z.number()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zLogEntryPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('logEntry'),
-    attributes: z.object({
-      issuer: z.union([z.literal('API'), z.literal('User')]),
-      issuerId: z.string(),
-      level: z.union([z.literal('warning'), z.literal('error'), z.literal('fatal error'), z.literal('information')]),
-      message: z.string(),
-      time: z.number()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('logEntry'),
+        attributes: z.object({
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
+            issuerId: z.string(),
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
+            ]),
+            message: z.string(),
+            time: z.number()
+        })
     })
-  })
 });
 
 export const zLogEntryListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('logEntry'),
-      attributes: z.object({
-        issuer: z.union([z.literal('API'), z.literal('User')]),
-        issuerId: z.string(),
-        level: z.union([z.literal('warning'), z.literal('error'), z.literal('fatal error'), z.literal('information')]),
-        message: z.string(),
-        time: z.number()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/logentries?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/logentries?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/logentries?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('logEntry'),
+        attributes: z.object({
+            issuer: z.union([
+                z.literal('API'),
+                z.literal('User')
+            ]),
+            issuerId: z.string(),
+            level: z.union([
+                z.literal('warning'),
+                z.literal('error'),
+                z.literal('fatal error'),
+                z.literal('information')
+            ]),
+            message: z.string(),
+            time: z.number()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zNotificationSettingCreate = z.object({
-  data: z.object({
-    type: z.literal('notificationSetting'),
-    attributes: z.object({
-      actionFilter: z.string(),
-      action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      notification: z.union([
-        z.literal('taskComplete'),
-        z.literal('agentError'),
-        z.literal('ownAgentError'),
-        z.literal('logError'),
-        z.literal('newTask'),
-        z.literal('newHashlist'),
-        z.literal('hashlistAllCracked'),
-        z.literal('hashlistCrackedHash'),
-        z.literal('userCreated'),
-        z.literal('userDeleted'),
-        z.literal('userLoginFailed'),
-        z.literal('logWarn'),
-        z.literal('logFatal'),
-        z.literal('newAgent'),
-        z.literal('deleteTask'),
-        z.literal('deleteHashlist'),
-        z.literal('deleteAgent')
-      ]),
-      receiver: z.string()
+    data: z.object({
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            actionFilter: z.string(),
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
+            ]),
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
+            ]),
+            receiver: z.string()
+        })
     })
-  })
 });
 
 export const zNotificationSettingPatch = z.object({
-  data: z.object({
-    type: z.literal('notificationSetting'),
-    attributes: z.object({
-      action: z
-        .union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')])
-        .optional(),
-      isActive: z.boolean().optional(),
-      notification: z
-        .union([
-          z.literal('taskComplete'),
-          z.literal('agentError'),
-          z.literal('ownAgentError'),
-          z.literal('logError'),
-          z.literal('newTask'),
-          z.literal('newHashlist'),
-          z.literal('hashlistAllCracked'),
-          z.literal('hashlistCrackedHash'),
-          z.literal('userCreated'),
-          z.literal('userDeleted'),
-          z.literal('userLoginFailed'),
-          z.literal('logWarn'),
-          z.literal('logFatal'),
-          z.literal('newAgent'),
-          z.literal('deleteTask'),
-          z.literal('deleteHashlist'),
-          z.literal('deleteAgent')
-        ])
-        .optional(),
-      receiver: z.string().optional()
+    data: z.object({
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
+            ]).optional(),
+            isActive: z.boolean().optional(),
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
+            ]).optional(),
+            receiver: z.string().optional()
+        })
     })
-  })
 });
 
 export const zNotificationSettingResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('notificationSetting'),
-    attributes: z.object({
-      action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int(),
-      notification: z.union([
-        z.literal('taskComplete'),
-        z.literal('agentError'),
-        z.literal('ownAgentError'),
-        z.literal('logError'),
-        z.literal('newTask'),
-        z.literal('newHashlist'),
-        z.literal('hashlistAllCracked'),
-        z.literal('hashlistCrackedHash'),
-        z.literal('userCreated'),
-        z.literal('userDeleted'),
-        z.literal('userLoginFailed'),
-        z.literal('logWarn'),
-        z.literal('logFatal'),
-        z.literal('newAgent'),
-        z.literal('deleteTask'),
-        z.literal('deleteHashlist'),
-        z.literal('deleteAgent')
-      ]),
-      userId: z.int(),
-      receiver: z.string(),
-      isActive: z.boolean()
-    })
-  }),
-  relationships: z
-    .object({
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/notifications/relationships/user'),
-          related: z.string().default('/api/v2/ui/notifications/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
+            ]),
+            objectId: z.int(),
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
+            ]),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
+    }),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+                related: z.string().default('/api/v2/ui/notifications/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('user'),
         attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zNotificationSettingPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('notificationSetting'),
-    attributes: z.object({
-      action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int(),
-      notification: z.union([
-        z.literal('taskComplete'),
-        z.literal('agentError'),
-        z.literal('ownAgentError'),
-        z.literal('logError'),
-        z.literal('newTask'),
-        z.literal('newHashlist'),
-        z.literal('hashlistAllCracked'),
-        z.literal('hashlistCrackedHash'),
-        z.literal('userCreated'),
-        z.literal('userDeleted'),
-        z.literal('userLoginFailed'),
-        z.literal('logWarn'),
-        z.literal('logFatal'),
-        z.literal('newAgent'),
-        z.literal('deleteTask'),
-        z.literal('deleteHashlist'),
-        z.literal('deleteAgent')
-      ]),
-      userId: z.int(),
-      receiver: z.string(),
-      isActive: z.boolean()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
+            ]),
+            objectId: z.int(),
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
+            ]),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
     })
-  })
 });
 
 export const zNotificationSettingListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('notificationSetting'),
-      attributes: z.object({
-        action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-        objectId: z.int(),
-        notification: z.union([
-          z.literal('taskComplete'),
-          z.literal('agentError'),
-          z.literal('ownAgentError'),
-          z.literal('logError'),
-          z.literal('newTask'),
-          z.literal('newHashlist'),
-          z.literal('hashlistAllCracked'),
-          z.literal('hashlistCrackedHash'),
-          z.literal('userCreated'),
-          z.literal('userDeleted'),
-          z.literal('userLoginFailed'),
-          z.literal('logWarn'),
-          z.literal('logFatal'),
-          z.literal('newAgent'),
-          z.literal('deleteTask'),
-          z.literal('deleteHashlist'),
-          z.literal('deleteAgent')
-        ]),
-        userId: z.int(),
-        receiver: z.string(),
-        isActive: z.boolean()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/notifications/relationships/user'),
-          related: z.string().default('/api/v2/ui/notifications/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('notificationSetting'),
+        attributes: z.object({
+            action: z.union([
+                z.literal('createNotification'),
+                z.literal('setActive'),
+                z.literal('deleteNotification')
+            ]),
+            objectId: z.int(),
+            notification: z.union([
+                z.literal('taskComplete'),
+                z.literal('agentError'),
+                z.literal('ownAgentError'),
+                z.literal('logError'),
+                z.literal('newTask'),
+                z.literal('newHashlist'),
+                z.literal('hashlistAllCracked'),
+                z.literal('hashlistCrackedHash'),
+                z.literal('userCreated'),
+                z.literal('userDeleted'),
+                z.literal('userLoginFailed'),
+                z.literal('logWarn'),
+                z.literal('logFatal'),
+                z.literal('newAgent'),
+                z.literal('deleteTask'),
+                z.literal('deleteHashlist'),
+                z.literal('deleteAgent')
+            ]),
+            userId: z.int(),
+            receiver: z.string(),
+            isActive: z.boolean()
+        })
+    })),
+    relationships: z.object({
+        user: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+                related: z.string().default('/api/v2/ui/notifications/user')
+            }),
+            data: z.object({
+                type: z.literal('user'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('user'),
         attributes: z.object({
-          name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zNotificationSettingRelationUser = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zNotificationSettingRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('user'),
+        id: z.int().default(1)
+    })
 });
 
 export const zPreprocessorCreate = z.object({
-  data: z.object({
-    type: z.literal('preprocessor'),
-    attributes: z.object({
-      name: z.string(),
-      url: z.string(),
-      binaryName: z.string(),
-      keyspaceCommand: z.string(),
-      skipCommand: z.string(),
-      limitCommand: z.string()
+    data: z.object({
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
     })
-  })
 });
 
 export const zPreprocessorPatch = z.object({
-  data: z.object({
-    type: z.literal('preprocessor'),
-    attributes: z.object({
-      binaryName: z.string().optional(),
-      keyspaceCommand: z.string().optional(),
-      limitCommand: z.string().optional(),
-      name: z.string().optional(),
-      skipCommand: z.string().optional(),
-      url: z.string().optional()
+    data: z.object({
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            binaryName: z.string().optional(),
+            keyspaceCommand: z.string().optional(),
+            limitCommand: z.string().optional(),
+            name: z.string().optional(),
+            skipCommand: z.string().optional(),
+            url: z.string().optional()
+        })
     })
-  })
 });
 
 export const zPreprocessorResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('preprocessor'),
-    attributes: z.object({
-      name: z.string(),
-      url: z.string(),
-      binaryName: z.string(),
-      keyspaceCommand: z.string(),
-      skipCommand: z.string(),
-      limitCommand: z.string()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zPreprocessorPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('preprocessor'),
-    attributes: z.object({
-      name: z.string(),
-      url: z.string(),
-      binaryName: z.string(),
-      keyspaceCommand: z.string(),
-      skipCommand: z.string(),
-      limitCommand: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
     })
-  })
 });
 
 export const zPreprocessorListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('preprocessor'),
-      attributes: z.object({
-        name: z.string(),
-        url: z.string(),
-        binaryName: z.string(),
-        keyspaceCommand: z.string(),
-        skipCommand: z.string(),
-        limitCommand: z.string()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/preprocessors?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/preprocessors?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('preprocessor'),
+        attributes: z.object({
+            name: z.string(),
+            url: z.string(),
+            binaryName: z.string(),
+            keyspaceCommand: z.string(),
+            skipCommand: z.string(),
+            limitCommand: z.string()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zPreTaskCreate = z.object({
-  data: z.object({
-    type: z.literal('preTask'),
-    attributes: z.object({
-      files: z.array(z.int()),
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      color: z.string(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      isMaskImport: z.boolean(),
-      crackerBinaryTypeId: z.int()
+    data: z.object({
+        type: z.literal('preTask'),
+        attributes: z.object({
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
+        })
     })
-  })
 });
 
 export const zPreTaskPatch = z.object({
-  data: z.object({
-    type: z.literal('preTask'),
-    attributes: z.object({
-      attackCmd: z.string().optional(),
-      chunkTime: z.int().optional(),
-      color: z.string().optional(),
-      crackerBinaryTypeId: z.int().optional(),
-      isCpuTask: z.boolean().optional(),
-      isMaskImport: z.boolean().optional(),
-      isSmall: z.boolean().optional(),
-      maxAgents: z.int().optional(),
-      priority: z.int().optional(),
-      statusTimer: z.int().optional(),
-      taskName: z.string().optional()
+    data: z.object({
+        type: z.literal('preTask'),
+        attributes: z.object({
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            color: z.string().optional(),
+            crackerBinaryTypeId: z.int().optional(),
+            isCpuTask: z.boolean().optional(),
+            isMaskImport: z.boolean().optional(),
+            isSmall: z.boolean().optional(),
+            maxAgents: z.int().optional(),
+            priority: z.int().optional(),
+            statusTimer: z.int().optional(),
+            taskName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zPreTaskResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('preTask'),
-    attributes: z.object({
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      color: z.string(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      isMaskImport: z.boolean(),
-      crackerBinaryTypeId: z.int(),
-      auxiliaryKeyspace: z.int().optional()
-    })
-  }),
-  relationships: z
-    .object({
-      pretaskFiles: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
-          related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preTask'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
+    }),
+    relationships: z.object({
+        pretaskFiles: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
+                related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('file'),
         attributes: z.object({
-          filename: z.string(),
-          size: z.number(),
-          isSecret: z.boolean(),
-          fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-          accessGroupId: z.int(),
-          lineCount: z.number()
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zPreTaskPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('preTask'),
-    attributes: z.object({
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      color: z.string(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      isMaskImport: z.boolean(),
-      crackerBinaryTypeId: z.int(),
-      auxiliaryKeyspace: z.int().optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('preTask'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
     })
-  })
 });
 
 export const zPreTaskListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('preTask'),
-      attributes: z.object({
-        taskName: z.string(),
-        attackCmd: z.string(),
-        chunkTime: z.int(),
-        statusTimer: z.int(),
-        color: z.string(),
-        isSmall: z.boolean(),
-        isCpuTask: z.boolean(),
-        useNewBench: z.boolean(),
-        priority: z.int(),
-        maxAgents: z.int(),
-        isMaskImport: z.boolean(),
-        crackerBinaryTypeId: z.int(),
-        auxiliaryKeyspace: z.int().optional()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      pretaskFiles: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
-          related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/pretasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/pretasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/pretasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('preTask'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int(),
+            auxiliaryKeyspace: z.int().optional()
+        })
+    })),
+    relationships: z.object({
+        pretaskFiles: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/pretasks/relationships/pretaskFiles'),
+                related: z.string().default('/api/v2/ui/pretasks/pretaskFiles')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('file'),
         attributes: z.object({
-          filename: z.string(),
-          size: z.number(),
-          isSecret: z.boolean(),
-          fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-          accessGroupId: z.int(),
-          lineCount: z.number()
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(100)
+            ]),
+            accessGroupId: z.int(),
+            lineCount: z.number()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zPreTaskRelationPretaskFiles = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('pretaskFiles'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('pretaskFiles'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zPreTaskRelationPretaskFilesGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('pretaskFiles'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('pretaskFiles'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zSpeedResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('speed'),
-    attributes: z.object({
-      agentId: z.int(),
-      taskId: z.int(),
-      speed: z.number(),
-      time: z.number()
-    })
-  }),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
-          related: z.string().default('/api/v2/ui/speeds/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/task'),
-          related: z.string().default('/api/v2/ui/speeds/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('speed'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            speed: z.number(),
+            time: z.number()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
+                related: z.string().default('/api/v2/ui/speeds/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/task'),
+                related: z.string().default('/api/v2/ui/speeds/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zSpeedListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('speed'),
-      attributes: z.object({
-        agentId: z.int(),
-        taskId: z.int(),
-        speed: z.number(),
-        time: z.number()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
-          related: z.string().default('/api/v2/ui/speeds/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/task'),
-          related: z.string().default('/api/v2/ui/speeds/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
-            priority: z.int(),
-            maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
-            isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('speed'),
+        attributes: z.object({
+            agentId: z.int(),
+            taskId: z.int(),
+            speed: z.number(),
+            time: z.number()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        agent: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
+                related: z.string().default('/api/v2/ui/speeds/agent')
+            }),
+            data: z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/speeds/relationships/task'),
+                related: z.string().default('/api/v2/ui/speeds/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })])).optional()
 });
 
 export const zSpeedRelationTask = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zSpeedRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int().default(1)
-  })
+    data: z.object({
+        type: z.literal('task'),
+        id: z.int().default(1)
+    })
 });
 
 export const zSupertaskCreate = z.object({
-  data: z.object({
-    type: z.literal('supertask'),
-    attributes: z.object({
-      pretasks: z.array(z.int()),
-      supertaskName: z.string()
+    data: z.object({
+        type: z.literal('supertask'),
+        attributes: z.object({
+            pretasks: z.array(z.int()),
+            supertaskName: z.string()
+        })
     })
-  })
 });
 
 export const zSupertaskPatch = z.object({
-  data: z.object({
-    type: z.literal('supertask'),
-    attributes: z.object({
-      supertaskName: z.string().optional()
+    data: z.object({
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zSupertaskResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('supertask'),
-    attributes: z.object({
-      supertaskName: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      pretasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
-          related: z.string().default('/api/v2/ui/supertasks/pretasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('preTask'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string()
+        })
+    }),
+    relationships: z.object({
+        pretasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('preTask'),
         attributes: z.object({
-          taskName: z.string(),
-          attackCmd: z.string(),
-          chunkTime: z.int(),
-          statusTimer: z.int(),
-          color: z.string(),
-          isSmall: z.boolean(),
-          isCpuTask: z.boolean(),
-          useNewBench: z.boolean(),
-          priority: z.int(),
-          maxAgents: z.int(),
-          isMaskImport: z.boolean(),
-          crackerBinaryTypeId: z.int()
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zSupertaskSingleResponse = z.object({
-  data: z.object({
-    id: z.int(),
-    type: z.literal('supertask'),
-    attributes: z.object({
-      supertaskName: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      pretasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
-          related: z.string().default('/api/v2/ui/supertasks/pretasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('preTask'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string()
+        })
+    }),
+    relationships: z.object({
+        pretasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('preTask'),
         attributes: z.object({
-          taskName: z.string(),
-          attackCmd: z.string(),
-          chunkTime: z.int(),
-          statusTimer: z.int(),
-          color: z.string(),
-          isSmall: z.boolean(),
-          isCpuTask: z.boolean(),
-          useNewBench: z.boolean(),
-          priority: z.int(),
-          maxAgents: z.int(),
-          isMaskImport: z.boolean(),
-          crackerBinaryTypeId: z.int()
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zSupertaskPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('supertask'),
-    attributes: z.object({
-      supertaskName: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string()
+        })
     })
-  })
 });
 
 export const zSupertaskListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('supertask'),
-      attributes: z.object({
-        supertaskName: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      pretasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
-          related: z.string().default('/api/v2/ui/supertasks/pretasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('preTask'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/supertasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/supertasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/supertasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('supertask'),
+        attributes: z.object({
+            supertaskName: z.string()
+        })
+    })),
+    relationships: z.object({
+        pretasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/supertasks/relationships/pretasks'),
+                related: z.string().default('/api/v2/ui/supertasks/pretasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('preTask'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.object({
         id: z.int(),
         type: z.literal('preTask'),
         attributes: z.object({
-          taskName: z.string(),
-          attackCmd: z.string(),
-          chunkTime: z.int(),
-          statusTimer: z.int(),
-          color: z.string(),
-          isSmall: z.boolean(),
-          isCpuTask: z.boolean(),
-          useNewBench: z.boolean(),
-          priority: z.int(),
-          maxAgents: z.int(),
-          isMaskImport: z.boolean(),
-          crackerBinaryTypeId: z.int()
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            color: z.string(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            isMaskImport: z.boolean(),
+            crackerBinaryTypeId: z.int()
         })
-      })
-    )
-    .optional()
+    })).optional()
 });
 
 export const zSupertaskRelationPretasks = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('pretasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('pretasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zSupertaskRelationPretasksGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('pretasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('pretasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskCreate = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    attributes: z.object({
-      hashlistId: z.int(),
-      files: z.array(z.int()),
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      color: z.string().nullish(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullish(),
-      isArchived: z.boolean(),
-      notes: z.string(),
-      staticChunks: z.int(),
-      chunkSize: z.number(),
-      forcePipe: z.boolean(),
-      preprocessorId: z.int(),
-      preprocessorCommand: z.string()
+    data: z.object({
+        type: z.literal('task'),
+        attributes: z.object({
+            hashlistId: z.int(),
+            files: z.array(z.int()),
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullish(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullish(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+        })
     })
-  })
 });
 
 export const zTaskPatch = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    attributes: z.object({
-      attackCmd: z.string().optional(),
-      chunkTime: z.int().optional(),
-      color: z.string().nullish(),
-      isArchived: z.boolean().optional(),
-      isCpuTask: z.boolean().optional(),
-      isSmall: z.boolean().optional(),
-      maxAgents: z.int().optional(),
-      notes: z.string().optional(),
-      priority: z.int().optional(),
-      statusTimer: z.int().optional(),
-      taskName: z.string().optional()
+    data: z.object({
+        type: z.literal('task'),
+        attributes: z.object({
+            attackCmd: z.string().optional(),
+            chunkTime: z.int().optional(),
+            color: z.string().nullish(),
+            isArchived: z.boolean().optional(),
+            isCpuTask: z.boolean().optional(),
+            isSmall: z.boolean().optional(),
+            maxAgents: z.int().optional(),
+            notes: z.string().optional(),
+            priority: z.int().optional(),
+            statusTimer: z.int().optional(),
+            taskName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zTaskResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('task'),
-    attributes: z.object({
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      keyspace: z.number(),
-      keyspaceProgress: z.number(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      color: z.string().nullable(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullable(),
-      taskWrapperId: z.int(),
-      isArchived: z.boolean(),
-      notes: z.string(),
-      staticChunks: z.int(),
-      chunkSize: z.number(),
-      forcePipe: z.boolean(),
-      preprocessorId: z.int(),
-      preprocessorCommand: z.string(),
-      activeAgents: z.int().optional(),
-      dispatched: z.string().optional(),
-      searched: z.string().optional(),
-      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
-      estimatedTime: z.int().optional(),
-      timeSpent: z.int().optional(),
-      currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
-    })
-  }),
-  relationships: z
-    .object({
-      assignedAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
-          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      files: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
-          related: z.string().default('/api/v2/ui/tasks/files')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/tasks/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      speeds: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
-          related: z.string().default('/api/v2/ui/tasks/speeds')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('speed'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinaryType'),
-          attributes: z.object({
-            typeName: z.string(),
-            isChunkingAvailable: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
             notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('file'),
-          attributes: z.object({
-            filename: z.string(),
-            size: z.number(),
-            isSecret: z.boolean(),
-            fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-            accessGroupId: z.int(),
-            lineCount: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('speed'),
-          attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
-            speed: z.number(),
-            time: z.number()
-          })
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        assignedAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+                related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
+        crackerBinaryType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
+        files: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+                related: z.string().default('/api/v2/ui/tasks/files')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/tasks/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        speeds: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+                related: z.string().default('/api/v2/ui/tasks/speeds')
+            }),
+            data: z.array(z.object({
+                type: z.literal('speed'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('file'),
+            attributes: z.object({
+                filename: z.string(),
+                size: z.number(),
+                isSecret: z.boolean(),
+                fileType: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(100)
+                ]),
+                accessGroupId: z.int(),
+                lineCount: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('speed'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                speed: z.number(),
+                time: z.number()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('task'),
-    attributes: z.object({
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      keyspace: z.number(),
-      keyspaceProgress: z.number(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      color: z.string().nullable(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullable(),
-      taskWrapperId: z.int(),
-      isArchived: z.boolean(),
-      notes: z.string(),
-      staticChunks: z.int(),
-      chunkSize: z.number(),
-      forcePipe: z.boolean(),
-      preprocessorId: z.int(),
-      preprocessorCommand: z.string(),
-      activeAgents: z.int().optional(),
-      dispatched: z.string().optional(),
-      searched: z.string().optional(),
-      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
-      estimatedTime: z.int().optional(),
-      timeSpent: z.int().optional(),
-      currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
+        })
     })
-  })
 });
 
 export const zTaskListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('task'),
-      attributes: z.object({
-        taskName: z.string(),
-        attackCmd: z.string(),
-        chunkTime: z.int(),
-        statusTimer: z.int(),
-        keyspace: z.number(),
-        keyspaceProgress: z.number(),
-        priority: z.int(),
-        maxAgents: z.int(),
-        color: z.string().nullable(),
-        isSmall: z.boolean(),
-        isCpuTask: z.boolean(),
-        useNewBench: z.boolean(),
-        skipKeyspace: z.number(),
-        crackerBinaryId: z.int(),
-        crackerBinaryTypeId: z.int().nullable(),
-        taskWrapperId: z.int(),
-        isArchived: z.boolean(),
-        notes: z.string(),
-        staticChunks: z.int(),
-        chunkSize: z.number(),
-        forcePipe: z.boolean(),
-        preprocessorId: z.int(),
-        preprocessorCommand: z.string(),
-        activeAgents: z.int().optional(),
-        dispatched: z.string().optional(),
-        searched: z.string().optional(),
-        status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
-        estimatedTime: z.int().optional(),
-        timeSpent: z.int().optional(),
-        currentSpeed: z.int().optional(),
-        cprogress: z.int().optional()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      assignedAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
-          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      files: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
-          related: z.string().default('/api/v2/ui/tasks/files')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/tasks/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      speeds: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
-          related: z.string().default('/api/v2/ui/tasks/speeds')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('speed'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinaryType'),
-          attributes: z.object({
-            typeName: z.string(),
-            isChunkingAvailable: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
             notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('file'),
-          attributes: z.object({
-            filename: z.string(),
-            size: z.number(),
-            isSecret: z.boolean(),
-            fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-            accessGroupId: z.int(),
-            lineCount: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('speed'),
-          attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
-            speed: z.number(),
-            time: z.number()
-          })
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string(),
+            activeAgents: z.int().optional(),
+            dispatched: z.string().optional(),
+            searched: z.string().optional(),
+            status: z.union([
+                z.literal(0),
+                z.literal(1),
+                z.literal(2),
+                z.literal(3)
+            ]).optional(),
+            estimatedTime: z.int().optional(),
+            timeSpent: z.int().optional(),
+            currentSpeed: z.int().optional(),
+            cprogress: z.int().optional()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        assignedAgents: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+                related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+            }),
+            data: z.array(z.object({
+                type: z.literal('agent'),
+                id: z.int()
+            })).optional()
+        }),
+        crackerBinary: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+            }).nullish()
+        }),
+        crackerBinaryType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+                related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+            }),
+            data: z.object({
+                type: z.literal('crackerBinaryType'),
+                id: z.int()
+            }).nullish()
+        }),
+        files: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+                related: z.string().default('/api/v2/ui/tasks/files')
+            }),
+            data: z.array(z.object({
+                type: z.literal('file'),
+                id: z.int()
+            })).optional()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/tasks/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        speeds: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+                related: z.string().default('/api/v2/ui/tasks/speeds')
+            }),
+            data: z.array(z.object({
+                type: z.literal('speed'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinary'),
+            attributes: z.object({
+                crackerBinaryTypeId: z.int(),
+                version: z.string(),
+                downloadUrl: z.string(),
+                binaryName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('crackerBinaryType'),
+            attributes: z.object({
+                typeName: z.string(),
+                isChunkingAvailable: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('agent'),
+            attributes: z.object({
+                agentName: z.string(),
+                uid: z.string(),
+                os: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                devices: z.string(),
+                cmdPars: z.string(),
+                ignoreErrors: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2)
+                ]),
+                isActive: z.boolean(),
+                isTrusted: z.boolean(),
+                token: z.string(),
+                lastAct: z.string(),
+                lastTime: z.number(),
+                lastIp: z.string(),
+                userId: z.int().nullable(),
+                cpuOnly: z.boolean(),
+                clientSignature: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('file'),
+            attributes: z.object({
+                filename: z.string(),
+                size: z.number(),
+                isSecret: z.boolean(),
+                fileType: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(100)
+                ]),
+                accessGroupId: z.int(),
+                lineCount: z.number()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('speed'),
+            attributes: z.object({
+                agentId: z.int(),
+                taskId: z.int(),
+                speed: z.number(),
+                time: z.number()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskRelationSpeeds = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('speeds'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('speeds'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskRelationSpeedsGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('speeds'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('speeds'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskWrapperPatch = z.object({
-  data: z.object({
-    type: z.literal('taskWrapper'),
-    attributes: z.object({
-      accessGroupId: z.int().optional(),
-      isArchived: z.boolean().optional(),
-      maxAgents: z.int().optional(),
-      priority: z.int().optional(),
-      taskWrapperName: z.string().optional()
+    data: z.object({
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
+            accessGroupId: z.int().optional(),
+            isArchived: z.boolean().optional(),
+            maxAgents: z.int().optional(),
+            priority: z.int().optional(),
+            taskWrapperName: z.string().optional()
+        })
     })
-  })
 });
 
 export const zTaskWrapperResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('taskWrapper'),
-    attributes: z.object({
-      priority: z.int(),
-      maxAgents: z.int(),
-      taskType: z.union([z.literal(0), z.literal(1)]),
-      hashlistId: z.int(),
-      accessGroupId: z.int(),
-      taskWrapperName: z.string(),
-      isArchived: z.boolean(),
-      cracked: z.int()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
-          related: z.string().default('/api/v2/ui/taskwrappers/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/taskwrappers/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
             isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            cracked: z.int()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperSingleResponse = z.object({
-  data: z.object({
-    id: z.int(),
-    type: z.literal('taskWrapper'),
-    attributes: z.object({
-      priority: z.int(),
-      maxAgents: z.int(),
-      taskType: z.union([z.literal(0), z.literal(1)]),
-      hashlistId: z.int(),
-      accessGroupId: z.int(),
-      taskWrapperName: z.string(),
-      isArchived: z.boolean(),
-      cracked: z.int()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
-          related: z.string().default('/api/v2/ui/taskwrappers/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/taskwrappers/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
             isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            cracked: z.int()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('taskWrapper'),
-    attributes: z.object({
-      priority: z.int(),
-      maxAgents: z.int(),
-      taskType: z.union([z.literal(0), z.literal(1)]),
-      hashlistId: z.int(),
-      accessGroupId: z.int(),
-      taskWrapperName: z.string(),
-      isArchived: z.boolean(),
-      cracked: z.int()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
+            priority: z.int(),
+            maxAgents: z.int(),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
+            isArchived: z.boolean(),
+            cracked: z.int()
+        })
     })
-  })
 });
 
 export const zTaskWrapperListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('taskWrapper'),
-      attributes: z.object({
-        priority: z.int(),
-        maxAgents: z.int(),
-        taskType: z.union([z.literal(0), z.literal(1)]),
-        hashlistId: z.int(),
-        accessGroupId: z.int(),
-        taskWrapperName: z.string(),
-        isArchived: z.boolean(),
-        cracked: z.int()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      accessGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
-          related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('accessGroup'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashType')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
-          related: z.string().default('/api/v2/ui/taskwrappers/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/taskwrappers/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashType'),
-          attributes: z.object({
-            description: z.string(),
-            isSalted: z.boolean(),
-            isSlowHash: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('task'),
-          attributes: z.object({
-            taskName: z.string(),
-            attackCmd: z.string(),
-            chunkTime: z.int(),
-            statusTimer: z.int(),
-            keyspace: z.number(),
-            keyspaceProgress: z.number(),
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('taskWrapper'),
+        attributes: z.object({
             priority: z.int(),
             maxAgents: z.int(),
-            color: z.string().nullable(),
-            isSmall: z.boolean(),
-            isCpuTask: z.boolean(),
-            useNewBench: z.boolean(),
-            skipKeyspace: z.number(),
-            crackerBinaryId: z.int(),
-            crackerBinaryTypeId: z.int().nullable(),
-            taskWrapperId: z.int(),
+            taskType: z.union([
+                z.literal(0),
+                z.literal(1)
+            ]),
+            hashlistId: z.int(),
+            accessGroupId: z.int(),
+            taskWrapperName: z.string(),
             isArchived: z.boolean(),
-            notes: z.string(),
-            staticChunks: z.int(),
-            chunkSize: z.number(),
-            forcePipe: z.boolean(),
-            preprocessorId: z.int(),
-            preprocessorCommand: z.string()
-          })
+            cracked: z.int()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        accessGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+                related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+            }),
+            data: z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashType: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+            }),
+            data: z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+            }).nullish()
+        }),
+        hashlist: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+                related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+            }),
+            data: z.object({
+                type: z.literal('hashlist'),
+                id: z.int()
+            }).nullish()
+        }),
+        task: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+                related: z.string().default('/api/v2/ui/taskwrappers/task')
+            }),
+            data: z.object({
+                type: z.literal('task'),
+                id: z.int()
+            }).nullish()
+        }),
+        tasks: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+                related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+            }),
+            data: z.array(z.object({
+                type: z.literal('task'),
+                id: z.int()
+            })).optional()
+        })
+    }).optional(),
+    included: z.array(z.union([
+        z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashlist'),
+            attributes: z.object({
+                name: z.string(),
+                format: z.union([
+                    z.literal(0),
+                    z.literal(1),
+                    z.literal(2),
+                    z.literal(3)
+                ]),
+                hashTypeId: z.int(),
+                hashCount: z.int(),
+                separator: z.string().nullable(),
+                cracked: z.int(),
+                isSecret: z.boolean(),
+                isHexSalt: z.boolean(),
+                isSalted: z.boolean(),
+                accessGroupId: z.int(),
+                notes: z.string(),
+                useBrain: z.boolean(),
+                brainFeatures: z.int(),
+                isArchived: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('hashType'),
+            attributes: z.object({
+                description: z.string(),
+                isSalted: z.boolean(),
+                isSlowHash: z.boolean()
+            })
+        }),
+        z.object({
+            id: z.int(),
+            type: z.literal('task'),
+            attributes: z.object({
+                taskName: z.string(),
+                attackCmd: z.string(),
+                chunkTime: z.int(),
+                statusTimer: z.int(),
+                keyspace: z.number(),
+                keyspaceProgress: z.number(),
+                priority: z.int(),
+                maxAgents: z.int(),
+                color: z.string().nullable(),
+                isSmall: z.boolean(),
+                isCpuTask: z.boolean(),
+                useNewBench: z.boolean(),
+                skipKeyspace: z.number(),
+                crackerBinaryId: z.int(),
+                crackerBinaryTypeId: z.int().nullable(),
+                taskWrapperId: z.int(),
+                isArchived: z.boolean(),
+                notes: z.string(),
+                staticChunks: z.int(),
+                chunkSize: z.number(),
+                forcePipe: z.boolean(),
+                preprocessorId: z.int(),
+                preprocessorCommand: z.string()
+            })
+        })
+    ])).optional()
 });
 
 export const zTaskWrapperRelationTasks = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zTaskWrapperRelationTasksGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('tasks'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('tasks'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zUserCreate = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    attributes: z.object({
-      name: z.string(),
-      email: z.string(),
-      globalPermissionGroupId: z.int()
+    data: z.object({
+        type: z.literal('user'),
+        attributes: z.object({
+            name: z.string(),
+            email: z.string(),
+            globalPermissionGroupId: z.int()
+        })
     })
-  })
 });
 
 export const zUserPatch = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    attributes: z.object({
-      email: z.string().optional(),
-      globalPermissionGroupId: z.int().optional(),
-      isValid: z.boolean().optional(),
-      sessionLifetime: z.int().optional()
+    data: z.object({
+        type: z.literal('user'),
+        attributes: z.object({
+            email: z.string().optional(),
+            globalPermissionGroupId: z.int().optional(),
+            isValid: z.boolean().optional(),
+            sessionLifetime: z.int().optional()
+        })
     })
-  })
 });
 
 export const zUserResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/users?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('user'),
-    attributes: z.object({
-      name: z.string(),
-      email: z.string(),
-      isValid: z.boolean(),
-      isComputedPassword: z.boolean(),
-      lastLoginDate: z.number(),
-      registeredSince: z.number(),
-      sessionLifetime: z.int(),
-      globalPermissionGroupId: z.int(),
-      yubikey: z.string(),
-      otp1: z.string(),
-      otp2: z.string(),
-      otp3: z.string(),
-      otp4: z.string()
-    })
-  }),
-  relationships: z
-    .object({
-      accessGroups: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
-          related: z.string().default('/api/v2/ui/users/accessGroups')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('accessGroup'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      globalPermissionGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
-          related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('globalPermissionGroup'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('globalPermissionGroup'),
-          attributes: z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/users?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('user'),
+        attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.boolean())
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      ])
-    )
-    .optional()
+    }),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/users/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
+        globalPermissionGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
+                related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
+            }),
+            data: z.object({
+                type: z.literal('globalPermissionGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('globalPermissionGroup'),
+            attributes: z.object({
+                name: z.string(),
+                permissions: z.record(z.string(), z.boolean())
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        })])).optional()
 });
 
 export const zUserPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('user'),
-    attributes: z.object({
-      name: z.string(),
-      email: z.string(),
-      isValid: z.boolean(),
-      isComputedPassword: z.boolean(),
-      lastLoginDate: z.number(),
-      registeredSince: z.number(),
-      sessionLifetime: z.int(),
-      globalPermissionGroupId: z.int(),
-      yubikey: z.string(),
-      otp1: z.string(),
-      otp2: z.string(),
-      otp3: z.string(),
-      otp4: z.string()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('user'),
+        attributes: z.object({
+            name: z.string(),
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
+        })
     })
-  })
 });
 
 export const zUserListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/users?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('user'),
-      attributes: z.object({
-        name: z.string(),
-        email: z.string(),
-        isValid: z.boolean(),
-        isComputedPassword: z.boolean(),
-        lastLoginDate: z.number(),
-        registeredSince: z.number(),
-        sessionLifetime: z.int(),
-        globalPermissionGroupId: z.int(),
-        yubikey: z.string(),
-        otp1: z.string(),
-        otp2: z.string(),
-        otp3: z.string(),
-        otp4: z.string()
-      })
-    })
-  ),
-  relationships: z
-    .object({
-      accessGroups: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
-          related: z.string().default('/api/v2/ui/users/accessGroups')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('accessGroup'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      globalPermissionGroup: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
-          related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
-        }),
-        data: z
-          .object({
-            type: z.literal('globalPermissionGroup'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('globalPermissionGroup'),
-          attributes: z.object({
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/users?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/users?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/users?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('user'),
+        attributes: z.object({
             name: z.string(),
-            permissions: z.record(z.string(), z.boolean())
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('accessGroup'),
-          attributes: z.object({
-            groupName: z.string()
-          })
+            email: z.string(),
+            isValid: z.boolean(),
+            isComputedPassword: z.boolean(),
+            lastLoginDate: z.number(),
+            registeredSince: z.number(),
+            sessionLifetime: z.int(),
+            globalPermissionGroupId: z.int(),
+            yubikey: z.string(),
+            otp1: z.string(),
+            otp2: z.string(),
+            otp3: z.string(),
+            otp4: z.string()
         })
-      ])
-    )
-    .optional()
+    })),
+    relationships: z.object({
+        accessGroups: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
+                related: z.string().default('/api/v2/ui/users/accessGroups')
+            }),
+            data: z.array(z.object({
+                type: z.literal('accessGroup'),
+                id: z.int()
+            })).optional()
+        }),
+        globalPermissionGroup: z.object({
+            links: z.object({
+                self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
+                related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
+            }),
+            data: z.object({
+                type: z.literal('globalPermissionGroup'),
+                id: z.int()
+            }).nullish()
+        })
+    }).optional(),
+    included: z.array(z.union([z.object({
+            id: z.int(),
+            type: z.literal('globalPermissionGroup'),
+            attributes: z.object({
+                name: z.string(),
+                permissions: z.record(z.string(), z.boolean())
+            })
+        }), z.object({
+            id: z.int(),
+            type: z.literal('accessGroup'),
+            attributes: z.object({
+                groupName: z.string()
+            })
+        })])).optional()
 });
 
 export const zUserRelationAccessGroups = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('accessGroups'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('accessGroups'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zUserRelationAccessGroupsGetResponse = z.object({
-  data: z.array(
-    z.object({
-      type: z.literal('accessGroups'),
-      id: z.int().default(1)
-    })
-  )
+    data: z.array(z.object({
+        type: z.literal('accessGroups'),
+        id: z.int().default(1)
+    }))
 });
 
 export const zVoucherCreate = z.object({
-  data: z.object({
-    type: z.literal('voucher'),
-    attributes: z.object({
-      voucher: z.string()
+    data: z.object({
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string()
+        })
     })
-  })
 });
 
 export const zVoucherPatch = z.object({
-  data: z.object({
-    type: z.literal('voucher'),
-    attributes: z.object({
-      voucher: z.string().optional()
+    data: z.object({
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string().optional()
+        })
     })
-  })
 });
 
 export const zVoucherResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('voucher'),
-    attributes: z.object({
-      voucher: z.string(),
-      time: z.number()
-    })
-  }),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string(),
+            time: z.number()
+        })
+    }),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zVoucherPostPatchResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('voucher'),
-    attributes: z.object({
-      voucher: z.string(),
-      time: z.number()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    data: z.object({
+        id: z.int(),
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string(),
+            time: z.number()
+        })
     })
-  })
 });
 
 export const zVoucherListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('voucher'),
-      attributes: z.object({
-        voucher: z.string(),
-        time: z.number()
-      })
-    })
-  ),
-  relationships: z.record(z.string(), z.unknown()).optional(),
-  included: z.array(z.unknown()).optional()
+    jsonapi: z.object({
+        version: z.string().default('1.1'),
+        ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+    }),
+    links: z.object({
+        self: z.string().default('/api/v2/ui/vouchers?page[size]=25'),
+        first: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[after]=0'),
+        last: z.string().optional().default('/api/v2/ui/vouchers?page[size]=25&page[before]=500'),
+        next: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[after]=25'),
+        previous: z.string().nullish().default('/api/v2/ui/vouchers?page[size]=25&page[before]=25')
+    }).optional(),
+    data: z.array(z.object({
+        id: z.int(),
+        type: z.literal('voucher'),
+        attributes: z.object({
+            voucher: z.string(),
+            time: z.number()
+        })
+    })),
+    relationships: z.record(z.string(), z.unknown()).optional(),
+    included: z.array(z.unknown()).optional()
 });
 
 export const zAbortChunkHelperApi = z.object({
-  chunkId: z.int().optional()
+    chunkId: z.int().optional()
 });
 
-export const zAbortChunkHelperApiResponse = z.array(
-  z.object({
+export const zAbortChunkHelperApiResponse = z.array(z.object({
     Abort: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zAssignAgentHelperApi = z.object({
-  agentId: z.int().optional(),
-  taskId: z.int().optional()
+    agentId: z.int().optional(),
+    taskId: z.int().optional()
 });
 
-export const zAssignAgentHelperApiResponse = z.array(
-  z.object({
+export const zAssignAgentHelperApiResponse = z.array(z.object({
     Assign: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zBulkSupertaskBuilderHelperApi = z.object({
-  name: z.string().optional(),
-  isCpu: z.boolean().optional(),
-  isSmall: z.boolean().optional(),
-  crackerBinaryTypeId: z.int().optional(),
-  benchtype: z.string().optional(),
-  command: z.string().optional(),
-  maxAgents: z.int().optional(),
-  basefiles: z.array(z.int()).optional(),
-  iterfiles: z.array(z.int()).optional()
+    name: z.string().optional(),
+    isCpu: z.boolean().optional(),
+    isSmall: z.boolean().optional(),
+    crackerBinaryTypeId: z.int().optional(),
+    benchtype: z.string().optional(),
+    command: z.string().optional(),
+    maxAgents: z.int().optional(),
+    basefiles: z.array(z.int()).optional(),
+    iterfiles: z.array(z.int()).optional()
 });
 
 export const zChangeOwnPasswordHelperApi = z.object({
-  oldPassword: z.string().optional(),
-  newPassword: z.string().optional(),
-  confirmPassword: z.string().optional()
+    oldPassword: z.string().optional(),
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional()
 });
 
-export const zChangeOwnPasswordHelperApiResponse = z.array(
-  z.object({
+export const zChangeOwnPasswordHelperApiResponse = z.array(z.object({
     'Change password': z.string().optional().default('Password succesfully updated!')
-  })
-);
+}));
 
 export const zCreateSuperHashlistHelperApi = z.object({
-  hashlistIds: z.array(z.int()).optional(),
-  name: z.string().optional()
+    hashlistIds: z.array(z.int()).optional(),
+    name: z.string().optional()
 });
 
 export const zCreateSupertaskHelperApi = z.object({
-  supertaskTemplateId: z.int().optional(),
-  hashlistId: z.int().optional(),
-  crackerVersionId: z.int().optional()
+    supertaskTemplateId: z.int().optional(),
+    hashlistId: z.int().optional(),
+    crackerVersionId: z.int().optional()
 });
 
 export const zExportCrackedHashesHelperApi = z.object({
-  hashlistId: z.int().optional()
+    hashlistId: z.int().optional()
 });
 
 export const zExportLeftHashesHelperApi = z.object({
-  hashlistId: z.int().optional()
+    hashlistId: z.int().optional()
 });
 
 export const zExportWordlistHelperApi = z.object({
-  hashlistId: z.int().optional()
+    hashlistId: z.int().optional()
 });
 
 export const zImportCrackedHashesHelperApi = z.object({
-  hashlistId: z.int().optional(),
-  sourceType: z.string().optional(),
-  sourceData: z.string().optional(),
-  separator: z.string().optional(),
-  overwrite: z.int().optional()
+    hashlistId: z.int().optional(),
+    sourceType: z.string().optional(),
+    sourceData: z.string().optional(),
+    separator: z.string().optional(),
+    overwrite: z.int().optional()
 });
 
-export const zImportCrackedHashesHelperApiResponse = z.array(
-  z.object({
+export const zImportCrackedHashesHelperApiResponse = z.array(z.object({
     totalLines: z.int().optional().default(100),
     newCracked: z.int().optional().default(5),
     alreadyCracked: z.int().optional().default(2),
@@ -7191,201 +6677,147 @@ export const zImportCrackedHashesHelperApiResponse = z.array(
     notFound: z.int().optional().default(1),
     processTime: z.int().optional().default(60),
     tooLongPlaintexts: z.int().optional().default(4)
-  })
-);
+}));
 
 export const zImportFileHelperApi = z.record(z.string(), z.unknown());
 
 export const zMaskSupertaskBuilderHelperApi = z.object({
-  name: z.string().optional(),
-  isCpu: z.boolean().optional(),
-  isSmall: z.boolean().optional(),
-  optimized: z.boolean().optional(),
-  crackerBinaryTypeId: z.int().optional(),
-  benchtype: z.string().optional(),
-  masks: z.string().optional(),
-  maxAgents: z.int().optional()
+    name: z.string().optional(),
+    isCpu: z.boolean().optional(),
+    isSmall: z.boolean().optional(),
+    optimized: z.boolean().optional(),
+    crackerBinaryTypeId: z.int().optional(),
+    benchtype: z.string().optional(),
+    masks: z.string().optional(),
+    maxAgents: z.int().optional()
 });
 
 export const zPurgeTaskHelperApi = z.object({
-  taskId: z.int().optional()
+    taskId: z.int().optional()
 });
 
-export const zPurgeTaskHelperApiResponse = z.array(
-  z.object({
+export const zPurgeTaskHelperApiResponse = z.array(z.object({
     Purge: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zRebuildChunkCacheHelperApi = z.record(z.string(), z.unknown());
 
-export const zRebuildChunkCacheHelperApiResponse = z.array(
-  z.object({
+export const zRebuildChunkCacheHelperApiResponse = z.array(z.object({
     Rebuild: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zRecountFileLinesHelperApi = z.object({
-  fileId: z.int().optional()
+    fileId: z.int().optional()
 });
 
 export const zRescanGlobalFilesHelperApi = z.record(z.string(), z.unknown());
 
-export const zRescanGlobalFilesHelperApiResponse = z.array(
-  z.object({
+export const zRescanGlobalFilesHelperApiResponse = z.array(z.object({
     Rescan: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zResetChunkHelperApi = z.object({
-  chunkId: z.int().optional()
+    chunkId: z.int().optional()
 });
 
-export const zResetChunkHelperApiResponse = z.array(
-  z.object({
+export const zResetChunkHelperApiResponse = z.array(z.object({
     Reset: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zResetUserPasswordHelperApi = z.object({
-  email: z.string().optional(),
-  username: z.string().optional()
+    email: z.string().optional(),
+    username: z.string().optional()
 });
 
-export const zResetUserPasswordHelperApiResponse = z.array(
-  z.object({
+export const zResetUserPasswordHelperApiResponse = z.array(z.object({
     Reset: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zSearchHashesHelperApi = z.object({
-  searchData: z.string().optional(),
-  separator: z.string().optional(),
-  isSalted: z.boolean().optional()
+    searchData: z.string().optional(),
+    separator: z.string().optional(),
+    isSalted: z.boolean().optional()
 });
 
-export const zSearchHashesHelperApiResponse = z.array(
-  z.object({
+export const zSearchHashesHelperApiResponse = z.array(z.object({
     0: z.record(z.string(), z.unknown()).optional().default({ found: false, query: '12345678' }),
-    1: z
-      .record(z.string(), z.unknown())
-      .optional()
-      .default({
+    1: z.record(z.string(), z.unknown()).optional().default({
         found: true,
         query: '54321',
-        matches: [
-          {
-            type: 'hash',
-            id: 552,
-            attributes: {
-              hashlistId: 5,
-              hash: '7682543218768',
-              salt: '',
-              plaintext: '',
-              timeCracked: 0,
-              chunkId: null,
-              isCracked: false,
-              crackPos: 0
-            },
-            links: { self: '/api/v2/ui/hashes/552' },
-            relationships: {
-              chunk: {
-                links: { self: '/api/v2/ui/hashes/552/relationships/chunk', related: '/api/v2/ui/hashes/552/chunk' }
-              },
-              hashlist: {
-                links: {
-                  self: '/api/v2/ui/hashes/552/relationships/hashlist',
-                  related: '/api/v2/ui/hashes/552/hashlist'
-                }
-              }
-            }
-          },
-          {
-            type: 'hash',
-            id: 1,
-            attributes: {
-              hashlistId: 5,
-              hash: '54321768671',
-              salt: '',
-              plaintext: '',
-              timeCracked: 0,
-              chunkId: null,
-              isCracked: false,
-              crackPos: 0
-            },
-            links: { self: '/api/v2/ui/hashes/1' },
-            relationships: {
-              chunk: {
-                links: { self: '/api/v2/ui/hashes/1/relationships/chunk', related: '/api/v2/ui/hashes/1/chunk' }
-              },
-              hashlist: {
-                links: { self: '/api/v2/ui/hashes/1/relationships/hashlist', related: '/api/v2/ui/hashes/1/hashlist' }
-              }
-            }
-          }
-        ]
-      })
-  })
-);
+        matches: [{
+                type: 'hash',
+                id: 552,
+                attributes: {
+                    hashlistId: 5,
+                    hash: '7682543218768',
+                    salt: '',
+                    plaintext: '',
+                    timeCracked: 0,
+                    chunkId: null,
+                    isCracked: false,
+                    crackPos: 0
+                },
+                links: { self: '/api/v2/ui/hashes/552' },
+                relationships: { chunk: { links: { self: '/api/v2/ui/hashes/552/relationships/chunk', related: '/api/v2/ui/hashes/552/chunk' } }, hashlist: { links: { self: '/api/v2/ui/hashes/552/relationships/hashlist', related: '/api/v2/ui/hashes/552/hashlist' } } }
+            }, {
+                type: 'hash',
+                id: 1,
+                attributes: {
+                    hashlistId: 5,
+                    hash: '54321768671',
+                    salt: '',
+                    plaintext: '',
+                    timeCracked: 0,
+                    chunkId: null,
+                    isCracked: false,
+                    crackPos: 0
+                },
+                links: { self: '/api/v2/ui/hashes/1' },
+                relationships: { chunk: { links: { self: '/api/v2/ui/hashes/1/relationships/chunk', related: '/api/v2/ui/hashes/1/chunk' } }, hashlist: { links: { self: '/api/v2/ui/hashes/1/relationships/hashlist', related: '/api/v2/ui/hashes/1/hashlist' } } }
+            }]
+    })
+}));
 
 export const zSetUserPasswordHelperApi = z.object({
-  userId: z.int().optional(),
-  password: z.string().optional()
+    userId: z.int().optional(),
+    password: z.string().optional()
 });
 
-export const zSetUserPasswordHelperApiResponse = z.array(
-  z.object({
+export const zSetUserPasswordHelperApiResponse = z.array(z.object({
     'Set password': z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zUnassignAgentHelperApi = z.object({
-  agentId: z.int().optional()
+    agentId: z.int().optional()
 });
 
-export const zUnassignAgentHelperApiResponse = z.array(
-  z.object({
+export const zUnassignAgentHelperApiResponse = z.array(z.object({
     Unassign: z.string().optional().default('Success')
-  })
-);
+}));
 
 export const zToken = z.object({
-  token: z.string(),
-  expires: z.int()
+    token: z.string(),
+    expires: z.int()
 });
 
 export const zTokenRequest = z.array(z.string());
 
 export const zDeleteAccessgroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAccessgroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7394,15 +6826,15 @@ export const zGetAccessgroupsData = z.object({
 export const zGetAccessgroupsResponse = zAccessGroupListResponse;
 
 export const zPatchAccessgroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostAccessgroupsData = z.object({
-  body: zAccessGroupCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zAccessGroupCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -7411,29 +6843,15 @@ export const zPostAccessgroupsData = z.object({
 export const zPostAccessgroupsResponse = zAccessGroupPostPatchResponse;
 
 export const zGetAccessgroupsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7442,15 +6860,12 @@ export const zGetAccessgroupsCountData = z.object({
 export const zGetAccessgroupsCountResponse = zAccessGroupListResponse;
 
 export const zGetAccessgroupsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7459,12 +6874,12 @@ export const zGetAccessgroupsByIdByRelationData = z.object({
 export const zGetAccessgroupsByIdByRelationResponse = zAccessGroupRelationAgentMembersGetResponse;
 
 export const zDeleteAccessgroupsByIdRelationshipsByRelationData = z.object({
-  body: zAccessGroupRelationAgentMembers,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAccessGroupRelationAgentMembers,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7473,15 +6888,12 @@ export const zDeleteAccessgroupsByIdRelationshipsByRelationData = z.object({
 export const zDeleteAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetAccessgroupsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7490,12 +6902,12 @@ export const zGetAccessgroupsByIdRelationshipsByRelationData = z.object({
 export const zGetAccessgroupsByIdRelationshipsByRelationResponse = zAccessGroupResponse;
 
 export const zPatchAccessgroupsByIdRelationshipsByRelationData = z.object({
-  body: zAccessGroupRelationAgentMembers,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAccessGroupRelationAgentMembers,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7504,12 +6916,12 @@ export const zPatchAccessgroupsByIdRelationshipsByRelationData = z.object({
 export const zPatchAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostAccessgroupsByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7518,11 +6930,11 @@ export const zPostAccessgroupsByIdRelationshipsByRelationData = z.object({
 export const zPostAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteAccessgroupsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7531,18 +6943,13 @@ export const zDeleteAccessgroupsByIdData = z.object({
 export const zDeleteAccessgroupsByIdResponse = z.void();
 
 export const zGetAccessgroupsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7551,11 +6958,11 @@ export const zGetAccessgroupsByIdData = z.object({
 export const zGetAccessgroupsByIdResponse = zAccessGroupResponse;
 
 export const zPatchAccessgroupsByIdData = z.object({
-  body: zAccessGroupPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zAccessGroupPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7564,35 +6971,21 @@ export const zPatchAccessgroupsByIdData = z.object({
 export const zPatchAccessgroupsByIdResponse = zAccessGroupPostPatchResponse;
 
 export const zDeleteAgentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7601,35 +6994,21 @@ export const zGetAgentsData = z.object({
 export const zGetAgentsResponse = zAgentListResponse;
 
 export const zPatchAgentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgentsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7638,15 +7017,12 @@ export const zGetAgentsCountData = z.object({
 export const zGetAgentsCountResponse = zAgentListResponse;
 
 export const zGetAgentsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7655,12 +7031,12 @@ export const zGetAgentsByIdByRelationData = z.object({
 export const zGetAgentsByIdByRelationResponse = zAgentRelationAssignmentsGetResponse;
 
 export const zDeleteAgentsByIdRelationshipsByRelationData = z.object({
-  body: zAgentRelationAssignments,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAgentRelationAssignments,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7669,15 +7045,12 @@ export const zDeleteAgentsByIdRelationshipsByRelationData = z.object({
 export const zDeleteAgentsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetAgentsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7686,12 +7059,12 @@ export const zGetAgentsByIdRelationshipsByRelationData = z.object({
 export const zGetAgentsByIdRelationshipsByRelationResponse = zAgentResponse;
 
 export const zPatchAgentsByIdRelationshipsByRelationData = z.object({
-  body: zAgentRelationAssignments,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAgentRelationAssignments,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7700,12 +7073,12 @@ export const zPatchAgentsByIdRelationshipsByRelationData = z.object({
 export const zPatchAgentsByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostAgentsByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7714,11 +7087,11 @@ export const zPostAgentsByIdRelationshipsByRelationData = z.object({
 export const zPostAgentsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteAgentsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7727,18 +7100,13 @@ export const zDeleteAgentsByIdData = z.object({
 export const zDeleteAgentsByIdResponse = z.void();
 
 export const zGetAgentsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7747,11 +7115,11 @@ export const zGetAgentsByIdData = z.object({
 export const zGetAgentsByIdResponse = zAgentResponse;
 
 export const zPatchAgentsByIdData = z.object({
-  body: zAgentPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zAgentPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7760,35 +7128,21 @@ export const zPatchAgentsByIdData = z.object({
 export const zPatchAgentsByIdResponse = zAgentPostPatchResponse;
 
 export const zDeleteAgentassignmentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgentassignmentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7797,15 +7151,15 @@ export const zGetAgentassignmentsData = z.object({
 export const zGetAgentassignmentsResponse = zAgentAssignmentListResponse;
 
 export const zPatchAgentassignmentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostAgentassignmentsData = z.object({
-  body: zAgentAssignmentCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zAgentAssignmentCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -7814,29 +7168,15 @@ export const zPostAgentassignmentsData = z.object({
 export const zPostAgentassignmentsResponse = zAgentAssignmentPostPatchResponse;
 
 export const zGetAgentassignmentsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7845,15 +7185,12 @@ export const zGetAgentassignmentsCountData = z.object({
 export const zGetAgentassignmentsCountResponse = zAgentAssignmentListResponse;
 
 export const zGetAgentassignmentsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7862,15 +7199,12 @@ export const zGetAgentassignmentsByIdByRelationData = z.object({
 export const zGetAgentassignmentsByIdByRelationResponse = zAgentAssignmentRelationTaskGetResponse;
 
 export const zGetAgentassignmentsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7879,12 +7213,12 @@ export const zGetAgentassignmentsByIdRelationshipsByRelationData = z.object({
 export const zGetAgentassignmentsByIdRelationshipsByRelationResponse = zAgentAssignmentResponse;
 
 export const zPatchAgentassignmentsByIdRelationshipsByRelationData = z.object({
-  body: zAgentAssignmentRelationTask,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAgentAssignmentRelationTask,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7893,11 +7227,11 @@ export const zPatchAgentassignmentsByIdRelationshipsByRelationData = z.object({
 export const zPatchAgentassignmentsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteAgentassignmentsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7906,18 +7240,13 @@ export const zDeleteAgentassignmentsByIdData = z.object({
 export const zDeleteAgentassignmentsByIdResponse = z.void();
 
 export const zGetAgentassignmentsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7926,11 +7255,11 @@ export const zGetAgentassignmentsByIdData = z.object({
 export const zGetAgentassignmentsByIdResponse = zAgentAssignmentResponse;
 
 export const zPatchAgentassignmentsByIdData = z.object({
-  body: zAgentAssignmentPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zAgentAssignmentPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -7939,35 +7268,21 @@ export const zPatchAgentassignmentsByIdData = z.object({
 export const zPatchAgentassignmentsByIdResponse = zAgentAssignmentPostPatchResponse;
 
 export const zDeleteAgentbinariesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgentbinariesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -7976,15 +7291,15 @@ export const zGetAgentbinariesData = z.object({
 export const zGetAgentbinariesResponse = zAgentBinaryListResponse;
 
 export const zPatchAgentbinariesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostAgentbinariesData = z.object({
-  body: zAgentBinaryCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zAgentBinaryCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -7993,29 +7308,15 @@ export const zPostAgentbinariesData = z.object({
 export const zPostAgentbinariesResponse = zAgentBinaryPostPatchResponse;
 
 export const zGetAgentbinariesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8024,11 +7325,11 @@ export const zGetAgentbinariesCountData = z.object({
 export const zGetAgentbinariesCountResponse = zAgentBinaryListResponse;
 
 export const zDeleteAgentbinariesByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8037,18 +7338,13 @@ export const zDeleteAgentbinariesByIdData = z.object({
 export const zDeleteAgentbinariesByIdResponse = z.void();
 
 export const zGetAgentbinariesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8057,11 +7353,11 @@ export const zGetAgentbinariesByIdData = z.object({
 export const zGetAgentbinariesByIdResponse = zAgentBinaryResponse;
 
 export const zPatchAgentbinariesByIdData = z.object({
-  body: zAgentBinaryPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zAgentBinaryPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8070,35 +7366,21 @@ export const zPatchAgentbinariesByIdData = z.object({
 export const zPatchAgentbinariesByIdResponse = zAgentBinaryPostPatchResponse;
 
 export const zDeleteAgenterrorsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgenterrorsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8107,29 +7389,15 @@ export const zGetAgenterrorsData = z.object({
 export const zGetAgenterrorsResponse = zAgentErrorListResponse;
 
 export const zGetAgenterrorsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8138,15 +7406,12 @@ export const zGetAgenterrorsCountData = z.object({
 export const zGetAgenterrorsCountResponse = zAgentErrorListResponse;
 
 export const zGetAgenterrorsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8155,15 +7420,12 @@ export const zGetAgenterrorsByIdByRelationData = z.object({
 export const zGetAgenterrorsByIdByRelationResponse = zAgentErrorRelationTaskGetResponse;
 
 export const zGetAgenterrorsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8172,12 +7434,12 @@ export const zGetAgenterrorsByIdRelationshipsByRelationData = z.object({
 export const zGetAgenterrorsByIdRelationshipsByRelationResponse = zAgentErrorResponse;
 
 export const zPatchAgenterrorsByIdRelationshipsByRelationData = z.object({
-  body: zAgentErrorRelationTask,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zAgentErrorRelationTask,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8186,11 +7448,11 @@ export const zPatchAgenterrorsByIdRelationshipsByRelationData = z.object({
 export const zPatchAgenterrorsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteAgenterrorsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8199,18 +7461,13 @@ export const zDeleteAgenterrorsByIdData = z.object({
 export const zDeleteAgenterrorsByIdResponse = z.void();
 
 export const zGetAgenterrorsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8219,35 +7476,21 @@ export const zGetAgenterrorsByIdData = z.object({
 export const zGetAgenterrorsByIdResponse = zAgentErrorResponse;
 
 export const zDeleteAgentstatsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetAgentstatsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8256,29 +7499,15 @@ export const zGetAgentstatsData = z.object({
 export const zGetAgentstatsResponse = zAgentStatListResponse;
 
 export const zGetAgentstatsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8287,11 +7516,11 @@ export const zGetAgentstatsCountData = z.object({
 export const zGetAgentstatsCountResponse = zAgentStatListResponse;
 
 export const zDeleteAgentstatsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8300,18 +7529,13 @@ export const zDeleteAgentstatsByIdData = z.object({
 export const zDeleteAgentstatsByIdResponse = z.void();
 
 export const zGetAgentstatsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8320,35 +7544,21 @@ export const zGetAgentstatsByIdData = z.object({
 export const zGetAgentstatsByIdResponse = zAgentStatResponse;
 
 export const zDeleteApiTokensData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetApiTokensData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8357,15 +7567,15 @@ export const zGetApiTokensData = z.object({
 export const zGetApiTokensResponse = zApiTokenListResponse;
 
 export const zPatchApiTokensData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostApiTokensData = z.object({
-  body: zApiTokenCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zApiTokenCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -8374,29 +7584,15 @@ export const zPostApiTokensData = z.object({
 export const zPostApiTokensResponse = zApiTokenPostPatchResponse;
 
 export const zGetApiTokensCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8405,15 +7601,12 @@ export const zGetApiTokensCountData = z.object({
 export const zGetApiTokensCountResponse = zApiTokenListResponse;
 
 export const zGetApiTokensByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8422,15 +7615,12 @@ export const zGetApiTokensByIdByRelationData = z.object({
 export const zGetApiTokensByIdByRelationResponse = zApiTokenRelationUserGetResponse;
 
 export const zGetApiTokensByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8439,12 +7629,12 @@ export const zGetApiTokensByIdRelationshipsByRelationData = z.object({
 export const zGetApiTokensByIdRelationshipsByRelationResponse = zApiTokenResponse;
 
 export const zPatchApiTokensByIdRelationshipsByRelationData = z.object({
-  body: zApiTokenRelationUser,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zApiTokenRelationUser,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8453,11 +7643,11 @@ export const zPatchApiTokensByIdRelationshipsByRelationData = z.object({
 export const zPatchApiTokensByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteApiTokensByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8466,18 +7656,13 @@ export const zDeleteApiTokensByIdData = z.object({
 export const zDeleteApiTokensByIdResponse = z.void();
 
 export const zGetApiTokensByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8486,11 +7671,11 @@ export const zGetApiTokensByIdData = z.object({
 export const zGetApiTokensByIdResponse = zApiTokenResponse;
 
 export const zPatchApiTokensByIdData = z.object({
-  body: zApiTokenPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zApiTokenPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8499,29 +7684,15 @@ export const zPatchApiTokensByIdData = z.object({
 export const zPatchApiTokensByIdResponse = zApiTokenPostPatchResponse;
 
 export const zGetChunksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8530,29 +7701,15 @@ export const zGetChunksData = z.object({
 export const zGetChunksResponse = zChunkListResponse;
 
 export const zGetChunksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8561,15 +7718,12 @@ export const zGetChunksCountData = z.object({
 export const zGetChunksCountResponse = zChunkListResponse;
 
 export const zGetChunksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8578,15 +7732,12 @@ export const zGetChunksByIdByRelationData = z.object({
 export const zGetChunksByIdByRelationResponse = zChunkRelationTaskGetResponse;
 
 export const zGetChunksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8595,12 +7746,12 @@ export const zGetChunksByIdRelationshipsByRelationData = z.object({
 export const zGetChunksByIdRelationshipsByRelationResponse = zChunkResponse;
 
 export const zPatchChunksByIdRelationshipsByRelationData = z.object({
-  body: zChunkRelationTask,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zChunkRelationTask,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8609,18 +7760,13 @@ export const zPatchChunksByIdRelationshipsByRelationData = z.object({
 export const zPatchChunksByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetChunksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8629,29 +7775,15 @@ export const zGetChunksByIdData = z.object({
 export const zGetChunksByIdResponse = zChunkResponse;
 
 export const zGetConfigsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8660,35 +7792,21 @@ export const zGetConfigsData = z.object({
 export const zGetConfigsResponse = zConfigListResponse;
 
 export const zPatchConfigsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetConfigsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8697,15 +7815,12 @@ export const zGetConfigsCountData = z.object({
 export const zGetConfigsCountResponse = zConfigListResponse;
 
 export const zGetConfigsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8714,15 +7829,12 @@ export const zGetConfigsByIdByRelationData = z.object({
 export const zGetConfigsByIdByRelationResponse = zConfigRelationConfigSectionGetResponse;
 
 export const zGetConfigsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8731,12 +7843,12 @@ export const zGetConfigsByIdRelationshipsByRelationData = z.object({
 export const zGetConfigsByIdRelationshipsByRelationResponse = zConfigResponse;
 
 export const zPatchConfigsByIdRelationshipsByRelationData = z.object({
-  body: zConfigRelationConfigSection,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zConfigRelationConfigSection,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8745,18 +7857,13 @@ export const zPatchConfigsByIdRelationshipsByRelationData = z.object({
 export const zPatchConfigsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetConfigsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8765,11 +7872,11 @@ export const zGetConfigsByIdData = z.object({
 export const zGetConfigsByIdResponse = zConfigResponse;
 
 export const zPatchConfigsByIdData = z.object({
-  body: zConfigPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zConfigPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8778,29 +7885,15 @@ export const zPatchConfigsByIdData = z.object({
 export const zPatchConfigsByIdResponse = zConfigPostPatchResponse;
 
 export const zGetConfigsectionsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8809,29 +7902,15 @@ export const zGetConfigsectionsData = z.object({
 export const zGetConfigsectionsResponse = zConfigSectionListResponse;
 
 export const zGetConfigsectionsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8840,18 +7919,13 @@ export const zGetConfigsectionsCountData = z.object({
 export const zGetConfigsectionsCountResponse = zConfigSectionListResponse;
 
 export const zGetConfigsectionsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8860,35 +7934,21 @@ export const zGetConfigsectionsByIdData = z.object({
 export const zGetConfigsectionsByIdResponse = zConfigSectionResponse;
 
 export const zDeleteCrackersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetCrackersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8897,15 +7957,15 @@ export const zGetCrackersData = z.object({
 export const zGetCrackersResponse = zCrackerBinaryListResponse;
 
 export const zPatchCrackersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostCrackersData = z.object({
-  body: zCrackerBinaryCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zCrackerBinaryCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -8914,29 +7974,15 @@ export const zPostCrackersData = z.object({
 export const zPostCrackersResponse = zCrackerBinaryPostPatchResponse;
 
 export const zGetCrackersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -8945,15 +7991,12 @@ export const zGetCrackersCountData = z.object({
 export const zGetCrackersCountResponse = zCrackerBinaryListResponse;
 
 export const zGetCrackersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8962,12 +8005,12 @@ export const zGetCrackersByIdByRelationData = z.object({
 export const zGetCrackersByIdByRelationResponse = zCrackerBinaryRelationTasksGetResponse;
 
 export const zDeleteCrackersByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8976,15 +8019,12 @@ export const zDeleteCrackersByIdRelationshipsByRelationData = z.object({
 export const zDeleteCrackersByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetCrackersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -8993,12 +8033,12 @@ export const zGetCrackersByIdRelationshipsByRelationData = z.object({
 export const zGetCrackersByIdRelationshipsByRelationResponse = zCrackerBinaryResponse;
 
 export const zPatchCrackersByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9007,12 +8047,12 @@ export const zPatchCrackersByIdRelationshipsByRelationData = z.object({
 export const zPatchCrackersByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostCrackersByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9021,11 +8061,11 @@ export const zPostCrackersByIdRelationshipsByRelationData = z.object({
 export const zPostCrackersByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteCrackersByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9034,18 +8074,13 @@ export const zDeleteCrackersByIdData = z.object({
 export const zDeleteCrackersByIdResponse = z.void();
 
 export const zGetCrackersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9054,11 +8089,11 @@ export const zGetCrackersByIdData = z.object({
 export const zGetCrackersByIdResponse = zCrackerBinaryResponse;
 
 export const zPatchCrackersByIdData = z.object({
-  body: zCrackerBinaryPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9067,35 +8102,21 @@ export const zPatchCrackersByIdData = z.object({
 export const zPatchCrackersByIdResponse = zCrackerBinaryPostPatchResponse;
 
 export const zDeleteCrackertypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetCrackertypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9104,15 +8125,15 @@ export const zGetCrackertypesData = z.object({
 export const zGetCrackertypesResponse = zCrackerBinaryTypeListResponse;
 
 export const zPatchCrackertypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostCrackertypesData = z.object({
-  body: zCrackerBinaryTypeCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zCrackerBinaryTypeCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -9121,29 +8142,15 @@ export const zPostCrackertypesData = z.object({
 export const zPostCrackertypesResponse = zCrackerBinaryTypePostPatchResponse;
 
 export const zGetCrackertypesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9152,15 +8159,12 @@ export const zGetCrackertypesCountData = z.object({
 export const zGetCrackertypesCountResponse = zCrackerBinaryTypeListResponse;
 
 export const zGetCrackertypesByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9169,12 +8173,12 @@ export const zGetCrackertypesByIdByRelationData = z.object({
 export const zGetCrackertypesByIdByRelationResponse = zCrackerBinaryTypeRelationTasksGetResponse;
 
 export const zDeleteCrackertypesByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryTypeRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryTypeRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9183,15 +8187,12 @@ export const zDeleteCrackertypesByIdRelationshipsByRelationData = z.object({
 export const zDeleteCrackertypesByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetCrackertypesByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9200,12 +8201,12 @@ export const zGetCrackertypesByIdRelationshipsByRelationData = z.object({
 export const zGetCrackertypesByIdRelationshipsByRelationResponse = zCrackerBinaryTypeResponse;
 
 export const zPatchCrackertypesByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryTypeRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryTypeRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9214,12 +8215,12 @@ export const zPatchCrackertypesByIdRelationshipsByRelationData = z.object({
 export const zPatchCrackertypesByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostCrackertypesByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9228,11 +8229,11 @@ export const zPostCrackertypesByIdRelationshipsByRelationData = z.object({
 export const zPostCrackertypesByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteCrackertypesByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9241,18 +8242,13 @@ export const zDeleteCrackertypesByIdData = z.object({
 export const zDeleteCrackertypesByIdResponse = z.void();
 
 export const zGetCrackertypesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9261,11 +8257,11 @@ export const zGetCrackertypesByIdData = z.object({
 export const zGetCrackertypesByIdResponse = zCrackerBinaryTypeResponse;
 
 export const zPatchCrackertypesByIdData = z.object({
-  body: zCrackerBinaryTypePatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zCrackerBinaryTypePatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9274,35 +8270,21 @@ export const zPatchCrackertypesByIdData = z.object({
 export const zPatchCrackertypesByIdResponse = zCrackerBinaryTypePostPatchResponse;
 
 export const zDeleteFilesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetFilesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9311,15 +8293,15 @@ export const zGetFilesData = z.object({
 export const zGetFilesResponse = zFileListResponse;
 
 export const zPatchFilesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostFilesData = z.object({
-  body: zFileCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zFileCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -9328,29 +8310,15 @@ export const zPostFilesData = z.object({
 export const zPostFilesResponse = zFilePostPatchResponse;
 
 export const zGetFilesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9359,15 +8327,12 @@ export const zGetFilesCountData = z.object({
 export const zGetFilesCountResponse = zFileListResponse;
 
 export const zGetFilesByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9376,15 +8341,12 @@ export const zGetFilesByIdByRelationData = z.object({
 export const zGetFilesByIdByRelationResponse = zFileRelationAccessGroupGetResponse;
 
 export const zGetFilesByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9393,12 +8355,12 @@ export const zGetFilesByIdRelationshipsByRelationData = z.object({
 export const zGetFilesByIdRelationshipsByRelationResponse = zFileResponse;
 
 export const zPatchFilesByIdRelationshipsByRelationData = z.object({
-  body: zFileRelationAccessGroup,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zFileRelationAccessGroup,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9407,11 +8369,11 @@ export const zPatchFilesByIdRelationshipsByRelationData = z.object({
 export const zPatchFilesByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteFilesByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9420,18 +8382,13 @@ export const zDeleteFilesByIdData = z.object({
 export const zDeleteFilesByIdResponse = z.void();
 
 export const zGetFilesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9440,11 +8397,11 @@ export const zGetFilesByIdData = z.object({
 export const zGetFilesByIdResponse = zFileResponse;
 
 export const zPatchFilesByIdData = z.object({
-  body: zFilePatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zFilePatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9453,35 +8410,21 @@ export const zPatchFilesByIdData = z.object({
 export const zPatchFilesByIdResponse = zFilePostPatchResponse;
 
 export const zDeleteGlobalpermissiongroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetGlobalpermissiongroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9490,15 +8433,15 @@ export const zGetGlobalpermissiongroupsData = z.object({
 export const zGetGlobalpermissiongroupsResponse = zGlobalPermissionGroupListResponse;
 
 export const zPatchGlobalpermissiongroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostGlobalpermissiongroupsData = z.object({
-  body: zGlobalPermissionGroupCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zGlobalPermissionGroupCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -9507,29 +8450,15 @@ export const zPostGlobalpermissiongroupsData = z.object({
 export const zPostGlobalpermissiongroupsResponse = zGlobalPermissionGroupPostPatchResponse;
 
 export const zGetGlobalpermissiongroupsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9538,15 +8467,12 @@ export const zGetGlobalpermissiongroupsCountData = z.object({
 export const zGetGlobalpermissiongroupsCountResponse = zGlobalPermissionGroupListResponse;
 
 export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9555,12 +8481,12 @@ export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
 export const zGetGlobalpermissiongroupsByIdByRelationResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
 
 export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-  body: zGlobalPermissionGroupRelationUserMembers,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zGlobalPermissionGroupRelationUserMembers,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9569,15 +8495,12 @@ export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationData = z.ob
 export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9586,12 +8509,12 @@ export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationData = z.objec
 export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = zGlobalPermissionGroupResponse;
 
 export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-  body: zGlobalPermissionGroupRelationUserMembers,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zGlobalPermissionGroupRelationUserMembers,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9600,12 +8523,12 @@ export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationData = z.obj
 export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9614,11 +8537,11 @@ export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationData = z.obje
 export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteGlobalpermissiongroupsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9627,18 +8550,13 @@ export const zDeleteGlobalpermissiongroupsByIdData = z.object({
 export const zDeleteGlobalpermissiongroupsByIdResponse = z.void();
 
 export const zGetGlobalpermissiongroupsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9647,11 +8565,11 @@ export const zGetGlobalpermissiongroupsByIdData = z.object({
 export const zGetGlobalpermissiongroupsByIdResponse = zGlobalPermissionGroupResponse;
 
 export const zPatchGlobalpermissiongroupsByIdData = z.object({
-  body: zGlobalPermissionGroupPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zGlobalPermissionGroupPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9660,29 +8578,15 @@ export const zPatchGlobalpermissiongroupsByIdData = z.object({
 export const zPatchGlobalpermissiongroupsByIdResponse = zGlobalPermissionGroupPostPatchResponse;
 
 export const zGetHashesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9691,29 +8595,15 @@ export const zGetHashesData = z.object({
 export const zGetHashesResponse = zHashListResponse;
 
 export const zGetHashesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9722,15 +8612,12 @@ export const zGetHashesCountData = z.object({
 export const zGetHashesCountResponse = zHashListResponse;
 
 export const zGetHashesByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9739,15 +8626,12 @@ export const zGetHashesByIdByRelationData = z.object({
 export const zGetHashesByIdByRelationResponse = zHashRelationHashlistGetResponse;
 
 export const zGetHashesByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9756,12 +8640,12 @@ export const zGetHashesByIdRelationshipsByRelationData = z.object({
 export const zGetHashesByIdRelationshipsByRelationResponse = zHashResponse;
 
 export const zPatchHashesByIdRelationshipsByRelationData = z.object({
-  body: zHashRelationHashlist,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHashRelationHashlist,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9770,18 +8654,13 @@ export const zPatchHashesByIdRelationshipsByRelationData = z.object({
 export const zPatchHashesByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetHashesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9790,35 +8669,21 @@ export const zGetHashesByIdData = z.object({
 export const zGetHashesByIdResponse = zHashResponse;
 
 export const zDeleteHashlistsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetHashlistsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9827,15 +8692,15 @@ export const zGetHashlistsData = z.object({
 export const zGetHashlistsResponse = zHashlistListResponse;
 
 export const zPatchHashlistsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostHashlistsData = z.object({
-  body: zHashlistCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zHashlistCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -9844,29 +8709,15 @@ export const zPostHashlistsData = z.object({
 export const zPostHashlistsResponse = zHashlistPostPatchResponse;
 
 export const zGetHashlistsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9875,15 +8726,12 @@ export const zGetHashlistsCountData = z.object({
 export const zGetHashlistsCountResponse = zHashlistListResponse;
 
 export const zGetHashlistsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9892,12 +8740,12 @@ export const zGetHashlistsByIdByRelationData = z.object({
 export const zGetHashlistsByIdByRelationResponse = zHashlistRelationTasksGetResponse;
 
 export const zDeleteHashlistsByIdRelationshipsByRelationData = z.object({
-  body: zHashlistRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHashlistRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9906,15 +8754,12 @@ export const zDeleteHashlistsByIdRelationshipsByRelationData = z.object({
 export const zDeleteHashlistsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetHashlistsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9923,12 +8768,12 @@ export const zGetHashlistsByIdRelationshipsByRelationData = z.object({
 export const zGetHashlistsByIdRelationshipsByRelationResponse = zHashlistResponse;
 
 export const zPatchHashlistsByIdRelationshipsByRelationData = z.object({
-  body: zHashlistRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHashlistRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9937,12 +8782,12 @@ export const zPatchHashlistsByIdRelationshipsByRelationData = z.object({
 export const zPatchHashlistsByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostHashlistsByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9951,11 +8796,11 @@ export const zPostHashlistsByIdRelationshipsByRelationData = z.object({
 export const zPostHashlistsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteHashlistsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9964,18 +8809,13 @@ export const zDeleteHashlistsByIdData = z.object({
 export const zDeleteHashlistsByIdResponse = z.void();
 
 export const zGetHashlistsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -9984,11 +8824,11 @@ export const zGetHashlistsByIdData = z.object({
 export const zGetHashlistsByIdResponse = zHashlistResponse;
 
 export const zPatchHashlistsByIdData = z.object({
-  body: zHashlistPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zHashlistPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -9997,35 +8837,21 @@ export const zPatchHashlistsByIdData = z.object({
 export const zPatchHashlistsByIdResponse = zHashlistPostPatchResponse;
 
 export const zDeleteHashtypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetHashtypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10034,15 +8860,15 @@ export const zGetHashtypesData = z.object({
 export const zGetHashtypesResponse = zHashTypeListResponse;
 
 export const zPatchHashtypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostHashtypesData = z.object({
-  body: zHashTypeCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zHashTypeCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10051,29 +8877,15 @@ export const zPostHashtypesData = z.object({
 export const zPostHashtypesResponse = zHashTypePostPatchResponse;
 
 export const zGetHashtypesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10082,11 +8894,11 @@ export const zGetHashtypesCountData = z.object({
 export const zGetHashtypesCountResponse = zHashTypeListResponse;
 
 export const zDeleteHashtypesByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10095,18 +8907,13 @@ export const zDeleteHashtypesByIdData = z.object({
 export const zDeleteHashtypesByIdResponse = z.void();
 
 export const zGetHashtypesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10115,11 +8922,11 @@ export const zGetHashtypesByIdData = z.object({
 export const zGetHashtypesByIdResponse = zHashTypeResponse;
 
 export const zPatchHashtypesByIdData = z.object({
-  body: zHashTypePatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zHashTypePatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10128,29 +8935,15 @@ export const zPatchHashtypesByIdData = z.object({
 export const zPatchHashtypesByIdResponse = zHashTypePostPatchResponse;
 
 export const zGetHealthcheckagentsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10159,29 +8952,15 @@ export const zGetHealthcheckagentsData = z.object({
 export const zGetHealthcheckagentsResponse = zHealthCheckAgentListResponse;
 
 export const zGetHealthcheckagentsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10190,15 +8969,12 @@ export const zGetHealthcheckagentsCountData = z.object({
 export const zGetHealthcheckagentsCountResponse = zHealthCheckAgentListResponse;
 
 export const zGetHealthcheckagentsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10207,15 +8983,12 @@ export const zGetHealthcheckagentsByIdByRelationData = z.object({
 export const zGetHealthcheckagentsByIdByRelationResponse = zHealthCheckAgentRelationHealthCheckGetResponse;
 
 export const zGetHealthcheckagentsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10224,12 +8997,12 @@ export const zGetHealthcheckagentsByIdRelationshipsByRelationData = z.object({
 export const zGetHealthcheckagentsByIdRelationshipsByRelationResponse = zHealthCheckAgentResponse;
 
 export const zPatchHealthcheckagentsByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckAgentRelationHealthCheck,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHealthCheckAgentRelationHealthCheck,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10238,18 +9011,13 @@ export const zPatchHealthcheckagentsByIdRelationshipsByRelationData = z.object({
 export const zPatchHealthcheckagentsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetHealthcheckagentsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10258,35 +9026,21 @@ export const zGetHealthcheckagentsByIdData = z.object({
 export const zGetHealthcheckagentsByIdResponse = zHealthCheckAgentResponse;
 
 export const zDeleteHealthchecksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetHealthchecksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10295,15 +9049,15 @@ export const zGetHealthchecksData = z.object({
 export const zGetHealthchecksResponse = zHealthCheckListResponse;
 
 export const zPatchHealthchecksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostHealthchecksData = z.object({
-  body: zHealthCheckCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zHealthCheckCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10312,29 +9066,15 @@ export const zPostHealthchecksData = z.object({
 export const zPostHealthchecksResponse = zHealthCheckPostPatchResponse;
 
 export const zGetHealthchecksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10343,15 +9083,12 @@ export const zGetHealthchecksCountData = z.object({
 export const zGetHealthchecksCountResponse = zHealthCheckListResponse;
 
 export const zGetHealthchecksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10360,12 +9097,12 @@ export const zGetHealthchecksByIdByRelationData = z.object({
 export const zGetHealthchecksByIdByRelationResponse = zHealthCheckRelationHealthCheckAgentsGetResponse;
 
 export const zDeleteHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckRelationHealthCheckAgents,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHealthCheckRelationHealthCheckAgents,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10374,15 +9111,12 @@ export const zDeleteHealthchecksByIdRelationshipsByRelationData = z.object({
 export const zDeleteHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10391,12 +9125,12 @@ export const zGetHealthchecksByIdRelationshipsByRelationData = z.object({
 export const zGetHealthchecksByIdRelationshipsByRelationResponse = zHealthCheckResponse;
 
 export const zPatchHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckRelationHealthCheckAgents,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zHealthCheckRelationHealthCheckAgents,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10405,12 +9139,12 @@ export const zPatchHealthchecksByIdRelationshipsByRelationData = z.object({
 export const zPatchHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10419,11 +9153,11 @@ export const zPostHealthchecksByIdRelationshipsByRelationData = z.object({
 export const zPostHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteHealthchecksByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10432,18 +9166,13 @@ export const zDeleteHealthchecksByIdData = z.object({
 export const zDeleteHealthchecksByIdResponse = z.void();
 
 export const zGetHealthchecksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10452,11 +9181,11 @@ export const zGetHealthchecksByIdData = z.object({
 export const zGetHealthchecksByIdResponse = zHealthCheckResponse;
 
 export const zPatchHealthchecksByIdData = z.object({
-  body: zHealthCheckPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zHealthCheckPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10465,35 +9194,21 @@ export const zPatchHealthchecksByIdData = z.object({
 export const zPatchHealthchecksByIdResponse = zHealthCheckPostPatchResponse;
 
 export const zDeleteLogentriesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetLogentriesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10502,15 +9217,15 @@ export const zGetLogentriesData = z.object({
 export const zGetLogentriesResponse = zLogEntryListResponse;
 
 export const zPatchLogentriesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostLogentriesData = z.object({
-  body: zLogEntryCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zLogEntryCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10519,29 +9234,15 @@ export const zPostLogentriesData = z.object({
 export const zPostLogentriesResponse = zLogEntryPostPatchResponse;
 
 export const zGetLogentriesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10550,11 +9251,11 @@ export const zGetLogentriesCountData = z.object({
 export const zGetLogentriesCountResponse = zLogEntryListResponse;
 
 export const zDeleteLogentriesByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10563,18 +9264,13 @@ export const zDeleteLogentriesByIdData = z.object({
 export const zDeleteLogentriesByIdResponse = z.void();
 
 export const zGetLogentriesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10583,11 +9279,11 @@ export const zGetLogentriesByIdData = z.object({
 export const zGetLogentriesByIdResponse = zLogEntryResponse;
 
 export const zPatchLogentriesByIdData = z.object({
-  body: zLogEntryPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zLogEntryPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10596,35 +9292,21 @@ export const zPatchLogentriesByIdData = z.object({
 export const zPatchLogentriesByIdResponse = zLogEntryPostPatchResponse;
 
 export const zDeleteNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10633,15 +9315,15 @@ export const zGetNotificationsData = z.object({
 export const zGetNotificationsResponse = zNotificationSettingListResponse;
 
 export const zPatchNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostNotificationsData = z.object({
-  body: zNotificationSettingCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zNotificationSettingCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10650,29 +9332,15 @@ export const zPostNotificationsData = z.object({
 export const zPostNotificationsResponse = zNotificationSettingPostPatchResponse;
 
 export const zGetNotificationsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10681,15 +9349,12 @@ export const zGetNotificationsCountData = z.object({
 export const zGetNotificationsCountResponse = zNotificationSettingListResponse;
 
 export const zGetNotificationsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10698,15 +9363,12 @@ export const zGetNotificationsByIdByRelationData = z.object({
 export const zGetNotificationsByIdByRelationResponse = zNotificationSettingRelationUserGetResponse;
 
 export const zGetNotificationsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10715,12 +9377,12 @@ export const zGetNotificationsByIdRelationshipsByRelationData = z.object({
 export const zGetNotificationsByIdRelationshipsByRelationResponse = zNotificationSettingResponse;
 
 export const zPatchNotificationsByIdRelationshipsByRelationData = z.object({
-  body: zNotificationSettingRelationUser,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zNotificationSettingRelationUser,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10729,11 +9391,11 @@ export const zPatchNotificationsByIdRelationshipsByRelationData = z.object({
 export const zPatchNotificationsByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteNotificationsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10742,18 +9404,13 @@ export const zDeleteNotificationsByIdData = z.object({
 export const zDeleteNotificationsByIdResponse = z.void();
 
 export const zGetNotificationsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10762,11 +9419,11 @@ export const zGetNotificationsByIdData = z.object({
 export const zGetNotificationsByIdResponse = zNotificationSettingResponse;
 
 export const zPatchNotificationsByIdData = z.object({
-  body: zNotificationSettingPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zNotificationSettingPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10775,35 +9432,21 @@ export const zPatchNotificationsByIdData = z.object({
 export const zPatchNotificationsByIdResponse = zNotificationSettingPostPatchResponse;
 
 export const zDeletePreprocessorsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetPreprocessorsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10812,15 +9455,15 @@ export const zGetPreprocessorsData = z.object({
 export const zGetPreprocessorsResponse = zPreprocessorListResponse;
 
 export const zPatchPreprocessorsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostPreprocessorsData = z.object({
-  body: zPreprocessorCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zPreprocessorCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10829,29 +9472,15 @@ export const zPostPreprocessorsData = z.object({
 export const zPostPreprocessorsResponse = zPreprocessorPostPatchResponse;
 
 export const zGetPreprocessorsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10860,11 +9489,11 @@ export const zGetPreprocessorsCountData = z.object({
 export const zGetPreprocessorsCountResponse = zPreprocessorListResponse;
 
 export const zDeletePreprocessorsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10873,18 +9502,13 @@ export const zDeletePreprocessorsByIdData = z.object({
 export const zDeletePreprocessorsByIdResponse = z.void();
 
 export const zGetPreprocessorsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10893,11 +9517,11 @@ export const zGetPreprocessorsByIdData = z.object({
 export const zGetPreprocessorsByIdResponse = zPreprocessorResponse;
 
 export const zPatchPreprocessorsByIdData = z.object({
-  body: zPreprocessorPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zPreprocessorPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -10906,35 +9530,21 @@ export const zPatchPreprocessorsByIdData = z.object({
 export const zPatchPreprocessorsByIdResponse = zPreprocessorPostPatchResponse;
 
 export const zDeletePretasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetPretasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10943,15 +9553,15 @@ export const zGetPretasksData = z.object({
 export const zGetPretasksResponse = zPreTaskListResponse;
 
 export const zPatchPretasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostPretasksData = z.object({
-  body: zPreTaskCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zPreTaskCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -10960,29 +9570,15 @@ export const zPostPretasksData = z.object({
 export const zPostPretasksResponse = zPreTaskPostPatchResponse;
 
 export const zGetPretasksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -10991,15 +9587,12 @@ export const zGetPretasksCountData = z.object({
 export const zGetPretasksCountResponse = zPreTaskListResponse;
 
 export const zGetPretasksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11008,12 +9601,12 @@ export const zGetPretasksByIdByRelationData = z.object({
 export const zGetPretasksByIdByRelationResponse = zPreTaskRelationPretaskFilesGetResponse;
 
 export const zDeletePretasksByIdRelationshipsByRelationData = z.object({
-  body: zPreTaskRelationPretaskFiles,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zPreTaskRelationPretaskFiles,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11022,15 +9615,12 @@ export const zDeletePretasksByIdRelationshipsByRelationData = z.object({
 export const zDeletePretasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetPretasksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11039,12 +9629,12 @@ export const zGetPretasksByIdRelationshipsByRelationData = z.object({
 export const zGetPretasksByIdRelationshipsByRelationResponse = zPreTaskResponse;
 
 export const zPatchPretasksByIdRelationshipsByRelationData = z.object({
-  body: zPreTaskRelationPretaskFiles,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zPreTaskRelationPretaskFiles,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11053,12 +9643,12 @@ export const zPatchPretasksByIdRelationshipsByRelationData = z.object({
 export const zPatchPretasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostPretasksByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11067,11 +9657,11 @@ export const zPostPretasksByIdRelationshipsByRelationData = z.object({
 export const zPostPretasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeletePretasksByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11080,18 +9670,13 @@ export const zDeletePretasksByIdData = z.object({
 export const zDeletePretasksByIdResponse = z.void();
 
 export const zGetPretasksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11100,11 +9685,11 @@ export const zGetPretasksByIdData = z.object({
 export const zGetPretasksByIdResponse = zPreTaskResponse;
 
 export const zPatchPretasksByIdData = z.object({
-  body: zPreTaskPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zPreTaskPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11113,29 +9698,15 @@ export const zPatchPretasksByIdData = z.object({
 export const zPatchPretasksByIdResponse = zPreTaskPostPatchResponse;
 
 export const zGetSpeedsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11144,29 +9715,15 @@ export const zGetSpeedsData = z.object({
 export const zGetSpeedsResponse = zSpeedListResponse;
 
 export const zGetSpeedsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11175,15 +9732,12 @@ export const zGetSpeedsCountData = z.object({
 export const zGetSpeedsCountResponse = zSpeedListResponse;
 
 export const zGetSpeedsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11192,15 +9746,12 @@ export const zGetSpeedsByIdByRelationData = z.object({
 export const zGetSpeedsByIdByRelationResponse = zSpeedRelationTaskGetResponse;
 
 export const zGetSpeedsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11209,12 +9760,12 @@ export const zGetSpeedsByIdRelationshipsByRelationData = z.object({
 export const zGetSpeedsByIdRelationshipsByRelationResponse = zSpeedResponse;
 
 export const zPatchSpeedsByIdRelationshipsByRelationData = z.object({
-  body: zSpeedRelationTask,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zSpeedRelationTask,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11223,18 +9774,13 @@ export const zPatchSpeedsByIdRelationshipsByRelationData = z.object({
 export const zPatchSpeedsByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetSpeedsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11243,35 +9789,21 @@ export const zGetSpeedsByIdData = z.object({
 export const zGetSpeedsByIdResponse = zSpeedResponse;
 
 export const zDeleteSupertasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetSupertasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11280,15 +9812,15 @@ export const zGetSupertasksData = z.object({
 export const zGetSupertasksResponse = zSupertaskListResponse;
 
 export const zPatchSupertasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostSupertasksData = z.object({
-  body: zSupertaskCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zSupertaskCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -11297,29 +9829,15 @@ export const zPostSupertasksData = z.object({
 export const zPostSupertasksResponse = zSupertaskPostPatchResponse;
 
 export const zGetSupertasksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11328,15 +9846,12 @@ export const zGetSupertasksCountData = z.object({
 export const zGetSupertasksCountResponse = zSupertaskListResponse;
 
 export const zGetSupertasksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11345,12 +9860,12 @@ export const zGetSupertasksByIdByRelationData = z.object({
 export const zGetSupertasksByIdByRelationResponse = zSupertaskRelationPretasksGetResponse;
 
 export const zDeleteSupertasksByIdRelationshipsByRelationData = z.object({
-  body: zSupertaskRelationPretasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zSupertaskRelationPretasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11359,15 +9874,12 @@ export const zDeleteSupertasksByIdRelationshipsByRelationData = z.object({
 export const zDeleteSupertasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetSupertasksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11376,12 +9888,12 @@ export const zGetSupertasksByIdRelationshipsByRelationData = z.object({
 export const zGetSupertasksByIdRelationshipsByRelationResponse = zSupertaskResponse;
 
 export const zPatchSupertasksByIdRelationshipsByRelationData = z.object({
-  body: zSupertaskRelationPretasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zSupertaskRelationPretasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11390,12 +9902,12 @@ export const zPatchSupertasksByIdRelationshipsByRelationData = z.object({
 export const zPatchSupertasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostSupertasksByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11404,11 +9916,11 @@ export const zPostSupertasksByIdRelationshipsByRelationData = z.object({
 export const zPostSupertasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteSupertasksByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11417,18 +9929,13 @@ export const zDeleteSupertasksByIdData = z.object({
 export const zDeleteSupertasksByIdResponse = z.void();
 
 export const zGetSupertasksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11437,11 +9944,11 @@ export const zGetSupertasksByIdData = z.object({
 export const zGetSupertasksByIdResponse = zSupertaskResponse;
 
 export const zPatchSupertasksByIdData = z.object({
-  body: zSupertaskPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zSupertaskPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11450,35 +9957,21 @@ export const zPatchSupertasksByIdData = z.object({
 export const zPatchSupertasksByIdResponse = zSupertaskPostPatchResponse;
 
 export const zDeleteTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11487,15 +9980,15 @@ export const zGetTasksData = z.object({
 export const zGetTasksResponse = zTaskListResponse;
 
 export const zPatchTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostTasksData = z.object({
-  body: zTaskCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zTaskCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -11504,29 +9997,15 @@ export const zPostTasksData = z.object({
 export const zPostTasksResponse = zTaskPostPatchResponse;
 
 export const zGetTasksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11535,15 +10014,12 @@ export const zGetTasksCountData = z.object({
 export const zGetTasksCountResponse = zTaskListResponse;
 
 export const zGetTasksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11552,12 +10028,12 @@ export const zGetTasksByIdByRelationData = z.object({
 export const zGetTasksByIdByRelationResponse = zTaskRelationSpeedsGetResponse;
 
 export const zDeleteTasksByIdRelationshipsByRelationData = z.object({
-  body: zTaskRelationSpeeds,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zTaskRelationSpeeds,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11566,15 +10042,12 @@ export const zDeleteTasksByIdRelationshipsByRelationData = z.object({
 export const zDeleteTasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetTasksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11583,12 +10056,12 @@ export const zGetTasksByIdRelationshipsByRelationData = z.object({
 export const zGetTasksByIdRelationshipsByRelationResponse = zTaskResponse;
 
 export const zPatchTasksByIdRelationshipsByRelationData = z.object({
-  body: zTaskRelationSpeeds,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zTaskRelationSpeeds,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11597,12 +10070,12 @@ export const zPatchTasksByIdRelationshipsByRelationData = z.object({
 export const zPatchTasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostTasksByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11611,11 +10084,11 @@ export const zPostTasksByIdRelationshipsByRelationData = z.object({
 export const zPostTasksByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteTasksByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11624,18 +10097,13 @@ export const zDeleteTasksByIdData = z.object({
 export const zDeleteTasksByIdResponse = z.void();
 
 export const zGetTasksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11644,11 +10112,11 @@ export const zGetTasksByIdData = z.object({
 export const zGetTasksByIdResponse = zTaskResponse;
 
 export const zPatchTasksByIdData = z.object({
-  body: zTaskPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zTaskPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11657,35 +10125,21 @@ export const zPatchTasksByIdData = z.object({
 export const zPatchTasksByIdResponse = zTaskPostPatchResponse;
 
 export const zDeleteTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11694,35 +10148,21 @@ export const zGetTaskwrappersData = z.object({
 export const zGetTaskwrappersResponse = zTaskWrapperListResponse;
 
 export const zPatchTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetTaskwrappersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11731,15 +10171,12 @@ export const zGetTaskwrappersCountData = z.object({
 export const zGetTaskwrappersCountResponse = zTaskWrapperListResponse;
 
 export const zGetTaskwrappersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11748,12 +10185,12 @@ export const zGetTaskwrappersByIdByRelationData = z.object({
 export const zGetTaskwrappersByIdByRelationResponse = zTaskWrapperRelationTasksGetResponse;
 
 export const zDeleteTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: zTaskWrapperRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zTaskWrapperRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11762,15 +10199,12 @@ export const zDeleteTaskwrappersByIdRelationshipsByRelationData = z.object({
 export const zDeleteTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11779,12 +10213,12 @@ export const zGetTaskwrappersByIdRelationshipsByRelationData = z.object({
 export const zGetTaskwrappersByIdRelationshipsByRelationResponse = zTaskWrapperResponse;
 
 export const zPatchTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: zTaskWrapperRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zTaskWrapperRelationTasks,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11793,12 +10227,12 @@ export const zPatchTaskwrappersByIdRelationshipsByRelationData = z.object({
 export const zPatchTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11807,11 +10241,11 @@ export const zPostTaskwrappersByIdRelationshipsByRelationData = z.object({
 export const zPostTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteTaskwrappersByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11820,18 +10254,13 @@ export const zDeleteTaskwrappersByIdData = z.object({
 export const zDeleteTaskwrappersByIdResponse = z.void();
 
 export const zGetTaskwrappersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11840,11 +10269,11 @@ export const zGetTaskwrappersByIdData = z.object({
 export const zGetTaskwrappersByIdResponse = zTaskWrapperResponse;
 
 export const zPatchTaskwrappersByIdData = z.object({
-  body: zTaskWrapperPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zTaskWrapperPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11853,35 +10282,21 @@ export const zPatchTaskwrappersByIdData = z.object({
 export const zPatchTaskwrappersByIdResponse = zTaskWrapperPostPatchResponse;
 
 export const zDeleteUsersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetUsersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11890,15 +10305,15 @@ export const zGetUsersData = z.object({
 export const zGetUsersResponse = zUserListResponse;
 
 export const zPatchUsersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostUsersData = z.object({
-  body: zUserCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zUserCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -11907,29 +10322,15 @@ export const zPostUsersData = z.object({
 export const zPostUsersResponse = zUserPostPatchResponse;
 
 export const zGetUsersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -11938,15 +10339,12 @@ export const zGetUsersCountData = z.object({
 export const zGetUsersCountResponse = zUserListResponse;
 
 export const zGetUsersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11955,12 +10353,12 @@ export const zGetUsersByIdByRelationData = z.object({
 export const zGetUsersByIdByRelationResponse = zUserRelationAccessGroupsGetResponse;
 
 export const zDeleteUsersByIdRelationshipsByRelationData = z.object({
-  body: zUserRelationAccessGroups,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zUserRelationAccessGroups,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11969,15 +10367,12 @@ export const zDeleteUsersByIdRelationshipsByRelationData = z.object({
 export const zDeleteUsersByIdRelationshipsByRelationResponse = z.void();
 
 export const zGetUsersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -11986,12 +10381,12 @@ export const zGetUsersByIdRelationshipsByRelationData = z.object({
 export const zGetUsersByIdRelationshipsByRelationResponse = zUserResponse;
 
 export const zPatchUsersByIdRelationshipsByRelationData = z.object({
-  body: zUserRelationAccessGroups,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: zUserRelationAccessGroups,
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12000,12 +10395,12 @@ export const zPatchUsersByIdRelationshipsByRelationData = z.object({
 export const zPatchUsersByIdRelationshipsByRelationResponse = z.void();
 
 export const zPostUsersByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int(),
+        relation: z.string()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12014,11 +10409,11 @@ export const zPostUsersByIdRelationshipsByRelationData = z.object({
 export const zPostUsersByIdRelationshipsByRelationResponse = z.void();
 
 export const zDeleteUsersByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12027,18 +10422,13 @@ export const zDeleteUsersByIdData = z.object({
 export const zDeleteUsersByIdResponse = z.void();
 
 export const zGetUsersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -12047,11 +10437,11 @@ export const zGetUsersByIdData = z.object({
 export const zGetUsersByIdResponse = zUserResponse;
 
 export const zPatchUsersByIdData = z.object({
-  body: zUserPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zUserPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12060,35 +10450,21 @@ export const zPatchUsersByIdData = z.object({
 export const zPatchUsersByIdResponse = zUserPostPatchResponse;
 
 export const zDeleteVouchersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetVouchersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -12097,15 +10473,15 @@ export const zGetVouchersData = z.object({
 export const zGetVouchersResponse = zVoucherListResponse;
 
 export const zPatchVouchersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostVouchersData = z.object({
-  body: zVoucherCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zVoucherCreate,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12114,29 +10490,15 @@ export const zPostVouchersData = z.object({
 export const zPostVouchersResponse = zVoucherPostPatchResponse;
 
 export const zGetVouchersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        'page[after]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[before]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        'page[size]': z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        filter: z.record(z.string(), z.unknown()).optional(),
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -12145,11 +10507,11 @@ export const zGetVouchersCountData = z.object({
 export const zGetVouchersCountResponse = zVoucherListResponse;
 
 export const zDeleteVouchersByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.record(z.string(), z.unknown()),
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12158,18 +10520,13 @@ export const zDeleteVouchersByIdData = z.object({
 export const zDeleteVouchersByIdResponse = z.void();
 
 export const zGetVouchersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.object({
+        id: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    }),
+    query: z.object({
+        include: z.string().optional()
+    }).optional()
 });
 
 /**
@@ -12178,11 +10535,11 @@ export const zGetVouchersByIdData = z.object({
 export const zGetVouchersByIdResponse = zVoucherResponse;
 
 export const zPatchVouchersByIdData = z.object({
-  body: zVoucherPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: zVoucherPatch,
+    path: z.object({
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 /**
@@ -12191,9 +10548,9 @@ export const zPatchVouchersByIdData = z.object({
 export const zPatchVouchersByIdResponse = zVoucherPostPatchResponse;
 
 export const zPostAbortChunkData = z.object({
-  body: zAbortChunkHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zAbortChunkHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12202,9 +10559,9 @@ export const zPostAbortChunkData = z.object({
 export const zPostAbortChunkResponse = zAbortChunkHelperApiResponse;
 
 export const zPostAssignAgentData = z.object({
-  body: zAssignAgentHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zAssignAgentHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12213,9 +10570,9 @@ export const zPostAssignAgentData = z.object({
 export const zPostAssignAgentResponse = zAssignAgentHelperApiResponse;
 
 export const zPostBulkSupertaskBuilderData = z.object({
-  body: zBulkSupertaskBuilderHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zBulkSupertaskBuilderHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12224,9 +10581,9 @@ export const zPostBulkSupertaskBuilderData = z.object({
 export const zPostBulkSupertaskBuilderResponse = zSupertaskSingleResponse;
 
 export const zPostChangeOwnPasswordData = z.object({
-  body: zChangeOwnPasswordHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zChangeOwnPasswordHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12235,9 +10592,9 @@ export const zPostChangeOwnPasswordData = z.object({
 export const zPostChangeOwnPasswordResponse = zChangeOwnPasswordHelperApiResponse;
 
 export const zPostCreateSuperHashlistData = z.object({
-  body: zCreateSuperHashlistHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zCreateSuperHashlistHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12246,9 +10603,9 @@ export const zPostCreateSuperHashlistData = z.object({
 export const zPostCreateSuperHashlistResponse = zHashlistSingleResponse;
 
 export const zPostCreateSupertaskData = z.object({
-  body: zCreateSupertaskHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zCreateSupertaskHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12257,21 +10614,21 @@ export const zPostCreateSupertaskData = z.object({
 export const zPostCreateSupertaskResponse = zTaskWrapperSingleResponse;
 
 export const zGetCurrentUserData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPatchCurrentUserData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostExportCrackedHashesData = z.object({
-  body: zExportCrackedHashesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zExportCrackedHashesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12280,9 +10637,9 @@ export const zPostExportCrackedHashesData = z.object({
 export const zPostExportCrackedHashesResponse = zFileSingleResponse;
 
 export const zPostExportLeftHashesData = z.object({
-  body: zExportLeftHashesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zExportLeftHashesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12291,9 +10648,9 @@ export const zPostExportLeftHashesData = z.object({
 export const zPostExportLeftHashesResponse = zFileSingleResponse;
 
 export const zPostExportWordlistData = z.object({
-  body: zExportWordlistHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zExportWordlistHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12302,84 +10659,62 @@ export const zPostExportWordlistData = z.object({
 export const zPostExportWordlistResponse = zFileSingleResponse;
 
 export const zGetGetAccessGroupsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zGetGetAgentBinaryData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.object({
-    agent: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  })
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        agent: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    })
 });
 
 export const zGetGetBestTasksAgentData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.object({
-    agent: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  })
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        agent: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    })
 });
 
 export const zGetGetCracksOfTaskData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.object({
-    task: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  })
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        task: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    })
 });
 
 export const zGetGetFileData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.object({
-    file: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  })
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        file: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    })
 });
 
 export const zGetGetTaskProgressImageData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      supertask: z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      task: z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional()
-    })
-    .optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.object({
+        supertask: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+        task: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional()
+    }).optional()
 });
 
 export const zGetGetUserPermissionData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostImportCrackedHashesData = z.object({
-  body: zImportCrackedHashesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zImportCrackedHashesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12388,61 +10723,67 @@ export const zPostImportCrackedHashesData = z.object({
 export const zPostImportCrackedHashesResponse = zImportCrackedHashesHelperApiResponse;
 
 export const zGetImportFileData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 export const zPostImportFileData = z.object({
-  body: zImportFileHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional(),
-  headers: z.object({
-    'Upload-Metadata': z.string().regex(/^([a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)(,[a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)*$/),
-    'Upload-Length': z.int().gte(1).optional(),
-    'Upload-Defer-Length': z.int().optional()
-  })
+    body: zImportFileHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional(),
+    headers: z.object({
+        'Upload-Metadata': z.string().regex(/^([a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)(,[a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)*$/),
+        'Upload-Length': z.int().gte(1).optional(),
+        'Upload-Defer-Length': z.int().optional()
+    })
 });
 
-export const zPostImportFileResponse = z.union([z.unknown(), z.string()]);
+export const zPostImportFileResponse = z.union([
+    z.unknown(),
+    z.string()
+]);
 
 export const zDeleteImportFileById09aF32Data = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    32: z.string(),
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        32: z.string(),
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 export const zHeadImportFileById09aF32Data = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    32: z.string(),
-    id: z.int()
-  }),
-  query: z.never().optional()
+    body: z.never().optional(),
+    path: z.object({
+        32: z.string(),
+        id: z.int()
+    }),
+    query: z.never().optional()
 });
 
 export const zPatchImportFileById09aF32Data = z.object({
-  body: z.string(),
-  path: z.object({
-    32: z.string(),
-    id: z.int()
-  }),
-  query: z.never().optional(),
-  headers: z.object({
-    'Upload-Offset': z.int(),
-    'Content-Type': z.enum(['application/offset+octet-stream'])
-  })
+    body: z.string(),
+    path: z.object({
+        32: z.string(),
+        id: z.int()
+    }),
+    query: z.never().optional(),
+    headers: z.object({
+        'Upload-Offset': z.int(),
+        'Content-Type': z.enum(['application/offset+octet-stream'])
+    })
 });
 
-export const zPatchImportFileById09aF32Response = z.union([z.unknown(), z.void()]);
+export const zPatchImportFileById09aF32Response = z.union([
+    z.unknown(),
+    z.void()
+]);
 
 export const zPostMaskSupertaskBuilderData = z.object({
-  body: zMaskSupertaskBuilderHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zMaskSupertaskBuilderHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12451,9 +10792,9 @@ export const zPostMaskSupertaskBuilderData = z.object({
 export const zPostMaskSupertaskBuilderResponse = zSupertaskSingleResponse;
 
 export const zPostPurgeTaskData = z.object({
-  body: zPurgeTaskHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zPurgeTaskHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12462,9 +10803,9 @@ export const zPostPurgeTaskData = z.object({
 export const zPostPurgeTaskResponse = zPurgeTaskHelperApiResponse;
 
 export const zPostRebuildChunkCacheData = z.object({
-  body: zRebuildChunkCacheHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zRebuildChunkCacheHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12473,9 +10814,9 @@ export const zPostRebuildChunkCacheData = z.object({
 export const zPostRebuildChunkCacheResponse = zRebuildChunkCacheHelperApiResponse;
 
 export const zPostRecountFileLinesData = z.object({
-  body: zRecountFileLinesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zRecountFileLinesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12484,9 +10825,9 @@ export const zPostRecountFileLinesData = z.object({
 export const zPostRecountFileLinesResponse = zFileSingleResponse;
 
 export const zPostRescanGlobalFilesData = z.object({
-  body: zRescanGlobalFilesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zRescanGlobalFilesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12495,9 +10836,9 @@ export const zPostRescanGlobalFilesData = z.object({
 export const zPostRescanGlobalFilesResponse = zRescanGlobalFilesHelperApiResponse;
 
 export const zPostResetChunkData = z.object({
-  body: zResetChunkHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zResetChunkHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12506,9 +10847,9 @@ export const zPostResetChunkData = z.object({
 export const zPostResetChunkResponse = zResetChunkHelperApiResponse;
 
 export const zPostResetUserPasswordData = z.object({
-  body: zResetUserPasswordHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zResetUserPasswordHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12517,9 +10858,9 @@ export const zPostResetUserPasswordData = z.object({
 export const zPostResetUserPasswordResponse = zResetUserPasswordHelperApiResponse;
 
 export const zPostSearchHashesData = z.object({
-  body: zSearchHashesHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zSearchHashesHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12528,9 +10869,9 @@ export const zPostSearchHashesData = z.object({
 export const zPostSearchHashesResponse = zSearchHashesHelperApiResponse;
 
 export const zPostSetUserPasswordData = z.object({
-  body: zSetUserPasswordHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zSetUserPasswordHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12539,9 +10880,9 @@ export const zPostSetUserPasswordData = z.object({
 export const zPostSetUserPasswordResponse = zSetUserPasswordHelperApiResponse;
 
 export const zPostUnassignAgentData = z.object({
-  body: zUnassignAgentHelperApi,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zUnassignAgentHelperApi,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
@@ -12550,9 +10891,9 @@ export const zPostUnassignAgentData = z.object({
 export const zPostUnassignAgentResponse = zUnassignAgentHelperApiResponse;
 
 export const zPostTokenData = z.object({
-  body: zTokenRequest,
-  path: z.never().optional(),
-  query: z.never().optional()
+    body: zTokenRequest,
+    path: z.never().optional(),
+    query: z.never().optional()
 });
 
 /**
