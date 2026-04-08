@@ -358,7 +358,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return {
       ...data,
       taskName:
-        data.taskType === TaskType.SUPERTASK || !data.tasks || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
+        data.taskType === TaskType.SUPERTASK || !data.tasks || data.tasks.length === 0
+          ? data.taskWrapperName
+          : data.tasks[0].taskName
     };
   }
 

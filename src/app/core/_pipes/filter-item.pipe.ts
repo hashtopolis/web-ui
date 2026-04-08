@@ -11,8 +11,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  * @returns Filter by Id
  **/
 @Pipe({
-    name: 'filterItem',
-    standalone: false
+  name: 'filterItem',
+  standalone: false
 })
 export class FilterItemPipe implements PipeTransform {
   transform(list: any, key: string, value: number) {

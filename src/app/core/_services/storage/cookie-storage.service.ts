@@ -1,8 +1,7 @@
-import { Injectable } from "@angular/core";
-import { BaseStorageService } from "./base-storage.service";
+import { Injectable } from '@angular/core';
+import { BaseStorageService } from './base-storage.service';
 
 export type SameSite = 'Lax' | 'None' | 'Strict';
-
 
 /**
  * A storage service implementation that uses browser cookies to store and retrieve data
@@ -11,11 +10,10 @@ export type SameSite = 'Lax' | 'None' | 'Strict';
  * @template T - The type of data to be stored.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CookieStorageService<T> extends BaseStorageService<T> {
-
-  static readonly SAME_SITE: SameSite = 'Lax'
+  static readonly SAME_SITE: SameSite = 'Lax';
 
   /**
    * Retrieves the stored data associated with the specified key from browser cookies.
@@ -52,13 +50,13 @@ export class CookieStorageService<T> extends BaseStorageService<T> {
     const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
 
     // Construct the cookie string with optional attributes
-    let cookieString = `${key}=${serializedValue};sameSite=${CookieStorageService.SAME_SITE};`
+    let cookieString = `${key}=${serializedValue};sameSite=${CookieStorageService.SAME_SITE};`;
     if (expiresInMs) {
       const expires = new Date(Date.now() + expiresInMs).toUTCString();
       cookieString += `expires=${expires};`;
     }
 
-    document.cookie = cookieString
+    document.cookie = cookieString;
   }
 
   /**

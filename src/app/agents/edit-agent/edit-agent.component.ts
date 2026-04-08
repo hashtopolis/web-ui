@@ -186,7 +186,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
       const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
       this.showagent = agent;
-      this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []), ACCESS_GROUP_FIELD_MAPPING);
+      this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
         if ((agent.assignments ?? []).length) {
           const firstAssignment = (agent.assignments ?? [])[0];
@@ -209,7 +209,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
         this.showagent = agent;
-        this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []), ACCESS_GROUP_FIELD_MAPPING);
+        this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
         return;
       }
 

@@ -14,8 +14,8 @@ import { DatePipe } from '@angular/common';
  **/
 
 @Pipe({
-    name: 'uiDate',
-    standalone: false
+  name: 'uiDate',
+  standalone: false
 })
 export class uiDatePipe extends DatePipe implements PipeTransform {
   constructor(
@@ -32,9 +32,7 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
       this.cookieService.setCookie('localtimefmt', 'dd/MM/yyyy h:mm:ss', 365);
     }
 
-    const format = this.checkFormat(
-      this.cookieService.getCookie('localtimefmt')
-    );
+    const format = this.checkFormat(this.cookieService.getCookie('localtimefmt'));
 
     return super.transform(Number(epoch) * 1000, format);
   }

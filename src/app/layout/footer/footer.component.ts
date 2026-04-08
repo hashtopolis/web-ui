@@ -3,28 +3,25 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
-    selector: 'app-footer',
-    templateUrl: './footer.component.html',
-    host: {
-        "(window:resize)": "onWindowResize($event)"
-    },
-    standalone: false
+  selector: 'app-footer',
+  templateUrl: './footer.component.html',
+  host: {
+    '(window:resize)': 'onWindowResize($event)'
+  },
+  standalone: false
 })
 export class FooterComponent implements OnInit {
-
   url = '/assets/git-version.json';
   footerConfig = environment.config.footer;
-  year = (new Date()).getFullYear();
-  gitInfo:any;
-  width:number = window.innerWidth;
-  height:number = window.innerHeight;
+  year = new Date().getFullYear();
+  gitInfo: any;
+  width: number = window.innerWidth;
+  height: number = window.innerHeight;
 
-  constructor(
-    private http: HttpClient
-  ) { }
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get(this.url).subscribe(res => {
+    this.http.get(this.url).subscribe((res) => {
       this.gitInfo = res;
     });
   }
@@ -33,5 +30,4 @@ export class FooterComponent implements OnInit {
     this.width = event.target.innerWidth;
     this.height = event.target.innerHeight;
   }
-
 }

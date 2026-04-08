@@ -141,7 +141,11 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @param query
    * @private
    */
-  private async loadPretaskFiles(pretaskIds: number[], activeFilter?: Filter | null, query?: Filter): Promise<JPretask[]> {
+  private async loadPretaskFiles(
+    pretaskIds: number[],
+    activeFilter?: Filter | null,
+    query?: Filter
+  ): Promise<JPretask[]> {
     const filterOperator = this._reverseQuery ? FilterType.NOTIN : FilterType.IN;
     if (pretaskIds && pretaskIds.length > 0) {
       let paramsBuilder = new RequestParamBuilder()

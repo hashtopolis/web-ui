@@ -50,7 +50,10 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   }
 
   filter(item: JHealthCheckAgent, filterValue: string): boolean {
-    return (item.agent?.agentName?.toLowerCase().includes(filterValue) ?? false) || item.status.toString().includes(filterValue);
+    return (
+      (item.agent?.agentName?.toLowerCase().includes(filterValue) ?? false) ||
+      item.status.toString().includes(filterValue)
+    );
   }
 
   getColumns(): HTTableColumn[] {

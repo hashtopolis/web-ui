@@ -13,10 +13,7 @@ export class ExportUtil {
    * @param tableColumns The table columns.
    * @returns Excel columns.
    */
-  toExcelColumns(
-    tableColumns: HTTableColumn[],
-    columnLabels: { [key: number]: string }
-  ): ExcelColumn[] {
+  toExcelColumns(tableColumns: HTTableColumn[], columnLabels: { [key: number]: string }): ExcelColumn[] {
     return tableColumns.map((col: HTTableColumn) => {
       return {
         key: col.dataKey ?? '',
@@ -31,10 +28,7 @@ export class ExportUtil {
    * @param tableColumns The table columns.
    * @returns CSV columns.
    */
-  toCsvColumns(
-    tableColumns: HTTableColumn[],
-    columnLabels: { [key: number]: string }
-  ): string[] {
+  toCsvColumns(tableColumns: HTTableColumn[], columnLabels: { [key: number]: string }): string[] {
     return tableColumns.map((col: HTTableColumn) => columnLabels[col.id]);
   }
 
@@ -54,9 +48,7 @@ export class ExportUtil {
     for (const row of rawData) {
       const rowData: Record<string, string> = {};
       for (const column of tableColumns) {
-        rowData[column.dataKey!] = column.export
-          ? await column.export(row)
-          : '';
+        rowData[column.dataKey!] = column.export ? await column.export(row) : '';
       }
       data.push(rowData);
     }
@@ -71,10 +63,7 @@ export class ExportUtil {
    * @param rawData The data to be exported.
    * @returns Rows for CSV export.
    */
-  async toCsvRows<T extends BaseModel>(
-    tableColumns: HTTableColumn[],
-    rawData: T[]
-  ): Promise<string[][]> {
+  async toCsvRows<T extends BaseModel>(tableColumns: HTTableColumn[], rawData: T[]): Promise<string[][]> {
     const data: string[][] = [];
 
     for (const row of rawData) {

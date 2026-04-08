@@ -1,19 +1,14 @@
-import {
-  ApplicationRef,
-  ChangeDetectorRef,
-  Component,
-  ViewEncapsulation
-} from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Component, ViewEncapsulation } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialogRef } from '@angular/material/dialog';
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
-    selector: 'hashtype-detector',
-    templateUrl: './hashtype-detector.component.html',
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'hashtype-detector',
+  templateUrl: './hashtype-detector.component.html',
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class HashtypeDetectorComponent {
   type: any;

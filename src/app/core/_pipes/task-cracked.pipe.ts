@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { PipeTransform, Pipe } from '@angular/core';
 
 import { environment } from './../../../environments/environment';
 import { GlobalService } from '../_services/main.service';
@@ -17,20 +14,16 @@ import { firstValueFrom } from 'rxjs';
  * Example:
  *   {{ number | tdcracked:'1' }}
  * @returns number
-**/
+ **/
 
 @Pipe({
-    name: 'tdcracked',
-    standalone: false
+  name: 'tdcracked',
+  standalone: false
 })
 export class TaskCrackedPipe implements PipeTransform {
+  constructor(private gs: GlobalService) {}
 
-  constructor(
-    private gs: GlobalService
-  ) { }
-
-  transform(id: number, type?:boolean) {
-
+  transform(id: number, type?: boolean) {
     if (!id) {
       return null;
     }
@@ -40,24 +33,20 @@ export class TaskCrackedPipe implements PipeTransform {
     const searched: number[] = [];
     let params: any;
 
-    if(type){
-      params = {'maxResults': maxResults, 'filter': 'agentId='+id+''};
-    }else{
-      params = {'maxResults': maxResults, 'filter': 'taskId='+id+''};
+    if (type) {
+      params = { maxResults: maxResults, filter: 'agentId=' + id + '' };
+    } else {
+      params = { maxResults: maxResults, filter: 'taskId=' + id + '' };
     }
 
-    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,params))
-    .then((res) => {
+    return firstValueFrom(this.gs.getAll(SERV.CHUNKS, params)).then((res) => {
+      const ch = res.values;
 
-    const ch = res.values;
-
-    for(let i=0; i < ch.length; i++){
+      for (let i = 0; i < ch.length; i++) {
         searched.push(ch[i].cracked);
-    }
+      }
 
-    return searched?.reduce((a, i) => a + i,0);
-
-  });
- }
+      return searched?.reduce((a, i) => a + i, 0);
+    });
+  }
 }
-

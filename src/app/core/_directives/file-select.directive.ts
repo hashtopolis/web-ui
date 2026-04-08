@@ -1,10 +1,4 @@
-import {
-  Directive,
-  HostListener,
-  HostBinding,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Directive, HostListener, HostBinding, Output, EventEmitter } from '@angular/core';
 
 /*
  * Detects a change of event when a file is selected
@@ -13,11 +7,11 @@ import {
  * Example:
  *     fileSelect >
  *   console: detects a change of event when a file is selected
-*/
+ */
 
 @Directive({
-    selector: '[fileSelect]',
-    standalone: false
+  selector: '[fileSelect]',
+  standalone: false
 })
 export class FileSelectDirective {
   @Output() selectedFiles = new EventEmitter<FileList>();

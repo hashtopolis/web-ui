@@ -1,4 +1,11 @@
-import { Sorting, TableConfig, TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
+import {
+  Sorting,
+  TableConfig,
+  TableSettingsKey,
+  UIConfig,
+  UIConfigKeys,
+  uiConfigDefault
+} from '@models/config-ui.model';
 import { uiConfigSchema } from '@models/config-ui.schema';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';

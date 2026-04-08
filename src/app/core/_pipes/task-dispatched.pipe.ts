@@ -12,8 +12,8 @@ import { firstValueFrom } from 'rxjs';
  **/
 
 @Pipe({
-    name: 'tdispatched',
-    standalone: false
+  name: 'tdispatched',
+  standalone: false
 })
 export class TaskDispatchedPipe implements PipeTransform {
   constructor(private gs: GlobalService) {}

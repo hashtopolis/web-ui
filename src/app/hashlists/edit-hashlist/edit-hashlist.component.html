@@ -1,133 +1,117 @@
 <div class="flex flex-col gap-3">
   @if (!isLoading) {
-      <grid-main>
-        <app-page-title
-          [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'"
-          [subbutton]="false">
-        </app-page-title>
+    <grid-main>
+      <app-page-title [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'" [subbutton]="false">
+      </app-page-title>
 
-        <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-          <input-text title="ID" formControlName="hashlistId"></input-text>
+      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+        <input-text title="ID" formControlName="hashlistId"></input-text>
 
-          <div formGroupName="updateData" class="flex flex-col gap-2">
-            <input-text [isRequired]="true" title="Name" formControlName="name"></input-text>
-            <div>
-              <input-text-area title="Notes" formControlName="notes"></input-text-area>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              @if (roleService.hasRole('groups')) {
-                <input-select
-                  title="Access group"
-                  formControlName="accessGroupId"
-                  [items]="selectAccessgroup">
-                </input-select>
-              }
-              <input-check title="Secret Data" formControlName="isSecret"></input-check>
-            </div>
+        <div formGroupName="updateData" class="flex flex-col gap-2">
+          <input-text [isRequired]="true" title="Name" formControlName="name"></input-text>
+          <div>
+            <input-text-area title="Notes" formControlName="notes"></input-text-area>
           </div>
-
           <div class="flex flex-wrap items-center gap-2">
-            <simulate-form-field
-              label="Hash Type"
-              message="{{ hashtype?.id }} - {{ hashtype?.description }}">
-            </simulate-form-field>
-
-            <simulate-form-field
-              label="Using hashcat brain"
-              [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
-            </simulate-form-field>
-
-            <input-text title="Format" formControlName="format"></input-text>
-            <input-text title="Hashes" formControlName="hashCount"></input-text>
-            <input-text title="Cracked" formControlName="cracked"></input-text>
-            <input-text title="Remaining" formControlName="remaining"></input-text>
+            @if (roleService.hasRole('groups')) {
+              <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup">
+              </input-select>
+            }
+            <input-check title="Secret Data" formControlName="isSecret"></input-check>
           </div>
-
-          <grid-buttons>
-            <button-submit [name]="'Update'" [disabled]="!roleService.hasRole('update')"></button-submit>
-          </grid-buttons>
-        </form>
-
-        <!-- If its cracked or partially cracked then show additional actions -->
-        <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
-
-        <div class="flex gap-1">
-          <grid-buttons>
-            <button-submit
-              [name]="'Import pre-cracked hashes'"
-              (click)="importCrackedHashes()"
-              [disabled]="!roleService.hasRole('update')">
-            </button-submit>
-
-            @if ((editedHashlist?.cracked ?? 0) > 0) {
-              <button-submit
-                [name]="'Export hashes for pre-crack'"
-                (click)="exortPreCrackedHashes()"
-                [disabled]="!roleService.hasRole('read')">
-              </button-submit>
-            }
-
-            <button-submit
-              [name]="'Show Hashes'"
-              (click)="goToHashes()"
-              [disabled]="!roleService.hasRole('read')">
-            </button-submit>
-
-            @if ((editedHashlist?.cracked ?? 0) > 0) {
-              <button-submit
-                [name]="'Generate Wordlist'"
-                (click)="exportWordlist()"
-                [disabled]="!roleService.hasRole('wordlist')">
-              </button-submit>
-            }
-
-            @if ((editedHashlist?.cracked ?? 0) > 0) {
-              <button-submit
-                [name]="'Export Left Hashes'"
-                (click)="exportLeftHashes()"
-                [disabled]="!roleService.hasRole('wordlist')">
-              </button-submit>
-            }
-          </grid-buttons>
         </div>
 
-        @if ((editedHashlist?.cracked ?? 0) > 0 && roleService.hasRole('tasks')) {
-          <br />
-          <mat-accordion>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <span><b>Report Builder</b></span>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
+        <div class="flex flex-wrap items-center gap-2">
+          <simulate-form-field label="Hash Type" message="{{ hashtype?.id }} - {{ hashtype?.description }}">
+          </simulate-form-field>
 
-              <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
-            </mat-expansion-panel>
-          </mat-accordion>
-        }
-      </grid-main>
+          <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
+          </simulate-form-field>
 
-      @if (type === 3) {
-        <app-table>
-          <app-page-subtitle
-            [subtitle]="'Included Hashlists within the Superhashlist'">
-          </app-page-subtitle>
-          <app-superhashlist-hashlist-table
-            #table
-            name="hashlistsInShTable"
-            [shashlistId]="editedHashlistIndex">
-          </app-superhashlist-hashlist-table>
-        </app-table>
+          <input-text title="Format" formControlName="format"></input-text>
+          <input-text title="Hashes" formControlName="hashCount"></input-text>
+          <input-text title="Cracked" formControlName="cracked"></input-text>
+          <input-text title="Remaining" formControlName="remaining"></input-text>
+        </div>
+
+        <grid-buttons>
+          <button-submit [name]="'Update'" [disabled]="!roleService.hasRole('update')"></button-submit>
+        </grid-buttons>
+      </form>
+
+      <!-- If its cracked or partially cracked then show additional actions -->
+      <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
+
+      <div class="flex gap-1">
+        <grid-buttons>
+          <button-submit
+            [name]="'Import pre-cracked hashes'"
+            (click)="importCrackedHashes()"
+            [disabled]="!roleService.hasRole('update')"
+          >
+          </button-submit>
+
+          @if ((editedHashlist?.cracked ?? 0) > 0) {
+            <button-submit
+              [name]="'Export hashes for pre-crack'"
+              (click)="exortPreCrackedHashes()"
+              [disabled]="!roleService.hasRole('read')"
+            >
+            </button-submit>
+          }
+
+          <button-submit [name]="'Show Hashes'" (click)="goToHashes()" [disabled]="!roleService.hasRole('read')">
+          </button-submit>
+
+          @if ((editedHashlist?.cracked ?? 0) > 0) {
+            <button-submit
+              [name]="'Generate Wordlist'"
+              (click)="exportWordlist()"
+              [disabled]="!roleService.hasRole('wordlist')"
+            >
+            </button-submit>
+          }
+
+          @if ((editedHashlist?.cracked ?? 0) > 0) {
+            <button-submit
+              [name]="'Export Left Hashes'"
+              (click)="exportLeftHashes()"
+              [disabled]="!roleService.hasRole('wordlist')"
+            >
+            </button-submit>
+          }
+        </grid-buttons>
+      </div>
+
+      @if ((editedHashlist?.cracked ?? 0) > 0 && roleService.hasRole('tasks')) {
+        <br />
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span><b>Report Builder</b></span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
+          </mat-expansion-panel>
+        </mat-accordion>
       }
+    </grid-main>
 
-      @if (roleService.hasRole('tasks')) {
-        <app-table>
-          <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-          <app-tasks-table
-            name="hashlistTasksTable"
-            [hashlistId]="editedHashlistIndex">
-          </app-tasks-table>
-        </app-table>
-      }
+    @if (type === 3) {
+      <app-table>
+        <app-page-subtitle [subtitle]="'Included Hashlists within the Superhashlist'"> </app-page-subtitle>
+        <app-superhashlist-hashlist-table #table name="hashlistsInShTable" [shashlistId]="editedHashlistIndex">
+        </app-superhashlist-hashlist-table>
+      </app-table>
+    }
+
+    @if (roleService.hasRole('tasks')) {
+      <app-table>
+        <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
+        <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex"> </app-tasks-table>
+      </app-table>
+    }
   }
 </div>

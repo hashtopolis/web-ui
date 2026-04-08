@@ -11,7 +11,7 @@
     (focus)="preventFocus($event)"
     [disabled]="disabled"
     [class.active]="isActive"
-    >
+  >
     @if (icon) {
       <mat-icon>{{ icon }}</mat-icon>
     }
@@ -24,14 +24,10 @@
     [hasBackdrop]="false"
     (mouseenter)="onMenuMouseEnter()"
     (mouseleave)="onMenuMouseLeave($event)"
-    >
+  >
     @for (section of actionMenuItems; track section; let last = $last) {
       @for (item of section; track item) {
-        <button
-          mat-menu-item
-          (click)="onMenuItemClick(item)"
-          [class.text-critical]="item.red"
-          >
+        <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
           <div class="menu-item-content">
             <span>
               @if (iconContainsDiscord(item.icon ?? '')) {
@@ -63,7 +59,12 @@
             </span>
             @if (item.showAddButton) {
               <span class="menu-item-add-btn">
-                <fa-icon [icon]="faSquarePlus" matTooltip="{{item.tooltipAddButton}}" aria-hidden="true" (click)="onAddMenuItemClick(item); $event.stopPropagation();"></fa-icon>
+                <fa-icon
+                  [icon]="faSquarePlus"
+                  matTooltip="{{ item.tooltipAddButton }}"
+                  aria-hidden="true"
+                  (click)="onAddMenuItemClick(item); $event.stopPropagation()"
+                ></fa-icon>
               </span>
             }
           </div>
@@ -85,7 +86,7 @@
     (click)="$event.stopPropagation()"
     [disabled]="disabled"
     [class.active]="isActive"
-    >
+  >
     @if (icon) {
       <mat-icon>{{ icon }}</mat-icon>
     }
@@ -96,11 +97,7 @@
   <mat-menu #actionMenu="matMenu">
     @for (section of actionMenuItems; track section; let last = $last) {
       @for (item of section; track item) {
-        <button
-          mat-menu-item
-          (click)="onMenuItemClick(item)"
-          [class.text-critical]="item.red"
-          >
+        <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
           @if (item.icon) {
             <mat-icon [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
           }

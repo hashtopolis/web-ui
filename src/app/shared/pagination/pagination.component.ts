@@ -2,13 +2,11 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, range, map } from 'rxjs';
 
 @Component({
-    selector: 'cm-pagination',
-    templateUrl: './pagination.component.html',
-    standalone: false
+  selector: 'cm-pagination',
+  templateUrl: './pagination.component.html',
+  standalone: false
 })
-
 export class PaginationComponent implements OnInit {
-
   private pagerTotalItems = 0;
   private pagerPageSize = 0;
   private pagerRange = 0;
@@ -46,27 +44,24 @@ export class PaginationComponent implements OnInit {
 
   @Output() pageChanged: EventEmitter<number> = new EventEmitter();
 
-  constructor() {
-  }
+  constructor() {}
 
-  ngOnInit() {
-
-  }
+  ngOnInit() {}
 
   update() {
     if (this.pagerTotalItems && this.pagerPageSize) {
-      this.totalPages = Math.ceil(Math.max(this.pagerTotalItems,1) / Math.max(this.pageSize,1));
+      this.totalPages = Math.ceil(Math.max(this.pagerTotalItems, 1) / Math.max(this.pageSize, 1));
       this.isVisible = true;
       if (this.totalItems >= this.pageSize) {
-         this.getTotalPages();
+        this.getTotalPages();
       }
       return;
     }
     this.isVisible = false;
   }
 
-  getTotalPages(startend?:number) {
-    if(startend === 3){
+  getTotalPages(startend?: number) {
+    if (startend === 3) {
       this.currentPage = 0;
     } else if (startend === 4) {
       this.currentPage = this.totalPages;
@@ -87,30 +82,29 @@ export class PaginationComponent implements OnInit {
       } else if (this.currentPage + 4 >= this.totalPages) {
         startPage = this.totalPages - 9;
         endPage = this.totalPages;
-      }else {
+      } else {
         startPage = this.currentPage - 5;
         endPage = this.currentPage + 4;
       }
     }
-    this.pages = Array.from(Array(endPage + 1 - startPage).keys()).map(
-      (i) => startPage + i
-    );
-   }
+    this.pages = Array.from(Array(endPage + 1 - startPage).keys()).map((i) => startPage + i);
+  }
 
   previousNext(direction: number, event?: MouseEvent) {
     let page: number = this.currentPage;
     if (direction === -1) {
-        if (page > 1) {
-          page--;
-        }
-    } else if(direction === 3){ // We use 3 to go to the first page
+      if (page > 1) {
+        page--;
+      }
+    } else if (direction === 3) {
+      // We use 3 to go to the first page
       page = 1;
-    } else if(direction === 4){ // We use 4 to go to the last page
+    } else if (direction === 4) {
+      // We use 4 to go to the last page
       page = this.totalPages;
-    }
-    else {
-        if (page < this.totalPages ) {
-          page++;
+    } else {
+      if (page < this.totalPages) {
+        page++;
       }
     }
     this.changePage(page, event);
@@ -121,7 +115,9 @@ export class PaginationComponent implements OnInit {
     if (event) {
       event.preventDefault();
     }
-    if (this.currentPage === page) { return; }
+    if (this.currentPage === page) {
+      return;
+    }
     this.currentPage = page;
     this.previousEnabled = this.currentPage > 1;
     this.nextEnabled = this.currentPage < this.totalPages;
@@ -129,34 +125,28 @@ export class PaginationComponent implements OnInit {
     this.pageChanged.emit(page);
   }
 
-  sInfoDisplay(page: number){
+  sInfoDisplay(page: number) {
+    let tlen = this.totalItems,
+      start = (page - 1) * this.pageSize + 1,
+      ending = start + this.pageSize - 1,
+      end = tlen - 1;
 
-    let
-      tlen = this.totalItems,
-      start = ((page - 1) * this.pageSize)+1,
-      ending = start + this.pageSize-1,
-      end = tlen-1;
+    if (start >= end) {
+      start = end - tlen;
+    }
 
-    if (start >= end)
-		{
-			start = end - tlen;
-		}
+    if (tlen === -1 || start < 0) {
+      start = 0;
+    }
 
-		if (tlen === -1 || start < 0)
-		{
-			start = 0;
-		}
-
-    if(tlen === -1 || ending > tlen){
+    if (tlen === -1 || ending > tlen) {
       ending = Math.min(tlen, ending);
     }
 
-    this.showLabel = 'Showing '+start+' to '+ending+' of '+tlen+' entries';
-
+    this.showLabel = 'Showing ' + start + ' to ' + ending + ' of ' + tlen + ' entries';
   }
 
   cancelEvent(event: Event) {
     event.preventDefault();
   }
-
 }

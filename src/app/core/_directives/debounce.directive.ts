@@ -17,8 +17,8 @@ export class DebounceDirective implements OnInit, OnDestroy {
   constructor(private ngControl: NgControl) {}
 
   ngOnInit() {
-    this.subscription = this.ngControl.valueChanges!
-      .pipe(debounceTime(this.debounceTime), distinctUntilChanged())
+    this.subscription = this.ngControl
+      .valueChanges!.pipe(debounceTime(this.debounceTime), distinctUntilChanged())
       .subscribe((value) => {
         this.debounceInput.emit(value);
       });

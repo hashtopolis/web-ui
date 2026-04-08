@@ -9,8 +9,7 @@
     <ul>
       @for (row of data.rows; track row) {
         <li>
-          {{ $any(row)[data.listAttribute]
-          }}
+          {{ $any(row)[data.listAttribute] }}
         </li>
       }
     </ul>
@@ -28,7 +27,7 @@
     cdkFocusInitial
     [mat-dialog-close]="{ data: data.rows, action: data.action }"
     [color]="data.warn ? 'warn' : 'primary'"
-    >
+  >
     {{ data.okLabel ? data.okLabel : 'Continue' }}
   </button>
 </div>

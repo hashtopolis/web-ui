@@ -1,5 +1,10 @@
-<mat-form-field class="custom-textarea" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-  <mat-label>{{ title }}
+<mat-form-field
+  class="custom-textarea"
+  [class.mat-form-field-invalid]="hasError"
+  [class.mat-form-field-touched]="isTouched"
+>
+  <mat-label
+    >{{ title }}
     @if (tooltip) {
       <mat-icon
         matTooltip="{{ tooltip }}"
@@ -7,11 +12,10 @@
         matTooltipClass="tooltip-custom-style"
         matTooltipShowDelay="500"
         aria-hidden="true"
-        >
+      >
         info
       </mat-icon>
     }
-
   </mat-label>
   <textarea
     matInput
@@ -31,7 +35,7 @@
     <mat-hint>{{ hint }}</mat-hint>
   }
   @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
       @if (errors['required']) {
         <span>{{ title }} is required</span>
       }

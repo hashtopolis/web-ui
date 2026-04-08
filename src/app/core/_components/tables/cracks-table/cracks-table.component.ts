@@ -123,8 +123,10 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: JHash) => (crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : ''),
-        export: async (crack: JHash) => (crack.hashlist?.format !== undefined ? HashListFormatLabel[crack.hashlist.format] : '')
+        render: (crack: JHash) =>
+          crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : '',
+        export: async (crack: JHash) =>
+          crack.hashlist?.format !== undefined ? HashListFormatLabel[crack.hashlist.format] : ''
       }
     ];
   }

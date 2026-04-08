@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { PipeTransform, Pipe } from '@angular/core';
 
 /**
  * Replace a string
@@ -13,16 +10,14 @@ import {
  * Example:
  *   {{ Hashtopussy | fileSize:topussy:topolis }}
  * @returns Hashtopolis
-**/
+ **/
 
 @Pipe({
-    name: 'replaceString',
-    standalone: false
+  name: 'replaceString',
+  standalone: false
 })
 export class ReplaceStringPipe implements PipeTransform {
-
   transform(value: string, strToReplace: string, replacementStr: string): string {
-
     if (!value || !strToReplace || !replacementStr) {
       return value;
     }
@@ -33,5 +28,4 @@ export class ReplaceStringPipe implements PipeTransform {
   escapeStr(str: string) {
     return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
-
 }

@@ -1,8 +1,5 @@
-import {
-  PipeTransform,
-  Pipe
-} from "@angular/core";
-import { __values } from "tslib";
+import { PipeTransform, Pipe } from '@angular/core';
+import { __values } from 'tslib';
 
 /**
  * Pipe used for searching
@@ -12,20 +9,19 @@ import { __values } from "tslib";
  * Example:
  *     {{ item | SearchPipe}}
  * @returns item
-**/
+ **/
 
 @Pipe({
-    name: "search",
-    standalone: false
+  name: 'search',
+  standalone: false
 })
-
 export class SearchPipe implements PipeTransform {
-    transform(value: any, q?: any,colName: any="isArchived"): any {
-        if(!value) return null;
-        if(!q) return value;
-        q = q.toLowerCase();
-        return value.filter((item: any)=> {
-            return item[colName].toString().toLowerCase().includes(q);
-        });
-    }
+  transform(value: any, q?: any, colName: any = 'isArchived'): any {
+    if (!value) return null;
+    if (!q) return value;
+    q = q.toLowerCase();
+    return value.filter((item: any) => {
+      return item[colName].toString().toLowerCase().includes(q);
+    });
+  }
 }

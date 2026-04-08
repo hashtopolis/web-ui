@@ -29,9 +29,15 @@ export interface UpdateAssignmentForm {
  */
 export const getEditAgentForm = (readonly: boolean = false) => {
   return new FormGroup<EditAgentForm>({
-    isActive: new FormControl<boolean>({ value: false, disabled: readonly }, { nonNullable: true, validators: [Validators.required] }),
+    isActive: new FormControl<boolean>(
+      { value: false, disabled: readonly },
+      { nonNullable: true, validators: [Validators.required] }
+    ),
     userId: new FormControl<number | null>({ value: null, disabled: readonly }),
-    agentName: new FormControl<string>({ value: '', disabled: readonly }, { nonNullable: true, validators: [Validators.required] }),
+    agentName: new FormControl<string>(
+      { value: '', disabled: readonly },
+      { nonNullable: true, validators: [Validators.required] }
+    ),
     cpuOnly: new FormControl<boolean | null>({ value: null, disabled: readonly }),
     cmdPars: new FormControl<string>({ value: '', disabled: readonly }, { nonNullable: true }),
     ignoreErrors: new FormControl<number | null>({ value: null, disabled: readonly }),

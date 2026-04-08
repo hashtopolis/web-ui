@@ -517,7 +517,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     });
   }
 
-  applyFilterWithPaginationReset<B extends IParamBuilder>(params: B, activeFilter: Filter | null | undefined, query?: Filter): B {
+  applyFilterWithPaginationReset<B extends IParamBuilder>(
+    params: B,
+    activeFilter: Filter | null | undefined,
+    query?: Filter
+  ): B {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)
       if (query && query.value) {

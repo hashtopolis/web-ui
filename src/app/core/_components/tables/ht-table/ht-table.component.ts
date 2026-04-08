@@ -325,13 +325,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(
-        this.dataSource.pageSize,
-        this.dataSource.totalItems,
-        null,
-        null,
-        0
-      );
+      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, null, null, 0);
     });
     this.subscriptions.add(sortSubscription);
   }

@@ -31,7 +31,10 @@ export const getNewEditPreprocessorForm = () => {
   return new FormGroup<NewEditPreprocessorForm>({
     name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     binaryName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-    url: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.pattern(ValidationPatterns.URL)] }),
+    url: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.pattern(ValidationPatterns.URL)]
+    }),
     keyspaceCommand: new FormControl<string>('--keyspace', { nonNullable: true }),
     skipCommand: new FormControl<string>('--skip', { nonNullable: true }),
     limitCommand: new FormControl<string>('--limit', { nonNullable: true })

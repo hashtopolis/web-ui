@@ -17,15 +17,7 @@ import { ComposeOption, EChartsType, init } from 'echarts/core';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
 

@@ -1,4 +1,9 @@
-<mat-form-field [ngStyle]="{ width: width }" appearance="outline" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
+<mat-form-field
+  [ngStyle]="{ width: width }"
+  appearance="outline"
+  [class.mat-form-field-invalid]="hasError"
+  [class.mat-form-field-touched]="isTouched"
+>
   <mat-label>
     {{ title }}
     @if (tooltip) {
@@ -7,7 +12,7 @@
         matTooltipPosition="below"
         matTooltipClass="tooltip-custom-style"
         aria-hidden="true"
-        >
+      >
         info
       </mat-icon>
     }
@@ -29,7 +34,7 @@
     [class.ng-touched]="isTouched"
     (blur)="onTouched()"
     (input)="onValueChange($event)"
-    />
+  />
 
   <!-- Show password toggle if enabled -->
   @if (showPasswordToggle) {
@@ -40,7 +45,7 @@
       (click)="emitShowPassword()"
       [attr.aria-label]="passwordIsVisible ? 'Hide password' : 'Show password'"
       [attr.aria-pressed]="passwordIsVisible"
-      >
+    >
       <mat-icon>{{ passwordIsVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
     </button>
   }
@@ -51,7 +56,7 @@
 
   <!-- Error display based on validation state -->
   @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
       @if (errors['required']) {
         <span>{{ title }} is required</span>
       }
@@ -62,24 +67,17 @@
         <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
       }
       @if (errors['minlength']) {
-        <span>
-          Minimum length is {{ errors['minlength'].requiredLength }}
-        </span>
+        <span> Minimum length is {{ errors['minlength'].requiredLength }} </span>
       }
       @if (errors['pattern']) {
-        <span>
-          Please enter a valid {{ title }}
-        </span>
+        <span> Please enter a valid {{ title }} </span>
       }
       @if (errors['maxlength']) {
-        <span>
-          Maximum length is {{ errors['maxlength'].requiredLength }}
-        </span>
+        <span> Maximum length is {{ errors['maxlength'].requiredLength }} </span>
       }
       @if (errors['passwordMismatch']) {
         <span>Passwords do not match</span>
       }
     </mat-hint>
   }
-
 </mat-form-field>

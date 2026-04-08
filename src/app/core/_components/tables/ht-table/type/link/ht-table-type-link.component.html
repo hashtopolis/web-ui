@@ -1,14 +1,14 @@
 @if (tableColumn.routerLink) {
-  @for (link of (tableColumn.routerLink(element) | async); track trackByFn($index, link)) {
-
+  @for (link of tableColumn.routerLink(element) | async; track trackByFn($index, link)) {
     @if (link.label || link.routerLink) {
       <!-- If routerLink is set, render as link <a> -->
       @if (link.routerLink) {
         <span
           class="link-wrapper"
           [class.has-graph-preview]="!!link.visualGraph?.enabled"
-          (mouseenter)="prefetchVisualGraph(link)">
-          <a (click)="onLinkClicked();" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
+          (mouseenter)="prefetchVisualGraph(link)"
+        >
+          <a (click)="onLinkClicked()" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
             @if (link.label) {
               {{ link.label }}
             } @else {
@@ -28,7 +28,8 @@
                   [src]="previewImage"
                   alt="Task progress image"
                   (error)="onVisualGraphImageError(link)"
-                  class="graph-preview-image" />
+                  class="graph-preview-image"
+                />
 
                 <div class="overall-progress">
                   <div class="overall-progress-label">
@@ -70,7 +71,8 @@
         <span
           class="link-wrapper"
           [class.has-graph-preview]="!!link.visualGraph?.enabled"
-          (mouseenter)="prefetchVisualGraph(link)">
+          (mouseenter)="prefetchVisualGraph(link)"
+        >
           <div [matTooltip]="link.tooltip ?? ''">
             <span>
               @if (link.label) {
@@ -93,7 +95,8 @@
                   [src]="previewImage"
                   alt="Task progress image"
                   (error)="onVisualGraphImageError(link)"
-                  class="graph-preview-image" />
+                  class="graph-preview-image"
+                />
 
                 <div class="overall-progress">
                   <div class="overall-progress-label">
@@ -136,5 +139,3 @@
     }
   }
 }
-
-

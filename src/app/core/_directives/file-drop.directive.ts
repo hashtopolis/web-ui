@@ -1,11 +1,4 @@
-import {
-  Directive,
-  HostListener,
-  HostBinding,
-  Output,
-  Input,
-  EventEmitter
-} from '@angular/core';
+import { Directive, HostListener, HostBinding, Output, Input, EventEmitter } from '@angular/core';
 
 /*
  * Detects when a file is hovered or dropped
@@ -14,15 +7,14 @@ import {
  * Example:
  *     fileDrop >
  *   console: detects when a file is hovered or dropped
-*/
+ */
 
 @Directive({
-    selector: '[fileDrop]',
-    standalone: false
+  selector: '[fileDrop]',
+  standalone: false
 })
 export class FileDropDirective {
-
-  constructor() { }
+  constructor() {}
 
   @Input() private allowed_extensions: Array<string> = [];
   @Output() private filesChangeEmiter: EventEmitter<File[]> = new EventEmitter();
@@ -39,14 +31,14 @@ export class FileDropDirective {
   @HostListener('dragleave', ['$event']) public onDragLeave(evt: DragEvent) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.background = '#eee'
+    this.background = '#eee';
   }
 
   @HostListener('drop', ['$event']) public onDrop(evt: DragEvent) {
     evt.preventDefault();
     evt.stopPropagation();
     const files = evt.dataTransfer?.files;
-    const valid_files : Array<File> = files ? Array.from(files) : [];
+    const valid_files: Array<File> = files ? Array.from(files) : [];
     const target = evt.target as HTMLInputElement;
     this.filesChangeEmiter.emit(target?.files ? Array.from(target.files) : []);
   }

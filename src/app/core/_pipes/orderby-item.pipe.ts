@@ -1,8 +1,4 @@
-import {
-  PipeTransform,
-  Injectable,
-  Pipe,
-} from '@angular/core';
+import { PipeTransform, Injectable, Pipe } from '@angular/core';
 
 /**
  * Order by asc or desc using item
@@ -14,16 +10,15 @@ import {
  * Example:
  *     {{ id | sort:'desc':'id'}}
  * @returns 2,1,0
-**/
+ **/
 
 export type SortOrder = 'asc' | 'desc';
 @Injectable()
 @Pipe({
-    name: 'sort',
-    standalone: false
+  name: 'sort',
+  standalone: false
 })
-
-export class ArraySortPipe  implements PipeTransform {
+export class ArraySortPipe implements PipeTransform {
   transform(value: any[], sortOrder: SortOrder | string = 'asc', sortKey?: string): any {
     const normalizedOrder = sortOrder && sortOrder.toLowerCase();
 
@@ -33,27 +28,26 @@ export class ArraySortPipe  implements PipeTransform {
     let stringArray = [];
 
     if (!sortKey) {
-      numberArray = value.filter(item => typeof item === 'number').sort();
-      stringArray = value.filter(item => typeof item === 'string').sort();
+      numberArray = value.filter((item) => typeof item === 'number').sort();
+      stringArray = value.filter((item) => typeof item === 'string').sort();
     } else {
-      numberArray = value.filter(item => typeof item[sortKey] === 'number').sort((a, b) => a[sortKey] - b[sortKey]);
+      numberArray = value.filter((item) => typeof item[sortKey] === 'number').sort((a, b) => a[sortKey] - b[sortKey]);
       stringArray = value
-        .filter(item => typeof item[sortKey] === 'string')
+        .filter((item) => typeof item[sortKey] === 'string')
         .sort((a, b) => {
           if (a[sortKey] < b[sortKey]) return -1;
           else if (a[sortKey] > b[sortKey]) return 1;
           else return 0;
         });
     }
-     const sorted = [
+    const sorted = [
       ...numberArray,
       ...stringArray,
       ...value.filter(
-          item =>
-            typeof (sortKey ? item[sortKey] : item) !== 'number' &&
-            typeof (sortKey ? item[sortKey] : item) !== 'string',
-      ),
-     ];
+        (item) =>
+          typeof (sortKey ? item[sortKey] : item) !== 'number' && typeof (sortKey ? item[sortKey] : item) !== 'string'
+      )
+    ];
     return normalizedOrder === 'asc' ? sorted : sorted.reverse();
   }
 }

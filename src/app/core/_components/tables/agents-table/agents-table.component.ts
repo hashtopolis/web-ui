@@ -196,7 +196,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => (agent.task ? agent.taskName ?? '' : '')
+        export: async (agent: JAgent) => (agent.task ? (agent.taskName ?? '') : '')
       },
       {
         id: AgentsTableCol.ACCESS_GROUP,

@@ -1,15 +1,13 @@
 import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-    selector: 'grid-autocol',
-    template: `
-    <div #content [ngStyle]="getStyles()"><ng-content></ng-content></div>
-  `,
-    host: {
-        '(window:resize)': 'onWindowResize($event)'
-    },
-    styles: [
-        `
+  selector: 'grid-autocol',
+  template: ` <div #content [ngStyle]="getStyles()"><ng-content></ng-content></div> `,
+  host: {
+    '(window:resize)': 'onWindowResize($event)'
+  },
+  styles: [
+    `
       .vertical-line {
         position: absolute;
         top: 200px;
@@ -19,8 +17,8 @@ import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
         background-color: gray; /* Line color, you can customize this */
       }
     `
-    ],
-    standalone: false
+  ],
+  standalone: false
 })
 export class GridAutoColComponent implements OnInit {
   // Input properties that can be set from the parent component
@@ -75,9 +73,7 @@ export class GridAutoColComponent implements OnInit {
    * @returns {number} - The calculated number of columns.
    */
   getCols(): number {
-    return Math.floor(
-      (this.width + this.gutterSize) / (this.cardWidth + this.gutterSize)
-    );
+    return Math.floor((this.width + this.gutterSize) / (this.cardWidth + this.gutterSize));
   }
 
   /**
@@ -85,9 +81,7 @@ export class GridAutoColComponent implements OnInit {
    * @returns {number} - The calculated number of rows.
    */
   getRows(): number {
-    return Math.floor(
-      (this.height + this.gutterSize) / (this.cardHeight + this.gutterSize)
-    );
+    return Math.floor((this.height + this.gutterSize) / (this.cardHeight + this.gutterSize));
   }
 
   /**
@@ -137,11 +131,7 @@ export class GridAutoColComponent implements OnInit {
       for (let i = 1; i < cols; i++) {
         const lineElement = this.renderer.createElement('div');
         this.renderer.addClass(lineElement, 'vertical-line');
-        this.renderer.setStyle(
-          lineElement,
-          'left',
-          `${i * this.cardWidth + (i - 1)}px`
-        );
+        this.renderer.setStyle(lineElement, 'left', `${i * this.cardWidth + (i - 1)}px`);
         this.renderer.appendChild(this.el.nativeElement, lineElement);
       }
     }
@@ -157,8 +147,7 @@ export class GridAutoColComponent implements OnInit {
      * Selects and retrieves all existing vertical lines with the class 'vertical-line'.
      * @type {NodeList} existingLines - The list of existing vertical lines.
      */
-    const existingLines =
-      this.el.nativeElement.querySelectorAll('.vertical-line');
+    const existingLines = this.el.nativeElement.querySelectorAll('.vertical-line');
 
     /**
      * Iterates through the existing lines and removes each one from the component.

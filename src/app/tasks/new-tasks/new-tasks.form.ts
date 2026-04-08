@@ -45,17 +45,20 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
   const maxAgents = environment.config.tasks.maxAgents;
   const chunkSize = environment.config.tasks.chunkSize;
   return new FormGroup<NewTaskForm>({
-    taskName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(1)] }),
+    taskName: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(1)]
+    }),
     notes: new FormControl<string>('', { nonNullable: true }),
     hashlistId: new FormControl<number | null>(null, [Validators.required]),
     attackCmd: new FormControl<string>(uiService.getUISettings()?.hashlistAlias ?? '', {
       nonNullable: true,
-      validators: [
-        Validators.required,
-        attackCommandWithAliasValidator()
-      ]
+      validators: [Validators.required, attackCommandWithAliasValidator()]
     }),
-    priority: new FormControl<number>(priority, { nonNullable: true, validators: [Validators.required, Validators.pattern('^[0-9]*$')] }),
+    priority: new FormControl<number>(priority, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.pattern('^[0-9]*$')]
+    }),
     maxAgents: new FormControl<number>(maxAgents, { nonNullable: true }),
     chunkTime: new FormControl<number | null>(uiService.getUISettings()?.chunktime ?? null),
     statusTimer: new FormControl<number | null>(uiService.getUISettings()?.statustimer ?? null),
