@@ -107,6 +107,7 @@ export class JsonAPISerializer {
     if (!parseResult.success) {
       console.error('API response validation failed', parseResult.error);
       if (!environment.production) {
+        // eslint-disable-next-line no-console
         console.log('Actual API response body:', JSON.stringify(body, null, 2));
         this.alertService?.showErrorMessage('API response validation failed: ' + parseResult.error.message);
         throw parseResult.error;
