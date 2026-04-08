@@ -43,7 +43,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   useNewBench: boolean;
   skipKeyspace: number;
   crackerBinaryId: number;
-  crackerBinaryTypeId: number;
+  crackerBinaryTypeId: number | null;
   crackerBinary?: JCrackerBinary;
   crackerBinaryType?: JCrackerBinaryType;
   hashlist?: JHashlist;

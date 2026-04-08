@@ -43,7 +43,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const agents = this.serializer.deserialize(response, zAgentErrorListResponse) as unknown as JAgentErrors[];
+        const agents = this.serializer.deserialize(response, zAgentErrorListResponse);
 
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;

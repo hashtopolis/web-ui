@@ -3,7 +3,7 @@ import { JTask } from '@models/task.model';
 
 export interface JAgentErrors extends BaseModel {
   agentId: number;
-  chunkId: number;
+  chunkId: number | null;
   error: string;
   id: number;
   taskId: number;

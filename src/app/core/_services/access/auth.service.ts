@@ -187,9 +187,9 @@ export class AuthService {
       );
   }
 
-  get token(): string {
+  get token(): string | null {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    return userData ? userData._token : null!;
+    return userData ? userData._token : null;
   }
 
   private _authUser$ = new BehaviorSubject<AuthUser | null>(null);
@@ -207,7 +207,8 @@ export class AuthService {
     }
   }
 
-  private getUserId(token: string): number | null {
+  private getUserId(token: string | null): number | null {
+    if (!token) return null;
     const p = this.decodeJwt<JwtPayload>(token);
     if (!p) return null;
 

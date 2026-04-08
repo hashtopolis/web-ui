@@ -31,8 +31,8 @@ export interface JHash extends SimpleHashModel {
   isCracked: boolean;
   chunkId: number;
   crackPos: number;
-  chunk?: JChunk;
-  hashlist?: JHashlist;
+  chunk?: JChunk | null;
+  hashlist?: JHashlist | null;
 }
 
 /**

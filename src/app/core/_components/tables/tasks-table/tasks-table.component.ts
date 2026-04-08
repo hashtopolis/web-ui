@@ -637,7 +637,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionDelete(wrapper: JTaskWrapper): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS_WRAPPER, (wrapper as unknown as JTaskWrapper[])[0].id).subscribe(() => {
+      this.gs.delete(SERV.TASKS_WRAPPER, wrapper.id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
         this.reload();
       })

@@ -104,7 +104,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         )
         .subscribe((response: ResponseWrapper) => {
           if (this.editIndex !== undefined && this.editType === 0) {
-            const tasks = this.serializer.deserialize(response, zTaskResponse) as unknown as JTask;
+            const tasks: JTask = this.serializer.deserialize(response, zTaskResponse);
 
             this.setData(tasks.files as JFile[]);
           } else if (this.editType === 1) {

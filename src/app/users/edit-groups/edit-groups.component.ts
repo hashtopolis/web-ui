@@ -245,7 +245,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddUsers() {
     if (this.addUsersForm.valid) {
       this.isUpdatingLoading = true;
-      const users = this.addUsersForm.get('userIds')!.value!.map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
+      const users = (this.addUsersForm.controls.userIds.value ?? []).map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
@@ -255,7 +255,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
 
         // Reset the form control after successful add
-        this.addUsersForm.get('userIds')?.reset();
+        this.addUsersForm.controls.userIds.reset();
         this.showAddUsersForm = false;
 
         this.refresh(); // Reload the select component
@@ -279,7 +279,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddAgents() {
     if (this.addAgentsForm.valid) {
       this.isUpdatingLoading = true;
-      const agents = this.addAgentsForm.get('agentIds')!.value!.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
+      const agents = (this.addAgentsForm.controls.agentIds.value ?? []).map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {
@@ -289,7 +289,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.alert.showSuccessMessage(`Successfully added ${agents.length} agent${agents.length > 1 ? 's' : ''}`);
 
         // Reset the form control after successful add
-        this.addAgentsForm.get('agentIds')?.reset();
+        this.addAgentsForm.controls.agentIds.reset();
         this.showAddAgentsForm = false;
 
         this.refresh(); // Reload the select component

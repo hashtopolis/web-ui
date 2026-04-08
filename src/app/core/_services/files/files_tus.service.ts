@@ -65,7 +65,7 @@ export class UploadTUSService {
    * @returns The current authentication token, or an empty string if no token is available.
    */
   private getCurrentToken(): string {
-    return this.authService.token && true ? this.authService.token : '';
+    return this.authService.token ?? '';
   }
 
   /**

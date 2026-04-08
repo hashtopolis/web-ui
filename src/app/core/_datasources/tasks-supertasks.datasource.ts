@@ -35,7 +35,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const subtasks = this.serializer.deserialize(response, zTaskListResponse) as unknown as JTask[];
+          const subtasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

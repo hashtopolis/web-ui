@@ -97,11 +97,11 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select trigger actions
-    this.viewForm.get('display')!.valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
       this.onQueryp(newvalue, 0);
     });
 
-    this.viewForm.get('filter')!.valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
       this.onQueryp(newvalue, 1);
     });
   }

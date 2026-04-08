@@ -54,7 +54,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
               })
             )
           );
-          const task = this.serializer.deserialize(response, zTaskResponse) as unknown as JTask;
+          const task = this.serializer.deserialize(response, zTaskResponse);
           chunkTime = task.chunkTime;
         } catch {
           // Error already handled via handleFilterError

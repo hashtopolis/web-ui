@@ -230,7 +230,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const loadTasksSubscription$ = this.gs
       .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
       .subscribe((response: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(response, zTaskListResponse) as unknown as JTask[];
+        const tasks = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
 
@@ -301,10 +301,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .create();
 
     const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks = this.serializer.deserialize(response, zChunkListResponse) as unknown as JChunk[];
+      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse) as unknown as JTask[];
+        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse);
 
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);

@@ -63,7 +63,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-      return this.serializer.deserialize(response, zHashListResponse, { include: ['chunk'] as const }) as unknown as JHash[];
+      return this.serializer.deserialize(response, zHashListResponse, { include: ['chunk'] as const });
     } catch {
       return [];
     }

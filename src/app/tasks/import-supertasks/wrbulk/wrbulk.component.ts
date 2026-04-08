@@ -269,9 +269,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd')!.value,
-      files: this.createForm.get('baseFiles')!.value,
-      otherFiles: this.createForm.get('iterFiles')!.value
+      attackCmd: this.createForm.controls.attackCmd.value,
+      files: this.createForm.controls.baseFiles.value,
+      otherFiles: this.createForm.controls.iterFiles.value
     };
   }
 

@@ -272,7 +272,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
     if (this.filterMode === 'client') {
-      const currentValue = this.filterQueryFormGroup.get('textFilter')!.value;
+      const currentValue = this.filterQueryFormGroup.controls.textFilter.value;
       if (currentValue) {
         this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
       }
@@ -402,7 +402,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
     if (this.filterMode === 'client') {
-      const currentValue = this.filterQueryFormGroup.get('textFilter')!.value ?? '';
+      const currentValue = this.filterQueryFormGroup.controls.textFilter.value ?? '';
       this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
     } else {
       this.dataSource.reload();
@@ -469,7 +469,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   } */
   emitFilterValue(): void {
     this.filterError = null;
-    const value = this.filterQueryFormGroup.get('textFilter')!.value ?? '';
+    const value = this.filterQueryFormGroup.controls.textFilter.value ?? '';
     if (this.filterMode === 'client') {
       this.dataSource.applyClientFilter(value, this.selectedFilterColumn);
     } else {
@@ -610,10 +610,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter')!.setValue('', { emitEvent: false });
+    this.filterQueryFormGroup.controls.textFilter.setValue('', { emitEvent: false });
   }
   clearSearchBox(): void {
-    this.filterQueryFormGroup.get('textFilter')!.setValue('');
+    this.filterQueryFormGroup.controls.textFilter.setValue('');
     this.clearFilterError();
     if (this.filterMode === 'client') {
       this.dataSource.applyClientFilter('', null);
