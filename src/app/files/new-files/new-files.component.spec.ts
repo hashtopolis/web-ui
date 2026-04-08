@@ -33,7 +33,9 @@ class MockUploadTUSService {
 }
 
 class MockGlobalService {
-  getAll = jasmine.createSpy('getAll').and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+  getAll = jasmine
+    .createSpy('getAll')
+    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
   getRelationships = jasmine
     .createSpy('getRelationships')
     .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
