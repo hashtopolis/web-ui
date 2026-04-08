@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Subscription } from 'rxjs';
 
 import {
@@ -22,7 +20,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { Sorting, TableConfig, TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -129,6 +127,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() filterMode: 'client' | 'backend' = 'backend';
 
   /** The data source for the table. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table is intentionally generic over any data type
   @Input() dataSource: BaseDataSource<any>;
 
   /** Flag to enable or disable pagination. */
@@ -191,28 +190,29 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() supportsAutoRefresh = false;
 
   /** Flag to color a table row */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- row type depends on consumer's datasource
   @Input() rowClass: ((row: any) => string) | undefined;
 
-  /** Event emitter for when the user triggers a row action */
-  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
+  @Output() rowActionClicked = new EventEmitter<ActionMenuEvent<any>>();
 
-  /** Event emitter for when the user triggers a bulk action */
-  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
+  @Output() bulkActionClicked = new EventEmitter<ActionMenuEvent<any>>();
 
-  /** Event emitter for when the user triggers an export action */
-  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
+  @Output() exportActionClicked = new EventEmitter<ActionMenuEvent<any>>();
 
-  /** Event emitter for when the user saves an editable input */
-  @Output() editableSaved: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
+  @Output() editableSaved = new EventEmitter<HTTableEditable<any>>();
 
-  /** Event emitter for when the user saves a checkbox */
-  @Output() editableCheckbox: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
+  @Output() editableCheckbox = new EventEmitter<HTTableEditable<any>>();
 
   /** Event emitter for checkbox attack */
   @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> = new EventEmitter();
 
   /** Event emitter for checkbox attack */
-  @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
+  @Output() temperatureInformationClicked: EventEmitter<void> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<HTTableColumn> = new EventEmitter();
   @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
   @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
@@ -233,13 +233,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig;
+    const tableSettings = this.uiSettings.getTableConfig(this.name);
 
-    if (!this.isDetailPage) {
-      this.defaultPageSize = tableSettings['page'];
-      this.defaultStartPage = tableSettings['start'];
-      this.defaultBeforePage = tableSettings['before'];
-      this.defaultIndex = tableSettings['index'] ?? 0;
+    if (!this.isDetailPage && tableSettings) {
+      this.defaultPageSize = tableSettings.page;
+      this.defaultStartPage = tableSettings.start;
+      this.defaultBeforePage = tableSettings.before;
+      this.defaultIndex = tableSettings.index ?? 0;
     }
 
     if (Array.isArray(displayedColumns)) {
@@ -294,10 +294,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Sorted header arrow and sorting initialization
-    this.dataSource.sortingColumn = (this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig)['order'] as SortingColumn;
+    const viewInitSettings = this.uiSettings.getTableConfig(this.name);
+    this.dataSource.sortingColumn = viewInitSettings?.order as SortingColumn;
     if (!this.isDetailPage) {
       // Search item
-      this.dataSource.filter = (this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig)['search'] as string;
+      this.dataSource.filter = (viewInitSettings?.search as string) ?? '';
     }
     if (this.dataSource.sortingColumn) {
       // Use the stored column `id` (stringified) for the matSort header id if present.
@@ -409,7 +410,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private filterKeys(original: { [key: string]: string }, include: string[]): any {
+  private filterKeys(original: { [key: string]: string }, include: string[]): { [key: string]: string } {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
@@ -526,7 +527,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to check.
    */
-  isSelected(row: any): boolean {
+  isSelected(row: BaseModel): boolean {
     if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
       return this.isCmdFiles.includes(row.id);
     } else {
@@ -567,7 +568,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to toggle.
    */
-  toggleSelect(row: any): void {
+  toggleSelect(row: BaseModel): void {
     if (this.isSelectable) {
       this.dataSource.toggleRow(row);
     }
@@ -580,7 +581,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param row - The data of the row.
    * @param type - The type of the column (CMD, main attack, or preprocessor).
    */
-  toggleAttack(event: MatCheckboxChange, row: any, type: string): void {
+  toggleAttack(event: MatCheckboxChange, row: BaseModel, type: string): void {
     // Handle the change event for the Cmd Attack checkbox
     const checked = event.checked;
 
@@ -600,11 +601,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   reload(): void {
     this.dataSource.reset(false);
-    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig;
-    this.dataSource.pageSize = tableSettings['page'];
-    this.dataSource.pageAfter = tableSettings['start'];
-    this.dataSource.pageBefore = tableSettings['before'];
-    this.dataSource.index = tableSettings['index'] ?? 0;
+    const reloadSettings = this.uiSettings.getTableConfig(this.name);
+    if (reloadSettings) {
+      this.dataSource.pageSize = reloadSettings.page;
+      this.dataSource.pageAfter = reloadSettings.start;
+      this.dataSource.pageBefore = reloadSettings.before;
+      this.dataSource.index = reloadSettings.index ?? 0;
+    }
     // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     this.dataSource.forceReload();
     if (this.bulkMenu) {
@@ -676,7 +679,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editableSaved.emit(editable);
   }
 
-  editableCheckboxSaved(editable: any): void {
+  editableCheckboxSaved(editable: HTTableEditable<any>): void {
     this.editableCheckbox.emit(editable);
   }
 }

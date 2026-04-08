@@ -72,10 +72,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         routerLink: (task: JTask) =>
           of([
             {
-              label: (task?.taskName?.length ?? 0) > 40 ? `${task.taskName!.substring(0, 40)}...` : task.taskName,
+              label:
+                (task?.taskName?.length ?? 0) > 40
+                  ? `${(task?.taskName ?? '').substring(0, 40)}...`
+                  : (task?.taskName ?? ''),
               routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
               tooltip: task?.attackCmd ?? ''
-            } as HTTableRouterLink
+            }
           ]),
         isSortable: true,
         isSearchable: true,

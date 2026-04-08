@@ -25,7 +25,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 

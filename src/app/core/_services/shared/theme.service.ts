@@ -16,7 +16,7 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
       if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
         return of(null);
       }
-      return (fromEvent<StorageEvent>(window, 'storage') as Observable<StorageEvent>).pipe(
+      return fromEvent<StorageEvent>(window, 'storage').pipe(
         filter((event: StorageEvent) => event.key === 'theme'),
         map((event: StorageEvent): string | null => event.newValue),
         startWith<string | null>(localStorage.getItem('theme', themeSchema) ?? null)
@@ -74,7 +74,7 @@ export class ThemeService {
     @Inject(THEME_LOADER) private loadHandler: ThemeLoader,
     @Inject(THEME_SAVER) private saveHandler: ThemeSaver
   ) {
-    (loadHandler as ThemeLoader)().subscribe((theme) => this._theme.next(theme));
+    loadHandler().subscribe((theme) => this._theme.next(theme));
 
     this.renderer = rendererFactory.createRenderer(null, null);
 
@@ -94,7 +94,7 @@ export class ThemeService {
         document.body.removeAttribute('data-theme');
       }
 
-      (saveHandler as ThemeSaver)(theme);
+      saveHandler(theme);
     });
   }
 

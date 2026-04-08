@@ -40,10 +40,10 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
   }
 
   //Check that format is correct
-  checkFormat(format: any) {
+  checkFormat(format: string | null) {
     let res; //Default date format
     for (let i = 0; i < dateFormats.length; i++) {
-      if ((dateFormats[i] as any)['format'] == format) {
+      if (dateFormats[i].value === format) {
         res = format;
       }
     }

@@ -52,16 +52,16 @@ export class WordlistGeneratorComponent implements OnInit {
    * Getter for the 'names' FormArray.
    * @returns {FormArray} The FormArray containing name controls.
    */
-  get names(): FormArray {
-    return this.form.get('names') as FormArray;
+  get names(): FormArray<FormControl<string>> {
+    return this.form.controls.names;
   }
 
   /**
    * Getter for the 'sparetext' FormArray.
    * @returns {FormArray} The FormArray containing attribute controls.
    */
-  get sparetext(): FormArray {
-    return this.form.get('sparetext') as FormArray;
+  get sparetext(): FormArray<FormControl<string>> {
+    return this.form.controls.sparetext;
   }
 
   /**

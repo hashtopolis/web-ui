@@ -62,6 +62,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
   }
 
   private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): UserPermissions[] {
+    let permId = 0;
     return Object.entries(globalPermissionGroup.permissions).reduce<UserPermissions[]>((acc, [key, value]) => {
       const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
       let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
@@ -72,6 +73,8 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
         existingPermission[type.toLowerCase() as 'create' | 'read' | 'update' | 'delete'] = value;
       } else {
         const newPermission: UserPermissions = {
+          id: permId++,
+          type: 'userPermission',
           name: operationName,
           key: operation,
           create: false,

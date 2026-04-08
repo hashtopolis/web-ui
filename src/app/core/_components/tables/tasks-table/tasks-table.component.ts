@@ -796,8 +796,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks?.[0];
-      const taskName =
-        (task?.taskName?.length ?? 0) > 40 ? `${task!.taskName!.substring(0, 40)}...` : task?.taskName;
+      const name = task?.taskName ?? '';
+      const taskName = name.length > 40 ? `${name.substring(0, 40)}...` : name;
       const isRunning = task?.status === TaskStatus.RUNNING;
       const taskId = task?.id ?? 0;
       const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${taskId}`;

@@ -1,4 +1,4 @@
-import { Sorting, TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
+import { Sorting, TableConfig, TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
 import { uiConfigSchema } from '@models/config-ui.schema';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -100,6 +100,17 @@ export class UISettingsUtilityClass {
   }
 
   /**
+   * Retrieves the full TableConfig for a specific key from the UI configuration.
+   *
+   * @param key - The key for the table settings.
+   * @returns The TableConfig for the key, or null if the entry is a legacy number array.
+   */
+  getTableConfig(key: TableSettingsKey): TableConfig | null {
+    const setting = this.uiConfig.tableSettings[key];
+    return setting && !Array.isArray(setting) ? setting : null;
+  }
+
+  /**
    * Retrieves the table settings for a specific key from the UI configuration.
    *
    * @param key - The key for the table settings.
@@ -153,8 +164,7 @@ export class UISettingsUtilityClass {
 
     for (const key of keys) {
       if (key in this.uiConfig && this.uiConfig[key] !== settings[key]) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.uiConfig as any)[key] = settings[key];
+        Object.assign(this.uiConfig, { [key]: settings[key] });
         changedValues += 1;
         if (key === 'theme') {
           themeChanged = true;

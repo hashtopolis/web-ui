@@ -30,7 +30,7 @@ export class BreadcrumbComponent implements OnInit {
         let currentRoute: ActivatedRoute | null = this.activatedRoute.root,
           url = "";
         do {
-          const childrenRoutes = currentRoute!.children;
+          const childrenRoutes = currentRoute?.children ?? [];
           currentRoute = null;
           childrenRoutes.forEach(route => {
             if (route.outlet === "primary") {

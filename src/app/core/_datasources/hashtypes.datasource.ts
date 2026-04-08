@@ -26,7 +26,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create(), httpOptions);

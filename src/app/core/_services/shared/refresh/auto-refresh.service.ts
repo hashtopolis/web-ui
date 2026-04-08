@@ -58,14 +58,14 @@ export class AutoRefreshService implements OnDestroy {
    * Get the current refresh interval from settings (in seconds).
    */
   get refreshInterval(): number {
-    return (this.uiSettings.getSetting('refreshInterval') as number | undefined) ?? 60;
+    return this.uiSettings.getSetting('refreshInterval') ?? 60;
   }
 
   /**
    * Returns whether auto-refresh page reload is enabled in UI settings.
    */
   get refreshPage(): boolean {
-    return (this.uiSettings.getSetting('refreshPage') as boolean | undefined) ?? false;
+    return this.uiSettings.getSetting('refreshPage') ?? false;
   }
 
   /**

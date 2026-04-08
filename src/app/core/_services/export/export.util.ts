@@ -1,6 +1,7 @@
 import { ExcelColumn } from './export.model';
 import { HTTableColumn } from '../../_components/tables/ht-table/ht-table.models';
 import { Injectable } from '@angular/core';
+import { BaseModel } from '@models/base.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,21 +45,20 @@ export class ExportUtil {
    * @param rawData The data to be exported.
    * @returns Rows for Excel export.
    */
-  async toExcelRows<T>(
+  async toExcelRows<T extends BaseModel>(
     tableColumns: HTTableColumn[],
     rawData: T[]
-  ): Promise<any> {
-    let rowNum = 0;
-    const data: any[] = [];
+  ): Promise<Record<string, string>[]> {
+    const data: Record<string, string>[] = [];
 
     for (const row of rawData) {
-      data[rowNum] = {};
+      const rowData: Record<string, string> = {};
       for (const column of tableColumns) {
-        data[rowNum][column.dataKey!] = column.export
+        rowData[column.dataKey!] = column.export
           ? await column.export(row)
           : '';
       }
-      rowNum += 1;
+      data.push(rowData);
     }
 
     return data;
@@ -71,10 +71,10 @@ export class ExportUtil {
    * @param rawData The data to be exported.
    * @returns Rows for CSV export.
    */
-  async toCsvRows<T>(
+  async toCsvRows<T extends BaseModel>(
     tableColumns: HTTableColumn[],
     rawData: T[]
-  ): Promise<any> {
+  ): Promise<string[][]> {
     const data: string[][] = [];
 
     for (const row of rawData) {

@@ -24,7 +24,8 @@ export class FilterService {
           continue;
         }
 
-        if ((item as any)[prop].toString().toUpperCase().indexOf(filterValue) > -1) {
+        const propValue = (item as Record<string, unknown>)[prop];
+        if (propValue != null && propValue.toString().toUpperCase().indexOf(filterValue) > -1) {
           match = true;
           break;
         }

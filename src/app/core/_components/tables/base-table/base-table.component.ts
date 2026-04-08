@@ -342,10 +342,10 @@ export class BaseTableComponent {
    */
   renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (model) {
+    if (model?.taskId) {
       links.push({
-        routerLink: ['/tasks', 'show-tasks', model.taskId!, 'edit'],
-        label: idLink ? model?.taskId!.toString() : model.task?.taskName?.toString()
+        routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
+        label: idLink ? model.taskId.toString() : model.task?.taskName?.toString()
       });
     }
     return of(links);
