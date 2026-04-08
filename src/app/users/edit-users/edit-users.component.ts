@@ -117,7 +117,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
-        this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
+        this.selectUserAgps = transformSelectOptions(user.accessGroups ?? [], USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
 

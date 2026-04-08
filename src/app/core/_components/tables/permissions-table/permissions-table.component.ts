@@ -58,7 +58,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -96,8 +96,8 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
         id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
         isSortable: false,
-        render: (permission: JGlobalPermissionGroup) => permission.userMembers.length,
-        export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
+        render: (permission: JGlobalPermissionGroup) => (permission.userMembers?.length ?? 0),
+        export: async (permission: JGlobalPermissionGroup) => (permission.userMembers?.length ?? 0) + ''
       }
     ];
   }

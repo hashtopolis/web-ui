@@ -92,19 +92,19 @@
       <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
         <div>
           <div>
-            <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+            <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats ?? []"></app-agent-stat-graph>
           </div>
         </div>
         <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
         <div>
           <div>
-            <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+            <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats ?? []"></app-agent-stat-graph>
           </div>
         </div>
         <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
         <div>
           <div>
-            <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+            <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats ?? []"></app-agent-stat-graph>
           </div>
         </div>
     </app-table>

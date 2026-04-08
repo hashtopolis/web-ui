@@ -59,7 +59,7 @@
               [disabled]="!roleService.hasRole('update')">
             </button-submit>
 
-            @if (editedHashlist?.cracked > 0) {
+            @if ((editedHashlist?.cracked ?? 0) > 0) {
               <button-submit
                 [name]="'Export hashes for pre-crack'"
                 (click)="exortPreCrackedHashes()"
@@ -73,7 +73,7 @@
               [disabled]="!roleService.hasRole('read')">
             </button-submit>
 
-            @if (editedHashlist?.cracked > 0) {
+            @if ((editedHashlist?.cracked ?? 0) > 0) {
               <button-submit
                 [name]="'Generate Wordlist'"
                 (click)="exportWordlist()"
@@ -81,7 +81,7 @@
               </button-submit>
             }
 
-            @if (editedHashlist?.cracked > 0) {
+            @if ((editedHashlist?.cracked ?? 0) > 0) {
               <button-submit
                 [name]="'Export Left Hashes'"
                 (click)="exportLeftHashes()"
@@ -91,7 +91,7 @@
           </grid-buttons>
         </div>
 
-        @if (editedHashlist?.cracked > 0 && roleService.hasRole('tasks')) {
+        @if ((editedHashlist?.cracked ?? 0) > 0 && roleService.hasRole('tasks')) {
           <br />
           <mat-accordion>
             <mat-expansion-panel>

@@ -16,7 +16,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;
   private _isChunksLive = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setTaskId(taskId: number) {
     this._taskId = taskId;
@@ -54,7 +54,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
               })
             )
           );
-          const task: JTask = this.serializer.deserialize(response, zTaskResponse);
+          const task = this.serializer.deserialize(response, zTaskResponse) as unknown as JTask;
           chunkTime = task.chunkTime;
         } catch {
           // Error already handled via handleFilterError

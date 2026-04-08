@@ -25,7 +25,7 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
     super(locale);
   }
 
-  override transform(epoch: number): any {
+  override transform(epoch: number | Date | string | null | undefined, ...args: unknown[]): any {
     if (epoch === undefined || epoch === null) return epoch;
 
     if (!this.cookieService.getCookie('localtimefmt')) {
@@ -36,14 +36,14 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
       this.cookieService.getCookie('localtimefmt')
     );
 
-    return super.transform(epoch * 1000, format);
+    return super.transform(Number(epoch) * 1000, format);
   }
 
   //Check that format is correct
   checkFormat(format: any) {
     let res; //Default date format
     for (let i = 0; i < dateFormats.length; i++) {
-      if (dateFormats[i]['format'] == format) {
+      if ((dateFormats[i] as any)['format'] == format) {
         res = format;
       }
     }

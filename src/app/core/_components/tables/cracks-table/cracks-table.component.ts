@@ -55,7 +55,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -103,14 +103,14 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'agentId',
         isSortable: false,
         routerLink: (crack: JHash) => this.renderAgentLinkFromHash(crack),
-        export: async (crack: JHash) => crack.chunk.agentId + ''
+        export: async (crack: JHash) => (crack.chunk?.agentId ?? '') + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: false,
         routerLink: (crack: JHash) => this.renderTaskLinkFromHash(crack),
-        export: async (crack: JHash) => crack.chunk.taskId + ''
+        export: async (crack: JHash) => (crack.chunk?.taskId ?? '') + ''
       },
       {
         id: CracksTableCol.CHUNK,
@@ -123,8 +123,8 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: JHash) => (crack.hashlist ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : ''),
-        export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
+        render: (crack: JHash) => (crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : ''),
+        export: async (crack: JHash) => (crack.hashlist?.format !== undefined ? HashListFormatLabel[crack.hashlist.format] : '')
       }
     ];
   }
@@ -181,7 +181,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (hash) {
       const chunk = hash.chunk;
       if (chunk) {
-        const modelID = chunk[modelIDKey];
+        const modelID = (chunk as unknown as Record<string, string | number>)[modelIDKey];
         links.push({
           routerLink: [relativePath, context, modelID, 'edit'],
           label: modelID

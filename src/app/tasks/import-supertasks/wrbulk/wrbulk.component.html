@@ -25,7 +25,7 @@
           </div>
           <br/>
           <input-text-area title="Base Command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
-          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
+          <blacklist-attack [value]="createForm.get('attackCmd')!.value"></blacklist-attack>
           <fixed-alert
           message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."></fixed-alert>
           <grid-buttons>

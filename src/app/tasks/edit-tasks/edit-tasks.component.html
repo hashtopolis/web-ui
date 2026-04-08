@@ -96,9 +96,9 @@
           @if(roleService.hasRole("editTaskInfoHashlist")) {
             @if (hashlistinform) {
               <simulate-form-field
-                [label]="hashlistinform?.format === 0 ? 'Hashlist' : hashlistinform?.format === 3 ? 'SuperHashlist' : 'Hashlist not found'"
-                message="{{ hashlistinform?.name }} / {{ hashlistDescrip }}"
-                [routerLink]="'/hashlists/hashlist/'+hashlistinform?.id+'/edit'">
+                [label]="(hashlistinform?.format ?? -1) === 0 ? 'Hashlist' : (hashlistinform?.format ?? -1) === 3 ? 'SuperHashlist' : 'Hashlist not found'"
+                message="{{ hashlistinform?.name ?? '' }} / {{ hashlistDescrip }}"
+                [routerLink]="'/hashlists/hashlist/'+(hashlistinform?.id ?? '')+'/edit'">
               </simulate-form-field>
             } @else {
               <simulate-form-field label="Hashlist" message="---"></simulate-form-field>
@@ -232,7 +232,7 @@
   @if (roleService.hasRole("editTaskSpeed")) {
     <app-table>
       <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
-      <app-task-speed-graph [speeds]="originalValue?.speeds"></app-task-speed-graph>
+      <app-task-speed-graph [speeds]="originalValue.speeds ?? []"></app-task-speed-graph>
     </app-table>
   }
 

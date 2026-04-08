@@ -44,10 +44,13 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
 
   getReport(data: JHashlist) {
     let sum = 0;
-    const workflow = [];
-    let preCommand;
-    const files = [];
-    data.tasks.forEach((item: JTask) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const workflow: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let preCommand: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const files: any[] = [];
+    (data.tasks ?? []).forEach((item: JTask) => {
       if (item.keyspace && typeof item.keyspace === 'number') {
         sum += item.keyspace;
       }

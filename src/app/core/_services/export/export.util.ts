@@ -18,7 +18,7 @@ export class ExportUtil {
   ): ExcelColumn[] {
     return tableColumns.map((col: HTTableColumn) => {
       return {
-        key: col.dataKey,
+        key: col.dataKey ?? '',
         header: columnLabels[col.id]
       };
     });
@@ -54,7 +54,7 @@ export class ExportUtil {
     for (const row of rawData) {
       data[rowNum] = {};
       for (const column of tableColumns) {
-        data[rowNum][column.dataKey] = column.export
+        data[rowNum][column.dataKey!] = column.export
           ? await column.export(row)
           : '';
       }

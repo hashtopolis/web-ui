@@ -33,8 +33,8 @@ export class CopyButtonDirective {
     if (!this.payload) return;
 
     const listener = (e: ClipboardEvent) => {
-      const clipboard = e.clipboardData || window['clipboardData'];
-      clipboard.setData('text', this.payload.toString());
+      const clipboard = e.clipboardData || (window as any)['clipboardData'];
+      clipboard!.setData('text', this.payload.toString());
       e.preventDefault();
       this.copied.emit(this.payload);
     };

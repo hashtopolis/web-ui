@@ -38,7 +38,7 @@ export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  onChangeValue(value) {
+  onChangeValue(value: any) {
     this.value = value;
     this.onChange(value);
     this.onTouched();

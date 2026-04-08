@@ -191,7 +191,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       return;
     }
     const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
     );
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);

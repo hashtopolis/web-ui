@@ -48,7 +48,7 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   @Input() lastUpdated!: Date
 
   /** Timestamp (ms) of the next scheduled refresh */
-  @Input() nextRefreshTimestamp!: number
+  @Input() nextRefreshTimestamp: number | undefined
 
   /** Whether a refresh is currently in progress */
   @Input() refreshing = false
@@ -67,7 +67,7 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Returns the formatted last updated time according to UI settings */
   get lastUpdatedDisplay(): string {
-    return formatDate(this.lastUpdated, this.util.getSetting('timefmt'))
+    return formatDate(this.lastUpdated, this.util.getSetting('timefmt') ?? '')
   }
 
   /** Initialize the countdown timer */

@@ -32,7 +32,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
           const superTask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse, {
             include: ['pretasks'] as const
           });
-          const pretasks = superTask.pretasks;
+          const pretasks = superTask.pretasks ?? [];
           this.setData(pretasks);
         })
     );

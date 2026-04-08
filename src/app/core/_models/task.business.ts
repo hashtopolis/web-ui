@@ -15,7 +15,7 @@ export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus | null {
     return null;
   }
   if (wrapper.taskType === TaskType.TASK) {
-    return wrapper.tasks[0].status;
+    return wrapper.tasks[0].status as TaskStatus;
   }
   if (wrapper.tasks.every((task) => task.status === TaskStatus.COMPLETED)) {
     return TaskStatus.COMPLETED;

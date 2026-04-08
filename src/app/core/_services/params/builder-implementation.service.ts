@@ -25,10 +25,10 @@ export class RequestParamBuilder implements IParamBuilder {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
-    if (dataSource.pageAfter != null) {
+    if (dataSource.pageAfter != null && typeof dataSource.pageAfter === 'number') {
       this.setPageAfter(dataSource.pageAfter);
     }
-    if (dataSource.pageBefore != null) {
+    if (dataSource.pageBefore != null && typeof dataSource.pageBefore === 'number') {
       this.setPageBefore(dataSource.pageBefore);
     }
     if (dataSource.sortingColumn != undefined) {
@@ -53,7 +53,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageBefore
    * @returns object instance
    */
-  setPageBefore(pageBefore: number): IParamBuilder {
+  setPageBefore(pageBefore: number | undefined): IParamBuilder {
     this.params.pageBefore = pageBefore;
     return this;
   }
@@ -63,7 +63,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageAfter
    * @returns object instance
    */
-  setPageAfter(pageAfter: number): IParamBuilder {
+  setPageAfter(pageAfter: number | undefined): IParamBuilder {
     this.params.pageAfter = pageAfter;
     return this;
   }

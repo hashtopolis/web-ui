@@ -212,7 +212,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    const pretaskData = [];
+    const pretaskData: { type: string; id: number }[] = [];
 
     pretasks.forEach((pretask) => {
       pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
@@ -251,7 +251,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(priority);
     } catch (error) {
-      this.alertService.showErrorMessage(`Error while changing priority: ${error.message}`);
+      this.alertService.showErrorMessage(`Error while changing priority: ${(error as Error).message}`);
     }
 
     if (!val || pretask.priority == val) {
@@ -283,7 +283,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(max);
     } catch (error) {
-      this.alertService.showErrorMessage(`Error while changing max agents: ${error.message}`);
+      this.alertService.showErrorMessage(`Error while changing max agents: ${(error as Error).message}`);
     }
 
     if (!val || pretask.maxAgents == val) {
@@ -321,7 +321,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   private rowActionEdit(pretasks: JPretask): void {
     this.renderPretaskLink(pretasks)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

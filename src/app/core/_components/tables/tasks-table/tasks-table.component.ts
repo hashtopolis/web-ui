@@ -90,7 +90,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -102,7 +102,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   handleBackendSqlFilter(event: string) {
     const filterQuery: Filter = {
       value: event,
-      field: this.selectedFilterColumn.dataKey,
+      field: this.selectedFilterColumn.dataKey ?? '',
       operator: FilterType.ICONTAINS,
       parent: this.selectedFilterColumn.parent
     };
@@ -116,11 +116,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
-        render: (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : ''),
+        render: (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? wrapper.tasks?.[0]?.id + '' : ''),
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapper) => {
-          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
+          return wrapper.taskType === TaskType.TASK ? wrapper.tasks?.[0]?.id + '' : '';
         }
       },
       {
@@ -137,7 +137,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: true,
         parent: 'task',
         isSearchable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
+        export: async (wrapper: JTaskWrapper) => wrapper.tasks?.[0]?.taskName ?? ''
       },
       {
         id: TaskTableCol.STATUS,
@@ -171,9 +171,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapper) => {
           if (wrapper.hashlist) {
-            this.renderHashlistIcon(wrapper.hashlist);
+            return this.renderHashlistIcon(wrapper.hashlist) ?? { name: '' };
           } else {
-            return undefined;
+            return { name: '' };
           }
         },
         isSortable: true,
@@ -205,29 +205,29 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.tasks[0]?.totalAssignedAgents + '';
+            return wrapper.tasks?.[0]?.totalAssignedAgents + '';
           } else {
             return '';
           }
         },
-        export: async (wrapper: JTaskWrapper) => (wrapper.tasks[0]?.totalAssignedAgents ?? 0) + ''
+        export: async (wrapper: JTaskWrapper) => (wrapper.tasks?.[0]?.totalAssignedAgents ?? 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'groupName',
         parent: 'accessGroup',
         isSortable: true,
-        routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
-        export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
+        routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup!),
+        export: async (wrapper: JTaskWrapper) => wrapper.accessGroup?.groupName ?? ''
       },
       {
         id: TaskTableCol.PREPROCESSOR,
         dataKey: 'preprocessorId',
         render: (wrapper: JTaskWrapper) =>
-          wrapper.taskType === TaskType.TASK && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : '',
+          wrapper.taskType === TaskType.TASK && wrapper.tasks?.[0]?.preprocessorId === 1 ? 'Prince' : '',
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === TaskType.TASK && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : ''
+          wrapper.taskType === TaskType.TASK && wrapper.tasks?.[0]?.preprocessorId === 1 ? 'Prince' : ''
       },
       {
         id: TaskTableCol.IS_SMALL,
@@ -236,7 +236,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
+          wrapper.taskType === TaskType.TASK ? (wrapper.tasks?.[0]?.isSmall ? 'Yes' : 'No') : ''
       },
       {
         id: TaskTableCol.IS_CPU_TASK,
@@ -245,7 +245,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
+          wrapper.taskType === TaskType.TASK ? (wrapper.tasks?.[0]?.isCpuTask ? 'Yes' : 'No') : ''
       }
     );
 
@@ -271,13 +271,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           editable: (wrapper: JTaskWrapper) => {
             return {
               data: wrapper,
-              value: wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
+              value: wrapper.taskType === TaskType.TASK ? wrapper.tasks?.[0]?.maxAgents + '' : wrapper.maxAgents + '',
               action: TaskTableEditableAction.CHANGE_MAX_AGENTS
             };
           },
           isSortable: true,
           isSearchable: true,
-          export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.maxAgents + ''
+          export: async (wrapper: JTaskWrapper) => wrapper.tasks?.[0]?.maxAgents + ''
         }
       );
     } else {
@@ -293,10 +293,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'maxAgents',
           render: (wrapper: JTaskWrapper) =>
-            wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + '',
+            wrapper.taskType === TaskType.TASK ? wrapper.tasks?.[0]?.maxAgents + '' : wrapper.maxAgents + '',
           isSortable: false,
           export: async (wrapper: JTaskWrapper) =>
-            wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.maxAgents + '' : wrapper.maxAgents + ''
+            wrapper.taskType === TaskType.TASK ? wrapper.tasks?.[0]?.maxAgents + '' : wrapper.maxAgents + ''
         }
       );
     }
@@ -358,7 +358,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return {
       ...data,
       taskName:
-        data.taskType === TaskType.SUPERTASK || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
+        data.taskType === TaskType.SUPERTASK || !data.tasks || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
     };
   }
 
@@ -373,7 +373,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     let tasksCount = 0;
 
     const updatedData: JTaskWrapper[] = event.data.map((taskWrapper: JTaskWrapper) => {
-      let taskName: string;
+      let taskName: string = taskWrapper.taskWrapperName;
 
       // Determine if the task wrapper is a supertask or normal task and take the appropriate task name
       switch (taskWrapper.taskType) {
@@ -384,7 +384,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           break;
         case TaskType.TASK:
           tasksCount++;
-          taskName = taskWrapper.tasks[0]?.taskName ?? taskWrapper.taskWrapperName;
+          taskName = taskWrapper.tasks?.[0]?.taskName ?? taskWrapper.taskWrapperName;
       }
 
       return {
@@ -494,7 +494,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {
     if (wrapper.taskType === TaskType.TASK) {
-      const task: JTask = wrapper.tasks[0];
+      const task: JTask = wrapper.tasks![0];
       if (task != null && task.keyspace > 0) {
         return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
       }
@@ -561,7 +561,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
     let icon: HTTableIcon = { name: '' };
     if (wrapper.taskType === TaskType.TASK) {
-      const task: JTask = wrapper.tasks[0];
+      const task = wrapper.tasks![0] as unknown as Record<string, unknown>;
       if (equals === '') {
         if (task[key] === true) {
           icon = {
@@ -576,14 +576,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         };
       }
     } else {
+      const record = wrapper as unknown as Record<string, unknown>;
       if (equals === '') {
-        if (wrapper[key] === true) {
+        if (record[key] === true) {
           icon = {
             name: 'check',
             cls: 'text-ok'
           };
         }
-      } else if (wrapper[key] === equals) {
+      } else if (record[key] === equals) {
         icon = {
           name: 'check',
           cls: 'text-ok'
@@ -596,7 +597,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(task: JTaskWrapper): void {
     if (this.checkValidTask(task)) {
-      this.router.navigate(['tasks', 'show-tasks', task.tasks[0].id, 'edit']);
+      this.router.navigate(['tasks', 'show-tasks', task.tasks![0].id, 'edit']);
     }
   }
 
@@ -607,7 +608,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const action = isArchived ? 'archived' : 'unarchived';
     const tasks = [];
     for (const wrapper of wrappers) {
-      tasks.push(wrapper.tasks[0]);
+      tasks.push(wrapper.tasks![0]);
     }
 
     this.subscriptions.push(
@@ -637,7 +638,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionDelete(wrapper: JTaskWrapper): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0].id).subscribe(() => {
+      this.gs.delete(SERV.TASKS_WRAPPER, (wrapper as unknown as JTaskWrapper[])[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
         this.reload();
       })
@@ -646,25 +647,25 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionCopyToTask(wrapper: JTaskWrapper): void {
     if (this.checkValidTask(wrapper)) {
-      this.router.navigate(['tasks', 'new-tasks', wrapper.tasks[0].id, 'copy']);
+      this.router.navigate(['tasks', 'new-tasks', wrapper.tasks![0].id, 'copy']);
     }
   }
 
   private rowActionCopyToPretask(wrapper: JTaskWrapper): void {
     if (this.checkValidTask(wrapper)) {
-      this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.tasks[0].id, 'copytask']);
+      this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.tasks![0].id, 'copytask']);
     }
   }
 
   private rowActionArchive(wrapper: JTaskWrapper): void {
     if (this.checkValidTask(wrapper)) {
-      this.updateIsArchived(wrapper.tasks[0].id, true);
+      this.updateIsArchived(wrapper.tasks![0].id, true);
     }
   }
 
   private rowActionUnarchive(wrapper: JTaskWrapper): void {
     if (this.checkValidTask(wrapper)) {
-      this.updateIsArchived(wrapper.tasks[0].id, false);
+      this.updateIsArchived(wrapper.tasks![0].id, false);
     }
   }
 
@@ -681,7 +682,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   // Function to check if a task is invalid, by checking if a taskwrapper has a task and show an error.
   // This state should not happen but since there are no database constraints this can't be enforced.
   private checkValidTask(wrapper: JTaskWrapper): boolean {
-    if (wrapper.tasks.length === 0) {
+    if (!wrapper.tasks || wrapper.tasks.length === 0) {
       this.alertService.showErrorMessage(
         "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
       );
@@ -708,7 +709,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
         );
       }
-      task = wrapper.tasks[0];
+      task = wrapper.tasks![0];
       serv = SERV.TASKS;
     } else {
       task = wrapper;
@@ -756,7 +757,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
         );
       }
-      task = wrapper.tasks[0];
+      task = wrapper.tasks![0];
       serv = SERV.TASKS;
     } else {
       task = wrapper;
@@ -796,9 +797,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks?.[0];
-      const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
+      const taskName =
+        (task?.taskName?.length ?? 0) > 40 ? `${task!.taskName!.substring(0, 40)}...` : task?.taskName;
       const isRunning = task?.status === TaskStatus.RUNNING;
-      const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${task?.id}`;
+      const taskId = task?.id ?? 0;
+      const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${taskId}`;
       const totalHashes = wrapper.hashlist?.hashCount ?? 0;
       const crackedHashes = wrapper.cracked ?? 0;
       const hasHashlistProgress = totalHashes > 0;
@@ -810,11 +813,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return of([
         {
           label: taskName,
-          routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
+          routerLink: ['/tasks', 'show-tasks', taskId, 'edit'],
           tooltip: task?.attackCmd ?? '',
           visualGraph: {
-            enabled: isRunning,
-            taskId: task?.id,
+            enabled: isRunning ?? false,
+            taskId,
             imageUrl,
             overallProgress,
             overallProgressLabel

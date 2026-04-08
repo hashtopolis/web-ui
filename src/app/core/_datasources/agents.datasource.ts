@@ -21,7 +21,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   private agentStatsRequired: boolean = false;
 
   setTaskId(taskId: number): void {
@@ -110,9 +110,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .subscribe(async (response: ResponseWrapper) => {
         const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAgentAssignmentListResponse);
         if (assignments && assignments.length > 0) {
-          const userIds: Array<number> = assignments
-            .map((assignment) => assignment.agent.userId)
-            .filter((userId) => userId !== null);
+          const userIds: number[] = assignments
+            .map((assignment) => assignment.agent?.userId)
+            .filter((userId): userId is number => userId !== undefined && userId !== null);
           const users = await this.loadUserData(userIds);
 
           const agents: JAgent[] = [];

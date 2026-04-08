@@ -30,7 +30,7 @@ export class ReplaceStringPipe implements PipeTransform {
     return value.replace(new RegExp(this.escapeStr(strToReplace), 'g'), replacementStr);
   }
 
-  escapeStr(str) {
+  escapeStr(str: string) {
     return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 

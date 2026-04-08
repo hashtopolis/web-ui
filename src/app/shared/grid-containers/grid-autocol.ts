@@ -57,15 +57,16 @@ export class GridAutoColComponent implements OnInit {
    * Handles window resize events to update component properties based on the new dimensions.
    * @param {Event} event - The window resize event.
    */
-  onWindowResize(event) {
+  onWindowResize(event: Event) {
     /**
      * Update the component properties with the new dimensions.
      * @type {number} width - The updated width of the window.
      * @type {number} height - The updated height of the window.
      * @type {boolean} isMobile - A boolean indicating whether the window is considered a mobile view.
      */
-    this.width = event.target.innerWidth;
-    this.height = event.target.innerHeight;
+    const target = event.target as Window;
+    this.width = target.innerWidth;
+    this.height = target.innerHeight;
     this.isMobile = this.width < this.mobileWidth;
   }
 
@@ -114,7 +115,7 @@ export class GridAutoColComponent implements OnInit {
     const divisionLineWidth = (this.width - cols * this.cardWidth) / (cols - 1);
 
     // Define the CSS styles for the grid
-    const styles = {
+    const styles: Record<string, string> = {
       display: 'grid',
       'grid-template-columns': `repeat(2, ${this.cardWidth}px))`,
       'grid-template-rows': `repeat(${rows}, auto)`,

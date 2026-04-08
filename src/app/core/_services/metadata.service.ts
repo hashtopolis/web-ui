@@ -249,7 +249,7 @@ export class MetadataService {
       label: 'Access group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS),
+      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
       selectOptions$: of([]),
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
@@ -1088,7 +1088,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
@@ -1099,7 +1099,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
       selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]

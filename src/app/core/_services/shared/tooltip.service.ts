@@ -18,11 +18,11 @@ export class TooltipService {
   constructor(private cookieService: CookieService) {}
 
   public getTaskTooltips(): TaskTooltipsLevel {
-    return environment.tooltip.tasks[this.getTooltipLevel()];
+    return (environment.tooltip.tasks as any)[this.getTooltipLevel()];
   }
 
   public getConfigTooltips(): ConfigTooltipsLevel {
-    return environment.tooltip.config[this.getTooltipLevel()];
+    return (environment.tooltip.config as any)[this.getTooltipLevel()];
   }
 
   public getTooltipLevel() {

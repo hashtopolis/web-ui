@@ -72,7 +72,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         routerLink: (task: JTask) =>
           of([
             {
-              label: task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task.taskName,
+              label: (task?.taskName?.length ?? 0) > 40 ? `${task.taskName!.substring(0, 40)}...` : task.taskName,
               routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
               tooltip: task?.attackCmd ?? ''
             } as HTTableRouterLink
@@ -276,7 +276,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private getNumAgents(task: JTask): number {
-    return task.totalAssignedAgents;
+    return task.totalAssignedAgents ?? 0;
   }
 
   private renderAgents(task: JTask): SafeHtml {

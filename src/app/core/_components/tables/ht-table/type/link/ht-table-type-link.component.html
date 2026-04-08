@@ -12,10 +12,10 @@
             @if (link.label) {
               {{ link.label }}
             } @else {
-              {{ element[tableColumn.dataKey] }}
+              {{ element[tableColumn.dataKey!] }}
             }
-            @if (link.icon?.faIcon) {
-              <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
+            @if (link.icon?.faIcon; as faIcon) {
+              <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
             }
           </a>
 
@@ -32,11 +32,11 @@
 
                 <div class="overall-progress">
                   <div class="overall-progress-label">
-                    Overall hashlist progress: {{ link.visualGraph.overallProgress }}%
-                    <span class="overall-progress-meta">({{ link.visualGraph.overallProgressLabel }})</span>
+                    Overall hashlist progress: {{ link.visualGraph!.overallProgress }}%
+                    <span class="overall-progress-meta">({{ link.visualGraph!.overallProgressLabel }})</span>
                   </div>
                   <div class="overall-progress-track">
-                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph.overallProgress"></div>
+                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph!.overallProgress"></div>
                   </div>
                 </div>
 
@@ -76,10 +76,10 @@
               @if (link.label) {
                 {{ link.label }}
               } @else {
-                {{ element[tableColumn.dataKey] }}
+                {{ element[tableColumn.dataKey!] }}
               }
-              @if (link.icon?.faIcon) {
-                <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
+              @if (link.icon?.faIcon; as faIcon) {
+                <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
               }
             </span>
           </div>
@@ -97,11 +97,11 @@
 
                 <div class="overall-progress">
                   <div class="overall-progress-label">
-                    Overall hashlist progress: {{ link.visualGraph.overallProgress }}%
-                    <span class="overall-progress-meta">({{ link.visualGraph.overallProgressLabel }})</span>
+                    Overall hashlist progress: {{ link.visualGraph!.overallProgress }}%
+                    <span class="overall-progress-meta">({{ link.visualGraph!.overallProgressLabel }})</span>
                   </div>
                   <div class="overall-progress-track">
-                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph.overallProgress"></div>
+                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph!.overallProgress"></div>
                   </div>
                 </div>
 

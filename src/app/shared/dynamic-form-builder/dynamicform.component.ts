@@ -133,7 +133,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
    */
   ngOnInit() {
     // Initialize an object to store the configuration of form controls.
-    const controlsConfig = {};
+    const controlsConfig: Record<string, unknown> = {};
 
     // Iterate through the form metadata to create and configure form controls.
     for (const field of this.formMetadata) {

@@ -8,7 +8,7 @@ import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-
  * Interface definition for the updatable user attributes
  */
 export interface UserUpdateData {
-  globalPermissionGroupId: FormControl<number>;
+  globalPermissionGroupId: FormControl<number | null>;
   isValid: FormControl<boolean>;
 }
 
@@ -16,12 +16,12 @@ export interface UserUpdateData {
  * Interface definition for form to edit an user
  */
 export interface EditUserForm {
-  id: FormControl<number>;
+  id: FormControl<number | null>;
   name: FormControl<string>;
   email: FormControl<string>;
   registered: FormControl<string>;
   lastLogin: FormControl<string>;
-  globalPermissionGroup: FormControl<JGlobalPermissionGroup>;
+  globalPermissionGroup: FormControl<JGlobalPermissionGroup | null | undefined>;
   updateData: FormGroup<UserUpdateData>;
 }
 
@@ -37,15 +37,15 @@ export interface UpdatePassForm {
  */
 export const getEditUserForm = () => {
   return new FormGroup<EditUserForm>({
-    id: new FormControl({ value: undefined, disabled: true }),
-    name: new FormControl({ value: '', disabled: true }),
-    email: new FormControl({ value: '', disabled: true }),
-    registered: new FormControl({ value: '', disabled: true }),
-    lastLogin: new FormControl({ value: '', disabled: true }),
-    globalPermissionGroup: new FormControl({ value: undefined, disabled: true }),
+    id: new FormControl<number | null>({ value: null, disabled: true }),
+    name: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    email: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    registered: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    lastLogin: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    globalPermissionGroup: new FormControl<JGlobalPermissionGroup | null>({ value: null, disabled: true }),
     updateData: new FormGroup({
-      globalPermissionGroupId: new FormControl(undefined),
-      isValid: new FormControl(false)
+      globalPermissionGroupId: new FormControl<number | null>(null),
+      isValid: new FormControl<boolean>(false, { nonNullable: true })
     })
   });
 };
@@ -55,6 +55,6 @@ export const getEditUserForm = () => {
  */
 export const getUpdatePassForm = () => {
   return new FormGroup({
-    password: new FormControl('')
+    password: new FormControl<string>('', { nonNullable: true })
   });
 };

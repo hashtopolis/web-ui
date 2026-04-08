@@ -8,7 +8,7 @@ import { Injectable } from "@angular/core";
 export class AppPreloadingStrategy implements PreloadingStrategy {
 
   preload(route: Route, load: Function): Observable<any> {
-    const loadRoute = delay =>
+    const loadRoute = (delay: any) =>
       delay ? timer(150).pipe(mergeMap(_ => load())) : load();
     return route.data && route.data['preload']
       ? loadRoute(route.data['delay'])

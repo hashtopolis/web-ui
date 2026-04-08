@@ -121,7 +121,8 @@ export class FormComponent implements OnInit, OnDestroy {
   constructor() {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
-      (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (data: any) => {
         const formKind = data.kind;
         this.serviceConfig = data.serviceConfig; // Get the API path from route data
         this.type = data.type;
@@ -129,8 +130,8 @@ export class FormComponent implements OnInit, OnDestroy {
         // Load metadata and form information
         this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
         this.formMetadata = this.metadataService.getFormMetadata(formKind);
-        this.title = this.globalMetadata['title'];
-        this.customform = this.globalMetadata['customform'];
+        this.title = this.globalMetadata.title;
+        this.customform = this.globalMetadata.customform ?? false;
         this.titleService.set([this.title]);
         // Load metadata and form information
         if (this.type === 'edit') {
@@ -212,7 +213,6 @@ export class FormComponent implements OnInit, OnDestroy {
     // Unsubscribe from the route params subscription
     if (this.routeParamsSubscription) {
       this.routeParamsSubscription.unsubscribe();
-      this.routeParamsSubscription = null;
     }
 
     // Unsubscribe from other subscriptions
@@ -230,23 +230,23 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
-        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
       });
 
       this.unsubscribeService.add(createSubscription);
     } else if (this.type === 'helper') {
       const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
-        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
       });
 
       this.unsubscribeService.add(createSubscription);
     } else {
       // Update mode: Submit form data for updating an existing item
       const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
-        this.router.navigate([this.globalMetadata['submitokredirect']]);
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
       });
       this.unsubscribeService.add(updateSubscription);
     }
@@ -261,9 +261,9 @@ export class FormComponent implements OnInit, OnDestroy {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
-      if (field.replacevalue) {
+      if (field.replacevalue && field.name) {
         // Replace the value with the 'editedIndex'
-        formValues[field.name] = this.editedIndex;
+        (formValues as unknown as Record<string, unknown>)[field.name] = this.editedIndex;
       }
       // Add custom logic to modify formValues as needed
     }
@@ -278,22 +278,22 @@ export class FormComponent implements OnInit, OnDestroy {
    * Emits success alerts and navigates to the appropriate route.
    */
   onDeleteAction() {
-    if (this.globalMetadata['deltitle']) {
+    if (this.globalMetadata.deltitle ?? '') {
       this.getIndex();
     }
     this.confirmDialog
-      .confirmDeletion(this.globalMetadata['deltitle'], `${this.editedIndex}`)
+      .confirmDeletion(this.globalMetadata.deltitle ?? '', `${this.editedIndex}`)
       .subscribe((confirmed) => {
         if (confirmed) {
           // Deletion
           const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
             this.router
-              .navigate([this.globalMetadata['delsubmitokredirect']])
-              .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
+              .navigate([this.globalMetadata.delsubmitokredirect ?? '/'])
+              .then(() => this.alert.showSuccessMessage(this.globalMetadata.delsubmitok ?? ''));
           });
           this.unsubscribeService.add(deleteSubscription);
         } else {
-          this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
+          this.alert.showInfoMessage(this.globalMetadata.delsubmitcancel ?? '');
         }
       });
   }

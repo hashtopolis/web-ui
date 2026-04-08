@@ -16,10 +16,10 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
       if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
         return of(null);
       }
-      return fromEvent<StorageEvent>(window, 'storage').pipe(
-        filter((event) => event.key === 'theme'),
-        map((event) => event.newValue),
-        startWith(localStorage.getItem('theme', themeSchema))
+      return (fromEvent<StorageEvent>(window, 'storage') as Observable<StorageEvent>).pipe(
+        filter((event: StorageEvent) => event.key === 'theme'),
+        map((event: StorageEvent): string | null => event.newValue),
+        startWith<string | null>(localStorage.getItem('theme', themeSchema) ?? null)
       );
     };
   }

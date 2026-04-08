@@ -57,6 +57,7 @@ use([
   providers: [HashRatePipe]
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() speeds: any[] = [];
 
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
@@ -96,8 +97,9 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    const result = [];
-    const reducer = this.speeds.reduce((res, value) => {
+    const result: { time: number; speed: number }[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.speeds.reduce<Record<number, { time: number; speed: number }>>((res, value: any) => {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -106,8 +108,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return res;
     }, {});
 
-    const arr = [];
-    const timestamps = [];
+    const arr: { name: string; value: [string, number]; unit: string }[] = [];
+    const timestamps: number[] = [];
 
     for (const item of result) {
       const iso = this.transDate(item.time);
@@ -152,7 +154,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       },
       tooltip: {
         position: 'top',
-        formatter: (params) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: (params: any) => {
           if (params.componentType === 'markPoint') {
             return `${params.name}: <strong>${params.data.value}</strong>`;
           }

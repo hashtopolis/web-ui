@@ -49,7 +49,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
-            data = globalPermissionGroup.userMembers;
+            data = globalPermissionGroup.userMembers ?? [];
           }
           this.setData(data);
         })
@@ -62,20 +62,23 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
   }
 
   private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): UserPermissions[] {
-    return Object.entries(globalPermissionGroup.permissions).reduce((acc, [key, value]) => {
+    return Object.entries(globalPermissionGroup.permissions).reduce<UserPermissions[]>((acc, [key, value]) => {
       const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
       let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
       operationName = operationName.charAt(0).toUpperCase() + operationName.slice(1);
       const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
       const existingPermission = acc.find((item) => item.name === operationName && item.key === operation);
-      if (existingPermission) {
-        existingPermission[type.toLowerCase()] = value;
+      if (existingPermission && type) {
+        (existingPermission as unknown as Record<string, boolean>)[type.toLowerCase()] = value;
       } else {
-        const newPermission = {
+        const newPermission: UserPermissions = {
           name: operationName,
           key: operation,
-          originalName: 'perm' + operation,
-          [type ? type.toLowerCase() : '']: value
+          create: false,
+          read: false,
+          update: false,
+          delete: false,
+          ...(type ? { [type.toLowerCase()]: value } : {})
         };
         acc.push(newPermission);
       }

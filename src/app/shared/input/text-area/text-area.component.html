@@ -48,7 +48,7 @@
         <span>Maximum length is {{ errors['maxlength'].requiredLength }}</span>
       }
       @if (errors['pattern']) {
-        <span>Please enter a valid {{ title?.toLowerCase() }}</span>
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
       }
     </mat-hint>
   }

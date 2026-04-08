@@ -15,10 +15,13 @@ pdfMake.vfs = vfsFonts.vfs;
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;
-  @Input() reportData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Input() reportData: any;
 
   reportForm: FormGroup;
-  templates: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  templates: Record<string, any> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template: any;
   isLoaded = false;
 
@@ -80,13 +83,19 @@ export class ReportBuilderComponent implements OnInit {
     this.renderPDF(this.reportForm.value);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async renderPDF(formValues: any) {
     try {
-      const coverpage = [];
-      const coverpage_letterhead = [];
-      const backgroundImage = [];
-      const pages = [];
-      const content = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const coverpage: any[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const coverpage_letterhead: any[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const backgroundImage: any[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pages: any[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const content: any[] = [];
 
       const globalStyles = this.templates[this.templateName]?.settings.global_style;
 
@@ -103,7 +112,8 @@ export class ReportBuilderComponent implements OnInit {
           }
         }
         // Construct footer
-        const footerRow = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const footerRow: any[] = [];
         for (const key of Object.keys(encodeData)) {
           const formData = formValues[key];
           const footerItem = encodeData[key];
@@ -201,7 +211,8 @@ export class ReportBuilderComponent implements OnInit {
       pages.push(...pagesContent);
 
       // Iterate over each element in the report array
-      this.reportData.originalData.forEach((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.reportData.originalData.forEach((item: any) => {
         if (item.title) {
           content.push({
             text: item.title,
@@ -232,11 +243,11 @@ export class ReportBuilderComponent implements OnInit {
         if (item.table) {
           // If the item has a table, construct the table
           const { tableColumns, tableValues } = item.table;
-          const tableHeaderRow = tableColumns.map((column) => ({
+          const tableHeaderRow = tableColumns.map((column: string) => ({
             text: column,
             ...globalStyles.tables.tableHeader
           }));
-          const tableBodyRow = tableValues.map((value) => ({
+          const tableBodyRow = tableValues.map((value: unknown) => ({
             text: value,
             border: [false, true, false, true]
           }));
@@ -254,7 +265,8 @@ export class ReportBuilderComponent implements OnInit {
       const pageSettings = this.templates[this.templateName]?.['settings'];
       const headerLogo = pageSettings['img_logo'];
       const backgroundImg = pageSettings['img_background'];
-      let bg = {}; // Initialize bg as an object
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let bg: Record<string, any> = {}; // Initialize bg as an object
 
       // Page header
       const headerText = this.templates[this.templateName]?.settings['info_header_text'];
@@ -293,7 +305,8 @@ export class ReportBuilderComponent implements OnInit {
           contentAccessibility: true,
           documentAssembly: true
         },
-        header: function (currentPage, pageSize) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+        header: function (currentPage: number, pageSize: any) {
           const headerTextData = { ...headerText };
           const result = [];
 
@@ -314,7 +327,7 @@ export class ReportBuilderComponent implements OnInit {
           // Return the combined result
           return result.length > 0 ? result : null;
         },
-        footer: function (currentPage, pageCount) {
+        footer: function (currentPage: number, pageCount: number) {
           return {
             margin: 10,
             columns: [

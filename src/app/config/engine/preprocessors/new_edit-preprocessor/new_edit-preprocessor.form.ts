@@ -29,11 +29,11 @@ export interface NewEditPreprocessorForm {
  */
 export const getNewEditPreprocessorForm = () => {
   return new FormGroup<NewEditPreprocessorForm>({
-    name: new FormControl('', [Validators.required]),
-    binaryName: new FormControl('', [Validators.required]),
-    url: new FormControl('', [Validators.required, Validators.pattern(ValidationPatterns.URL)]),
-    keyspaceCommand: new FormControl('--keyspace'),
-    skipCommand: new FormControl('--skip'),
-    limitCommand: new FormControl('--limit')
+    name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    binaryName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    url: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.pattern(ValidationPatterns.URL)] }),
+    keyspaceCommand: new FormControl<string>('--keyspace', { nonNullable: true }),
+    skipCommand: new FormControl<string>('--skip', { nonNullable: true }),
+    limitCommand: new FormControl<string>('--limit', { nonNullable: true })
   });
 };

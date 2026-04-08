@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { JFile } from '@models/file.model';
+import { JFile, TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -21,7 +21,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-wrbulk',
@@ -45,7 +45,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -115,7 +115,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
       );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes as unknown as Record<string, unknown>[], CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);
   }
@@ -126,7 +126,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param {Object} form - The form data containing task configurations.
    * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<number[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async preTasks(form: Record<string, any>): Promise<number[]> {
     const preTasksIds: number[] = [];
     const iterFiles: number[] = form.iterFiles;
 
@@ -268,9 +269,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('baseFiles').value,
-      otherFiles: this.createForm.get('iterFiles').value
+      attackCmd: this.createForm.get('attackCmd')!.value,
+      files: this.createForm.get('baseFiles')!.value,
+      otherFiles: this.createForm.get('iterFiles')!.value
     };
   }
 
@@ -278,7 +279,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event): void {
+  onUpdateForm(event: TaskSelectFile): void {
     if (event.type === 'CMD') {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,

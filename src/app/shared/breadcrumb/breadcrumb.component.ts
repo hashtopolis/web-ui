@@ -27,10 +27,10 @@ export class BreadcrumbComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(event => {
         this.breadcrumbs = [];
-        let currentRoute = this.activatedRoute.root,
+        let currentRoute: ActivatedRoute | null = this.activatedRoute.root,
           url = "";
         do {
-          const childrenRoutes = currentRoute.children;
+          const childrenRoutes = currentRoute!.children;
           currentRoute = null;
           childrenRoutes.forEach(route => {
             if (route.outlet === "primary") {

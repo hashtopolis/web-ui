@@ -90,7 +90,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
+    this.route.data.subscribe((data) => {
       const formKind = data.kind;
       this.isServerAction = formKind === 'server-actions';
       this.serviceConfig = data.serviceConfig; // Get the API path from route data
@@ -216,7 +216,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     const initialValues = this.formValues;
 
     return Object.keys(currentValues).reduce<Record<string, unknown>>((changedFields, key) => {
-      const initialValue = initialValues[key];
+      const initialValue = (initialValues as Record<string, unknown>)[key];
       const currentValue = currentValues[key];
 
       if (currentValue !== initialValue) {

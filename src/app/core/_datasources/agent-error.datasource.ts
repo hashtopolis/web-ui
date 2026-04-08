@@ -16,7 +16,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
   private _agentId = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setAgentId(agentId: number): void {
     this._agentId = agentId;
@@ -43,7 +43,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const agents: JAgentErrors[] = this.serializer.deserialize(response, zAgentErrorListResponse);
+        const agents = this.serializer.deserialize(response, zAgentErrorListResponse) as unknown as JAgentErrors[];
 
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;

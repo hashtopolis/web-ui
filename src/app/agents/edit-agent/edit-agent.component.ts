@@ -186,10 +186,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
       const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
       this.showagent = agent;
-      this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+      this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []) as unknown as Record<string, unknown>[], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
-        if (agent.assignments.length) {
-          const firstAssignment = agent.assignments[0];
+        if ((agent.assignments ?? []).length) {
+          const firstAssignment = (agent.assignments ?? [])[0];
           this.assignNew = !!firstAssignment.taskId;
           this.assignId = firstAssignment.id;
           this.currentAssignment = firstAssignment;
@@ -209,7 +209,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
         this.showagent = agent;
-        this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []) as unknown as Record<string, unknown>[], ACCESS_GROUP_FIELD_MAPPING);
         return;
       }
 
@@ -230,8 +230,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const loadTasksSubscription$ = this.gs
       .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
       .subscribe((response: ResponseWrapper) => {
-        const tasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
-        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+        const tasks = this.serializer.deserialize(response, zTaskListResponse) as unknown as JTask[];
+        this.assignTasks = transformSelectOptions(tasks as unknown as Record<string, unknown>[], TASKS_FIELD_MAPPING);
       });
 
     this.unsubscribeService.add(loadTasksSubscription$);
@@ -263,11 +263,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
-      userId: this.showagent.userId,
+      userId: this.showagent.userId ?? null,
       agentName: this.showagent.agentName,
       cpuOnly: this.showagent.cpuOnly,
       cmdPars: this.showagent.cmdPars,
-      ignoreErrors: this.showagent.ignoreErrors,
+      ignoreErrors: this.showagent.ignoreErrors ?? null,
       isTrusted: this.showagent.isTrusted
     });
 
@@ -301,10 +301,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .create();
 
     const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
+      const chunks = this.serializer.deserialize(response, zChunkListResponse) as unknown as JChunk[];
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasks: JTask[] = this.serializer.deserialize(tasksResponse, zTaskListResponse);
+        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse) as unknown as JTask[];
 
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);
@@ -336,7 +336,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-      this.onUpdateAssign(this.updateAssignForm.value.taskId);
+      this.onUpdateAssign(this.updateAssignForm.value.taskId ?? null);
     }
 
     this.isUpdatingLoading = true;

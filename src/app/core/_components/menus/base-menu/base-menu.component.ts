@@ -14,6 +14,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus
 })
 export class BaseMenuComponent {
   @Input() disabled = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() data: any;
 
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel>> = new EventEmitter<ActionMenuEvent<BaseModel>>();
@@ -62,16 +63,17 @@ export class BaseMenuComponent {
    */
   protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
     const condition = item.condition;
+    const record = data as unknown as Record<string, unknown>;
 
-    if (condition.key && condition.key.length > 0) {
-      if (condition.key in data && Boolean(data[condition.key]) === condition.value) {
+    if (condition?.key && condition.key.length > 0) {
+      if (condition.key in data && Boolean(record[condition.key]) === condition.value) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (data[condition.key] === undefined && condition.value === false) {
+      } else if (record[condition.key] === undefined && condition.value === false) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (data[condition.key] !== undefined && Array.isArray(data[condition.key])) {
+      } else if (record[condition.key] !== undefined && Array.isArray(record[condition.key])) {
         if (
-          (data[condition.key].length > 0 && condition.value === true) ||
-          (data[condition.key].length === 0 && condition.value === false)
+          ((record[condition.key] as unknown[]).length > 0 && condition.value === true) ||
+          ((record[condition.key] as unknown[]).length === 0 && condition.value === false)
         ) {
           this.addActionMenuItem(item.index, item.menuItem);
         }
@@ -81,6 +83,7 @@ export class BaseMenuComponent {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onMenuItemClick(event: ActionMenuEvent<any>): void {
     this.menuItemClicked.emit(event);
   }

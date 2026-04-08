@@ -51,7 +51,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });

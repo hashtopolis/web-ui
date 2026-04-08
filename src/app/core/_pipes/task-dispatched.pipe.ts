@@ -25,7 +25,7 @@ export class TaskDispatchedPipe implements PipeTransform {
 
     const maxResults = 10000;
     // const maxResults = environment.config.prodApiMaxResults;
-    const dispatched = [];
+    const dispatched: number[] = [];
     let params: any;
 
     if (type) {

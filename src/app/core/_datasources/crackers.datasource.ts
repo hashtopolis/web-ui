@@ -14,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;

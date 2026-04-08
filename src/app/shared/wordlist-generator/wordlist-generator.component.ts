@@ -119,16 +119,16 @@ export class WordlistGeneratorComponent implements OnInit {
       } = formData;
 
       const options = {
-        useSpecialchars: useSpecCharacters,
-        usePermutations: usePermutations,
-        isCapitalize: isCapitalize,
-        isAlternated: isAlternated,
-        isUppercase: isUppercase,
-        isLowercase: isLowercase,
-        isSimilarVowels: isSimilarVowels,
-        isSimilarConsonant: isSimilarConsonant,
-        isSimilarSpecialchars: isSimilarSpecialChars,
-        filename: filename
+        useSpecialchars: useSpecCharacters ?? false,
+        usePermutations: usePermutations ?? false,
+        isCapitalize: isCapitalize ?? false,
+        isAlternated: isAlternated ?? false,
+        isUppercase: isUppercase ?? false,
+        isLowercase: isLowercase ?? false,
+        isSimilarVowels: isSimilarVowels ?? false,
+        isSimilarConsonant: isSimilarConsonant ?? false,
+        isSimilarSpecialchars: isSimilarSpecialChars ?? false,
+        filename: filename ?? ''
       };
 
       try {

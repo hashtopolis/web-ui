@@ -4,7 +4,7 @@ import { Component, Input, OnChanges, SimpleChange } from '@angular/core'
   selector: 'app-pass-match',
   template: `
     <div>
-      @if (confirmPassword?.length) {
+      @if (confirmPassword && confirmPassword.length) {
         <p class="text-left mb-0">{{ message }}</p>
       }
     </div>

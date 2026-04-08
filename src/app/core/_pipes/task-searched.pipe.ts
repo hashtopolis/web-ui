@@ -25,7 +25,7 @@ export class TaskSearchedPipe implements PipeTransform {
 
     const maxResults = 10000;
     // const maxResults = environment.config.prodApiMaxResults;
-    const searched = [];
+    const searched: number[] = [];
     let params: any;
 
     if (type) {

@@ -199,10 +199,10 @@
           </button>
           }
           @if (tableColumn.truncate) {
-          <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
+          <table-truncate [path]="tableColumn.dataKey!" [text]="element"></table-truncate>
           }
           <span class="icon-actions">
-            @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+            @if (tableColumn.truncate && tableColumn.truncate(element)) {
             <button mat-icon-button color="primary" aria-label="Show full hash"
               (click)="showFullHashModalEmit(element)">
               <mat-icon>visibility</mat-icon>
@@ -232,7 +232,7 @@
     }
     <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
     <!-- noinspection JSUnusedLocalSymbols -->
-    <tr *matRowDef="let row; columns: displayedColumns" mat-row [ngClass]="rowClass ? rowClass(row) : ''"></tr>
+    <tr *matRowDef="let row; columns: displayedColumns" mat-row [ngClass]="rowClass ? rowClass!(row) : ''"></tr>
     <tr *matNoDataRow class="mat-row">
       <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
         @if (dataSource.loading$ | async) {
@@ -252,9 +252,9 @@
   <div class="paginator-footer">
     <last-updated [lastUpdated]="dataSource.lastUpdated"
       [nextRefreshTimestamp]="dataSource.autoRefreshService.nextRefreshTimestamp"
-      [refreshing]="dataSource.loading$ | async">
+      [refreshing]="(dataSource.loading$ | async) ?? false">
     </last-updated>
-    <mat-paginator (page)="onPageChange($event)" [disabled]="dataSource.loading$ | async"
+    <mat-paginator (page)="onPageChange($event)" [disabled]="(dataSource.loading$ | async) ?? false"
       [length]="dataSource.totalItems" [pageIndex]="dataSource.index" [pageSizeOptions]="paginationSizes"
       [pageSize]="dataSource.pageSize"></mat-paginator>
   </div>

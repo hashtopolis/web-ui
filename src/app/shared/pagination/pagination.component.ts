@@ -155,7 +155,7 @@ export class PaginationComponent implements OnInit {
 
   }
 
-  cancelEvent(event) {
+  cancelEvent(event: Event) {
     event.preventDefault();
   }
 

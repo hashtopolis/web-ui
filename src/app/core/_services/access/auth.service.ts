@@ -189,7 +189,7 @@ export class AuthService {
 
   get token(): string {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
-    return userData ? userData._token : null;
+    return userData ? userData._token : null!;
   }
 
   private _authUser$ = new BehaviorSubject<AuthUser | null>(null);
@@ -293,7 +293,7 @@ export class AuthService {
   }
 
   checkStatus() {
-    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     if (userData) {
       this.logged.next(true);
     } else {

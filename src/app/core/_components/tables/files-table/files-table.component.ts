@@ -82,7 +82,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
     if (this.editIndex) {
-      this.dataSource.setEditValues(this.editIndex, this.editType);
+      this.dataSource.setEditValues(this.editIndex!, this.editType ?? 0);
     }
     // Setup filter error handling
     this.setupFilterErrorSubscription(this.dataSource);
@@ -109,7 +109,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -176,8 +176,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: false,
-        routerLink: (file: JFile) => this.renderAccessGroupLink(file.accessGroup),
-        export: async (file: JFile) => file.accessGroup?.groupName
+        routerLink: (file: JFile) => this.renderAccessGroupLink(file.accessGroup!),
+        export: async (file: JFile) => file.accessGroup?.groupName ?? ''
       });
     }
 
@@ -311,7 +311,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(file: JFile): void {
     this.renderFileLink(file).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 

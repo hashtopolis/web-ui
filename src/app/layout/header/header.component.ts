@@ -83,7 +83,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.user.subscribe((user: AuthUser) => {
+      this.authService.user.subscribe((user) => {
         if (user) {
           this.username = user.canonicalUsername;
         }

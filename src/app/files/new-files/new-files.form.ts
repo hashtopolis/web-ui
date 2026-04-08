@@ -10,7 +10,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export interface NewFilesForm {
   filename: FormControl<string>;
   isSecret: FormControl<boolean>;
-  fileType: FormControl<number>;
+  fileType: FormControl<number | null>;
   accessGroupId: FormControl<number>;
   sourceType: FormControl<string>;
   sourceData: FormControl<string>;
@@ -30,12 +30,12 @@ export interface PreparedFormData {
  */
 export const getNewFilesForm = () => {
   return new FormGroup<NewFilesForm>({
-    filename: new FormControl('', Validators.required),
-    isSecret: new FormControl(true),
-    fileType: new FormControl(null),
-    accessGroupId: new FormControl(1),
-    sourceType: new FormControl('import'),
-    sourceData: new FormControl(''),
-    url: new FormControl('', Validators.required)
+    filename: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    isSecret: new FormControl<boolean>(true, { nonNullable: true }),
+    fileType: new FormControl<number | null>(null),
+    accessGroupId: new FormControl<number>(1, { nonNullable: true }),
+    sourceType: new FormControl<string>('import', { nonNullable: true }),
+    sourceData: new FormControl<string>('', { nonNullable: true }),
+    url: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
   });
 };

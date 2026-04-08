@@ -22,7 +22,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableConfig, TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -38,7 +38,8 @@ import {
   CheckboxFiles,
   DataType,
   HTTableColumn,
-  HTTableEditable
+  HTTableEditable,
+  SortingColumn
 } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
@@ -173,10 +174,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() defaultPageSize = this.paginationSizes[1];
 
   /** Default start page. */
-  @Input() defaultStartPage = undefined;
+  @Input() defaultStartPage: number | string | undefined = undefined;
 
   /** Default start page. */
-  @Input() defaultBeforePage = undefined;
+  @Input() defaultBeforePage: number | string | undefined = undefined;
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
@@ -190,7 +191,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() supportsAutoRefresh = false;
 
   /** Flag to color a table row */
-  @Input() rowClass: (row: any) => string;
+  @Input() rowClass: ((row: any) => string) | undefined;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -232,13 +233,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig;
 
     if (!this.isDetailPage) {
       this.defaultPageSize = tableSettings['page'];
       this.defaultStartPage = tableSettings['start'];
       this.defaultBeforePage = tableSettings['before'];
-      this.defaultIndex = tableSettings['index'];
+      this.defaultIndex = tableSettings['index'] ?? 0;
     }
 
     if (Array.isArray(displayedColumns)) {
@@ -271,7 +272,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
     if (this.filterMode === 'client') {
-      const currentValue = this.filterQueryFormGroup.get('textFilter').value;
+      const currentValue = this.filterQueryFormGroup.get('textFilter')!.value;
       if (currentValue) {
         this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
       }
@@ -293,10 +294,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Sorted header arrow and sorting initialization
-    this.dataSource.sortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    this.dataSource.sortingColumn = (this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig)['order'] as SortingColumn;
     if (!this.isDetailPage) {
       // Search item
-      this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
+      this.dataSource.filter = (this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig)['search'] as string;
     }
     if (this.dataSource.sortingColumn) {
       // Use the stored column `id` (stringified) for the matSort header id if present.
@@ -326,8 +327,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.setPaginationConfig(
         this.dataSource.pageSize,
         this.dataSource.totalItems,
-        undefined,
-        undefined,
+        null,
+        null,
         0
       );
     });
@@ -389,8 +390,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   onColumnHeaderClick(column: HTTableColumn): void {
     const sorting: Sorting = {
       id: column.id,
-      dataKey: column.dataKey,
-      isSortable: column.isSortable,
+      dataKey: column.dataKey ?? '',
+      isSortable: column.isSortable ?? false,
       direction: this.dataSource.sort['_direction'],
       ...(column.parent ? { parent: column.parent } : {})
     };
@@ -401,7 +402,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
     if (this.filterMode === 'client') {
-      const currentValue = this.filterQueryFormGroup.get('textFilter').value;
+      const currentValue = this.filterQueryFormGroup.get('textFilter')!.value ?? '';
       this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
     } else {
       this.dataSource.reload();
@@ -468,7 +469,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   } */
   emitFilterValue(): void {
     this.filterError = null;
-    const value = this.filterQueryFormGroup.get('textFilter').value;
+    const value = this.filterQueryFormGroup.get('textFilter')!.value ?? '';
     if (this.filterMode === 'client') {
       this.dataSource.applyClientFilter(value, this.selectedFilterColumn);
     } else {
@@ -599,20 +600,20 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   reload(): void {
     this.dataSource.reset(false);
-    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name] as TableConfig;
     this.dataSource.pageSize = tableSettings['page'];
     this.dataSource.pageAfter = tableSettings['start'];
     this.dataSource.pageBefore = tableSettings['before'];
-    this.dataSource.index = tableSettings['index'];
+    this.dataSource.index = tableSettings['index'] ?? 0;
     // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     this.dataSource.forceReload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter').setValue('', { emitEvent: false });
+    this.filterQueryFormGroup.get('textFilter')!.setValue('', { emitEvent: false });
   }
   clearSearchBox(): void {
-    this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.filterQueryFormGroup.get('textFilter')!.setValue('');
     this.clearFilterError();
     if (this.filterMode === 'client') {
       this.dataSource.applyClientFilter('', null);
@@ -631,9 +632,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
-      pageBefore = undefined;
+      pageBefore = null;
     } else if (index < this.dataSource.index) {
-      pageAfter = undefined;
+      pageAfter = null;
     }
     if (event.pageSize !== this.dataSource.pageSize) {
       // TODO This code happens when user changes the page size, now we will just reset and
@@ -641,8 +642,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
       index = 0;
-      pageAfter = undefined;
-      pageBefore = undefined;
+      pageAfter = null;
+      pageBefore = null;
     } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
@@ -656,8 +657,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // only store table settings in local storage when it is not a detail page
     if (!this.isDetailPage) {
       this.uiSettings.updateTableSettings(this.name, {
-        start: pageAfter,
-        before: pageBefore,
+        start: pageAfter ?? undefined,
+        before: pageBefore ?? undefined,
         page: event.pageSize, // Store the new page size
         index: index //store the new table index
       });

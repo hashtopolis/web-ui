@@ -208,7 +208,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
       for (const item of section) {
         if (item.routerLink) {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (partial.every((value, index) => value === item.routerLink[index])) {
+          if (partial.every((value, index) => value === item.routerLink![index])) {
             this.isActive = true;
             break;
           }

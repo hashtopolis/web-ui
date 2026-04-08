@@ -93,7 +93,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -195,7 +195,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
+        export: async (agent: JAgent) => (agent.task ? agent.taskName ?? '' : '')
       },
       {
         id: AgentsTableCol.ACCESS_GROUP,
@@ -203,7 +203,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => agent.accessGroup
+        export: async (agent: JAgent) => agent.accessGroup ?? ''
       }
     ];
   }
@@ -253,7 +253,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private getChunkDataValue(agent: JAgent, property: string): number | undefined {
     if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property];
+      return (agent.chunkData as unknown as Record<string, unknown>)[property] as number | undefined;
     }
     return undefined;
   }
@@ -462,16 +462,17 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: JAgent): void {
-    if (agent[0].assignmentId) {
+    const agentData = (agent as unknown as JAgent[])[0];
+    if (agentData.assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
+        this.gs.delete(SERV.AGENT_ASSIGN, agentData.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+        this.gs.delete(SERV.AGENTS, agentData.id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
@@ -481,7 +482,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink!).then(() => {});
     });
   }
 

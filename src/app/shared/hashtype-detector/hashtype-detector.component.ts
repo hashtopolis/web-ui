@@ -56,6 +56,6 @@ export class HashtypeDetectorComponent {
   }
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource([]);
+    this.dataSource = new MatTableDataSource<any>([]);
   }
 }

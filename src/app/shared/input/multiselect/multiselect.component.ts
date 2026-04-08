@@ -242,7 +242,7 @@ export class InputMultiSelectComponent
       } else if (value) {
         this.value = extractIds([value], 'id')[0]; // wrap in array
       } else {
-        this.value = null; // or handle empty case
+        this.value = [] as number[]; // handle empty case
       }
     } else {
       if (Array.isArray(value)) {
@@ -348,7 +348,7 @@ export class InputMultiSelectComponent
       this.itemsSubject.next(this.availableItems);
       this.searchTerm = '';
       this.searchInputSubject.next(this.searchTerm);
-      this.value = this.multiselectEnabled ? [] : null;
+      this.value = this.multiselectEnabled ? [] : ([] as number[]);
     } else {
       // Convert number/number[] to SelectOption/SelectOption[]
       const ids = Array.isArray(newValue) ? newValue : [newValue];

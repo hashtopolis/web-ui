@@ -132,13 +132,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   get oldPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('oldPassword').value;
+    return this.changepasswordFormGroup.get('oldPassword')!.value;
   }
   get newPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('newPassword').value;
+    return this.changepasswordFormGroup.get('newPassword')!.value;
   }
   get confirmNewPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('confirmNewPassword').value;
+    return this.changepasswordFormGroup.get('confirmNewPassword')!.value;
   }
 
   /**
@@ -158,7 +158,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value).subscribe({
+        this.gs.uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value).subscribe({
           next: () => {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;

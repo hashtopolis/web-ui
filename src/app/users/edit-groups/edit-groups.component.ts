@@ -245,7 +245,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddUsers() {
     if (this.addUsersForm.valid) {
       this.isUpdatingLoading = true;
-      const users = this.addUsersForm.get('userIds').value.map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
+      const users = this.addUsersForm.get('userIds')!.value!.map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
@@ -279,7 +279,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddAgents() {
     if (this.addAgentsForm.valid) {
       this.isUpdatingLoading = true;
-      const agents = this.addAgentsForm.get('agentIds').value.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
+      const agents = this.addAgentsForm.get('agentIds')!.value!.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {

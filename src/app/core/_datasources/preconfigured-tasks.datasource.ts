@@ -18,7 +18,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
   private _reverseQuery = false;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   /**
    * Set the supertask ID to filter pre tasks for
@@ -60,7 +60,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       } else {
         const supertaskParams = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
         const supertask = await this.loadSupertask(this._superTaskId, supertaskParams);
-        const superTaskPreTaskIds = (supertask.pretasks || []).map((p) => p.id);
+        const superTaskPreTaskIds = (supertask?.pretasks || []).map((p) => p.id);
 
         if (superTaskPreTaskIds && superTaskPreTaskIds.length > 0) {
           const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds, activeFilter, query);
@@ -106,8 +106,8 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       const length = response.meta.page.total_elements;
       const nextLink = response.links.next;
       const prevLink = response.links.prev;
-      const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-      const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+      const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+      const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
       return this.serializer.deserialize(response, zPreTaskListResponse);
@@ -116,7 +116,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     }
   }
 
-  private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask> {
+  private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask | null> {
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     try {
       const response = await firstValueFrom<ResponseWrapper>(
@@ -141,7 +141,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @param query
    * @private
    */
-  private async loadPretaskFiles(pretaskIds: number[], activeFilter?: Filter, query?: Filter): Promise<JPretask[]> {
+  private async loadPretaskFiles(pretaskIds: number[], activeFilter?: Filter | null, query?: Filter): Promise<JPretask[]> {
     const filterOperator = this._reverseQuery ? FilterType.NOTIN : FilterType.IN;
     if (pretaskIds && pretaskIds.length > 0) {
       let paramsBuilder = new RequestParamBuilder()

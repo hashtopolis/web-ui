@@ -38,7 +38,7 @@ export class HTTableTypeEditableCheckboxComponent implements OnInit {
   }
 
   onEditableInputSaved(checked: boolean): void {
-    event.stopPropagation();
+    event?.stopPropagation();
     this.checkbox.value = checked.toString();
     this.editableCheckboxSaved.emit(this.checkbox);
     this.editMode = false;

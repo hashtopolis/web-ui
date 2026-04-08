@@ -34,27 +34,27 @@
           >
           <div class="menu-item-content">
             <span>
-              @if (iconContainsDiscord(item.icon)) {
+              @if (iconContainsDiscord(item.icon ?? '')) {
                 <div style="display: inline; padding-right: 6px">
                   <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsGithub(item.icon)) {
+              @if (iconContainsGithub(item.icon ?? '')) {
                 <div style="display: inline; padding-right: 10px">
                   <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsPaperplane(item.icon)) {
+              @if (iconContainsPaperplane(item.icon ?? '')) {
                 <div style="display: inline; padding-right: 10px">
                   <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsGlobe(item.icon)) {
+              @if (iconContainsGlobe(item.icon ?? '')) {
                 <div style="display: inline; padding-right: 10px">
                   <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsBook(item.icon)) {
+              @if (iconContainsBook(item.icon ?? '')) {
                 <div style="display: inline; padding-right: 10px">
                   <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>

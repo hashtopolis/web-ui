@@ -58,6 +58,7 @@ export class LruCacheService {
   get(key: string): object | undefined {
     if (!this.cache.has(key)) return undefined;
     const node = this.cache.get(key);
+    if (!node) return undefined;
     this.removeNode(node);
     this.insertAtHead(node);
     return node.value;
@@ -71,7 +72,7 @@ export class LruCacheService {
    */
   set(key: string, value: object): void {
     if (this.cache.has(key)) {
-      const existingNode = this.cache.get(key);
+      const existingNode = this.cache.get(key)!;
       existingNode.value = value;
       this.removeNode(existingNode);
       this.insertAtHead(existingNode);

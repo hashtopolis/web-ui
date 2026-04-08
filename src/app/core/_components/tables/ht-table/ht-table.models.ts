@@ -52,9 +52,9 @@ export interface HTTableIcon {
 
 export interface HTTableRouterLink {
   label?: string | number;
-  routerLink: Array<string | number>;
+  routerLink: Array<string | number> | null;
   tooltip?: string;
-  icon?: { faIcon: IconDefinition; tooltip?: string };
+  icon?: { faIcon?: IconDefinition; tooltip?: string };
   visualGraph?: {
     enabled: boolean;
     taskId: number;
@@ -96,8 +96,10 @@ export interface HTTableColumn {
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   customCellColor?: customCellColorInput;
-  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
-  icon?: (data: BaseModel) => HTTableIcon;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  routerLink?: (data: any) => Observable<HTTableRouterLink[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon?: (data: any) => HTTableIcon;
   isCopy?: boolean;
   parent?: string; //parent is to build relation sort query in format "task.taskName"
 }

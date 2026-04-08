@@ -185,7 +185,7 @@ export class BaseTableComponent {
    */
   renderCrackedLinkFromTask(task: JTask): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (task.chunkData.cracked) {
+    if (task.chunkData?.cracked) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', task.id],
         label: task.chunkData.cracked.toLocaleString()
@@ -202,14 +202,14 @@ export class BaseTableComponent {
    */
   protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     if (wrapper.cracked === 0) {
-      return of([{ label: null, routerLink: null }]);
+      return of([{ label: undefined, routerLink: null }]);
     }
 
     const isSupertask = wrapper.taskType === TaskType.SUPERTASK;
 
     const link: HTTableRouterLink = {
       label: wrapper.cracked.toLocaleString(),
-      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
+      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks![0].id],
       tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
     };
 
@@ -344,8 +344,8 @@ export class BaseTableComponent {
     const links: HTTableRouterLink[] = [];
     if (model) {
       links.push({
-        routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString()
+        routerLink: ['/tasks', 'show-tasks', model.taskId!, 'edit'],
+        label: idLink ? model?.taskId!.toString() : model.task?.taskName?.toString()
       });
     }
     return of(links);
@@ -361,7 +361,7 @@ export class BaseTableComponent {
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
-        label: idLink ? model.id.toString() : model.taskName.toString()
+        label: idLink ? model.id.toString() : model.taskName?.toString()
       });
     }
     return of(links);
@@ -399,7 +399,7 @@ export class BaseTableComponent {
    * @returns A SafeHtml object that represents the sanitized HTML.
    */
   protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.sanitize(SecurityContext.HTML, html);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
   }
 
   protected setColumnLabels(labels: { [key: string]: string }): void {

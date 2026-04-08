@@ -28,9 +28,9 @@ export class RequestParamsIntermediate {
 export interface IParamBuilder {
   setPageSize(pageSize: number): IParamBuilder;
 
-  setPageBefore(pageBefore: number): IParamBuilder;
+  setPageBefore(pageBefore: number | undefined): IParamBuilder;
 
-  setPageAfter(pageAfter: number): IParamBuilder;
+  setPageAfter(pageAfter: number | undefined): IParamBuilder;
 
   addInclude(include: string): IParamBuilder;
 

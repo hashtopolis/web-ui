@@ -20,6 +20,6 @@ export class FilterItemPipe implements PipeTransform {
     if (value === undefined || value === null) {
       value = 0;
     }
-    return list.filter((i) => i[key] === +value);
+    return list.filter((i: any) => i[key] === +value);
   }
 }

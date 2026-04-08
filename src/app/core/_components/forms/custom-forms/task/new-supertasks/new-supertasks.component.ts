@@ -34,7 +34,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   form: FormGroup;
 
   @Input()
-  error;
+  error: any;
 
   /** List of PreTasks. */
   selectPretasks: SelectOption[];

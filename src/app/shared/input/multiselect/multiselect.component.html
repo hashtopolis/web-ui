@@ -18,7 +18,7 @@
         <mat-chip-row (removed)="remove(item)">
           <div matTooltip="{{ item.name }}">
             {{ item.id }}
-            <span>{{ item.name?.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
+            <span>{{ (item.name?.length ?? 0) > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
           </div>
           <button matChipRemove [attr.aria-label]="'remove ' + item">
             <mat-icon>cancel</mat-icon>

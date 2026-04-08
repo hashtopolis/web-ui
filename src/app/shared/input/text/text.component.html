@@ -56,10 +56,10 @@
         <span>{{ title }} is required</span>
       }
       @if (errors['email']) {
-        <span>Please enter a valid {{ title?.toLowerCase() }}</span>
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
       }
       @if (errors['url']) {
-        <span>Please enter a valid {{ title?.toLowerCase() }}</span>
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
       }
       @if (errors['minlength']) {
         <span>

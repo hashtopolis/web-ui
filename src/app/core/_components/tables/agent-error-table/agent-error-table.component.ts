@@ -81,7 +81,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         id: AgentErrorTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
-        export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
+        export: async (agentError: JAgentErrors) => agentError.task?.taskName || 'N/A'
       },
       {
         id: AgentErrorTableCol.CHUNK,
@@ -112,7 +112,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -213,7 +213,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
    */
   private rowActionDelete(error: JAgentErrors): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENT_ERRORS, error[0].id).subscribe(() => {
+      this.gs.delete(SERV.AGENT_ERRORS, (error as unknown as JAgentErrors[])[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted error!');
         this.dataSource.reload();
       })

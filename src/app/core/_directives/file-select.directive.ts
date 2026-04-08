@@ -25,7 +25,7 @@ export class FileSelectDirective {
   constructor() {}
 
   @HostListener('change', ['$event'])
-  onChange($event) {
-    this.selectedFiles.emit($event.target.files);
+  onChange($event: Event) {
+    this.selectedFiles.emit(($event.target as HTMLInputElement).files!);
   }
 }

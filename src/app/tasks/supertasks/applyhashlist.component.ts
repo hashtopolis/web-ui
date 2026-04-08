@@ -131,7 +131,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+    this.form.get('crackerBinaryId')!.valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
 
@@ -161,7 +161,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
         const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
-        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
+        this.selectHashlists = transformSelectOptions(hashlists as unknown as Record<string, unknown>[], DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
           this.alert.showErrorMessage('Before proceeding, you need to create a Hashlist.');
@@ -180,10 +180,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );
-      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+      this.selectCrackertype = transformSelectOptions(crackerTypes as unknown as Record<string, unknown>[], CRACKER_TYPE_FIELD_MAPPING);
       let id = '';
-      if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
-        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id as string;
+      const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
+      if (hashcatOption?.id) {
+        id = hashcatOption.id as string;
       } else {
         id = this.selectCrackertype.slice(-1)[0]['id'] as string;
       }
@@ -194,9 +195,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         .getAll(SERV.CRACKERS, requestParams)
         .subscribe((response: ResponseWrapper) => {
           const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
-          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+          this.selectCrackerversions = transformSelectOptions(crackers as unknown as Record<string, unknown>[], CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-          this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+          this.form.get('crackerBinaryTypeId')!.patchValue(lastItem);
         });
       this.unsubscribeService.add(loadCrackersSubscription$);
     });
@@ -218,9 +219,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       .getAll(SERV.CRACKERS, requestParams)
       .subscribe((response: ResponseWrapper) => {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
-        this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+        this.selectCrackerversions = transformSelectOptions(crackers as unknown as Record<string, unknown>[], CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+        this.form.get('crackerBinaryTypeId')!.patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

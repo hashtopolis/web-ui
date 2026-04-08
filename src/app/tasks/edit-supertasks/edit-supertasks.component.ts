@@ -22,7 +22,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
 
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -39,7 +39,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   viewForm: FormGroup; //Supertask details
 
   /** List of PreTasks. */
-  selectPretasks;
+  selectPretasks: SelectOption[] | undefined;
 
   // Edit
   private _editedSTIndex: number;
@@ -141,7 +141,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
             const availablePretasks = this.getAvailablePretasks(supertask.pretasks ?? [], pretasks);
 
-            this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
+            this.selectPretasks = transformSelectOptions(availablePretasks as unknown as Record<string, unknown>[], SUPER_TASK_FIELD_MAPPING);
             this.isLoading = false;
             this.changeDetectorRef.detectChanges();
           });
@@ -174,7 +174,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
               const loadPTSubscription2$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
                 const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
                 const availablePretasks = this.getAvailablePretasks(supertask2.pretasks ?? [], pretasks);
-                this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
+                this.selectPretasks = transformSelectOptions(availablePretasks as unknown as Record<string, unknown>[], SUPER_TASK_FIELD_MAPPING);
                 this.isLoading = false;
                 this.changeDetectorRef.detectChanges();
               });
@@ -235,9 +235,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const pretasks = [];
+      const pretasks: { type: string; id: number }[] = [];
 
-      this.updateForm.value['pretasks'].forEach((pretask) => {
+      (this.updateForm.value['pretasks'] as number[]).forEach((pretask: number) => {
         pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
       });
 

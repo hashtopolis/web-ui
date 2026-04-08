@@ -59,6 +59,6 @@ export class ScreenSizeDetectorComponent implements AfterViewInit {
       return isVisible;
     });
 
-    this.resizeSvc.onResize(currentSize.id);
+    this.resizeSvc.onResize(currentSize!.id);
   }
 }

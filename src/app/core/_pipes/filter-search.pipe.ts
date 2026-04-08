@@ -24,7 +24,7 @@ export class SearchPipe implements PipeTransform {
         if(!value) return null;
         if(!q) return value;
         q = q.toLowerCase();
-        return value.filter((item)=> {
+        return value.filter((item: any)=> {
             return item[colName].toString().toLowerCase().includes(q);
         });
     }

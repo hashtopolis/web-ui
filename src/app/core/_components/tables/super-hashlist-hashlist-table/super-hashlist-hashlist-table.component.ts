@@ -95,8 +95,8 @@ export class SuperHashlistsHashlistsTableComponent
         id: SuperHashlistHashlistTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
       }
     ];
 
@@ -107,7 +107,7 @@ export class SuperHashlistsHashlistsTableComponent
         isSearchable: true,
         isSortable: true,
         render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
-        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription ?? ''
       });
     }
 
@@ -279,7 +279,7 @@ export class SuperHashlistsHashlistsTableComponent
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

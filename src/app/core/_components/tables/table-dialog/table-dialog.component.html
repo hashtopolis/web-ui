@@ -9,7 +9,7 @@
     <ul>
       @for (row of data.rows; track row) {
         <li>
-          {{ row[data.listAttribute]
+          {{ $any(row)[data.listAttribute]
           }}
         </li>
       }

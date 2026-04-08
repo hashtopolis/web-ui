@@ -17,7 +17,7 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;

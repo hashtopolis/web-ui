@@ -29,16 +29,17 @@ export interface SelectOption {
  * ```
  * @public
  */
-export function extractIds(dataArray: any[], idKey: string): number[] {
+export function extractIds(dataArray: object[], idKey: string): number[] {
   return dataArray
     .map((item) => {
+      const record = item as Record<string, unknown>;
       let id = null;
-      if (Object.prototype.hasOwnProperty.call(item, idKey)) {
-        id = item[idKey];
+      if (Object.prototype.hasOwnProperty.call(record, idKey)) {
+        id = record[idKey];
       }
       return id;
     })
-    .filter((id) => id !== null) as number[];
+    .filter((id): id is number => id !== null);
 }
 
 /**
@@ -52,15 +53,16 @@ export function extractIds(dataArray: any[], idKey: string): number[] {
 export function transformSelectOptions(apiOptions: object[], fieldMapping: FieldMapping) {
   if (apiOptions) {
     return apiOptions.map((apiOption) => {
-      const transformedOption: SelectOption = { id: undefined, name: undefined };
-      for (const formField of Object.keys(fieldMapping)) {
+      const record = apiOption as Record<string, unknown>;
+      const transformedOption: SelectOption = { id: '', name: '' };
+      for (const formField of Object.keys(fieldMapping) as Array<keyof FieldMapping>) {
         const apiField = fieldMapping[formField];
 
-        if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-          transformedOption[formField] = apiOption[apiField];
+        if (Object.prototype.hasOwnProperty.call(record, apiField)) {
+          transformedOption[formField] = String(record[apiField] ?? '');
         } else {
           // Handle the case where the API field doesn't exist in the response
-          transformedOption[formField] = null; // or set a default value
+          transformedOption[formField] = ''; // or set a default value
         }
       }
 
@@ -83,13 +85,13 @@ export function transformSelectOptions(apiOptions: object[], fieldMapping: Field
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
  */
-function hslToRgb(h, s, l) {
+function hslToRgb(h: number, s: number, l: number) {
   let r, g, b;
 
   if (s == 0) {
     r = g = b = l; // achromatic
   } else {
-    function hue2rgb(p, q, t) {
+    function hue2rgb(p: number, q: number, t: number) {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -108,7 +110,7 @@ function hslToRgb(h, s, l) {
   return [r * 255, g * 255, b * 255];
 }
 
-function componentToHex(c) {
+function componentToHex(c: number) {
   const hex = Math.floor(c).toString(16);
   return hex.length == 1 ? '0' + hex : hex;
 }
@@ -133,7 +135,7 @@ export function randomColor() {
  * const result = compareVersions({ version: '1.2.3' }, { version: '1.2.4' });
  * console.log(result); // Output: -1
  */
-export function compareVersions(a, b): number {
+export function compareVersions(a: { version: string }, b: { version: string }): number {
   // Split the version strings into arrays of integers
   const versionA = a.version.split('.').map(Number);
   const versionB = b.version.split('.').map(Number);

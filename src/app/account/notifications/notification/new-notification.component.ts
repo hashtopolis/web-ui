@@ -123,7 +123,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select trigger actions
-    this.form.get('action').valueChanges.subscribe((newvalue) => {
+    this.form.get('action')!.valueChanges.subscribe((newvalue: string) => {
       this.changeAction(newvalue);
     });
   }
@@ -144,13 +144,13 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const path = this.actionToServiceMap[action];
+    const path = this.actionToServiceMap[action as keyof typeof this.actionToServiceMap];
     if (path) {
       this.active = true;
       this.actionFilterIsRequired = true;
 
       // set required validator now that control is visible
-      const ctrl = this.form.get('actionFilter');
+      const ctrl = this.form.get('actionFilter')!;
       ctrl.setValidators([Validators.required]);
       ctrl.updateValueAndValidity();
 
@@ -169,11 +169,11 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
             }
             if (path === SERV.TASKS) {
               const task = resource[i] as JTask;
-              _filters.push({ id: task.id, name: task.taskName });
+              _filters.push({ id: task.id, name: task.taskName ?? '' });
             }
             if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const obj = resource[i] as BaseModel;
-              _filters.push({ id: obj.id, name: obj['name'] });
+              const obj = resource[i] as BaseModel & { name?: string };
+              _filters.push({ id: obj.id, name: obj.name ?? '' });
             }
           }
           this.filters = _filters;
@@ -190,7 +190,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Resets the action filter control by clearing validators, resetting the value, and updating validity.
    */
   resetActionFilter(): void {
-    const ctrl = this.form.get('actionFilter');
+    const ctrl = this.form.get('actionFilter')!;
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
@@ -211,7 +211,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     this.form.patchValue({
-      actionFilter: String(this.form.get('actionFilter').value)
+      actionFilter: String(this.form.get('actionFilter')!.value)
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;

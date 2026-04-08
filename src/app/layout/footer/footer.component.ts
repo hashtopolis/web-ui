@@ -29,7 +29,7 @@ export class FooterComponent implements OnInit {
     });
   }
 
-  onWindowResize(event) {
+  onWindowResize(event: any) {
     this.width = event.target.innerWidth;
     this.height = event.target.innerHeight;
   }

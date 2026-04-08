@@ -123,23 +123,23 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       const task = await this.loadTask();
 
       this.originalValue = task;
-      this.searched = task.searched;
-      this.color = task.color;
+      this.searched = task.searched ?? '';
+      this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
-      this.ctimespent = task.timeSpent;
-      this.currenspeed = task.currentSpeed;
-      this.estimatedTime = task.estimatedTime;
-      this.cprogress = task.cprogress;
+      this.ctimespent = task.timeSpent ?? 0;
+      this.currenspeed = task.currentSpeed ?? 0;
+      this.estimatedTime = task.estimatedTime ?? 0;
+      this.cprogress = task.cprogress ?? 0;
 
       if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+        this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
       }
 
       if (this.roleService.hasRole('editTaskSpeed')) {
-        this.getTaskSpeeds(task.assignedAgents.length);
+        this.getTaskSpeeds((task.assignedAgents ?? []).length);
       }
 
       if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
@@ -261,7 +261,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      return this.serializer.deserialize(response, zTaskResponse);
+      return this.serializer.deserialize(response, zTaskResponse) as JTask;
     } catch (err: unknown) {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
@@ -269,7 +269,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        return this.serializer.deserialize(responseFallback, zTaskResponse);
+        return this.serializer.deserialize(responseFallback, zTaskResponse) as JTask;
       }
       throw err;
     }
@@ -359,7 +359,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
       const agents: JAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.availAgents = agents;
-      this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
+      this.selectAgents = transformSelectOptions(this.availAgents as unknown as Record<string, unknown>[], AGENT_MAPPING);
       this.isLoadingAgents = false;
     });
   }

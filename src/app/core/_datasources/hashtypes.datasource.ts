@@ -14,7 +14,7 @@ import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;

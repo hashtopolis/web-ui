@@ -38,8 +38,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: SortingColumn;
-  public pageAfter = undefined;
-  public pageBefore = undefined;
+  public pageAfter: number | string | null | undefined = undefined;
+  public pageBefore: number | string | null | undefined = undefined;
   public index = 0;
   /**
    * Selection model for row selection in the table.
@@ -230,6 +230,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
       if (!selectedColumn || selectedColumn.dataKey === 'all') {
         return JSON.stringify(item).toLowerCase().includes(value);
       }
+      if (!selectedColumn.dataKey) return false;
       const fieldValue = (item as Record<string, unknown>)[selectedColumn.dataKey];
       return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
     });
@@ -357,9 +358,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setPaginationConfig(
     pageSize: number,
-    totalItems: number,
-    pageAfter: number | string | null,
-    pageBefore: number | string | null,
+    totalItems: number | undefined,
+    pageAfter: number | string | null | undefined,
+    pageBefore: number | string | null | undefined,
     index: number
   ): void {
     // Capture the cursors that were actually used to load this page before overwriting with the
@@ -367,7 +368,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this._refreshPageAfter = this.pageAfter;
     this._refreshPageBefore = this.pageBefore;
     this.pageSize = pageSize;
-    this.totalItems = totalItems;
+    this.totalItems = totalItems ?? this.totalItems;
     this.pageAfter = pageAfter;
     this.pageBefore = pageBefore;
     this.index = index;
@@ -516,7 +517,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     });
   }
 
-  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter | null | undefined, query?: Filter): IParamBuilder {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)
       if (query && query.value) {

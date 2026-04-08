@@ -19,7 +19,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -66,7 +66,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -138,7 +138,8 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Attack: #HL# -a 3 {mask} {options}
    * Options: Flag -O (Optimize)
    */
-  private async preTasks(form): Promise<number[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async preTasks(form: Record<string, any>): Promise<number[]> {
     return new Promise<number[]>((resolve, reject) => {
       const preTasksIds: number[] = [];
 

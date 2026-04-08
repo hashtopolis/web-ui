@@ -90,7 +90,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           id: hash.id,
           hash: hash.hash,
           plaintext: hash.plaintext,
-          hashlists: [hash.hashlist],
+          hashlists: hash.hashlist ? [hash.hashlist!] : [],
           hashInfo: hash.isCracked
             ? `Cracked on ${formatUnixTimestamp(hash.timeCracked, this.dateFormat)}`
             : 'Not cracked yet',
@@ -111,7 +111,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   private conditionallyAddHashlist(searchHashes: SearchHashModel[], hash: JHash): boolean {
     for (const element of searchHashes) {
       if (element.hash === hash.hash) {
-        element.hashlists.push(hash.hashlist);
+        if (hash.hashlist) element.hashlists.push(hash.hashlist!);
         return true;
       }
     }

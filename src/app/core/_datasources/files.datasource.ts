@@ -26,7 +26,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   isDetail = false;
   /**
    * Set file type
@@ -55,7 +55,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   loadAll(query?: Filter): void {
     this.loading = true;
 
-    let files$;
+    let files$: ReturnType<typeof this.service.get> | ReturnType<typeof this.service.getAll> | undefined;
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
     const paramsBuilder = new RequestParamBuilder();
@@ -88,6 +88,11 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
     // Create headers to skip error dialog for filter validation errors already created above
 
+    if (!files$) {
+      this.loading = false;
+      return;
+    }
+
     this.subscriptions.push(
       files$
         .pipe(
@@ -99,7 +104,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         )
         .subscribe((response: ResponseWrapper) => {
           if (this.editIndex !== undefined && this.editType === 0) {
-            const tasks: JTask = this.serializer.deserialize(response, zTaskResponse);
+            const tasks = this.serializer.deserialize(response, zTaskResponse) as unknown as JTask;
 
             this.setData(tasks.files as JFile[]);
           } else if (this.editType === 1) {
@@ -110,8 +115,9 @@ export class FilesDataSource extends BaseDataSource<JFile> {
               const prevLink = response.links.prev;
               const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
               const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
+              const totalElements = response.meta.page.total_elements;
 
-              this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+              this.setPaginationConfig(this.pageSize, totalElements, after, before, this.index);
             }
 
             this.setData(pretask.pretaskFiles as JFile[]);

@@ -34,7 +34,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
 
   // Filters and forms
   editedGPGIndex: number;
-  editedGPG: JGlobalPermissionGroup;
+  editedGPG: JGlobalPermissionGroup | undefined;
 
   constructor() {
     this.onInitialize();
@@ -111,7 +111,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   private buildFormValues() {
     return {
-      name: this.editedGPG['name'],
+      name: this.editedGPG!['name'],
       permissions: {}
     };
   }
