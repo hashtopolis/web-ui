@@ -76,7 +76,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       crackerBinaryType: new FormControl('')
     });
 
-    const onHandleBinarySubscription$ = this.form.controls['crackerBinaryType'].valueChanges.subscribe((newvalue) => {
+    const onHandleBinarySubscription$ = this.form.controls.crackerBinaryType.valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
     this.unsubscribeService.add(onHandleBinarySubscription$);
@@ -109,7 +109,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
       const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-      this.form.controls['crackerBinaryId'].patchValue(lastItem);
+      this.form.controls.crackerBinaryId.patchValue(lastItem);
     });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

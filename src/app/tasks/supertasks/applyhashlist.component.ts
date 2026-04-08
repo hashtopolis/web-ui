@@ -131,7 +131,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.controls['crackerBinaryId'].valueChanges.subscribe((newvalue) => {
+    this.form.controls.crackerBinaryId.valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
 
@@ -197,7 +197,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
           const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
           this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-          this.form.controls['crackerBinaryTypeId'].patchValue(lastItem);
+          this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
         });
       this.unsubscribeService.add(loadCrackersSubscription$);
     });
@@ -221,7 +221,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.controls['crackerBinaryTypeId'].patchValue(lastItem);
+        this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

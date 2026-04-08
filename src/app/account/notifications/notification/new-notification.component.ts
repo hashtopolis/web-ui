@@ -123,7 +123,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select trigger actions
-    this.form.controls['action'].valueChanges.subscribe((newvalue: string) => {
+    this.form.controls.action.valueChanges.subscribe((newvalue: string) => {
       this.changeAction(newvalue);
     });
   }
@@ -150,7 +150,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.actionFilterIsRequired = true;
 
       // set required validator now that control is visible
-      const ctrl = this.form.controls['actionFilter'];
+      const ctrl = this.form.controls.actionFilter;
       ctrl.setValidators([Validators.required]);
       ctrl.updateValueAndValidity();
 
@@ -190,7 +190,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Resets the action filter control by clearing validators, resetting the value, and updating validity.
    */
   resetActionFilter(): void {
-    const ctrl = this.form.controls['actionFilter'];
+    const ctrl = this.form.controls.actionFilter;
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
@@ -211,7 +211,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     this.form.patchValue({
-      actionFilter: String(this.form.controls['actionFilter'].value)
+      actionFilter: String(this.form.controls.actionFilter.value)
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;
