@@ -20,7 +20,7 @@ export const zAgentErrorResponse = z.object({
     attributes: z.object({
       agentId: z.int(),
       taskId: z.int(),
-      chunkId: z.int(),
+      chunkId: z.int().nullable(),
       time: z.number(),
       error: z.string()
     })
@@ -97,7 +97,7 @@ export const zAgentErrorListResponse = z.object({
       attributes: z.object({
         agentId: z.int(),
         taskId: z.int(),
-        chunkId: z.int(),
+        chunkId: z.int().nullable(),
         time: z.number(),
         error: z.string()
       })

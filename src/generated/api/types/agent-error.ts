@@ -18,7 +18,7 @@ export type AgentErrorResponse = {
     attributes: {
       agentId: number;
       taskId: number;
-      chunkId: number;
+      chunkId: number | null;
       time: number;
       error: string;
     };
@@ -84,7 +84,7 @@ export type AgentErrorListResponse = {
     attributes: {
       agentId: number;
       taskId: number;
-      chunkId: number;
+      chunkId: number | null;
       time: number;
       error: string;
     };

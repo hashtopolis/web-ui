@@ -12112,7 +12112,7 @@
                       "properties": {
                         "agentId": { "type": "integer" },
                         "taskId": { "type": "integer" },
-                        "chunkId": { "type": "integer" },
+                        "chunkId": { "type": ["integer", "null"] },
                         "time": { "type": "integer", "format": "int64" },
                         "error": { "type": "string" }
                       }
@@ -12678,7 +12678,7 @@
                       "properties": {
                         "agentId": { "type": "integer" },
                         "taskId": { "type": "integer" },
-                        "chunkId": { "type": "integer" },
+                        "chunkId": { "type": ["integer", "null"] },
                         "time": { "type": "integer", "format": "int64" },
                         "error": { "type": "string" }
                       }
@@ -13665,7 +13665,7 @@
                 "properties": {
                   "agentId": { "type": "integer" },
                   "taskId": { "type": "integer" },
-                  "chunkId": { "type": "integer" },
+                  "chunkId": { "type": ["integer", "null"] },
                   "time": { "type": "integer", "format": "int64" },
                   "error": { "type": "string" }
                 }
@@ -13812,7 +13812,7 @@
                   "properties": {
                     "agentId": { "type": "integer" },
                     "taskId": { "type": "integer" },
-                    "chunkId": { "type": "integer" },
+                    "chunkId": { "type": ["integer", "null"] },
                     "time": { "type": "integer", "format": "int64" },
                     "error": { "type": "string" }
                   }

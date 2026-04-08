@@ -50,7 +50,7 @@ const RESOURCE_PREFIXES = [
   ['File', 'file'],
   ['Hash', 'hash'],
   ['Task', 'task'],
-  ['User', 'user'],
+  ['User', 'user']
 ];
 
 // Operation URL segment -> output file name (longest first)
@@ -83,17 +83,11 @@ const OPERATION_SEGMENTS = [
   ['Hashes', 'hash'],
   ['Files', 'file'],
   ['Tasks', 'task'],
-  ['Users', 'user'],
+  ['Users', 'user']
 ];
 
 // Names that belong in common.ts
-const COMMON_NAMES = new Set([
-  'ErrorResponse',
-  'NotFoundResponse',
-  'Token',
-  'TokenRequest',
-  'ClientOptions',
-]);
+const COMMON_NAMES = new Set(['ErrorResponse', 'NotFoundResponse', 'Token', 'TokenRequest', 'ClientOptions']);
 
 // TypeScript built-in type names to ignore during cross-reference detection
 const TS_BUILTINS = new Set([
@@ -116,7 +110,7 @@ const TS_BUILTINS = new Set([
   'String',
   'Number',
   'BigInt',
-  'Symbol',
+  'Symbol'
 ]);
 
 // ─── Bigint Fix ───────────────────────────────────────────────────────
@@ -128,13 +122,9 @@ function fixBigint(content) {
   const before = (content.match(/z\.coerce\.bigint\(\)/g) || []).length;
   content = content.replaceAll(BIGINT_CHAIN, 'z.number()');
   const after = (content.match(/z\.coerce\.bigint\(\)/g) || []).length;
-  console.log(
-    `  Replaced ${before - after} bigint chains with z.number() (${after} remaining)`
-  );
+  console.log(`  Replaced ${before - after} bigint chains with z.number() (${after} remaining)`);
   if (after > 0) {
-    console.warn(
-      '  Warning: some bigint patterns were not replaced — check for variant chains'
-    );
+    console.warn('  Warning: some bigint patterns were not replaced — check for variant chains');
   }
   return content;
 }
@@ -170,17 +160,15 @@ function parseBlocks(content, exportPattern) {
   const blocks = [];
   for (let i = 0; i < boundaries.length; i++) {
     const start = boundaries[i].startLine;
-    const end =
-      i + 1 < boundaries.length ? boundaries[i + 1].startLine : lines.length;
+    const end = i + 1 < boundaries.length ? boundaries[i + 1].startLine : lines.length;
 
     // Trim trailing empty lines
     let endTrimmed = end;
-    while (endTrimmed > start && lines[endTrimmed - 1].trim() === '')
-      endTrimmed--;
+    while (endTrimmed > start && lines[endTrimmed - 1].trim() === '') endTrimmed--;
 
     blocks.push({
       name: boundaries[i].name,
-      content: lines.slice(start, endTrimmed).join('\n'),
+      content: lines.slice(start, endTrimmed).join('\n')
     });
   }
 
@@ -252,8 +240,7 @@ function buildZodCrossRefs(blocks, nameToFile) {
       const refFile = nameToFile.get(refName);
       if (!refFile || refFile === selfFile) continue;
 
-      if (!fileCrossRefs.has(selfFile))
-        fileCrossRefs.set(selfFile, new Map());
+      if (!fileCrossRefs.has(selfFile)) fileCrossRefs.set(selfFile, new Map());
       const imports = fileCrossRefs.get(selfFile);
       if (!imports.has(refFile)) imports.set(refFile, new Set());
       imports.get(refFile).add(refName);
@@ -283,8 +270,7 @@ function buildTypeCrossRefs(blocks, nameToFile, allTypeNames) {
       const refFile = nameToFile.get(refName);
       if (!refFile || refFile === selfFile) continue;
 
-      if (!fileCrossRefs.has(selfFile))
-        fileCrossRefs.set(selfFile, new Map());
+      if (!fileCrossRefs.has(selfFile)) fileCrossRefs.set(selfFile, new Map());
       const imports = fileCrossRefs.get(selfFile);
       if (!imports.has(refFile)) imports.set(refFile, new Set());
       imports.get(refFile).add(refName);
@@ -328,14 +314,10 @@ function writeSplitFiles(blocks, nameToFile, crossRefs, outDir, options) {
     const imports = crossRefs.get(fileName);
     if (imports) {
       const importLines = [];
-      for (const [sourceFile, names] of [...imports].sort((a, b) =>
-        a[0].localeCompare(b[0])
-      )) {
+      for (const [sourceFile, names] of [...imports].sort((a, b) => a[0].localeCompare(b[0]))) {
         const sorted = [...names].sort();
         const keyword = options.zodImport ? 'import' : 'import type';
-        importLines.push(
-          `${keyword} { ${sorted.join(', ')} } from './${sourceFile}';`
-        );
+        importLines.push(`${keyword} { ${sorted.join(', ')} } from './${sourceFile}';`);
       }
       if (importLines.length > 0) parts.push(importLines.join('\n'));
     }
@@ -397,11 +379,7 @@ function main() {
 
   // 5. Detect cross-file references
   const zodCrossRefs = buildZodCrossRefs(zodBlocks, zodNameToFile);
-  const typeCrossRefs = buildTypeCrossRefs(
-    typeBlocks,
-    typeNameToFile,
-    new Set(typeNameToFile.keys())
-  );
+  const typeCrossRefs = buildTypeCrossRefs(typeBlocks, typeNameToFile, new Set(typeNameToFile.keys()));
 
   // 6. Clean and create output directories
   rmSync(ZOD_OUT_DIR, { recursive: true, force: true });
@@ -411,27 +389,24 @@ function main() {
 
   // 7. Write split zod files
   console.log('\nWriting zod split files...');
-  const zodFileNames = writeSplitFiles(
-    zodBlocks,
-    zodNameToFile,
-    zodCrossRefs,
-    ZOD_OUT_DIR,
-    { zodImport: true }
-  );
+  const zodFileNames = writeSplitFiles(zodBlocks, zodNameToFile, zodCrossRefs, ZOD_OUT_DIR, { zodImport: true });
   writeBarrelIndex(ZOD_OUT_DIR, zodFileNames);
   console.log(`  Wrote ${zodFileNames.length} resource files + barrel index`);
 
   // 8. Write split type files
   console.log('Writing types split files...');
-  const typeFileNames = writeSplitFiles(
-    typeBlocks,
-    typeNameToFile,
-    typeCrossRefs,
-    TYPES_OUT_DIR,
-    { zodImport: false }
-  );
+  const typeFileNames = writeSplitFiles(typeBlocks, typeNameToFile, typeCrossRefs, TYPES_OUT_DIR, { zodImport: false });
   writeBarrelIndex(TYPES_OUT_DIR, typeFileNames);
   console.log(`  Wrote ${typeFileNames.length} resource files + barrel index`);
+
+  // 9. Remove .gen.ts files (no longer needed — split files are the source of truth)
+  console.log('\nRemoving .gen.ts files...');
+  rmSync(ZOD_FILE);
+  rmSync(TYPES_FILE);
+
+  // 10. Simplify index.ts to re-export from types barrel
+  const INDEX_FILE = join(BASE_DIR, 'index.ts');
+  writeFileSync(INDEX_FILE, "// This file is auto-generated by @hey-api/openapi-ts\n\nexport * from './types';\n");
 
   console.log('\nDone!');
 }
