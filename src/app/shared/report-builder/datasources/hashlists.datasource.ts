@@ -47,7 +47,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const workflow: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let preCommand: any[] = [];
+    const preCommand: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const files: any[] = [];
     (data.tasks ?? []).forEach((item: JTask) => {

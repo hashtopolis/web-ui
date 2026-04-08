@@ -2,6 +2,7 @@
  * This module contains form definitions to update a user's attributes and password
  */
 import { FormControl, FormGroup } from '@angular/forms';
+
 import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
 
 /**

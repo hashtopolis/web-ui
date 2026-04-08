@@ -1,4 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { Observable, of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
@@ -16,7 +17,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';

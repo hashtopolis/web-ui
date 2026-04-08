@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
+
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
   selector: 'ht-table-editable-checkbox',

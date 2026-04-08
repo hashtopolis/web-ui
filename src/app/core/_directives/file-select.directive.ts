@@ -1,4 +1,4 @@
-import { Directive, HostListener, HostBinding, Output, EventEmitter } from '@angular/core';
+import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 
 /*
  * Detects a change of event when a file is selected

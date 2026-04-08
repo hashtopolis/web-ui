@@ -1,4 +1,4 @@
-import { Directive, HostListener, HostBinding, Output, Input, EventEmitter } from '@angular/core';
+import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
 
 /*
  * Detects when a file is hovered or dropped

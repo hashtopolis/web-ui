@@ -1,4 +1,4 @@
-import { PipeTransform, Injectable, Pipe } from '@angular/core';
+import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Order by asc or desc using item

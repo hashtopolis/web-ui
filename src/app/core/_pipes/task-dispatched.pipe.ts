@@ -1,9 +1,10 @@
+import { firstValueFrom } from 'rxjs';
+
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { environment } from './../../../environments/environment';
-import { GlobalService } from '../_services/main.service';
 import { SERV } from '../../core/_services/main.config';
-import { firstValueFrom } from 'rxjs';
+import { GlobalService } from '../_services/main.service';
+import { environment } from './../../../environments/environment';
 
 /**
  * Returns dispatched

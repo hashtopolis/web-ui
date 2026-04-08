@@ -7,7 +7,6 @@ import { ContextMenuType } from '@services/context-menu/base/context-menu.servic
 import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'base-menu',
   template: '',
   standalone: false

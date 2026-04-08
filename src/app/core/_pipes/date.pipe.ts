@@ -1,7 +1,8 @@
-import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
-import { CookieService } from '../_services/shared/cookies.service';
-import { dateFormats } from '../../core/_constants/settings.config';
 import { DatePipe } from '@angular/common';
+import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
+
+import { dateFormats } from '@constants/settings.config';
+import { CookieService } from '@services/shared/cookies.service';
 
 /**
  * Pipe to format date

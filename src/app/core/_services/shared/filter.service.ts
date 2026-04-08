@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import { PropertyResolver } from '@src/app/core/_services/property-resolver';
 
 @Injectable({
