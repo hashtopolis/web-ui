@@ -120,13 +120,15 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
-        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
-      );
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+        );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+        this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 
