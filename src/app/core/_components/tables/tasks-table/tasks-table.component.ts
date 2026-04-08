@@ -561,7 +561,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
     let icon: HTTableIcon = { name: '' };
     if (wrapper.taskType === TaskType.TASK) {
-      const task = wrapper.tasks![0] as unknown as Record<string, unknown>;
+      const task = wrapper.tasks![0];
       if (equals === '') {
         if (task[key] === true) {
           icon = {
@@ -576,15 +576,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         };
       }
     } else {
-      const record = wrapper as unknown as Record<string, unknown>;
       if (equals === '') {
-        if (record[key] === true) {
+        if (wrapper[key] === true) {
           icon = {
             name: 'check',
             cls: 'text-ok'
           };
         }
-      } else if (record[key] === equals) {
+      } else if (wrapper[key] === equals) {
         icon = {
           name: 'check',
           cls: 'text-ok'

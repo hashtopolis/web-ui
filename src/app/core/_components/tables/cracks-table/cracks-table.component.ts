@@ -181,7 +181,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (hash) {
       const chunk = hash.chunk;
       if (chunk) {
-        const modelID = (chunk as unknown as Record<string, string | number>)[modelIDKey];
+        const modelID = chunk[modelIDKey];
         links.push({
           routerLink: [relativePath, context, modelID, 'edit'],
           label: modelID

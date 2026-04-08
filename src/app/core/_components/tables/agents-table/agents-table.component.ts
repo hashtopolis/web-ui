@@ -4,6 +4,7 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
+import { ChunkData } from '@models/chunk.model';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
@@ -253,7 +254,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private getChunkDataValue(agent: JAgent, property: string): number | undefined {
     if (agent.chunkData && property in agent.chunkData) {
-      return (agent.chunkData as unknown as Record<string, unknown>)[property] as number | undefined;
+      return agent.chunkData[property as keyof ChunkData] as number | undefined;
     }
     return undefined;
   }
@@ -461,18 +462,18 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
-    const agentData = (agent as unknown as JAgent[])[0];
-    if (agentData.assignmentId) {
+  private rowActionDelete(agents: JAgent[]): void {
+    const agent = agents[0];
+    if (agent.assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agentData.assignmentId).subscribe(() => {
+        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agentData.id).subscribe(() => {
+        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })

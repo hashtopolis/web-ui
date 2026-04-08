@@ -186,7 +186,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
       const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
       this.showagent = agent;
-      this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []) as unknown as Record<string, unknown>[], ACCESS_GROUP_FIELD_MAPPING);
+      this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []), ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
         if ((agent.assignments ?? []).length) {
           const firstAssignment = (agent.assignments ?? [])[0];
@@ -209,7 +209,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
         this.showagent = agent;
-        this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []) as unknown as Record<string, unknown>[], ACCESS_GROUP_FIELD_MAPPING);
+        this.selectUserAgps = transformSelectOptions((agent.accessGroups ?? []), ACCESS_GROUP_FIELD_MAPPING);
         return;
       }
 
@@ -231,7 +231,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
       .subscribe((response: ResponseWrapper) => {
         const tasks = this.serializer.deserialize(response, zTaskListResponse) as unknown as JTask[];
-        this.assignTasks = transformSelectOptions(tasks as unknown as Record<string, unknown>[], TASKS_FIELD_MAPPING);
+        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
 
     this.unsubscribeService.add(loadTasksSubscription$);

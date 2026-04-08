@@ -151,7 +151,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
-    this.updateValidatorsBySourceType(this.form.get('sourceType')!.value);
+    this.updateValidatorsBySourceType(this.form.controls.sourceType.value);
   }
 
   private updateValidatorsBySourceType(sourceType: string): void {

@@ -63,17 +63,15 @@ export class BaseMenuComponent {
    */
   protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
     const condition = item.condition;
-    const record = data as unknown as Record<string, unknown>;
-
     if (condition?.key && condition.key.length > 0) {
-      if (condition.key in data && Boolean(record[condition.key]) === condition.value) {
+      if (condition.key in data && Boolean(data[condition.key]) === condition.value) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (record[condition.key] === undefined && condition.value === false) {
+      } else if (data[condition.key] === undefined && condition.value === false) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (record[condition.key] !== undefined && Array.isArray(record[condition.key])) {
+      } else if (data[condition.key] !== undefined && Array.isArray(data[condition.key])) {
         if (
-          ((record[condition.key] as unknown[]).length > 0 && condition.value === true) ||
-          ((record[condition.key] as unknown[]).length === 0 && condition.value === false)
+          ((data[condition.key] as unknown[]).length > 0 && condition.value === true) ||
+          ((data[condition.key] as unknown[]).length === 0 && condition.value === false)
         ) {
           this.addActionMenuItem(item.index, item.menuItem);
         }

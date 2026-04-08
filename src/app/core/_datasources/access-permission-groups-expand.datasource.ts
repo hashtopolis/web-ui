@@ -69,7 +69,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
       const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
       const existingPermission = acc.find((item) => item.name === operationName && item.key === operation);
       if (existingPermission && type) {
-        (existingPermission as unknown as Record<string, boolean>)[type.toLowerCase()] = value;
+        existingPermission[type.toLowerCase() as 'create' | 'read' | 'update' | 'delete'] = value;
       } else {
         const newPermission: UserPermissions = {
           name: operationName,

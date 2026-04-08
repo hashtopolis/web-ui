@@ -141,7 +141,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
             const availablePretasks = this.getAvailablePretasks(supertask.pretasks ?? [], pretasks);
 
-            this.selectPretasks = transformSelectOptions(availablePretasks as unknown as Record<string, unknown>[], SUPER_TASK_FIELD_MAPPING);
+            this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
             this.isLoading = false;
             this.changeDetectorRef.detectChanges();
           });
@@ -174,7 +174,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
               const loadPTSubscription2$ = this.gs.getAll(SERV.PRETASKS).subscribe((responsePT: ResponseWrapper) => {
                 const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
                 const availablePretasks = this.getAvailablePretasks(supertask2.pretasks ?? [], pretasks);
-                this.selectPretasks = transformSelectOptions(availablePretasks as unknown as Record<string, unknown>[], SUPER_TASK_FIELD_MAPPING);
+                this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
                 this.isLoading = false;
                 this.changeDetectorRef.detectChanges();
               });

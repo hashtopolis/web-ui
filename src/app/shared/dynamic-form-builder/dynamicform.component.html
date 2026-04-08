@@ -102,12 +102,12 @@
                           }
                         }
                       }
-                      @if (form.get(field.name)!.hasError('required')) {
+                      @if (form.controls[field.name].hasError('required')) {
                         <mat-error>
                           {{ field.label }} is required
                         </mat-error>
                       }
-                      @if (form.get(field.name)!.hasError('invalidUrl')) {
+                      @if (form.controls[field.name].hasError('invalidUrl')) {
                         <mat-error>
                           Invalid URL format
                         </mat-error>

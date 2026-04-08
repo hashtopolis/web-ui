@@ -98,7 +98,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
-    return this.form.valid && this.form.get('voucher')!.value !== '';
+    return this.form.valid && this.form.controls.voucher.value !== '';
   }
 
   onSubmit() {

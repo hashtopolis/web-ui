@@ -220,7 +220,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    * @private
    */
   private renderCheckmarkIcon(hashtype: JHashtype, property: string): HTTableIcon {
-    if (property in hashtype && (hashtype as unknown as Record<string, unknown>)[property] === true) {
+    if (property in hashtype && hashtype[property] === true) {
       return {
         name: 'check_circle',
         tooltip: 'Salted Hash',

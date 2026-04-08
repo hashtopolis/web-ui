@@ -211,9 +211,9 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(error: JAgentErrors): void {
+  private rowActionDelete(errors: JAgentErrors[]): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENT_ERRORS, (error as unknown as JAgentErrors[])[0].id).subscribe(() => {
+      this.gs.delete(SERV.AGENT_ERRORS, errors[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted error!');
         this.dataSource.reload();
       })

@@ -115,7 +115,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
       );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes as unknown as Record<string, unknown>[], CRACKER_TYPE_FIELD_MAPPING);
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);
   }

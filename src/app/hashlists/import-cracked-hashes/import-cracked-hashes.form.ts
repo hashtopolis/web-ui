@@ -13,7 +13,7 @@ export interface ImportCrackedHashesForm {
   sourceType: FormControl<string>;
   sourceData: FormControl<string>;
   hashes: FormControl<string>;
-  conflictResolution?: FormControl<boolean>;
+  conflictResolution: FormControl<boolean>;
 }
 
 /**
