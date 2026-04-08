@@ -457,17 +457,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Applies a filter to the table based on user input.
-   */
-  /*   applyFilter() {
-    if (this.filterFn) {
-      this.dataSource.filterData(this.filterFn);
-      this.uiSettings.updateTableSettings(this.name, {
-        search: this.dataSource.filter
-      });
-    }
-  } */
   emitFilterValue(): void {
     this.filterError = null;
     const value = this.filterQueryFormGroup.controls.textFilter.value ?? '';
@@ -507,20 +496,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.cd.markForCheck();
   }
-  /**
-   * Clears a filter to the table based on user input.
-   */
-  /*   clearFilter() {
-    // Reset the filter function to a default that passes all items
-    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
-
-    // Reapply the default filter function
-    this.dataSource.filterData(defaultFilterFn);
-    this.dataSource.filter = '';
-    this.uiSettings.updateTableSettings(this.name, {
-      search: ''
-    });
-  } */
 
   /**
    * Checks if a row is selected.

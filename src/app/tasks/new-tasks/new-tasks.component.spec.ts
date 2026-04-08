@@ -623,7 +623,7 @@ describe('NewTasksComponent', () => {
       // Reset call tracking so we only see calls triggered by the value change
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.get('crackerBinaryTypeId').setValue(2);
+      component.form.controls.crackerBinaryTypeId.setValue(2);
       await fixture.whenStable();
 
       // handleChangeBinary should have called gs.getAll(SERV.CRACKERS, ...)
@@ -634,10 +634,10 @@ describe('NewTasksComponent', () => {
     it('should subscribe to preprocessorId value changes and update form value', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5);
+      component.form.controls.preprocessorId.setValue(5);
       await fixture.whenStable();
 
-      expect(component.form.get('preprocessorId').value).toBe(5);
+      expect(component.form.controls.preprocessorId.value).toBe(5);
     });
   });
 
@@ -696,7 +696,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.get('crackerBinaryTypeId').setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
 
       const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
@@ -727,11 +727,11 @@ describe('NewTasksComponent', () => {
       // Override only CRACKERS responses for the next value change
       globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
 
-      component.form.get('crackerBinaryTypeId').setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
 
       // Last version id should be 11 (Number-converted from SelectOption.id string '11')
-      expect(component.form.get('crackerBinaryId').value).toBe(11);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
     });
 
     it('should set required error when no versions are available', async () => {
@@ -741,10 +741,10 @@ describe('NewTasksComponent', () => {
         buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
       );
 
-      component.form.get('crackerBinaryTypeId').setValue(999);
+      component.form.controls.crackerBinaryTypeId.setValue(999);
       await fixture.whenStable();
 
-      const crackerCtrl = component.form.get('crackerBinaryId');
+      const crackerCtrl = component.form.controls.crackerBinaryId;
       expect(crackerCtrl.errors).toEqual({ required: true });
       expect(crackerCtrl.touched).toBe(true);
       expect(crackerCtrl.dirty).toBe(true);
@@ -755,22 +755,22 @@ describe('NewTasksComponent', () => {
     it('should update preprocessorId when value changes', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5);
+      component.form.controls.preprocessorId.setValue(5);
       await fixture.whenStable();
 
-      expect(component.form.get('preprocessorId').value).toBe(5);
+      expect(component.form.controls.preprocessorId.value).toBe(5);
     });
 
     it('should not re-emit when value has not changed', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(3);
+      component.form.controls.preprocessorId.setValue(3);
       await fixture.whenStable();
 
-      const spy = spyOn(component.form.get('preprocessorId'), 'setValue').and.callThrough();
+      const spy = spyOn(component.form.controls.preprocessorId, 'setValue').and.callThrough();
 
       // Set the same value again — handler should skip the inner setValue
-      component.form.get('preprocessorId').setValue(3);
+      component.form.controls.preprocessorId.setValue(3);
       await fixture.whenStable();
 
       // The spy captures our explicit setValue(3) call, but the handler
@@ -838,7 +838,7 @@ describe('NewTasksComponent', () => {
     it('should return true when preprocessorId is a non-zero number', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5, { emitEvent: false });
+      component.form.controls.preprocessorId.setValue(5, { emitEvent: false });
 
       expect(component['isPreprocessor']()).toBe(true);
     });
@@ -846,7 +846,7 @@ describe('NewTasksComponent', () => {
     it('should return false when preprocessorId is 0', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(0, { emitEvent: false });
+      component.form.controls.preprocessorId.setValue(0, { emitEvent: false });
 
       expect(component['isPreprocessor']()).toBe(false);
     });
@@ -863,8 +863,8 @@ describe('NewTasksComponent', () => {
         otherFiles: []
       });
 
-      expect(component.form.get('attackCmd').value).toBe('-a 3 ?a?a?a');
-      expect(component.form.get('files').value).toEqual([10, 20]);
+      expect(component.form.controls.attackCmd.value).toBe('-a 3 ?a?a?a');
+      expect(component.form.controls.files.value).toEqual([10, 20]);
     });
 
     it('should update preprocessorCommand when event type is not CMD', async () => {
@@ -877,7 +877,7 @@ describe('NewTasksComponent', () => {
         otherFiles: []
       });
 
-      expect(component.form.get('preprocessorCommand').value).toBe('--prince-elem-cnt-min=1');
+      expect(component.form.controls.preprocessorCommand.value).toBe('--prince-elem-cnt-min=1');
     });
   });
 

@@ -43,7 +43,9 @@ const mockAccessGroups: ResponseWrapper = {
       }
     }
   ],
-  included: []
+  included: [],
+  links: { self: '' },
+  meta: { page: { total_elements: 0 } }
 };
 
 const mockHashtypes: ResponseWrapper = {
@@ -77,7 +79,9 @@ const mockHashtypes: ResponseWrapper = {
       }
     }
   ],
-  included: []
+  included: [],
+  links: { self: '' },
+  meta: { page: { total_elements: 0 } }
 };
 
 const mockConfigs: ResponseWrapper = {
@@ -91,7 +95,9 @@ const mockConfigs: ResponseWrapper = {
       value: '1'
     }
   },
-  included: []
+  included: [],
+  links: { self: '' },
+  meta: { page: { total_elements: 0 } }
 };
 
 describe('NewHashlistComponent', () => {
@@ -170,7 +176,7 @@ describe('NewHashlistComponent', () => {
 
     it('should load config and patch form for brainenabled', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.get('useBrain').value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeTrue();
     });
   });
 

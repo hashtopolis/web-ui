@@ -83,7 +83,7 @@ describe('BaseTableComponent', () => {
   });
 
   it('should not render status icon for undefined model', () => {
-    const activeModel = undefined as JAgent;
+    const activeModel: JAgent = undefined!;
     const icon = component.renderStatusIcon(activeModel);
     expect(icon.name).toBe('');
   });
@@ -159,7 +159,7 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
       expect(links[0].label).toBe('Test Hashlist');
-      expect(links[0].icon.tooltip).toBe('Secret hashlist');
+      expect(links[0].icon!.tooltip).toBe('Secret hashlist');
       done();
     });
   });
@@ -191,7 +191,7 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
       expect(links[0].label).toBe('Test Agent');
-      expect(links[0].icon.tooltip).toBe('Trusted Agent');
+      expect(links[0].icon!.tooltip).toBe('Trusted Agent');
       done();
     });
   });

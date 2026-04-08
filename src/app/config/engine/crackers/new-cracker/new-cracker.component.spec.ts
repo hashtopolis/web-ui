@@ -94,8 +94,8 @@ describe('NewCrackerComponent', () => {
     await component.onSubmit();
 
     const payload = {
-      typeName: component.newCrackerForm.get('typeName').value,
-      isChunkingAvailable: component.newCrackerForm.get('isChunkingAvailable').value
+      typeName: component.newCrackerForm.controls.typeName.value,
+      isChunkingAvailable: component.newCrackerForm.controls.isChunkingAvailable.value
     };
 
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.CRACKERS_TYPES, payload);

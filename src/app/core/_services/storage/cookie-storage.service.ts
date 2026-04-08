@@ -27,12 +27,14 @@ export class CookieStorageService<T> extends BaseStorageService<T> {
     key = this.decode(key);
     const value = this.getCookie(key);
 
+    if (value === null) return null;
+
     try {
       // Try parsing the value as JSON
       return JSON.parse(value) as T;
-    } catch (e) {
+    } catch {
       // If parsing fails, return the value as a plain string
-      return value !== null ? value as T : null;
+      return value as T;
     }
   }
 

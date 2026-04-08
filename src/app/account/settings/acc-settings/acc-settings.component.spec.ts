@@ -146,13 +146,13 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates email format', () => {
-      const emailControl = component.form.get('email');
+      const emailControl = component.form.controls.email;
 
-      emailControl?.patchValue('invalid-email');
+      emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeTrue();
 
-      emailControl?.patchValue('test@example.com');
+      emailControl.patchValue('test@example.com');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeFalse();
     });
@@ -247,8 +247,8 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates password length', () => {
-      const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
-      const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
+      const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
+      const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
 
       // Too short
       newPasswordControl.patchValue('123');

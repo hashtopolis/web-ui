@@ -163,7 +163,7 @@ describe('SessionStorageService', () => {
       const result = service.getItem(key, testSchema);
 
       expect(result).toEqual({ name: 'a', count: 1 });
-      expect(result['extra']).toBeUndefined();
+      expect((result as Record<string, unknown>)['extra']).toBeUndefined();
     });
   });
 
@@ -210,7 +210,7 @@ describe('SessionStorageService', () => {
     }));
 
     it('getItem should return defaultValue without schema when key is missing', () => {
-      const result = service.getItem('nope', undefined, 'fallback');
+      const result = service.getItem('nope', undefined!, 'fallback');
       expect(result).toBe('fallback');
     });
   });

@@ -79,7 +79,7 @@ export interface CheckboxFiles {
   [key: string]: boolean;
 }
 
-export type HTTableColumnType = 'dafeult | link | editable';
+export type HTTableColumnType = 'default' | 'link' | 'editable';
 
 export interface HTTableColumn {
   type?: HTTableColumnType;

@@ -127,13 +127,13 @@ describe('NewEditPreprocessorComponent', () => {
   it('should initialize form with default values', () => {
     expect(component.newEditPreprocessorForm).toBeDefined();
 
-    expect(component.newEditPreprocessorForm.get('name').value).toBeDefined();
-    expect(component.newEditPreprocessorForm.get('binaryName').value).toBeDefined();
-    expect(component.newEditPreprocessorForm.get('url').value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.name.value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.binaryName.value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.url.value).toBeDefined();
 
-    expect(component.newEditPreprocessorForm.get('keyspaceCommand').value).toBe('--keyspace');
-    expect(component.newEditPreprocessorForm.get('skipCommand').value).toBe('--skip');
-    expect(component.newEditPreprocessorForm.get('limitCommand').value).toBe('--limit');
+    expect(component.newEditPreprocessorForm.controls.keyspaceCommand.value).toBe('--keyspace');
+    expect(component.newEditPreprocessorForm.controls.skipCommand.value).toBe('--skip');
+    expect(component.newEditPreprocessorForm.controls.limitCommand.value).toBe('--limit');
   });
 
   it('should not submit if form is invalid', async () => {
@@ -141,9 +141,9 @@ describe('NewEditPreprocessorComponent', () => {
       name: '',
       binaryName: '',
       url: '',
-      keyspaceCommand: component.newEditPreprocessorForm.get('keyspaceCommand').value,
-      skipCommand: component.newEditPreprocessorForm.get('skipCommand').value,
-      limitCommand: component.newEditPreprocessorForm.get('limitCommand').value
+      keyspaceCommand: component.newEditPreprocessorForm.controls.keyspaceCommand.value,
+      skipCommand: component.newEditPreprocessorForm.controls.skipCommand.value,
+      limitCommand: component.newEditPreprocessorForm.controls.limitCommand.value
     };
 
     component.newEditPreprocessorForm.patchValue(payload); // invalid
@@ -238,9 +238,9 @@ describe('NewEditPreprocessorComponent', () => {
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
-    const errors = component.newEditPreprocessorForm.get('url').errors;
+    const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeTruthy();
-    expect(errors['pattern']).toEqual({
+    expect(errors!['pattern']).toEqual({
       requiredPattern: ValidationPatterns.URL,
       actualValue: 'ThisIsAnInvalidURL'
     });
@@ -258,7 +258,7 @@ describe('NewEditPreprocessorComponent', () => {
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
-    const errors = component.newEditPreprocessorForm.get('url').errors;
+    const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeNull();
   });
 

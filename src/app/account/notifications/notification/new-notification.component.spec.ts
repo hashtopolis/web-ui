@@ -16,6 +16,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -68,7 +69,7 @@ describe('NewNotificationComponent', () => {
     included: [],
     jsonapi: { version: '1.0', ext: [] },
     links: { self: '/api/v2/ui/agents', next: null, prev: null },
-    meta: {}
+    meta: { page: { total_elements: 0 } }
   };
 
   const taskValues: ResponseWrapper = {
@@ -117,7 +118,7 @@ describe('NewNotificationComponent', () => {
     included: [],
     jsonapi: { version: '1.0', ext: [] },
     links: { self: '/api/v2/ui/tasks', next: null, prev: null },
-    meta: {}
+    meta: { page: { total_elements: 0 } }
   };
 
   const userValues: ResponseWrapper = {
@@ -169,7 +170,7 @@ describe('NewNotificationComponent', () => {
     included: [],
     jsonapi: { version: '1.0', ext: [] },
     links: { self: '/api/v2/ui/users', next: null, prev: null },
-    meta: {}
+    meta: { page: { total_elements: 0 } }
   };
 
   const hashlistValues: ResponseWrapper = {
@@ -210,11 +211,11 @@ describe('NewNotificationComponent', () => {
     included: [],
     jsonapi: { version: '1.0', ext: [] },
     links: { self: '/api/v2/ui/hashlists', next: null, prev: null },
-    meta: {}
+    meta: { page: { total_elements: 0 } }
   };
 
   // Partial mock service
-  const mockService: Partial<GlobalService> = {
+  const mockService: Pick<GlobalService, 'getAll' | 'create'> = {
     getAll(serviceConfig, routerParams?: unknown): Observable<unknown> {
       void routerParams;
       switch (serviceConfig) {
@@ -323,16 +324,12 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should be possible to submit the form when all fields have data', () => {
-    const ActionFilterControl = component.form.get('actionFilter');
-    const NotificationControl = component.form.get('notification');
-    const ReceiverControl = component.form.get('receiver');
-
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    ActionFilterControl.patchValue('1');
-    NotificationControl.patchValue(NOTIF.EMAIL);
-    ReceiverControl.patchValue('test@mail.com');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
     fixture.detectChanges();
 
     expectButtonToBeEnabled();
@@ -425,16 +422,11 @@ describe('NewNotificationComponent', () => {
 
   // --- Helper functions ---
   const setValidFormValues = (): void => {
-    const actionSelect = component.form.get('action');
-    const actionFilterSelect = component.form.get('actionFilter');
-    const notificationSelect = component.form.get('notification');
-    const receiverInput = component.form.get('receiver');
-
     setAction(ACTION.NEW_TASK);
-    actionSelect.patchValue('1');
-    actionFilterSelect.patchValue('1');
-    notificationSelect.patchValue(NOTIF.EMAIL);
-    receiverInput.patchValue('test@mail.com');
+    component.form.controls.action.patchValue('1');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
 
     fixture.detectChanges();
   };
@@ -453,8 +445,7 @@ describe('NewNotificationComponent', () => {
   };
 
   const setAction = (action: string): void => {
-    const actionControl = component.form.get('action');
-    actionControl.patchValue(action);
+    component.form.controls.action.patchValue(action);
     fixture.detectChanges();
   };
 
@@ -476,7 +467,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(agentValues.data[i].attributes.agentName);
+      expect(option).toBe((agentValues.data! as TJsonApiData[])[i].attributes!.agentName);
     }
   };
 
@@ -487,7 +478,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(taskValues.data[i].attributes.taskName);
+      expect(option).toBe((taskValues.data! as TJsonApiData[])[i].attributes!.taskName);
     }
   };
 
@@ -498,7 +489,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(hashlistValues.data[i].attributes.name);
+      expect(option).toBe((hashlistValues.data! as TJsonApiData[])[i].attributes!.name);
     }
   };
 
@@ -509,7 +500,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(userValues.data[i].attributes.name);
+      expect(option).toBe((userValues.data! as TJsonApiData[])[i].attributes!.name);
     }
   };
 });

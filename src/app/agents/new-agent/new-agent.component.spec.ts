@@ -92,7 +92,7 @@ describe('NewAgentComponent', () => {
   it('should create the component and initialize form', () => {
     expect(component).toBeTruthy();
     expect(component.form).toBeDefined();
-    expect(component.form.get('voucher').value).toBeTruthy();
+    expect(component.form.controls.voucher.value).toBeTruthy();
   });
 
   it('should generate a voucher of length 8', () => {

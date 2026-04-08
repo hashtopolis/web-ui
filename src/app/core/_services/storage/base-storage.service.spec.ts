@@ -53,7 +53,7 @@ describe('BaseStorageService', () => {
   });
 
   it('should return false for a wrapper with no expiration', () => {
-    const noExpirationWrapper = { value: 'no expiration', expires: null };
+    const noExpirationWrapper = { value: 'no expiration', expires: 0 };
     const result = service.hasExpired(noExpirationWrapper);
 
     expect(result).toBe(false);

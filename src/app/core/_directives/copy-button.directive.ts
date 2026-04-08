@@ -21,9 +21,6 @@ export class CopyButtonDirective {
   @Input('copyButton')
   public payload: string;
 
-  @Input()
-  public context: string;
-
   @Output()
   public copied: EventEmitter<string> = new EventEmitter<string>();
 

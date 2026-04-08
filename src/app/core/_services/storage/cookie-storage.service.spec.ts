@@ -69,7 +69,7 @@ describe('CookieStorageService', () => {
     const key = 'nullKey';
 
     // Store a null value
-    service.setItem(key, null, 1000);
+    service.setItem(key, null!, 1000);
     const retrievedValue = service.getItem(key);
 
     expect(retrievedValue).toBeNull();

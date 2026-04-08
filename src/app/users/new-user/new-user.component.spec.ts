@@ -43,7 +43,9 @@ describe('NewUserComponent', () => {
         }
       }
     ],
-    included: []
+    included: [],
+    links: { self: '' },
+    meta: { page: { total_elements: 0 } }
   };
 
   beforeEach(async () => {

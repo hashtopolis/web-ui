@@ -30,7 +30,9 @@ const mockAccessGroupResponse: ResponseWrapper = {
       groupName: 'Test Group'
     }
   } as never,
-  included: []
+  included: [],
+  links: { self: '' },
+  meta: { page: { total_elements: 0 } }
 };
 
 /**

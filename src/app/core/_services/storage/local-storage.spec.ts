@@ -214,7 +214,7 @@ describe('TypedStorage', () => {
     it('should work with constructor schema and defaultValue', () => {
       const schema = z.object({ x: z.number() });
       const bound = new TypedStorage(native, schema);
-      const result = bound.getItem('missing', undefined, { x: 99 });
+      const result = bound.getItem('missing', undefined!, { x: 99 });
       expect(result).toEqual({ x: 99 });
     });
   });

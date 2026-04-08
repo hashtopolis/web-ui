@@ -44,11 +44,6 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
   }
 });
 
-export interface ThemeObject {
-  oldValue: string;
-  newValue: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
