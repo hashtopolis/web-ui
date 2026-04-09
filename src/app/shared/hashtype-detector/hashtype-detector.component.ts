@@ -1,7 +1,7 @@
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ApplicationRef, ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ApplicationRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 

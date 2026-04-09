@@ -1,5 +1,3 @@
-import { __values } from 'tslib';
-
 import { Pipe, PipeTransform } from '@angular/core';
 
 /**

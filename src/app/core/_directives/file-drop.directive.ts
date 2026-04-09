@@ -10,7 +10,7 @@ import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } fro
  */
 
 @Directive({
-  selector: '[fileDrop]',
+  selector: '[appFileDrop]',
   standalone: false
 })
 export class FileDropDirective {
@@ -38,7 +38,6 @@ export class FileDropDirective {
     evt.preventDefault();
     evt.stopPropagation();
     const files = evt.dataTransfer?.files;
-    const valid_files: Array<File> = files ? Array.from(files) : [];
     const target = evt.target as HTMLInputElement;
     this.filesChangeEmiter.emit(target?.files ? Array.from(target.files) : []);
   }

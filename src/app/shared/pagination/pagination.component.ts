@@ -1,5 +1,3 @@
-import { Observable, map, range } from 'rxjs';
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
@@ -47,7 +45,10 @@ export class PaginationComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  // ngOnInit intentionally left empty - required by OnInit interface
+  ngOnInit() {
+    // No initialization needed
+  }
 
   update() {
     if (this.pagerTotalItems && this.pagerPageSize) {
@@ -127,7 +128,7 @@ export class PaginationComponent implements OnInit {
   }
 
   sInfoDisplay(page: number) {
-    let tlen = this.totalItems,
+    const tlen = this.totalItems,
       start = (page - 1) * this.pageSize + 1,
       ending = start + this.pageSize - 1,
       end = tlen - 1;

@@ -1,4 +1,4 @@
-import { BaseStorageService } from './base-storage.service';
+import { BaseStorageService } from '@services/storage/base-storage.service';
 
 class MockStorageService<T> extends BaseStorageService<T> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

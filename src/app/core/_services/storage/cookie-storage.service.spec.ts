@@ -1,6 +1,6 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
-import { CookieStorageService } from './cookie-storage.service';
+import { CookieStorageService } from '@services/storage/cookie-storage.service';
 
 describe('CookieStorageService', () => {
   let service: CookieStorageService<object | string>;

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 
-import { ExcelColumn } from './export.model';
-import { HTTableColumn } from '../../_components/tables/ht-table/ht-table.models';
+import { ExcelColumn } from '@services/export/export.model';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 @Injectable({
   providedIn: 'root'
@@ -97,7 +97,7 @@ export class ExportUtil {
     window.URL.revokeObjectURL(url);
     try {
       document.body.removeChild(a);
-    } catch (error) {
+    } catch (_error) {
       // Do nothing
     }
   }

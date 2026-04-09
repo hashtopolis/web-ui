@@ -10,7 +10,7 @@ import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
  */
 
 @Directive({
-  selector: '[fileSelect]',
+  selector: '[appFileSelect]',
   standalone: false
 })
 export class FileSelectDirective {

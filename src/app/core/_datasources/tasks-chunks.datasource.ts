@@ -6,7 +6,6 @@ import { HttpHeaders } from '@angular/common/http';
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';

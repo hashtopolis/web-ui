@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { BaseStorageService } from './base-storage.service';
+import { BaseStorageService } from '@services/storage/base-storage.service';
 
 export type SameSite = 'Lax' | 'None' | 'Strict';
 

@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
 @Directive({
@@ -14,7 +14,7 @@ export class DebounceDirective implements OnInit, OnDestroy {
 
   private subscription: Subscription;
 
-  constructor(private ngControl: NgControl) {}
+  private ngControl = inject(NgControl);
 
   ngOnInit() {
     this.subscription = this.ngControl

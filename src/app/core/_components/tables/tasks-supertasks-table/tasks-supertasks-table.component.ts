@@ -12,7 +12,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {

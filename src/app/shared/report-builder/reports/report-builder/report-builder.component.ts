@@ -266,7 +266,7 @@ export class ReportBuilderComponent implements OnInit {
       const headerLogo = pageSettings['img_logo'];
       const backgroundImg = pageSettings['img_background'];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let bg: Record<string, any> = {}; // Initialize bg as an object
+      let _bg: Record<string, any> = {}; // Initialize bg as an object
 
       // Page header
       const headerText = this.templates[this.templateName]?.settings['info_header_text'];
@@ -283,7 +283,7 @@ export class ReportBuilderComponent implements OnInit {
         backgroundImg.image = await this.getBase64ImageFromURL(imagePath + backgroundImg.img_path);
         delete backgroundImg.img_path;
 
-        bg = { background: { ...backgroundImg } };
+        _bg = { background: { ...backgroundImg } };
       }
 
       const project = {

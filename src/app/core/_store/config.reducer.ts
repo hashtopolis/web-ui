@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import * as ConfigListActions from './config.actions';
+import * as ConfigListActions from '@src/app/core/_store/config.actions';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function configReducer(state: any, action: Action): any {

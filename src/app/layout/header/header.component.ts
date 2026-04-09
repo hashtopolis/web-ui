@@ -2,7 +2,6 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { AuthUser } from '@models/auth-user.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';

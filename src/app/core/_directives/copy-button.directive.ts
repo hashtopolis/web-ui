@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Directive, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
@@ -12,13 +12,13 @@ import { AlertService } from '@src/app/core/_services/shared/alert.service';
  **/
 
 @Directive({
-  selector: '[copyButton]',
+  selector: '[appCopyButton]',
   standalone: false
 })
 export class CopyButtonDirective {
-  constructor(private alert: AlertService) {}
+  private alert = inject(AlertService);
 
-  @Input('copyButton')
+  @Input('appCopyButton')
   public payload: string;
 
   @Output()

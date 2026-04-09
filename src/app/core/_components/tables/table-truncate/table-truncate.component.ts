@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 /**
  * Component for truncating and expanding text with a "More/Less" button.

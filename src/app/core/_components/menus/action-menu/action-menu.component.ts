@@ -15,7 +15,8 @@ import {
   OnInit,
   Output,
   Renderer2,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
@@ -101,17 +102,11 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private static openMenuTrigger: MatMenuTrigger | null = null;
 
-  /**
-   * Create the ActionMenuComponent.
-   * @param router Router instance for internal navigation
-   * @param storage Local storage utility used for reading UI settings
-   * @param renderer Renderer2 for attaching global event listeners safely
-   */
-  constructor(
-    private router: Router,
-    private storage: LocalStorageService<UIConfig>,
-    private renderer: Renderer2
-  ) {
+  private router = inject(Router);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private renderer = inject(Renderer2);
+
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     this.faIconColor = this.isDarkMode ? 'white' : 'black';

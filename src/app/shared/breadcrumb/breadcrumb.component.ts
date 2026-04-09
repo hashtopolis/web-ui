@@ -25,7 +25,7 @@ export class BreadcrumbComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((_event) => {
       this.breadcrumbs = [];
       let currentRoute: ActivatedRoute | null = this.activatedRoute.root,
         url = '';
