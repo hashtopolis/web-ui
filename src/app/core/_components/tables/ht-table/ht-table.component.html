@@ -33,7 +33,7 @@
             #bulkMenu
             [dataType]="dataType"
             [isArchived]="isArchived"
-            [data]="dataSource.selection.selected"
+            [data]="$any(dataSource.selection.selected)"
             [disabled]="!hasSelected()"
             [contextMenuService]="contextMenuService"
             (menuItemClicked)="bulkAction($event)"
@@ -51,7 +51,7 @@
           </button>
         } @else {
           <export-menu
-            [data]="dataSource.selection.selected"
+            [data]="$any(dataSource.selection.selected)"
             [disabled]="!hasSelected()"
             (menuItemClicked)="exportAction($event)"
           />

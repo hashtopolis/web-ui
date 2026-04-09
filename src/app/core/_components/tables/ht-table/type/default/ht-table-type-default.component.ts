@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 import { HTTableColumn } from '../../ht-table.models';
 
 @Component({
@@ -9,6 +11,6 @@ import { HTTableColumn } from '../../ht-table.models';
     standalone: false
 })
 export class HTTableTypeDefaultComponent {
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 }

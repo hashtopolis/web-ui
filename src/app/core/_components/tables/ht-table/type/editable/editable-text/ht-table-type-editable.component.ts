@@ -8,6 +8,9 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+
+import { BaseModel } from '@models/base.model';
+
 import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
 @Component({
@@ -17,14 +20,14 @@ import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
     standalone: false
 })
 export class HTTableTypeEditableComponent implements OnInit {
-  editable: HTTableEditable<any>;
+  editable: HTTableEditable<BaseModel>;
   original: string;
 
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableInputSaved: EventEmitter<HTTableEditable<any>> =
-    new EventEmitter<HTTableEditable<any>>();
+  @Output() editableInputSaved: EventEmitter<HTTableEditable<BaseModel>> =
+    new EventEmitter<HTTableEditable<BaseModel>>();
   @ViewChild('editableInput') editableInput: ElementRef;
 
   editMode = false;

@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
@@ -9,13 +11,13 @@ import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-t
   standalone: false
 })
 export class HTTableTypeEditableCheckboxComponent implements OnInit {
-  checkbox: HTTableEditable<any>;
+  checkbox: HTTableEditable<BaseModel>;
   original: string;
 
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
+  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<HTTableEditable<BaseModel>>();
 
   editMode = false;
 

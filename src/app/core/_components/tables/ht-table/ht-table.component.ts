@@ -94,7 +94,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
+export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
@@ -128,8 +128,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() filterMode: 'client' | 'backend' = 'backend';
 
   /** The data source for the table. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table is intentionally generic over any data type
-  @Input() dataSource: BaseDataSource<any>;
+  @Input() dataSource: BaseDataSource<T>;
 
   /** Flag to enable or disable pagination. */
   @Input() isPageable = false;
@@ -191,23 +190,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() supportsAutoRefresh = false;
 
   /** Flag to color a table row */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- row type depends on consumer's datasource
-  @Input() rowClass: ((row: any) => string) | undefined;
+  @Input() rowClass: ((row: T) => string) | undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
-  @Output() rowActionClicked = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() rowActionClicked = new EventEmitter<ActionMenuEvent<T>>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
-  @Output() bulkActionClicked = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() bulkActionClicked = new EventEmitter<ActionMenuEvent<T[]>>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
-  @Output() exportActionClicked = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() exportActionClicked = new EventEmitter<ActionMenuEvent<T[]>>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
-  @Output() editableSaved = new EventEmitter<HTTableEditable<any>>();
+  @Output() editableSaved = new EventEmitter<HTTableEditable<T>>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data type depends on consumer's generic T
-  @Output() editableCheckbox = new EventEmitter<HTTableEditable<any>>();
+  @Output() editableCheckbox = new EventEmitter<HTTableEditable<T>>();
 
   /** Event emitter for checkbox attack */
   @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> = new EventEmitter();
@@ -417,16 +410,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     return filteredObject;
   }
 
-  rowAction(event: ActionMenuEvent<any>): void {
-    this.rowActionClicked.emit(event);
+  rowAction(event: ActionMenuEvent<BaseModel>): void {
+    this.rowActionClicked.emit(event as ActionMenuEvent<T>);
   }
 
-  bulkAction(event: ActionMenuEvent<any>): void {
-    this.bulkActionClicked.emit(event);
+  bulkAction(event: ActionMenuEvent<BaseModel>): void {
+    this.bulkActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
   }
 
-  exportAction(event: ActionMenuEvent<any>): void {
-    this.exportActionClicked.emit(event);
+  exportAction(event: ActionMenuEvent<BaseModel>): void {
+    this.exportActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
   }
 
   /**
@@ -497,7 +490,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to check.
    */
-  isSelected(row: BaseModel): boolean {
+  isSelected(row: T): boolean {
     if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
       return this.isCmdFiles.includes(row.id);
     } else {
@@ -538,7 +531,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to toggle.
    */
-  toggleSelect(row: BaseModel): void {
+  toggleSelect(row: T): void {
     if (this.isSelectable) {
       this.dataSource.toggleRow(row);
     }
@@ -645,11 +638,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataSource.reload();
   }
 
-  editableInputSaved(editable: HTTableEditable<any>): void {
-    this.editableSaved.emit(editable);
+  editableInputSaved(editable: HTTableEditable<BaseModel>): void {
+    this.editableSaved.emit(editable as HTTableEditable<T>);
   }
 
-  editableCheckboxSaved(editable: HTTableEditable<any>): void {
-    this.editableCheckbox.emit(editable);
+  editableCheckboxSaved(editable: HTTableEditable<BaseModel>): void {
+    this.editableCheckbox.emit(editable as HTTableEditable<T>);
   }
 }
