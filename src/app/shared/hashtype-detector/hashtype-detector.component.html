@@ -15,7 +15,7 @@
         </form>
       </div>
 
-      @if (type && type !== false) {
+      @if (type) {
         <mat-table class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
           @for (column of displayedColumns; track column) {
             <ng-container [matColumnDef]="column">

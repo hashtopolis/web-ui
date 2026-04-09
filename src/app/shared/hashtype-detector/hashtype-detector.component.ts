@@ -5,6 +5,18 @@ import { ApplicationRef, Component, OnInit, ViewEncapsulation } from '@angular/c
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
+interface HashTypeOption {
+  id: number;
+  description: string;
+  example?: string;
+}
+
+interface HashTypeMatch {
+  regex: string;
+  rAttack: string;
+  options: HashTypeOption[];
+}
+
 @Component({
   selector: 'hashtype-detector',
   templateUrl: './hashtype-detector.component.html',
@@ -12,9 +24,9 @@ import { MatTableDataSource } from '@angular/material/table';
   standalone: false
 })
 export class HashtypeDetectorComponent implements OnInit {
-  type: any;
+  type: HashTypeMatch[] | false;
   displayedColumns: string[] = ['id', 'description', 'example'];
-  dataSource: MatTableDataSource<any>;
+  dataSource: MatTableDataSource<HashTypeOption>;
 
   constructor(
     public dialogRef: MatDialogRef<HashtypeDetectorComponent>,
@@ -31,16 +43,16 @@ export class HashtypeDetectorComponent implements OnInit {
     if (result === false || result === 'No hashes found.') {
       this.type = false;
     } else {
-      this.type = result;
+      this.type = result as HashTypeMatch[];
       this.dataSource.data = this.flattenData();
       this.appRef.tick();
     }
   }
 
-  flattenData(): any[] {
-    const flattenedData: any[] = [];
+  flattenData(): HashTypeOption[] {
+    const flattenedData: HashTypeOption[] = [];
 
-    if (this.type && this.type !== false) {
+    if (this.type) {
       for (const n of this.type) {
         for (const nn of n.options) {
           flattenedData.push(nn);
@@ -52,6 +64,6 @@ export class HashtypeDetectorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource<any>([]);
+    this.dataSource = new MatTableDataSource<HashTypeOption>([]);
   }
 }
