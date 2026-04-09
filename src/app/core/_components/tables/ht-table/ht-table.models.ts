@@ -101,6 +101,9 @@ export interface HTTableColumn {
   parent?: string; //parent is to build relation sort query in format "task.taskName"
 }
 
+/** Stringified column enum value used as mat-table column identifier */
+export type ColumnDefId = string;
+
 /** Column def for selectable checkbox */
 export const COL_SELECT = 100;
 /** Column def for row action */

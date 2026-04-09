@@ -15,7 +15,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     standalone: false
 })
 export class AveragePipe implements PipeTransform {
-  transform(value: any[], name: string) {
+  transform(value: Record<string, unknown>[], name: string): string | number {
     if (value.length === 0 || !name) {
       return 'No data';
     }

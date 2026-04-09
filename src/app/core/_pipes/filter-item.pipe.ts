@@ -15,11 +15,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: false
 })
 export class FilterItemPipe implements PipeTransform {
-  transform(list: any, key: string, value: number) {
+  transform(list: Record<string, unknown>[], key: string, value: number): Record<string, unknown>[] {
     // use the id
     if (value === undefined || value === null) {
       value = 0;
     }
-    return list.filter((i: any) => i[key] === +value);
+    return list.filter((i) => i[key] === +value);
   }
 }

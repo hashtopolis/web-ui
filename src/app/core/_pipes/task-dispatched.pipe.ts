@@ -2,6 +2,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { Pipe, PipeTransform } from '@angular/core';
 
+import { FilterType, type RequestParams } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 
@@ -19,32 +20,23 @@ import { GlobalService } from '@services/main.service';
 export class TaskDispatchedPipe implements PipeTransform {
   constructor(private gs: GlobalService) {}
 
-  transform(id: number, keyspace: number, type?: boolean) {
+  transform(id: number, keyspace: number, type?: boolean): Promise<number> | null {
     if (!id) {
       return null;
     }
 
-    const maxResults = 10000;
-    // const maxResults = environment.config.prodApiMaxResults;
-    const dispatched: number[] = [];
-    let params: any;
-
-    if (type) {
-      params = { maxResults: maxResults, filter: 'agentId=' + id + '' };
-    } else {
-      params = { maxResults: maxResults, filter: 'taskId=' + id + '' };
-    }
+    const params: RequestParams = {
+      filter: [{
+        field: type ? 'agentId' : 'taskId',
+        operator: FilterType.EQUAL,
+        value: id
+      }]
+    };
 
     return firstValueFrom(this.gs.getAll(SERV.CHUNKS, params)).then((res) => {
-      const ch = res.values;
-      for (let i = 0; i < ch.length; i++) {
-        if (ch[i].progress >= 10000) {
-          dispatched.push(ch[i]['length']);
-        } else {
-          dispatched.push(ch[i]['length']);
-        }
-      }
-      return dispatched?.reduce((a, i) => a + i, 0) / keyspace;
+      const ch: { length: number }[] = res.values;
+
+      return ch.reduce((a, i) => a + i.length, 0) / keyspace;
     });
   }
 }

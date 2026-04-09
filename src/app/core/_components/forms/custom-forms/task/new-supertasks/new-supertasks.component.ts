@@ -1,6 +1,6 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -32,9 +32,6 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
 
   /** Form group for the new SuperTask. */
   form: FormGroup;
-
-  @Input()
-  error: any;
 
   /** List of PreTasks. */
   selectPretasks: SelectOption[];

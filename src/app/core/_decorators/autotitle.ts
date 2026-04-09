@@ -3,7 +3,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { AppModule } from '@src/app/app.module';
 
 export function PageTitle(title: string | string[]): ClassDecorator {
-  return function (constructor: any) {
+  return function (constructor: Function) {
     const originalNgOnInit = constructor.prototype.ngOnInit;
 
     constructor.prototype.ngOnInit = function () {

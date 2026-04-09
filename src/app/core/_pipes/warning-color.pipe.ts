@@ -19,7 +19,7 @@ import {
 })
 export class WarningColorPipe implements PipeTransform {
 
-  transform(value: any) {
+  transform(value: string): string {
     if(value == 'information')
       return '#DAF7A6 ';
     else if (value == 'warning')

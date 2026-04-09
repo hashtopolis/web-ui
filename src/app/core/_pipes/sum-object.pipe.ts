@@ -20,7 +20,7 @@ import {
 })
 export class SumPipe implements PipeTransform {
 
-  transform(value: any[], name: string) {
+  transform(value: Record<string, unknown>[], name: string): string | number {
       if (value.length === 0 || !name) {
         return 'No data';
       }

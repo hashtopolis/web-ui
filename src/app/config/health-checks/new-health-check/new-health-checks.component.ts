@@ -17,7 +17,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -34,10 +34,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectCrackertype: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectCrackerversions: any = [];
+  selectCrackertype: SelectOption[];
+  selectCrackerversions: SelectOption[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);

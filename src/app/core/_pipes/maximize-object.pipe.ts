@@ -16,7 +16,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     standalone: false
 })
 export class MaximizePipe implements PipeTransform {
-  transform(value: any[], name: string) {
+  transform(value: Record<string, number>[], name: string): string {
     if (value.length === 0 || !name) {
       return 'No data';
     }

@@ -2,6 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
+import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Custom Select Component.
@@ -29,16 +30,14 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   ],
   standalone: false
 })
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class InputSelectComponent extends AbstractInputComponent<any> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() items: any;
+export class InputSelectComponent<T extends string | number | boolean = string> extends AbstractInputComponent<T> {
+  @Input() items: SelectOption<T>[] | undefined = [];
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  onChangeValue(value: any) {
+  onChangeValue(value: T) {
     this.value = value;
     this.onChange(value);
     this.onTouched();

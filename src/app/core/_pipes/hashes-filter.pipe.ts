@@ -3,6 +3,8 @@ import {
   Pipe
 } from '@angular/core';
 
+import { JHash } from '@models/hash.model';
+
 /**
  * Returns search value over chunks
  * @param obj - Object of chunks
@@ -15,8 +17,8 @@ import {
 })
 export class HashesFilterPipe implements PipeTransform {
 
-  transform(obj: any, display: string, filter: string, crackpos: string) {
-    const output:any = [];
+  transform(obj: JHash, display: string, filter: string, crackpos: string): string[] {
+    const output: string[] = [];
     if (display == "") {
       if (filter == "cracked" || filter == "" || filter == "uncracked") {
         if (obj.isCracked == true) {

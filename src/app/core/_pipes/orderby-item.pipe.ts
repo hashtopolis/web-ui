@@ -19,10 +19,10 @@ export type SortOrder = 'asc' | 'desc';
   standalone: false
 })
 export class ArraySortPipe implements PipeTransform {
-  transform(value: any[], sortOrder: SortOrder | string = 'asc', sortKey?: string): any {
-    const normalizedOrder = sortOrder && sortOrder.toLowerCase();
+  transform(value: any[], sortOrder: SortOrder = 'asc', sortKey?: string): any[] {
+    sortOrder = sortOrder?.toLowerCase() as SortOrder;
 
-    if (!value || (normalizedOrder !== 'asc' && normalizedOrder !== 'desc')) return value;
+    if (!value || (sortOrder !== 'asc' && sortOrder !== 'desc')) return value;
 
     let numberArray = [];
     let stringArray = [];
@@ -48,6 +48,6 @@ export class ArraySortPipe implements PipeTransform {
           typeof (sortKey ? item[sortKey] : item) !== 'number' && typeof (sortKey ? item[sortKey] : item) !== 'string'
       )
     ];
-    return normalizedOrder === 'asc' ? sorted : sorted.reverse();
+    return sortOrder === 'asc' ? sorted : sorted.reverse();
   }
 }

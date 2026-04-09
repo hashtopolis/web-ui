@@ -17,8 +17,11 @@ import { ComposeOption, EChartsType, init } from 'echarts/core';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
+import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
+
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
+import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
 
 // Compose ECharts option type
@@ -49,8 +52,7 @@ use([
   providers: [HashRatePipe]
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() speeds: any[] = [];
+  @Input() speeds: SpeedStat[] = [];
 
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
 
@@ -90,8 +92,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     }
 
     const result: { time: number; speed: number }[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.speeds.reduce<Record<number, { time: number; speed: number }>>((res, value: any) => {
+    this.speeds.reduce<Record<number, { time: number; speed: number }>>((res, value) => {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -146,12 +147,13 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       },
       tooltip: {
         position: 'top',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: (params: any) => {
+        formatter: (params: TopLevelFormatterParams) => {
+          if (Array.isArray(params)) return '';
+
           if (params.componentType === 'markPoint') {
-            return `${params.name}: <strong>${params.data.value}</strong>`;
+            return `${params.name}: <strong>${(params.data as { value: string }).value}</strong>`;
           }
-          const data = params.data;
+          const data = params.data as { value: [string, number]; unit: string } | undefined;
           if (data?.value?.[1]) {
             return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
           }

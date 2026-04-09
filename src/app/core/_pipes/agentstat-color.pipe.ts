@@ -28,7 +28,7 @@ export class AgentSColorPipe implements PipeTransform {
     stattype: number,
     isActive: number | boolean,
     lastactivity: number
-  ) {
+  ): string {
     if (!isActive) return '';
     if (value === 'No data') {
       if (isActive == 1 && Date.now() - lastactivity < this.gettime()) {

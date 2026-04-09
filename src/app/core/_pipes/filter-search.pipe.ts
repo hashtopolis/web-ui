@@ -15,12 +15,12 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: false
 })
 export class SearchPipe implements PipeTransform {
-  transform(value: any, q?: any, colName: any = 'isArchived'): any {
+  transform(value: Record<string, unknown>[] | null, q?: string, colName: string = 'isArchived'): Record<string, unknown>[] | null {
     if (!value) return null;
     if (!q) return value;
     q = q.toLowerCase();
-    return value.filter((item: any) => {
-      return item[colName].toString().toLowerCase().includes(q);
+    return value.filter((item) => {
+      return String(item[colName]).toLowerCase().includes(q);
     });
   }
 }

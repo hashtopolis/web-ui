@@ -22,7 +22,7 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core';
 })
 export class StaticArrayPipe implements PipeTransform {
 
-  transform(id: any, search: any) {
+  transform(id: number | undefined, search: string): string {
     const platforms = [
       "unknown",
       "NVidia",
@@ -73,7 +73,7 @@ export class StaticArrayPipe implements PipeTransform {
     ];
     switch (search) {
       case 'os':
-        if (id == '-1') {
+        if (id === -1) {
           return platforms[0];
         }
         return oses[id];
@@ -86,7 +86,7 @@ export class StaticArrayPipe implements PipeTransform {
       case 'formattables':
         return formattables[id];
       case 'platforms':
-        if (id == '-1') {
+        if (id === -1) {
           return platforms[0];
         }
         return platforms[id];

@@ -21,7 +21,7 @@ declare let parser: any;
     standalone: false
 })
 export class KeyspaceCalcPipe implements PipeTransform {
-  transform(value: any[], name: string, cmd: any, attcktype?: boolean) {
+  transform(value: Record<string, unknown>[], name: string, cmd: string, attcktype?: boolean): string | number | number[] | null {
     if (!cmd || !name) {
       return 'Wrong Command';
     }

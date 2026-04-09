@@ -20,7 +20,7 @@ import {
 })
 export class GroupByPipe implements PipeTransform {
 
-  transform(arr: Array<any>, name: string) {
+  transform(arr: Record<string, string>[], name: string): { k: string; value: Record<string, string>[] }[] | null {
       if (!arr.length || !name) {
         return null;
       }
@@ -31,7 +31,7 @@ export class GroupByPipe implements PipeTransform {
     //       r[a[name]].push(a);
     // return r;
     // },{});
-     const list = arr.reduce(function (r,a){
+     const list = arr.reduce<Record<string, Record<string, string>[]>>(function (r,a){
            r[a[name].split('-')[0]] = r[a[name].split('-')[0]] || [];
            r[a[name].split('-')[0]].push(a);
      return r;

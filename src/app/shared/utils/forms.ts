@@ -14,8 +14,8 @@ import { FieldMapping } from '@src/app/core/_constants/select.config';
  * @prop id ID of option
  * @prop name Name of option
  */
-export interface SelectOption {
-  id: string;
+export interface SelectOption<T extends string | number | boolean = string> {
+  id: T;
   name: string;
 }
 

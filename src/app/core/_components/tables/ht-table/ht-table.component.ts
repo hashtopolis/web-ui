@@ -34,6 +34,7 @@ import {
   COL_SELECT,
   CheckboxChangeEvent,
   CheckboxFiles,
+  ColumnDefId,
   DataType,
   HTTableColumn,
   HTTableEditable,
@@ -98,8 +99,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private cd = inject(ChangeDetectorRef);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
 
-  /** The list of column names to be displayed in the table. */
-  displayedColumns: string[] = [];
+  /** Stringified column enum IDs for mat-table binding, built by {@link setDisplayedColumns}. */
+  displayedColumns: ColumnDefId[] = [];
   selectedFilterColumn: HTTableColumn;
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
@@ -118,7 +119,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() name: TableSettingsKey;
 
   /** All available column labels */
-  @Input() columnLabels: { [key: number]: string };
+  @Input() columnLabels: Record<number, string>;
 
   /** Data type displayed in the table, used to load relevant context menus */
   @Input() dataType: DataType;

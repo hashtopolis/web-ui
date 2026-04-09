@@ -26,8 +26,8 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
     super(locale);
   }
 
-  override transform(epoch: number | Date | string | null | undefined, ..._args: unknown[]): any {
-    if (epoch === undefined || epoch === null) return epoch;
+  override transform(epoch: number | Date | string | null | undefined, ..._args: unknown[]): string | null {
+    if (epoch === undefined || epoch === null) return null;
 
     if (!this.cookieService.getCookie('localtimefmt')) {
       this.cookieService.setCookie('localtimefmt', 'dd/MM/yyyy h:mm:ss', 365);
