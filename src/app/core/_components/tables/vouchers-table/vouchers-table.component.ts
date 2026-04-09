@@ -127,7 +127,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   }
 
   protected receiveCopyData(event: BaseModel): void {
-    if (this.clipboard.copy(event.voucher)) {
+    if (this.clipboard.copy(String(event.voucher))) {
       this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');

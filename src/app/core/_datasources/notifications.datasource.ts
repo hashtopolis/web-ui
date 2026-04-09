@@ -1,5 +1,5 @@
 import { zNotificationSettingListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -36,7 +36,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )

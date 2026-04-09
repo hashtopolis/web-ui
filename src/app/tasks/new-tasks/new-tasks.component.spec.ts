@@ -1,5 +1,8 @@
 import { Observable, of, throwError } from 'rxjs';
 
+import { ResponseWrapper } from '@models/response.model';
+import { mockResponse } from '@src/app/testing/mock-response';
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -223,16 +226,16 @@ const MOCK_PRETASK_GET_RESPONSE = {
   included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0 } }]
 };
 
-function buildGetAllCallFake(overrides: { [url: string]: Observable<unknown> } = {}) {
-  const defaults: { [url: string]: Observable<unknown> } = {
-    [SERV.HASHLISTS.URL]: of(MOCK_HASHLISTS_RESPONSE),
-    [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_RESPONSE),
-    [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_RESPONSE),
-    [SERV.PREPROCESSORS.URL]: of(MOCK_PREPROCESSORS_RESPONSE)
+function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {
+  const defaults: { [url: string]: Observable<ResponseWrapper> } = {
+    [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_HASHLISTS_RESPONSE)),
+    [SERV.CRACKERS_TYPES.URL]: of(mockResponse(MOCK_CRACKER_TYPES_RESPONSE)),
+    [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_RESPONSE)),
+    [SERV.PREPROCESSORS.URL]: of(mockResponse(MOCK_PREPROCESSORS_RESPONSE))
   };
   const merged = { ...defaults, ...overrides };
   return (serviceConfig: { URL: string }) => {
-    return merged[serviceConfig.URL] ?? of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] });
+    return merged[serviceConfig.URL] ?? of(mockResponse());
   };
 }
 
@@ -289,7 +292,7 @@ describe('NewTasksComponent', () => {
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
     globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
-    globalServiceSpy.create.and.returnValue(of({}));
+    globalServiceSpy.create.and.returnValue(of(mockResponse()));
 
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -396,7 +399,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '42' });
       activatedRoute.data = of({ kind: 'copy-task' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_TASK_GET_RESPONSE));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_TASK_GET_RESPONSE)));
     });
 
     it('should call gs.get with SERV.TASKS endpoint and the task id', async () => {
@@ -493,7 +496,7 @@ describe('NewTasksComponent', () => {
           }
         }
       };
-      globalServiceSpy.get.and.returnValue(of(taskWithoutHashlist));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(taskWithoutHashlist)));
 
       await initComponent(fixture);
 
@@ -505,7 +508,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '7' });
       activatedRoute.data = of({ kind: 'copy-pretask' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_PRETASK_GET_RESPONSE));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_PRETASK_GET_RESPONSE)));
     });
 
     it('should call gs.get with SERV.PRETASKS endpoint and the pretask id', async () => {
@@ -670,7 +673,7 @@ describe('NewTasksComponent', () => {
 
     it('should show error when no hashlists are available', async () => {
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(MOCK_EMPTY_HASHLISTS_RESPONSE) })
+        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_EMPTY_HASHLISTS_RESPONSE)) })
       );
 
       await initComponent(fixture);
@@ -725,7 +728,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) }));
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
@@ -738,7 +741,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_EMPTY_RESPONSE)) })
       );
 
       component.form.controls.crackerBinaryTypeId.setValue(999);

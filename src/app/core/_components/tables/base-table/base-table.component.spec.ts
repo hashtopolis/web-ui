@@ -46,7 +46,7 @@ describe('BaseTableComponent', () => {
   let fixture: ComponentFixture<TestTableComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockConfigService: jasmine.SpyObj<ConfigService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
   beforeEach(() => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['foo']);

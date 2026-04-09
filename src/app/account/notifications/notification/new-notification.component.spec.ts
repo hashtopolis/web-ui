@@ -1,6 +1,6 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { HarnessLoader } from '@angular/cdk/testing';
@@ -17,6 +17,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -216,8 +217,7 @@ describe('NewNotificationComponent', () => {
 
   // Partial mock service
   const mockService: Pick<GlobalService, 'getAll' | 'create'> = {
-    getAll(serviceConfig, routerParams?: unknown): Observable<unknown> {
-      void routerParams;
+    getAll(serviceConfig) {
       switch (serviceConfig) {
         case SERV.AGENTS:
           return of(agentValues);
@@ -228,13 +228,11 @@ describe('NewNotificationComponent', () => {
         case SERV.USERS:
           return of(userValues);
         default:
-          return of({ data: [] });
+          return of(mockResponse());
       }
     },
-    create(serviceConfig, objectData: unknown): Observable<unknown> {
-      void serviceConfig;
-      void objectData;
-      return of({});
+    create() {
+      return of(mockResponse());
     }
   };
 
@@ -390,7 +388,7 @@ describe('NewNotificationComponent', () => {
   it('should submit the form when it is valid', () => {
     const serviceSpy = spyOn(mockService, 'create')
       .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
-      .and.returnValue(of({}));
+      .and.returnValue(of(mockResponse()));
 
     setValidFormValues();
     fixture.detectChanges();

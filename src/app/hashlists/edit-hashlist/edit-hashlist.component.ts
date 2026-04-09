@@ -132,7 +132,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
-      this.hashtype = hashlist.hashType;
+      this.hashtype = hashlist.hashType ?? undefined;
 
       this.updateForm.setValue({
         hashlistId: hashlist.id,
@@ -160,7 +160,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        this.hashtype = hashlist.hashType ?? undefined;
 
         this.updateForm.setValue({
           hashlistId: hashlist.id,

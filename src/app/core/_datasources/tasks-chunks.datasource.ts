@@ -1,5 +1,5 @@
 import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -76,7 +76,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
       .pipe(
         catchError((error) => {
           this.handleFilterError(error);
-          return of([]);
+          return EMPTY;
         }),
         finalize(() => (this.loading = false))
       )

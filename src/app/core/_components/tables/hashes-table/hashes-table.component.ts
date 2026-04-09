@@ -128,7 +128,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
+  rowActionClicked(event: ActionMenuEvent<JHash>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         // this.rowActionEdit(event.data);
@@ -137,7 +137,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy(event.hash)) {
+    if (this.clipboard.copy(String(event.hash))) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');

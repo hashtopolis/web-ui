@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RelationshipType, SERV } from '@services/main.config';
@@ -135,7 +136,7 @@ describe('EditGroupsComponent', () => {
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     mockGlobalService.get.and.returnValue(of(mockAccessGroupResponse));
-    mockGlobalService.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+    mockGlobalService.getAll.and.returnValue(of(mockResponse({ jsonapi: { version: '1.1', ext: [] }, included: [] })));
 
     await TestBed.configureTestingModule({
       declarations: [EditGroupsComponent],

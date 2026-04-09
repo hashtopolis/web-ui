@@ -197,7 +197,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     };
     this.subscriptions.push(
       this.gs
-        .chelper(SERV.HELPER, 'changeOwnPassword', payload)
+        .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
         .pipe(
           map((r) => {
             const parseResult = changeOwnPasswordResponseSchema.safeParse(r);

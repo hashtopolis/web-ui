@@ -3,7 +3,7 @@
  * @module
  */
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -65,7 +65,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .pipe(
         catchError((error) => {
           this.handleFilterError(error);
-          return of([]);
+          return EMPTY;
         }),
         finalize(() => (this.loading = false))
       )
@@ -104,7 +104,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     this.service
       .getAll(SERV.AGENT_ASSIGN, assignParams)
       .pipe(
-        catchError(() => of([])),
+        catchError(() => EMPTY),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {

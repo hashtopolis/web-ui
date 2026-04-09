@@ -12,10 +12,6 @@ import { Pipe, PipeTransform } from '@angular/core';
  *   {{ object | keyspace:'lineCount':'cmd' }}
  * @returns number
  **/
-declare let options: any;
-declare let defaultOptions: any;
-declare let parser: any;
-
 @Pipe({
     name: 'keyspace',
     standalone: false
@@ -37,7 +33,8 @@ export class KeyspaceCalcPipe implements PipeTransform {
     // resetting the options
     options = defaultOptions;
     options.ruleFiles = [];
-    options.posArgs = [];
+    const emptyPosArgs: string[] = [];
+    options.posArgs = emptyPosArgs;
     options.unrecognizedFlag = [];
     // example cmd = "hashcat #HL# -a3 ?d?d?d?d"
     // Ideally the opt-parser itself works for '-a3' instead of requiring a space as in '-a 3' to parse attackType

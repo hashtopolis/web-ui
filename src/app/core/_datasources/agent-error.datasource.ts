@@ -3,7 +3,7 @@
  * @module
  */
 import { zAgentErrorListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JAgentErrors } from '@models/agent-errors.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -39,7 +39,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
     this.service
       .getAll(SERV.AGENT_ERRORS, agentParams.create())
       .pipe(
-        catchError(() => of([])),
+        catchError(() => EMPTY),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {

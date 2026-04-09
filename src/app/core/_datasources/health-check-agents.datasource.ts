@@ -1,5 +1,5 @@
 import { zHealthCheckAgentListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 import { FilterType } from '@models/request-params.model';
@@ -34,7 +34,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
     this.subscriptions.push(
       healthChecks$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((healthCheckResponse: ResponseWrapper) => {

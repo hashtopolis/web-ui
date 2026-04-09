@@ -132,7 +132,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy(event.hash)) {
+    if (this.clipboard.copy(String(event.hash))) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');
@@ -183,7 +183,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (hash) {
       const chunk = hash.chunk;
       if (chunk) {
-        const modelID = chunk[modelIDKey];
+        const modelID = chunk[modelIDKey] as string | number;
         links.push({
           routerLink: [relativePath, context, modelID, 'edit'],
           label: modelID

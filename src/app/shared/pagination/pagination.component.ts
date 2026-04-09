@@ -128,10 +128,10 @@ export class PaginationComponent implements OnInit {
   }
 
   sInfoDisplay(page: number) {
-    const tlen = this.totalItems,
-      start = (page - 1) * this.pageSize + 1,
-      ending = start + this.pageSize - 1,
-      end = tlen - 1;
+    const tlen = this.totalItems;
+    const end = tlen - 1;
+    let start = (page - 1) * this.pageSize + 1;
+    let ending = start + this.pageSize - 1;
 
     if (start >= end) {
       start = end - tlen;

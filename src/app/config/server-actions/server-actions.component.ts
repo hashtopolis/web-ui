@@ -27,7 +27,7 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rebuildChunkCache(): void {
-    const sub$ = this.gs.chelper(SERV.HELPER, 'rebuildChunkCache').subscribe((res: JHelper<RebuildChunkCacheMeta>) => {
+    const sub$ = this.gs.chelper<JHelper<RebuildChunkCacheMeta>>(SERV.HELPER, 'rebuildChunkCache').subscribe((res) => {
       const meta = res?.meta;
 
       if (meta && String(meta.Rebuild).toLowerCase() === 'success') {
@@ -51,7 +51,7 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rescanGlobalFiles(): void {
-    const sub$ = this.gs.chelper(SERV.HELPER, 'rescanGlobalFiles').subscribe((res: JHelper<RescanGlobalFilesMeta>) => {
+    const sub$ = this.gs.chelper<JHelper<RescanGlobalFilesMeta>>(SERV.HELPER, 'rescanGlobalFiles').subscribe((res) => {
       const meta = res?.meta;
 
       if (meta && String(meta.Rescan).toLowerCase() === 'success') {

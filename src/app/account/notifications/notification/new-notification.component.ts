@@ -4,8 +4,11 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { BaseModel } from '@models/base.model';
+import { JAgent } from '@models/agent.model';
+import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -154,23 +157,23 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
 
       this.subscriptions.push(
         this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
-          const resource = new JsonAPISerializer().deserialize<BaseModel[]>({
-            data: response.data,
-            included: response.included
-          });
+          const responseData = { data: response.data, included: response.included };
+          let _filters: Filter[] = [];
 
-          const _filters: Filter[] = [];
-          for (let i = 0; i < resource.length; i++) {
-            if (path === SERV.AGENTS) {
-              _filters.push({ id: resource[i].id, name: resource[i].agentName });
-            }
-            if (path === SERV.TASKS) {
-              _filters.push({ id: resource[i].id, name: resource[i].taskName ?? '' });
-            }
-            if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              _filters.push({ id: resource[i].id, name: resource[i].name ?? '' });
-            }
+          if (path === SERV.AGENTS) {
+            const agents = new JsonAPISerializer().deserialize<JAgent[]>(responseData);
+            _filters = agents.map((a) => ({ id: a.id, name: a.agentName }));
+          } else if (path === SERV.TASKS) {
+            const tasks = new JsonAPISerializer().deserialize<JTask[]>(responseData);
+            _filters = tasks.map((t) => ({ id: t.id, name: t.taskName ?? '' }));
+          } else if (path === SERV.USERS) {
+            const users = new JsonAPISerializer().deserialize<JUser[]>(responseData);
+            _filters = users.map((u) => ({ id: u.id, name: u.name }));
+          } else if (path === SERV.HASHLISTS) {
+            const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>(responseData);
+            _filters = hashlists.map((h) => ({ id: h.id, name: h.name }));
           }
+
           this.filters = _filters;
         })
       );

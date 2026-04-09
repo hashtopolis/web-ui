@@ -1,5 +1,5 @@
 import { zHashListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JHash, SearchHashModel } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -54,7 +54,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
         .pipe(
           catchError((error) => {
             console.error('Error loading hashes', error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => {
             this.loading = false;

@@ -21,25 +21,19 @@ import { ShortenStringPipe } from '@src/app/core/_pipes/shorten-string.pipe';
 import { SplitPipe } from '@src/app/core/_pipes/split.pipe';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { SumPipe } from '@src/app/core/_pipes/sum-object.pipe';
-import { TaskCrackedPipe } from '@src/app/core/_pipes/task-cracked.pipe';
-import { TaskDispatchedPipe } from '@src/app/core/_pipes/task-dispatched.pipe';
-import { TaskSearchedPipe } from '@src/app/core/_pipes/task-searched.pipe';
 import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
 
 @NgModule({
   declarations: [
     HealthCheckStatusPipe,
-    TaskDispatchedPipe,
     ReplaceStringPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
     KeyspaceCalcPipe,
-    TaskSearchedPipe,
     HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
-    TaskCrackedPipe,
     FilterItemPipe,
     ArraySortPipe,
     FileSizePipe,
@@ -56,17 +50,14 @@ import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
   imports: [CommonModule],
   exports: [
     HealthCheckStatusPipe,
-    TaskDispatchedPipe,
     ReplaceStringPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
     KeyspaceCalcPipe,
-    TaskSearchedPipe,
     HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
-    TaskCrackedPipe,
     FilterItemPipe,
     ArraySortPipe,
     FileSizePipe,

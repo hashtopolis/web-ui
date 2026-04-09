@@ -1,4 +1,4 @@
-import { EMPTY, Observable, catchError } from 'rxjs';
+import { EMPTY, Observable, catchError, map } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 
@@ -31,6 +31,7 @@ export class ChunkActionsService {
     const payload = { chunkId: chunk.id };
 
     return this.gs.chelper(SERV.HELPER, path, payload).pipe(
+      map(() => void 0),
       catchError((error) => {
         const errorMessage = 'Error during resetting';
         console.error(errorMessage, error);

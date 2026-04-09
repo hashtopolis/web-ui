@@ -1,5 +1,5 @@
 import { zHashListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -36,7 +36,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       this.subscriptions.push(
         hashesService
           .pipe(
-            catchError(() => of([])),
+            catchError(() => EMPTY),
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
@@ -65,7 +65,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       this.subscriptions.push(
         hashes$
           .pipe(
-            catchError(() => of([])),
+            catchError(() => EMPTY),
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {

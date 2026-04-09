@@ -5,7 +5,6 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zFormRouteData } from '@models/routes.schema';
 
@@ -100,7 +99,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
    */
-  formValues: (BaseModel & Record<string, unknown>)[] = [];
+  formValues: Record<string, unknown> = {};
 
   // Subscription for managing asynchronous data retrieval
   private subscriptionService: Subscription;
@@ -166,7 +165,7 @@ export class FormComponent implements OnInit, OnDestroy {
     // Fetch data from the API for editing
     const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
       next: (response: ResponseWrapper) => {
-        this.formValues = new JsonAPISerializer().deserialize<(BaseModel & Record<string, unknown>)[]>({
+        this.formValues = new JsonAPISerializer().deserialize<Record<string, unknown>>({
           data: response.data,
           included: response.included
         });

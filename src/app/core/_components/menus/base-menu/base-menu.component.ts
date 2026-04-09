@@ -13,8 +13,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus
 })
 export class BaseMenuComponent {
   @Input() disabled = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() data: any;
+  @Input() data!: Record<string, unknown>;
 
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel>> = new EventEmitter<ActionMenuEvent<BaseModel>>();
 
@@ -60,18 +59,16 @@ export class BaseMenuComponent {
    * @param data
    * @protected
    */
-  protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
+  protected conditionallyAddMenuItem(item: ContextMenuType, data: Record<string, unknown>): void {
     const condition = item.condition;
     if (condition?.key && condition.key.length > 0) {
-      if (condition.key in data && Boolean(data[condition.key]) === condition.value) {
+      const value = data[condition.key];
+      if (condition.key in data && Boolean(value) === condition.value) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (data[condition.key] === undefined && condition.value === false) {
+      } else if (value === undefined && condition.value === false) {
         this.addActionMenuItem(item.index, item.menuItem);
-      } else if (data[condition.key] !== undefined && Array.isArray(data[condition.key])) {
-        if (
-          (data[condition.key].length > 0 && condition.value === true) ||
-          (data[condition.key].length === 0 && condition.value === false)
-        ) {
+      } else if (value !== undefined && Array.isArray(value)) {
+        if ((value.length > 0 && condition.value === true) || (value.length === 0 && condition.value === false)) {
           this.addActionMenuItem(item.index, item.menuItem);
         }
       }
@@ -80,8 +77,7 @@ export class BaseMenuComponent {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onMenuItemClick(event: ActionMenuEvent<any>): void {
-    this.menuItemClicked.emit(event);
+  onMenuItemClick(event: ActionMenuEvent<unknown>): void {
+    this.menuItemClicked.emit(event as ActionMenuEvent<BaseModel>);
   }
 }

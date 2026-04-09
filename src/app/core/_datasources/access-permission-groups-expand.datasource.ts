@@ -1,5 +1,5 @@
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -36,7 +36,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
     this.subscriptions.push(
       accessPermissions$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

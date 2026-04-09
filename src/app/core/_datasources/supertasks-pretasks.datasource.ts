@@ -1,5 +1,5 @@
 import { zSupertaskResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,7 +25,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
     this.subscriptions.push(
       pretasks$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

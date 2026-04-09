@@ -1,5 +1,5 @@
 import { zVoucherListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { Filter } from '@models/request-params.model';
 
@@ -21,7 +21,7 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
     this.subscriptions.push(
       vouchers$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

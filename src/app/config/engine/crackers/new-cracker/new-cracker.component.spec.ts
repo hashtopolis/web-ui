@@ -1,5 +1,7 @@
 import { of, throwError } from 'rxjs';
 
+import { mockResponse } from '@src/app/testing/mock-response';
+
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -89,7 +91,7 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 

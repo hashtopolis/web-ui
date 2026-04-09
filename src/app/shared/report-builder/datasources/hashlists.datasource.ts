@@ -1,5 +1,5 @@
 import { zHashlistResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
@@ -7,6 +7,7 @@ import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+
 import { ReportSection, ReportSubtitleSection, ReportTextItem } from '../reports/report-builder/report.models';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<ReportSection> {
@@ -26,7 +27,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<ReportSection
     this.subscriptions.push(
       hashList$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response) => {

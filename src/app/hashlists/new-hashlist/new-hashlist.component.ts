@@ -246,7 +246,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
     try {
       const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
-      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {

@@ -1,5 +1,5 @@
 import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
@@ -31,7 +31,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
     this.subscriptions.push(
       subtasks$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {

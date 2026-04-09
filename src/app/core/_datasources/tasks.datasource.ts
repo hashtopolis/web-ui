@@ -1,5 +1,5 @@
 import { zTaskWrapperListResponse } from '@generated/api/zod';
-import { catchError, of } from 'rxjs';
+import { EMPTY, catchError } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { Filter, FilterType } from '@models/request-params.model';
@@ -65,7 +65,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )

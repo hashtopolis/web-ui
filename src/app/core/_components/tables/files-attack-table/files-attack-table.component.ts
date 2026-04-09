@@ -126,7 +126,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       currentCmd = form.preprocessorCommand || '';
     }
     const newCmdArray = currentCmd.split(' ');
-    const fileName = event.row.filename;
+    const fileName = String(event.row.filename);
     const fileId = event.row.id;
     let newFileIds;
     if (event.columnType === 'CMD') {

@@ -153,8 +153,8 @@ export class EditUsersComponent implements OnInit, OnDestroy {
           id: user.id,
           name: user.name,
           email: user.email,
-          registered: this.datePipe.transform(user.registeredSince),
-          lastLogin: this.datePipe.transform(user.lastLoginDate),
+          registered: this.datePipe.transform(user.registeredSince) ?? '',
+          lastLogin: this.datePipe.transform(user.lastLoginDate) ?? '',
           globalPermissionGroup: user.globalPermissionGroup,
           updateData: {
             globalPermissionGroupId: user.globalPermissionGroupId,
@@ -175,7 +175,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       this.onUpdatePass(this.updatePassForm.value);
 
       const onSubmitSubscription$ = this.gs
-        .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
+        .update(SERV.USERS, this.editedUserIndex, { ...this.updateForm.value.updateData } as Record<string, unknown>)
         .pipe(finalize(() => (this.isUpdatingLoading = false)))
         .subscribe(() => {
           this.updateForm.reset(); // success, we reset form

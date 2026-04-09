@@ -3,6 +3,7 @@ import { catchError } from 'rxjs';
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
+import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';
 
@@ -120,9 +121,9 @@ export class AccessPermissionGroupsUserTableComponent
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
     this.exportService.handleExportAction<UserPermissions>(
-      event,
+      event as ActionMenuEvent<UserPermissions[]>,
       this.tableColumns,
       AccessPermissionGroupsUserTableColumnLabel,
       'hashtopolis-access-permission-groups-user'
@@ -133,8 +134,8 @@ export class AccessPermissionGroupsUserTableComponent
    * Update Permissions on checkbox change event
    * @param editable Editable object containing current permission, action and changed value
    */
-  onCheckboxChange(editable: HTTableEditable<UserPermissions>): void {
-    this.changePermision(editable, editable.value);
+  onCheckboxChange(editable: HTTableEditable<JUser | UserPermissions>): void {
+    this.changePermision(editable as HTTableEditable<UserPermissions>, editable.value);
   }
 
   /**

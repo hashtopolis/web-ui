@@ -70,7 +70,7 @@ export class BaseTableComponent {
   readonly tasksRoleService = inject(TasksRoleService);
   readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
 
-  @ViewChild('table') table: HTTableComponent;
+  @ViewChild('table') table: HTTableComponent<BaseModel>;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
   @Input() name: TableSettingsKey;

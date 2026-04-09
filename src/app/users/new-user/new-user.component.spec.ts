@@ -7,6 +7,7 @@ import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -116,7 +117,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -140,7 +141,7 @@ describe('NewUserComponent', () => {
     });
     component.newUserForm.updateValueAndValidity();
 
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 

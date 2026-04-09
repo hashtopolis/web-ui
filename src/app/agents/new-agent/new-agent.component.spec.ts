@@ -1,5 +1,7 @@
 import { of } from 'rxjs';
 
+import { mockResponse } from '@src/app/testing/mock-response';
+
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -59,7 +61,7 @@ describe('NewAgentComponent', () => {
 
     // Provide default stub for configService.getEndpoint()
     configServiceSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
-    globalServiceSpy.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+    globalServiceSpy.getAll.and.returnValue(of(mockResponse({ jsonapi: { version: '1.1', ext: [] }, included: [] })));
 
     await TestBed.configureTestingModule({
       declarations: [NewAgentComponent, MockAgentBinariesTableComponent, MockVouchersTableComponent],
@@ -154,7 +156,7 @@ describe('NewAgentComponent', () => {
 
     // Spy on table reload and global service create method
     component.table = jasmine.createSpyObj('VouchersTableComponent', ['reload']);
-    globalServiceSpy.create.and.returnValue(of({}));
+    globalServiceSpy.create.and.returnValue(of(mockResponse()));
 
     const addButton = fixture.nativeElement.querySelector('[data-testid="add-voucher-button"]') as HTMLButtonElement;
     expect(addButton).toBeTruthy();

@@ -23,6 +23,7 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core';
 export class StaticArrayPipe implements PipeTransform {
 
   transform(id: number | undefined, search: string): string {
+    if (id === undefined) return '';
     const platforms = [
       "unknown",
       "NVidia",

@@ -10,6 +10,7 @@ import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
 import { RelationshipType, SERV } from '@services/main.config';
@@ -270,7 +271,7 @@ describe('NewHashlistComponent', () => {
     }));
 
     it('should submit form with "paste" sourceType', fakeAsync(() => {
-      gsSpy.create.and.returnValue(of({}));
+      gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',

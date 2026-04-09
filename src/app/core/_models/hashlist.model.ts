@@ -13,7 +13,7 @@ export interface JHashlist extends BaseModel {
   format?: number;
   name: string;
   hashTypeId: number;
-  hashType?: JHashtype;
+  hashType?: JHashtype | null;
   hashTypeDescription?: string;
   isHexSalt: boolean;
   isSecret: boolean;

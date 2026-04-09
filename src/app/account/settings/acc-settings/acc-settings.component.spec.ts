@@ -1,9 +1,11 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
+
+import { mockResponse } from '@src/app/testing/mock-response';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -50,31 +52,25 @@ describe('AccountSettingsComponent', () => {
 
   // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get(_serviceConfig): Observable<any> {
+    get(_serviceConfig) {
       if (_serviceConfig.URL === SERV.USERS.URL) {
-        return of({ data: userResponse });
+        return of(mockResponse({ data: userResponse }));
       }
-      return of([]);
+      return of(mockResponse());
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(): Observable<any> {
+    create() {
+      return of(mockResponse());
+    },
+    update() {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    update(): Observable<any> {
-      return of({});
+    chelper: (() => {
+      return of(mockResponse());
+    }) as GlobalService['chelper'],
+    ghelper(_serviceConfig, _option: string) {
+      return of(mockResponse({ jsonapi: { version: '1.1' }, data: userResponse, included: [] }));
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chelper(): Observable<any> {
-      return of({});
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ghelper(_serviceConfig, _option: string): Observable<unknown> {
-      return of({ jsonapi: { version: '1.1' }, data: userResponse, included: [] });
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    uhelper(_serviceConfig, _id: number, _option: string, _payload: unknown): Observable<unknown> {
+    uhelper(_serviceConfig, _id: number, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
     userId: 1

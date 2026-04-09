@@ -143,7 +143,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             included: response.included
           });
 
-          const filesArray: number[] = (result[isPretask ? 'pretaskFiles' : 'files'] || []).map(
+          const filesArray: number[] = ((result[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []).map(
             (file: JFile) => file['id']
           );
 
