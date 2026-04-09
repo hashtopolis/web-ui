@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class CookieService {
   defaultSettings = false;
 
-  public checkDefault(defaults: boolean, e: any, COOKIE: string, VALUE: string, EXPIRE_DAYS: number) {
+  public checkDefault(defaults: boolean, e: Event | false, COOKIE: string, VALUE: string, EXPIRE_DAYS: number) {
     if (defaults === true) {
       return this.defaultSettings;
     } else if (defaults === false) {
@@ -20,7 +20,7 @@ export class CookieService {
   }
 
   public checkDefaultCookies() {
-    const def_autorefresh: any = { active: false, value: '10' };
+    const def_autorefresh = { active: false, value: '10' };
     const defCookies = [
       { name: 'tooltip', value: '0', expiry: 365 },
       {

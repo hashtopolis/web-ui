@@ -41,7 +41,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
     options.unrecognizedFlag = [];
     // example cmd = "hashcat #HL# -a3 ?d?d?d?d"
     // Ideally the opt-parser itself works for '-a3' instead of requiring a space as in '-a 3' to parse attackType
-    let args: any = cmd.replace('hashcat', '');
+    let args: string | string[] = cmd.replace('hashcat', '');
     args = args.replace(/(-a)(\d)(\s)/, '-a $2 '); // ensures that "-a3" becomes a valid attack mode: the opt-parser does not approve it (yet)
     args = args.replace(/(-\d)(\S+)(\s)/, '$1 $2 '); // ensures that "-1?l?d" becomes a valid customCharset: the opt-parser does not approve it (yet)
     args = args.replace(/\s+/g, ' '); // ensures that multiple consecutive spaces are reduced to a single space

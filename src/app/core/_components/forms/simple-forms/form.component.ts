@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zFormRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -47,7 +48,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * This property determines whether the form is in the process of creating a new item or editing an existing one.
    * @type {string}
    */
-  type: string;
+  type: 'create' | 'edit' | 'helper';
 
   /**
    * Flag that indicates whether the data for the form has been loaded and the form is ready for rendering.
@@ -120,12 +121,11 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   constructor() {
     // Subscribe to route data to initialize component data
-    this.routeParamsSubscription = this.route.data.subscribe(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (data: any) => {
-        const formKind = data.kind;
-        this.serviceConfig = data.serviceConfig; // Get the API path from route data
-        this.type = data.type;
+    this.routeParamsSubscription = this.route.data.subscribe((data) => {
+        const routeData = zFormRouteData.parse(data);
+        const formKind = routeData.kind;
+        this.serviceConfig = routeData.serviceConfig;
+        this.type = routeData.type;
         this.isCreate = this.type === 'create';
         // Load metadata and form information
         this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];

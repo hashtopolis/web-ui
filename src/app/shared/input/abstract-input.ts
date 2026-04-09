@@ -9,7 +9,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
-import { ControlValueAccessor, NgControl } from '@angular/forms';
+import { ControlValueAccessor, NgControl, ValidationErrors } from '@angular/forms';
 
 @Directive()
 export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueAccessor {
@@ -53,8 +53,7 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   // Public properties for template binding (instead of getters)
   hasError = false;
   isTouched = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  errors: any = null;
+  errors: ValidationErrors | null = null;
 
   // Lazy getter to avoid circular dependency
   get ngControl(): NgControl | null {

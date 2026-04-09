@@ -12,7 +12,7 @@ import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 export class SwitchThemeComponent implements OnInit {
   theme$: Subject<string | null>;
 
-  theme: any;
+  theme: string;
 
   faSun = faSun;
   faMoon = faMoon;

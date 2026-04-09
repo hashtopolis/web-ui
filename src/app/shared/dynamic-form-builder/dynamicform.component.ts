@@ -19,6 +19,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
+import { MetadataFormField } from '@services/metadata.service';
 
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
@@ -40,14 +41,12 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
   /**
    * An array of form field metadata that describes the form structure.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() formMetadata: any[] = [];
+  @Input() formMetadata: MetadataFormField[] = [];
 
   /**
    * Initial values for form fields (optional). If not provided, an empty object is used as the default.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() formValues: any = {};
+  @Input() formValues: Record<string, unknown> = {};
 
   /**
    * The Angular FormGroup that represents the dynamic form.
@@ -78,8 +77,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
    * Event emitter for submitting the form. Emits the form values when the form is submitted.
    * Parent components can subscribe to this event to handle form submissions.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() formSubmit: EventEmitter<any> = new EventEmitter();
+  @Output() formSubmit: EventEmitter<Record<string, unknown>> = new EventEmitter<Record<string, unknown>>();
 
   /**
    * Event emitter for handling the delete action. Emits when the "Delete" action is triggered.
@@ -141,9 +139,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
       if (!field.isTitle) {
         // Get the name of the field.
         const fieldName = field.name;
+        if (!fieldName) continue;
 
         // Determine the validators for the field, defaulting to an empty array if none are provided.
-        const validators: ValidatorFn[] = field.validators ? field.validators : [];
+        const validators: ValidatorFn[] = Array.isArray(field.validators) ? field.validators : [];
 
         // Initialize the initial value for the form control.
         let initialValue;
@@ -187,7 +186,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
    */
   ngAfterViewInit() {
     // Check if there are any "select" type fields with "selectOptions$"
-    const selectFields = this.formMetadata.filter((field) => field.type === 'selectd' && field.selectOptions$);
+    const selectFields = this.formMetadata.filter(
+      (field): field is MetadataFormField & Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'fieldMapping'>> =>
+        field.type === 'selectd' && !!field.selectEndpoint$ && !!field.fieldMapping
+    );
 
     if (selectFields.length > 0) {
       // Handle logic for select fields with selectOptions$ after the view is initialized
@@ -208,7 +210,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
             this.isLoadingSelect = false;
 
             // Optionally, update the form control value if needed
-            const control = this.form.get(field.name);
+            const control = this.form.controls[field.name];
 
             // Check if there are options available
             if (control && options && options.length > 0 && !this.isCreateMode) {
@@ -283,8 +285,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
    * Handles the onchange action.
    * Emits the change action to the parent component when the select option is selected.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange(value: any) {
+  onChange(value: number) {
     this.selectTypeChange.emit(value);
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'grid-main',
@@ -13,7 +13,4 @@ import { Component, Input } from '@angular/core';
   `,
     standalone: false
 })
-export class GridMainComponent {
-  @Input() class: any;
-  @Input() centered?: boolean;
-}
+export class GridMainComponent {}

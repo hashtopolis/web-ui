@@ -6,7 +6,7 @@ import {
 } from './hashlists-table.constants';
 import { HashlistReportDataSource } from '../../datasources/hashlists.datasource';
 import { BaseReportComponent } from '../base-report/base-report.component';
-import { ReportTableColumn } from '../report-builder/report.models';
+import { ReportSection, ReportTableColumn } from '../report-builder/report.models';
 
 @Component({
     selector: 'hashlist-report',
@@ -20,7 +20,7 @@ export class HashlistReportComponent
   @Input() hashlistId = 0;
 
   dataSource: HashlistReportDataSource;
-  reportStructure: any[] = [];
+  reportStructure: ReportSection[] = [];
 
   ngOnInit(): void {
     this.dataSource = new HashlistReportDataSource(

@@ -17,8 +17,8 @@ export class FilterService {
       let match = false;
       for (const prop of props) {
         if (prop.indexOf('.') > -1) {
-          const value = PropertyResolver.resolve(prop, item);
-          if (value && value.toUpperCase().indexOf(filterValue) > -1) {
+          const value = PropertyResolver.resolve(prop, item as Record<string, unknown>);
+          if (typeof value === 'string' && value.toUpperCase().indexOf(filterValue) > -1) {
             match = true;
             break;
           }

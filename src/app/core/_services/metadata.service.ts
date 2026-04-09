@@ -1,4 +1,4 @@
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
@@ -9,7 +9,10 @@ import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.se
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
-import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { SelectOption } from '@src/app/shared/utils/forms';
+
+import { ResponseWrapper } from '@models/response.model';
+import { Option, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
 
@@ -49,7 +52,7 @@ export interface InfoMetadataForm {
  * - placeholder: Placeholder text for the input
  * - selectOptions: Select options if the type is 'select'
  * - selectOptions$: Select options observable if type is 'select' and used with selectEndpoint$
- * - selectEndpoint$: API endpoint route, usually a constant like SERV
+ * - selectEndpoint$: Function returning an observable for fetching select options
  * - fieldMapping: Object with the dropdown options mapping, e.g., { id: '_id', name: 'groupName' }
  * - requiredasterisk: Indicates if the field is required (shows asterisk)
  * - tooltip: Tooltip information as string or more complex type
@@ -61,15 +64,17 @@ export interface MetadataFormField {
   label?: string;
   type?: string;
   placeholder?: string;
-  selectOptions?: (Setting | Option)[];
-  selectOptions$?: Observable<{ label: string; value: number }[]>;
-  selectEndpoint$?: SERV;
-  fieldMapping?: Record<string, string> | FieldMapping;
+  selectOptions?: Option[];
+  selectOptions$?: SelectOption[];
+  selectEndpoint$?: () => Observable<ResponseWrapper>;
+  fieldMapping?: FieldMapping;
   requiredasterisk?: boolean;
   tooltip?: string | boolean;
   validators?: ValidatorFn[] | boolean;
   isTitle?: boolean;
   replacevalue?: string;
+  disabled?: boolean;
+  defaultValue?: unknown;
 }
 
 @Injectable({
@@ -250,7 +255,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
-      selectOptions$: of([]),
+      selectOptions$: [],
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
@@ -1089,7 +1094,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectOptions$: of([]),
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
     },
@@ -1100,7 +1105,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectOptions$: of([]),
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
     }
@@ -1147,7 +1152,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
-      selectOptions$: of([]),
+      selectOptions$: [],
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
     }
@@ -1231,7 +1236,7 @@ export class MetadataService {
       name: 'localtimefmt',
       label: 'Set the time format',
       type: 'select',
-      selectOptions: dateFormats
+      selectOptions: dateFormats.map((f) => ({ label: f.description, value: f.value }))
     },
     {
       name: 'autorefresh',

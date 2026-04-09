@@ -24,7 +24,7 @@ export class FilterTextboxComponent {
    *
    * @param event - The input event triggering the filter change.
    */
-  filterChanged(event: any): void {
+  filterChanged(event: Event): void {
     event.preventDefault();
     this.changed.emit(this.model.filter); // Raise changed event
   }

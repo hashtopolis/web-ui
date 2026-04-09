@@ -1,15 +1,15 @@
 import { zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
 import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ReportSection, ReportSubtitleSection, ReportTextItem } from '../reports/report-builder/report.models';
 
-export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
+export class HashlistReportDataSource extends ReportBaseDataSource<ReportSection> {
   private _hashlistId = 0;
 
   setHashlistId(hashlistId: number): void {
@@ -42,14 +42,11 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loadAll();
   }
 
-  getReport(data: JHashlist) {
+  getReport(data: JHashlist): ReportSection[] {
     let sum = 0;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const workflow: any[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const preCommand: any[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const files: any[] = [];
+    const workflow: ReportSubtitleSection[] = [];
+    const preCommand: Array<{ subtitle: string }> = [];
+    const files: ReportTextItem[] = [];
     (data.tasks ?? []).forEach((item: JTask) => {
       if (item.keyspace && typeof item.keyspace === 'number') {
         sum += item.keyspace;

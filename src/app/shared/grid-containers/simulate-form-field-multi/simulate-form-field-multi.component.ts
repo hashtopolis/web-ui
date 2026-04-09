@@ -1,5 +1,7 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 
+import { SelectOption } from '@src/app/shared/utils/forms';
+
 @Component({
     selector: 'simulate-form-field-multi',
     templateUrl: './simulate-form-field-multi.component.html',
@@ -8,7 +10,7 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
 })
 export class SimulateFormFieldMultiComponent {
   @Input() label: string;
-  @Input() items: any;
+  @Input() items: SelectOption[];
   @Input() routerLink: string;
 
   isActive(): boolean {

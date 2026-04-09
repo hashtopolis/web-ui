@@ -8,7 +8,7 @@ import { PreloadingStrategy, Route } from '@angular/router';
 @Injectable()
 export class AppPreloadingStrategy implements PreloadingStrategy {
   preload(route: Route, load: () => Observable<any>): Observable<any> {
-    const loadRoute = (delay: any) => (delay ? timer(150).pipe(mergeMap(() => load())) : load());
+    const loadRoute = (delay: unknown) => (delay ? timer(150).pipe(mergeMap(() => load())) : load());
     return route.data && route.data['preload'] ? loadRoute(route.data['delay']) : of(null);
   }
 }

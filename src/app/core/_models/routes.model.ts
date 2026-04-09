@@ -9,7 +9,7 @@ import { RoleService } from '@services/roles/base/role.service';
  */
 export interface RouteData {
   kind?: string;
-  type?: string;
+  type?: 'create' | 'edit' | 'helper';
   serviceConfig?: ServiceConfig;
   breadcrumb?: string;
   roleName?: string;

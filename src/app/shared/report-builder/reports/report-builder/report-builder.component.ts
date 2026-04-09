@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
+import { ReportDataProvider, ReportFormValues, ReportSection, ReportTemplate } from './report.models';
+
 pdfMake.vfs = vfsFonts.vfs;
 
 @Component({
@@ -15,14 +17,10 @@ pdfMake.vfs = vfsFonts.vfs;
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() reportData: any;
+  @Input() reportData: ReportDataProvider;
 
   reportForm: FormGroup;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  templates: Record<string, any> = {};
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template: any;
+  templates: Record<string, ReportTemplate> = {};
   isLoaded = false;
 
   constructor(
@@ -44,20 +42,20 @@ export class ReportBuilderComponent implements OnInit {
     this.reportForm = this.formBuilder.group({
       cover_page: [true],
       cover_page_letter_head: [true],
-      title: [coverPageTemplate?.title.text],
-      info_header_text: [this.templates[this.templateName]?.settings.info_header_text.text],
-      info_cover_body_1: [coverPageTemplate?.info_cover_body_1.text],
-      info_cover_body_2: [coverPageTemplate?.info_cover_body_2.text],
-      reference: [coverPageTemplate?.reference.text],
-      info_cover_body_3: [coverPageTemplate?.info_cover_body_3.text],
-      info_cover_body_4: [coverPageTemplate?.info_cover_body_4.text],
-      info_cover_body_5: [coverPageTemplate?.info_cover_body_5.text],
-      location_date: [coverPageTemplate?.location_date.text],
-      info_cover_footer_1: [coverPageTemplate?.info_cover_footer_1.text],
-      info_cover_footer_2: [coverPageTemplate?.info_cover_footer_2.text],
-      info_cover_footer_3: [coverPageTemplate?.info_cover_footer_3.text],
-      project_name: [this.templates[this.templateName]?.pages.project_name.text],
-      project_description: [this.templates[this.templateName]?.pages.project_description.text],
+      title: [coverPageTemplate?.['title']?.['text']],
+      info_header_text: [this.templates[this.templateName]?.settings.info_header_text?.['text']],
+      info_cover_body_1: [coverPageTemplate?.['info_cover_body_1']?.['text']],
+      info_cover_body_2: [coverPageTemplate?.['info_cover_body_2']?.['text']],
+      reference: [coverPageTemplate?.['reference']?.['text']],
+      info_cover_body_3: [coverPageTemplate?.['info_cover_body_3']?.['text']],
+      info_cover_body_4: [coverPageTemplate?.['info_cover_body_4']?.['text']],
+      info_cover_body_5: [coverPageTemplate?.['info_cover_body_5']?.['text']],
+      location_date: [coverPageTemplate?.['location_date']?.['text']],
+      info_cover_footer_1: [coverPageTemplate?.['info_cover_footer_1']?.['text']],
+      info_cover_footer_2: [coverPageTemplate?.['info_cover_footer_2']?.['text']],
+      info_cover_footer_3: [coverPageTemplate?.['info_cover_footer_3']?.['text']],
+      project_name: [this.templates[this.templateName]?.pages?.['project_name']?.['text']],
+      project_description: [this.templates[this.templateName]?.pages?.['project_description']?.['text']],
       userpassword: [this.templates[this.templateName]?.settings.userpassword],
       ownerpassword: [this.templates[this.templateName]?.settings.ownerpassword]
     });
@@ -71,7 +69,7 @@ export class ReportBuilderComponent implements OnInit {
   async loadTemplate(templateName: string): Promise<void> {
     try {
       this.templates[templateName] = await firstValueFrom(
-        this.http.get(`assets/report-templates/${templateName}.json`)
+        this.http.get<ReportTemplate>(`assets/report-templates/${templateName}.json`)
       );
       this.populateFormWithDefaults();
     } catch (error) {
@@ -80,46 +78,39 @@ export class ReportBuilderComponent implements OnInit {
   }
 
   onSubmit() {
-    this.renderPDF(this.reportForm.value);
+    this.renderPDF(this.reportForm.value as ReportFormValues);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async renderPDF(formValues: any) {
+  async renderPDF(formValues: ReportFormValues) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const coverpage: any[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const coverpage_letterhead: any[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const backgroundImage: any[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pages: any[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const content: any[] = [];
+      const coverpage: unknown[] = [];
+      const coverpage_letterhead: unknown[] = [];
+      const backgroundImage: unknown[] = [];
+      const pages: unknown[] = [];
+      const content: unknown[] = [];
 
       const globalStyles = this.templates[this.templateName]?.settings.global_style;
 
       if (formValues.cover_page) {
         const coverPageData = this.templates[this.templateName].cover_page;
 
-        const encodeData = { ...coverPageData };
+        const encodeData: Record<string, Record<string, unknown>> = { ...coverPageData };
         // Iterate Encode images
         for (const key of Object.keys(encodeData)) {
           if (key.startsWith('img_')) {
-            const imagePath = '../../assets/img/' + encodeData[key].img_path;
-            encodeData[key].image = await this.getBase64ImageFromURL(imagePath);
-            delete encodeData[key].img_path;
+            const imagePath = '../../assets/img/' + encodeData[key]['img_path'];
+            encodeData[key]['image'] = await this.getBase64ImageFromURL(imagePath as string);
+            delete encodeData[key]['img_path'];
           }
         }
         // Construct footer
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const footerRow: any[] = [];
+        const footerRow: unknown[] = [];
         for (const key of Object.keys(encodeData)) {
-          const formData = formValues[key];
+          const formData = formValues[key as keyof ReportFormValues];
           const footerItem = encodeData[key];
 
           if (key.startsWith('info_cover_footer')) {
-            footerItem.text = formData;
+            footerItem['text'] = formData;
             if (formData) {
               footerRow.push(footerItem);
             }
@@ -132,12 +123,12 @@ export class ReportBuilderComponent implements OnInit {
         delete encodeData['info_cover_footer_3'];
 
         const coverPageContent = Object.keys(encodeData).map((key) => {
-          const formData = formValues[key];
+          const formData = formValues[key as keyof ReportFormValues];
           const defaultData = encodeData[key]; // Assuming coverPage is the default template data
           // Create a new object to hold the modified data
-          const textData = { ...defaultData };
+          const textData: Record<string, unknown> = { ...defaultData };
           // Letter head
-          if (!formValues.cover_page_letter_head && key.startsWith('img_') && textData[key].enable === false) {
+          if (!formValues.cover_page_letter_head && key.startsWith('img_') && (textData[key] as Record<string, unknown>)?.['enable'] === false) {
             delete textData[key];
           }
           // If formData has a text property, overwrite the text property in textData
@@ -148,19 +139,19 @@ export class ReportBuilderComponent implements OnInit {
             key.startsWith('img_')
           ) {
             // If formData is a string or number and key is not 'userpassword' or 'ownerpassword', use it for text
-            textData.text = formData;
+            textData['text'] = formData;
           }
 
           if (key === 'location_date') {
             // For the 'location_date' key, append the current date if formData is not a boolean
-            textData.text += ' ' + new Date().toDateString();
+            textData['text'] += ' ' + new Date().toDateString();
           }
 
           // Check if defaultData has gapLines and add it below the columns
-          if (textData.gapPos === 'top') {
-            return [{ text: '\n'.repeat(textData.gapLines) }, { columns: [textData] }];
-          } else if (textData.gapPos === 'bottom') {
-            return [{ columns: [textData] }, { text: '\n'.repeat(textData.gapLines) }];
+          if (textData['gapPos'] === 'top') {
+            return [{ text: '\n'.repeat(textData['gapLines'] as number) }, { columns: [textData] }];
+          } else if (textData['gapPos'] === 'bottom') {
+            return [{ columns: [textData] }, { text: '\n'.repeat(textData['gapLines'] as number) }];
           } else if (key.startsWith('img_')) {
             return [textData];
           } else {
@@ -174,35 +165,35 @@ export class ReportBuilderComponent implements OnInit {
       // Pages object
       const pagesData = this.templates[this.templateName].pages;
 
-      const pagesProcess = { ...pagesData };
+      const pagesProcess: Record<string, Record<string, unknown>> = { ...pagesData };
       // Encode images in pages
       for (const key of Object.keys(pagesProcess)) {
         if (key.startsWith('img_')) {
-          const imagePath = '../../assets/img/' + pagesProcess[key].img_path;
-          pagesProcess[key].image = await this.getBase64ImageFromURL(imagePath);
-          delete pagesProcess[key].img_path;
+          const imagePath = '../../assets/img/' + pagesProcess[key]['img_path'];
+          pagesProcess[key]['image'] = await this.getBase64ImageFromURL(imagePath as string);
+          delete pagesProcess[key]['img_path'];
         }
       }
 
       const pagesContent = Object.keys(pagesProcess).map((key) => {
-        const formData = formValues[key];
+        const formData = formValues[key as keyof ReportFormValues];
         const defaultData = pagesProcess[key];
         // Create a new object to hold the modified data
-        const textData = { ...defaultData };
+        const textData: Record<string, unknown> = { ...defaultData };
 
         // Delete project_name and project_description if they don't exist in formValues
         if (!formValues.project_name || !formValues.project_description) {
-          delete textData.project_name;
-          delete textData.project_description;
+          delete textData['project_name'];
+          delete textData['project_description'];
         } else {
-          textData.text = formData;
+          textData['text'] = formData;
         }
 
         // Check if defaultData has gapLines and add it below the columns
-        if (textData.gapPos === 'top') {
-          return [{ text: '\n'.repeat(textData.gapLines) }, { columns: [textData] }];
-        } else if (textData.gapPos === 'bottom') {
-          return [{ columns: [textData] }, { text: '\n'.repeat(textData.gapLines) }];
+        if (textData['gapPos'] === 'top') {
+          return [{ text: '\n'.repeat(textData['gapLines'] as number) }, { columns: [textData] }];
+        } else if (textData['gapPos'] === 'bottom') {
+          return [{ columns: [textData] }, { text: '\n'.repeat(textData['gapLines'] as number) }];
         } else {
           return { columns: [textData] };
         }
@@ -211,41 +202,40 @@ export class ReportBuilderComponent implements OnInit {
       pages.push(...pagesContent);
 
       // Iterate over each element in the report array
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.reportData.originalData.forEach((item: any) => {
-        if (item.title) {
+      this.reportData.getOriginalData().forEach((item: ReportSection) => {
+        if ('title' in item) {
           content.push({
             text: item.title,
-            ...globalStyles.title
+            ...globalStyles?.['title']
           });
         }
 
-        if (item.subtitle) {
+        if ('subtitle' in item) {
           content.push({
             text: item.subtitle,
-            ...globalStyles.subtitle
+            ...globalStyles?.['subtitle']
           });
         }
 
-        if (item.break) {
+        if ('break' in item) {
           // If item.break exists, add the appropriate number of line breaks
           const breakline = '\n'.repeat(item.break);
           content.push(breakline);
         }
 
-        if (item.ul) {
+        if ('ul' in item && item.ul) {
           // if list exist
           content.push({
             ul: item.ul
           });
         }
 
-        if (item.table) {
+        if ('table' in item) {
           // If the item has a table, construct the table
           const { tableColumns, tableValues } = item.table;
           const tableHeaderRow = tableColumns.map((column: string) => ({
             text: column,
-            ...globalStyles.tables.tableHeader
+            ...(globalStyles?.['tables'] as Record<string, unknown>)?.['tableHeader'] as Record<string, unknown>
           }));
           const tableBodyRow = tableValues.map((value: unknown) => ({
             text: value,
@@ -262,38 +252,37 @@ export class ReportBuilderComponent implements OnInit {
       });
 
       // Page Settings
-      const pageSettings = this.templates[this.templateName]?.['settings'];
-      const headerLogo = pageSettings['img_logo'];
-      const backgroundImg = pageSettings['img_background'];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let _bg: Record<string, any> = {}; // Initialize bg as an object
+      const pageSettings = this.templates[this.templateName]?.settings;
+      const headerLogo: Record<string, unknown> = { ...(pageSettings['img_logo'] as Record<string, unknown>) };
+      const backgroundImg: Record<string, unknown> = { ...(pageSettings['img_background'] as Record<string, unknown>) };
+      let _bg: Record<string, unknown> = {}; // Initialize bg as an object
 
       // Page header
-      const headerText = this.templates[this.templateName]?.settings['info_header_text'];
+      const headerText: Record<string, unknown> = { ...(pageSettings['info_header_text'] as Record<string, unknown>) };
 
       // Encode logo image
       const imagePath = '../../assets/img/';
-      if (formValues.cover_page && headerLogo.enable) {
-        headerLogo.image = await this.getBase64ImageFromURL(imagePath + headerLogo.img_path);
-        delete headerLogo.img_path;
+      if (formValues.cover_page && headerLogo['enable']) {
+        headerLogo['image'] = await this.getBase64ImageFromURL(imagePath + headerLogo['img_path']);
+        delete headerLogo['img_path'];
       }
 
       // Encode background image and add it to the bg object
-      if (backgroundImg.enable) {
-        backgroundImg.image = await this.getBase64ImageFromURL(imagePath + backgroundImg.img_path);
-        delete backgroundImg.img_path;
+      if (backgroundImg['enable']) {
+        backgroundImg['image'] = await this.getBase64ImageFromURL(imagePath + backgroundImg['img_path']);
+        delete backgroundImg['img_path'];
 
         _bg = { background: { ...backgroundImg } };
       }
 
-      const project = {
+      const project: Record<string, unknown> = {
         info: {
           title: 'Hashtopolis Report',
           author: 'xbenyx',
           subject: 'Password Recovery'
         },
-        pageSize: pageSettings.pageSize || 'A4',
-        pageMargins: pageSettings.pageMargins || [40, 80, 40, 60],
+        pageSize: pageSettings['pageSize'] || 'A4',
+        pageMargins: pageSettings['pageMargins'] || [40, 80, 40, 60],
         userPassword: formValues.userpassword,
         ownerPassword: formValues.ownerpassword,
         permissions: {
@@ -305,21 +294,20 @@ export class ReportBuilderComponent implements OnInit {
           contentAccessibility: true,
           documentAssembly: true
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-        header: function (currentPage: number, pageSize: any) {
-          const headerTextData = { ...headerText };
-          const result = [];
+        header: function (currentPage: number, _pageSize: unknown) {
+          const headerTextData: Record<string, unknown> = { ...headerText };
+          const result: Record<string, unknown>[] = [];
 
-          if (formValues.cover_page && headerLogo.enable && 2 <= currentPage) {
+          if (formValues.cover_page && headerLogo['enable'] && 2 <= currentPage) {
             result.push({ ...headerLogo });
-          } else if (!formValues.cover_page && headerLogo.enable && currentPage <= 1) {
+          } else if (!formValues.cover_page && headerLogo['enable'] && currentPage <= 1) {
             result.push({ ...headerLogo });
           }
 
           // Check when to start displaying the header text
-          if (headerTextData.startAt <= currentPage) {
+          if ((headerTextData['startAt'] as number) <= currentPage) {
             if (typeof formValues.info_header_text === 'string' || typeof formValues.info_header_text === 'number') {
-              headerTextData.text = formValues.info_header_text;
+              headerTextData['text'] = formValues.info_header_text;
             }
             result.push({ ...headerTextData });
           }

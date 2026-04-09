@@ -29,47 +29,41 @@ export interface SelectOption<T extends string | number | boolean = string> {
  * ```
  * @public
  */
-export function extractIds(dataArray: object[], idKey: string): number[] {
+export function extractIds<T extends object>(dataArray: T[], idKey: keyof T & string): number[] {
   return dataArray
-    .map((item) => {
-      const record = item as Record<string, unknown>;
-      let id = null;
-      if (Object.prototype.hasOwnProperty.call(record, idKey)) {
-        id = record[idKey];
-      }
-      return id;
-    })
-    .filter((id): id is number => id !== null);
+    .map((item): unknown => (Object.prototype.hasOwnProperty.call(item, idKey) ? item[idKey] : null))
+    .filter((id): id is number => typeof id === 'number');
 }
 
 /**
  * Transforms API response options based on a field mapping configuration.
+ *
+ * The generic overload validates at compile time that the field mapping's
+ * values are actual keys of the source type `T`.
  *
  * @param apiOptions - The options received from an API response.
  * @param fieldMapping - The field configuration that contains the mapping between form fields and API fields.
  *
  * @returns An array of transformed select options to be used in the form.
  */
-export function transformSelectOptions(apiOptions: object[], fieldMapping: FieldMapping) {
-  if (apiOptions) {
-    return apiOptions.map((apiOption) => {
-      const record = apiOption as Record<string, unknown>;
-      const transformedOption: SelectOption = { id: '', name: '' };
-      for (const formField of Object.keys(fieldMapping) as Array<keyof FieldMapping>) {
-        const apiField = fieldMapping[formField];
+export function transformSelectOptions<T extends object>(
+  apiOptions: T[],
+  fieldMapping: FieldMapping<Extract<keyof T, string>>
+): SelectOption[] {
+  if (!apiOptions) return [];
 
-        if (Object.prototype.hasOwnProperty.call(record, apiField)) {
-          transformedOption[formField] = String(record[apiField] ?? '');
-        } else {
-          // Handle the case where the API field doesn't exist in the response
-          transformedOption[formField] = ''; // or set a default value
-        }
+  return apiOptions.map((apiOption) => {
+    const transformedOption: SelectOption = { id: '', name: '' };
+    for (const formField of Object.keys(fieldMapping) as Array<keyof FieldMapping>) {
+      const apiField = fieldMapping[formField];
+      if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
+        transformedOption[formField] = String(apiOption[apiField as keyof T] ?? '');
+      } else {
+        transformedOption[formField] = '';
       }
-
-      return transformedOption;
-    });
-  }
-  return [];
+    }
+    return transformedOption;
+  });
 }
 
 /**
@@ -85,7 +79,7 @@ export function transformSelectOptions(apiOptions: object[], fieldMapping: Field
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
  */
-function hslToRgb(h: number, s: number, l: number) {
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   let r, g, b;
 
   if (s == 0) {
@@ -110,12 +104,12 @@ function hslToRgb(h: number, s: number, l: number) {
   return [r * 255, g * 255, b * 255];
 }
 
-function componentToHex(c: number) {
+function componentToHex(c: number): string {
   const hex = Math.floor(c).toString(16);
   return hex.length == 1 ? '0' + hex : hex;
 }
 
-export function randomColor() {
+export function randomColor(): string {
   const rgb = hslToRgb(Math.random(), 0.6, Math.random() * 0.4 + 0.4);
   return `#${componentToHex(rgb[0])}${componentToHex(rgb[1])}${componentToHex(rgb[2])}`;
 }

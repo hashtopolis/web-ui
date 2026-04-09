@@ -1,14 +1,20 @@
 declare module 'pdfmake/build/pdfmake' {
+  interface PdfMakeResult {
+    open: () => void;
+    download: (defaultFileName?: string) => void;
+    print: () => void;
+  }
+
   const pdfMake: {
-    vfs: any;
-    createPdf: (docDefinition: any) => any;
+    vfs: Record<string, string>;
+    createPdf: (docDefinition: Record<string, unknown>) => PdfMakeResult;
   };
   export = pdfMake;
 }
 
 declare module 'pdfmake/build/vfs_fonts' {
   const vfsFonts: {
-    vfs: any;
+    vfs: Record<string, string>;
   };
   export = vfsFonts;
 }

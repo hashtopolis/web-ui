@@ -1,7 +1,7 @@
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
-import { HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -50,7 +50,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
         this.service
           .get(SERV.HASHLISTS, this.superHashListID, params.create(), httpOptions)
           .pipe(
-            catchError((error) => {
+            catchError((error: HttpErrorResponse) => {
               this.handleFilterError(error);
               return of(null);
             }),
@@ -90,7 +90,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
         this.service
           .getAll(SERV.HASHLISTS, params.create(), httpOptions)
           .pipe(
-            catchError((error) => {
+            catchError((error: HttpErrorResponse) => {
               this.handleFilterError(error);
               return of(null);
             }),

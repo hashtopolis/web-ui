@@ -6,9 +6,9 @@ import { Component } from '@angular/core';
     standalone: false
 })
 export class HexconvertorComponent {
-  hexVal: any = '';
+  hexVal: string = '';
 
-  hexConv(hex: any) {
+  hexConv(hex: string) {
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
       str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
