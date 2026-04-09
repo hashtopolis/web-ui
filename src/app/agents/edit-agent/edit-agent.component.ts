@@ -227,7 +227,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     const loadTasksSubscription$ = this.gs
-      .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
+      .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
       .subscribe((response: ResponseWrapper) => {
         const tasks = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);

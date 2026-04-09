@@ -3,6 +3,8 @@ import {
   Pipe
 } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * This function use the object key and returns the sum
  * @param value - Object
@@ -20,7 +22,7 @@ import {
 })
 export class SumPipe implements PipeTransform {
 
-  transform(value: Record<string, unknown>[], name: string): string | number {
+  transform(value: BaseModel[], name: string): string | number {
       if (value.length === 0 || !name) {
         return 'No data';
       }

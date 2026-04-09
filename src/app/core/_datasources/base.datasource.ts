@@ -21,6 +21,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
+import { BaseModel } from '@models/base.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 
@@ -33,7 +34,7 @@ import { environment } from '@src/environments/environment';
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
 @Injectable()
-export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
+export abstract class BaseDataSource<T extends BaseModel, P extends MatPaginator = MatPaginator> implements DataSource<T> {
   public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;
@@ -231,7 +232,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
         return JSON.stringify(item).toLowerCase().includes(value);
       }
       if (!selectedColumn.dataKey) return false;
-      const fieldValue = (item as Record<string, unknown>)[selectedColumn.dataKey];
+      const fieldValue = item[selectedColumn.dataKey];
       return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
     });
   }
@@ -249,8 +250,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const isAscending = this.sortingColumn.direction === 'asc';
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sortKey];
-      const bValue = (b as Record<string, unknown>)[sortKey];
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
       if (aValue == null || bValue == null) return 0;
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         const cmp = aValue.localeCompare(bValue);

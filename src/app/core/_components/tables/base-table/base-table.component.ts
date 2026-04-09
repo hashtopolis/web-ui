@@ -105,7 +105,7 @@ export class BaseTableComponent {
    * Call this in ngOnInit of child table components to automatically handle filter errors.
    * @param dataSource - The datasource with filterError$ observable
    */
-  protected setupFilterErrorSubscription<T, P extends MatPaginator>(dataSource: BaseDataSource<T, P>): void {
+  protected setupFilterErrorSubscription<T extends BaseModel, P extends MatPaginator>(dataSource: BaseDataSource<T, P>): void {
     const ngZone = this.injector.get<NgZone>(NgZone);
 
     // Subscribe to filter errors from the datasource

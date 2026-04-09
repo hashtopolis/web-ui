@@ -1,9 +1,62 @@
 import { SafeHtml } from '@angular/platform-browser';
 
+/** Base pdfMake text styling properties */
+export interface PdfTextElement {
+  text?: string;
+  color?: string;
+  alignment?: 'left' | 'center' | 'right' | 'justify';
+  margin?: number[];
+  fontSize?: number;
+  bold?: boolean;
+}
+
+/** Header text element with page-control properties */
+export interface ReportHeaderText extends PdfTextElement {
+  allpages?: boolean;
+  startAt?: number;
+}
+
+/** Image element used for logos, backgrounds, letterheads */
+export interface ReportImageConfig {
+  enable?: boolean;
+  img_path?: string;
+  image?: string;
+  width?: number;
+  alignment?: string;
+  margin?: number[];
+}
+
+/** Text element on cover/content pages with gap control */
+export interface PdfCoverTextElement extends PdfTextElement {
+  gapPos?: 'top' | 'bottom';
+  gapLines?: number;
+  border?: (boolean | number)[];
+}
+
+/** Any element that can appear in a cover page or content page section */
+export type CoverPageElement = PdfCoverTextElement | ReportImageConfig;
+
+/** Table header styling */
+export interface PdfTableHeaderStyle {
+  fillColor?: string;
+  border?: (boolean | number)[];
+  margin?: number[];
+  textTransform?: string;
+}
+
+/** Named global styles map */
+export interface ReportGlobalStyles {
+  title?: PdfTextElement;
+  subtitle?: PdfTextElement;
+  text?: PdfTextElement;
+  tables?: { tableHeader?: PdfTableHeaderStyle };
+  [key: string]: PdfTextElement | { tableHeader?: PdfTableHeaderStyle } | undefined;
+}
+
 export interface ReportTableColumn {
   id: number;
   dataKey: string;
-  render?: (data: Record<string, unknown>) => SafeHtml;
+  render?: (data: Record<string, string | number | boolean>) => SafeHtml;
 }
 
 /**
@@ -86,14 +139,13 @@ export interface ReportTemplate {
     ownerpassword: string;
     pageSize?: string;
     pageMargins?: number[];
-    info_header_text: Record<string, unknown>;
-    global_style: Record<string, Record<string, unknown>>;
-    img_logo: Record<string, unknown>;
-    img_background: Record<string, unknown>;
-    [key: string]: unknown;
+    info_header_text: ReportHeaderText;
+    global_style: ReportGlobalStyles;
+    img_logo: ReportImageConfig;
+    img_background: ReportImageConfig;
   };
-  cover_page: Record<string, Record<string, unknown>>;
-  pages: Record<string, Record<string, unknown>>;
+  cover_page: Record<string, CoverPageElement>;
+  pages: Record<string, CoverPageElement>;
 }
 
 /**

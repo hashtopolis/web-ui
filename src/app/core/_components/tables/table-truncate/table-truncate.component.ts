@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * Component for truncating and expanding text with a "More/Less" button.
  */
@@ -10,7 +12,7 @@ import { Component, Input, OnInit } from '@angular/core';
   standalone: false
 })
 export class TableTruncateComponent implements OnInit {
-  @Input() text: string | Record<string, unknown>;
+  @Input() text: string | BaseModel;
   @Input() path: string;
   @Input() maxLength = 30;
   @Input() endLength = 10;

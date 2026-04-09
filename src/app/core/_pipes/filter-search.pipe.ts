@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * Pipe used for searching
  * @param value - The input text
@@ -15,7 +17,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: false
 })
 export class SearchPipe implements PipeTransform {
-  transform(value: Record<string, unknown>[] | null, q?: string, colName: string = 'isArchived'): Record<string, unknown>[] | null {
+  transform(value: BaseModel[] | null, q?: string, colName: string = 'isArchived'): BaseModel[] | null {
     if (!value) return null;
     if (!q) return value;
     q = q.toLowerCase();

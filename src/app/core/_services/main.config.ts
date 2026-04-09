@@ -12,6 +12,36 @@ export interface ServiceConfig {
   RESOURCE: string;
 }
 
+export const HELPER_ENDPOINTS = [
+  // GET helpers (ghelper)
+  'currentUser',
+  'getUserPermission',
+  'getBestTasksAgent',
+  'getCracksOfTask',
+  // POST helpers (chelper)
+  'changeOwnPassword',
+  'importFile',
+  'importCrackedHashes',
+  'exportLeftHashes',
+  'exportCrackedHashes',
+  'exportWordlist',
+  'setUserPassword',
+  'createSupertask',
+  'createSuperHashlist',
+  'purgeTask',
+  'abortChunk',
+  'resetChunk',
+  'rebuildChunkCache',
+  'rescanGlobalFiles',
+  'resetUserPassword'
+] as const;
+
+export type HelperEndpoint = (typeof HELPER_ENDPOINTS)[number];
+
+export function isHelperEndpoint(value: string): value is HelperEndpoint {
+  return (HELPER_ENDPOINTS as readonly string[]).includes(value);
+}
+
 export class SERV {
   // HELPER
   public static HELPER = { URL: '/helper', RESOURCE: 'Helper' };

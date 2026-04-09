@@ -10,7 +10,7 @@ import { zFormRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
-import { SERV, ServiceConfig } from '@services/main.config';
+import { SERV, ServiceConfig, isHelperEndpoint } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -234,7 +234,7 @@ export class FormComponent implements OnInit, OnDestroy {
       });
 
       this.unsubscribeService.add(createSubscription);
-    } else if (this.type === 'helper') {
+    } else if (this.type === 'helper' && isHelperEndpoint(this.serviceConfig.RESOURCE)) {
       const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
         this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
         this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert

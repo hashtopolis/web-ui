@@ -1,5 +1,6 @@
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
+import { BaseModel } from '@models/base.model';
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
@@ -21,7 +22,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * Sets page size, page after and sorting from datasource
    * @param dataSource the datasource to get the values from
    */
-  addInitial<T>(dataSource: BaseDataSource<T>) {
+  addInitial<T extends BaseModel>(dataSource: BaseDataSource<T>) {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }

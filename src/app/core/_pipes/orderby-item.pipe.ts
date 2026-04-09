@@ -1,5 +1,7 @@
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * Order by asc or desc using item
  * @param value - The array to be sorted
@@ -31,7 +33,7 @@ export class ArraySortPipe implements PipeTransform {
       numberArray = value.filter((item) => typeof item === 'number').sort();
       stringArray = value.filter((item) => typeof item === 'string').sort();
     } else {
-      const keyed = value as Record<string, unknown>[];
+      const keyed = value as BaseModel[];
       numberArray = keyed
         .filter((item) => typeof item[sortKey] === 'number')
         .sort((a, b) => (a[sortKey] as number) - (b[sortKey] as number));
@@ -47,7 +49,7 @@ export class ArraySortPipe implements PipeTransform {
       ...numberArray,
       ...stringArray,
       ...value.filter((item) => {
-        const val = sortKey ? (item as Record<string, unknown>)[sortKey] : item;
+        const val = sortKey ? (item as BaseModel)[sortKey] : item;
         return typeof val !== 'number' && typeof val !== 'string';
       })
     ];

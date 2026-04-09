@@ -3,7 +3,7 @@ import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwErr
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { ServiceConfig } from '@services/main.config';
+import { HelperEndpoint, ServiceConfig } from '@services/main.config';
 
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
@@ -12,6 +12,10 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
+
+interface JsonApiRelationshipData {
+  data: { type: string; id: number }[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -250,13 +254,13 @@ export class GlobalService {
     return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
   }
 
-  postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: Record<string, unknown>): Observable<object> {
+  postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: JsonApiRelationshipData): Observable<object> {
     return this.http
       .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
       .pipe(debounceTime(2000));
   }
 
-  deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: Record<string, unknown>): Observable<object> {
+  deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: JsonApiRelationshipData): Observable<object> {
     return this.http
       .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
@@ -285,8 +289,14 @@ export class GlobalService {
    * @param serviceConfig the serviceconfig of the API endpoint
    * @param option        Method used, i.e. getUserPermission
    */
-  ghelper(serviceConfig: ServiceConfig, option: string): Observable<ResponseWrapper> {
-    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option);
+  ghelper(serviceConfig: ServiceConfig, option: HelperEndpoint, params?: Record<string, string | number>): Observable<ResponseWrapper> {
+    let httpParams = new HttpParams();
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    }
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, { params: httpParams });
   }
 
   /**
@@ -297,7 +307,7 @@ export class GlobalService {
    * @param method - HTTP method: 'POST' (default) or 'GET'
    * @returns Observable<T>
    **/
-  chelper<T = ResponseWrapper>(serviceConfig: ServiceConfig, option: string, arr?: Record<string, unknown>, method: 'POST' | 'GET' = 'POST'): Observable<T> {
+  chelper<T = ResponseWrapper>(serviceConfig: ServiceConfig, option: HelperEndpoint, arr?: Record<string, unknown>, method: 'POST' | 'GET' = 'POST'): Observable<T> {
     const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
 
     if (method === 'GET') {
@@ -323,7 +333,7 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(serviceConfig: ServiceConfig, id: number, option: string, arr: Record<string, unknown>): Observable<object> {
+  uhelper(serviceConfig: ServiceConfig, id: number, option: HelperEndpoint, arr: Record<string, unknown>): Observable<object> {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
     return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, serializedData);

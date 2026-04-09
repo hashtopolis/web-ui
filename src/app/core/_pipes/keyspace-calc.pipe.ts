@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * This function calculates the keyspace using the asset files optparse located in assets folder
  * @param value - Object
@@ -17,7 +19,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     standalone: false
 })
 export class KeyspaceCalcPipe implements PipeTransform {
-  transform(value: Record<string, unknown>[], name: string, cmd: string, attcktype?: boolean): string | number | number[] | null {
+  transform(value: BaseModel[], name: string, cmd: string, attcktype?: boolean): string | number | number[] | null {
     if (!cmd || !name) {
       return 'Wrong Command';
     }

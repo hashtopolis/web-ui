@@ -66,7 +66,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * If provided, these values are used to initialize form controls in the dynamic form.
 
    */
-  formValues: Record<string, unknown>;
+  formValues: ConfigValues;
 
   /**
    * An array of objects containing IDs and corresponding item names.

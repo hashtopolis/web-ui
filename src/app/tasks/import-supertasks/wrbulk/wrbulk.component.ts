@@ -23,6 +23,18 @@ import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+interface WrbulkFormValue {
+  name: string;
+  maxAgents: number;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  crackerBinaryId: number;
+  attackCmd: string;
+  baseFiles: number[];
+  iterFiles: number[];
+}
+
 @Component({
   selector: 'app-wrbulk',
   templateUrl: './wrbulk.component.html',
@@ -126,8 +138,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param {Object} form - The form data containing task configurations.
    * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async preTasks(form: Record<string, any>): Promise<number[]> {
+  private async preTasks(form: WrbulkFormValue): Promise<number[]> {
     const preTasksIds: number[] = [];
     const iterFiles: number[] = form.iterFiles;
 

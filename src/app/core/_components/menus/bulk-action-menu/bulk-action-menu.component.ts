@@ -1,6 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
@@ -20,7 +21,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   @Input() contextMenuService: ContextMenuService;
 
   ngOnInit(): void {
-    this.data = { isArchived: this.isArchived };
+    this.data = { isArchived: this.isArchived } as unknown as BaseModel;
     this.loadMenu();
   }
 

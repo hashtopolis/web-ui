@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * This function takes the object access the key values annd returns the average value
  * @param value - Object
@@ -15,7 +17,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     standalone: false
 })
 export class AveragePipe implements PipeTransform {
-  transform(value: Record<string, unknown>[], name: string): string | number {
+  transform(value: BaseModel[], name: string): string | number {
     if (value.length === 0 || !name) {
       return 'No data';
     }

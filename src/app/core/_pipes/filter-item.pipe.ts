@@ -1,5 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 /**
  * Pipe to filter by Id
  * @param key - The input column name
@@ -15,7 +17,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: false
 })
 export class FilterItemPipe implements PipeTransform {
-  transform(list: Record<string, unknown>[], key: string, value: number): Record<string, unknown>[] {
+  transform(list: BaseModel[], key: string, value: number): BaseModel[] {
     // use the id
     if (value === undefined || value === null) {
       value = 0;

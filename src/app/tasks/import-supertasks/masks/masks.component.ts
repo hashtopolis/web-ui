@@ -21,6 +21,17 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+interface MasksFormValue {
+  name: string;
+  maxAgents: number;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  optFlag: boolean;
+  useNewBench: boolean;
+  crackerBinaryId: number;
+  masks: string;
+}
+
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
  *
@@ -138,8 +149,7 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Attack: #HL# -a 3 {mask} {options}
    * Options: Flag -O (Optimize)
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async preTasks(form: Record<string, any>): Promise<number[]> {
+  private async preTasks(form: MasksFormValue): Promise<number[]> {
     return new Promise<number[]>((resolve, reject) => {
       const preTasksIds: number[] = [];
 

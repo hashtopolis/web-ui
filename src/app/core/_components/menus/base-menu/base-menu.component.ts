@@ -13,7 +13,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus
 })
 export class BaseMenuComponent {
   @Input() disabled = false;
-  @Input() data!: Record<string, unknown>;
+  @Input() data!: BaseModel;
 
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel>> = new EventEmitter<ActionMenuEvent<BaseModel>>();
 
@@ -59,7 +59,7 @@ export class BaseMenuComponent {
    * @param data
    * @protected
    */
-  protected conditionallyAddMenuItem(item: ContextMenuType, data: Record<string, unknown>): void {
+  protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
     const condition = item.condition;
     if (condition?.key && condition.key.length > 0) {
       const value = data[condition.key];
