@@ -11,7 +11,7 @@ import {
 
 import { BaseModel } from '@models/base.model';
 
-import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
   selector: 'ht-table-editable',

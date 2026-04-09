@@ -11,7 +11,6 @@ import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';

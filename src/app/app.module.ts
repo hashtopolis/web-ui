@@ -1,6 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
-import { StoreModule } from '@ngrx/store';
 import { MomentModule } from 'ngx-moment';
 
 import { CommonModule } from '@angular/common';

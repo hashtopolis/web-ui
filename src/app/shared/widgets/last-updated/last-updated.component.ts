@@ -1,6 +1,15 @@
 import { Subscription, interval } from 'rxjs';
 
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  inject
+} from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { UIConfig } from '@models/config-ui.model';
@@ -59,11 +68,8 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** Subscription for interval timer */
   private timerSubscription?: Subscription;
 
-  /** Injected utility for UI settings */
-  constructor(
-    private util: UISettingsUtilityClass,
-    private cd: ChangeDetectorRef
-  ) {}
+  private util = inject(UISettingsUtilityClass);
+  private cd = inject(ChangeDetectorRef);
 
   /** Returns the formatted last updated time according to UI settings */
   get lastUpdatedDisplay(): string {

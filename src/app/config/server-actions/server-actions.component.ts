@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 
 import { JHelper, RebuildChunkCacheMeta, RescanGlobalFilesMeta } from '@models/helper.model';
@@ -15,11 +15,9 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
   styleUrl: './server-actions.component.scss'
 })
 export class ServerActionsComponent {
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private gs: GlobalService,
-    private alert: AlertService
-  ) {}
+  private unsubscribeService = inject(UnsubscribeService);
+  private gs = inject(GlobalService);
+  private alert = inject(AlertService);
 
   /**
    * Initiates the process to rebuild the chunk cache on the server.

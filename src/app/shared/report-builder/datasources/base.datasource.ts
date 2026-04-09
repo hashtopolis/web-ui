@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { ChangeDetectorRef } from '@angular/core';
 
-import { ReportSection } from '../reports/report-builder/report.models';
+import { ReportSection } from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 export abstract class ReportBaseDataSource<T> implements DataSource<T> {
   /**

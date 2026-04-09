@@ -18,7 +18,16 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  inject
+} from '@angular/core';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
@@ -57,7 +66,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
   private chart: EChartsType;
 
-  constructor(private hashratePipe: HashRatePipe) {}
+  private hashratePipe = inject(HashRatePipe);
 
   /**
    * Initializes the chart after view is ready.

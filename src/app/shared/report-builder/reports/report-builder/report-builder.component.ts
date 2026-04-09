@@ -3,7 +3,7 @@ import vfsFonts from 'pdfmake/build/vfs_fonts';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import {
@@ -15,7 +15,7 @@ import {
   ReportImageConfig,
   ReportSection,
   ReportTemplate
-} from './report.models';
+} from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 pdfMake.vfs = vfsFonts.vfs;
 
@@ -32,10 +32,8 @@ export class ReportBuilderComponent implements OnInit {
   templates: Record<string, ReportTemplate> = {};
   isLoaded = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private http: HttpClient
-  ) {}
+  private formBuilder = inject(FormBuilder);
+  private http = inject(HttpClient);
 
   async ngOnInit(): Promise<void> {
     if (this.templateName) {
@@ -274,8 +272,6 @@ export class ReportBuilderComponent implements OnInit {
       const pageSettings = this.templates[this.templateName]?.settings;
       const headerLogo: ReportImageConfig = { ...pageSettings.img_logo };
       const backgroundImg: ReportImageConfig = { ...pageSettings.img_background };
-      let _bg: { background?: ReportImageConfig } = {};
-
       // Page header
       const headerText: ReportHeaderText = { ...pageSettings.info_header_text };
 
@@ -290,8 +286,6 @@ export class ReportBuilderComponent implements OnInit {
       if (backgroundImg.enable) {
         backgroundImg.image = await this.getBase64ImageFromURL(imagePath + backgroundImg.img_path);
         delete backgroundImg.img_path;
-
-        _bg = { background: { ...backgroundImg } };
       }
 
       const project: Record<string, unknown> = {
@@ -314,6 +308,7 @@ export class ReportBuilderComponent implements OnInit {
           contentAccessibility: true,
           documentAssembly: true
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         header: function (currentPage: number, _pageSize: unknown) {
           const headerTextData: ReportHeaderText = { ...headerText };
           const result: (ReportImageConfig | ReportHeaderText)[] = [];

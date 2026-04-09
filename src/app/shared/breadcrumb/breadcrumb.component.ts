@@ -1,8 +1,7 @@
 import { faHomeAlt } from '@fortawesome/free-solid-svg-icons';
 import { filter } from 'rxjs/operators';
 
-import { Component, OnInit } from '@angular/core';
-import { Input } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 @Component({
@@ -19,13 +18,11 @@ export class BreadcrumbComponent implements OnInit {
 
   breadcrumbs: Array<{ label: string; url: string }>;
 
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {}
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((_event) => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.breadcrumbs = [];
       let currentRoute: ActivatedRoute | null = this.activatedRoute.root,
         url = '';

@@ -1,7 +1,7 @@
 import { dateFormats } from '@constants/settings.config';
 
 import { DatePipe } from '@angular/common';
-import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
+import { LOCALE_ID, Pipe, PipeTransform, inject } from '@angular/core';
 
 import { CookieService } from '@services/shared/cookies.service';
 
@@ -20,11 +20,10 @@ import { CookieService } from '@services/shared/cookies.service';
   standalone: false
 })
 export class uiDatePipe extends DatePipe implements PipeTransform {
-  constructor(
-    private cookieService: CookieService,
-    @Inject(LOCALE_ID) locale: string
-  ) {
-    super(locale);
+  private cookieService = inject(CookieService);
+
+  constructor() {
+    super(inject(LOCALE_ID));
   }
 
   override transform(value: Date | string | number, format?: string, timezone?: string, locale?: string): string | null;
@@ -37,8 +36,11 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
   ): string | null;
   override transform(
     epoch: number | Date | string | null | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _format?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _timezone?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _locale?: string
   ): string | null {
     if (epoch === undefined || epoch === null) return null;

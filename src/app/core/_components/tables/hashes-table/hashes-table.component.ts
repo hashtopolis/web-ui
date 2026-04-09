@@ -2,7 +2,6 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
-import { JHashlist } from '@models/hashlist.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';

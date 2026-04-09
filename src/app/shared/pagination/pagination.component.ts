@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'cm-pagination',
   templateUrl: './pagination.component.html',
   standalone: false
 })
-export class PaginationComponent implements OnInit {
+export class PaginationComponent {
   private pagerTotalItems = 0;
   private pagerPageSize = 0;
   private pagerRange = 0;
@@ -44,11 +44,6 @@ export class PaginationComponent implements OnInit {
   @Output() pageChanged: EventEmitter<number> = new EventEmitter();
 
   constructor() {}
-
-  // ngOnInit intentionally left empty - required by OnInit interface
-  ngOnInit() {
-    // No initialization needed
-  }
 
   update() {
     if (this.pagerTotalItems && this.pagerPageSize) {

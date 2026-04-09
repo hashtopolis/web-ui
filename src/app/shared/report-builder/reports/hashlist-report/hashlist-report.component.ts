@@ -1,9 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { InputFieldsTableCol, InputFieldsTableColumnLabel } from './hashlists-table.constants';
-import { HashlistReportDataSource } from '../../datasources/hashlists.datasource';
-import { BaseReportComponent } from '../base-report/base-report.component';
-import { ReportSection, ReportTableColumn } from '../report-builder/report.models';
+import { HashlistReportDataSource } from '@src/app/shared/report-builder/datasources/hashlists.datasource';
+import { BaseReportComponent } from '@src/app/shared/report-builder/reports/base-report/base-report.component';
+import { ReportSection } from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 @Component({
   selector: 'hashlist-report',

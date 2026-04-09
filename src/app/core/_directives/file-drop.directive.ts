@@ -37,7 +37,6 @@ export class FileDropDirective {
   @HostListener('drop', ['$event']) public onDrop(evt: DragEvent) {
     evt.preventDefault();
     evt.stopPropagation();
-    const files = evt.dataTransfer?.files;
     const target = evt.target as HTMLInputElement;
     this.filesChangeEmiter.emit(target?.files ? Array.from(target.files) : []);
   }

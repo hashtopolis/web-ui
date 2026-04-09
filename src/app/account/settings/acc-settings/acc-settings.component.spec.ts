@@ -66,10 +66,12 @@ describe('AccountSettingsComponent', () => {
     chelper: (() => {
       return of(mockResponse());
     }) as GlobalService['chelper'],
-    ghelper(_serviceConfig, _option: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ghelper(_serviceConfig: unknown, _option: string) {
       return of(mockResponse({ jsonapi: { version: '1.1' }, data: userResponse, included: [] }));
     },
-    uhelper(_serviceConfig, _id: number, _option: string, _payload: Record<string, unknown>) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    uhelper(_serviceConfig: unknown, _id: number, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
     userId: 1

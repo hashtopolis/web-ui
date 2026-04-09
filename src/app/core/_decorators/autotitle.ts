@@ -3,6 +3,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { AppModule } from '@src/app/app.module';
 
 export function PageTitle(title: string | string[]): ClassDecorator {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   return function (constructor: Function) {
     const originalNgOnInit = constructor.prototype.ngOnInit;
 

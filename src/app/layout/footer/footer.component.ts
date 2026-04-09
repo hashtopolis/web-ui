@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { environment } from '@src/environments/environment';
 
@@ -28,7 +28,7 @@ export class FooterComponent implements OnInit {
   width: number = window.innerWidth;
   height: number = window.innerHeight;
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     this.http.get<GitVersion>(this.url).subscribe((res) => {

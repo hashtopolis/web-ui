@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 
-import { HTTableColumn } from '../../ht-table.models';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
   selector: 'ht-table-default',

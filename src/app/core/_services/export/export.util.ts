@@ -98,7 +98,7 @@ export class ExportUtil {
     window.URL.revokeObjectURL(url);
     try {
       document.body.removeChild(a);
-    } catch (_error) {
+    } catch {
       // Do nothing
     }
   }

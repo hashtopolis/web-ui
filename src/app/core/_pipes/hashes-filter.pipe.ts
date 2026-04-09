@@ -13,7 +13,8 @@ import { JHash } from '@models/hash.model';
   standalone: false
 })
 export class HashesFilterPipe implements PipeTransform {
-  transform(obj: JHash, display: string, filter: string, crackpos: string): string[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  transform(obj: JHash, display: string, filter: string, _crackpos: string): string[] {
     const output: string[] = [];
     if (display == '') {
       if (filter == 'cracked' || filter == '' || filter == 'uncracked') {

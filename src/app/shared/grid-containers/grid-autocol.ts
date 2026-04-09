@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Renderer2, inject } from '@angular/core';
 
 @Component({
   selector: 'grid-autocol',
@@ -34,15 +34,8 @@ export class GridAutoColComponent implements OnInit {
   cardWidth = 300; // Width of each card (adjust as needed)
   cardHeight = 80; // Height of each card (adjust as needed)
 
-  /**
-   * Constructor for the component.
-   * @param {Renderer2} renderer - The Renderer2 for manipulating the DOM.
-   * @param {ElementRef} el - The ElementRef for accessing the host element.
-   */
-  constructor(
-    private renderer: Renderer2,
-    private el: ElementRef
-  ) {}
+  private renderer = inject(Renderer2);
+  private el = inject(ElementRef);
 
   /**
    * Initializes the component properties.

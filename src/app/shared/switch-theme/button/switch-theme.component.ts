@@ -2,7 +2,7 @@ import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 @Component({
   selector: 'app-switch-theme',
@@ -17,7 +17,7 @@ export class SwitchThemeComponent implements OnInit {
   faSun = faSun;
   faMoon = faMoon;
 
-  constructor(private themes: ThemeService) {}
+  private themes = inject(ThemeService);
 
   ngOnInit(): void {
     this.theme$ = this.themes.theme$;
