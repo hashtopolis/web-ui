@@ -13,8 +13,8 @@ import { BaseModel } from '@models/base.model';
  * @returns number
  **/
 @Pipe({
-    name: 'avg',
-    standalone: false
+  name: 'avg',
+  standalone: false
 })
 export class AveragePipe implements PipeTransform {
   transform(value: BaseModel[], name: string): string | number {

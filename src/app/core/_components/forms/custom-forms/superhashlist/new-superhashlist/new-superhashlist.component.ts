@@ -8,7 +8,6 @@ import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -16,6 +15,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface NewSuperhashlistForm {

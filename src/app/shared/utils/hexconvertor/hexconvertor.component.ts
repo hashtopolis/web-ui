@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'app-hexconvertor',
-    templateUrl: './hexconvertor.component.html',
-    standalone: false
+  selector: 'app-hexconvertor',
+  templateUrl: './hexconvertor.component.html',
+  standalone: false
 })
 export class HexconvertorComponent {
   hexVal: string = '';

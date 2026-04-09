@@ -6,6 +6,7 @@ import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { BaseModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
@@ -21,7 +22,6 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { BaseModel } from '@models/base.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 
@@ -34,7 +34,10 @@ import { environment } from '@src/environments/environment';
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
 @Injectable()
-export abstract class BaseDataSource<T extends BaseModel, P extends MatPaginator = MatPaginator> implements DataSource<T> {
+export abstract class BaseDataSource<
+  T extends BaseModel,
+  P extends MatPaginator = MatPaginator
+> implements DataSource<T> {
   public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;

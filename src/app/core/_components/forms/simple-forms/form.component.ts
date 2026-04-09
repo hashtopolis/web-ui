@@ -121,26 +121,25 @@ export class FormComponent implements OnInit, OnDestroy {
   constructor() {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe((data) => {
-        const routeData = zFormRouteData.parse(data);
-        const formKind = routeData.kind;
-        this.serviceConfig = routeData.serviceConfig;
-        this.type = routeData.type;
-        this.isCreate = this.type === 'create';
-        // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
-        this.formMetadata = this.metadataService.getFormMetadata(formKind);
-        this.title = this.globalMetadata.title;
-        this.customform = this.globalMetadata.customform ?? false;
-        this.titleService.set([this.title]);
-        // Load metadata and form information
-        if (this.type === 'edit') {
-          this.getIndex();
-          this.loadEdit(); // Load data for editing
-        } else {
-          this.isloaded = true;
-        }
+      const routeData = zFormRouteData.parse(data);
+      const formKind = routeData.kind;
+      this.serviceConfig = routeData.serviceConfig;
+      this.type = routeData.type;
+      this.isCreate = this.type === 'create';
+      // Load metadata and form information
+      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+      this.formMetadata = this.metadataService.getFormMetadata(formKind);
+      this.title = this.globalMetadata.title;
+      this.customform = this.globalMetadata.customform ?? false;
+      this.titleService.set([this.title]);
+      // Load metadata and form information
+      if (this.type === 'edit') {
+        this.getIndex();
+        this.loadEdit(); // Load data for editing
+      } else {
+        this.isloaded = true;
       }
-    );
+    });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.subscriptionService);
   }

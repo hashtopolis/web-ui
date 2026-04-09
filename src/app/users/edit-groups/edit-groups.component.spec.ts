@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { mockResponse } from '@src/app/testing/mock-response';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RelationshipType, SERV } from '@services/main.config';
@@ -20,6 +19,7 @@ import { AccessGroupsAgentsTableComponent } from '@components/tables/access-grou
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
 const mockAccessGroupResponse: ResponseWrapper = {

@@ -34,6 +34,6 @@ interface OptionParser {
   toString(): string;
 }
 
-declare var options: HashcatOptions;
-declare var defaultOptions: HashcatOptions;
-declare var parser: OptionParser;
+declare let options: HashcatOptions;
+declare let defaultOptions: HashcatOptions;
+declare let parser: OptionParser;

@@ -10,7 +10,6 @@ import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { mockResponse } from '@src/app/testing/mock-response';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
 import { RelationshipType, SERV } from '@services/main.config';
@@ -25,6 +24,7 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 const mockAccessGroups: ResponseWrapper = {
   jsonapi: { version: '1.1', ext: [] },

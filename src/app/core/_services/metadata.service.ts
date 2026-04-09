@@ -3,18 +3,18 @@ import { Observable } from 'rxjs';
 import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
+import { ResponseWrapper } from '@models/response.model';
+
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
-import { SelectOption } from '@src/app/shared/utils/forms';
-
-import { ResponseWrapper } from '@models/response.model';
 import { Option, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
+import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Metadata information for the form page.

@@ -7,13 +7,13 @@ import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { mockResponse } from '@src/app/testing/mock-response';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { InputModule } from '@src/app/shared/input/input.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {

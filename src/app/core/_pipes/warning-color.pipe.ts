@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe,
-} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Returns label information in hex colors
@@ -11,24 +8,18 @@ import {
  * Example:
  *   {{ warning | warningColor }}
  * @returns #b16a06
-**/
+ **/
 
 @Pipe({
-    name: 'warningColor',
-    standalone: false
+  name: 'warningColor',
+  standalone: false
 })
 export class WarningColorPipe implements PipeTransform {
-
   transform(value: string): string {
-    if(value == 'information')
-      return '#DAF7A6 ';
-    else if (value == 'warning')
-      return '#FFC300 ';
-    else if (value == 'error')
-      return '#8b0010';
-    else if (value == 'fatal error')
-      return '#750404';
-    else
-      return 'white';
+    if (value == 'information') return '#DAF7A6 ';
+    else if (value == 'warning') return '#FFC300 ';
+    else if (value == 'error') return '#8b0010';
+    else if (value == 'fatal error') return '#750404';
+    else return 'white';
   }
 }

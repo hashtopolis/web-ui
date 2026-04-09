@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Shortest any text usinng a limit parameter, if its greater than the max returns the limit plus 3 consecutive dots
@@ -12,19 +9,17 @@ import {
  * Example:
  *   {{ Benito | shortenString:3 }}
  * @returns Ben
-**/
+ **/
 
 @Pipe({
-    name: 'shortenString',
-    standalone: false
+  name: 'shortenString',
+  standalone: false
 })
 export class ShortenStringPipe implements PipeTransform {
-
   transform(value: string, limit: number): string {
-    if(value.length > limit){
-      return value.substr(0, limit) +'...';
+    if (value.length > limit) {
+      return value.substr(0, limit) + '...';
     }
     return value;
   }
-
 }

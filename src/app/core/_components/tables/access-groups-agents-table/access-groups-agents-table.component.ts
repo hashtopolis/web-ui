@@ -2,6 +2,8 @@ import { catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
+import { JUser } from '@models/user.model';
+
 import { AccessGroupsAgentContextMenuService } from '@services/context-menu/users/access-groups-agent-menu.service';
 
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -18,7 +20,6 @@ import { TableDialogComponent } from '@src/app/core/_components/tables/table-dia
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
 import { JAgent } from '@src/app/core/_models/agent.model';
-import { JUser } from '@models/user.model';
 import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 
 @Component({

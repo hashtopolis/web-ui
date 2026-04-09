@@ -7,9 +7,9 @@ interface ErrorModalData {
 }
 
 @Component({
-    selector: 'app-timeout',
-    templateUrl: './error.component.html',
-    standalone: false
+  selector: 'app-timeout',
+  templateUrl: './error.component.html',
+  standalone: false
 })
 export class ErrorModalComponent {
   message: string;

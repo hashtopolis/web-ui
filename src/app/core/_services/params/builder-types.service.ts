@@ -1,9 +1,10 @@
 /**
  * Interface and intermediate type definitions for request param builder design pattern
  */
+import { BaseModel } from '@models/base.model';
+
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { BaseModel } from '@models/base.model';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';

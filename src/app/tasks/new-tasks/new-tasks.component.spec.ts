@@ -1,8 +1,5 @@
 import { Observable, of, throwError } from 'rxjs';
 
-import { ResponseWrapper } from '@models/response.model';
-import { mockResponse } from '@src/app/testing/mock-response';
-
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { UiSettings } from '@models/config-ui.schema';
 import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
@@ -21,6 +19,7 @@ import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.serv
 
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
@@ -728,7 +727,9 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) }));
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) })
+      );
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();

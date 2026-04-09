@@ -5,8 +5,6 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
-import { mockResponse } from '@src/app/testing/mock-response';
-
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -23,6 +21,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;

@@ -17,7 +17,9 @@ export class HTTableTypeEditableCheckboxComponent implements OnInit {
   @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<HTTableEditable<BaseModel>>();
+  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<
+    HTTableEditable<BaseModel>
+  >();
 
   editMode = false;
 

@@ -1,7 +1,5 @@
 import { of, throwError } from 'rxjs';
 
-import { mockResponse } from '@src/app/testing/mock-response';
-
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -13,6 +11,7 @@ import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binar
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewCrackerComponent', () => {
   let component: NewCrackerComponent;

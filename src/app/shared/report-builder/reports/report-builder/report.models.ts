@@ -100,11 +100,7 @@ export interface ReportSubtitleSection {
 /**
  * Union of all possible report section shapes.
  */
-export type ReportSection =
-  | ReportTableSection
-  | ReportBreakSection
-  | ReportTitleSection
-  | ReportSubtitleSection;
+export type ReportSection = ReportTableSection | ReportBreakSection | ReportTitleSection | ReportSubtitleSection;
 
 /**
  * Form values produced by the report builder form.

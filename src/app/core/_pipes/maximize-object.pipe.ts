@@ -12,8 +12,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  **/
 
 @Pipe({
-    name: 'max',
-    standalone: false
+  name: 'max',
+  standalone: false
 })
 export class MaximizePipe implements PipeTransform {
   transform(value: Record<string, number>[], name: string): string {

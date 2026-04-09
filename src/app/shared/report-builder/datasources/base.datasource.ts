@@ -1,10 +1,11 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-
-import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { environment } from 'src/environments/environment';
+
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { ChangeDetectorRef } from '@angular/core';
+
 import { ReportSection } from '../reports/report-builder/report.models';
 
 export abstract class ReportBaseDataSource<T> implements DataSource<T> {

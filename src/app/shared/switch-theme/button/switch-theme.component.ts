@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
-
 import { Subject } from 'rxjs';
 import { ThemeService } from 'src/app/core/_services/shared/theme.service';
+
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-switch-theme',

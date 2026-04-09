@@ -1,7 +1,8 @@
 import { Idle } from '@ng-idle/core';
 
-import { AppComponent } from '@src/app/app.component';
 import { ReloadService } from '@services/reload.service';
+
+import { AppComponent } from '@src/app/app.component';
 
 interface TestableAppComponent {
   reloadService: jasmine.SpyObj<ReloadService>;

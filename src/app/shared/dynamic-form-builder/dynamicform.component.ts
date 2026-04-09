@@ -187,7 +187,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
   ngAfterViewInit() {
     // Check if there are any "select" type fields with "selectOptions$"
     const selectFields = this.formMetadata.filter(
-      (field): field is MetadataFormField & Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'fieldMapping'>> =>
+      (
+        field
+      ): field is MetadataFormField & Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'fieldMapping'>> =>
         field.type === 'selectd' && !!field.selectEndpoint$ && !!field.fieldMapping
     );
 

@@ -1,7 +1,5 @@
 import { of, throwError } from 'rxjs';
 
-import { mockResponse } from '@src/app/testing/mock-response';
-
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -14,6 +12,7 @@ import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-r
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewEditPreprocessorComponent', () => {
   let component: NewEditPreprocessorComponent;

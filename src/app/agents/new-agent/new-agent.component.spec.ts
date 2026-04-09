@@ -1,7 +1,5 @@
 import { of } from 'rxjs';
 
-import { mockResponse } from '@src/app/testing/mock-response';
-
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -22,6 +20,7 @@ import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 // AgentBinary table mock
 @Component({

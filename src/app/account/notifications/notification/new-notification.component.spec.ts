@@ -17,7 +17,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { mockResponse } from '@src/app/testing/mock-response';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -27,6 +26,7 @@ import { NewNotificationComponent } from '@src/app/account/notifications/notific
 import { ACTION, NOTIF } from '@src/app/core/_constants/notifications.config';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { findEl, setFieldValue } from '@src/app/spec-helpers/element.spec-helper';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 let loader: HarnessLoader;
 

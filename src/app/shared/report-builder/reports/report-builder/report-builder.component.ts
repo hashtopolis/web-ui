@@ -6,7 +6,16 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
-import { CoverPageElement, PdfCoverTextElement, ReportDataProvider, ReportFormValues, ReportHeaderText, ReportImageConfig, ReportSection, ReportTemplate } from './report.models';
+import {
+  CoverPageElement,
+  PdfCoverTextElement,
+  ReportDataProvider,
+  ReportFormValues,
+  ReportHeaderText,
+  ReportImageConfig,
+  ReportSection,
+  ReportTemplate
+} from './report.models';
 
 pdfMake.vfs = vfsFonts.vfs;
 
@@ -54,8 +63,12 @@ export class ReportBuilderComponent implements OnInit {
       info_cover_footer_1: [(coverPageTemplate?.['info_cover_footer_1'] as PdfCoverTextElement | undefined)?.text],
       info_cover_footer_2: [(coverPageTemplate?.['info_cover_footer_2'] as PdfCoverTextElement | undefined)?.text],
       info_cover_footer_3: [(coverPageTemplate?.['info_cover_footer_3'] as PdfCoverTextElement | undefined)?.text],
-      project_name: [(this.templates[this.templateName]?.pages?.['project_name'] as PdfCoverTextElement | undefined)?.text],
-      project_description: [(this.templates[this.templateName]?.pages?.['project_description'] as PdfCoverTextElement | undefined)?.text],
+      project_name: [
+        (this.templates[this.templateName]?.pages?.['project_name'] as PdfCoverTextElement | undefined)?.text
+      ],
+      project_description: [
+        (this.templates[this.templateName]?.pages?.['project_description'] as PdfCoverTextElement | undefined)?.text
+      ],
       userpassword: [this.templates[this.templateName]?.settings.userpassword],
       ownerpassword: [this.templates[this.templateName]?.settings.ownerpassword]
     });
@@ -129,7 +142,11 @@ export class ReportBuilderComponent implements OnInit {
           // Create a new object to hold the modified data
           const textData: CoverPageElement = { ...defaultData };
           // Letter head
-          if (!formValues.cover_page_letter_head && key.startsWith('img_') && (textData as ReportImageConfig)?.enable === false) {
+          if (
+            !formValues.cover_page_letter_head &&
+            key.startsWith('img_') &&
+            (textData as ReportImageConfig)?.enable === false
+          ) {
             delete encodeData[key];
           }
           // If formData has a text property, overwrite the text property in textData
@@ -277,7 +294,8 @@ export class ReportBuilderComponent implements OnInit {
         _bg = { background: { ...backgroundImg } };
       }
 
-      const project: Record<string, unknown> = { // pdfMake document definition
+      const project: Record<string, unknown> = {
+        // pdfMake document definition
         info: {
           title: 'Hashtopolis Report',
           author: 'xbenyx',

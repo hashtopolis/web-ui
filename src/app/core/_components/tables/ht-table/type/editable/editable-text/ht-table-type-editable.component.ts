@@ -14,10 +14,10 @@ import { BaseModel } from '@models/base.model';
 import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
 @Component({
-    selector: 'ht-table-editable',
-    templateUrl: './ht-table-type-editable.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'ht-table-editable',
+  templateUrl: './ht-table-type-editable.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class HTTableTypeEditableComponent implements OnInit {
   editable: HTTableEditable<BaseModel>;
@@ -26,8 +26,9 @@ export class HTTableTypeEditableComponent implements OnInit {
   @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableInputSaved: EventEmitter<HTTableEditable<BaseModel>> =
-    new EventEmitter<HTTableEditable<BaseModel>>();
+  @Output() editableInputSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<
+    HTTableEditable<BaseModel>
+  >();
   @ViewChild('editableInput') editableInput: ElementRef;
 
   editMode = false;
