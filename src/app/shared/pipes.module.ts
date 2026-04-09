@@ -12,7 +12,6 @@ import { GroupByPipe } from '@src/app/core/_pipes/groupby.pipe';
 import { HashesFilterPipe } from '@src/app/core/_pipes/hashes-filter.pipe';
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
 import { HealthCheckStatusPipe } from '@src/app/core/_pipes/healthcheck-status.pipe';
-import { KeyspaceCalcPipe } from '@src/app/core/_pipes/keyspace-calc.pipe';
 import { MaximizePipe } from '@src/app/core/_pipes/maximize-object.pipe';
 import { ArraySortPipe } from '@src/app/core/_pipes/orderby-item.pipe';
 import { ReplaceStringPipe } from '@src/app/core/_pipes/replace-string.pipe';
@@ -30,7 +29,6 @@ import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
-    KeyspaceCalcPipe,
     HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
@@ -54,7 +52,6 @@ import { WarningColorPipe } from '@src/app/core/_pipes/warning-color.pipe';
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
-    KeyspaceCalcPipe,
     HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
