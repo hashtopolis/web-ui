@@ -130,7 +130,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
       );
 
-      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse) as JAccessGroup;
+      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse);
     } catch (error) {
       console.error('Failed to load access group data:', error);
     }

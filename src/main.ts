@@ -21,12 +21,11 @@ platformBrowserDynamic()
   .bootstrapModule(AppModule)
   .then((ref) => {
     // Ensure Angular destroys itself on hot reloads.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const win = window as any;
-    if (win['ngRef']) {
-      win['ngRef'].destroy();
+    const win = window as Window & { ngRef?: { destroy(): void } };
+    if (win.ngRef) {
+      win.ngRef.destroy();
     }
-    win['ngRef'] = ref;
+    win.ngRef = ref;
 
     // Otherwise, log the boot error
   })

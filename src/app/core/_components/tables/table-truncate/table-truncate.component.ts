@@ -10,26 +10,24 @@ import { Component, Input, OnInit } from '@angular/core';
   standalone: false
 })
 export class TableTruncateComponent implements OnInit {
-  @Input() text: string;
+  @Input() text: string | Record<string, unknown>;
   @Input() path: string;
   @Input() maxLength = 30;
   @Input() endLength = 10;
 
   expanded = false;
   abbr: string;
+  displayText: string;
 
   ngOnInit(): void {
-    if (this.path !== undefined && this.path === 'hash') {
-      const objText: string = (this.text as any)['hash'];
-      this.text = objText;
-    }
+    this.displayText = typeof this.text === 'string' ? this.text : String(this.text[this.path] ?? '');
 
-    if (this.text.length > this.maxLength) {
-      const start = this.text.substring(0, this.maxLength);
-      const end = this.text.substring(this.text.length - this.endLength);
+    if (this.displayText.length > this.maxLength) {
+      const start = this.displayText.substring(0, this.maxLength);
+      const end = this.displayText.substring(this.displayText.length - this.endLength);
       this.abbr = `${start}…${end}`;
     } else {
-      this.abbr = this.text;
+      this.abbr = this.displayText;
     }
   }
 

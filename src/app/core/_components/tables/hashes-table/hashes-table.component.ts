@@ -137,7 +137,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy((event as JHash).hash)) {
+    if (this.clipboard.copy(event.hash)) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');

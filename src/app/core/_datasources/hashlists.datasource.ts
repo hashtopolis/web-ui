@@ -61,7 +61,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
               return; // Don't update data if there was an error
             }
             const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse);
-            this.setData(superHashList.hashlists as JHashlist[]);
+            this.setData(superHashList.hashlists!);
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;

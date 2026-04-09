@@ -261,7 +261,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      return this.serializer.deserialize(response, zTaskResponse) as JTask;
+      return this.serializer.deserialize(response, zTaskResponse);
     } catch (err: unknown) {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
@@ -269,7 +269,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        return this.serializer.deserialize(responseFallback, zTaskResponse) as JTask;
+        return this.serializer.deserialize(responseFallback, zTaskResponse);
       }
       throw err;
     }

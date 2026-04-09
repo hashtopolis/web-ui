@@ -223,7 +223,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
    */
-  onFormSubmit(formValues: (BaseModel & Record<string, unknown>)[]) {
+  onFormSubmit(formValues: Record<string, unknown>) {
     if (this.customform) {
       this.modifyFormValues(formValues);
     }
@@ -257,13 +257,13 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param formValues - The form values to be modified.
    * @returns The modified form values.
    */
-  modifyFormValues(formValues: (BaseModel | Record<string, unknown>)[]) {
+  modifyFormValues(formValues: Record<string, unknown>) {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
       if (field.replacevalue && field.name) {
         // Replace the value with the 'editedIndex'
-        (formValues as unknown as Record<string, unknown>)[field.name] = this.editedIndex;
+        formValues[field.name] = this.editedIndex;
       }
       // Add custom logic to modify formValues as needed
     }

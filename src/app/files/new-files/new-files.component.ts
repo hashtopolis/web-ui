@@ -201,11 +201,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
-      );
-      // The response has response.meta
-      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
+      this.serverFiles = (response.meta as ServerImportFile[]) || [];
       this.changeDetectorRef.detectChanges();
     } catch (error) {
       console.error('Error fetching server import files:', error);

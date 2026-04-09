@@ -36,7 +36,7 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([] as unknown as ResponseWrapper[]);
+            return of([] as ResponseWrapper[]);
           }),
           finalize(() => (this.loading = false))
         )

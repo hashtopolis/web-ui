@@ -7,7 +7,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -147,7 +146,7 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'taskhas':
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task = new JsonAPISerializer().deserialize(response, zTaskResponse) as JTask;
+            const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
             this.titleName = task.taskName ?? '';
           });
           break;

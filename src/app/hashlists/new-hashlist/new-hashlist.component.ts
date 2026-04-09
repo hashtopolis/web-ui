@@ -221,8 +221,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     newForm.sourceType = 'import';
 
     this.uploadService
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm as any, ['/hashlists/hashlist'] as any)
+      .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
       .pipe(takeUntil(this.fileUnsubscribe))
       .subscribe((progress) => {
         this.uploadProgress = progress;
@@ -246,10 +245,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
-      );
-      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
+      this.serverFiles = (response.meta as ServerImportFile[]) || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {

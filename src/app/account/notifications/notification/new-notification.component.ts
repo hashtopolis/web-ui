@@ -4,10 +4,8 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -164,16 +162,13 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
           const _filters: Filter[] = [];
           for (let i = 0; i < resource.length; i++) {
             if (path === SERV.AGENTS) {
-              const agent = resource[i] as JAgent;
-              _filters.push({ id: agent.id, name: agent.agentName });
+              _filters.push({ id: resource[i].id, name: resource[i].agentName });
             }
             if (path === SERV.TASKS) {
-              const task = resource[i] as JTask;
-              _filters.push({ id: task.id, name: task.taskName ?? '' });
+              _filters.push({ id: resource[i].id, name: resource[i].taskName ?? '' });
             }
             if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const obj = resource[i] as BaseModel & { name?: string };
-              _filters.push({ id: obj.id, name: obj.name ?? '' });
+              _filters.push({ id: resource[i].id, name: resource[i].name ?? '' });
             }
           }
           this.filters = _filters;

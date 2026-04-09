@@ -106,7 +106,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
           if (this.editIndex !== undefined && this.editType === 0) {
             const tasks: JTask = this.serializer.deserialize(response, zTaskResponse);
 
-            this.setData(tasks.files as JFile[]);
+            this.setData(tasks.files!);
           } else if (this.editType === 1) {
             const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
@@ -120,7 +120,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
               this.setPaginationConfig(this.pageSize, totalElements, after, before, this.index);
             }
 
-            this.setData(pretask.pretaskFiles as JFile[]);
+            this.setData(pretask.pretaskFiles!);
           } else {
             const files: JFile[] = this.serializer.deserialize(response, zFileListResponse);
 

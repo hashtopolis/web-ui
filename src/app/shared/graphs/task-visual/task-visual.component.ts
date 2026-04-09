@@ -5,7 +5,7 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '
 
 import { JChunk } from '@models/chunk.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTaskWrapper, TaskType } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -68,7 +68,7 @@ export class TaskVisualComponent implements AfterViewInit {
       .create();
 
     this.gs.getAll(SERV.TASKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-      const tasks = new JsonAPISerializer().deserialize(response, zTaskListResponse) as JTask[];
+      const tasks = new JsonAPISerializer().deserialize(response, zTaskListResponse);
 
       const paramsTaskWrapper = new RequestParamBuilder()
         .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: tasks[0].taskWrapperId })

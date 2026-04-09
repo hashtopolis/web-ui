@@ -69,8 +69,8 @@ export class BaseMenuComponent {
         this.addActionMenuItem(item.index, item.menuItem);
       } else if (data[condition.key] !== undefined && Array.isArray(data[condition.key])) {
         if (
-          ((data[condition.key] as unknown[]).length > 0 && condition.value === true) ||
-          ((data[condition.key] as unknown[]).length === 0 && condition.value === false)
+          (data[condition.key].length > 0 && condition.value === true) ||
+          (data[condition.key].length === 0 && condition.value === false)
         ) {
           this.addActionMenuItem(item.index, item.menuItem);
         }

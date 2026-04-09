@@ -117,8 +117,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
           const agents: JAgent[] = [];
           assignments.forEach((assignment) => {
-            const task = assignment.task as JTask;
-            const agent = assignment.agent as JAgent;
+            if (!assignment.task || !assignment.agent) return;
+            const task = assignment.task;
+            const agent = assignment.agent;
             agent.task = task;
             agent.user = users.find((user) => user.id === agent.userId);
             agent.taskName = agent.task.taskName;
