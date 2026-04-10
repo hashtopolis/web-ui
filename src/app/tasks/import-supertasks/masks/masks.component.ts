@@ -1,6 +1,6 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
-import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod';
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

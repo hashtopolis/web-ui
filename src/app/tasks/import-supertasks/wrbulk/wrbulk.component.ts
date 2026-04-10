@@ -107,13 +107,15 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   loadData() {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }).subscribe((response: ResponseWrapper) => {
-      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
-        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
-      );
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+        );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+        this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 

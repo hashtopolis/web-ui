@@ -106,12 +106,14 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }).subscribe((response: ResponseWrapper) => {
-      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
-        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
-      );
-      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+    const loadCrackersSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+        );
+        this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadCrackersSubscription$);
   }
 
