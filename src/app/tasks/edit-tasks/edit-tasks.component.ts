@@ -15,7 +15,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
@@ -67,7 +67,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   tusepreprocessor: number;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
-  availAgents: JAgent[] = [];
+  availAgents: ThinJAgent[] = [];
   selectAgents: SelectOption<AgentId>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
@@ -358,7 +358,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      const agents = this.serializer.deserialize(responseAgents, zAgentListResponse) as JAgent[];
+      const agents: ThinJAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.availAgents = agents;
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;

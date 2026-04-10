@@ -9,7 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { JAgentWith, ThinJAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -67,7 +67,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   // Edit Index
   editedAgentIndex: number;
-  showagent: JAgent;
+  showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
 
   // Calculations
   timespent = 0;
@@ -184,7 +184,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
+      const agent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'> = this.serializer.deserialize(
+        response,
+        zAgentResponse,
+        { include: ['agentStats', 'accessGroups', 'assignments'] as const }
+      );
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -207,9 +211,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
-        this.showagent = agent;
-        this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
+        // Degraded fallback: no includes loaded due to server error
+        const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
+        this.showagent = agent as JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+        this.selectUserAgps = [];
         return;
       }
 

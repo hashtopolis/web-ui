@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { FilterType } from '@models/request-params.model';
 import { JUser } from '@models/user.model';
 
@@ -178,7 +178,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents = new JsonAPISerializer().deserialize(response, zAgentListResponse) as JAgent[];
+        const agents: ThinJAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {

@@ -65,3 +65,4 @@ export type ThinJAgent = Omit<JAgent, JAgentExcludeKeys>;
 
 /** Agent with only specific include-dependent fields present. */
 export type JAgentWith<K extends JAgentExcludeKeys> = ThinJAgent & Pick<JAgent, K>;
+
