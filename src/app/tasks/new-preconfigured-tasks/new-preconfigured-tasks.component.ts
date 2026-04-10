@@ -106,7 +106,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+    const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }).subscribe((response: ResponseWrapper) => {
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );

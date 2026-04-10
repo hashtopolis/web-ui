@@ -176,7 +176,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   loadCrackerSelectOptions() {
     // Load Cracker Types and Crackers Select Options
-    const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+    const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }).subscribe((response: ResponseWrapper) => {
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );

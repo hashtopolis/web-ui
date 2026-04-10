@@ -86,7 +86,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }).subscribe((response: ResponseWrapper) => {
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );

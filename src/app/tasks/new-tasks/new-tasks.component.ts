@@ -207,7 +207,7 @@ export class NewTasksComponent implements OnInit {
    */
   private async loadCrackerSelectOptions(): Promise<void> {
     try {
-      const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES));
+      const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }));
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
         new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse)
       );
