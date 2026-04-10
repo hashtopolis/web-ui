@@ -1,11 +1,13 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { AccessGroupId, HashlistId } from '@models/id.types';
+
 /**
  * Interface definition for EditHashlistForm
  */
 export interface EditHashlistForm {
-  hashlistId: FormControl<number | null>;
-  accessGroupId: FormControl<number | null>;
+  hashlistId: FormControl<HashlistId | null>;
+  accessGroupId: FormControl<AccessGroupId | null>;
   useBrain: FormControl<boolean | null>;
   format: FormControl<string | null>;
   hashCount: FormControl<number | null>;
@@ -15,7 +17,7 @@ export interface EditHashlistForm {
     name: FormControl<string | null>;
     notes: FormControl<string | null>;
     isSecret: FormControl<boolean | null>;
-    accessGroupId: FormControl<number | null>;
+    accessGroupId: FormControl<AccessGroupId | null>;
   }>;
 }
 

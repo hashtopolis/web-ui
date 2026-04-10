@@ -15,6 +15,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { PretaskId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
@@ -34,7 +35,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   form: FormGroup;
 
   /** List of PreTasks. */
-  selectPretasks: SelectOption<number>[];
+  selectPretasks: SelectOption<PretaskId>[];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

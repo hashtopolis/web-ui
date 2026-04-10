@@ -3,6 +3,8 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { AccessGroupId } from '@models/id.types';
+
 /**
  * Form to create a new hashlist
  */
@@ -13,7 +15,7 @@ export interface NewHashlistForm {
   separator: FormControl<string>;
   isSalted: FormControl<boolean>;
   isHexSalt: FormControl<boolean>;
-  accessGroupId: FormControl<number | null>;
+  accessGroupId: FormControl<AccessGroupId | null>;
   useBrain: FormControl<boolean>;
   brainFeatures: FormControl<number>;
   notes: FormControl<string>;

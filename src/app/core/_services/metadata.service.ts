@@ -1,10 +1,12 @@
 import { Observable } from 'rxjs';
+import { z } from 'zod';
 
 import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { ResponseWrapper } from '@models/response.model';
 
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
@@ -67,6 +69,7 @@ export interface MetadataFormField {
   selectOptions?: Option[];
   selectOptions$?: SelectOption<number>[];
   selectEndpoint$?: () => Observable<ResponseWrapper>;
+  selectSchema?: z.ZodTypeAny;
   fieldMapping?: FieldMapping;
   requiredasterisk?: boolean;
   tooltip?: string | boolean;
@@ -1152,6 +1155,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
+      selectSchema: zGlobalPermissionGroupListResponse,
       selectOptions$: [],
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]

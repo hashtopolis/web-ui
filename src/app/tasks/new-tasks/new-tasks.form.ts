@@ -3,6 +3,7 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
@@ -14,7 +15,7 @@ import { environment } from '@src/environments/environment';
 export interface NewTaskForm {
   taskName: FormControl<string>;
   notes: FormControl<string>;
-  hashlistId: FormControl<number | null>;
+  hashlistId: FormControl<HashlistId | null>;
   attackCmd: FormControl<string>;
   priority: FormControl<number>;
   maxAgents: FormControl<number>;
@@ -23,17 +24,17 @@ export interface NewTaskForm {
   color: FormControl<string>;
   isCpuTask: FormControl<boolean>;
   skipKeyspace: FormControl<number>;
-  crackerBinaryId: FormControl<number>;
-  crackerBinaryTypeId: FormControl<number | null>;
+  crackerBinaryId: FormControl<CrackerBinaryId>;
+  crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
   isArchived: FormControl<boolean>;
   staticChunks: FormControl<number>;
   chunkSize: FormControl<number>;
   forcePipe: FormControl<boolean>;
-  preprocessorId: FormControl<number>;
+  preprocessorId: FormControl<PreprocessorId>;
   preprocessorCommand: FormControl<string>;
   isSmall: FormControl<boolean>;
   useNewBench: FormControl<boolean>;
-  files: FormControl<number[]>;
+  files: FormControl<FileId[]>;
 }
 
 /**
@@ -85,6 +86,6 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
 export interface AttackCommandData {
   attackCmd: string;
   preprocessorCommand?: string;
-  files: number[];
-  otherFiles?: number[];
+  files: FileId[];
+  otherFiles?: FileId[];
 }

@@ -1,6 +1,7 @@
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
+import { ChunkId, HashlistId } from '@models/id.types';
 
 /**
  * Interface definition for a simple hash model
@@ -25,11 +26,11 @@ interface SimpleHashModel extends BaseModel {
  * @prop hashlist Optional included hashlist object the hash belongs to
  */
 export interface JHash extends SimpleHashModel {
-  hashlistId: number;
+  hashlistId: HashlistId;
   salt: string;
   timeCracked: number;
   isCracked: boolean;
-  chunkId: number;
+  chunkId: ChunkId;
   crackPos: number;
   chunk?: JChunk | null;
   hashlist?: JHashlist | null;

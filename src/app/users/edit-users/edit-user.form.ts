@@ -4,12 +4,13 @@
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
+import { GlobalPermissionGroupId, UserId } from '@models/id.types';
 
 /**
  * Interface definition for the updatable user attributes
  */
 export interface UserUpdateData {
-  globalPermissionGroupId: FormControl<number | null>;
+  globalPermissionGroupId: FormControl<GlobalPermissionGroupId | null>;
   isValid: FormControl<boolean>;
 }
 
@@ -17,7 +18,7 @@ export interface UserUpdateData {
  * Interface definition for form to edit an user
  */
 export interface EditUserForm {
-  id: FormControl<number | null>;
+  id: FormControl<UserId | null>;
   name: FormControl<string>;
   email: FormControl<string>;
   registered: FormControl<string>;

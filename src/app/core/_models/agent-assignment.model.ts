@@ -1,5 +1,6 @@
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
+import { AgentId, TaskId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 
 /**
@@ -12,8 +13,8 @@ import { JTask } from '@models/task.model';
  * @prop task Optional included task object
  */
 export interface JAgentAssignment extends BaseModel {
-  taskId: number;
-  agentId: number;
+  taskId: TaskId;
+  agentId: AgentId;
   benchmark: string;
   agent?: JAgent;
   task?: JTask;

@@ -4,6 +4,8 @@
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { AccessGroupId } from '@models/id.types';
+
 /**
  * Interface definition for NewFilesForm
  */
@@ -11,7 +13,7 @@ export interface NewFilesForm {
   filename: FormControl<string>;
   isSecret: FormControl<boolean>;
   fileType: FormControl<number | null>;
-  accessGroupId: FormControl<number>;
+  accessGroupId: FormControl<AccessGroupId>;
   sourceType: FormControl<string>;
   sourceData: FormControl<string>;
   url: FormControl<string>;

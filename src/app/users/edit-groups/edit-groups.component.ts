@@ -25,6 +25,7 @@ import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { AgentId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   AddAgentsForm,
@@ -55,8 +56,8 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   showAddAgentsForm: boolean = false; // Toggle for add agents panel
   showAddUsersForm: boolean = false; // Toggle for add users panel
 
-  selectAgents: SelectOption<number>[]; // Selectable agents to be added to the access group
-  selectUsers: SelectOption<number>[]; // Selectable users to be added to the access group
+  selectAgents: SelectOption<AgentId>[]; // Selectable agents to be added to the access group
+  selectUsers: SelectOption<UserId>[]; // Selectable users to be added to the access group
 
   updateForm: FormGroup; // Form group for editing access group
 

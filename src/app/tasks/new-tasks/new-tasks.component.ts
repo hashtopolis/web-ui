@@ -39,14 +39,11 @@ import {
 } from '@src/app/core/_constants/select.config';
 import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 import { environment } from '@src/environments/environment';
-
-type FileId = number;
-
-type HashListId = number;
 
 type CopyData = Pick<
   JTask,
@@ -59,7 +56,7 @@ type CopyData = Pick<
   | 'preprocessorCommand'
 > & {
   files: FileId[];
-  hashlistId: HashListId | null;
+  hashlistId: HashlistId | null;
 };
 
 /**
@@ -82,12 +79,12 @@ export class NewTasksComponent implements OnInit {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption<number>[];
+  selectHashlists: SelectOption<HashlistId>[];
   selectStaticChunking = staticChunking;
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption<number>[];
-  selectCrackerversions: SelectOption<number>[];
-  selectPreprocessor: SelectOption<number>[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[];
+  selectPreprocessor: SelectOption<PreprocessorId>[];
 
   // Copy Task or PreTask configuration
   copyMode = false;

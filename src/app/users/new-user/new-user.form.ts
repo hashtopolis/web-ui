@@ -3,6 +3,7 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { GlobalPermissionGroupId } from '@models/id.types';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 
 /**
@@ -15,7 +16,7 @@ import { emailValidator } from '@src/app/core/_validators/email.validator';
 export interface NewUserForm {
   username: FormControl<string>;
   email: FormControl<string>;
-  globalPermissionGroupId: FormControl<number | null>;
+  globalPermissionGroupId: FormControl<GlobalPermissionGroupId | null>;
   isValid: FormControl<boolean>;
 }
 

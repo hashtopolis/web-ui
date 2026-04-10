@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { UserId } from '@models/id.types';
 
 /**
  * Interface for access group defining user access to agents
@@ -9,7 +10,7 @@ import { BaseModel } from '@models/base.model';
  */
 
 export interface JwtPayload extends BaseModel {
-  userId?: number;
+  userId?: UserId;
   sub?: number | string;
   username?: string;
   name?: string;

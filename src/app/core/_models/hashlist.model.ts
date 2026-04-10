@@ -1,5 +1,6 @@
 import { BaseModel } from '@models/base.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId, HashTypeId, HashlistId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 
 /**
@@ -7,12 +8,12 @@ import { JTask } from '@models/task.model';
  * @extends BaseModel
  */
 export interface JHashlist extends BaseModel {
-  hashlistId?: number;
-  accessGroupId: number;
+  hashlistId?: HashlistId;
+  accessGroupId: AccessGroupId;
   brainFeatures: number;
   format?: number;
   name: string;
-  hashTypeId: number;
+  hashTypeId: HashTypeId;
   hashType?: JHashtype | null;
   hashTypeDescription?: string;
   isHexSalt: boolean;

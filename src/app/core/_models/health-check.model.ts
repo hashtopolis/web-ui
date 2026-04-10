@@ -2,6 +2,7 @@ import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AgentId, CrackerBinaryId, HashTypeId, HealthCheckId } from '@models/id.types';
 
 /**
  * Different health check types
@@ -33,12 +34,12 @@ export const HealthCheckStatus = {
 export interface JHealthCheck extends BaseModel {
   attackCmd: string;
   checkType: HealthCheckType;
-  crackerBinaryId: number;
+  crackerBinaryId: CrackerBinaryId;
   crackerBinary?: JCrackerBinary;
   expectedCracks: number;
   healthCheckAgents?: JHealthCheckAgent[];
-  hashtypeId: number;
-  hashTypeId?: number;
+  hashtypeId: HashTypeId;
+  hashTypeId?: HashTypeId;
   hashType?: JHashtype;
   hashTypeDescription?: string;
   status: number;
@@ -50,8 +51,8 @@ export interface JHealthCheck extends BaseModel {
  * @extends BaseModel
  */
 export interface JHealthCheckAgent extends BaseModel {
-  healthCheckId: number;
-  agentId: number;
+  healthCheckId: HealthCheckId;
+  agentId: AgentId;
   status: number;
   cracked: number;
   numGpus: number;

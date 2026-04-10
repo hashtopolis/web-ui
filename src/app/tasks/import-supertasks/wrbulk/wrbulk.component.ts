@@ -21,6 +21,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface WrbulkFormValue {
@@ -57,7 +58,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption<number>[] | undefined = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {

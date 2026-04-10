@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { UserId } from '@models/id.types';
 
 /**
  * Interface definition for user notification
@@ -9,6 +10,6 @@ export interface JNotification extends BaseModel {
   isActive: boolean;
   notification: string;
   receiver: string;
-  userId: number;
+  userId: UserId;
   objectId?: number;
 }

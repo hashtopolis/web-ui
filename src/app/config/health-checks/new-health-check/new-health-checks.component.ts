@@ -17,6 +17,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -34,8 +35,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
-  selectCrackertype: SelectOption<number>[];
-  selectCrackerversions: SelectOption<number>[] = [];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);

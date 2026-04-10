@@ -36,6 +36,7 @@ import {
   DEFAULT_FIELD_MAPPING,
   TASKS_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
+import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -55,12 +56,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectUsers: SelectOption<number>[] = [];
+  selectUsers: SelectOption<UserId>[] = [];
   selectIgnorerrors = IGNORE_ERROR_CHOICES;
-  selectUserAgps: SelectOption<number>[] = [];
+  selectUserAgps: SelectOption<AccessGroupId>[] = [];
 
   /** Assign Tasks */
-  assignTasks: SelectOption<number>[] = [];
+  assignTasks: SelectOption<TaskId>[] = [];
   assignNew = false;
   assignId: number | null = null;
 

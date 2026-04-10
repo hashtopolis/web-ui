@@ -29,10 +29,13 @@ export interface SelectOption<T extends string | number | boolean = string> {
  * ```
  * @public
  */
-export function extractIds<T extends object>(dataArray: T[], idKey: keyof T & string): number[] {
+export function extractIds<TId extends number = number, T extends object = object>(
+  dataArray: T[],
+  idKey: keyof T & string
+): TId[] {
   return dataArray
     .map((item): unknown => (Object.prototype.hasOwnProperty.call(item, idKey) ? item[idKey] : null))
-    .filter((id): id is number => typeof id === 'number');
+    .filter((id): id is TId => typeof id === 'number');
 }
 
 /**
@@ -46,14 +49,14 @@ export function extractIds<T extends object>(dataArray: T[], idKey: keyof T & st
  *
  * @returns An array of transformed select options to be used in the form.
  */
-export function transformSelectOptions<T extends object>(
+export function transformSelectOptions<TId extends number = number, T extends object = object>(
   apiOptions: T[],
   fieldMapping: FieldMapping<Extract<keyof T, string>>
-): SelectOption<number>[] {
+): SelectOption<TId>[] {
   if (!apiOptions) return [];
 
   return apiOptions.map((apiOption) => ({
-    id: (apiOption[fieldMapping.id as keyof T] ?? 0) as number,
+    id: (apiOption[fieldMapping.id as keyof T] ?? 0) as TId,
     name: String(apiOption[fieldMapping.name as keyof T] ?? '')
   }));
 }

@@ -22,6 +22,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
 
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { PretaskId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -39,7 +40,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   viewForm: FormGroup; //Supertask details
 
   /** List of PreTasks. */
-  selectPretasks: SelectOption<number>[] | undefined;
+  selectPretasks: SelectOption<PretaskId>[] | undefined;
 
   // Edit
   private _editedSTIndex: number;

@@ -22,6 +22,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING, USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
+import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   EditUserForm,
@@ -48,10 +49,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select List of Global Permission Groups. */
-  selectGlobalPermissionGroups: SelectOption<number>[];
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
 
   /** User Access Group Permissions. */
-  selectUserAgps: SelectOption<number>[];
+  selectUserAgps: SelectOption<AccessGroupId>[];
 
   // Edit Configuration
   editedUserIndex: number;

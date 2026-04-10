@@ -17,6 +17,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { HashlistId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface NewSuperhashlistForm {
@@ -41,7 +42,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   form: FormGroup<NewSuperhashlistForm>;
 
   /** Select List of hashlists. */
-  selectHashlists: SelectOption<number>[];
+  selectHashlists: SelectOption<HashlistId>[];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

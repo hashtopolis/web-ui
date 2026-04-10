@@ -22,6 +22,7 @@ import {
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
@@ -45,9 +46,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption<number>[];
-  selectCrackertype: SelectOption<number>[];
-  selectCrackerversions: SelectOption<number>[];
+  selectHashlists: SelectOption<HashlistId>[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
   // Get SuperTask Index
   editedIndex: number;

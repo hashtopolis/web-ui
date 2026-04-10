@@ -3,12 +3,14 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { TaskId, UserId } from '@models/id.types';
+
 /**
  * Form to edit an agent
  */
 export interface EditAgentForm {
   isActive: FormControl<boolean>;
-  userId: FormControl<number | null>;
+  userId: FormControl<UserId | null>;
   agentName: FormControl<string>;
   cpuOnly: FormControl<boolean | null>;
   cmdPars: FormControl<string>;
@@ -20,7 +22,7 @@ export interface EditAgentForm {
  * Form to update an agent's assignment to a task
  */
 export interface UpdateAssignmentForm {
-  taskId: FormControl<number | null>;
+  taskId: FormControl<TaskId | null>;
 }
 
 /**

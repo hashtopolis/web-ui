@@ -38,6 +38,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { AgentId } from '@models/id.types';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -67,7 +68,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: JAgent[] = [];
-  selectAgents: SelectOption<number>[] = [];
+  selectAgents: SelectOption<AgentId>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;

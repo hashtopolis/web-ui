@@ -1,5 +1,6 @@
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
+import { AgentId, TaskId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 
 /**
@@ -7,13 +8,13 @@ import { JTask } from '@models/task.model';
  * @extends BaseModel
  */
 export interface JChunk extends BaseModel {
-  taskId: number;
+  taskId: TaskId;
   taskName?: string;
   task?: JTask;
   format?: string;
   skip: number;
   length: number;
-  agentId: number;
+  agentId: AgentId;
   agent?: JAgent;
   agentName?: string;
   dispatchTime: number;

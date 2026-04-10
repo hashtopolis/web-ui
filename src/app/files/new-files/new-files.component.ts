@@ -21,6 +21,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
+import { AccessGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
@@ -54,7 +55,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   redirect: string;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption<number>[];
+  selectAccessgroup: SelectOption<AccessGroupId>[];
 
   // Upload files
   selectedFiles: FileList | null = null;

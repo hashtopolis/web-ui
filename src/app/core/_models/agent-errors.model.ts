@@ -1,12 +1,13 @@
 import { BaseModel } from '@models/base.model';
+import { AgentId, ChunkId, TaskId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 
 export interface JAgentErrors extends BaseModel {
-  agentId: number;
-  chunkId: number | null;
+  agentId: AgentId;
+  chunkId: ChunkId | null;
   error: string;
   id: number;
-  taskId: number;
+  taskId: TaskId;
   time: number;
   type: string;
   task?: JTask;

@@ -17,6 +17,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { GlobalPermissionGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.form';
 
@@ -31,7 +32,7 @@ export class NewUserComponent implements OnInit {
   private alert = inject(AlertService);
 
   newUserForm: FormGroup<NewUserForm> = getNewUserForm();
-  selectGlobalPermissionGroups: SelectOption<number>[];
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
   loading = false;
   loadingPermissionGroups: boolean = false;
 

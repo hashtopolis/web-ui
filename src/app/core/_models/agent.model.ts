@@ -4,6 +4,7 @@ import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { BaseModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
+import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
@@ -24,7 +25,7 @@ export interface JAgent extends BaseModel {
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId?: number | null;
+  userId?: UserId | null;
   user?: JUser;
   cpuOnly: boolean;
   clientSignature: string;
@@ -33,10 +34,10 @@ export interface JAgent extends BaseModel {
   accessGroups?: JAccessGroup[];
   accessGroup?: string;
   task?: JTask;
-  taskId?: number;
+  taskId?: TaskId;
   taskName?: string;
   chunk?: JChunk;
-  chunkId?: number;
+  chunkId?: ChunkId;
   benchmark?: string;
   assignmentId?: number;
   agentSpeed?: number;

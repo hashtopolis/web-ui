@@ -19,6 +19,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface MasksFormValue {
@@ -77,7 +78,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption<number>[] | undefined = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
