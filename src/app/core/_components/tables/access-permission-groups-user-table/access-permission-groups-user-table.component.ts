@@ -148,7 +148,7 @@ export class AccessPermissionGroupsUserTableComponent
     const capitalizedPerm = (editable['action'].match(/-(.*?)-/)?.[1] || '')
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
-    const keyPerm = (editable.data as DynamicModel)['originalName'] + capitalizedPerm;
+    const keyPerm = String((editable.data as DynamicModel)['originalName']) + capitalizedPerm;
     const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {

@@ -14,10 +14,10 @@ export class ScreenSizeService {
   private resizeSubject: Subject<SCREEN_SIZE>;
 
   constructor() {
-    this.resizeSubject = new Subject();
+    this.resizeSubject = new Subject<SCREEN_SIZE>();
   }
 
-  onResize(size: SCREEN_SIZE) {
+  onResize(size: SCREEN_SIZE): void {
     this.resizeSubject.next(size);
   }
 

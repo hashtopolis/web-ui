@@ -15,6 +15,5 @@ export interface BaseModel {
 }
 
 /** BaseModel with index signature for dynamic property access (menus, table utils, etc.). */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DynamicModel = BaseModel & Record<string, any>;
+export type DynamicModel = BaseModel & Record<string, unknown>;
 

@@ -86,7 +86,7 @@ export class LoadingButtonDirective implements OnInit, OnChanges {
 
   // Prevent click when loading
   @HostListener('click', ['$event'])
-  onClick(event: Event): void {
+  onClick(event: MouseEvent): void {
     if (this.loading) {
       event.preventDefault();
       event.stopPropagation();

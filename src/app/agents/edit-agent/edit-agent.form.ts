@@ -4,6 +4,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { TaskId, UserId } from '@models/id.types';
+import { IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /**
  * Form to edit an agent
@@ -14,7 +15,7 @@ export interface EditAgentForm {
   agentName: FormControl<string>;
   cpuOnly: FormControl<boolean | null>;
   cmdPars: FormControl<string>;
-  ignoreErrors: FormControl<number | null>;
+  ignoreErrors: FormControl<IgnoreErrors | null>;
   isTrusted: FormControl<boolean>;
 }
 
@@ -42,7 +43,7 @@ export const getEditAgentForm = (readonly: boolean = false) => {
     ),
     cpuOnly: new FormControl<boolean | null>({ value: null, disabled: readonly }),
     cmdPars: new FormControl<string>({ value: '', disabled: readonly }, { nonNullable: true }),
-    ignoreErrors: new FormControl<number | null>({ value: null, disabled: readonly }),
+    ignoreErrors: new FormControl<IgnoreErrors | null>({ value: null, disabled: readonly }),
     isTrusted: new FormControl<boolean>({ value: false, disabled: readonly }, { nonNullable: true })
   });
 };

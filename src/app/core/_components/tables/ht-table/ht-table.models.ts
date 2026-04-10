@@ -69,9 +69,12 @@ export interface HTTableEditable<T> {
   action: string;
 }
 
+/** Column type for checkbox toggle events in attack file tables. */
+export type CheckboxColumnType = 'CMD' | 'CMD_PREPRO';
+
 export interface CheckboxChangeEvent {
   row: BaseModel;
-  columnType: string;
+  columnType: CheckboxColumnType;
   checked: boolean;
 }
 

@@ -321,7 +321,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   renderDevices(agent: JAgent): SafeHtml {
     const deviceList = agent.devices.split('\n');
-    const deviceCountMap: { [key: string]: number } = {};
+    const deviceCountMap: Record<string, number> = {};
 
     // Count occurrences of each device
     deviceList.forEach((device) => {

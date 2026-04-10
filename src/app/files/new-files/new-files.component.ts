@@ -69,7 +69,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   selectedServerFiles: Set<string> = new Set();
 
   // Unsubcribe files
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   /**
    * Component for handling new files.
@@ -142,7 +142,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
   }
 

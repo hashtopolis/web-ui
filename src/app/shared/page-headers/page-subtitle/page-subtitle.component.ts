@@ -11,7 +11,7 @@ export class PageSubTitleComponent {
   @Input() actionTitle = '';
   @Input() actionIcon = '';
 
-  @Output() actionClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() actionClicked = new EventEmitter<void>();
 
   onAction(): void {
     this.actionClicked.emit();

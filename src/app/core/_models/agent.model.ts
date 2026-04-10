@@ -7,6 +7,7 @@ import { ChunkData, JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
+import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /** Keys for include-dependent relationship fields on JAgent. */
 export type JAgentExcludeKeys =
@@ -27,10 +28,10 @@ export type JAgentExcludeKeys =
 export interface JAgent extends BaseModel {
   agentName: string;
   uid: string;
-  os: number;
+  os: AgentOS;
   devices: string;
   cmdPars: string;
-  ignoreErrors?: number;
+  ignoreErrors?: IgnoreErrors;
   isActive: boolean;
   isTrusted: boolean;
   token: string;

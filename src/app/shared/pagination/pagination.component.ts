@@ -143,7 +143,7 @@ export class PaginationComponent {
     this.showLabel = 'Showing ' + start + ' to ' + ending + ' of ' + tlen + ' entries';
   }
 
-  cancelEvent(event: Event) {
+  cancelEvent(event: MouseEvent): void {
     event.preventDefault();
   }
 }

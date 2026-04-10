@@ -84,7 +84,7 @@ export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
+  protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
 
   constructor() {
@@ -404,7 +404,7 @@ export class BaseTableComponent {
     return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
   }
 
-  protected setColumnLabels(labels: { [key: string]: string }): void {
+  protected setColumnLabels(labels: Record<string, string>): void {
     this.columnLabels = labels;
   }
 

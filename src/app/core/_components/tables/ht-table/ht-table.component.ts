@@ -33,6 +33,7 @@ import {
   COL_ROW_ACTION,
   COL_SELECT,
   CheckboxChangeEvent,
+  CheckboxColumnType,
   CheckboxFiles,
   ColumnDefId,
   DataType,
@@ -398,8 +399,8 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     }
   }
 
-  private filterKeys(original: { [key: string]: string }, include: string[]): { [key: string]: string } {
-    const filteredObject: { [key: string]: string } = {};
+  private filterKeys(original: Record<string, string>, include: string[]): Record<string, string> {
+    const filteredObject: Record<string, string> = {};
 
     for (const attribute of include) {
       if (Object.prototype.hasOwnProperty.call(original, attribute)) {
@@ -544,7 +545,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
    * @param row - The data of the row.
    * @param type - The type of the column (CMD, main attack, or preprocessor).
    */
-  toggleAttack(event: MatCheckboxChange, row: BaseModel, type: string): void {
+  toggleAttack(event: MatCheckboxChange, row: BaseModel, type: CheckboxColumnType): void {
     // Handle the change event for the Cmd Attack checkbox
     const checked = event.checked;
 

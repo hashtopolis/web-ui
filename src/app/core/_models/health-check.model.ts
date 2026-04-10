@@ -15,6 +15,9 @@ export enum HealthCheckType {
   BCRYPT = 3200
 }
 
+/** Health check status values matching the generated Zod schema. */
+export type HealthCheckStatusValue = -1 | 0 | 1;
+
 /**
  * Health check status
  * - `ABORTED`    Health check was aborted
@@ -22,9 +25,9 @@ export enum HealthCheckType {
  * - `COMPLETED`  Health check is completed
  */
 export const HealthCheckStatus = {
-  ABORTED: -1,
-  RUNNING: 0,
-  COMPLETED: 1
+  ABORTED: -1 as const,
+  RUNNING: 0 as const,
+  COMPLETED: 1 as const,
 };
 
 /**
@@ -42,7 +45,7 @@ export interface JHealthCheck extends BaseModel {
   hashTypeId?: HashTypeId;
   hashType?: JHashtype;
   hashTypeDescription?: string;
-  status: number;
+  status: HealthCheckStatusValue;
   time: number;
 }
 
@@ -53,7 +56,7 @@ export interface JHealthCheck extends BaseModel {
 export interface JHealthCheckAgent extends BaseModel {
   healthCheckId: HealthCheckId;
   agentId: AgentId;
-  status: number;
+  status: HealthCheckStatusValue;
   cracked: number;
   numGpus: number;
   start: number;

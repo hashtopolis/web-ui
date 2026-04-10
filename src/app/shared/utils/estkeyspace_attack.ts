@@ -98,7 +98,7 @@ export const calculateKeyspace = (
   }
 
   // For other attack types, extract line counts from files
-  const counts = file.map((v) => Number((v as DynamicModel)[name]));
+  const counts = file.map((v) => Number((v as unknown as DynamicModel)[name]));
 
   // Only return '' here if the file list is empty or any count is NaN AND it's NOT a brute-force attack
   if (counts.length === 0 || counts.some(isNaN)) {

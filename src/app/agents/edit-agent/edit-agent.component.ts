@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
@@ -388,7 +389,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   // Render devices using count by device type
   renderDevices(devices: string): string {
     const deviceList = devices.split('\n').filter((d) => !!d.trim());
-    const deviceCountMap: { [key: string]: number } = {};
+    const deviceCountMap: Record<string, number> = {};
 
     deviceList.forEach((device) => {
       deviceCountMap[device] = (deviceCountMap[device] || 0) + 1;
@@ -399,30 +400,30 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .join('<br>');
   }
 
-  getOsLabel(os: number): string {
-    switch (Number(os)) {
-      case 0:
+  getOsLabel(os: AgentOS): string {
+    switch (os) {
+      case AgentOS.LINUX:
         return 'Linux';
-      case 1:
+      case AgentOS.WINDOWS:
         return 'Windows';
-      case 2:
+      case AgentOS.MACOS:
         return 'MacOS';
       default:
         return 'Unknown';
     }
   }
 
-  getOsMessage(os: number): string {
+  getOsMessage(os: AgentOS): string {
     return this.getOsLabel(os);
   }
 
-  getOsFaIcon(os: number): IconDefinition | null {
-    switch (Number(os)) {
-      case 0:
+  getOsFaIcon(os: AgentOS): IconDefinition | null {
+    switch (os) {
+      case AgentOS.LINUX:
         return this.faLinux;
-      case 1:
+      case AgentOS.WINDOWS:
         return this.faWindows;
-      case 2:
+      case AgentOS.MACOS:
         return this.faApple;
       default:
         return null;

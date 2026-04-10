@@ -143,7 +143,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           const schema = isPretask ? zPreTaskResponse : zTaskResponse;
           const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
 
-          const filesArray: number[] = (((result as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []).map(
+          const filesArray: number[] = (((result as unknown as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []).map(
             (file: JFile) => file['id']
           );
 

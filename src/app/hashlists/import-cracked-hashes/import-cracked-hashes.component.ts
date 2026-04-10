@@ -62,7 +62,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   hasLoadedServerFiles = false;
   hashesAreRequired = false;
 
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
@@ -142,7 +142,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
   }
 

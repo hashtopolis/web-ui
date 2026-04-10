@@ -84,7 +84,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   saltSubscription = new Subscription();
 
   // Unsubcribe
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   constructor() {
     this.buildForm();
@@ -144,7 +144,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
     this.saltSubscription.unsubscribe();
   }

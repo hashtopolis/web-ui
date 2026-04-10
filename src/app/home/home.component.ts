@@ -385,8 +385,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param arr Array of strings (e.g., dates)
    * @returns Object with keys as strings and values as their counts
    */
-  private countOccurrences(arr: string[]): { [key: string]: number } {
-    return arr.reduce<{ [key: string]: number }>((counts, item) => {
+  private countOccurrences(arr: string[]): Record<string, number> {
+    return arr.reduce<Record<string, number>>((counts, item) => {
       counts[item] = (counts[item] || 0) + 1;
       return counts;
     }, {});
