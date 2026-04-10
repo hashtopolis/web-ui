@@ -12,7 +12,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
   public length = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   /**
    * Set table rows loaded from server
@@ -59,8 +59,8 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       const length = response.meta.page.total_elements;
       const nextLink = response.links.next;
       const prevLink = response.links.prev;
-      const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-      const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+      const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+      const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
       return this.serializer.deserialize(response, zHashListResponse, { include: ['chunk'] as const });

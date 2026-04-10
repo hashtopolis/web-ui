@@ -13,7 +13,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -36,11 +36,11 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return of([] as ResponseWrapper[]);
           }),
           finalize(() => (this.loading = false))
         )
-        .subscribe(([response]: [ResponseWrapper]) => {
+        .subscribe(([response]: ResponseWrapper[]) => {
           const healthChecks: JHealthCheck[] = this.serializer.deserialize(response, zHealthCheckListResponse);
 
           healthChecks.forEach((healthCheck: JHealthCheck) => {
@@ -50,8 +50,8 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(healthChecks);

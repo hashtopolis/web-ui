@@ -22,7 +22,8 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
 
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { PretaskId } from '@models/id.types';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -39,7 +40,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   viewForm: FormGroup; //Supertask details
 
   /** List of PreTasks. */
-  selectPretasks;
+  selectPretasks: SelectOption<PretaskId>[] | undefined;
 
   // Edit
   private _editedSTIndex: number;
@@ -235,9 +236,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const pretasks = [];
+      const pretasks: { type: string; id: number }[] = [];
 
-      this.updateForm.value['pretasks'].forEach((pretask) => {
+      (this.updateForm.value['pretasks'] as number[]).forEach((pretask: number) => {
         pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
       });
 

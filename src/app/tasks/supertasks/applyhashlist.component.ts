@@ -22,6 +22,7 @@ import {
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
@@ -45,9 +46,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption[];
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[];
+  selectHashlists: SelectOption<HashlistId>[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
   // Get SuperTask Index
   editedIndex: number;
@@ -131,7 +132,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+    this.form.controls.crackerBinaryId.valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
 
@@ -181,11 +182,12 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-      let id = '';
-      if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
-        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id as string;
+      let id: number = 0;
+      const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
+      if (hashcatOption?.id) {
+        id = hashcatOption.id;
       } else {
-        id = this.selectCrackertype.slice(-1)[0]['id'] as string;
+        id = this.selectCrackertype.slice(-1)[0]['id'];
       }
       const requestParams = new RequestParamBuilder()
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
@@ -196,7 +198,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
           const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
           this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-          this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+          this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
         });
       this.unsubscribeService.add(loadCrackersSubscription$);
     });
@@ -210,7 +212,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    *
    * @param id - The selected Cracker Binary ID.
    */
-  handleChangeBinary(id: string) {
+  handleChangeBinary(id: number) {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
@@ -220,7 +222,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+        this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

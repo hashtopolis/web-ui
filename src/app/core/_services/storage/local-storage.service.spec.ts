@@ -72,7 +72,7 @@ describe('LocalStorageService', () => {
     const key = 'nullKey';
 
     // Store a null value
-    service.setItem(key, null, 1000);
+    service.setItem(key, null!, 1000);
     const retrievedValue = service.getItem(key);
 
     expect(retrievedValue).toBeNull();
@@ -174,7 +174,7 @@ describe('LocalStorageService', () => {
       const result = service.getItem(key, testSchema);
 
       expect(result).toEqual({ name: 'a', count: 1 });
-      expect(result['extra']).toBeUndefined();
+      expect((result as Record<string, unknown>)['extra']).toBeUndefined();
     });
   });
 

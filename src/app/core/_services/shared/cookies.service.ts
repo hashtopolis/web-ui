@@ -6,13 +6,7 @@ import { Injectable } from '@angular/core';
 export class CookieService {
   defaultSettings = false;
 
-  public checkDefault(
-    defaults: boolean,
-    e: any,
-    COOKIE: string,
-    VALUE: string,
-    EXPIRE_DAYS: number
-  ) {
+  public checkDefault(defaults: boolean, e: Event | false, COOKIE: string, VALUE: string, EXPIRE_DAYS: number): boolean | string {
     if (defaults === true) {
       return this.defaultSettings;
     } else if (defaults === false) {
@@ -25,8 +19,8 @@ export class CookieService {
     return '';
   }
 
-  public checkDefaultCookies() {
-    const def_autorefresh: any = { active: false, value: '10' };
+  public checkDefaultCookies(): void {
+    const def_autorefresh = { active: false, value: '10' };
     const defCookies = [
       { name: 'tooltip', value: '0', expiry: 365 },
       {
@@ -45,7 +39,7 @@ export class CookieService {
     }
   }
 
-  public getCookie(name: string) {
+  public getCookie(name: string): string {
     const ca: Array<string> = decodeURIComponent(document.cookie).split(';');
     const caLen: number = ca.length;
     const cookieName = `${name}=`;
@@ -60,7 +54,7 @@ export class CookieService {
     return '';
   }
 
-  public setCookie(name: string, value: string, expireDays: number, path = '') {
+  public setCookie(name: string, value: string, expireDays: number, path = ''): void {
     const d: Date = new Date();
     d.setTime(d.getTime() + expireDays * 24 * 60 * 60 * 1000);
     const expires = `expires=${d.toUTCString()}`;
@@ -68,7 +62,7 @@ export class CookieService {
     document.cookie = `${name}=${value}; ${expires}${cpath}; SameSite=Lax`;
   }
 
-  public deleteCookie(name) {
+  public deleteCookie(name: string): void {
     this.setCookie(name, '', -1);
   }
 }

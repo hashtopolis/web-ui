@@ -18,14 +18,16 @@ export class TooltipService {
   constructor(private cookieService: CookieService) {}
 
   public getTaskTooltips(): TaskTooltipsLevel {
-    return environment.tooltip.tasks[this.getTooltipLevel()];
+    const level = Number(this.getTooltipLevel());
+    return environment.tooltip.tasks[level as keyof typeof DEFAULT_CONFIG_TOOLTIP.tasks];
   }
 
   public getConfigTooltips(): ConfigTooltipsLevel {
-    return environment.tooltip.config[this.getTooltipLevel()];
+    const level = Number(this.getTooltipLevel());
+    return environment.tooltip.config[level as keyof typeof DEFAULT_CONFIG_TOOLTIP.config];
   }
 
-  public getTooltipLevel() {
+  public getTooltipLevel(): string {
     return this.cookieService.getCookie('tooltip');
   }
 }

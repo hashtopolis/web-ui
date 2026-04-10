@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { AgentId } from '@models/id.types';
 
 /**
  * Interface for Agent statistics data
@@ -9,7 +10,7 @@ import { BaseModel } from '@models/base.model';
  * @prop value Value of stat
  */
 export interface JAgentStat extends BaseModel {
-  agentId: number;
+  agentId: AgentId;
   statType: number;
   time: number;
   value: number[];

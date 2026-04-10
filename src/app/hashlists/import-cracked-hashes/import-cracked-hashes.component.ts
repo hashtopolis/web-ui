@@ -62,7 +62,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   hasLoadedServerFiles = false;
   hashesAreRequired = false;
 
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
@@ -113,7 +113,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.hashesAreRequired = true;
 
           // set required validator now that control is visible
-          const ctrl = this.form.get('hashes');
+          const ctrl = this.form.controls.hashes;
           ctrl.setValidators([Validators.required]);
           ctrl.updateValueAndValidity();
           this.form.patchValue({ sourceData: '' });
@@ -130,7 +130,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * Resets the action filter control by clearing validators, resetting the value, and updating validity.
    */
   resetHashesValidator(): void {
-    const ctrl = this.form.get('hashes');
+    const ctrl = this.form.controls.hashes;
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
@@ -142,7 +142,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
   }
 
@@ -164,11 +164,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       this.form.updateValueAndValidity();
       return;
     } else {
-      const separator: string = this.form.get('separator').value;
-      const sourceData: string = this.form.get('hashes').value;
-      const conflictResolution: number = this.form.get('conflictResolution').value ? 1 : 0;
+      const separator: string = this.form.controls.separator.value;
+      const sourceData: string = this.form.controls.hashes.value;
+      const conflictResolution: number = this.form.controls.conflictResolution.value ? 1 : 0;
 
-      const sourceType = this.form.get('sourceType').value;
+      const sourceType = this.form.controls.sourceType.value;
 
       if (sourceType === 'upload') {
         if (!this.selectedFiles || this.selectedFiles.length === 0) {
@@ -180,7 +180,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       }
 
       if (sourceType === 'paste') {
-        const hashes = this.form.get('hashes').value;
+        const hashes = this.form.controls.hashes.value;
         if (!hashes || hashes.trim() === '') {
           this.alert.showErrorMessage('Please paste hashes to import.');
           return;
@@ -199,7 +199,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       }
 
       if (sourceType === 'import') {
-        const sourceData = this.form.get('sourceData').value;
+        const sourceData = this.form.controls.sourceData.value;
         if (!sourceData || sourceData.trim() === '') {
           this.alert.showErrorMessage('Please select a file from the server import directory.');
           return;
@@ -215,7 +215,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       }
 
       if (sourceType === 'url') {
-        const sourceData = this.form.get('sourceData').value;
+        const sourceData = this.form.controls.sourceData.value;
         if (!sourceData || sourceData.trim() === '') {
           this.alert.showErrorMessage('Please provide a URL to download cracked hashes from.');
           return;
@@ -241,16 +241,16 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   }
 
   get sourceType() {
-    return this.form.get('sourceType').value;
+    return this.form.controls.sourceType.value;
   }
 
   async loadServerFiles(): Promise<void> {
     this.isLoadingServerFiles = true;
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
-      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {
@@ -273,9 +273,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       this.submitImport({
         sourceType: 'import',
         hashlistId: this.editedHashlistIndex,
-        separator: this.form.get('separator').value,
+        separator: this.form.controls.separator.value,
         sourceData: filename,
-        overwrite: this.form.get('conflictResolution').value ? 1 : 0
+        overwrite: this.form.controls.conflictResolution.value ? 1 : 0
       });
       return;
     }
@@ -297,9 +297,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.submitImport({
             sourceType: 'import',
             hashlistId: this.editedHashlistIndex,
-            separator: this.form.get('separator').value,
+            separator: this.form.controls.separator.value,
             sourceData: filename,
-            overwrite: this.form.get('conflictResolution').value ? 1 : 0
+            overwrite: this.form.controls.conflictResolution.value ? 1 : 0
           });
         }
       });
@@ -311,10 +311,10 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
-      const files = (response.meta as ServerImportFile[]) || [];
+      const files = response.meta || [];
       this.serverFiles = files;
       this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
@@ -361,8 +361,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        this.type = hashlist.format ?? 0;
+        this.hashtype = hashlist.hashType!;
 
         this.form.setValue({
           name: hashlist.name,

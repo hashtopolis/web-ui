@@ -1,7 +1,9 @@
-import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
-import { CookieService } from '../_services/shared/cookies.service';
-import { dateFormats } from '../../core/_constants/settings.config';
+import { dateFormats } from '@constants/settings.config';
+
 import { DatePipe } from '@angular/common';
+import { LOCALE_ID, Pipe, PipeTransform, inject } from '@angular/core';
+
+import { CookieService } from '@services/shared/cookies.service';
 
 /**
  * Pipe to format date
@@ -14,36 +16,49 @@ import { DatePipe } from '@angular/common';
  **/
 
 @Pipe({
-    name: 'uiDate',
-    standalone: false
+  name: 'uiDate',
+  standalone: false
 })
 export class uiDatePipe extends DatePipe implements PipeTransform {
-  constructor(
-    private cookieService: CookieService,
-    @Inject(LOCALE_ID) locale: string
-  ) {
-    super(locale);
+  private cookieService = inject(CookieService);
+
+  constructor() {
+    super(inject(LOCALE_ID));
   }
 
-  override transform(epoch: number): any {
-    if (epoch === undefined || epoch === null) return epoch;
+  override transform(value: Date | string | number, format?: string, timezone?: string, locale?: string): string | null;
+  override transform(value: null | undefined, format?: string, timezone?: string, locale?: string): null;
+  override transform(
+    value: Date | string | number | null | undefined,
+    format?: string,
+    timezone?: string,
+    locale?: string
+  ): string | null;
+  override transform(
+    epoch: number | Date | string | null | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _format?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _timezone?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _locale?: string
+  ): string | null {
+    if (epoch === undefined || epoch === null) return null;
 
     if (!this.cookieService.getCookie('localtimefmt')) {
       this.cookieService.setCookie('localtimefmt', 'dd/MM/yyyy h:mm:ss', 365);
     }
 
-    const format = this.checkFormat(
-      this.cookieService.getCookie('localtimefmt')
-    );
+    const format = this.checkFormat(this.cookieService.getCookie('localtimefmt'));
 
-    return super.transform(epoch * 1000, format);
+    return super.transform(Number(epoch) * 1000, format);
   }
 
   //Check that format is correct
-  checkFormat(format: any) {
+  checkFormat(format: string | null) {
     let res; //Default date format
     for (let i = 0; i < dateFormats.length; i++) {
-      if (dateFormats[i]['format'] == format) {
+      if (dateFormats[i].value === format) {
         res = format;
       }
     }

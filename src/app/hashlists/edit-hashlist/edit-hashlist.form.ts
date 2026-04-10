@@ -1,21 +1,23 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { AccessGroupId, HashlistId } from '@models/id.types';
+
 /**
  * Interface definition for EditHashlistForm
  */
 export interface EditHashlistForm {
-  hashlistId: FormControl<number>;
-  accessGroupId: FormControl<number>;
-  useBrain: FormControl<boolean>;
-  format: FormControl<string>;
-  hashCount: FormControl<number>;
-  cracked: FormControl<number>;
-  remaining: FormControl<number>;
+  hashlistId: FormControl<HashlistId | null>;
+  accessGroupId: FormControl<AccessGroupId | null>;
+  useBrain: FormControl<boolean | null>;
+  format: FormControl<string | null>;
+  hashCount: FormControl<number | null>;
+  cracked: FormControl<number | null>;
+  remaining: FormControl<number | null>;
   updateData: FormGroup<{
-    name: FormControl<string>;
-    notes: FormControl<string>;
-    isSecret: FormControl<boolean>;
-    accessGroupId: FormControl<number>;
+    name: FormControl<string | null>;
+    notes: FormControl<string | null>;
+    isSecret: FormControl<boolean | null>;
+    accessGroupId: FormControl<AccessGroupId | null>;
   }>;
 }
 
@@ -24,18 +26,18 @@ export interface EditHashlistForm {
  */
 export const getEditHashlistForm = (): FormGroup<EditHashlistForm> => {
   return new FormGroup<EditHashlistForm>({
-    hashlistId: new FormControl({ value: null, disabled: true }),
-    accessGroupId: new FormControl({ value: null, disabled: true }),
-    useBrain: new FormControl({ value: null, disabled: true }),
-    format: new FormControl({ value: null, disabled: true }),
-    hashCount: new FormControl({ value: null, disabled: true }),
-    cracked: new FormControl({ value: null, disabled: true }),
-    remaining: new FormControl({ value: null, disabled: true }),
+    hashlistId: new FormControl<number | null>({ value: null, disabled: true }),
+    accessGroupId: new FormControl<number | null>({ value: null, disabled: true }),
+    useBrain: new FormControl<boolean | null>({ value: null, disabled: true }),
+    format: new FormControl<string | null>({ value: null, disabled: true }),
+    hashCount: new FormControl<number | null>({ value: null, disabled: true }),
+    cracked: new FormControl<number | null>({ value: null, disabled: true }),
+    remaining: new FormControl<number | null>({ value: null, disabled: true }),
     updateData: new FormGroup({
-      name: new FormControl(null, [Validators.required]) as FormControl<string>,
-      notes: new FormControl(null) as FormControl<string>,
-      isSecret: new FormControl(null) as FormControl<boolean>,
-      accessGroupId: new FormControl(null) as FormControl<number>
+      name: new FormControl<string | null>(null, [Validators.required]),
+      notes: new FormControl<string | null>(null),
+      isSecret: new FormControl<boolean | null>(null),
+      accessGroupId: new FormControl<number | null>(null)
     })
   });
 };

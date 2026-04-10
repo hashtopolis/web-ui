@@ -1,5 +1,6 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Observable, of } from 'rxjs';
+import { TJsonApiData } from 'jsona/lib/JsonaTypes';
+import { of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { HarnessLoader } from '@angular/cdk/testing';
@@ -25,6 +26,7 @@ import { NewNotificationComponent } from '@src/app/account/notifications/notific
 import { ACTION, NOTIF } from '@src/app/core/_constants/notifications.config';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { findEl, setFieldValue } from '@src/app/spec-helpers/element.spec-helper';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 let loader: HarnessLoader;
 
@@ -34,189 +36,187 @@ describe('NewNotificationComponent', () => {
   let mockRoleService: jasmine.SpyObj<NotificationsRoleService>;
 
   // Sample data for agents, tasks, hashlist, and users
-  const agentValues: ResponseWrapper = {
+  // Attributes must match the Zod schemas (zAgentListResponse, zTaskListResponse, etc.)
+  const agentValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 'agent-1',
-        type: SERV.AGENTS.RESOURCE,
+        id: 1,
+        type: 'agent',
         attributes: {
           agentName: 'Agent Smith',
-          status: 'active',
-          ipAddress: '10.0.0.1',
-          lastSeen: '2025-07-15T10:00:00Z',
-          version: '3.5.1',
-          os: 'Linux',
-          architecture: 'x86_64',
-          cpuCount: 8,
-          memoryTotalMB: 16384,
-          gpuModel: 'NVIDIA GTX 1080',
-          gpuMemoryMB: 8192,
-          tags: ['production', 'backend'],
-          createdAt: '2023-01-01T08:00:00Z',
-          updatedAt: '2025-07-15T09:59:00Z'
-        },
-        relationships: {
-          assignedTasks: {
-            data: [
-              { type: SERV.TASKS.RESOURCE, id: 'task-101' },
-              { type: SERV.TASKS.RESOURCE, id: 'task-102' }
-            ]
-          }
+          uid: 'uid-001',
+          os: 0,
+          devices: 'GPU #1',
+          cmdPars: '',
+          ignoreErrors: 0,
+          isActive: true,
+          isTrusted: true,
+          token: 'tok-001',
+          lastAct: 'bench',
+          lastTime: 1720000000,
+          lastIp: '10.0.0.1',
+          userId: null,
+          cpuOnly: false,
+          clientSignature: 'generic'
         }
       }
-    ],
-    included: [],
-    jsonapi: { version: '1.0', ext: [] },
-    links: { self: '/api/v2/ui/agents', next: null, prev: null },
-    meta: {}
-  };
+    ]
+  });
 
-  const taskValues: ResponseWrapper = {
+  const taskValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 'task-101',
-        type: SERV.TASKS.RESOURCE,
+        id: 101,
+        type: 'task',
         attributes: {
           taskName: 'Password cracking',
-          status: 'completed',
-          priority: 'high',
-          createdAt: '2025-07-01T10:00:00Z',
-          startedAt: '2025-07-02T09:00:00Z',
-          completedAt: '2025-07-05T18:00:00Z',
-          description: 'Crack passwords from hashlist Alpha',
-          hashlistId: 'hashlist-1',
-          progressPercent: 100,
-          resultCount: 150,
-          failedCount: 3
-        },
-        relationships: {
-          assignedAgent: { data: { type: SERV.AGENTS.RESOURCE, id: 'agent-1' } },
-          hashlist: { data: { type: SERV.HASHLISTS.RESOURCE, id: 'hashlist-1' } }
+          attackCmd: '#HL# -a 0 -r rules.rule',
+          chunkTime: 600,
+          statusTimer: 5,
+          keyspace: 0,
+          keyspaceProgress: 0,
+          priority: 1,
+          maxAgents: 0,
+          color: null,
+          isSmall: false,
+          isCpuTask: false,
+          useNewBench: true,
+          skipKeyspace: 0,
+          crackerBinaryId: 1,
+          crackerBinaryTypeId: 1,
+          taskWrapperId: 1,
+          isArchived: false,
+          notes: '',
+          staticChunks: 0,
+          chunkSize: 0,
+          forcePipe: false,
+          preprocessorId: 0,
+          preprocessorCommand: ''
         }
       },
       {
-        id: 'task-102',
-        type: SERV.TASKS.RESOURCE,
+        id: 102,
+        type: 'task',
         attributes: {
           taskName: 'GPU stress test',
-          status: 'running',
-          priority: 'medium',
-          createdAt: '2025-07-10T14:00:00Z',
-          startedAt: '2025-07-11T08:00:00Z',
-          description: 'Stress test GPU on agent-1',
-          hashlistId: null,
-          progressPercent: 45,
-          resultCount: 0,
-          failedCount: 0
-        },
-        relationships: {
-          assignedAgent: { data: { type: SERV.AGENTS.RESOURCE, id: 'agent-1' } }
+          attackCmd: '#HL# -a 3 ?a?a?a?a',
+          chunkTime: 600,
+          statusTimer: 5,
+          keyspace: 0,
+          keyspaceProgress: 0,
+          priority: 5,
+          maxAgents: 0,
+          color: null,
+          isSmall: false,
+          isCpuTask: false,
+          useNewBench: true,
+          skipKeyspace: 0,
+          crackerBinaryId: 1,
+          crackerBinaryTypeId: null,
+          taskWrapperId: 1,
+          isArchived: false,
+          notes: '',
+          staticChunks: 0,
+          chunkSize: 0,
+          forcePipe: false,
+          preprocessorId: 0,
+          preprocessorCommand: ''
         }
       }
-    ],
-    included: [],
-    jsonapi: { version: '1.0', ext: [] },
-    links: { self: '/api/v2/ui/tasks', next: null, prev: null },
-    meta: {}
-  };
+    ]
+  });
 
-  const userValues: ResponseWrapper = {
+  const userValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 'user-1',
-        type: SERV.USERS.RESOURCE,
+        id: 1,
+        type: 'user',
         attributes: {
           name: 'Alice Admin',
           email: 'alice@example.com',
-          role: 'admin',
-          isActive: true,
-          createdAt: '2024-12-01T09:00:00Z',
-          lastLogin: '2025-07-15T07:30:00Z',
-          permissions: ['CREATE_TASK', 'DELETE_TASK', 'VIEW_AGENT'],
-          profilePictureUrl: 'https://example.com/profiles/alice.png',
-          timeZone: 'Europe/Berlin'
-        },
-        relationships: {
-          hashlistsOwned: {
-            data: [
-              { type: SERV.HASHLISTS.RESOURCE, id: 'hashlist-1' },
-              { type: SERV.HASHLISTS.RESOURCE, id: 'hashlist-2' }
-            ]
-          }
+          isValid: true,
+          isComputedPassword: false,
+          lastLoginDate: 1720000000,
+          registeredSince: 1700000000,
+          sessionLifetime: 3600,
+          globalPermissionGroupId: 1,
+          yubikey: '',
+          otp1: '',
+          otp2: '',
+          otp3: '',
+          otp4: ''
         }
       },
       {
-        id: 'user-2',
-        type: SERV.USERS.RESOURCE,
+        id: 2,
+        type: 'user',
         attributes: {
           name: 'Bob User',
           email: 'bob@example.com',
-          role: 'user',
-          isActive: true,
-          createdAt: '2025-01-15T11:30:00Z',
-          lastLogin: '2025-07-14T21:00:00Z',
-          permissions: ['VIEW_AGENT'],
-          profilePictureUrl: null,
-          timeZone: 'America/New_York'
-        },
-        relationships: {
-          hashlistsOwned: {
-            data: []
-          }
+          isValid: true,
+          isComputedPassword: false,
+          lastLoginDate: 1719900000,
+          registeredSince: 1705000000,
+          sessionLifetime: 3600,
+          globalPermissionGroupId: 2,
+          yubikey: '',
+          otp1: '',
+          otp2: '',
+          otp3: '',
+          otp4: ''
         }
       }
-    ],
-    included: [],
-    jsonapi: { version: '1.0', ext: [] },
-    links: { self: '/api/v2/ui/users', next: null, prev: null },
-    meta: {}
-  };
+    ]
+  });
 
-  const hashlistValues: ResponseWrapper = {
+  const hashlistValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 'hashlist-1',
-        type: SERV.HASHLISTS.RESOURCE,
+        id: 1,
+        type: 'hashlist',
         attributes: {
           name: 'Hashlist Alpha',
-          description: 'Primary password hashlist for cracking',
-          createdAt: '2025-06-01T08:00:00Z',
+          format: 0,
+          hashTypeId: 100,
           hashCount: 5000,
-          crackedCount: 3000,
-          isPublic: false,
-          createdByUserId: 'user-1'
-        },
-        relationships: {
-          owner: { data: { type: SERV.USERS.RESOURCE, id: 'user-1' } }
+          separator: null,
+          cracked: 3000,
+          isSecret: false,
+          isHexSalt: false,
+          isSalted: false,
+          accessGroupId: 1,
+          notes: '',
+          useBrain: false,
+          brainFeatures: 0,
+          isArchived: false
         }
       },
       {
-        id: 'hashlist-2',
-        type: SERV.HASHLISTS.RESOURCE,
+        id: 2,
+        type: 'hashlist',
         attributes: {
           name: 'Hashlist Beta',
-          description: 'Secondary list for testing',
-          createdAt: '2025-06-15T10:00:00Z',
+          format: 0,
+          hashTypeId: 200,
           hashCount: 1200,
-          crackedCount: 100,
-          isPublic: true,
-          createdByUserId: 'user-2'
-        },
-        relationships: {
-          owner: { data: { type: SERV.USERS.RESOURCE, id: 'user-2' } }
+          separator: null,
+          cracked: 100,
+          isSecret: false,
+          isHexSalt: false,
+          isSalted: false,
+          accessGroupId: 1,
+          notes: '',
+          useBrain: false,
+          brainFeatures: 0,
+          isArchived: false
         }
       }
-    ],
-    included: [],
-    jsonapi: { version: '1.0', ext: [] },
-    links: { self: '/api/v2/ui/hashlists', next: null, prev: null },
-    meta: {}
-  };
+    ]
+  });
 
   // Partial mock service
-  const mockService: Partial<GlobalService> = {
-    getAll(serviceConfig, routerParams?: unknown): Observable<unknown> {
-      void routerParams;
+  const mockService: Pick<GlobalService, 'getAll' | 'create'> = {
+    getAll(serviceConfig) {
       switch (serviceConfig) {
         case SERV.AGENTS:
           return of(agentValues);
@@ -227,13 +227,11 @@ describe('NewNotificationComponent', () => {
         case SERV.USERS:
           return of(userValues);
         default:
-          return of({ data: [] });
+          return of(mockResponse());
       }
     },
-    create(serviceConfig, objectData: unknown): Observable<unknown> {
-      void serviceConfig;
-      void objectData;
-      return of({});
+    create() {
+      return of(mockResponse());
     }
   };
 
@@ -323,16 +321,12 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should be possible to submit the form when all fields have data', () => {
-    const ActionFilterControl = component.form.get('actionFilter');
-    const NotificationControl = component.form.get('notification');
-    const ReceiverControl = component.form.get('receiver');
-
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    ActionFilterControl.patchValue('1');
-    NotificationControl.patchValue(NOTIF.EMAIL);
-    ReceiverControl.patchValue('test@mail.com');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
     fixture.detectChanges();
 
     expectButtonToBeEnabled();
@@ -393,7 +387,7 @@ describe('NewNotificationComponent', () => {
   it('should submit the form when it is valid', () => {
     const serviceSpy = spyOn(mockService, 'create')
       .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
-      .and.returnValue(of({}));
+      .and.returnValue(of(mockResponse()));
 
     setValidFormValues();
     fixture.detectChanges();
@@ -425,16 +419,11 @@ describe('NewNotificationComponent', () => {
 
   // --- Helper functions ---
   const setValidFormValues = (): void => {
-    const actionSelect = component.form.get('action');
-    const actionFilterSelect = component.form.get('actionFilter');
-    const notificationSelect = component.form.get('notification');
-    const receiverInput = component.form.get('receiver');
-
     setAction(ACTION.NEW_TASK);
-    actionSelect.patchValue('1');
-    actionFilterSelect.patchValue('1');
-    notificationSelect.patchValue(NOTIF.EMAIL);
-    receiverInput.patchValue('test@mail.com');
+    component.form.controls.action.patchValue('1');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
 
     fixture.detectChanges();
   };
@@ -453,8 +442,7 @@ describe('NewNotificationComponent', () => {
   };
 
   const setAction = (action: string): void => {
-    const actionControl = component.form.get('action');
-    actionControl.patchValue(action);
+    component.form.controls.action.patchValue(action);
     fixture.detectChanges();
   };
 
@@ -476,7 +464,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(agentValues.data[i].attributes.agentName);
+      expect(option).toBe((agentValues.data! as TJsonApiData[])[i].attributes!.agentName);
     }
   };
 
@@ -487,7 +475,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(taskValues.data[i].attributes.taskName);
+      expect(option).toBe((taskValues.data! as TJsonApiData[])[i].attributes!.taskName);
     }
   };
 
@@ -498,7 +486,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(hashlistValues.data[i].attributes.name);
+      expect(option).toBe((hashlistValues.data! as TJsonApiData[])[i].attributes!.name);
     }
   };
 
@@ -509,7 +497,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe(userValues.data[i].attributes.name);
+      expect(option).toBe((userValues.data! as TJsonApiData[])[i].attributes!.name);
     }
   };
 });

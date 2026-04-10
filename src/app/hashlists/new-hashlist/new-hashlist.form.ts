@@ -3,6 +3,8 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { AccessGroupId } from '@models/id.types';
+
 /**
  * Form to create a new hashlist
  */
@@ -13,7 +15,7 @@ export interface NewHashlistForm {
   separator: FormControl<string>;
   isSalted: FormControl<boolean>;
   isHexSalt: FormControl<boolean>;
-  accessGroupId: FormControl<number>;
+  accessGroupId: FormControl<AccessGroupId | null>;
   useBrain: FormControl<boolean>;
   brainFeatures: FormControl<number>;
   notes: FormControl<string>;
@@ -30,20 +32,20 @@ export interface NewHashlistForm {
  */
 export const getNewHashlistForm = () => {
   return new FormGroup<NewHashlistForm>({
-    name: new FormControl('', [Validators.required]),
-    hashTypeId: new FormControl('', [Validators.required]),
-    format: new FormControl(0),
-    separator: new FormControl(':'),
-    isSalted: new FormControl(false),
-    isHexSalt: new FormControl(false),
-    accessGroupId: new FormControl(undefined, [Validators.required]),
-    useBrain: new FormControl(false),
-    brainFeatures: new FormControl(3),
-    notes: new FormControl(''),
-    sourceType: new FormControl('upload'),
-    sourceData: new FormControl(''),
-    hashCount: new FormControl(0),
-    isArchived: new FormControl(false),
-    isSecret: new FormControl(true)
+    name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    hashTypeId: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    format: new FormControl<number>(0, { nonNullable: true }),
+    separator: new FormControl<string>(':', { nonNullable: true }),
+    isSalted: new FormControl<boolean>(false, { nonNullable: true }),
+    isHexSalt: new FormControl<boolean>(false, { nonNullable: true }),
+    accessGroupId: new FormControl<number | null>(null, [Validators.required]),
+    useBrain: new FormControl<boolean>(false, { nonNullable: true }),
+    brainFeatures: new FormControl<number>(3, { nonNullable: true }),
+    notes: new FormControl<string>('', { nonNullable: true }),
+    sourceType: new FormControl<string>('upload', { nonNullable: true }),
+    sourceData: new FormControl<string>('', { nonNullable: true }),
+    hashCount: new FormControl<number>(0, { nonNullable: true }),
+    isArchived: new FormControl<boolean>(false, { nonNullable: true }),
+    isSecret: new FormControl<boolean>(true, { nonNullable: true })
   });
 };

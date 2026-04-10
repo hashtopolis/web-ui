@@ -19,7 +19,19 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { CrackerBinaryTypeId } from '@models/id.types';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+interface MasksFormValue {
+  name: string;
+  maxAgents: number;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  optFlag: boolean;
+  useNewBench: boolean;
+  crackerBinaryId: number;
+  masks: string;
+}
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -66,7 +78,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -138,7 +150,7 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Attack: #HL# -a 3 {mask} {options}
    * Options: Flag -O (Optimize)
    */
-  private async preTasks(form): Promise<number[]> {
+  private async preTasks(form: MasksFormValue): Promise<number[]> {
     return new Promise<number[]>((resolve, reject) => {
       const preTasksIds: number[] = [];
 

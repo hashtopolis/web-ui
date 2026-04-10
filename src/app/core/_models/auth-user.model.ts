@@ -1,3 +1,5 @@
+import { UserId } from '@models/id.types';
+
 /**
  * Interface for authentication data
  * @prop _expires   Token expiry datetime
@@ -7,7 +9,7 @@
 export interface AuthData {
   _expires: Date | string;
   _token: string;
-  userId: number;
+  userId: UserId;
   canonicalUsername: string;
 }
 
@@ -19,7 +21,7 @@ export class AuthUser implements AuthData {
   constructor(
     public _token: string,
     public _expires: Date,
-    public userId: number,
+    public userId: UserId,
     public canonicalUsername: string
   ) {}
 

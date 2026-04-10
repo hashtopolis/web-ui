@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { FilterType } from '@models/request-params.model';
 import { JUser } from '@models/user.model';
 
@@ -25,6 +25,7 @@ import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { AgentId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   AddAgentsForm,
@@ -55,8 +56,8 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   showAddAgentsForm: boolean = false; // Toggle for add agents panel
   showAddUsersForm: boolean = false; // Toggle for add users panel
 
-  selectAgents: SelectOption[]; // Selectable agents to be added to the access group
-  selectUsers: SelectOption[]; // Selectable users to be added to the access group
+  selectAgents: SelectOption<AgentId>[]; // Selectable agents to be added to the access group
+  selectUsers: SelectOption<UserId>[]; // Selectable users to be added to the access group
 
   updateForm: FormGroup; // Form group for editing access group
 
@@ -130,7 +131,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
       );
 
-      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse) as JAccessGroup;
+      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse);
     } catch (error) {
       console.error('Failed to load access group data:', error);
     }
@@ -177,7 +178,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
+        const agents: ThinJAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {
@@ -245,7 +246,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddUsers() {
     if (this.addUsersForm.valid) {
       this.isUpdatingLoading = true;
-      const users = this.addUsersForm.get('userIds').value.map((id) => ({ type: RelationshipType.USERMEMBERS, id }));
+      const users = (this.addUsersForm.controls.userIds.value ?? []).map((id) => ({
+        type: RelationshipType.USERMEMBERS,
+        id
+      }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
@@ -255,7 +259,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
 
         // Reset the form control after successful add
-        this.addUsersForm.get('userIds')?.reset();
+        this.addUsersForm.controls.userIds.reset();
         this.showAddUsersForm = false;
 
         this.refresh(); // Reload the select component
@@ -279,7 +283,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddAgents() {
     if (this.addAgentsForm.valid) {
       this.isUpdatingLoading = true;
-      const agents = this.addAgentsForm.get('agentIds').value.map((id) => ({ type: RelationshipType.AGENTMEMBER, id }));
+      const agents = (this.addAgentsForm.controls.agentIds.value ?? []).map((id) => ({
+        type: RelationshipType.AGENTMEMBER,
+        id
+      }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {
@@ -289,7 +296,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.alert.showSuccessMessage(`Successfully added ${agents.length} agent${agents.length > 1 ? 's' : ''}`);
 
         // Reset the form control after successful add
-        this.addAgentsForm.get('agentIds')?.reset();
+        this.addAgentsForm.controls.agentIds.reset();
         this.showAddAgentsForm = false;
 
         this.refresh(); // Reload the select component

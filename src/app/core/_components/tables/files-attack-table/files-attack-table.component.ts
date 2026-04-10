@@ -65,7 +65,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -126,7 +126,8 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       currentCmd = form.preprocessorCommand || '';
     }
     const newCmdArray = currentCmd.split(' ');
-    const fileName = event.row.filename;
+    const row = event.row as JFile;
+    const fileName = String(row.filename);
     const fileId = event.row.id;
     let newFileIds;
     if (event.columnType === 'CMD') {
@@ -141,7 +142,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       if (indexFileName !== -1) {
         newCmdArray.splice(indexFileName, 1);
       }
-      if (event.row.fileType === 1) {
+      if (row.fileType === 1) {
         newCmdArray.splice(indexFileName - 1, 1);
       }
 
@@ -155,7 +156,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
 
       // Only add if filename is NOT already in the command
       if (fileIndex === -1) {
-        if (event.row.fileType === 1) {
+        if (row.fileType === 1) {
           // Add -r only if it doesn't already precede this file
           newCmdArray.push('-r');
         }

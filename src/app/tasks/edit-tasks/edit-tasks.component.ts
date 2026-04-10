@@ -15,7 +15,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
@@ -38,6 +38,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { AgentId } from '@models/id.types';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -66,8 +67,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   tusepreprocessor: number;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
-  availAgents: JAgent[] = [];
-  selectAgents: SelectOption[] = [];
+  availAgents: ThinJAgent[] = [];
+  selectAgents: SelectOption<AgentId>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
@@ -123,23 +124,23 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       const task = await this.loadTask();
 
       this.originalValue = task;
-      this.searched = task.searched;
-      this.color = task.color;
+      this.searched = task.searched ?? '';
+      this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
-      this.ctimespent = task.timeSpent;
-      this.currenspeed = task.currentSpeed;
-      this.estimatedTime = task.estimatedTime;
-      this.cprogress = task.cprogress;
+      this.ctimespent = task.timeSpent ?? 0;
+      this.currenspeed = task.currentSpeed ?? 0;
+      this.estimatedTime = task.estimatedTime ?? 0;
+      this.cprogress = task.cprogress ?? 0;
 
       if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+        this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
       }
 
       if (this.roleService.hasRole('editTaskSpeed')) {
-        this.getTaskSpeeds(task.assignedAgents.length);
+        this.getTaskSpeeds((task.assignedAgents ?? []).length);
       }
 
       if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
@@ -357,7 +358,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      const agents: JAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
+      const agents: ThinJAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.availAgents = agents;
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;

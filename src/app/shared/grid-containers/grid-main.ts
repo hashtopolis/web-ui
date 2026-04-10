@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-    selector: 'grid-main',
-    template: `
+  selector: 'grid-main',
+  template: `
     <div class="card shadow">
       <mat-card class="grid-main">
         <mat-card-content>
@@ -11,9 +11,6 @@ import { Component, Input } from '@angular/core';
       </mat-card>
     </div>
   `,
-    standalone: false
+  standalone: false
 })
-export class GridMainComponent {
-  @Input() class: any;
-  @Input() centered?: boolean;
-}
+export class GridMainComponent {}

@@ -2,6 +2,7 @@ import { catchError } from 'rxjs';
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
+import { DynamicModel } from '@models/base.model';
 import { JHashtype } from '@models/hashtype.model';
 
 import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
@@ -86,7 +87,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -220,7 +221,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    * @private
    */
   private renderCheckmarkIcon(hashtype: JHashtype, property: string): HTTableIcon {
-    if (property in hashtype && hashtype[property] === true) {
+    if (property in hashtype && (hashtype as DynamicModel)[property] === true) {
       return {
         name: 'check_circle',
         tooltip: 'Salted Hash',

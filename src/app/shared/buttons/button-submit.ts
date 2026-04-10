@@ -78,7 +78,7 @@ export class ButtonSubmitComponent {
   /**
    * Handle the button click based on its type.
    */
-  handleClick(event: Event): void {
+  handleClick(event: MouseEvent): void {
     if (this.disabled) {
       event.preventDefault();
       event.stopImmediatePropagation();

@@ -11,6 +11,7 @@ import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binar
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewCrackerComponent', () => {
   let component: NewCrackerComponent;
@@ -89,13 +90,13 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 
     const payload = {
-      typeName: component.newCrackerForm.get('typeName').value,
-      isChunkingAvailable: component.newCrackerForm.get('isChunkingAvailable').value
+      typeName: component.newCrackerForm.controls.typeName.value,
+      isChunkingAvailable: component.newCrackerForm.controls.isChunkingAvailable.value
     };
 
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.CRACKERS_TYPES, payload);

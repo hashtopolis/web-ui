@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -21,6 +21,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
@@ -50,31 +51,27 @@ describe('AccountSettingsComponent', () => {
 
   // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get(_serviceConfig): Observable<any> {
+    get(_serviceConfig) {
       if (_serviceConfig.URL === SERV.USERS.URL) {
-        return of({ data: userResponse });
+        return of(mockResponse({ data: userResponse }));
       }
-      return of([]);
+      return of(mockResponse());
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    create(): Observable<any> {
+    create() {
+      return of(mockResponse());
+    },
+    update() {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    update(): Observable<any> {
-      return of({});
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chelper(): Observable<any> {
-      return of({});
+    chelper: (() => {
+      return of(mockResponse());
+    }) as GlobalService['chelper'],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ghelper(_serviceConfig: unknown, _option: string) {
+      return of(mockResponse({ data: userResponse }));
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ghelper(_serviceConfig, _option: string): Observable<unknown> {
-      return of({ jsonapi: { version: '1.1' }, data: userResponse, included: [] });
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    uhelper(_serviceConfig, _id: number, _option: string, _payload: unknown): Observable<unknown> {
+    uhelper(_serviceConfig: unknown, _id: number, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
     userId: 1
@@ -146,13 +143,13 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates email format', () => {
-      const emailControl = component.form.get('email');
+      const emailControl = component.form.controls.email;
 
-      emailControl?.patchValue('invalid-email');
+      emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeTrue();
 
-      emailControl?.patchValue('test@example.com');
+      emailControl.patchValue('test@example.com');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeFalse();
     });
@@ -247,8 +244,8 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates password length', () => {
-      const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
-      const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
+      const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
+      const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
 
       // Too short
       newPasswordControl.patchValue('123');

@@ -13,3 +13,7 @@ export interface BaseModel {
   links?: TJsonApiLinks;
   relationshipNames?: string[];
 }
+
+/** BaseModel with index signature for dynamic property access (menus, table utils, etc.). */
+export type DynamicModel = BaseModel & Record<string, unknown>;
+

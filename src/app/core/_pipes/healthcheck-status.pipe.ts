@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Reusable pipe to get the health check status
@@ -11,30 +8,28 @@ import {
  * Example:
  *   {{ 0 | hc-status }}
  * @returns PENDING
-**/
+ **/
 
 @Pipe({
-    name: 'HCstatus',
-    standalone: false
+  name: 'HCstatus',
+  standalone: false
 })
-  export class HealthCheckStatusPipe implements PipeTransform {
+export class HealthCheckStatusPipe implements PipeTransform {
+  transform(value: number): string {
+    let status = '';
+    switch (value) {
+      case 0:
+        status = 'RUNNING';
+        break;
 
-    transform(value: any) {
-      let status = "";
-        switch(value) {
+      case 1:
+        status = 'COMPLETED';
+        break;
 
-            case 0:
-            status = 'RUNNING';
-            break;
-
-            case 1:
-            status ='COMPLETED';
-            break;
-
-            case -1:
-            status ='ABORTED';
-            break;
-          }
-          return status;
+      case -1:
+        status = 'ABORTED';
+        break;
+    }
+    return status;
   }
 }

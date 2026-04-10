@@ -14,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   isDetail = false;
 
   setAgentId(agentId: number): void {
@@ -44,11 +44,11 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
       .pipe(
         catchError((error) => {
           this.handleFilterError(error);
-          return of([]);
+          return of([] as ResponseWrapper[]);
         }),
         finalize(() => (this.loading = false))
       )
-      .subscribe(([response]: [ResponseWrapper]) => {
+      .subscribe(([response]: ResponseWrapper[]) => {
         const assignedChunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
         assignedChunks.forEach((chunk: JChunk) => {

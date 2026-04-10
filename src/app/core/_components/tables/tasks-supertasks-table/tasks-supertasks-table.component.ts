@@ -12,7 +12,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
@@ -72,10 +72,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         routerLink: (task: JTask) =>
           of([
             {
-              label: task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task.taskName,
+              label:
+                (task?.taskName?.length ?? 0) > 40
+                  ? `${(task?.taskName ?? '').substring(0, 40)}...`
+                  : (task?.taskName ?? ''),
               routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
               tooltip: task?.attackCmd ?? ''
-            } as HTTableRouterLink
+            }
           ]),
         isSortable: true,
         isSearchable: true,
@@ -276,7 +279,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private getNumAgents(task: JTask): number {
-    return task.totalAssignedAgents;
+    return task.totalAssignedAgents ?? 0;
   }
 
   private renderAgents(task: JTask): SafeHtml {

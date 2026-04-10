@@ -238,8 +238,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.AGENTS_COUNT, params).pipe(
       map((response: ResponseWrapper) => {
-        this.totalAgents = response.meta.total_count;
-        this.activeAgents = response.meta.count;
+        this.totalAgents = response.meta.total_count ?? 0;
+        this.activeAgents = response.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch agents:', err);
@@ -269,14 +269,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
-        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total tasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
-        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed tasks:', err);
           return of(undefined);
@@ -303,14 +303,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total supertasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed supertasks:', err);
           return of(undefined);
@@ -331,7 +331,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.HASHES_COUNT, params).pipe(
       map((res: ResponseWrapper) => {
-        this.totalCracks = res.meta.count;
+        this.totalCracks = res.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch cracks count:', err);
@@ -385,8 +385,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param arr Array of strings (e.g., dates)
    * @returns Object with keys as strings and values as their counts
    */
-  private countOccurrences(arr: string[]): { [key: string]: number } {
-    return arr.reduce((counts, item) => {
+  private countOccurrences(arr: string[]): Record<string, number> {
+    return arr.reduce<Record<string, number>>((counts, item) => {
       counts[item] = (counts[item] || 0) + 1;
       return counts;
     }, {});

@@ -1,4 +1,4 @@
-import { uiConfigDefault } from '@models/config-ui.model';
+import { TableConfig, uiConfigDefault } from '@models/config-ui.model';
 import { sortingSchema, uiConfigSchema, uisSettingsSchema } from '@models/config-ui.schema';
 
 describe('uiConfigSchema', () => {
@@ -70,8 +70,8 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(withExtra);
     expect(result.success).toBeTrue();
     if (result.success) {
-      expect(result.data['unknownFeatureFlag']).toBeUndefined();
-      expect(result.data['beta']).toBeUndefined();
+      expect('unknownFeatureFlag' in result.data).toBeFalse();
+      expect('beta' in result.data).toBeFalse();
     }
   });
 
@@ -138,9 +138,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['myTable'];
-      expect(table['before']).toBe(5);
-      expect(table['index']).toBe(3);
+      const table = result.data.tableSettings['myTable'] as TableConfig;
+      expect(table.before).toBe(5);
+      expect(table.index).toBe(3);
     }
   });
 
@@ -160,9 +160,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const order = result.data.tableSettings['tasksTable']['order'];
-      expect(order).toBeDefined();
-      expect(order['parent']).toBe('task');
+      const table = result.data.tableSettings['tasksTable'] as TableConfig;
+      expect(table.order).toBeDefined();
+      expect((table.order as { parent?: string }).parent).toBe('task');
     }
   });
 
@@ -186,9 +186,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['tasksTable'];
-      expect(table['start']).toBe(cursor);
-      expect(table['before']).toBe(cursor);
+      const table = result.data.tableSettings['tasksTable'] as TableConfig;
+      expect(table.start).toBe(cursor);
+      expect(table.before).toBe(cursor);
     }
   });
 
@@ -208,9 +208,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['testTable'];
-      expect(table['columns']).toEqual([1, 2, 3]);
-      expect(table['page']).toBe(25);
+      const table = result.data.tableSettings['testTable'] as TableConfig;
+      expect(table.columns).toEqual([1, 2, 3]);
+      expect(table.page).toBe(25);
     }
   });
 
@@ -452,8 +452,8 @@ describe('sortingSchema – sort parameter round-trip', () => {
     const result = sortingSchema.safeParse(withExtra);
     expect(result.success).toBeTrue();
     if (result.success) {
-      expect(result.data['render']).toBeUndefined();
-      expect(result.data['routerLink']).toBeUndefined();
+      expect((result.data as Record<string, unknown>)['render']).toBeUndefined();
+      expect((result.data as Record<string, unknown>)['routerLink']).toBeUndefined();
       expect(result.data.parent).toBe('task');
     }
   });

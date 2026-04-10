@@ -1,9 +1,9 @@
-import { BaseStorageService } from "./base-storage.service";
+import { BaseStorageService } from '@services/storage/base-storage.service';
 
 class MockStorageService<T> extends BaseStorageService<T> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getItem(key: string): T | null {
-    return null
+    return null;
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setItem(key: string, value: T, expiresInMs: number): void {
@@ -53,7 +53,7 @@ describe('BaseStorageService', () => {
   });
 
   it('should return false for a wrapper with no expiration', () => {
-    const noExpirationWrapper = { value: 'no expiration', expires: null };
+    const noExpirationWrapper = { value: 'no expiration', expires: 0 };
     const result = service.hasExpired(noExpirationWrapper);
 
     expect(result).toBe(false);

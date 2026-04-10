@@ -8,23 +8,27 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
+
+import { BaseModel } from '@models/base.model';
+
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
-    selector: 'ht-table-editable',
-    templateUrl: './ht-table-type-editable.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'ht-table-editable',
+  templateUrl: './ht-table-type-editable.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class HTTableTypeEditableComponent implements OnInit {
-  editable: HTTableEditable<any>;
+  editable: HTTableEditable<BaseModel>;
   original: string;
 
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableInputSaved: EventEmitter<HTTableEditable<any>> =
-    new EventEmitter<HTTableEditable<any>>();
+  @Output() editableInputSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<
+    HTTableEditable<BaseModel>
+  >();
   @ViewChild('editableInput') editableInput: ElementRef;
 
   editMode = false;
@@ -68,7 +72,7 @@ export class HTTableTypeEditableComponent implements OnInit {
     this.editMode = false;
   }
 
-  onEditableInputEnter(event: Event): void {
+  onEditableInputEnter(event: KeyboardEvent): void {
     event.stopPropagation();
     this.editableInputSaved.emit(this.editable);
     this.editMode = false;

@@ -54,7 +54,7 @@ export class AuthService {
   /**
    * Auto-login user, if there is a token in localStorage
    */
-  autoLogin() {
+  autoLogin(): void {
     const raw = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!raw) return;
 
@@ -115,7 +115,7 @@ export class AuthService {
     }
   }
 
-  logIn(username: string, password: string) {
+  logIn(username: string, password: string): Observable<void> {
     // Send credentials via basic authorization header. Encode using Buffer with 'utf8' to correctly
     // handle non-Latin characters and to produce a correctly padded base64 string.
     const basic = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
@@ -187,7 +187,7 @@ export class AuthService {
       );
   }
 
-  get token(): string {
+  get token(): string | null {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     return userData ? userData._token : null;
   }
@@ -207,7 +207,8 @@ export class AuthService {
     }
   }
 
-  private getUserId(token: string): number | null {
+  private getUserId(token: string | null): number | null {
+    if (!token) return null;
     const p = this.decodeJwt<JwtPayload>(token);
     if (!p) return null;
 
@@ -230,7 +231,7 @@ export class AuthService {
     return p?.username ?? p?.name ?? p?.user ?? null;
   }
 
-  private fetchCanonicalUsername(userId: number, token: string) {
+  private fetchCanonicalUsername(userId: number, token: string): Observable<string | null> {
     const base = this.cs.getEndpoint();
     const url = `${base}/ui/users/${userId}`;
 
@@ -293,7 +294,7 @@ export class AuthService {
   }
 
   checkStatus() {
-    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     if (userData) {
       this.logged.next(true);
     } else {
@@ -301,11 +302,11 @@ export class AuthService {
     }
   }
 
-  private userAuthChanged(status: boolean) {
+  private userAuthChanged(status: boolean): void {
     this.authChanged.emit(status);
   }
 
-  private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string) {
+  private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string): void {
     const expires = new Date(expiresEpochSec * 1000);
 
     const userId = this.getUserId(token) ?? 0;
@@ -331,7 +332,7 @@ export class AuthService {
     this.autologOut(tokenExpiration);
   }
 
-  private handleError(errorRes: HttpErrorResponse) {
+  private handleError(errorRes: HttpErrorResponse): Observable<never> {
     return throwError(() => errorRes.message);
   }
 }

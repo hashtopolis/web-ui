@@ -7,7 +7,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -83,11 +82,11 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
     if (qp['filter']) {
       this.filtering = qp['filter'];
-      this.filteringDescr = this.getDescrip(this.filtering, 2);
+      this.filteringDescr = this.getDescrip(this.filtering, 2) ?? '';
     }
     if (qp['display']) {
       this.displaying = qp['display'];
-      this.displayingDescr = this.getDescrip(this.displaying, 3);
+      this.displayingDescr = this.getDescrip(this.displaying, 3) ?? '';
     }
     this.viewForm = new FormGroup({
       display: new FormControl(this.displaying),
@@ -97,11 +96,11 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select trigger actions
-    this.viewForm.get('display').valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
       this.onQueryp(newvalue, 0);
     });
 
-    this.viewForm.get('filter').valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
       this.onQueryp(newvalue, 1);
     });
   }
@@ -147,8 +146,8 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'taskhas':
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task: JTask = new JsonAPISerializer().deserialize(response, zTaskResponse);
-            this.titleName = task.taskName;
+            const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
+            this.titleName = task.taskName ?? '';
           });
           break;
 

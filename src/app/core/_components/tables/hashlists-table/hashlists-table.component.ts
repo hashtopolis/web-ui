@@ -70,7 +70,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -130,8 +130,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
       }
     ];
 
@@ -142,7 +142,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         isSearchable: true,
         isSortable: false,
         render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
-        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription ?? ''
       });
     }
 
@@ -322,7 +322,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

@@ -33,7 +33,7 @@ const migrateUisFormat = (val: unknown): unknown => {
     const obj: Record<string, unknown> = {};
     for (const entry of val) {
       if (entry && typeof entry === 'object' && 'name' in entry && 'value' in entry) {
-        obj[(entry as { name: string }).name] = (entry as { value: unknown }).value;
+        obj[String(entry.name)] = entry.value;
       }
     }
     return obj;

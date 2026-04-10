@@ -1,5 +1,5 @@
 import { zNotificationSettingListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -13,7 +13,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class NotificationsDataSource extends BaseDataSource<JNotification> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -25,7 +25,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
@@ -36,7 +36,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )
@@ -49,8 +49,8 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(notifications);

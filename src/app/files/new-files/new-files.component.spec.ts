@@ -16,6 +16,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
@@ -33,12 +34,8 @@ class MockUploadTUSService {
 }
 
 class MockGlobalService {
-  getAll = jasmine
-    .createSpy('getAll')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
-  getRelationships = jasmine
-    .createSpy('getRelationships')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+  getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
+  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of(mockResponse()));
   create = jasmine.createSpy('create').and.returnValue(of({}));
   userId = 1;
 }
@@ -231,19 +228,17 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }) as any);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }) as any);
+      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }));
+      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
       // The user belongs to 2 out of 5 total groups.
       // We mock loadData to bypass JsonAPISerializer (which needs an injection
       // context unavailable in tests) and verify the dropdown binding.
-      const userScopedGroups: SelectOption[] = [
-        { id: '1', name: 'Group A' },
-        { id: '3', name: 'Group C' }
+      const userScopedGroups: SelectOption<number>[] = [
+        { id: 1, name: 'Group A' },
+        { id: 3, name: 'Group C' }
       ];
 
       TestBed.overrideProvider(ActivatedRoute, {

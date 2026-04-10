@@ -1,13 +1,22 @@
+import { Idle } from '@ng-idle/core';
+
+import { ReloadService } from '@services/reload.service';
+
 import { AppComponent } from '@src/app/app.component';
+
+interface TestableAppComponent {
+  reloadService: jasmine.SpyObj<ReloadService>;
+  idle: jasmine.SpyObj<Idle>;
+  checkLogin(): void;
+}
 
 function makeComponent() {
   const mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
   const mockIdle = jasmine.createSpyObj('Idle', ['stop']);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const component: any = Object.create(AppComponent.prototype);
-  component['reloadService'] = mockReloadService;
-  component['idle'] = mockIdle;
+  const component = Object.create(AppComponent.prototype) as TestableAppComponent;
+  component.reloadService = mockReloadService;
+  component.idle = mockIdle;
 
   return { component, mockReloadService, mockIdle };
 }

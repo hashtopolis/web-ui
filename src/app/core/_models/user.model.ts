@@ -4,6 +4,7 @@
 import { JAccessGroup } from '@models/access-group.model';
 import { BaseModel } from '@models/base.model';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { GlobalPermissionGroupId } from '@models/id.types';
 
 /**
  * Interface definition for the User model
@@ -11,7 +12,7 @@ import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
  */
 export interface JUser extends BaseModel {
   email: string;
-  globalPermissionGroupId: number;
+  globalPermissionGroupId: GlobalPermissionGroupId;
   globalPermissionGroupName?: string;
   globalPermissionGroup?: JGlobalPermissionGroup;
   isComputedPassword: boolean;

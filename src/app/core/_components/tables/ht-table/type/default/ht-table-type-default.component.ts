@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-import { HTTableColumn } from '../../ht-table.models';
+import { BaseModel } from '@models/base.model';
+
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
-    selector: 'ht-table-default',
-    templateUrl: './ht-table-type-default.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'ht-table-default',
+  templateUrl: './ht-table-type-default.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class HTTableTypeDefaultComponent {
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 }

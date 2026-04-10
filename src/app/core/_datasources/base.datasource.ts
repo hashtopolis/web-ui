@@ -6,6 +6,7 @@ import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
@@ -33,13 +34,16 @@ import { environment } from '@src/environments/environment';
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
 @Injectable()
-export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
+export abstract class BaseDataSource<
+  T extends BaseModel,
+  P extends MatPaginator = MatPaginator
+> implements DataSource<T> {
   public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: SortingColumn;
-  public pageAfter = undefined;
-  public pageBefore = undefined;
+  public pageAfter: number | string | null | undefined = undefined;
+  public pageBefore: number | string | null | undefined = undefined;
   public index = 0;
   /**
    * Selection model for row selection in the table.
@@ -230,7 +234,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
       if (!selectedColumn || selectedColumn.dataKey === 'all') {
         return JSON.stringify(item).toLowerCase().includes(value);
       }
-      const fieldValue = (item as Record<string, unknown>)[selectedColumn.dataKey];
+      if (!selectedColumn.dataKey) return false;
+      const fieldValue = (item as DynamicModel)[selectedColumn.dataKey];
       return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
     });
   }
@@ -248,8 +253,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const isAscending = this.sortingColumn.direction === 'asc';
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sortKey];
-      const bValue = (b as Record<string, unknown>)[sortKey];
+      const aValue = (a as DynamicModel)[sortKey];
+      const bValue = (b as DynamicModel)[sortKey];
       if (aValue == null || bValue == null) return 0;
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         const cmp = aValue.localeCompare(bValue);
@@ -357,9 +362,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setPaginationConfig(
     pageSize: number,
-    totalItems: number,
-    pageAfter: number | string | null,
-    pageBefore: number | string | null,
+    totalItems: number | undefined,
+    pageAfter: number | string | null | undefined,
+    pageBefore: number | string | null | undefined,
     index: number
   ): void {
     // Capture the cursors that were actually used to load this page before overwriting with the
@@ -367,7 +372,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this._refreshPageAfter = this.pageAfter;
     this._refreshPageBefore = this.pageBefore;
     this.pageSize = pageSize;
-    this.totalItems = totalItems;
+    this.totalItems = totalItems ?? this.totalItems;
     this.pageAfter = pageAfter;
     this.pageBefore = pageBefore;
     this.index = index;
@@ -516,7 +521,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     });
   }
 
-  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+  applyFilterWithPaginationReset<B extends IParamBuilder>(
+    params: B,
+    activeFilter: Filter | null | undefined,
+    query?: Filter
+  ): B {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)
       if (query && query.value) {

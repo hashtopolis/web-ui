@@ -1,10 +1,10 @@
-import { Component, Input, OnChanges, SimpleChange } from '@angular/core'
+import { Component, Input, OnChanges, SimpleChange } from '@angular/core';
 
 @Component({
   selector: 'app-pass-match',
   template: `
     <div>
-      @if (confirmPassword?.length) {
+      @if (confirmPassword && confirmPassword.length) {
         <p class="text-left mb-0">{{ message }}</p>
       }
     </div>
@@ -12,18 +12,18 @@ import { Component, Input, OnChanges, SimpleChange } from '@angular/core'
   standalone: false
 })
 export class PassMatchComponent implements OnChanges {
-  @Input() public newPassword: string
-  @Input() public confirmPassword: string
+  @Input() public newPassword: string;
+  @Input() public confirmPassword: string;
 
-  message: string
+  message: string;
 
   ngOnChanges(changes: { [propName: string]: SimpleChange }): void {
-    const confirmpass = changes['confirmPassword'].currentValue
+    const confirmpass = changes['confirmPassword'].currentValue;
 
     if (confirmpass) {
-      this.message = confirmpass === this.newPassword ? 'Match' : 'No Match'
+      this.message = confirmpass === this.newPassword ? 'Match' : 'No Match';
     } else {
-      this.message = ''
+      this.message = '';
     }
   }
 }

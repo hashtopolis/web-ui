@@ -1,15 +1,13 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { CookieStorageService } from './cookie-storage.service';
 
+import { CookieStorageService } from '@services/storage/cookie-storage.service';
 
 describe('CookieStorageService', () => {
   let service: CookieStorageService<object | string>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        CookieStorageService,
-      ]
+      providers: [CookieStorageService]
     });
     service = TestBed.inject(CookieStorageService);
   });
@@ -53,7 +51,6 @@ describe('CookieStorageService', () => {
     expect(retrievedValue).toBeNull();
   });
 
-
   it('should handle invalid JSON data', () => {
     const key = 'invalidKey';
     const invalidValue = 'invalidJSON';
@@ -69,7 +66,7 @@ describe('CookieStorageService', () => {
     const key = 'nullKey';
 
     // Store a null value
-    service.setItem(key, null, 1000);
+    service.setItem(key, null!, 1000);
     const retrievedValue = service.getItem(key);
 
     expect(retrievedValue).toBeNull();
@@ -94,5 +91,4 @@ describe('CookieStorageService', () => {
 
     expect(retrievedValue).toBe('specialValue');
   });
-
 });

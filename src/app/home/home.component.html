@@ -1,13 +1,8 @@
 <div class="home-grid">
-
   <!-- Spinner template -->
   <ng-template #spinner>
     <div class="spinner-wrapper">
-      <mat-progress-spinner
-        mode="indeterminate"
-        diameter="24"
-        color="primary">
-      </mat-progress-spinner>
+      <mat-progress-spinner mode="indeterminate" diameter="24" color="primary"> </mat-progress-spinner>
     </div>
   </ng-template>
 
@@ -15,7 +10,6 @@
   <ng-template #noPermission let-testid="testid">
     <div class="no-permission" [attr.data-testid]="testid">No permission</div>
   </ng-template>
-
 
   <!-- Row 1: Dashboard cards -->
   <div
@@ -26,8 +20,8 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }">
-
+    }"
+  >
     <!-- Agents Card -->
     <div class="co co-25">
       <mat-card>
@@ -45,9 +39,7 @@
               }
             </span>
           } @else {
-            <ng-container
-              *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm'}">
-            </ng-container>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm' }"> </ng-container>
           }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
@@ -74,7 +66,7 @@
               }
             </span>
           } @else {
-            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm'}"></ng-container>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm' }"></ng-container>
           }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
@@ -101,7 +93,7 @@
               }
             </span>
           } @else {
-            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm'}"></ng-container>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm' }"></ng-container>
           }
           <span class="label">
             <mat-icon>check_circle</mat-icon>
@@ -128,7 +120,7 @@
               }
             </span>
           } @else {
-            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm'}"></ng-container>
+            <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm' }"></ng-container>
           }
           <span class="label">
             <mat-icon>event_available</mat-icon>
@@ -148,9 +140,10 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }">
+    }"
+  >
     <div class="co co-100">
-      <div class="app-echarts" style="height: 250px;">
+      <div class="app-echarts" style="height: 250px">
         <!-- No permission template always defined -->
 
         <!-- Chart or spinner -->
@@ -158,20 +151,21 @@
           @if (loading) {
             <ng-container *ngTemplateOutlet="spinner"></ng-container>
           } @else {
-            @if (heatmapData?.length) {
-              <app-heatmap-chart
-                [class.refreshflash]="refreshFlash"
-                [data]="heatmapData"
-                [isDarkMode]="isDarkMode">
+            @if (heatmapData.length) {
+              <app-heatmap-chart [class.refreshflash]="refreshFlash" [data]="heatmapData" [isDarkMode]="isDarkMode">
               </app-heatmap-chart>
             } @else {
-              <div class="no-permission heatmap-no-permission" style="text-align:center; margin-top:1rem;">
+              <div class="no-permission heatmap-no-permission" style="text-align: center; margin-top: 1rem">
                 No data to display
               </div>
             }
           }
         } @else {
-          <div class="no-permission heatmap-no-permission" data-test-id="heatmap-no-perm" style="text-align:center; margin-top:1rem;">
+          <div
+            class="no-permission heatmap-no-permission"
+            data-test-id="heatmap-no-perm"
+            style="text-align: center; margin-top: 1rem"
+          >
             No permission to view chart data
           </div>
         }
@@ -182,7 +176,8 @@
         <last-updated
           [lastUpdated]="lastUpdated"
           [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
-          [refreshing]="refreshing">
+          [refreshing]="refreshing"
+        >
         </last-updated>
         @if (!autoRefreshService.refreshPage) {
           <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
@@ -207,19 +202,19 @@
       'ro-s': screenS,
       'ro-xs': screenXS,
       'ro-xl': screenXL
-    }">
+    }"
+  >
     <div class="co co-100">
       <mat-card class="project-info">
         <mat-card-content>
           Hashtopolis is available on
-          <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">Github</a
-            >. To get information about how to use it, please visit the
-            <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
-            or
-            <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a
-              >.
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </div>
+          <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">Github</a>. To get information about
+          how to use it, please visit the
+          <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
+          or
+          <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a>.
+        </mat-card-content>
+      </mat-card>
     </div>
+  </div>
+</div>

@@ -1,9 +1,7 @@
 export class PropertyResolver {
-     static resolve(path: string, obj: any) {
-      return path.split('.').reduce((prev, curr) => {
-          return (prev ? prev[curr] : undefined);
-      }, obj || self);
-    }
+  static resolve(path: string, obj: object): unknown {
+    return path.split('.').reduce<unknown>((prev, curr) => {
+      return prev ? (prev as Record<string, unknown>)[curr] : undefined;
+    }, obj);
+  }
 }
-
-

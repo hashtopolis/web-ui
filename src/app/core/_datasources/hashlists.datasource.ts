@@ -1,7 +1,7 @@
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
-import { HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -17,7 +17,7 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
@@ -50,7 +50,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
         this.service
           .get(SERV.HASHLISTS, this.superHashListID, params.create(), httpOptions)
           .pipe(
-            catchError((error) => {
+            catchError((error: HttpErrorResponse) => {
               this.handleFilterError(error);
               return of(null);
             }),
@@ -61,7 +61,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
               return; // Don't update data if there was an error
             }
             const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse);
-            this.setData(superHashList.hashlists as JHashlist[]);
+            this.setData(superHashList.hashlists!);
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
@@ -90,7 +90,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
         this.service
           .getAll(SERV.HASHLISTS, params.create(), httpOptions)
           .pipe(
-            catchError((error) => {
+            catchError((error: HttpErrorResponse) => {
               this.handleFilterError(error);
               return of(null);
             }),

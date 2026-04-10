@@ -7,11 +7,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
  * Form interface to add users to access group
  */
 export interface AddUserForm {
-  userIds: FormControl<number[]>;
+  userIds: FormControl<number[] | null>;
 }
 
 export interface AddAgentsForm {
-  agentIds: FormControl<number[]>;
+  agentIds: FormControl<number[] | null>;
 }
 
 /**
@@ -20,7 +20,7 @@ export interface AddAgentsForm {
  */
 export const getAddUsersForm = () => {
   return new FormGroup<AddUserForm>({
-    userIds: new FormControl(undefined, [Validators.required])
+    userIds: new FormControl<number[] | null>(null, [Validators.required])
   });
 };
 
@@ -30,6 +30,6 @@ export const getAddUsersForm = () => {
  */
 export const getAddAgentsForm = () => {
   return new FormGroup<AddAgentsForm>({
-    agentIds: new FormControl(undefined, [Validators.required])
+    agentIds: new FormControl<number[] | null>(null, [Validators.required])
   });
 };

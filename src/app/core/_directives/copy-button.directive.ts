@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Directive, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
@@ -12,17 +12,14 @@ import { AlertService } from '@src/app/core/_services/shared/alert.service';
  **/
 
 @Directive({
-  selector: '[copyButton]',
+  selector: '[appCopyButton]',
   standalone: false
 })
 export class CopyButtonDirective {
-  constructor(private alert: AlertService) {}
+  private alert = inject(AlertService);
 
-  @Input('copyButton')
+  @Input('appCopyButton')
   public payload: string;
-
-  @Input()
-  public context: string;
 
   @Output()
   public copied: EventEmitter<string> = new EventEmitter<string>();
@@ -33,8 +30,10 @@ export class CopyButtonDirective {
     if (!this.payload) return;
 
     const listener = (e: ClipboardEvent) => {
-      const clipboard = e.clipboardData || window['clipboardData'];
-      clipboard.setData('text', this.payload.toString());
+      const clipboard = e.clipboardData;
+      if (clipboard) {
+        clipboard.setData('text', this.payload.toString());
+      }
       e.preventDefault();
       this.copied.emit(this.payload);
     };

@@ -1,5 +1,5 @@
 import { zTaskWrapperListResponse } from '@generated/api/zod';
-import { catchError, of } from 'rxjs';
+import { EMPTY, catchError } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { Filter, FilterType } from '@models/request-params.model';
@@ -65,7 +65,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )
@@ -74,8 +74,8 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(taskWrappers);

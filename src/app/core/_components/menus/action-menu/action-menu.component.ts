@@ -15,11 +15,13 @@ import {
   OnInit,
   Output,
   Renderer2,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -73,7 +75,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() label: string = '';
   @Input() disabled = false;
   @Input() cls = '';
-  @Input() data: unknown;
+  @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
   @Input() openOnMouseEnter = false;
@@ -84,7 +86,9 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() enableHoverClose = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<
+    ActionMenuEvent<BaseModel | undefined>
+  >();
 
   faDiscord = faDiscord;
   faGithub = faGithub;
@@ -101,17 +105,11 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private static openMenuTrigger: MatMenuTrigger | null = null;
 
-  /**
-   * Create the ActionMenuComponent.
-   * @param router Router instance for internal navigation
-   * @param storage Local storage utility used for reading UI settings
-   * @param renderer Renderer2 for attaching global event listeners safely
-   */
-  constructor(
-    private router: Router,
-    private storage: LocalStorageService<UIConfig>,
-    private renderer: Renderer2
-  ) {
+  private router = inject(Router);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private renderer = inject(Renderer2);
+
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     this.faIconColor = this.isDarkMode ? 'white' : 'black';
@@ -208,7 +206,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
       for (const item of section) {
         if (item.routerLink) {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (partial.every((value, index) => value === item.routerLink[index])) {
+          if (partial.every((value, index) => value === item.routerLink![index])) {
             this.isActive = true;
             break;
           }

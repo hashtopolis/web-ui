@@ -57,7 +57,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -127,7 +127,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   }
 
   protected receiveCopyData(event: BaseModel): void {
-    if (this.clipboard.copy((event as JVoucher).voucher)) {
+    if (this.clipboard.copy(String((event as JVoucher).voucher))) {
       this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');

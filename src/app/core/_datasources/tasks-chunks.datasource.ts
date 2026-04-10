@@ -1,12 +1,11 @@
 import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -16,7 +15,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;
   private _isChunksLive = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setTaskId(taskId: number) {
     this._taskId = taskId;
@@ -54,7 +53,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
               })
             )
           );
-          const task: JTask = this.serializer.deserialize(response, zTaskResponse);
+          const task = this.serializer.deserialize(response, zTaskResponse);
           chunkTime = task.chunkTime;
         } catch {
           // Error already handled via handleFilterError
@@ -77,7 +76,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
       .pipe(
         catchError((error) => {
           this.handleFilterError(error);
-          return of([]);
+          return EMPTY;
         }),
         finalize(() => (this.loading = false))
       )

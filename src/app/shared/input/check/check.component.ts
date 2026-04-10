@@ -1,5 +1,6 @@
 import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
@@ -28,8 +29,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   standalone: false
 })
 export class InputCheckComponent extends AbstractInputComponent<boolean> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onValueChange(event: any): void {
+  onValueChange(event: MatCheckboxChange): void {
     this.value = event.checked;
     this.onChange(this.value);
   }

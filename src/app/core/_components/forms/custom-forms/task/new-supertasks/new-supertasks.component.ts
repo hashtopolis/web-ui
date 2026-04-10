@@ -1,6 +1,6 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -15,6 +15,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { PretaskId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
@@ -33,11 +34,8 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperTask. */
   form: FormGroup;
 
-  @Input()
-  error;
-
   /** List of PreTasks. */
-  selectPretasks: SelectOption[];
+  selectPretasks: SelectOption<PretaskId>[];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

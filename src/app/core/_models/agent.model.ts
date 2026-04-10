@@ -4,8 +4,22 @@ import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { BaseModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
+import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
+import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
+
+/** Keys for include-dependent relationship fields on JAgent. */
+export type JAgentExcludeKeys =
+  | 'user'
+  | 'agentStats'
+  | 'agentErrors'
+  | 'accessGroups'
+  | 'task'
+  | 'chunk'
+  | 'chunks'
+  | 'tasks'
+  | 'assignments';
 
 /**
  * Interface for cracking agent
@@ -14,34 +28,42 @@ import { JUser } from '@models/user.model';
 export interface JAgent extends BaseModel {
   agentName: string;
   uid: string;
-  os: number;
+  os: AgentOS;
   devices: string;
   cmdPars: string;
-  ignoreErrors?: number;
+  ignoreErrors?: IgnoreErrors;
   isActive: boolean;
   isTrusted: boolean;
   token: string;
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId?: number | null;
-  user?: JUser;
+  userId?: UserId | null;
   cpuOnly: boolean;
   clientSignature: string;
-  agentStats?: JAgentStat[];
-  agentErrors?: JAgentErrors[];
-  accessGroups?: JAccessGroup[];
   accessGroup?: string;
-  task?: JTask;
-  taskId?: number;
+  taskId?: TaskId;
   taskName?: string;
-  chunk?: JChunk;
-  chunkId?: number;
+  chunkId?: ChunkId;
   benchmark?: string;
   assignmentId?: number;
   agentSpeed?: number;
-  chunks?: JChunk[];
   chunkData?: ChunkData;
-  tasks?: JTask[];
-  assignments?: JAgentAssignment[];
+  // Include-dependent relationships (require ?include= in API request)
+  user: JUser;
+  agentStats: JAgentStat[];
+  agentErrors: JAgentErrors[];
+  accessGroups: JAccessGroup[];
+  task: JTask;
+  chunk: JChunk;
+  chunks: JChunk[];
+  tasks: JTask[];
+  assignments: JAgentAssignment[];
 }
+
+/** Agent without include-dependent relationship fields. */
+export type ThinJAgent = Omit<JAgent, JAgentExcludeKeys>;
+
+/** Agent with only specific include-dependent fields present. */
+export type JAgentWith<K extends JAgentExcludeKeys> = ThinJAgent & Pick<JAgent, K>;
+

@@ -49,8 +49,8 @@ export class NewCrackerComponent {
       await firstValueFrom(this.gs.create(SERV.CRACKERS_TYPES, payload));
       this.alert.showSuccessMessage('Cracker type created!');
       void this.router.navigate(['config/engine/crackers']);
-    } catch (err) {
-      if (!err.error?.title) {
+    } catch (err: unknown) {
+      if (!(err as { error?: { title?: string } })?.error?.title) {
         this.alert.showErrorMessage('An error occurred while creating the Cracker type.');
       }
     } finally {

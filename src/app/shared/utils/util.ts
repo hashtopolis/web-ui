@@ -17,6 +17,7 @@
 
 export function validateFileExt(filename: string): boolean {
   const filext = filename.split('.').pop();
+  if (!filext) return false;
   switch (filext.toLowerCase()) {
     case 'zip':
     case 'dic':
@@ -48,7 +49,9 @@ export function getBase64ImageFromURL(url: string) {
       canvas.height = img.height;
 
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+      }
 
       const dataURL = canvas.toDataURL('image/png');
 

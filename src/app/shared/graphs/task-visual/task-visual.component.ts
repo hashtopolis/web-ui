@@ -5,7 +5,7 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '
 
 import { JChunk } from '@models/chunk.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTaskWrapper, TaskType } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -68,7 +68,7 @@ export class TaskVisualComponent implements AfterViewInit {
       .create();
 
     this.gs.getAll(SERV.TASKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-      const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);
+      const tasks = new JsonAPISerializer().deserialize(response, zTaskListResponse);
 
       const paramsTaskWrapper = new RequestParamBuilder()
         .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: tasks[0].taskWrapperId })
@@ -83,15 +83,15 @@ export class TaskVisualComponent implements AfterViewInit {
               const chunks: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse);
 
               const progress = [];
-              let cracked = [];
+              const cracked: number[] = [];
               for (let i = 0; i < chunks.length; i++) {
                 progress.push(chunks[i].progress);
                 cracked.push(chunks[i].cracked);
               }
               progress.reduce((a, i) => a + i, 0);
-              cracked = cracked.reduce((a, i) => a + i, 0);
+              const crackedTotal = cracked.reduce((a, i) => a + i, 0);
 
-              if (cracked.length > 0) {
+              if (crackedTotal > 0) {
                 this.ctx.fillStyle = '#00ff00';
                 this.ctx.fillRect(
                   (i * this.x) / taskWrappers.length,

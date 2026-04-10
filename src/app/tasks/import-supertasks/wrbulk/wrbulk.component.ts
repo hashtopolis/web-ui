@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { JFile } from '@models/file.model';
+import { JFile, TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -21,7 +21,20 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { CrackerBinaryTypeId } from '@models/id.types';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+interface WrbulkFormValue {
+  name: string;
+  maxAgents: number;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  crackerBinaryId: number;
+  attackCmd: string;
+  baseFiles: number[];
+  iterFiles: number[];
+}
 
 @Component({
   selector: 'app-wrbulk',
@@ -45,7 +58,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -126,7 +139,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param {Object} form - The form data containing task configurations.
    * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<number[]> {
+  private async preTasks(form: WrbulkFormValue): Promise<number[]> {
     const preTasksIds: number[] = [];
     const iterFiles: number[] = form.iterFiles;
 
@@ -268,9 +281,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('baseFiles').value,
-      otherFiles: this.createForm.get('iterFiles').value
+      attackCmd: this.createForm.controls.attackCmd.value,
+      files: this.createForm.controls.baseFiles.value,
+      otherFiles: this.createForm.controls.iterFiles.value
     };
   }
 
@@ -278,7 +291,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event): void {
+  onUpdateForm(event: TaskSelectFile): void {
     if (event.type === 'CMD') {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,

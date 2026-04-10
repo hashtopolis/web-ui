@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { UiSettings } from '@models/config-ui.schema';
 import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
@@ -18,10 +19,10 @@ import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.serv
 
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -63,18 +64,14 @@ const MOCK_HASHLISTS_RESPONSE = {
         isArchived: false
       }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_EMPTY_HASHLISTS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
-  data: [],
-  included: []
+  data: []
 };
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -97,25 +94,20 @@ const MOCK_CRACKER_TYPES_RESPONSE = {
 };
 
 const MOCK_CRACKERS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 10,
       type: 'crackerBinary',
       attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_CRACKERS_EMPTY_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
-  data: [],
-  included: []
+  data: []
 };
 
 const MOCK_PREPROCESSORS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -129,8 +121,7 @@ const MOCK_PREPROCESSORS_RESPONSE = {
         limitCommand: '--limit'
       }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
@@ -183,7 +174,6 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
 };
 
 const MOCK_TASK_GET_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 42,
     type: 'task',
@@ -202,37 +192,55 @@ const MOCK_TASK_GET_RESPONSE = {
     }
   },
   included: [
-    { id: 1, type: 'hashlist', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
-    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0 } },
-    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0 } },
-    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1 } },
-    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat' } }
+    {
+      id: 1,
+      type: 'hashlist',
+      attributes: {
+        name: 'test-hashlist',
+        format: 0,
+        hashTypeId: 0,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    },
+    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
+    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
+    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' } },
+    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
 };
 
 const MOCK_PRETASK_GET_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 7,
-    type: 'pretask',
+    type: 'preTask',
     attributes: MOCK_PRETASK_ATTRIBUTES,
     relationships: {
       pretaskFiles: { data: [{ id: 200, type: 'file' }] }
     }
   },
-  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0 } }]
+  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } }]
 };
 
-function buildGetAllCallFake(overrides: { [url: string]: Observable<unknown> } = {}) {
-  const defaults: { [url: string]: Observable<unknown> } = {
-    [SERV.HASHLISTS.URL]: of(MOCK_HASHLISTS_RESPONSE),
-    [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_RESPONSE),
-    [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_RESPONSE),
-    [SERV.PREPROCESSORS.URL]: of(MOCK_PREPROCESSORS_RESPONSE)
+function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {
+  const defaults: { [url: string]: Observable<ResponseWrapper> } = {
+    [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_HASHLISTS_RESPONSE)),
+    [SERV.CRACKERS_TYPES.URL]: of(mockResponse(MOCK_CRACKER_TYPES_RESPONSE)),
+    [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_RESPONSE)),
+    [SERV.PREPROCESSORS.URL]: of(mockResponse(MOCK_PREPROCESSORS_RESPONSE))
   };
   const merged = { ...defaults, ...overrides };
   return (serviceConfig: { URL: string }) => {
-    return merged[serviceConfig.URL] ?? of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] });
+    return merged[serviceConfig.URL] ?? of(mockResponse());
   };
 }
 
@@ -289,7 +297,7 @@ describe('NewTasksComponent', () => {
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
     globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
-    globalServiceSpy.create.and.returnValue(of({}));
+    globalServiceSpy.create.and.returnValue(of(mockResponse()));
 
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -396,7 +404,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '42' });
       activatedRoute.data = of({ kind: 'copy-task' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_TASK_GET_RESPONSE));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_TASK_GET_RESPONSE)));
     });
 
     it('should call gs.get with SERV.TASKS endpoint and the task id', async () => {
@@ -493,7 +501,7 @@ describe('NewTasksComponent', () => {
           }
         }
       };
-      globalServiceSpy.get.and.returnValue(of(taskWithoutHashlist));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(taskWithoutHashlist)));
 
       await initComponent(fixture);
 
@@ -505,7 +513,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '7' });
       activatedRoute.data = of({ kind: 'copy-pretask' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_PRETASK_GET_RESPONSE));
+      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_PRETASK_GET_RESPONSE)));
     });
 
     it('should call gs.get with SERV.PRETASKS endpoint and the pretask id', async () => {
@@ -623,7 +631,7 @@ describe('NewTasksComponent', () => {
       // Reset call tracking so we only see calls triggered by the value change
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.get('crackerBinaryTypeId').setValue(2);
+      component.form.controls.crackerBinaryTypeId.setValue(2);
       await fixture.whenStable();
 
       // handleChangeBinary should have called gs.getAll(SERV.CRACKERS, ...)
@@ -634,10 +642,10 @@ describe('NewTasksComponent', () => {
     it('should subscribe to preprocessorId value changes and update form value', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5);
+      component.form.controls.preprocessorId.setValue(5);
       await fixture.whenStable();
 
-      expect(component.form.get('preprocessorId').value).toBe(5);
+      expect(component.form.controls.preprocessorId.value).toBe(5);
     });
   });
 
@@ -670,7 +678,7 @@ describe('NewTasksComponent', () => {
 
     it('should show error when no hashlists are available', async () => {
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(MOCK_EMPTY_HASHLISTS_RESPONSE) })
+        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_EMPTY_HASHLISTS_RESPONSE)) })
       );
 
       await initComponent(fixture);
@@ -696,7 +704,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.get('crackerBinaryTypeId').setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
 
       const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
@@ -706,7 +714,6 @@ describe('NewTasksComponent', () => {
 
     it('should select the last version by default', async () => {
       const multiVersionResponse = {
-        jsonapi: { version: '1.1', ext: [] },
         data: [
           {
             id: 10,
@@ -718,33 +725,34 @@ describe('NewTasksComponent', () => {
             type: 'crackerBinary',
             attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
-        ],
-        included: []
+        ]
       };
 
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) })
+      );
 
-      component.form.get('crackerBinaryTypeId').setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
 
       // Last version id should be 11 (Number-converted from SelectOption.id string '11')
-      expect(component.form.get('crackerBinaryId').value).toBe(11);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
     });
 
     it('should set required error when no versions are available', async () => {
       await initComponent(fixture);
 
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_EMPTY_RESPONSE)) })
       );
 
-      component.form.get('crackerBinaryTypeId').setValue(999);
+      component.form.controls.crackerBinaryTypeId.setValue(999);
       await fixture.whenStable();
 
-      const crackerCtrl = component.form.get('crackerBinaryId');
+      const crackerCtrl = component.form.controls.crackerBinaryId;
       expect(crackerCtrl.errors).toEqual({ required: true });
       expect(crackerCtrl.touched).toBe(true);
       expect(crackerCtrl.dirty).toBe(true);
@@ -755,22 +763,22 @@ describe('NewTasksComponent', () => {
     it('should update preprocessorId when value changes', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5);
+      component.form.controls.preprocessorId.setValue(5);
       await fixture.whenStable();
 
-      expect(component.form.get('preprocessorId').value).toBe(5);
+      expect(component.form.controls.preprocessorId.value).toBe(5);
     });
 
     it('should not re-emit when value has not changed', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(3);
+      component.form.controls.preprocessorId.setValue(3);
       await fixture.whenStable();
 
-      const spy = spyOn(component.form.get('preprocessorId'), 'setValue').and.callThrough();
+      const spy = spyOn(component.form.controls.preprocessorId, 'setValue').and.callThrough();
 
       // Set the same value again — handler should skip the inner setValue
-      component.form.get('preprocessorId').setValue(3);
+      component.form.controls.preprocessorId.setValue(3);
       await fixture.whenStable();
 
       // The spy captures our explicit setValue(3) call, but the handler
@@ -838,7 +846,7 @@ describe('NewTasksComponent', () => {
     it('should return true when preprocessorId is a non-zero number', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(5, { emitEvent: false });
+      component.form.controls.preprocessorId.setValue(5, { emitEvent: false });
 
       expect(component['isPreprocessor']()).toBe(true);
     });
@@ -846,7 +854,7 @@ describe('NewTasksComponent', () => {
     it('should return false when preprocessorId is 0', async () => {
       await initComponent(fixture);
 
-      component.form.get('preprocessorId').setValue(0, { emitEvent: false });
+      component.form.controls.preprocessorId.setValue(0, { emitEvent: false });
 
       expect(component['isPreprocessor']()).toBe(false);
     });
@@ -863,8 +871,8 @@ describe('NewTasksComponent', () => {
         otherFiles: []
       });
 
-      expect(component.form.get('attackCmd').value).toBe('-a 3 ?a?a?a');
-      expect(component.form.get('files').value).toEqual([10, 20]);
+      expect(component.form.controls.attackCmd.value).toBe('-a 3 ?a?a?a');
+      expect(component.form.controls.files.value).toEqual([10, 20]);
     });
 
     it('should update preprocessorCommand when event type is not CMD', async () => {
@@ -877,7 +885,7 @@ describe('NewTasksComponent', () => {
         otherFiles: []
       });
 
-      expect(component.form.get('preprocessorCommand').value).toBe('--prince-elem-cnt-min=1');
+      expect(component.form.controls.preprocessorCommand.value).toBe('--prince-elem-cnt-min=1');
     });
   });
 

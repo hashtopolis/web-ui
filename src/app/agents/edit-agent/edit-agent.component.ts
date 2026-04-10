@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
@@ -9,11 +10,10 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { JAgentWith, ThinJAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -37,6 +37,7 @@ import {
   DEFAULT_FIELD_MAPPING,
   TASKS_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
+import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -56,18 +57,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectUsers: SelectOption[] = [];
+  selectUsers: SelectOption<UserId>[] = [];
   selectIgnorerrors = IGNORE_ERROR_CHOICES;
-  selectUserAgps: SelectOption[] = [];
+  selectUserAgps: SelectOption<AccessGroupId>[] = [];
 
   /** Assign Tasks */
-  assignTasks: SelectOption[] = [];
+  assignTasks: SelectOption<TaskId>[] = [];
   assignNew = false;
   assignId: number | null = null;
 
   // Edit Index
   editedAgentIndex: number;
-  showagent: JAgent;
+  showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
 
   // Calculations
   timespent = 0;
@@ -184,12 +185,16 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
+      const agent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'> = this.serializer.deserialize(
+        response,
+        zAgentResponse,
+        { include: ['agentStats', 'accessGroups', 'assignments'] as const }
+      );
       this.showagent = agent;
-      this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+      this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
-        if (agent.assignments.length) {
-          const firstAssignment = agent.assignments[0];
+        if ((agent.assignments ?? []).length) {
+          const firstAssignment = (agent.assignments ?? [])[0];
           this.assignNew = !!firstAssignment.taskId;
           this.assignId = firstAssignment.id;
           this.currentAssignment = firstAssignment;
@@ -207,9 +212,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
-        this.showagent = agent;
-        this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        // Degraded fallback: no includes loaded due to server error
+        const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
+        this.showagent = agent as JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+        this.selectUserAgps = [];
         return;
       }
 
@@ -228,9 +234,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     const loadTasksSubscription$ = this.gs
-      .ghelper(SERV.HELPER, 'getBestTasksAgent?agent=' + this.editedAgentIndex)
+      .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
       .subscribe((response: ResponseWrapper) => {
-        const tasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
+        const tasks = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
 
@@ -263,11 +269,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
-      userId: this.showagent.userId,
+      userId: this.showagent.userId ?? null,
       agentName: this.showagent.agentName,
       cpuOnly: this.showagent.cpuOnly,
       cmdPars: this.showagent.cmdPars,
-      ignoreErrors: this.showagent.ignoreErrors,
+      ignoreErrors: this.showagent.ignoreErrors ?? null,
       isTrusted: this.showagent.isTrusted
     });
 
@@ -304,7 +310,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
       const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasks: JTask[] = this.serializer.deserialize(tasksResponse, zTaskListResponse);
+        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse);
 
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);
@@ -336,7 +342,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-      this.onUpdateAssign(this.updateAssignForm.value.taskId);
+      this.onUpdateAssign(this.updateAssignForm.value.taskId ?? null);
     }
 
     this.isUpdatingLoading = true;
@@ -383,7 +389,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   // Render devices using count by device type
   renderDevices(devices: string): string {
     const deviceList = devices.split('\n').filter((d) => !!d.trim());
-    const deviceCountMap: { [key: string]: number } = {};
+    const deviceCountMap: Record<string, number> = {};
 
     deviceList.forEach((device) => {
       deviceCountMap[device] = (deviceCountMap[device] || 0) + 1;
@@ -394,30 +400,30 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .join('<br>');
   }
 
-  getOsLabel(os: number): string {
-    switch (Number(os)) {
-      case 0:
+  getOsLabel(os: AgentOS): string {
+    switch (os) {
+      case AgentOS.LINUX:
         return 'Linux';
-      case 1:
+      case AgentOS.WINDOWS:
         return 'Windows';
-      case 2:
+      case AgentOS.MACOS:
         return 'MacOS';
       default:
         return 'Unknown';
     }
   }
 
-  getOsMessage(os: number): string {
+  getOsMessage(os: AgentOS): string {
     return this.getOsLabel(os);
   }
 
-  getOsFaIcon(os: number): IconDefinition | null {
-    switch (Number(os)) {
-      case 0:
+  getOsFaIcon(os: AgentOS): IconDefinition | null {
+    switch (os) {
+      case AgentOS.LINUX:
         return this.faLinux;
-      case 1:
+      case AgentOS.WINDOWS:
         return this.faWindows;
-      case 2:
+      case AgentOS.MACOS:
         return this.faApple;
       default:
         return null;

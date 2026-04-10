@@ -28,6 +28,7 @@ import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/cor
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hashlist/new-hashlist.form';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
+import { AccessGroupId, HashTypeId } from '@models/id.types';
 import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -58,8 +59,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
-  selectHashtypes: SelectOption[];
+  selectAccessgroup: SelectOption<AccessGroupId>[];
+  selectHashtypes: SelectOption<HashTypeId>[];
   selectFormat = hashlistFormat;
   selectSource = hashSource;
 
@@ -83,7 +84,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   saltSubscription = new Subscription();
 
   // Unsubcribe
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   constructor() {
     this.buildForm();
@@ -123,7 +124,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     );
 
     this.saltSubscription.add(
-      this.form.get('sourceType').valueChanges.subscribe((sourceType: string) => {
+      this.form.controls.sourceType.valueChanges.subscribe((sourceType: string) => {
         if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
           void this.loadServerFiles();
         }
@@ -143,7 +144,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
     this.saltSubscription.unsubscribe();
   }
@@ -155,7 +156,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.form = getNewHashlistForm();
 
     //subscribe to changes to handle select salted hashes
-    this.form.get('hashTypeId').valueChanges.subscribe((newvalue) => {
+    this.form.controls.hashTypeId.valueChanges.subscribe((newvalue) => {
       this.handleSelectedItems(Number(newvalue));
     });
   }
@@ -166,7 +167,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loadConfigs();
     const accessGroupSubscription = this.gs
-      .getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      .getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
       .subscribe((response: ResponseWrapper) => {
         const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
@@ -185,7 +186,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   }
 
   get sourceType() {
-    return this.form.get('sourceType').value;
+    return this.form.controls.sourceType.value;
   }
 
   /**
@@ -245,10 +246,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
-      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {
@@ -270,7 +271,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       return; // form invalid, stop early
     }
 
-    const sourceType = this.form.get('sourceType').value;
+    const sourceType = this.form.controls.sourceType.value;
 
     // Validate required input based on sourceType
     if (sourceType === 'upload') {
@@ -279,21 +280,21 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
         return; // stop submission
       }
     } else if (sourceType === 'paste') {
-      const sourceData = this.form.get('sourceData').value;
+      const sourceData = this.form.controls.sourceData.value;
       if (!sourceData || sourceData.trim() === '') {
         this.alert.showErrorMessage('Please paste your hashes.');
         return; // stop submission
-      } else if (this.form.get('isSalted').value) {
-        if (!this.form.get('separator').value) {
+      } else if (this.form.controls.isSalted.value) {
+        if (!this.form.controls.separator.value) {
           this.alert.showErrorMessage('Salt separator cannot be empty when hashes are salted!');
           return; // stop submission
         } else {
           const hashLines = sourceData.split('\n');
           for (const line of hashLines) {
-            const parts = line.split(this.form.get('separator').value);
+            const parts = line.split(this.form.controls.separator.value);
             if (parts.length < 2) {
               this.alert.showErrorMessage(
-                `Each line must contain a hash and a salt separated by '${this.form.get('separator').value}'.`
+                `Each line must contain a hash and a salt separated by '${this.form.controls.separator.value}'.`
               );
               return; // stop submission
             }
@@ -301,13 +302,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
         }
       }
     } else if (sourceType === 'import') {
-      const sourceData = this.form.get('sourceData').value;
+      const sourceData = this.form.controls.sourceData.value;
       if (!sourceData || sourceData.trim() === '') {
         this.alert.showErrorMessage('Please select a file from the server import directory.');
         return;
       }
     } else if (sourceType === 'url') {
-      const sourceData = this.form.get('sourceData').value;
+      const sourceData = this.form.controls.sourceData.value;
       if (!sourceData || sourceData.trim() === '') {
         this.alert.showErrorMessage('Please provide a URL to download hashes from.');
         return;
@@ -320,7 +321,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     // Proceed with existing logic now that input is validated
     if (sourceType === 'paste') {
       this.form.patchValue({
-        sourceData: handleEncode(this.form.get('sourceData').value)
+        sourceData: handleEncode(this.form.controls.sourceData.value)
       });
       this.isCreatingLoading = true;
 

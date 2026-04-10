@@ -21,6 +21,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
+import { AccessGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
@@ -54,7 +55,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   redirect: string;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
+  selectAccessgroup: SelectOption<AccessGroupId>[];
 
   // Upload files
   selectedFiles: FileList | null = null;
@@ -68,7 +69,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   selectedServerFiles: Set<string> = new Set();
 
   // Unsubcribe files
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   /**
    * Component for handling new files.
@@ -141,7 +142,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
   }
 
@@ -151,7 +152,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
-    this.updateValidatorsBySourceType(this.form.get('sourceType').value);
+    this.updateValidatorsBySourceType(this.form.controls.sourceType.value);
   }
 
   private updateValidatorsBySourceType(sourceType: string): void {
@@ -182,7 +183,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
     try {
       const response: ResponseWrapper = await firstValueFrom(
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
       );
 
       const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
@@ -201,11 +202,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET')
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
-      // The response has response.meta
-      this.serverFiles = (response.meta as ServerImportFile[]) || [];
+      this.serverFiles = response.meta || [];
       this.changeDetectorRef.detectChanges();
     } catch (error) {
       console.error('Error fetching server import files:', error);
@@ -221,7 +221,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async onSubmit(): Promise<void> {
     if (this.form.valid && !this.submitted) {
-      const form = this.onBeforeSubmit(this.form.value, false);
+      const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
       this.isCreatingLoading = true;
       this.submitted = true;
 
@@ -336,7 +336,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       this.alert.showErrorMessage('Please select a file to upload.');
       return;
     }
-    const form = this.onBeforeSubmit(this.form.value, false);
+    const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
       this.uploadService

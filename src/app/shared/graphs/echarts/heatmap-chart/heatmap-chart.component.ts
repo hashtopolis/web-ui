@@ -76,8 +76,9 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
       tooltip: {
         position: 'top',
         formatter: (params: CallbackDataParams) => {
-          const formattedDate = time.format(params.data[0], '{dd}-{MM}-{yyyy}', false);
-          return `${formattedDate}: ${params.data[1]}`;
+          const data = params.data as [string, number];
+          const formattedDate = time.format(data[0], '{dd}-{MM}-{yyyy}', false);
+          return `${formattedDate}: ${data[1]}`;
         }
       },
       visualMap: {
@@ -107,7 +108,8 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
             show: true,
             formatter: (params: CallbackDataParams) => {
               const todayStr = new Date().toISOString().slice(0, 10);
-              return params.data[0] === todayStr ? 'X' : '';
+              const data = params.data as [string, number];
+              return data[0] === todayStr ? 'X' : '';
             }
           }
         }

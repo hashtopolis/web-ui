@@ -74,7 +74,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -136,7 +136,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         isSortable: false,
         isSearchable: true,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        export: async (agent: JAgent) => agent.taskName
+        export: async (agent: JAgent) => agent.taskName ?? ''
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
@@ -354,7 +354,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
+  private rowActionDelete(agent: JAgent[]): void {
     this.subscriptions.push(
       this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted agent!');
@@ -365,7 +365,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 
@@ -376,7 +376,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderActiveAgent(agent: JAgent): string {
-    return agent.agentSpeed > 0 ? 'Running task' : 'Stopped task';
+    return (agent.agentSpeed ?? 0) > 0 ? 'Running task' : 'Stopped task';
   }
 
   /**
@@ -450,7 +450,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const stat = agent.agentStats.filter((u) => u.statType == statType);
+    const stat = (agent.agentStats ?? []).filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:

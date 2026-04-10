@@ -6,7 +6,7 @@
       <div>
         <form class="custom-input-container">
           <mat-form-field class="flex-grow">
-            <textarea matInput name="hashtypeDetector" #value style="flex: 1;"></textarea>
+            <textarea matInput name="hashtypeDetector" #value style="flex: 1"></textarea>
           </mat-form-field>
 
           <mat-dialog-actions align="end">
@@ -15,7 +15,7 @@
         </form>
       </div>
 
-      @if (type && type !== false) {
+      @if (type) {
         <mat-table class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
           @for (column of displayedColumns; track column) {
             <ng-container [matColumnDef]="column">
@@ -24,7 +24,7 @@
             </ng-container>
           }
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
         </mat-table>
       }
 

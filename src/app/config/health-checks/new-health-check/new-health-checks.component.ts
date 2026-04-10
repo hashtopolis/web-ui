@@ -17,7 +17,8 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -34,10 +35,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectCrackertype: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectCrackerversions: any = [];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
@@ -76,7 +75,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       crackerBinaryType: new FormControl('')
     });
 
-    const onHandleBinarySubscription$ = this.form.get('crackerBinaryType').valueChanges.subscribe((newvalue) => {
+    const onHandleBinarySubscription$ = this.form.controls.crackerBinaryType.valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
     this.unsubscribeService.add(onHandleBinarySubscription$);
@@ -109,7 +108,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
       const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-      this.form.get('crackerBinaryId').patchValue(lastItem);
+      this.form.controls.crackerBinaryId.patchValue(lastItem);
     });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

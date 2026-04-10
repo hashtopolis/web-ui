@@ -1,7 +1,7 @@
 /**
  * Interface and intermediate type definitions for request param builder design pattern
  */
-import { MatPaginator } from '@angular/material/paginator';
+import { BaseModel } from '@models/base.model';
 
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
@@ -28,9 +28,9 @@ export class RequestParamsIntermediate {
 export interface IParamBuilder {
   setPageSize(pageSize: number): IParamBuilder;
 
-  setPageBefore(pageBefore: number): IParamBuilder;
+  setPageBefore(pageBefore: number | undefined): IParamBuilder;
 
-  setPageAfter(pageAfter: number): IParamBuilder;
+  setPageAfter(pageAfter: number | undefined): IParamBuilder;
 
   addInclude(include: string): IParamBuilder;
 
@@ -40,7 +40,7 @@ export interface IParamBuilder {
 
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
 
-  addInitial(datasource: BaseDataSource<MatPaginator>): IParamBuilder;
+  addInitial(datasource: BaseDataSource<BaseModel>): IParamBuilder;
 
   create(): RequestParams;
 }

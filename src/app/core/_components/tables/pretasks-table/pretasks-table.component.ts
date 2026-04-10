@@ -130,7 +130,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -176,8 +176,8 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'filesTotal',
         isSortable: false,
         icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
-        render: (pretask: JPretask) => pretask.pretaskFiles?.length,
-        export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
+        render: (pretask: JPretask) => pretask.pretaskFiles?.length ?? 0,
+        export: async (pretask: JPretask) => (pretask.pretaskFiles?.length ?? 0).toString()
       },
       {
         id: PretasksTableCol.FILES_SIZE,
@@ -205,7 +205,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
               return sum;
             }
           }, 0);
-          return formatFileSize(totalFileSize, 'short');
+          return formatFileSize(totalFileSize ?? 0, 'short');
         }
       }
     ];
@@ -451,7 +451,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
-    const keyspace = calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
+    const keyspace = calculateKeyspace(pretask.pretaskFiles ?? [], 'lineCount', pretask.attackCmd, false);
     if (keyspace === null) {
       return '';
     } else {
@@ -600,7 +600,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   private rowActionEdit(pretask: JPretask): void {
     this.renderPretaskLink(pretask)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

@@ -1,30 +1,36 @@
-import {
-  ApplicationRef,
-  ChangeDetectorRef,
-  Component,
-  ViewEncapsulation
-} from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatDialogRef } from '@angular/material/dialog';
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
+
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { ApplicationRef, Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+
+interface HashTypeOption {
+  id: number;
+  description: string;
+  example?: string;
+}
+
+interface HashTypeMatch {
+  regex: string;
+  rAttack: string;
+  options: HashTypeOption[];
+}
 
 @Component({
-    selector: 'hashtype-detector',
-    templateUrl: './hashtype-detector.component.html',
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'hashtype-detector',
+  templateUrl: './hashtype-detector.component.html',
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
-export class HashtypeDetectorComponent {
-  type: any;
+export class HashtypeDetectorComponent implements OnInit {
+  type: HashTypeMatch[] | false;
   displayedColumns: string[] = ['id', 'description', 'example'];
-  dataSource: MatTableDataSource<any>;
+  dataSource: MatTableDataSource<HashTypeOption>;
 
-  constructor(
-    public dialogRef: MatDialogRef<HashtypeDetectorComponent>,
-    private appRef: ApplicationRef,
-    private breakpointObserver: BreakpointObserver
-  ) {}
+  public dialogRef = inject<MatDialogRef<HashtypeDetectorComponent>>(MatDialogRef);
+  private appRef = inject(ApplicationRef);
+  private breakpointObserver = inject(BreakpointObserver);
 
   onClose(): void {
     this.dialogRef.close();
@@ -35,16 +41,16 @@ export class HashtypeDetectorComponent {
     if (result === false || result === 'No hashes found.') {
       this.type = false;
     } else {
-      this.type = result;
+      this.type = result as HashTypeMatch[];
       this.dataSource.data = this.flattenData();
       this.appRef.tick();
     }
   }
 
-  flattenData(): any[] {
-    const flattenedData: any[] = [];
+  flattenData(): HashTypeOption[] {
+    const flattenedData: HashTypeOption[] = [];
 
-    if (this.type && this.type !== false) {
+    if (this.type) {
       for (const n of this.type) {
         for (const nn of n.options) {
           flattenedData.push(nn);
@@ -56,6 +62,6 @@ export class HashtypeDetectorComponent {
   }
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource([]);
+    this.dataSource = new MatTableDataSource<HashTypeOption>([]);
   }
 }

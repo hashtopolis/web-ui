@@ -1,5 +1,6 @@
 import { JAccessGroup } from '@models/access-group.model';
 import { BaseModel } from '@models/base.model';
+import { AccessGroupId, FileId } from '@models/id.types';
 
 /**
  * Different file types
@@ -23,14 +24,14 @@ export interface JFile extends BaseModel {
   size: number;
   isSecret: boolean;
   fileType: number;
-  accessGroupId: number;
+  accessGroupId: AccessGroupId;
   lineCount: number;
   accessGroup?: JAccessGroup;
 }
 export interface TaskSelectFile {
   attackCmd: string;
-  files: number[];
-  otherFiles: number[];
+  files: FileId[];
+  otherFiles: FileId[];
   type: string;
 }
 

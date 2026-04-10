@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     standalone: false
 })
 export class ColumnSelectionDialogComponent {
-  availableColumns: { [key: string]: string };
+  availableColumns: Record<string, string>;
   selectedColumns: string[];
 
   constructor(

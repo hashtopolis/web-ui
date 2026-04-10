@@ -19,19 +19,18 @@ import { AccessGroupsAgentsTableComponent } from '@components/tables/access-grou
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
-const mockAccessGroupResponse: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockAccessGroupResponse: ResponseWrapper = mockResponse({
   data: {
     id: 1,
     type: 'accessGroup',
     attributes: {
       groupName: 'Test Group'
     }
-  } as never,
-  included: []
-};
+  } as never
+});
 
 /**
  * Focused tests for the deserialization bug in EditGroupsComponent.loadSelectUsers().
@@ -133,7 +132,7 @@ describe('EditGroupsComponent', () => {
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     mockGlobalService.get.and.returnValue(of(mockAccessGroupResponse));
-    mockGlobalService.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+    mockGlobalService.getAll.and.returnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [EditGroupsComponent],

@@ -24,6 +24,7 @@ import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
+import { AccessGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
@@ -48,7 +49,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: Array<SelectOption> = [];
+  selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
 
   private httpNoInterceptors: HttpClient;
 
@@ -132,7 +133,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
-      this.hashtype = hashlist.hashType;
+      this.hashtype = hashlist.hashType ?? undefined;
 
       this.updateForm.setValue({
         hashlistId: hashlist.id,
@@ -160,7 +161,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        this.hashtype = hashlist.hashType ?? undefined;
 
         this.updateForm.setValue({
           hashlistId: hashlist.id,
@@ -191,7 +192,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       return;
     }
     const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
     );
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
