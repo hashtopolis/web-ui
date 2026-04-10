@@ -3,6 +3,7 @@ import { Observable, catchError, of } from 'rxjs';
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { DynamicModel } from '@models/base.model';
 import { JHashlist } from '@models/hashlist.model';
 import { getTaskWrapperStatus } from '@models/task.business';
 import { JTask, JTaskWrapper, TaskAttributes, TaskStatus, TaskType } from '@models/task.model';
@@ -565,13 +566,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === TaskType.TASK) {
       const task = wrapper.tasks![0];
       if (equals === '') {
-        if (task[key] === true) {
+        if ((task as DynamicModel)[key] === true) {
           icon = {
             name: 'check',
             cls: 'text-ok'
           };
         }
-      } else if (task[key] === equals) {
+      } else if ((task as DynamicModel)[key] === equals) {
         icon = {
           name: 'check',
           cls: 'text-ok'
@@ -579,13 +580,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       }
     } else {
       if (equals === '') {
-        if (wrapper[key] === true) {
+        if ((wrapper as DynamicModel)[key] === true) {
           icon = {
             name: 'check',
             cls: 'text-ok'
           };
         }
-      } else if (wrapper[key] === equals) {
+      } else if ((wrapper as DynamicModel)[key] === equals) {
         icon = {
           name: 'check',
           cls: 'text-ok'

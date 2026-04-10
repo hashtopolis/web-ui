@@ -69,7 +69,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const agents: JAgent[] = this.serializer.deserialize(response, zAgentListResponse);
+        const agents = this.serializer.deserialize(response, zAgentListResponse) as JAgent[];
 
         if (agents && agents.length > 0) {
           agents.forEach((agent: JAgent) => {
@@ -120,7 +120,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             const task = assignment.task;
             const agent = assignment.agent;
             agent.task = task;
-            agent.user = users.find((user) => user.id === agent.userId);
+            agent.user = users.find((user) => user.id === agent.userId)!;
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task.id;
             agent.benchmark = assignment.benchmark;

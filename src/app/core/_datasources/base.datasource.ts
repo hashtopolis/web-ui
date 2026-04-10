@@ -6,7 +6,7 @@ import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { BaseModel } from '@models/base.model';
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
@@ -235,7 +235,7 @@ export abstract class BaseDataSource<
         return JSON.stringify(item).toLowerCase().includes(value);
       }
       if (!selectedColumn.dataKey) return false;
-      const fieldValue = item[selectedColumn.dataKey];
+      const fieldValue = (item as DynamicModel)[selectedColumn.dataKey];
       return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
     });
   }
@@ -253,8 +253,8 @@ export abstract class BaseDataSource<
     const isAscending = this.sortingColumn.direction === 'asc';
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
-      const aValue = a[sortKey];
-      const bValue = b[sortKey];
+      const aValue = (a as DynamicModel)[sortKey];
+      const bValue = (b as DynamicModel)[sortKey];
       if (aValue == null || bValue == null) return 0;
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         const cmp = aValue.localeCompare(bValue);

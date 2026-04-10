@@ -12,7 +12,7 @@
             @if (link.label) {
               {{ link.label }}
             } @else {
-              {{ element[tableColumn.dataKey!] }}
+              {{ $any(element)[tableColumn.dataKey!] }}
             }
             @if (link.icon?.faIcon; as faIcon) {
               <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
@@ -78,7 +78,7 @@
               @if (link.label) {
                 {{ link.label }}
               } @else {
-                {{ element[tableColumn.dataKey!] }}
+                {{ $any(element)[tableColumn.dataKey!] }}
               }
               @if (link.icon?.faIcon; as faIcon) {
                 <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>

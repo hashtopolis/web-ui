@@ -9,6 +9,6 @@
   }
   <!-- Default rendering if no render function is defined -->
   @if (!tableColumn.async && !tableColumn.render && !tableColumn.icon) {
-    {{ element[tableColumn.dataKey!] }}
+    {{ $any(element)[tableColumn.dataKey!] }}
   }
 }

@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
@@ -161,7 +161,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
           let _filters: Filter[] = [];
 
           if (path === SERV.AGENTS) {
-            const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
+            const agents = new JsonAPISerializer().deserialize(response, zAgentListResponse) as ThinJAgent[];
             _filters = agents.map((a) => ({ id: a.id, name: a.agentName }));
           } else if (path === SERV.TASKS) {
             const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);

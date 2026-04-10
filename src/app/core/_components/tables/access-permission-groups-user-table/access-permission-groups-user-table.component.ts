@@ -2,6 +2,7 @@ import { catchError } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
+import { DynamicModel } from '@models/base.model';
 import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
 
@@ -147,7 +148,7 @@ export class AccessPermissionGroupsUserTableComponent
     const capitalizedPerm = (editable['action'].match(/-(.*?)-/)?.[1] || '')
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
-    const keyPerm = editable.data['originalName'] + capitalizedPerm;
+    const keyPerm = (editable.data as DynamicModel)['originalName'] + capitalizedPerm;
     const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {

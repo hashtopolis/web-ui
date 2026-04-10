@@ -178,7 +178,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
         const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-        const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
+        const agents = new JsonAPISerializer().deserialize(response, zAgentListResponse) as JAgent[];
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }
     } catch (error) {

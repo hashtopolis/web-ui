@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { BaseModel } from '@models/base.model';
+import { BaseModel, DynamicModel } from '@models/base.model';
 
 import { ContextMenuType } from '@services/context-menu/base/context-menu.service';
 
@@ -27,7 +27,7 @@ export class BaseMenuComponent {
   }
 
   private checkId(attribute: string): boolean {
-    return this.hasKeys('id', attribute) && this.data.id === this.data[attribute];
+    return this.hasKeys('id', attribute) && this.data.id === (this.data as DynamicModel)[attribute];
   }
 
   private checkType(attribute: string): boolean {
@@ -62,7 +62,7 @@ export class BaseMenuComponent {
   protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
     const condition = item.condition;
     if (condition?.key && condition.key.length > 0) {
-      const value = data[condition.key];
+      const value = (data as DynamicModel)[condition.key];
       if (condition.key in data && Boolean(value) === condition.value) {
         this.addActionMenuItem(item.index, item.menuItem);
       } else if (value === undefined && condition.value === false) {

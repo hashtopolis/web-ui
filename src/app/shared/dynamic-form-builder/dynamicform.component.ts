@@ -202,7 +202,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
           .selectEndpoint$()
           .pipe(takeUntil(this.destroy$))
           .subscribe((response: ResponseWrapper) => {
-            const options: BaseModel[] = new JsonAPISerializer().deserialize(response, field.selectSchema) as BaseModel[];
+            const options: Record<string, unknown>[] = new JsonAPISerializer().deserialize(response, field.selectSchema) as Record<string, unknown>[];
             // Assign the fetched options to the field's selectOptions$
             field.selectOptions$ = this.transformSelectOptions(options, field.fieldMapping);
             // Update isLoadingSelect to indicate that loading is complete

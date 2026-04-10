@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { DynamicModel } from '@models/base.model';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile, TaskSelectFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
@@ -142,7 +143,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           const schema = isPretask ? zPreTaskResponse : zTaskResponse;
           const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
 
-          const filesArray: number[] = ((result[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []).map(
+          const filesArray: number[] = (((result as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []).map(
             (file: JFile) => file['id']
           );
 

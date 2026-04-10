@@ -2,7 +2,7 @@ import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
-import { BaseModel } from '@models/base.model';
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { SERV } from '@services/main.config';
@@ -132,7 +132,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy(String(event.hash))) {
+    if (this.clipboard.copy(String((event as JHash).hash))) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');
@@ -183,7 +183,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (hash) {
       const chunk = hash.chunk;
       if (chunk) {
-        const modelID = chunk[modelIDKey] as string | number;
+        const modelID = (chunk as DynamicModel)[modelIDKey] as string | number;
         links.push({
           routerLink: [relativePath, context, modelID, 'edit'],
           label: modelID

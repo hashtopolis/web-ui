@@ -184,7 +184,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
+      const agent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -207,7 +207,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       if (httpErr?.status && httpErr.status >= 500) {
         const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
-        const agent: JAgent = this.serializer.deserialize(response, zAgentResponse);
+        const agent = this.serializer.deserialize(response, zAgentResponse) as JAgent;
         this.showagent = agent;
         this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
         return;
