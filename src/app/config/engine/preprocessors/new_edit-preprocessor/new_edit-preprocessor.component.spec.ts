@@ -25,7 +25,6 @@ describe('NewEditPreprocessorComponent', () => {
   let httpMock: HttpTestingController;
 
   const preprocessorResponse = {
-    jsonapi: { version: '1.1', ext: [] },
     data: {
       id: 9,
       type: 'preprocessor',
@@ -37,8 +36,7 @@ describe('NewEditPreprocessorComponent', () => {
         skipCommand: '--skip',
         limitCommand: '--limit'
       }
-    },
-    included: []
+    }
   };
 
   beforeEach(async () => {

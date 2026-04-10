@@ -16,6 +16,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
@@ -33,12 +34,8 @@ class MockUploadTUSService {
 }
 
 class MockGlobalService {
-  getAll = jasmine
-    .createSpy('getAll')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
-  getRelationships = jasmine
-    .createSpy('getRelationships')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+  getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
+  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of(mockResponse()));
   create = jasmine.createSpy('create').and.returnValue(of({}));
   userId = 1;
 }

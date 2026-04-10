@@ -60,7 +60,7 @@ describe('NewAgentComponent', () => {
 
     // Provide default stub for configService.getEndpoint()
     configServiceSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
-    globalServiceSpy.getAll.and.returnValue(of(mockResponse({ jsonapi: { version: '1.1', ext: [] }, included: [] })));
+    globalServiceSpy.getAll.and.returnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [NewAgentComponent, MockAgentBinariesTableComponent, MockVouchersTableComponent],

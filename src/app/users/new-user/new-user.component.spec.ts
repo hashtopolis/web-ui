@@ -24,8 +24,7 @@ describe('NewUserComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
-  const mockPermissionResponse: ResponseWrapper = {
-    jsonapi: { version: '1.1', ext: [] },
+  const mockPermissionResponse: ResponseWrapper = mockResponse({
     data: [
       {
         id: 1,
@@ -43,11 +42,8 @@ describe('NewUserComponent', () => {
           permissions: {}
         }
       }
-    ],
-    included: [],
-    links: { self: '' },
-    meta: { page: { total_elements: 0 } }
-  };
+    ]
+  });
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);

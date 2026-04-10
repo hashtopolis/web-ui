@@ -26,8 +26,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 import { mockResponse } from '@src/app/testing/mock-response';
 
-const mockAccessGroups: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockAccessGroups: ResponseWrapper = mockResponse({
   data: [
     {
       id: 1,
@@ -43,14 +42,10 @@ const mockAccessGroups: ResponseWrapper = {
         groupName: 'User'
       }
     }
-  ],
-  included: [],
-  links: { self: '' },
-  meta: { page: { total_elements: 0 } }
-};
+  ]
+});
 
-const mockHashtypes: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockHashtypes: ResponseWrapper = mockResponse({
   data: [
     {
       id: 2500,
@@ -79,14 +74,10 @@ const mockHashtypes: ResponseWrapper = {
         isSlowHash: true
       }
     }
-  ],
-  included: [],
-  links: { self: '' },
-  meta: { page: { total_elements: 0 } }
-};
+  ]
+});
 
-const mockConfigs: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockConfigs: ResponseWrapper = mockResponse({
   data: {
     id: 66,
     type: 'config',
@@ -95,11 +86,8 @@ const mockConfigs: ResponseWrapper = {
       item: 'Enable Brain',
       value: '1'
     }
-  },
-  included: [],
-  links: { self: '' },
-  meta: { page: { total_elements: 0 } }
-};
+  }
+});
 
 describe('NewHashlistComponent', () => {
   let component: NewHashlistComponent;
