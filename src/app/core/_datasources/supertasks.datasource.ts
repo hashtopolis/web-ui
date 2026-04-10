@@ -1,3 +1,4 @@
+import { zSupertaskListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -40,8 +41,7 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
+          const supertasks: JSuperTask[] = this.serializer.deserialize(response, zSupertaskListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

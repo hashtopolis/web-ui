@@ -1,3 +1,4 @@
+import { zHashListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHash, SearchHashModel } from '@models/hash.model';
@@ -60,8 +61,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           })
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const hashes = this.convertHashes(this.serializer.deserialize<JHash[]>(responseData));
+          const hashes = this.convertHashes(this.serializer.deserialize(response, zHashListResponse));
           this.checkMissingHashes(hashes);
           this.setData(hashes);
         })

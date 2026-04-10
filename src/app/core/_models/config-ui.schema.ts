@@ -98,11 +98,11 @@ export const sortingSchema = z.object({
  */
 export const tableConfigSchema = z.object({
   columns: z.array(z.coerce.number()),
-  start: z.coerce.number().optional(),
+  start: z.union([z.coerce.number(), z.string()]).optional(),
   order: z.union([sortingSchema, z.array(sortingSchema)]).optional(),
   page: z.coerce.number(),
   search: z.union([z.string(), z.array(z.unknown())]),
-  before: z.coerce.number().optional(),
+  before: z.union([z.coerce.number(), z.string()]).optional(),
   index: z.coerce.number().optional()
 });
 

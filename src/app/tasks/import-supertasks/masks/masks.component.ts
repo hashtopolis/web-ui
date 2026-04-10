@@ -1,10 +1,12 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 
 import { SERV } from '@services/main.config';
@@ -13,7 +15,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -115,12 +116,15 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+        );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+        this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 

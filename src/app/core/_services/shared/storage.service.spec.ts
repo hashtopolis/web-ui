@@ -37,7 +37,7 @@ describe('UIConfigService', () => {
 
   beforeEach(() => {
     const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    globalServiceSpy.getAll.and.returnValue(of({ data: [], included: [] }));
+    globalServiceSpy.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
 
     TestBed.configureTestingModule({
       providers: [UIConfigService, { provide: GlobalService, useValue: globalServiceSpy }]

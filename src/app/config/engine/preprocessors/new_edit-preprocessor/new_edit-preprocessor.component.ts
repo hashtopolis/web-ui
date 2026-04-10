@@ -1,3 +1,4 @@
+import { zPreprocessorResponse } from '@generated/api/zod';
 import { Subscription, firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -5,7 +6,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JPreprocessor } from '@models/preprocessor.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -113,10 +113,7 @@ export class NewEditPreprocessorComponent implements OnInit {
 
     const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
-    const preprocessor = new JsonAPISerializer().deserialize<JPreprocessor>({
-      data: response.data,
-      included: response.included
-    });
+    const preprocessor = new JsonAPISerializer().deserialize(response, zPreprocessorResponse);
 
     this.newEditPreprocessorForm.patchValue({
       name: preprocessor.name,

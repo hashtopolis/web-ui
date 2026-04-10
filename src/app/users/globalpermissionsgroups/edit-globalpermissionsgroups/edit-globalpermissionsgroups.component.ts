@@ -1,6 +1,8 @@
 /**
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -92,10 +94,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         if (response) {
-          this.editedGPG = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>({
-            data: response.data,
-            included: response.included
-          });
+          this.editedGPG = new JsonAPISerializer().deserialize(response, zGlobalPermissionGroupResponse);
           const formValues = this.buildFormValues();
           this.updateForm.patchValue(formValues);
         }

@@ -21,37 +21,115 @@ import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component'
 import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
-    { id: '1', type: 'HashLists', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
-    { id: '2', type: 'HashLists', attributes: { name: 'second-hashlist', isArchived: false, hashTypeId: 1 } }
+    {
+      id: 1,
+      type: 'hashlist',
+      attributes: {
+        name: 'test-hashlist',
+        format: 0,
+        hashTypeId: 0,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    },
+    {
+      id: 2,
+      type: 'hashlist',
+      attributes: {
+        name: 'second-hashlist',
+        format: 0,
+        hashTypeId: 1,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    }
   ],
   included: []
 };
 
 const MOCK_EMPTY_HASHLISTS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [],
   included: []
 };
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
-  data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
-  included: []
+  jsonapi: { version: '1.1', ext: [] },
+  data: [
+    {
+      id: 1,
+      type: 'crackerBinaryType',
+      attributes: { typeName: 'hashcat', isChunkingAvailable: true },
+      relationships: {
+        crackerVersions: {
+          data: [{ type: 'crackerBinary', id: 10 }]
+        }
+      }
+    }
+  ],
+  included: [
+    {
+      id: 10,
+      type: 'crackerBinary',
+      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+    }
+  ]
 };
 
 const MOCK_CRACKERS_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
-    { id: '10', type: 'Crackers', attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' } }
+    {
+      id: 10,
+      type: 'crackerBinary',
+      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+    }
   ],
   included: []
 };
 
 const MOCK_CRACKERS_EMPTY_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [],
   included: []
 };
 
 const MOCK_PREPROCESSORS_RESPONSE = {
-  data: [{ id: '1', type: 'Preprocessors', attributes: { name: 'prince' } }],
+  jsonapi: { version: '1.1', ext: [] },
+  data: [
+    {
+      id: 1,
+      type: 'preprocessor',
+      attributes: {
+        name: 'prince',
+        url: 'https://example.com/prince',
+        binaryName: 'pp64.bin',
+        keyspaceCommand: '--keyspace',
+        skipCommand: '--skip',
+        limitCommand: '--limit'
+      }
+    }
+  ],
   included: []
 };
 
@@ -105,42 +183,44 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
 };
 
 const MOCK_TASK_GET_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: {
-    id: '42',
-    type: 'Tasks',
+    id: 42,
+    type: 'task',
     attributes: MOCK_TASK_ATTRIBUTES,
     relationships: {
-      hashlist: { data: { id: '1', type: 'HashLists' } },
+      hashlist: { data: { id: 1, type: 'hashlist' } },
       files: {
         data: [
-          { id: '100', type: 'Files' },
-          { id: '101', type: 'Files' }
+          { id: 100, type: 'file' },
+          { id: 101, type: 'file' }
         ]
       },
       speeds: { data: [] },
-      crackerBinary: { data: { id: '10', type: 'Crackers' } },
-      crackerBinaryType: { data: { id: '1', type: 'CrackerTypes' } }
+      crackerBinary: { data: { id: 10, type: 'crackerBinary' } },
+      crackerBinaryType: { data: { id: 1, type: 'crackerBinaryType' } }
     }
   },
   included: [
-    { id: '1', type: 'HashLists', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
-    { id: '100', type: 'Files', attributes: { filename: 'rockyou.txt', size: 0 } },
-    { id: '101', type: 'Files', attributes: { filename: 'rules.txt', size: 0 } },
-    { id: '10', type: 'Crackers', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1 } },
-    { id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }
+    { id: 1, type: 'hashlist', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
+    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0 } },
+    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0 } },
+    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1 } },
+    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat' } }
   ]
 };
 
 const MOCK_PRETASK_GET_RESPONSE = {
+  jsonapi: { version: '1.1', ext: [] },
   data: {
-    id: '7',
-    type: 'PreTasks',
+    id: 7,
+    type: 'pretask',
     attributes: MOCK_PRETASK_ATTRIBUTES,
     relationships: {
-      pretaskFiles: { data: [{ id: '200', type: 'Files' }] }
+      pretaskFiles: { data: [{ id: 200, type: 'file' }] }
     }
   },
-  included: [{ id: '200', type: 'Files', attributes: { filename: 'mask.hcmask', size: 0 } }]
+  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0 } }]
 };
 
 function buildGetAllCallFake(overrides: { [url: string]: Observable<unknown> } = {}) {
@@ -152,7 +232,7 @@ function buildGetAllCallFake(overrides: { [url: string]: Observable<unknown> } =
   };
   const merged = { ...defaults, ...overrides };
   return (serviceConfig: { URL: string }) => {
-    return merged[serviceConfig.URL] ?? of({ data: [], included: [] });
+    return merged[serviceConfig.URL] ?? of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] });
   };
 }
 
@@ -626,16 +706,17 @@ describe('NewTasksComponent', () => {
 
     it('should select the last version by default', async () => {
       const multiVersionResponse = {
+        jsonapi: { version: '1.1', ext: [] },
         data: [
           {
-            id: '10',
-            type: 'Crackers',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5' }
+            id: 10,
+            type: 'crackerBinary',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
           },
           {
-            id: '11',
-            type: 'Crackers',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6' }
+            id: 11,
+            type: 'crackerBinary',
+            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
         ],
         included: []

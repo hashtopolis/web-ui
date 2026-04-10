@@ -166,6 +166,32 @@ describe('uiConfigSchema', () => {
     }
   });
 
+  it('should accept base64 cursor strings in start and before fields', () => {
+    const cursor = 'eyJwcmltYXJ5Ijp7InRhc2tXcmFwcGVySWQiOjE4fX0=';
+    const config = {
+      ...defaults,
+      tableSettings: {
+        tasksTable: {
+          columns: [0, 1, 2],
+          page: 5,
+          search: '',
+          order: { id: 0, dataKey: 'taskWrapperId', isSortable: true, direction: 'desc' as const },
+          start: cursor,
+          before: cursor,
+          index: 1
+        }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      const table = result.data.tableSettings['tasksTable'];
+      expect(table['start']).toBe(cursor);
+      expect(table['before']).toBe(cursor);
+    }
+  });
+
   it('should coerce string numbers to actual numbers in columns', () => {
     const config = {
       ...defaults,
@@ -383,7 +409,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
     { table: 'users', dataKey: 'name', id: 1 },
     { table: 'hashlists', dataKey: 'id', id: 0 },
     { table: 'files', dataKey: 'filename', id: 1 },
-    { table: 'cracks', dataKey: 'timeCracked', id: 0 },
+    { table: 'cracks', dataKey: 'timeCracked', id: 0 }
   ];
 
   for (const direction of ['asc', 'desc'] as const) {

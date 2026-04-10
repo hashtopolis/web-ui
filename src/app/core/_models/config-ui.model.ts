@@ -53,11 +53,11 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
-  start?: number;
+  start?: number | string;
   order?: Sorting | Sorting[];
   page: number;
   search?: string | unknown[];
-  before?: number;
+  before?: number | string;
   index?: number;
 }
 

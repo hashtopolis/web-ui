@@ -1,10 +1,9 @@
-import { ChunkData, JChunk } from '@models/chunk.model';
-
-import { BaseModel } from '@models/base.model';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentErrors } from './agent-errors.model';
+import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
+import { BaseModel } from '@models/base.model';
+import { ChunkData, JChunk } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
@@ -18,16 +17,16 @@ export interface JAgent extends BaseModel {
   os: number;
   devices: string;
   cmdPars: string;
-  ignoreErrors: number;
+  ignoreErrors?: number;
   isActive: boolean;
   isTrusted: boolean;
   token: string;
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId: null;
+  userId?: number | null;
   user?: JUser;
-  cpuOnly: number;
+  cpuOnly: boolean;
   clientSignature: string;
   agentStats?: JAgentStat[];
   agentErrors?: JAgentErrors[];

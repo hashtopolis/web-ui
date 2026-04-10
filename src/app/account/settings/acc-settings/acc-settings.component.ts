@@ -9,12 +9,15 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JUser } from '@models/user.model';
+
 import { SERV } from '@services/main.config';
 
 import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
-import { JUserSchema } from '@src/app/core/_models/user.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
+import { zUserResponse } from '@src/generated/api/zod';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -85,6 +88,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.createForm();
     this.loadUserSettings();
     this.createUpdatePassForm();
+
+    this.form.markAllAsTouched();
+    this.form.updateValueAndValidity();
   }
 
   /**
@@ -102,7 +108,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
-      email: new FormControl('', [Validators.required, Validators.email])
+      email: new FormControl('', [Validators.required, emailValidator])
     });
   }
 
@@ -222,10 +228,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     this.subscriptions.push(
       this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
-        const user = new JsonAPISerializer().deserialize(
-          { data: response.data, included: response.included },
-          JUserSchema
-        );
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
         this.form.patchValue({
           name: user.name,

@@ -10,6 +10,7 @@ import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.se
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
 import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
 
 /**
@@ -1138,7 +1139,7 @@ export class MetadataService {
       label: 'Email',
       type: 'email',
       requiredasterisk: true,
-      validators: [Validators.required, Validators.email]
+      validators: [Validators.required, emailValidator]
     },
     {
       name: 'globalPermissionGroupId',

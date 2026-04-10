@@ -8,8 +8,10 @@ import { JHashtype } from '@models/hashtype.model';
  * - `BRUTE_FORCE` Health check using brute-force attack
  * @enum
  */
+// @TODO: Check this
 export enum HealthCheckType {
-  BRUTE_FORCE
+  MD5 = 0,
+  BCRYPT = 3200
 }
 
 /**
@@ -35,7 +37,8 @@ export interface JHealthCheck extends BaseModel {
   crackerBinary?: JCrackerBinary;
   expectedCracks: number;
   healthCheckAgents?: JHealthCheckAgent[];
-  hashTypeId: number;
+  hashtypeId: number;
+  hashTypeId?: number;
   hashType?: JHashtype;
   hashTypeDescription?: string;
   status: number;

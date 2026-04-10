@@ -1,3 +1,4 @@
+import { zUserListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -41,9 +42,7 @@ export class UsersDataSource extends BaseDataSource<JUser> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-
-          const users = this.serializer.deserialize<JUser[]>(responseBody);
+          const users: JUser[] = this.serializer.deserialize(response, zUserListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

@@ -1,8 +1,10 @@
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -106,8 +108,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   loadData() {
     const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+      );
 
       this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
