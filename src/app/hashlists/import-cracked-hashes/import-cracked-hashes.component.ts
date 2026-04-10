@@ -247,8 +247,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   async loadServerFiles(): Promise<void> {
     this.isLoadingServerFiles = true;
     try {
-      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
-      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET'));
+      this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {
@@ -309,8 +309,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
-      const files = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET'));
+      const files = response.meta || [];
       this.serverFiles = files;
       this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;

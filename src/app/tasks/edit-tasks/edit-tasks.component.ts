@@ -67,7 +67,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: JAgent[] = [];
-  selectAgents: SelectOption[] = [];
+  selectAgents: SelectOption<number>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;

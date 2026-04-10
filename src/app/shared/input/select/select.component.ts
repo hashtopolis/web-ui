@@ -30,7 +30,7 @@ import { SelectOption } from '@src/app/shared/utils/forms';
   ],
   standalone: false
 })
-export class InputSelectComponent<T extends string | number | boolean = string> extends AbstractInputComponent<T> {
+export class InputSelectComponent<T extends string | number | boolean = number> extends AbstractInputComponent<T> {
   @Input() items: SelectOption<T>[] | undefined = [];
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;

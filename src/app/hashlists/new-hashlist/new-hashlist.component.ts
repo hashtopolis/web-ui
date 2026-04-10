@@ -58,8 +58,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
-  selectHashtypes: SelectOption[];
+  selectAccessgroup: SelectOption<number>[];
+  selectHashtypes: SelectOption<number>[];
   selectFormat = hashlistFormat;
   selectSource = hashSource;
 
@@ -245,8 +245,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
-      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
-      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET'));
+      this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
       this.hasLoadedServerFiles = true;
     } catch (error) {

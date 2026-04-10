@@ -41,7 +41,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   form: FormGroup<NewSuperhashlistForm>;
 
   /** Select List of hashlists. */
-  selectHashlists: SelectOption[];
+  selectHashlists: SelectOption<number>[];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

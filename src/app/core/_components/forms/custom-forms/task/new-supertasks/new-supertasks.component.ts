@@ -34,7 +34,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   form: FormGroup;
 
   /** List of PreTasks. */
-  selectPretasks: SelectOption[];
+  selectPretasks: SelectOption<number>[];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

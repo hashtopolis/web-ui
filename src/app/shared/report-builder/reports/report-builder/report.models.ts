@@ -72,7 +72,7 @@ export interface ReportTextItem {
  */
 export interface ReportTableSection {
   title: string;
-  table: { tableColumns: string[]; tableValues: unknown[] };
+  table: { tableColumns: string[]; tableValues: (string | number)[] };
 }
 
 /**
@@ -149,4 +149,35 @@ export interface ReportTemplate {
  */
 export interface ReportDataProvider {
   getOriginalData(): ReportSection[];
+}
+
+/** Recursive union covering all pdfMake content node shapes. */
+export type PdfContentItem =
+  | string
+  | number
+  | CoverPageElement
+  | ReportHeaderText
+  | Record<string, unknown>
+  | PdfContentItem[];
+
+/** Document definition passed to pdfMake's createPdf(). */
+export interface PdfDocumentDefinition {
+  info?: { title?: string; author?: string; subject?: string };
+  pageSize?: string;
+  pageMargins?: number[];
+  userPassword?: string;
+  ownerPassword?: string;
+  permissions?: Record<string, unknown>;
+  header?: (
+    currentPage: number,
+    pageCount: number
+  ) => PdfContentItem[] | null;
+  footer?: (
+    currentPage: number,
+    pageCount: number
+  ) => PdfContentItem | null;
+  content: PdfContentItem[];
+  styles?: Record<string, Record<string, unknown>>;
+  defaultStyle?: Record<string, unknown>;
+  [key: string]: unknown;
 }

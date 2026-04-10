@@ -55,12 +55,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectUsers: SelectOption[] = [];
+  selectUsers: SelectOption<number>[] = [];
   selectIgnorerrors = IGNORE_ERROR_CHOICES;
-  selectUserAgps: SelectOption[] = [];
+  selectUserAgps: SelectOption<number>[] = [];
 
   /** Assign Tasks */
-  assignTasks: SelectOption[] = [];
+  assignTasks: SelectOption<number>[] = [];
   assignNew = false;
   assignId: number | null = null;
 

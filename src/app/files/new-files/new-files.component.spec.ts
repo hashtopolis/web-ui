@@ -231,19 +231,17 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }) as any);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }) as any);
+      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }));
+      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
       // The user belongs to 2 out of 5 total groups.
       // We mock loadData to bypass JsonAPISerializer (which needs an injection
       // context unavailable in tests) and verify the dropdown binding.
-      const userScopedGroups: SelectOption[] = [
-        { id: '1', name: 'Group A' },
-        { id: '3', name: 'Group C' }
+      const userScopedGroups: SelectOption<number>[] = [
+        { id: 1, name: 'Group A' },
+        { id: 3, name: 'Group C' }
       ];
 
       TestBed.overrideProvider(ActivatedRoute, {

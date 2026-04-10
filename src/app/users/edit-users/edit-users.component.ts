@@ -48,10 +48,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select List of Global Permission Groups. */
-  selectGlobalPermissionGroups: SelectOption[];
+  selectGlobalPermissionGroups: SelectOption<number>[];
 
   /** User Access Group Permissions. */
-  selectUserAgps: SelectOption[];
+  selectUserAgps: SelectOption<number>[];
 
   // Edit Configuration
   editedUserIndex: number;

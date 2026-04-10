@@ -8,7 +8,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 
 import {
   CoverPageElement,
+  PdfContentItem,
   PdfCoverTextElement,
+  PdfDocumentDefinition,
   ReportDataProvider,
   ReportFormValues,
   ReportHeaderText,
@@ -94,11 +96,11 @@ export class ReportBuilderComponent implements OnInit {
 
   async renderPDF(formValues: ReportFormValues) {
     try {
-      const coverpage: unknown[] = [];
-      const coverpage_letterhead: unknown[] = [];
-      const backgroundImage: unknown[] = [];
-      const pages: unknown[] = [];
-      const content: unknown[] = [];
+      const coverpage: PdfContentItem[] = [];
+      const coverpage_letterhead: PdfContentItem[] = [];
+      const backgroundImage: PdfContentItem[] = [];
+      const pages: PdfContentItem[] = [];
+      const content: PdfContentItem[] = [];
 
       const globalStyles = this.templates[this.templateName]?.settings.global_style;
 
@@ -116,7 +118,7 @@ export class ReportBuilderComponent implements OnInit {
           }
         }
         // Construct footer
-        const footerRow: unknown[] = [];
+        const footerRow: CoverPageElement[] = [];
         for (const key of Object.keys(encodeData)) {
           const formData = formValues[key as keyof ReportFormValues];
           const footerItem = encodeData[key];
@@ -134,7 +136,7 @@ export class ReportBuilderComponent implements OnInit {
         delete encodeData['info_cover_footer_2'];
         delete encodeData['info_cover_footer_3'];
 
-        const coverPageContent: unknown[] = Object.keys(encodeData).map((key) => {
+        const coverPageContent: PdfContentItem[] = Object.keys(encodeData).map((key) => {
           const formData = formValues[key as keyof ReportFormValues];
           const defaultData = encodeData[key]; // Assuming coverPage is the default template data
           // Create a new object to hold the modified data
@@ -254,7 +256,7 @@ export class ReportBuilderComponent implements OnInit {
             text: column,
             ...globalStyles?.tables?.tableHeader
           }));
-          const tableBodyRow = tableValues.map((value: unknown) => ({
+          const tableBodyRow = tableValues.map((value: string | number) => ({
             text: value,
             border: [false, true, false, true]
           }));
@@ -288,7 +290,7 @@ export class ReportBuilderComponent implements OnInit {
         delete backgroundImg.img_path;
       }
 
-      const project: Record<string, unknown> = {
+      const project: PdfDocumentDefinition = {
         // pdfMake document definition
         info: {
           title: 'Hashtopolis Report',
@@ -309,7 +311,7 @@ export class ReportBuilderComponent implements OnInit {
           documentAssembly: true
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        header: function (currentPage: number, _pageSize: unknown) {
+        header: function (currentPage: number, _pageCount: number) {
           const headerTextData: ReportHeaderText = { ...headerText };
           const result: (ReportImageConfig | ReportHeaderText)[] = [];
 

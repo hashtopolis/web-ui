@@ -8,10 +8,10 @@ import { TJsonApiBody } from 'jsona/lib/JsonaTypes';
  * @prop links    Object containing json:api links
  * @prop meta     Object containing metadata like count of received and total objects/resources
  */
-export interface ResponseWrapper extends TJsonApiBody {
+export interface ResponseWrapper<TMeta = Meta> extends TJsonApiBody {
   jsonapi?: JsonApi;
   links: Links;
-  meta: Meta;
+  meta: TMeta;
 }
 
 /**

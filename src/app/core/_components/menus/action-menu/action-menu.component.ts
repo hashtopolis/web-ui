@@ -21,6 +21,7 @@ import {
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -74,7 +75,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() label: string = '';
   @Input() disabled = false;
   @Input() cls = '';
-  @Input() data: unknown;
+  @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
   @Input() openOnMouseEnter = false;
@@ -85,7 +86,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() enableHoverClose = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<ActionMenuEvent<BaseModel | undefined>>();
 
   faDiscord = faDiscord;
   faGithub = faGithub;

@@ -5,13 +5,13 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
 
-const ITEMS: SelectOption[] = [
-  { id: '1', name: 'Alpha' },
-  { id: '2', name: 'Beta' },
-  { id: '3', name: 'Gamma' },
-  { id: '4', name: 'Delta' },
-  { id: '5', name: 'Epsilon' },
-  { id: '6', name: 'Zeta' }
+const ITEMS: SelectOption<number>[] = [
+  { id: 1, name: 'Alpha' },
+  { id: 2, name: 'Beta' },
+  { id: 3, name: 'Gamma' },
+  { id: 4, name: 'Delta' },
+  { id: 5, name: 'Epsilon' },
+  { id: 6, name: 'Zeta' }
 ];
 
 describe('InputMultiSelectComponent', () => {
@@ -41,7 +41,7 @@ describe('InputMultiSelectComponent', () => {
     });
 
     it('should replace filteredItems when items are replaced', () => {
-      component.items = [{ id: '10', name: 'New' }];
+      component.items = [{ id: 10, name: 'New' }];
       expect(component.filteredItems.length).toBe(1);
       expect(component.filteredItems[0].name).toBe('New');
     });
@@ -51,7 +51,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter items by name (case-insensitive)', () => {
       component.onSearchInputChange({ target: { value: 'alpha' } } as unknown as Event);
       expect(component.filteredItems.length).toBe(1);
-      expect(component.filteredItems[0].id).toBe('1');
+      expect(component.filteredItems[0].id).toBe(1);
     });
 
     it('should return all items when search is cleared', () => {
@@ -68,7 +68,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter by id when mergeIdAndName is true', () => {
       component.mergeIdAndName = true;
       component.onSearchInputChange({ target: { value: '2' } } as unknown as Event);
-      expect(component.filteredItems.some((i) => i.id === '2')).toBeTrue();
+      expect(component.filteredItems.some((i) => i.id === 2)).toBeTrue();
     });
   });
 
@@ -129,7 +129,7 @@ describe('InputMultiSelectComponent', () => {
     it('should pre-select item by numeric id', () => {
       component.writeValue(1);
       expect(component.selectedItems.length).toBe(1);
-      expect(component.selectedItems[0].id).toBe('1');
+      expect(component.selectedItems[0].id).toBe(1);
     });
 
     it('should pre-select multiple items by id array', () => {

@@ -49,21 +49,13 @@ export function extractIds<T extends object>(dataArray: T[], idKey: keyof T & st
 export function transformSelectOptions<T extends object>(
   apiOptions: T[],
   fieldMapping: FieldMapping<Extract<keyof T, string>>
-): SelectOption[] {
+): SelectOption<number>[] {
   if (!apiOptions) return [];
 
-  return apiOptions.map((apiOption) => {
-    const transformedOption: SelectOption = { id: '', name: '' };
-    for (const formField of Object.keys(fieldMapping) as Array<keyof FieldMapping>) {
-      const apiField = fieldMapping[formField];
-      if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-        transformedOption[formField] = String(apiOption[apiField as keyof T] ?? '');
-      } else {
-        transformedOption[formField] = '';
-      }
-    }
-    return transformedOption;
-  });
+  return apiOptions.map((apiOption) => ({
+    id: (apiOption[fieldMapping.id as keyof T] ?? 0) as number,
+    name: String(apiOption[fieldMapping.name as keyof T] ?? ''),
+  }));
 }
 
 /**

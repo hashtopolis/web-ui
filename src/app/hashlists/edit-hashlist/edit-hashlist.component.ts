@@ -48,7 +48,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: Array<SelectOption> = [];
+  selectAccessgroup: Array<SelectOption<number>> = [];
 
   private httpNoInterceptors: HttpClient;
 

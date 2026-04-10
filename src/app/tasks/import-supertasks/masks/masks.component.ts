@@ -77,7 +77,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[] | undefined = undefined;
+  selectCrackertype: SelectOption<number>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {

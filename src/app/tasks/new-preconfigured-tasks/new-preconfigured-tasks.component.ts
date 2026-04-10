@@ -32,7 +32,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[];
+  selectCrackertype: SelectOption<number>[];
   isCreatingLoading = false;
 
   selectCrackertypeMap = {

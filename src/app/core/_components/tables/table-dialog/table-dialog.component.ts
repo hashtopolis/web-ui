@@ -34,7 +34,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
   templateUrl: 'table-dialog.component.html',
   standalone: false
 })
-export class TableDialogComponent<T> {
+export class TableDialogComponent<T extends Record<string, unknown>> {
   /**
    * Creates an instance of TableDialogComponent.
    *

@@ -1,4 +1,6 @@
 declare module 'pdfmake/build/pdfmake' {
+  import { PdfDocumentDefinition } from '@src/app/shared/report-builder/reports/report-builder/report.models';
+
   interface PdfMakeResult {
     open: () => void;
     download: (defaultFileName?: string) => void;
@@ -7,7 +9,7 @@ declare module 'pdfmake/build/pdfmake' {
 
   const pdfMake: {
     vfs: Record<string, string>;
-    createPdf: (docDefinition: Record<string, unknown>) => PdfMakeResult;
+    createPdf: (docDefinition: PdfDocumentDefinition) => PdfMakeResult;
   };
   export = pdfMake;
 }

@@ -77,7 +77,7 @@ export class BaseMenuComponent {
     }
   }
 
-  onMenuItemClick(event: ActionMenuEvent<unknown>): void {
+  onMenuItemClick(event: ActionMenuEvent<BaseModel | undefined>): void {
     this.menuItemClicked.emit(event as ActionMenuEvent<BaseModel>);
   }
 }

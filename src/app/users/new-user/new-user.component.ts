@@ -31,7 +31,7 @@ export class NewUserComponent implements OnInit {
   private alert = inject(AlertService);
 
   newUserForm: FormGroup<NewUserForm> = getNewUserForm();
-  selectGlobalPermissionGroups: SelectOption[];
+  selectGlobalPermissionGroups: SelectOption<number>[];
   loading = false;
   loadingPermissionGroups: boolean = false;
 

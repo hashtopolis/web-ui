@@ -21,7 +21,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   @Input() contextMenuService: ContextMenuService;
 
   ngOnInit(): void {
-    this.data = { isArchived: this.isArchived } as unknown as BaseModel;
+    this.data = { id: 0, type: 'bulk', isArchived: this.isArchived } as BaseModel;
     this.loadMenu();
   }
 

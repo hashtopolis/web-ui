@@ -1,12 +1,14 @@
 import { AuthService } from '@services/access/auth.service';
 
+import { BaseModel } from '@models/base.model';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 
 import { HeaderComponent } from '@src/app/layout/header/header.component';
 import { HeaderMenuAction } from '@src/app/layout/header/header.constants';
 
 interface TestableHeader {
-  menuItemClicked(event: ActionMenuEvent<unknown>): void;
+  menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void;
   authService: jasmine.SpyObj<AuthService>;
   rebuildMenu: jasmine.Spy;
 }
@@ -22,8 +24,8 @@ function makeComponent() {
 }
 
 describe('HeaderComponent logout', () => {
-  const logoutEvent: ActionMenuEvent<null> = { menuItem: { label: '', action: HeaderMenuAction.LOGOUT }, data: null };
-  const otherEvent: ActionMenuEvent<null> = { menuItem: { label: '', action: 'some-other-action' }, data: null };
+  const logoutEvent: ActionMenuEvent<BaseModel | undefined> = { menuItem: { label: '', action: HeaderMenuAction.LOGOUT }, data: undefined };
+  const otherEvent: ActionMenuEvent<BaseModel | undefined> = { menuItem: { label: '', action: 'some-other-action' }, data: undefined };
 
   it('calls logOut when the logout action is triggered', () => {
     const { component, mockAuthService } = makeComponent();

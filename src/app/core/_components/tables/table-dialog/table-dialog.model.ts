@@ -1,4 +1,4 @@
-export interface DialogData<T> {
+export interface DialogData<T extends Record<string, unknown>> {
   icon?: string
   title: string
   body?: string

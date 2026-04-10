@@ -65,7 +65,7 @@ export interface MetadataFormField {
   type?: string;
   placeholder?: string;
   selectOptions?: Option[];
-  selectOptions$?: SelectOption[];
+  selectOptions$?: SelectOption<number>[];
   selectEndpoint$?: () => Observable<ResponseWrapper>;
   fieldMapping?: FieldMapping;
   requiredasterisk?: boolean;

@@ -34,8 +34,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[] = [];
+  selectCrackertype: SelectOption<number>[];
+  selectCrackerversions: SelectOption<number>[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);

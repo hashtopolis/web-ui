@@ -10,7 +10,7 @@ import { SelectOption } from '@src/app/shared/utils/forms';
 })
 export class SimulateFormFieldMultiComponent {
   @Input() label: string;
-  @Input() items: SelectOption[];
+  @Input() items: SelectOption<number>[];
   @Input() routerLink: string;
 
   isActive(): boolean {

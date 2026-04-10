@@ -54,7 +54,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   redirect: string;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
+  selectAccessgroup: SelectOption<number>[];
 
   // Upload files
   selectedFiles: FileList | null = null;
@@ -201,8 +201,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.gs.chelper(SERV.HELPER, 'importFile', undefined, 'GET'));
-      this.serverFiles = (response.meta as unknown as ServerImportFile[]) || [];
+      const response = await firstValueFrom(this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET'));
+      this.serverFiles = response.meta || [];
       this.changeDetectorRef.detectChanges();
     } catch (error) {
       console.error('Error fetching server import files:', error);

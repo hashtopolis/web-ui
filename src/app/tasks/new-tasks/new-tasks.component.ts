@@ -80,12 +80,12 @@ export class NewTasksComponent implements OnInit {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption[];
+  selectHashlists: SelectOption<number>[];
   selectStaticChunking = staticChunking;
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[];
-  selectPreprocessor: SelectOption[];
+  selectCrackertype: SelectOption<number>[];
+  selectCrackerversions: SelectOption<number>[];
+  selectPreprocessor: SelectOption<number>[];
 
   // Copy Task or PreTask configuration
   copyMode = false;

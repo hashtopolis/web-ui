@@ -39,7 +39,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   viewForm: FormGroup; //Supertask details
 
   /** List of PreTasks. */
-  selectPretasks: SelectOption[] | undefined;
+  selectPretasks: SelectOption<number>[] | undefined;
 
   // Edit
   private _editedSTIndex: number;

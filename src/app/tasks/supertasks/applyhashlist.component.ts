@@ -45,9 +45,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption[];
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[];
+  selectHashlists: SelectOption<number>[];
+  selectCrackertype: SelectOption<number>[];
+  selectCrackerversions: SelectOption<number>[];
 
   // Get SuperTask Index
   editedIndex: number;
@@ -181,12 +181,12 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
       );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-      let id = '';
+      let id: number = 0;
       const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
       if (hashcatOption?.id) {
-        id = hashcatOption.id as string;
+        id = hashcatOption.id;
       } else {
-        id = this.selectCrackertype.slice(-1)[0]['id'] as string;
+        id = this.selectCrackertype.slice(-1)[0]['id'];
       }
       const requestParams = new RequestParamBuilder()
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
@@ -211,7 +211,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    *
    * @param id - The selected Cracker Binary ID.
    */
-  handleChangeBinary(id: string) {
+  handleChangeBinary(id: number) {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
