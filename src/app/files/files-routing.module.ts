@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
+import { zFileResponse } from '@generated/api/zod';
 import { SERV } from '@services/main.config';
 import { FileRoleService } from '@services/roles/file-role.service';
 
@@ -49,6 +50,7 @@ const routes: MyRoute[] = [
           kind: 'editwordlist',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Wordlist Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
@@ -84,6 +86,7 @@ const routes: MyRoute[] = [
           kind: 'editrule',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Rules Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
@@ -119,6 +122,7 @@ const routes: MyRoute[] = [
           kind: 'editother',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Other Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'

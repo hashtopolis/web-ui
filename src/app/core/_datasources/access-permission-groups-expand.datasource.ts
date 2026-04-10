@@ -40,7 +40,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(
+          const globalPermissionGroup = this.serializer.deserialize(
             response,
             zGlobalPermissionGroupResponse,
             { include: ['userMembers'] as const }
@@ -49,7 +49,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
-            data = globalPermissionGroup.userMembers ?? [];
+            data = globalPermissionGroup.userMembers;
           }
           this.setData(data);
         })

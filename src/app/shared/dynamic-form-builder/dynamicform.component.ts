@@ -189,8 +189,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
     const selectFields = this.formMetadata.filter(
       (
         field
-      ): field is MetadataFormField & Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'fieldMapping'>> =>
-        field.type === 'selectd' && !!field.selectEndpoint$ && !!field.fieldMapping
+      ): field is MetadataFormField &
+        Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'selectSchema' | 'fieldMapping'>> =>
+        field.type === 'selectd' && !!field.selectEndpoint$ && !!field.selectSchema && !!field.fieldMapping
     );
 
     if (selectFields.length > 0) {
@@ -201,10 +202,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
           .selectEndpoint$()
           .pipe(takeUntil(this.destroy$))
           .subscribe((response: ResponseWrapper) => {
-            // Sometimes fields need to be mapped
-            const options: BaseModel[] = field.selectSchema
-              ? (new JsonAPISerializer().deserialize(response, field.selectSchema) as BaseModel[])
-              : new JsonAPISerializer().deserialize<BaseModel[]>({ data: response.data, included: response.included });
+            const options: BaseModel[] = new JsonAPISerializer().deserialize(response, field.selectSchema) as BaseModel[];
             // Assign the fetched options to the field's selectOptions$
             field.selectOptions$ = this.transformSelectOptions(options, field.fieldMapping);
             // Update isLoadingSelect to indicate that loading is complete

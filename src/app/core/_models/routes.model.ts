@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { CanActivate, CanActivateFn, CanDeactivate, CanDeactivateFn } from '@angular/router';
+import { z } from 'zod';
 
 import { ServiceConfig } from '@services/main.config';
 import { RoleService } from '@services/roles/base/role.service';
@@ -11,6 +12,7 @@ export interface RouteData {
   kind?: string;
   type?: 'create' | 'edit' | 'helper';
   serviceConfig?: ServiceConfig;
+  responseSchema?: z.ZodTypeAny;
   breadcrumb?: string;
   roleName?: string;
   roleServiceClass?: Type<RoleService>;

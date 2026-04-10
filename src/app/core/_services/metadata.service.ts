@@ -6,7 +6,7 @@ import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { ResponseWrapper } from '@models/response.model';
 
-import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
+import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
@@ -258,6 +258,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
+      selectSchema: zAccessGroupListResponse,
       selectOptions$: [],
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
@@ -1097,6 +1098,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
       selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
@@ -1108,6 +1110,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
       selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]

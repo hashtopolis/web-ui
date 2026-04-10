@@ -14,7 +14,8 @@ export const formRouteType = z.enum(['create', 'edit', 'helper']);
 export const zFormRouteData = z.object({
   kind: z.string(),
   type: formRouteType,
-  serviceConfig: zServiceConfig
+  serviceConfig: zServiceConfig,
+  responseSchema: z.custom<z.ZodTypeAny>().optional()
 });
 
 export type FormRouteData = z.infer<typeof zFormRouteData>;

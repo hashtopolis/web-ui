@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { zFormRouteData } from '@models/routes.schema';
+import { zFormRouteData, FormRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -39,6 +39,8 @@ export class FormComponent implements OnInit, OnDestroy {
   globalMetadata: ReturnType<MetadataService['getInfoMetadata']>[0];
 
   serviceConfig: ServiceConfig;
+
+  responseSchema: FormRouteData['responseSchema'];
 
   showDeleteButton: boolean;
 
@@ -124,6 +126,7 @@ export class FormComponent implements OnInit, OnDestroy {
       const routeData = zFormRouteData.parse(data);
       const formKind = routeData.kind;
       this.serviceConfig = routeData.serviceConfig;
+      this.responseSchema = routeData.responseSchema;
       this.type = routeData.type;
       this.isCreate = this.type === 'create';
       // Load metadata and form information
@@ -164,10 +167,9 @@ export class FormComponent implements OnInit, OnDestroy {
     // Fetch data from the API for editing
     const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
       next: (response: ResponseWrapper) => {
-        this.formValues = new JsonAPISerializer().deserialize<Record<string, unknown>>({
-          data: response.data,
-          included: response.included
-        });
+        this.formValues = this.responseSchema
+          ? new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>
+          : new JsonAPISerializer().deserialize<Record<string, unknown>>({ data: response.data, included: response.included });
         this.isloaded = true; // Data is loaded and ready for form rendering
       },
       error: (err: unknown) => {

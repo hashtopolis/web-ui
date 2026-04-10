@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
+import { zAgentBinaryResponse, zCrackerBinaryResponse, zHashTypeResponse } from '@generated/api/zod';
 import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
@@ -143,6 +144,7 @@ const routes: MyRoute[] = [
           kind: 'edithashtype',
           type: 'edit',
           serviceConfig: SERV.HASHTYPES,
+          responseSchema: zHashTypeResponse,
           breadcrumb: 'Edit Hashtype',
           roleServiceClass: HashTypesRoleService,
           roleName: 'read'
@@ -224,6 +226,7 @@ const routes: MyRoute[] = [
           kind: 'editagentbinary',
           type: 'edit',
           serviceConfig: SERV.AGENT_BINARY,
+          responseSchema: zAgentBinaryResponse,
           breadcrumb: 'Engine > Edit Agent binary',
           roleServiceClass: AgentBinaryRoleService,
           roleName: 'read'
@@ -274,6 +277,7 @@ const routes: MyRoute[] = [
           kind: 'editcrackerversion',
           type: 'edit',
           serviceConfig: SERV.CRACKERS,
+          responseSchema: zCrackerBinaryResponse,
           breadcrumb: 'Engine > Edit Cracker Version/Binary',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'read'
