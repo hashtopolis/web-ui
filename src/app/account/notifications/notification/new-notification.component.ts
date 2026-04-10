@@ -10,6 +10,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
+import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -57,7 +58,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
-  actionToServiceMap = {
+  actionToServiceMap: Record<string, { URL: string; RESOURCE: string } | null> = {
     [ACTION.AGENT_ERROR]: SERV.AGENTS,
     [ACTION.OWN_AGENT_ERROR]: SERV.AGENTS,
     [ACTION.DELETE_AGENT]: SERV.AGENTS,
@@ -145,7 +146,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const path = this.actionToServiceMap[action as keyof typeof this.actionToServiceMap];
+    const path = this.actionToServiceMap[action];
     if (path) {
       this.active = true;
       this.actionFilterIsRequired = true;
@@ -157,20 +158,19 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
 
       this.subscriptions.push(
         this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
           let _filters: Filter[] = [];
 
           if (path === SERV.AGENTS) {
-            const agents = new JsonAPISerializer().deserialize<JAgent[]>(responseData);
+            const agents: JAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
             _filters = agents.map((a) => ({ id: a.id, name: a.agentName }));
           } else if (path === SERV.TASKS) {
-            const tasks = new JsonAPISerializer().deserialize<JTask[]>(responseData);
+            const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);
             _filters = tasks.map((t) => ({ id: t.id, name: t.taskName ?? '' }));
           } else if (path === SERV.USERS) {
-            const users = new JsonAPISerializer().deserialize<JUser[]>(responseData);
+            const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
             _filters = users.map((u) => ({ id: u.id, name: u.name }));
           } else if (path === SERV.HASHLISTS) {
-            const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>(responseData);
+            const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
             _filters = hashlists.map((h) => ({ id: h.id, name: h.name }));
           }
 

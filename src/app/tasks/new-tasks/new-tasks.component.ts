@@ -2,7 +2,9 @@ import {
   zCrackerBinaryListResponse,
   zCrackerBinaryTypeListResponse,
   zHashlistListResponse,
-  zPreprocessorListResponse
+  zPreTaskResponse,
+  zPreprocessorListResponse,
+  zTaskResponse
 } from '@generated/api/zod';
 import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
@@ -364,10 +366,8 @@ export class NewTasksComponent implements OnInit {
 
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.get(endpoint, this.editedIndex, requestParams));
-      const task = new JsonAPISerializer().deserialize<JTask | JPretask>({
-        data: response.data,
-        included: response.included
-      });
+      const schema = isTask ? zTaskResponse : zPreTaskResponse;
+      const task: JTask | JPretask = new JsonAPISerializer().deserialize(response, schema);
 
       const copyData = this.extractCopyData(task, isTask);
       this.copyFiles = copyData.files;

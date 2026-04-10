@@ -23,7 +23,6 @@ import { mockResponse } from '@src/app/testing/mock-response';
 import { environment } from '@src/environments/environment';
 
 const MOCK_HASHLISTS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -65,18 +64,14 @@ const MOCK_HASHLISTS_RESPONSE = {
         isArchived: false
       }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_EMPTY_HASHLISTS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
-  data: [],
-  included: []
+  data: []
 };
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -99,25 +94,20 @@ const MOCK_CRACKER_TYPES_RESPONSE = {
 };
 
 const MOCK_CRACKERS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 10,
       type: 'crackerBinary',
       attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_CRACKERS_EMPTY_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
-  data: [],
-  included: []
+  data: []
 };
 
 const MOCK_PREPROCESSORS_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
@@ -131,8 +121,7 @@ const MOCK_PREPROCESSORS_RESPONSE = {
         limitCommand: '--limit'
       }
     }
-  ],
-  included: []
+  ]
 };
 
 const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
@@ -185,7 +174,6 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
 };
 
 const MOCK_TASK_GET_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 42,
     type: 'task',
@@ -204,25 +192,43 @@ const MOCK_TASK_GET_RESPONSE = {
     }
   },
   included: [
-    { id: 1, type: 'hashlist', attributes: { name: 'test-hashlist', isArchived: false, hashTypeId: 0 } },
-    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0 } },
-    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0 } },
-    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1 } },
-    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat' } }
+    {
+      id: 1,
+      type: 'hashlist',
+      attributes: {
+        name: 'test-hashlist',
+        format: 0,
+        hashTypeId: 0,
+        hashCount: 0,
+        separator: null,
+        cracked: 0,
+        isSecret: false,
+        isHexSalt: false,
+        isSalted: false,
+        accessGroupId: 1,
+        notes: '',
+        useBrain: false,
+        brainFeatures: 0,
+        isArchived: false
+      }
+    },
+    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
+    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
+    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' } },
+    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
 };
 
 const MOCK_PRETASK_GET_RESPONSE = {
-  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 7,
-    type: 'pretask',
+    type: 'preTask',
     attributes: MOCK_PRETASK_ATTRIBUTES,
     relationships: {
       pretaskFiles: { data: [{ id: 200, type: 'file' }] }
     }
   },
-  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0 } }]
+  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } }]
 };
 
 function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {
@@ -708,7 +714,6 @@ describe('NewTasksComponent', () => {
 
     it('should select the last version by default', async () => {
       const multiVersionResponse = {
-        jsonapi: { version: '1.1', ext: [] },
         data: [
           {
             id: 10,
@@ -720,8 +725,7 @@ describe('NewTasksComponent', () => {
             type: 'crackerBinary',
             attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
-        ],
-        included: []
+        ]
       };
 
       await initComponent(fixture);
