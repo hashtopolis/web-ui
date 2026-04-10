@@ -201,7 +201,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET'));
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
       this.serverFiles = response.meta || [];
       this.changeDetectorRef.detectChanges();
     } catch (error) {

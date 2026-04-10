@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -41,10 +40,12 @@ export class TableDialogComponent<T extends Record<string, unknown>> {
    * @param dialogRef - Reference to the MatDialogRef for managing the dialog.
    * @param data - Data used to configure the dialog's content and behavior.
    */
+  /* eslint-disable @angular-eslint/prefer-inject */
   constructor(
     public dialogRef: MatDialogRef<TableDialogComponent<T>>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData<T>
   ) {}
+  /* eslint-enable @angular-eslint/prefer-inject */
 
   /**
    * Handles the click event on the "Cancel" button, closing the dialog.

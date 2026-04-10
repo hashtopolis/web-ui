@@ -168,14 +168,8 @@ export interface PdfDocumentDefinition {
   userPassword?: string;
   ownerPassword?: string;
   permissions?: Record<string, unknown>;
-  header?: (
-    currentPage: number,
-    pageCount: number
-  ) => PdfContentItem[] | null;
-  footer?: (
-    currentPage: number,
-    pageCount: number
-  ) => PdfContentItem | null;
+  header?: (currentPage: number, pageCount: number) => PdfContentItem[] | null;
+  footer?: (currentPage: number, pageCount: number) => PdfContentItem | null;
   content: PdfContentItem[];
   styles?: Record<string, Record<string, unknown>>;
   defaultStyle?: Record<string, unknown>;

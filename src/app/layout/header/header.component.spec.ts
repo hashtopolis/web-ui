@@ -1,6 +1,6 @@
-import { AuthService } from '@services/access/auth.service';
-
 import { BaseModel } from '@models/base.model';
+
+import { AuthService } from '@services/access/auth.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 
@@ -24,8 +24,14 @@ function makeComponent() {
 }
 
 describe('HeaderComponent logout', () => {
-  const logoutEvent: ActionMenuEvent<BaseModel | undefined> = { menuItem: { label: '', action: HeaderMenuAction.LOGOUT }, data: undefined };
-  const otherEvent: ActionMenuEvent<BaseModel | undefined> = { menuItem: { label: '', action: 'some-other-action' }, data: undefined };
+  const logoutEvent: ActionMenuEvent<BaseModel | undefined> = {
+    menuItem: { label: '', action: HeaderMenuAction.LOGOUT },
+    data: undefined
+  };
+  const otherEvent: ActionMenuEvent<BaseModel | undefined> = {
+    menuItem: { label: '', action: 'some-other-action' },
+    data: undefined
+  };
 
   it('calls logOut when the logout action is triggered', () => {
     const { component, mockAuthService } = makeComponent();

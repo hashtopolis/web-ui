@@ -86,7 +86,9 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() enableHoverClose = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<ActionMenuEvent<BaseModel | undefined>>();
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<
+    ActionMenuEvent<BaseModel | undefined>
+  >();
 
   faDiscord = faDiscord;
   faGithub = faGithub;

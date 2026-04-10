@@ -54,7 +54,7 @@ export function transformSelectOptions<T extends object>(
 
   return apiOptions.map((apiOption) => ({
     id: (apiOption[fieldMapping.id as keyof T] ?? 0) as number,
-    name: String(apiOption[fieldMapping.name as keyof T] ?? ''),
+    name: String(apiOption[fieldMapping.name as keyof T] ?? '')
   }));
 }
 

@@ -49,10 +49,7 @@
             Export
           </button>
         } @else {
-          <export-menu
-            [disabled]="!hasSelected()"
-            (menuItemClicked)="exportAction($event)"
-          />
+          <export-menu [disabled]="!hasSelected()" (menuItemClicked)="exportAction($event)" />
         }
       </div>
     }
