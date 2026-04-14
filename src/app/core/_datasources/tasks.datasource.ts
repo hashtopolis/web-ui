@@ -4,14 +4,14 @@ import { finalize } from 'rxjs/operators';
 
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapper } from '@models/task.model';
+import { JTaskWrapperDisplay } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
+export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
   private _isArchived = false;
   private _hashlistID = 0;
   private filterQuery: Filter;
@@ -32,17 +32,11 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
 
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder()
-      .addInitial(this)
-      .addInclude('accessGroup')
-      .addInclude('tasks')
-      .addInclude('hashlist')
-      .addInclude('hashType')
-      .addFilter({
-        field: 'isArchived',
-        operator: FilterType.EQUAL,
-        value: this._isArchived
-      });
+    const params = new RequestParamBuilder().addInitial(this).addFilter({
+      field: 'taskWrapperIsArchived',
+      operator: FilterType.EQUAL,
+      value: this._isArchived
+    });
     if (query) {
       params.addFilter(query);
     }
@@ -55,7 +49,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
       });
     }
 
-    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
+    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER_DISPLAYS, params.create());
 
     // Create headers to skip error dialog for filter validation errors
     //const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
@@ -70,7 +64,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers: JTaskWrapper[] = this.serializer.deserialize(response, zTaskWrapperListResponse);
+          const taskWrappers: JTaskWrapperDisplay[] = this.serializer.deserialize(response, zTaskWrapperListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

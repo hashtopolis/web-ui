@@ -1,4 +1,4 @@
-import { JTaskWrapper, TaskStatus, TaskType } from '@models/task.model';
+import { JTaskWrapper, JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
 
 /**
  * Returns the effective status of a task wrapper.
@@ -10,7 +10,7 @@ import { JTaskWrapper, TaskStatus, TaskType } from '@models/task.model';
  * @param wrapper - The task wrapper to evaluate
  * @returns The effective `TaskStatus` of the wrapper, or `null` if the wrapper has no tasks
  */
-export function getTaskWrapperStatus(wrapper: JTaskWrapper): TaskStatus | null {
+export function getTaskWrapperStatus(wrapper: JTaskWrapperDisplay): TaskStatus | null {
   if (!wrapper?.tasks?.length) {
     return null;
   }
