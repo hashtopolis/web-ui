@@ -2,7 +2,7 @@ import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JTask, JTaskWrapper, JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
+import { JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -28,7 +28,6 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
@@ -481,25 +480,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.loadAll();
   }
 
-  /**
-   * Generates a string representing the dispatched and searched percentages for a given task wrapper.
-   * If the task wrapper is of type TASK and has a valid keyspace, it returns a formatted string.
-   * Otherwise, it returns an empty string.
-   * @param wrapper The task wrapper object containing task details.
-   * @returns A string in the format "dispatched% / searched%" or an empty string if not applicable.
-   */
-  getDispatchedSearchedString(wrapper: JTaskWrapper): string {
-    if (wrapper.taskType === TaskType.TASK) {
-      const task: JTask = wrapper.tasks[0];
-      if (task != null && task.keyspace > 0) {
-        return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
-      }
-    }
-    return '';
-  }
-
   // --- Render functions ---
-
   renderStatusIcons(wrapper: JTaskWrapperDisplay): HTTableIcon {
     const status = wrapper.status;
     if (status === TaskStatus.RUNNING) {
@@ -586,7 +567,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(task: JTaskWrapperDisplay): void {
     if (task.taskType === TaskType.TASK && task.taskId) {
-      this.router.navigate(['tasks', 'show-tasks', task.taskId, 'edit']);
+      void this.router.navigate(['tasks', 'show-tasks', task.taskId, 'edit']);
     }
   }
 
@@ -641,13 +622,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionCopyToTask(wrapper: JTaskWrapperDisplay): void {
     if (wrapper.taskType === TaskType.TASK && wrapper.taskId) {
-      this.router.navigate(['tasks', 'new-tasks', wrapper.taskId, 'copy']);
+      void this.router.navigate(['tasks', 'new-tasks', wrapper.taskId, 'copy']);
     }
   }
 
   private rowActionCopyToPretask(wrapper: JTaskWrapperDisplay): void {
     if (wrapper.taskType === TaskType.TASK && wrapper.taskId) {
-      this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.taskId, 'copytask']);
+      void this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.taskId, 'copytask']);
     }
   }
 
