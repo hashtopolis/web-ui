@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse } from '@generated/api/zod';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -165,10 +166,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
         this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS, skipErrorHeaders)
       );
 
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
-      });
+      const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
       this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       if (!this.selectAccessgroup || this.selectAccessgroup.length === 0) {

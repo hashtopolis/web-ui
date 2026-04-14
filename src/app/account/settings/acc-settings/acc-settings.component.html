@@ -10,7 +10,7 @@
         data-testid="input-registered-since"
       ></input-text>
     </div>
-    <input-text email inputType="email" title="Email" formControlName="email" [isRequired]="true" data-testid="input-email"></input-text>
+    <input-text title="Email" formControlName="email" [isRequired]="true" data-testid="input-email"></input-text>
     <grid-buttons>
       <button-submit [name]="'Update'" (click)="onSubmit()" [disabled]="form.pending" data-testid="button-update-submit"></button-submit>
       @if (isUpdatingLoading) {

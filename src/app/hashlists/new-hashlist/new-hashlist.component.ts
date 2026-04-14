@@ -1,6 +1,7 @@
 /**
  * This module contains the component class to create a new hashlist
  */
+import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -170,10 +171,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       .getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS, skipErrorHeaders)
       .subscribe({
         next: (response: ResponseWrapper) => {
-          const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-            data: response.data,
-            included: response.included
-          });
+          const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
           this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
           if (!this.selectAccessgroup || this.selectAccessgroup.length === 0) {
             this.setDefaultAccessGroup();
@@ -190,10 +188,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.unsubscribeService.add(accessGroupSubscription);
 
     const hashtypesSubscription$ = this.gs.getAll(SERV.HASHTYPES).subscribe((response: ResponseWrapper) => {
-      this.hashtypes = new JsonAPISerializer().deserialize<JHashtype[]>({
-        data: response.data,
-        included: response.included
-      });
+      this.hashtypes = new JsonAPISerializer().deserialize(response, zHashTypeListResponse);
       this.selectHashtypes = transformSelectOptions(this.hashtypes, HASHTYPE_FIELD_MAPPING);
       this.isLoadingHashtypes = false;
       this.changeDetectorRef.detectChanges();
@@ -217,7 +212,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadConfigs() {
     const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
-      const config = new JsonAPISerializer().deserialize<JConfig>({ data: response.data, included: response.included });
+      const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
       this.brainenabled = Number(config.value);
       this.form.patchValue({ useBrain: !!this.brainenabled });
       this.changeDetectorRef.detectChanges();

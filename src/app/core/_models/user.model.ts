@@ -25,5 +25,5 @@ export interface JUser extends BaseModel {
   registeredSince: number;
   sessionLifetime: number;
   yubikey: string;
-  accessGroups: JAccessGroup[];
+  accessGroups?: JAccessGroup[];
 }

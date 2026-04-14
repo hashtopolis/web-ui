@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -26,17 +27,18 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 
 const mockAccessGroups: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 1,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'Admin'
       }
     },
     {
       id: 2,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'User'
       }
@@ -46,10 +48,11 @@ const mockAccessGroups: ResponseWrapper = {
 };
 
 const mockHashtypes: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: [
     {
       id: 2500,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'MD5',
         isSalted: true,
@@ -58,7 +61,7 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 0,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'SHA1',
         isSalted: false,
@@ -67,7 +70,7 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 16800,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'WPA/WPA2',
         isSalted: true,
@@ -79,9 +82,10 @@ const mockHashtypes: ResponseWrapper = {
 };
 
 const mockConfigs: ResponseWrapper = {
+  jsonapi: { version: '1.1', ext: [] },
   data: {
     id: 66,
-    type: 'configs',
+    type: 'config',
     attributes: {
       configSectionId: 1,
       item: 'Enable Brain',
@@ -120,6 +124,7 @@ describe('NewHashlistComponent', () => {
         InputModule,
         ButtonsModule,
         ComponentsModule,
+        MatProgressBarModule,
         MatProgressSpinnerModule,
         MatIconModule
       ],

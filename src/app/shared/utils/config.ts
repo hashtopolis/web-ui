@@ -46,8 +46,8 @@ export class UISettingsUtilityClass {
     settings: {
       page?: number;
       index?: number;
-      start?: number;
-      before?: number;
+      start?: number | string;
+      before?: number | string;
       totalItems?: number;
       columns?: number[];
       order?: Sorting | Sorting[];

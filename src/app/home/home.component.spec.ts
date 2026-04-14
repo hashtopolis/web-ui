@@ -91,7 +91,7 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
 
   // Handle HASHES — return an empty dataset for now
   if (service === SERV.HASHES) {
-    return of({ data: [], included: [] }); // simulate empty response
+    return of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }); // simulate empty response
   }
 
   // Default fallback for any other service

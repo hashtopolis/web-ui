@@ -1,3 +1,4 @@
+import { zPreTaskResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -147,10 +148,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
-    const pretask = this.serializer.deserialize<JPretask>({
-      data: response.data,
-      included: response.included
-    });
+    const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
     this.updateForm = new FormGroup({
       pretaskId: new FormControl({

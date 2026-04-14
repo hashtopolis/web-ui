@@ -1,8 +1,10 @@
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile, TaskSelectFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -105,10 +107,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   loadData() {
     const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadCrackersSubscription$);

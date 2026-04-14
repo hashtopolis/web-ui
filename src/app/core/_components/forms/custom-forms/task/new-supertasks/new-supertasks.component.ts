@@ -1,3 +1,5 @@
+import { zPreTaskListResponse } from '@generated/api/zod';
+
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -80,10 +82,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
-      const pretasks = new JsonAPISerializer().deserialize<JPretask[]>({
-        data: response.data,
-        included: response.included
-      });
+      const pretasks: JPretask[] = new JsonAPISerializer().deserialize(response, zPreTaskListResponse);
       this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();

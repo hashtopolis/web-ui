@@ -1,4 +1,5 @@
 import { Perm } from '@constants/userpermissions.config';
+import { zConfigListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -10,12 +11,13 @@ import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JConfig } from '@models/configs.model';
+
 import { SERV } from '@services/main.config';
 import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
-import { JConfig } from '@src/app/core/_models/configs.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
@@ -70,10 +72,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     this.gs.getAll(SERV.CONFIGS, params).subscribe({
       next: (response) => {
         try {
-          const configs = new JsonAPISerializer().deserialize<JConfig[]>({
-            data: response?.data,
-            included: response?.included
-          });
+          const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
           const setting = configs?.find((config) => config.item === 'voucherDeletion');
           const rawValue = setting?.value ?? '';
           const normalized = String(rawValue).toLowerCase();

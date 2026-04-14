@@ -4,6 +4,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,8 +34,12 @@ class MockUploadTUSService {
 }
 
 class MockGlobalService {
-  getAll = jasmine.createSpy('getAll').and.returnValue(of({ data: [], included: [] }));
-  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of({ data: [], included: [] }));
+  getAll = jasmine
+    .createSpy('getAll')
+    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+  getRelationships = jasmine
+    .createSpy('getRelationships')
+    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
   create = jasmine.createSpy('create').and.returnValue(of({}));
   userId = 1;
 }
@@ -62,6 +67,7 @@ describe('NewFilesComponent', () => {
         PageTitleModule,
         ComponentsModule,
         MatIconModule,
+        MatProgressBarModule,
         MatProgressSpinnerModule
       ],
       providers: [
