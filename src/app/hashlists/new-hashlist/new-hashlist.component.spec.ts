@@ -355,8 +355,8 @@ describe('NewHashlistComponent', () => {
     });
 
     it('should fall back to default access group when response has empty data', () => {
-      // Re-create component with empty access groups
-      gsSpy.getRelationships.and.returnValue(of({ data: [], included: [] }));
+      // Re-create component with empty access groups (full ResponseWrapper shape for Zod validation)
+      gsSpy.getRelationships.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
       fixture = TestBed.createComponent(NewHashlistComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
