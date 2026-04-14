@@ -2,7 +2,6 @@ import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JHashlist } from '@models/hashlist.model';
 import { JTask, JTaskWrapper, JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
@@ -541,7 +540,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       width: '80vw',
       maxWidth: '80vw',
       data: {
-        supertaskId: taskWrapper.taskWrapperId,
+        supertaskId: taskWrapper.id,
         supertaskName: taskWrapper.displayName
       }
     });
