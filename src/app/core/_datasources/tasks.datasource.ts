@@ -1,4 +1,3 @@
-import { zTaskWrapperListResponse } from '@generated/api/zod';
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -10,6 +9,8 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
   private _isArchived = false;
@@ -51,9 +52,6 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER_DISPLAYS, params.create());
 
-    // Create headers to skip error dialog for filter validation errors
-    //const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
-
     this.subscriptions.push(
       wrappers$
         .pipe(
@@ -64,7 +62,8 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers: JTaskWrapperDisplay[] = this.serializer.deserialize(response, zTaskWrapperListResponse);
+          // Use JsonAPISerializer without Zod
+          const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapperDisplay[]>(response);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
