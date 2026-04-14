@@ -111,7 +111,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     columns.push(
       {
         id: TaskTableCol.ID,
-        dataKey: 'taskWrapperId',
+        dataKey: 'taskId',
         render: (wrapper: JTaskWrapperDisplay) => (wrapper.taskType === TaskType.TASK ? wrapper.taskId + '' : ''),
         isSortable: true,
         isSearchable: true,
