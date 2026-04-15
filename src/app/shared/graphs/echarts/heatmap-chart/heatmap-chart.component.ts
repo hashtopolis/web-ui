@@ -114,6 +114,12 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
       ]
     };
 
+    const currentOption = this.chart.getOption() as Record<string, unknown[]>;
+    const currentVisualMap = currentOption?.visualMap?.[0] as Record<string, unknown> | undefined;
+    if (currentVisualMap?.selected) {
+      (option.visualMap as Record<string, unknown>).selected = currentVisualMap.selected;
+    }
+
     this.chart.setOption(option);
   }
 }
