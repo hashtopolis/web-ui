@@ -29,7 +29,7 @@ export interface JHash extends SimpleHashModel {
   salt: string;
   timeCracked: number;
   isCracked: boolean;
-  chunkId: number;
+  chunkId: number | null;
   crackPos: number;
   chunk?: JChunk;
   hashlist?: JHashlist;
