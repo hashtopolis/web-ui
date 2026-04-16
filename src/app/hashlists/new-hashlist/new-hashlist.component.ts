@@ -4,6 +4,7 @@
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -165,13 +166,24 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.loadConfigs();
+    const skipErrorHeaders = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     const accessGroupSubscription = this.gs
-      .getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
-      .subscribe((response: ResponseWrapper) => {
-        const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
-        this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-        this.isLoadingAccessGroups = false;
-        this.changeDetectorRef.detectChanges();
+      .getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS, skipErrorHeaders)
+      .subscribe({
+        next: (response: ResponseWrapper) => {
+          const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+          this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+          if (!this.selectAccessgroup || this.selectAccessgroup.length === 0) {
+            this.setDefaultAccessGroup();
+          }
+          this.isLoadingAccessGroups = false;
+          this.changeDetectorRef.detectChanges();
+        },
+        error: () => {
+          this.setDefaultAccessGroup();
+          this.isLoadingAccessGroups = false;
+          this.changeDetectorRef.detectChanges();
+        }
       });
     this.unsubscribeService.add(accessGroupSubscription);
 
@@ -182,6 +194,12 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       this.changeDetectorRef.detectChanges();
     });
     this.unsubscribeService.add(hashtypesSubscription$);
+  }
+
+  private setDefaultAccessGroup(): void {
+    this.selectAccessgroup = [{ id: '1', name: 'Default' }];
+    this.form.patchValue({ accessGroupId: 1 });
+    this.form.get('accessGroupId').disable();
   }
 
   get sourceType() {

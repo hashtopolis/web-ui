@@ -20,7 +20,7 @@ export class AgentRoleService extends RoleService {
       readChunk: [Perm.Task.READ, Perm.TaskWrapper.READ, Perm.Chunk.READ],
       readAccessGroup: [Perm.GroupAccess.READ],
       readError: [Perm.AgentError.READ],
-      create: [Perm.Agent.CREATE, Perm.Agent.READ, Perm.Voucher.READ, Perm.AgentBinary.READ],
+      create: [Perm.Agent.CREATE, Perm.Agent.READ, Perm.Voucher.READ],
       update: [Perm.Agent.UPDATE],
       updateAssignment: [Perm.AgentAssignment.UPDATE, Perm.AgentAssignment.READ, Perm.Task.READ, Perm.TaskWrapper.READ]
     });

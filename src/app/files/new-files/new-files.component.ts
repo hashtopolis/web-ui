@@ -1,8 +1,9 @@
 import { zAccessGroupListResponse } from '@generated/api/zod';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -151,27 +152,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
-    this.updateValidatorsBySourceType(this.form.get('sourceType').value);
-  }
-
-  private updateValidatorsBySourceType(sourceType: string): void {
-    const filenameCtrl = this.form.get('filename');
-    const urlCtrl = this.form.get('url');
-
-    if (!filenameCtrl || !urlCtrl) {
-      return;
-    }
-
-    if (sourceType === 'url') {
-      filenameCtrl.setValidators([Validators.required]);
-      urlCtrl.setValidators([Validators.required]);
-    } else {
-      filenameCtrl.clearValidators();
-      urlCtrl.clearValidators();
-    }
-
-    filenameCtrl.updateValueAndValidity({ emitEvent: false });
-    urlCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -179,21 +159,31 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadData() {
     this.isLoading = true;
+    const skipErrorHeaders = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
     try {
       const response: ResponseWrapper = await firstValueFrom(
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS, skipErrorHeaders)
       );
 
       const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
       this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-    } catch (error) {
-      console.error('Error fetching access groups:', error);
+      if (!this.selectAccessgroup || this.selectAccessgroup.length === 0) {
+        this.setDefaultAccessGroup();
+      }
+    } catch {
+      this.setDefaultAccessGroup();
     } finally {
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();
     }
+  }
+
+  private setDefaultAccessGroup(): void {
+    this.selectAccessgroup = [{ id: '1', name: 'Default' }];
+    this.form.patchValue({ accessGroupId: 1 });
+    this.form.get('accessGroupId').disable();
   }
 
   /**
@@ -221,7 +211,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async onSubmit(): Promise<void> {
     if (this.form.valid && !this.submitted) {
-      const form = this.onBeforeSubmit(this.form.value, false);
+      const form = this.onBeforeSubmit(this.form.getRawValue(), false);
       this.isCreatingLoading = true;
       this.submitted = true;
 
@@ -231,7 +221,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           await firstValueFrom(this.gs.create(SERV.FILES, form.update));
 
           // After successful creation, update form and show alert
-          this.onBeforeSubmit(this.form.value, true);
+          this.onBeforeSubmit(this.form.getRawValue(), true);
           this.alert.showSuccessMessage('New File created');
           this.isCreatingLoading = false;
           this.submitted = false;
@@ -297,7 +287,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: type,
       sourceData: ''
     });
-    this.updateValidatorsBySourceType(type);
 
     // Load server import directory files only when switching to tab3
     if (view === 'tab3' && this.serverFiles.length === 0) {
@@ -336,48 +325,20 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       this.alert.showErrorMessage('Please select a file to upload.');
       return;
     }
-    const form = this.onBeforeSubmit(this.form.value, false);
+    const form = this.onBeforeSubmit(this.form.getRawValue(), false);
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
       this.uploadService
         .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
         .pipe(takeUntil(this.fileUnsubscribe))
-        .subscribe({
-          next: (progress) => {
-            this.uploadProgress = progress;
-            this.changeDetectorRef.detectChanges();
-            if (this.uploadProgress === 100) {
-              this.isCreatingLoading = false;
-            }
-          },
-          error: (error) => {
-            this.uploadProgress = 0;
+        .subscribe((progress) => {
+          this.uploadProgress = progress;
+          this.changeDetectorRef.detectChanges();
+          if (this.uploadProgress === 100) {
             this.isCreatingLoading = false;
-            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
-            this.changeDetectorRef.detectChanges();
           }
         });
     }
-  }
-
-  private buildUploadErrorMessage(error: unknown): string {
-    if (typeof error === 'string') {
-      return `Failed to upload file: ${error}`;
-    }
-
-    if (error && typeof error === 'object') {
-      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
-      const backendMessage = errorObject.error?.title || errorObject.error?.message;
-      if (backendMessage) {
-        return `Failed to upload file: ${backendMessage}`;
-      }
-
-      if (errorObject.message) {
-        return `Failed to upload file: ${errorObject.message}`;
-      }
-    }
-
-    return 'Failed to upload file.';
   }
 
   /**
@@ -387,7 +348,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   protected async onSubmitServerImport() {
     if (this.selectedServerFiles.size === 0) return;
     if (this.submitted) return;
-    if (this.form.invalid) return;
 
     this.isCreatingLoading = true;
     this.submitted = true;
@@ -397,9 +357,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
         // Build form data for each server file
         const payload = {
           filename: file,
-          isSecret: this.form.value.isSecret || false,
+          isSecret: this.form.getRawValue().isSecret || false,
           fileType: this.filterType,
-          accessGroupId: this.form.value.accessGroupId,
+          accessGroupId: this.form.getRawValue().accessGroupId,
           sourceType: 'import', // IMPORTANT: tells backend to pick it from server import dir
           sourceData: file // some backends require this too
         };
@@ -412,9 +372,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       await Promise.all(requests);
 
       this.alert.showSuccessMessage('Server files imported successfully!');
-      // Reload server files
-      await this.loadServerFiles();
-      this.selectedServerFiles.clear();
+      void this.router.navigate(['/files', this.redirect]);
     } catch (error) {
       console.error('Error importing server files:', error);
       this.alert.showErrorMessage('Could not import selected files.');
