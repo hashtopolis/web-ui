@@ -137,7 +137,7 @@ export const zHashListResponse = z.object({
         salt: z.string(),
         plaintext: z.string(),
         timeCracked: z.number(),
-        chunkId: z.int().nullable(),
+        chunkId: z.number().nullable(), // Allow null for chunkId
         isCracked: z.boolean(),
         crackPos: z.number()
       })

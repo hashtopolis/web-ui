@@ -90,6 +90,42 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
   chunkData?: ChunkData;
 }
 
+/**
+ * Interface definition for a task wrapper display (combined view for tasks and task wrappers)
+ */
+export interface JTaskWrapperDisplay extends BaseModel {
+  taskWrapperId?: number;
+  taskWrapperPriority?: number;
+  taskWrapperMaxAgents?: number;
+  taskType?: number;
+  hashlistId?: number;
+  accessGroupId?: number;
+  taskWrapperName?: string;
+  displayName?: string;
+  taskWrapperIsArchived?: number;
+  cracked?: number;
+  taskId?: number;
+  taskName?: string;
+  attackCmd?: string;
+  chunkTime?: number;
+  statusTimer?: number;
+  keyspace?: number;
+  keyspaceProgress?: number;
+  taskPriority?: number;
+  taskMaxAgents?: number;
+  isSmall?: number;
+  isCpuTask?: number;
+  taskIsArchived?: number;
+  taskUsePreprocessor?: number;
+  hashlistName?: string;
+  hashCount?: number;
+  hashlistCracked?: number;
+  hashTypeId?: number;
+  hashTypeDescription?: string;
+  groupName?: string;
+  status?: number;
+}
+
 export enum TaskStatus {
   RUNNING = 1,
   IDLE = 2,
