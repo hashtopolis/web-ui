@@ -7,7 +7,7 @@ import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { Aggregate, Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 
 /**
  * Intermediate class to build RequestParams from using a builder interface implementation
@@ -20,6 +20,7 @@ export class RequestParamsIntermediate {
   public filters?: Array<Filter>;
   public sortOrder?: Array<string>;
   public includeTotal?: boolean;
+  public aggregate?: Array<Aggregate>;
 }
 
 /**
@@ -39,6 +40,8 @@ export interface IParamBuilder {
   addFilter(filter: Filter): IParamBuilder;
 
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
+
+  addAggregate(aggregate: Aggregate): IParamBuilder;
 
   addInitial(datasource: BaseDataSource<MatPaginator>): IParamBuilder;
 

@@ -34,6 +34,16 @@ export interface Filter {
 }
 
 /**
+ * Interface definition for aggregate fieldsets
+ * @prop field  Aggregate field name
+ * @prop values Values to aggregate for the field
+ */
+export interface Aggregate {
+  field: string;
+  values: string[];
+}
+
+/**
  * Interface definition for request params
  */
 interface IRequestParams {
@@ -46,6 +56,8 @@ interface IRequestParams {
   include?: Array<string>;
   // Array of Filter objects that have to be performed
   filter?: Array<Filter>;
+  //array of aggregated fields to include ex. [active agents for tasks]
+  aggregate?: Array<Aggregate>;
   //array of attributes to sort on where '-' implies descending order on ex. [id, -name]
   sort?: Array<string>;
   //Parameter for count endpoints to also include the count without filters

@@ -1,7 +1,7 @@
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { Aggregate, Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
 
 /**
@@ -99,6 +99,16 @@ export class RequestParamBuilder implements IParamBuilder {
   }
 
   /**
+   * Adds a new value to the aggregate fieldsets array
+   * @param include new include value
+   * @returns object instance
+   */
+  addAggregate(aggregate: Aggregate): IParamBuilder {
+    this.params.aggregate = this.addToArray<Aggregate>(this.params.aggregate, aggregate);
+    return this;
+  }
+
+  /**
    * Adds a new value from the given column to the sort array
    * @param sortingColumn column to get sort values from
    * @returns object instance
@@ -131,6 +141,7 @@ export class RequestParamBuilder implements IParamBuilder {
     if (this.params.sortOrder) requestParams.sort = this.params.sortOrder;
     if (this.params.filters) requestParams.filter = this.params.filters;
     if (this.params.includeTotal !== undefined) requestParams.include_total = this.params.includeTotal;
+    if (this.params.aggregate !== undefined) requestParams.aggregate = this.params.aggregate;
     return requestParams;
   }
 
