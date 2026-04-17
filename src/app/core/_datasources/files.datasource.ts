@@ -65,7 +65,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         files$ = this.service.get(
           SERV.TASKS,
           this.editIndex,
-          paramsBuilder.addInclude('files').addAggregate({field: 'task', values: []}).create(),
+          paramsBuilder.addInclude('files').addAggregate({ field: 'task', values: [] }).create(),
           httpOptions
         );
       } else if (this.editType === 1) {
