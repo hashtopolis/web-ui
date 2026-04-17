@@ -1,3 +1,4 @@
+import { zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';
@@ -29,8 +30,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashlist = new JsonAPISerializer().deserialize<JHashlist>(responseBody);
+          const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
           const res = this.getReport(hashlist);
           this.setData(res);

@@ -53,11 +53,11 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
-  start?: number;
+  start?: number | string;
   order?: Sorting | Sorting[];
   page: number;
   search?: string | unknown[];
-  before?: number;
+  before?: number | string;
   index?: number;
 }
 
@@ -92,7 +92,8 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: 'asc' | 'desc';
+  direction: 'asc' | 'desc' | '';
+  parent?: string;
 }
 
 const _uiConfigDefault = {
@@ -113,7 +114,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: NotificationsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -125,7 +126,7 @@ const _uiConfigDefault = {
       columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
         id: VouchersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -136,8 +137,8 @@ const _uiConfigDefault = {
       page: 25,
       columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
-        id: PermissionsTableCol.ID,
-        dataKey: '',
+        id: PermissionsTableCol.NAME,
+        dataKey: 'name',
         isSortable: true,
         direction: 'asc'
       },
@@ -177,7 +178,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -195,10 +196,10 @@ const _uiConfigDefault = {
         AgentErrorTableCol.MESSAGE
       ],
       order: {
-        id: AgentErrorTableCol.ID,
-        dataKey: '',
+        id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
@@ -219,7 +220,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AgentsStatusTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -241,7 +242,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: TasksAgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -263,7 +264,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: ChunksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -282,7 +283,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -300,7 +301,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -318,7 +319,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: SuperHashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -335,7 +336,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HashtypesTableCol.HASHTYPE,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -353,7 +354,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -371,7 +372,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -389,7 +390,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -407,7 +408,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -419,7 +420,7 @@ const _uiConfigDefault = {
       columns: [FilesTableCol.ID, FilesTableCol.NAME, FilesTableCol.SIZE, FilesTableCol.LINE_COUNT],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -431,7 +432,7 @@ const _uiConfigDefault = {
       columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
         id: FilesAttackTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -443,7 +444,7 @@ const _uiConfigDefault = {
       columns: [CrackersTableCol.ID, CrackersTableCol.TYPE, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -455,7 +456,7 @@ const _uiConfigDefault = {
       columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
       order: {
         id: PreprocessorsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -474,7 +475,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AgentBinariesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -491,7 +492,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HealthChecksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -510,7 +511,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HealthCheckAgentsTableCol.AGENT_ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -530,7 +531,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: PretasksTableCol.PRIORITY,
-        dataKey: '',
+        dataKey: 'priority',
         isSortable: true,
         direction: 'asc'
       },
@@ -554,7 +555,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: TaskTableCol.PRIORITY,
-        dataKey: '',
+        dataKey: 'taskWrapperPriority',
         isSortable: true,
         direction: 'desc'
       },
@@ -575,7 +576,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: TasksChunksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -595,7 +596,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: TasksSupertasksDataSourceTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -607,7 +608,7 @@ const _uiConfigDefault = {
       columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -624,7 +625,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: SupertasksPretasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -645,7 +646,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: PretasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -657,7 +658,7 @@ const _uiConfigDefault = {
       columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
         id: TaskTableCol.ID,
-        dataKey: '',
+        dataKey: 'taskWrapperId',
         isSortable: true,
         direction: 'asc'
       },
@@ -676,7 +677,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HashesTableCol.TIMECRACKED,
-        dataKey: '',
+        dataKey: 'timeCracked',
         isSortable: true,
         direction: 'asc'
       },
@@ -693,7 +694,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: SearchHashTableCol.HASH,
-        dataKey: '',
+        dataKey: 'hash',
         isSortable: true,
         direction: 'asc'
       },
@@ -714,7 +715,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: UsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -726,7 +727,7 @@ const _uiConfigDefault = {
       columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
         id: LogsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -743,7 +744,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AccessGroupsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -755,7 +756,7 @@ const _uiConfigDefault = {
       columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
         id: AccessGroupsUsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -773,7 +774,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AccessPermissionGroupsUserTableCol.NAME,
-        dataKey: '',
+        dataKey: 'name',
         isSortable: true,
         direction: 'asc'
       },
@@ -790,7 +791,7 @@ const _uiConfigDefault = {
       ],
       order: {
         id: AccessPermissionGroupsUsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -802,7 +803,7 @@ const _uiConfigDefault = {
       columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
       order: {
         id: AccessGroupsAgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },

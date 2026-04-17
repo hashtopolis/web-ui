@@ -1,3 +1,9 @@
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse,
+  zPreprocessorListResponse
+} from '@generated/api/zod';
 import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -6,7 +12,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JPreprocessor } from '@models/preprocessor.model';
@@ -183,10 +189,7 @@ export class NewTasksComponent implements OnInit {
     const filter: Filter[] = [{ field: 'isArchived', operator: FilterType.EQUAL, value: false }];
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.HASHLISTS, { filter }));
-      const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
-        data: response.data,
-        included: response.included
-      });
+      const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
       this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
       this.isLoading = false;
       if (!this.selectHashlists.length) {
@@ -204,11 +207,12 @@ export class NewTasksComponent implements OnInit {
    */
   private async loadCrackerSelectOptions(): Promise<void> {
     try {
-      const typeResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES));
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: typeResponse.data,
-        included: typeResponse.included
-      });
+      const typeResponse: ResponseWrapper = await firstValueFrom(
+        this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      );
+      const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+        new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse)
+      );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
 
       let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
@@ -226,10 +230,10 @@ export class NewTasksComponent implements OnInit {
 
       const versionResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
 
-      const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
-        data: versionResponse.data,
-        included: versionResponse.included
-      });
+      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
+        versionResponse,
+        zCrackerBinaryListResponse
+      );
 
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
@@ -250,10 +254,7 @@ export class NewTasksComponent implements OnInit {
   private async loadPreprocessorSelectOptions(): Promise<void> {
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.PREPROCESSORS));
-      const preprocessors = new JsonAPISerializer().deserialize<JPreprocessor[]>({
-        data: response.data,
-        included: response.included
-      });
+      const preprocessors: JPreprocessor[] = new JsonAPISerializer().deserialize(response, zPreprocessorListResponse);
       this.selectPreprocessor = transformSelectOptions(preprocessors, DEFAULT_FIELD_MAPPING);
       this.changeDetectorRef.detectChanges();
     } catch (error) {
@@ -312,10 +313,7 @@ export class NewTasksComponent implements OnInit {
 
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
-      const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
-        data: response.data,
-        included: response.included
-      });
+      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
       // Select the last version by default
@@ -402,7 +400,11 @@ export class NewTasksComponent implements OnInit {
   protected onSubmit(): void {
     if (this.form.valid) {
       this.isCreatingLoading = true;
-      this.gs.create(SERV.TASKS, this.form.value).subscribe({
+
+      const payload = { ...this.form.value };
+      delete payload.crackerBinaryTypeId;
+
+      this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {
           this.alert.showSuccessMessage('New Task created');
           this.isCreatingLoading = false;

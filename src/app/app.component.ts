@@ -13,10 +13,12 @@ import { UserData, userDataSchema } from '@models/user-data.schema';
 
 import { AuthService } from '@services/access/auth.service';
 import { CheckTokenService } from '@services/access/checktoken.service';
+import { ReloadService } from '@services/reload.service';
 import { BreakpointService } from '@services/shared/breakpoint.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { ThemeService } from '@services/shared/theme.service';
+import '@services/storage/local-storage';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
@@ -30,6 +32,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 })
 export class AppComponent implements OnInit, AfterViewInit {
   private cookieService = inject(CookieService);
+  private reloadService = inject(ReloadService);
   private uicService = inject(UIConfigService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
@@ -177,7 +180,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
     if (new Date(userData._expires) < new Date()) {
       this.idle.stop();
-      window.location.reload();
+      this.reloadService.reloadPage();
     }
   }
 

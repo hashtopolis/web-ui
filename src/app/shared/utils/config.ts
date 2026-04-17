@@ -1,16 +1,9 @@
-import { TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
 import { uiConfigSchema } from '@models/config-ui.schema';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
-
-export interface TableOrder {
-  id: number;
-  dataKey: string;
-  isSortable: boolean;
-  direction: 'asc' | 'desc';
-}
 
 /**
  * Utility class for managing user interface settings and configurations.
@@ -46,18 +39,18 @@ export class UISettingsUtilityClass {
    * @param {number} [settings.start] - The start index to set.
    * @param {number[]} [settings.columns] - An array of column numbers to set.
    * @param {number[]} [settings.search] - An array of column numbers to set.
-   * @param {TableOrder[]} [settings.order] - An array defining the order of columns.
+   * @param {Sorting[]} [settings.order] - An array defining the order of columns.
    */
   updateTableSettings(
     key: TableSettingsKey,
     settings: {
       page?: number;
       index?: number;
-      start?: number;
-      before?: number;
+      start?: number | string;
+      before?: number | string;
       totalItems?: number;
       columns?: number[];
-      order?: TableOrder[];
+      order?: Sorting | Sorting[];
       search?: string;
     }
   ): void {

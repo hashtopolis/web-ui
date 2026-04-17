@@ -1,6 +1,7 @@
 /**
  * This module contains the component to create a new user
  */
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
@@ -46,10 +47,10 @@ export class NewUserComponent implements OnInit {
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS));
 
-      const permissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
-        data: response.data,
-        included: response.included
-      });
+      const permissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+        response,
+        zGlobalPermissionGroupListResponse
+      );
       this.selectGlobalPermissionGroups = transformSelectOptions(permissionGroups, DEFAULT_FIELD_MAPPING);
     } catch {
       this.alert.showErrorMessage('Error fetching permission groups');
@@ -74,7 +75,8 @@ export class NewUserComponent implements OnInit {
         name: this.newUserForm.value.username,
         email: this.newUserForm.value.email,
         globalPermissionGroupId: this.newUserForm.value.globalPermissionGroupId,
-        isValid: this.newUserForm.value.isValid
+        isValid: this.newUserForm.value.isValid,
+        sessionLifetime: 3600
       };
 
       await firstValueFrom(this.gs.create(SERV.USERS, payload));

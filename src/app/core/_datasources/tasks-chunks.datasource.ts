@@ -1,3 +1,4 @@
+import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -7,7 +8,6 @@ import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -63,10 +63,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
               })
             )
           );
-          const task = new JsonAPISerializer().deserialize<JTask>({
-            data: response.data,
-            included: response.included
-          });
+          const task: JTask = this.serializer.deserialize(response, zTaskResponse);
           chunkTime = task.chunkTime;
         } catch {
           // Error already handled via handleFilterError
@@ -94,11 +91,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
         finalize(() => (this.loading = false))
       )
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const chunks = new JsonAPISerializer().deserialize<JChunk[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
         const chunksToShow: JChunk[] = chunks.map((chunk: JChunk) => {
           if (chunk.agent) {

@@ -1,4 +1,5 @@
 // typescript
+import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -109,8 +110,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
       this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-      const responseData = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JPretask[]>(responseData);
+      return this.serializer.deserialize(response, zPreTaskListResponse);
     } catch {
       return [];
     }
@@ -128,8 +128,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         )
       );
 
-      const responseData = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JSuperTask>(responseData);
+      return this.serializer.deserialize(response, zSupertaskResponse);
     } catch {
       return null;
     }
@@ -170,8 +169,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
         this.setPaginationConfig(this.pageSize, length, after, before, this.index);
 
-        const responseData = { data: response.data, included: response.included };
-        return this.serializer.deserialize<JPretask[]>(responseData);
+        return this.serializer.deserialize(response, zPreTaskListResponse);
       } catch {
         return [];
       }

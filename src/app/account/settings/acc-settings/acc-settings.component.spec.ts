@@ -71,7 +71,7 @@ describe('AccountSettingsComponent', () => {
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ghelper(_serviceConfig, _option: string): Observable<unknown> {
-      return of({ data: userResponse, included: [] });
+      return of({ jsonapi: { version: '1.1' }, data: userResponse, included: [] });
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     uhelper(_serviceConfig, _id: number, _option: string, _payload: unknown): Observable<unknown> {
@@ -120,6 +120,21 @@ describe('AccountSettingsComponent', () => {
 
   it('creates the component', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('User settings loading', () => {
+    it('populates form with user data from single-object response', () => {
+      // The mock ghelper returns { data: userResponse } (single object, not array).
+      // loadUserSettings() is called in ngOnInit, so the form should already be populated.
+      expect(component.form.get('name')?.value).toBe('admin');
+      expect(component.form.get('email')?.value).toBe('admin@localhost');
+    });
+
+    it('populates registeredSince as a formatted date', () => {
+      // registeredSince should be set from the user data, not be null/undefined
+      const registeredSince = component.form.get('registeredSince')?.value;
+      expect(registeredSince).toBeTruthy();
+    });
   });
 
   describe('Main form tests', () => {

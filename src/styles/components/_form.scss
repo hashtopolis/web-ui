@@ -66,7 +66,7 @@ select, input {
   border: 2px dashed #8c9199;
   border-radius: 5px;
   background: white;
-  margin: 0px 0;
+  margin: 0 0;
 }
 
 .filedrop.active{
@@ -153,7 +153,7 @@ progress::-webkit-progress-value {
   background:#f3f5f7;
   padding:7px;
   width:80%;
-  border-radius: 0px 9px 9px 0px;
+  border-radius: 0 9px 9px 0;
   color:black;
 }
 
@@ -178,12 +178,10 @@ progress::-webkit-progress-value {
 .input-icon-container input {
   outline: none;
   border: none;
-  background: none;
   color: inherit;
   flex : auto 1 1;
   width : 100%;
-  background : none;
-  background-color : transparent;
+  background: transparent none;
 }
 
 .input-icon-container .fa{
@@ -304,6 +302,8 @@ progress::-webkit-progress-value {
 
 .custom-chip-grid {
   width: 100%;
+  min-width: 300px;
+  max-width: 600px;
 }
 
 .custom-chip-grid mat-chip-row button[matchipremove] {
@@ -316,6 +316,16 @@ progress::-webkit-progress-value {
   background-color: colors.$search-text-highlight-color;
 }
 
+// Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport handle
+// scrolling instead of the mat-autocomplete overlay panel itself.
+.multiselect-virtual-panel {
+  overflow: hidden !important;
+  padding: 0 !important;
+
+  cdk-virtual-scroll-viewport {
+    width: 100%;
+  }
+}
 
 /*
   08- End
@@ -352,7 +362,7 @@ progress::-webkit-progress-value {
 
 .custom-agent-container {
   display: flex;
-  align-items: center; /* Align items vertically */
+  align-items: flex-end;
   gap: 12px;
   max-width: 520px; /* Keep the controls compact, up to the + icon */
   width: fit-content;
@@ -367,6 +377,10 @@ progress::-webkit-progress-value {
     width: 320px;
     max-width: 320px;
     min-width: 240px;
+  }
+
+  button[mat-icon-button] {
+    margin-bottom: 1.25em; /* Offset the mat-form-field subscript wrapper so buttons sit level with the input */
   }
 }
 
