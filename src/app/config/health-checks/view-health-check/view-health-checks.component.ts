@@ -1,3 +1,5 @@
+import { zHealthCheckResponse } from '@generated/api/zod';
+
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -79,10 +81,8 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
-        this.healthc = new JsonAPISerializer().deserialize<JHealthCheck>({
-          data: response.data,
-          included: response.included
-        });
+        const healthCheck: JHealthCheck = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
+        this.healthc = healthCheck;
       });
     this.unsubscribeService.add(loadSubscription$);
   }

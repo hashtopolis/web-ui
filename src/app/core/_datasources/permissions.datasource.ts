@@ -1,3 +1,4 @@
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -41,8 +42,10 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
+          const globalPermissionGroups: JGlobalPermissionGroup[] = this.serializer.deserialize(
+            response,
+            zGlobalPermissionGroupListResponse
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

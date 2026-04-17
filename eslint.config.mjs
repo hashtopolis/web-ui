@@ -1,21 +1,21 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import _import from "eslint-plugin-import";
-import { fixupPluginRules } from "@eslint/compat";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from 'eslint/config';
+import _import from 'eslint-plugin-import';
+import { fixupPluginRules } from '@eslint/compat';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import js from '@eslint/js';
+import { FlatCompat } from '@eslint/eslintrc';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all
 });
 
 export default defineConfig([
-  globalIgnores(['projects/**/*']),
+  globalIgnores(['projects/**/*', 'src/generated/**/*']),
   {
     files: ['**/*.ts'],
 
@@ -81,6 +81,14 @@ export default defineConfig([
           ignoreMemberSort: false,
           memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
           allowSeparatedGroups: true
+        }
+      ],
+
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.property.name='location'][property.name='reload']",
+          message: 'Use ReloadService.reloadPage() instead of window.location.reload().'
         }
       ],
 
@@ -151,4 +159,11 @@ export default defineConfig([
       '@angular-eslint/prefer-inject': 'off'
     }
   },
+  // === Allow window.location.reload() only in ReloadService ===
+  {
+    files: ['**/reload.service.ts'],
+    rules: {
+      'no-restricted-syntax': 'off'
+    }
+  }
 ]);

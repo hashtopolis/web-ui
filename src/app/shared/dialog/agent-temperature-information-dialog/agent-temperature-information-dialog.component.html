@@ -8,21 +8,40 @@
         </ng-template>
         <ng-container>
           <div>
-            <p>
-              <span style="color: #009933">&#9673;</span>
-              {{ item.statusLabel }}
-              is good (> {{ item.threshold1 }} {{ item.unitLabel }})
-            </p>
-            <p>
-              <span style="color: #ff9900">&#9673;</span>
-              {{ item.statusLabel }}
-              not ideal (<= {{ item.threshold2 }} {{ item.unitLabel }})
-            </p>
-            <p>
-              <span style="color: #800000">&#9673;</span>
-              {{ item.statusLabel }}
-              low (<= {{ item.threshold2 }} {{ item.unitLabel }})
-            </p>
+            @if (item.icon === 'device_thermostat') {
+              <p>
+                <span style="color: #009933">&#9673;</span>
+                {{ item.statusLabel }}
+                is good (< {{ item.threshold1 }} {{ item.unitLabel }})
+              </p>
+              <p>
+                <span style="color: #ff9900">&#9673;</span>
+                {{ item.statusLabel }}
+                not ideal (>= {{ item.threshold1 }} {{ item.unitLabel }})
+              </p>
+              <p>
+                <span style="color: #800000">&#9673;</span>
+                {{ item.statusLabel }}
+                too high (> {{ item.threshold2 }} {{ item.unitLabel }})
+              </p>
+            } @else {
+              <p>
+                <span style="color: #009933">&#9673;</span>
+                {{ item.statusLabel }}
+                is good (> {{ item.threshold1 }} {{ item.unitLabel }})
+              </p>
+              <p>
+                <span style="color: #ff9900">&#9673;</span>
+                {{ item.statusLabel }}
+                not ideal (<= {{ item.threshold2 }} {{ item.unitLabel }})
+              </p>
+              <p>
+                <span style="color: #800000">&#9673;</span>
+                {{ item.statusLabel }}
+                low (<= {{ item.threshold2 }} {{ item.unitLabel }})
+              </p>
+            }
+
             <p><span style="color: #cccccc">&#9673;</span> Agent is not active</p>
             <p>
               <span style="color: #42d4f4">&#9673;</span> Agent is active but not working or not providing device data

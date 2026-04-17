@@ -6,7 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { SERV, ValidationPatterns } from '@services/main.config';
+import { ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -24,9 +24,10 @@ describe('NewEditPreprocessorComponent', () => {
   let httpMock: HttpTestingController;
 
   const preprocessorResponse = {
+    jsonapi: { version: '1.1', ext: [] },
     data: {
-      id: '9',
-      type: SERV.PREPROCESSORS.RESOURCE,
+      id: 9,
+      type: 'preprocessor',
       attributes: {
         name: 'Test Preprocessor',
         binaryName: 'test-preprocessor.bin',

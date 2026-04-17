@@ -37,10 +37,10 @@ export class AgentSColorPipe implements PipeTransform {
       return '#CCCCCC';
     }
     if (+value == 0) return '#FF0000';
-    if (+value > threshold1 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#009933';
-    else if (+value > threshold2 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#ff9900';
-    if (+value <= threshold1 && stattype == ASC.GPU_UTIL) return '#009933';
-    else if (+value <= threshold2 && stattype == ASC.GPU_UTIL) return '#ff9900';
+    if (+value > threshold1 && (stattype == ASC.GPU_UTIL || stattype == ASC.CPU_UTIL)) return '#009933';
+    else if (+value > threshold2 && (stattype == ASC.GPU_UTIL || stattype == ASC.CPU_UTIL)) return '#ff9900';
+    if (+value <= threshold1 && stattype == ASC.GPU_TEMP) return '#009933';
+    else if (+value <= threshold2 && stattype == ASC.GPU_TEMP) return '#ff9900';
     else return '#800000';
   }
 

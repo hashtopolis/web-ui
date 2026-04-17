@@ -10,7 +10,7 @@ export interface EditAgentForm {
   isActive: FormControl<boolean>;
   userId: FormControl<number>;
   agentName: FormControl<string>;
-  cpuOnly: FormControl<number>;
+  cpuOnly: FormControl<boolean>;
   cmdPars: FormControl<string>;
   ignoreErrors: FormControl<number>;
   isTrusted: FormControl<boolean>;

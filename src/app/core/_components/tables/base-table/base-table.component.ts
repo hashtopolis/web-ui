@@ -25,7 +25,7 @@ import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.m
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTask, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -200,7 +200,7 @@ export class BaseTableComponent {
    * @param wrapper - the task wrapper object to render the link for
    * @return observable containing an array of router links to be rendered in HTML
    */
-  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
+  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapperDisplay): Observable<HTTableRouterLink[]> {
     if (wrapper.cracked === 0) {
       return of([{ label: null, routerLink: null }]);
     }
@@ -209,7 +209,7 @@ export class BaseTableComponent {
 
     const link: HTTableRouterLink = {
       label: wrapper.cracked.toLocaleString(),
-      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
+      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.taskId],
       tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
     };
 

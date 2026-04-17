@@ -10,7 +10,7 @@ import { BaseModel } from '@models/base.model';
  * @prop time     Timestamp
  */
 export interface SpeedStat extends BaseModel {
-  speedId: number;
+  speedId?: number;
   agentId: number;
   taskId: number;
   speed: number;

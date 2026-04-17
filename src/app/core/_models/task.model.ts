@@ -30,21 +30,22 @@ export interface TaskAttributes extends BaseModel {
  */
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
-  activeAgents: number;
+  activeAgents?: number;
+  totalAssignedAgents?: number;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
   keyspaceProgress: number;
   files?: JFile[];
-  color: null | string;
+  color?: string | null;
   isSmall: boolean;
   isCpuTask: boolean;
   useNewBench: boolean;
   skipKeyspace: number;
   crackerBinaryId: number;
   crackerBinaryTypeId: number;
-  crackerBinary: JCrackerBinary;
-  crackerBinaryType: JCrackerBinaryType;
+  crackerBinary?: JCrackerBinary;
+  crackerBinaryType?: JCrackerBinaryType;
   hashlist?: JHashlist;
   assignedAgents?: JAgent[];
   taskWrapperId: number;
@@ -55,15 +56,15 @@ export interface JTask extends BaseModel, TaskAttributes {
   forcePipe: boolean;
   preprocessorId: number;
   preprocessorCommand: string;
-  dispatched: string;
-  searched: string;
-  speeds: SpeedStat[];
+  dispatched?: string;
+  searched?: string;
+  speeds?: SpeedStat[];
   chunkData?: ChunkData;
-  status: number;
-  timeSpent: number;
-  currentSpeed: number;
-  estimatedTime: number;
-  cprogress: number;
+  status?: number;
+  timeSpent?: number;
+  currentSpeed?: number;
+  estimatedTime?: number;
+  cprogress?: number;
   isrunning?: boolean;
   isCompleted?: boolean;
   activeSubtasks?: number;
@@ -82,9 +83,61 @@ export interface JTaskWrapper extends BaseModel, TaskAttributes {
   hashlist?: JHashlist;
   hashType?: JHashtype;
   isArchived: boolean;
-  taskType: TaskType;
-  taskWrapperId: number;
+  taskType?: TaskType;
+  taskWrapperId?: number;
   taskWrapperName: string;
   tasks?: JTask[];
   chunkData?: ChunkData;
+}
+
+/**
+ * Interface definition for a task wrapper display (combined view for tasks and task wrappers)
+ */
+export interface JTaskWrapperDisplay extends BaseModel {
+  taskWrapperId?: number;
+  taskWrapperPriority?: number;
+  taskWrapperMaxAgents?: number;
+  taskType?: number;
+  hashlistId?: number;
+  accessGroupId?: number;
+  taskWrapperName?: string;
+  displayName?: string;
+  taskWrapperIsArchived?: number;
+  cracked?: number;
+  taskId?: number;
+  taskName?: string;
+  attackCmd?: string;
+  chunkTime?: number;
+  statusTimer?: number;
+  keyspace?: number;
+  keyspaceProgress?: number;
+  taskPriority?: number;
+  taskMaxAgents?: number;
+  isSmall?: number;
+  isCpuTask?: number;
+  taskIsArchived?: number;
+  taskUsePreprocessor?: number;
+  hashlistName?: string;
+  hashCount?: number;
+  hashlistCracked?: number;
+  hashTypeId?: number;
+  hashTypeDescription?: string;
+  groupName?: string;
+  status?: number;
+}
+
+export enum TaskStatus {
+  RUNNING = 1,
+  IDLE = 2,
+  COMPLETED = 3
+}
+
+export interface TaskCompletionData {
+  keyspace: number;
+  keyspaceProgress: number;
+  searched: string;
+}
+
+export interface TaskStatusData extends TaskCompletionData {
+  totalAssignedAgents: number;
 }

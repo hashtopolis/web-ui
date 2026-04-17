@@ -1,3 +1,4 @@
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { BehaviorSubject, Observable, forkJoin, map, take } from 'rxjs';
 
 import { Injectable } from '@angular/core';
@@ -44,8 +45,10 @@ export class PermissionService {
     return this.gs.ghelper(SERV.HELPER, 'getUserPermission').pipe(
       take(1),
       map((response: ResponseWrapper) => {
-        const responseData = { data: response.data, included: response.included };
-        const globalPermissionGroup = this.serializer.deserialize<JGlobalPermissionGroup>(responseData);
+        const globalPermissionGroup: JGlobalPermissionGroup = this.serializer.deserialize(
+          response,
+          zGlobalPermissionGroupResponse
+        );
         const permissions = globalPermissionGroup.permissions;
 
         this.currentPermissions = permissions;

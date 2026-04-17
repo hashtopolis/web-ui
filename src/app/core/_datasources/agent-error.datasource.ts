@@ -2,13 +2,13 @@
  * Contains data source for agents resource
  * @module
  */
+import { zAgentErrorListResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
 import { JAgentErrors } from '@models/agent-errors.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -48,12 +48,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const serializer = new JsonAPISerializer();
-        const responseBody = { data: response.data, included: response.included };
-        const agents = serializer.deserialize<JAgentErrors[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const agents: JAgentErrors[] = this.serializer.deserialize(response, zAgentErrorListResponse);
 
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;

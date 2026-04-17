@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 import { Injectable } from '@angular/core';
 
+// Installs the TypedStorage wrapper on window.sessionStorage and brings in the
+// global Storage type augmentation that makes setItem accept non-string values.
+import '@services/storage/session-storage';
+
 import { BaseStorageService, StorageWrapper } from '@services/storage/base-storage.service';
 
 /**
@@ -84,7 +88,15 @@ export class SessionStorageService<T> extends BaseStorageService<T> {
       value: value
     };
 
-    sessionStorage.setItem(this.decode(key), storedValue);
+    try {
+      sessionStorage.setItem(this.decode(key), storedValue);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        console.warn(`SessionStorageService: quota exceeded for key "${key}", skipping sessionStorage write.`);
+      } else {
+        throw e;
+      }
+    }
   }
 
   removeItem(key: string): void {
