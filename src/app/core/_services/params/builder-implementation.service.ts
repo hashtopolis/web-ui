@@ -1,7 +1,7 @@
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-import { Filter, Aggregate, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { Aggregate, Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
 
 /**

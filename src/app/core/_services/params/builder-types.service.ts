@@ -7,7 +7,7 @@ import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { Filter, Aggregate, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { Aggregate, Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 
 /**
  * Intermediate class to build RequestParams from using a builder interface implementation
