@@ -49,7 +49,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
-      .addInclude('user');
+      .addInclude('user')
+      .addAggregate({
+        field: 'task',
+        values: []
+      });
     if (this.agentStatsRequired) {
       agentParams = agentParams.addInclude('agentStats');
     }

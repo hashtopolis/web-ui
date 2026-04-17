@@ -37,9 +37,10 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
       .addInclude('tasks')
       .addInclude('hashlist')
       .addInclude('hashType')
-      .addAggregate('task', 'searched')
-      .addAggregate('task', 'dispatched')
-      .addAggregate('task', 'status')
+      .addAggregate({
+        field: 'task',
+        values: ['activeAgents', 'searched', 'dispatched', 'status']
+      })
       .addFilter({
         field: 'isArchived',
         operator: FilterType.EQUAL,

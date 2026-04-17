@@ -42,8 +42,8 @@ export function setParameter(params: RequestParams): HttpParams {
   // Handle aggregate array
   const aggregate = params.aggregate;
   if (Array.isArray(aggregate) && aggregate.length > 0) {
-    aggregate.forEach((aggregateCategory) => {
-      httpParams = httpParams.set(`aggregate[${aggregateCategory}]`, aggregateCategory.join(','));
+    aggregate.forEach((aggregate) => {
+      httpParams = httpParams.set(`aggregate[${aggregate.field}]`, aggregate.values.join(','));
     });
   }
 

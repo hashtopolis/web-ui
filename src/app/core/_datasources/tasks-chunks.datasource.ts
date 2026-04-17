@@ -36,18 +36,27 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
     const activeFilter = query || this._currentFilter;
 
-    let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent').addFilter({
-      field: 'taskId',
-      operator: FilterType.EQUAL,
-      value: this._taskId
-    });
+    let chunkParams = new RequestParamBuilder()
+      .addInitial(this)
+      .addInclude('agent')
+      .addFilter({
+        field: 'taskId',
+        operator: FilterType.EQUAL,
+        value: this._taskId
+      });
 
     if (!this._isChunksLive) {
       if (this._taskId) {
         const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
         try {
+          let taskParams = new RequestParamBuilder()
+            .addAggregate({
+              field: 'task',
+              values: []
+            });
+          
           const response = await firstValueFrom<ResponseWrapper>(
-            this.service.get(SERV.TASKS, this._taskId, undefined, httpOptions).pipe(
+            this.service.get(SERV.TASKS, this._taskId, taskParams.create(), httpOptions).pipe(
               catchError((error) => {
                 this.handleFilterError(error);
                 throw error;
