@@ -23,7 +23,7 @@ export const zHashResponse = z.object({
       salt: z.string(),
       plaintext: z.string(),
       timeCracked: z.number(),
-      chunkId: z.int(),
+      chunkId: z.int().nullable(),
       isCracked: z.boolean(),
       crackPos: z.number()
     })

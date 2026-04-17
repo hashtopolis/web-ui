@@ -172,6 +172,12 @@ describe('HttpCacheInterceptor', () => {
 
       // Due to synchronous response from cache (via of()), subscription completes immediately
       expect(subscribeFinished).toBe(true);
+
+      // The entry may already be stale (TTL is 1 ms), so the interceptor
+      // could have fired a background revalidation request. Flush it so
+      // that httpMock.verify() in afterEach does not fail.
+      httpMock.match(testUrl).forEach((req) => req.flush(testData));
+
       done();
     });
 
@@ -207,7 +213,12 @@ describe('HttpCacheInterceptor', () => {
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), DEFAULT_TTL_MS, DEFAULT_STALE_TIME_MS);
+      expect(setSpy).toHaveBeenCalledWith(
+        jasmine.anything(),
+        jasmine.anything(),
+        DEFAULT_TTL_MS,
+        DEFAULT_STALE_TIME_MS
+      );
     });
 
     it('should not cache when Cache-Control: no-store is present', () => {
