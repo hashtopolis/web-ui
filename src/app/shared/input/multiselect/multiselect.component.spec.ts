@@ -104,6 +104,12 @@ describe('InputMultiSelectComponent', () => {
       component.remove(ITEMS[0]);
       expect(component.filteredItems.find((i) => i.id === ITEMS[0].id)).toBeTruthy();
     });
+
+    it('should restore item at its original position, not at the end', () => {
+      // beforeEach selected ITEMS[0] — removing it should restore it at the front
+      component.remove(ITEMS[0]);
+      expect(component.filteredItems.map((i) => i.id)).toEqual(ITEMS.map((i) => i.id));
+    });
   });
 
   describe('single-select mode', () => {
@@ -122,6 +128,13 @@ describe('InputMultiSelectComponent', () => {
       component.addChip(ITEMS[0]);
       component.addChip(ITEMS[1]);
       expect(component.filteredItems.find((i) => i.id === ITEMS[0].id)).toBeTruthy();
+    });
+
+    it('should preserve original ordering when swapping selection', () => {
+      component.addChip(ITEMS[0]);
+      component.addChip(ITEMS[3]);
+      const expected = ITEMS.filter((i) => i.id !== ITEMS[3].id).map((i) => i.id);
+      expect(component.filteredItems.map((i) => i.id)).toEqual(expected);
     });
   });
 

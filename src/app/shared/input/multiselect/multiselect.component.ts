@@ -16,7 +16,7 @@ import {
   inject
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatInput } from '@angular/material/input';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -63,6 +63,7 @@ export class InputMultiSelectComponent
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
   @ViewChild(CdkVirtualScrollViewport) virtualViewport: CdkVirtualScrollViewport;
+  @ViewChild(MatAutocomplete) autocomplete: MatAutocomplete;
 
   private searchInputSubject = new Subject<string>();
   private itemsSubject = new Subject<SelectOption[]>();
@@ -133,6 +134,7 @@ export class InputMultiSelectComponent
   onPanelOpened(): void {
     setTimeout(() => {
       this.virtualViewport?.checkViewportSize();
+      this.clearAutocompleteSelectionFlags();
       this.cdr.markForCheck();
     });
   }
@@ -152,18 +154,13 @@ export class InputMultiSelectComponent
       if (this.multiselectEnabled) {
         this.selectedItems.push(item);
       } else {
-        // In single-select mode, restore the previously selected item to available
-        if (this.selectedItems.length > 0) {
-          this.availableItems = [...this.availableItems, this.selectedItems[0]];
-        }
         this.selectedItems = [item];
       }
 
       // Update validation array
       this.chipGridValidation = [...this.selectedItems];
 
-      // Remove item from available list
-      this.availableItems = this.availableItems.filter((i) => i.id !== item.id);
+      this.updateAvailableItems();
       this.itemsSubject.next(this.availableItems);
 
       // Update filtered items
@@ -181,14 +178,29 @@ export class InputMultiSelectComponent
       this.selectedItems.splice(index, 1);
       this.chipGridValidation = [...this.selectedItems];
 
-      // Put back to available items
-      this.availableItems = [...this.availableItems, item];
+      this.updateAvailableItems();
       this.searchInputSubject.next(this.searchTerm);
       this.itemsSubject.next(this.availableItems);
 
       this.onChangeValue(this.selectedItems);
       this.onTouched();
     }
+  }
+
+  /**
+   * Available Items is always all items without the selected ones
+   */
+  private updateAvailableItems(): void {
+    const selectedIds = new Set(this.selectedItems.map((s) => s.id));
+    this.availableItems = this._items.filter((item) => !selectedIds.has(item.id));
+  }
+
+  /**
+   * Reset every MatOption's internal `selected` flag due to virtual scroll reusing options that
+   * might already be selected from previous ones
+   */
+  private clearAutocompleteSelectionFlags(): void {
+    this.autocomplete?.options?.forEach((opt) => opt.deselect());
   }
 
   // When typing a separator key (ENTER, COMMA)
@@ -220,6 +232,7 @@ export class InputMultiSelectComponent
         // ignore
       }
     }
+    this.clearAutocompleteSelectionFlags();
     this.cdr.markForCheck();
   }
 
@@ -299,18 +312,13 @@ export class InputMultiSelectComponent
    */
   public selected(event: MatAutocompleteSelectedEvent): void {
     if (!this.multiselectEnabled) {
-      // For single-select, put back the previous one (if any) then clear selection
-      if (this.selectedItems.length > 0) {
-        this.availableItems = [...this.availableItems, this.selectedItems[0]];
-      }
       this.selectedItems = [];
     }
 
-    // Remove selected option from available list
-    this.availableItems = this.availableItems.filter((i) => i.id !== event.option.value.id);
-
     this.searchTerm = ''; // Reset the search term
     this.selectedItems.push(event.option.value);
+
+    this.updateAvailableItems();
 
     // Update the filteredItems observable
     this.searchInputSubject.next(this.searchTerm);
