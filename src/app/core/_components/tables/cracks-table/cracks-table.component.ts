@@ -220,7 +220,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLinkFromHash(crack: JHash): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (crack) {
+    if (crack && crack.chunkId !== null) {
       links.push({
         routerLink: ['/tasks', 'chunks', crack.chunkId, 'view'],
         label: crack.chunkId

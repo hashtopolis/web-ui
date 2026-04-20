@@ -28,6 +28,8 @@ export const HELPER_ENDPOINTS = [
   'setUserPassword',
   'createSupertask',
   'createSuperHashlist',
+  'maskSupertaskBuilder',
+  'bulkSupertaskBuilder',
   'purgeTask',
   'abortChunk',
   'resetChunk',
@@ -81,6 +83,7 @@ export class SERV {
   public static SUPER_TASKS = { URL: '/ui/supertasks', RESOURCE: 'SuperTasks' };
   public static TASKS = { URL: '/ui/tasks', RESOURCE: 'Tasks' };
   public static TASKS_WRAPPER = { URL: '/ui/taskwrappers', RESOURCE: 'TaskWrappers' };
+  public static TASKS_WRAPPER_DISPLAYS = { URL: '/ui/taskwrapperdisplays', RESOURCE: 'TaskWrapperDisplays' };
   public static TASKS_WRAPPER_COUNT = { URL: '/ui/taskwrappers/count', RESOURCE: 'TaskWrappersCount' };
   // USERS
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };

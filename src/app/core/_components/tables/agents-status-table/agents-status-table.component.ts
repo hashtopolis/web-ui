@@ -180,7 +180,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
           treshold1: this.getTemp1(),
           treshold2: this.getTemp2(),
-          type: ASC.GPU_UTIL,
+          type: ASC.GPU_TEMP,
           isActive: (agent: JAgent) => agent.isActive,
           lastTime: (agent: JAgent) => agent.lastTime
         }

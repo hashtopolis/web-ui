@@ -13,7 +13,7 @@ import { BaseModel } from '@src/app/core/_models/base.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
-import { JTask, JTaskWrapper } from '@src/app/core/_models/task.model';
+import { JTask, JTaskWrapper, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
@@ -36,7 +36,7 @@ class TestTableComponent extends BaseTableComponent {
   public getColumnLabels(): { [key: string]: string } {
     return this.columnLabels;
   }
-  public getCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
+  public getCrackedLinkFromWrapper(wrapper: JTaskWrapperDisplay): Observable<HTTableRouterLink[]> {
     return this.renderCrackedLinkFromWrapper(wrapper);
   }
 }
@@ -125,7 +125,14 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render cracked link from supertask wrapper', (done) => {
-    const mockWrapper = { id: 1, cracked: 100, taskType: 1, hashlist: { hashCount: 100 } } as JTaskWrapper;
+    const mockWrapper = {
+      type: 'taskWrapperDisplay',
+      id: 1,
+      cracked: 100,
+      taskType: 1,
+      taskId: 7,
+      hashlist: { hashCount: 100 }
+    } as JTaskWrapperDisplay;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
       expect(links[0].label).toBe('100');
@@ -136,18 +143,20 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render cracked link from wrapper', (done) => {
-    const mockTask = [{ id: 1, taskWrapperId: 1, taskName: 'Test Task' }] as JTask[];
+    const mockTask = [{ taskWrapperId: 1, taskName: 'Test Task' }] as JTask[];
     const mockWrapper = {
       id: 1,
+      type: 'taskWrapperDisplay',
+      taskId: 7,
       cracked: 100,
       taskType: 0,
       tasks: mockTask,
       hashlist: { hashCount: 100 }
-    } as JTaskWrapper;
+    } as JTaskWrapperDisplay;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
       expect(links[0].label).toBe('100');
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 7]);
       expect(links[0].tooltip).toBe(undefined);
       done();
     });
