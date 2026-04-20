@@ -56,7 +56,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
 
   updateForm: FormGroup;
-  createForm: FormGroup; // Assign Agent
+  createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 
@@ -247,7 +247,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       })
     });
 
-    this.createForm = new FormGroup({
+    this.createForm = new FormGroup<{ agentId: FormControl<number | null> }>({
       agentId: new FormControl<number | null>(null)
     });
   }

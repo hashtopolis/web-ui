@@ -91,14 +91,14 @@
             @if (hashlistinform) {
               <simulate-form-field
                 [label]="
-                  (hashlistinform?.format ?? -1) === 0
+                  hashlistinform.format === 0
                     ? 'Hashlist'
-                    : (hashlistinform?.format ?? -1) === 3
+                    : hashlistinform.format === 3
                       ? 'SuperHashlist'
                       : 'Hashlist not found'
                 "
-                message="{{ hashlistinform?.name ?? '' }} / {{ hashlistDescrip }}"
-                [routerLink]="'/hashlists/hashlist/' + (hashlistinform?.id ?? '') + '/edit'"
+                message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"
+                [routerLink]="'/hashlists/hashlist/' + hashlistinform.id + '/edit'"
               >
               </simulate-form-field>
             } @else {
@@ -209,7 +209,7 @@
               mat-icon-button
               matTooltip="Assign Agent"
               (click)="assignAgent()"
-              [disabled]="!createForm.get('agentId')?.value"
+              [disabled]="!createForm.controls.agentId.value"
             >
               <mat-icon>add</mat-icon>
             </button>

@@ -156,12 +156,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   private updateValidatorsBySourceType(sourceType: string): void {
-    const filenameCtrl = this.form.get('filename');
-    const urlCtrl = this.form.get('url');
-
-    if (!filenameCtrl || !urlCtrl) {
-      return;
-    }
+    const filenameCtrl = this.form.controls.filename;
+    const urlCtrl = this.form.controls.url;
 
     if (sourceType === 'url') {
       filenameCtrl.setValidators([Validators.required]);

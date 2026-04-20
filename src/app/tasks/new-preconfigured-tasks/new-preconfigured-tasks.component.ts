@@ -121,8 +121,8 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   getFormData() {
     return {
-      attackCmd: this.createForm?.get('attackCmd')?.value ?? '',
-      files: this.createForm?.get('files')?.value ?? []
+      attackCmd: this.createForm?.controls.attackCmd.value ?? '',
+      files: this.createForm?.controls.files.value ?? []
     };
   }
 

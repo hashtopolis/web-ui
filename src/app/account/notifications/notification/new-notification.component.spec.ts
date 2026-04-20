@@ -324,9 +324,9 @@ describe('NewNotificationComponent', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    component.form.controls['actionFilter'].patchValue('1');
-    component.form.controls['notification'].patchValue(NOTIF.EMAIL);
-    component.form.controls['receiver'].patchValue('test@mail.com');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
     fixture.detectChanges();
 
     expectButtonToBeEnabled();
@@ -420,10 +420,10 @@ describe('NewNotificationComponent', () => {
   // --- Helper functions ---
   const setValidFormValues = (): void => {
     setAction(ACTION.NEW_TASK);
-    component.form.controls['action'].patchValue('1');
-    component.form.controls['actionFilter'].patchValue('1');
-    component.form.controls['notification'].patchValue(NOTIF.EMAIL);
-    component.form.controls['receiver'].patchValue('test@mail.com');
+    component.form.controls.action.patchValue('1');
+    component.form.controls.actionFilter.patchValue('1');
+    component.form.controls.notification.patchValue(NOTIF.EMAIL);
+    component.form.controls.receiver.patchValue('test@mail.com');
 
     fixture.detectChanges();
   };
@@ -442,7 +442,7 @@ describe('NewNotificationComponent', () => {
   };
 
   const setAction = (action: string): void => {
-    component.form.controls['action'].patchValue(action);
+    component.form.controls.action.patchValue(action);
     fixture.detectChanges();
   };
 

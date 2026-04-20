@@ -121,27 +121,27 @@ describe('AccountSettingsComponent', () => {
     it('populates form with user data from single-object response', () => {
       // The mock ghelper returns { data: userResponse } (single object, not array).
       // loadUserSettings() is called in ngOnInit, so the form should already be populated.
-      expect(component.form.get('name')?.value).toBe('admin');
-      expect(component.form.get('email')?.value).toBe('admin@localhost');
+      expect(component.form.controls.name.value).toBe('admin');
+      expect(component.form.controls.email.value).toBe('admin@localhost');
     });
 
     it('populates registeredSince as a formatted date', () => {
       // registeredSince should be set from the user data, not be null/undefined
-      const registeredSince = component.form.get('registeredSince')?.value;
+      const registeredSince = component.form.controls.registeredSince.value;
       expect(registeredSince).toBeTruthy();
     });
   });
 
   describe('Main form tests', () => {
     it('validates email as required', () => {
-      const emailControl = component.form.get('email');
-      emailControl?.patchValue(null);
+      const emailControl = component.form.controls.email;
+      emailControl.patchValue(null);
       component.form.updateValueAndValidity();
       expect(emailControl?.hasError('required')).toBeTrue();
     });
 
     it('validates email format', () => {
-      const emailControl = component.form.controls['email'];
+      const emailControl = component.form.controls.email;
 
       emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
@@ -232,18 +232,18 @@ describe('AccountSettingsComponent', () => {
       form.updateValueAndValidity();
       fixture.detectChanges();
 
-      const oldPasswordControl = form.get('oldPassword');
-      const newPasswordControl = form.get('newPassword');
-      const confirmPasswordControl = form.get('confirmNewPassword');
+      const oldPasswordControl = form.controls.oldPassword;
+      const newPasswordControl = form.controls.newPassword;
+      const confirmPasswordControl = form.controls.confirmNewPassword;
 
-      expect(oldPasswordControl?.hasError('required')).toBeTrue();
-      expect(newPasswordControl?.hasError('required')).toBeTrue();
-      expect(confirmPasswordControl?.hasError('required')).toBeTrue();
+      expect(oldPasswordControl.hasError('required')).toBeTrue();
+      expect(newPasswordControl.hasError('required')).toBeTrue();
+      expect(confirmPasswordControl.hasError('required')).toBeTrue();
     });
 
     it('validates password length', () => {
-      const newPasswordControl = component.changepasswordFormGroup.controls['newPassword'];
-      const confirmPasswordControl = component.changepasswordFormGroup.controls['confirmNewPassword'];
+      const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
+      const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
 
       // Too short
       newPasswordControl.patchValue('123');

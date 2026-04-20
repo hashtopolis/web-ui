@@ -25,6 +25,13 @@ import {
 } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+export interface ApplyHashlistForm {
+  supertaskTemplateId: FormControl<number | null>;
+  hashlistId: FormControl<HashlistId | null>;
+  crackerBinaryId: FormControl<CrackerBinaryId | null>;
+  crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
+}
+
 /**
  * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
  *
@@ -40,7 +47,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   /** Form group for the new SuperHashlist. */
-  form: FormGroup;
+  form: FormGroup<ApplyHashlistForm>;
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
@@ -108,11 +115,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.form = new FormGroup({
-      supertaskTemplateId: new FormControl(),
-      hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(),
-      crackerBinaryTypeId: new FormControl()
+    this.form = new FormGroup<ApplyHashlistForm>({
+      supertaskTemplateId: new FormControl<number | null>(null),
+      hashlistId: new FormControl<HashlistId | null>(null),
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
     });
   }
 
@@ -124,16 +131,18 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   initForm() {
-    this.form = new FormGroup({
-      supertaskTemplateId: new FormControl(this.editedIndex),
-      hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(1),
-      crackerBinaryTypeId: new FormControl()
+    this.form = new FormGroup<ApplyHashlistForm>({
+      supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
+      hashlistId: new FormControl<HashlistId | null>(null),
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.controls['crackerBinaryId'].valueChanges.subscribe((newvalue) => {
-      this.handleChangeBinary(newvalue);
+    this.form.controls.crackerBinaryId.valueChanges.subscribe((newvalue) => {
+      if (newvalue !== null) {
+        this.handleChangeBinary(newvalue);
+      }
     });
 
     this.loadData();
@@ -203,7 +212,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
             );
             this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
             const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-            this.form.controls['crackerBinaryTypeId'].patchValue(lastItem);
+            this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
           });
         this.unsubscribeService.add(loadCrackersSubscription$);
       });
@@ -227,7 +236,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.controls['crackerBinaryTypeId'].patchValue(lastItem);
+        this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

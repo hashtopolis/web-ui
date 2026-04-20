@@ -97,28 +97,28 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadData();
 
-    const isSaltedCtrl = this.form.get('isSalted');
-    const isHexSaltCtrl = this.form.get('isHexSalt');
-    const separatorCtrl = this.form.get('separator');
+    const isSaltedCtrl = this.form.controls.isSalted;
+    const isHexSaltCtrl = this.form.controls.isHexSalt;
+    const separatorCtrl = this.form.controls.separator;
 
     // Disable separator if not salted
-    if (isSaltedCtrl?.value) {
-      separatorCtrl?.enable();
-      isHexSaltCtrl?.enable();
+    if (isSaltedCtrl.value) {
+      separatorCtrl.enable();
+      isHexSaltCtrl.enable();
     } else {
-      separatorCtrl?.disable();
-      isHexSaltCtrl?.disable();
+      separatorCtrl.disable();
+      isHexSaltCtrl.disable();
     }
 
     // Check for changes and enable/disable
     this.saltSubscription.add(
-      isSaltedCtrl!.valueChanges.subscribe((val: boolean) => {
+      isSaltedCtrl.valueChanges.subscribe((val: boolean) => {
         if (val) {
-          separatorCtrl?.enable();
-          isHexSaltCtrl?.enable();
+          separatorCtrl.enable();
+          isHexSaltCtrl.enable();
         } else {
-          separatorCtrl?.disable();
-          isHexSaltCtrl?.disable();
+          separatorCtrl.disable();
+          isHexSaltCtrl.disable();
         }
       })
     );

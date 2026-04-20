@@ -72,7 +72,7 @@ export class HTTableTypeEditableComponent implements OnInit {
     this.editMode = false;
   }
 
-  onEditableInputEnter(event: KeyboardEvent): void {
+  onEditableInputEnter(event: Event): void {
     event.stopPropagation();
     this.editableInputSaved.emit(this.editable);
     this.editMode = false;

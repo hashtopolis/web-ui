@@ -67,11 +67,11 @@ describe('UiSettingsComponent', () => {
 
   it('should initialize form with default values', () => {
     expect(component.form).toBeDefined();
-    expect(component.form.get('timefmt')).toBeDefined();
-    expect(component.form.get('layout')).toBeDefined();
-    expect(component.form.get('theme')).toBeDefined();
-    expect(component.form.get('refreshPage')).toBeDefined();
-    expect(component.form.get('refreshInterval')).toBeDefined();
+    expect(component.form.controls.timefmt).toBeDefined();
+    expect(component.form.controls.layout).toBeDefined();
+    expect(component.form.controls.theme).toBeDefined();
+    expect(component.form.controls.refreshPage).toBeDefined();
+    expect(component.form.controls.refreshInterval).toBeDefined();
   });
 
   it('should call updateForm and patch form values', () => {

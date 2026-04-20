@@ -125,12 +125,12 @@ describe('NewFilesComponent', () => {
       ['filename', 'isSecret', 'fileType', 'accessGroupId', 'sourceType', 'sourceData'].forEach((key) => {
         expect(form.get(key)).toBeTruthy();
       });
-      expect(form.get('filename')!.value).toBe('');
-      expect(form.get('isSecret')!.value).toBeTrue();
-      expect(form.get('fileType')!.value).toBe(expectedFileType);
-      expect(form.get('accessGroupId')!.value).toBe(1);
-      expect(form.get('sourceType')!.value).toBe('import');
-      expect(form.get('sourceData')!.value).toBe('');
+      expect(form.controls.filename.value).toBe('');
+      expect(form.controls.isSecret.value).toBeTrue();
+      expect(form.controls.fileType.value).toBe(expectedFileType);
+      expect(form.controls.accessGroupId.value).toBe(1);
+      expect(form.controls.sourceType.value).toBe('import');
+      expect(form.controls.sourceData.value).toBe('');
     });
   });
 
@@ -190,7 +190,7 @@ describe('NewFilesComponent', () => {
         {
           filename: file.name,
           isSecret: true,
-          fileType: component.form.get('fileType')!.value,
+          fileType: component.form.controls.fileType.value,
           accessGroupId: 1,
           sourceType: 'import',
           sourceData: file.name

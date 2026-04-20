@@ -20,6 +20,13 @@ import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+export interface NewHealthCheckForm {
+  checkType: FormControl<number | null>;
+  hashtypeId: FormControl<number | null>;
+  crackerBinaryId: FormControl<CrackerBinaryId | string | null>;
+  crackerBinaryType: FormControl<string | null>;
+}
+
 @Component({
   selector: 'app-new-health-checks',
   templateUrl: './new-health-checks.component.html',
@@ -27,7 +34,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 })
 export class NewHealthChecksComponent implements OnInit, OnDestroy {
   /** Form group for Health Checks */
-  form: FormGroup;
+  form: FormGroup<NewHealthCheckForm>;
 
   /** On form update show a spinner loading */
   isCreatingLoading = false;
@@ -68,15 +75,17 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.form = new FormGroup({
-      checkType: new FormControl(0),
-      hashtypeId: new FormControl(0, [Validators.required]),
-      crackerBinaryId: new FormControl('', [Validators.required]),
-      crackerBinaryType: new FormControl('')
+    this.form = new FormGroup<NewHealthCheckForm>({
+      checkType: new FormControl<number | null>(0),
+      hashtypeId: new FormControl<number | null>(0, [Validators.required]),
+      crackerBinaryId: new FormControl<CrackerBinaryId | string | null>('', [Validators.required]),
+      crackerBinaryType: new FormControl<string | null>('')
     });
 
-    const onHandleBinarySubscription$ = this.form.controls['crackerBinaryType'].valueChanges.subscribe((newvalue) => {
-      this.handleChangeBinary(newvalue);
+    const onHandleBinarySubscription$ = this.form.controls.crackerBinaryType.valueChanges.subscribe((newvalue) => {
+      if (newvalue !== null) {
+        this.handleChangeBinary(newvalue);
+      }
     });
     this.unsubscribeService.add(onHandleBinarySubscription$);
   }
@@ -110,7 +119,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
       const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-      this.form.controls['crackerBinaryId'].patchValue(lastItem);
+      this.form.controls.crackerBinaryId.patchValue(lastItem);
     });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }

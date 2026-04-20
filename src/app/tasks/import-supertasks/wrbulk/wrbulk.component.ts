@@ -34,6 +34,18 @@ interface WrbulkFormValue {
   iterFiles: number[];
 }
 
+export interface WrbulkForm {
+  name: FormControl<string>;
+  maxAgents: FormControl<number>;
+  isSmall: FormControl<boolean>;
+  isCpuTask: FormControl<boolean>;
+  useNewBench: FormControl<boolean>;
+  crackerBinaryId: FormControl<number>;
+  attackCmd: FormControl<string>;
+  baseFiles: FormControl<number[]>;
+  iterFiles: FormControl<number[]>;
+}
+
 @Component({
   selector: 'app-wrbulk',
   templateUrl: './wrbulk.component.html',
@@ -52,7 +64,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   ];
 
   /** Form group for the new Mask. */
-  createForm: FormGroup;
+  createForm: FormGroup<WrbulkForm>;
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
@@ -100,16 +112,19 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Mask.
    */
   buildForm(): void {
-    this.createForm = new FormGroup({
-      name: new FormControl('', [Validators.required]),
-      maxAgents: new FormControl(0),
-      isSmall: new FormControl(false),
-      isCpuTask: new FormControl(false),
-      useNewBench: new FormControl(true),
-      crackerBinaryId: new FormControl(1),
-      attackCmd: new FormControl(this.uiService.getUISettings()?.hashlistAlias ?? '', [Validators.required]),
-      baseFiles: new FormControl([]),
-      iterFiles: new FormControl([])
+    this.createForm = new FormGroup<WrbulkForm>({
+      name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      maxAgents: new FormControl<number>(0, { nonNullable: true }),
+      isSmall: new FormControl<boolean>(false, { nonNullable: true }),
+      isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
+      useNewBench: new FormControl<boolean>(true, { nonNullable: true }),
+      crackerBinaryId: new FormControl<number>(1, { nonNullable: true }),
+      attackCmd: new FormControl<string>(this.uiService.getUISettings()?.hashlistAlias ?? '', {
+        nonNullable: true,
+        validators: [Validators.required]
+      }),
+      baseFiles: new FormControl<number[]>([], { nonNullable: true }),
+      iterFiles: new FormControl<number[]>([], { nonNullable: true })
     });
   }
 
@@ -178,10 +193,10 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   async onSubmit(): Promise<void> {
     if (this.createForm.valid) {
-      const formValue = this.createForm.value;
+      const formValue = this.createForm.getRawValue();
       const attackCmd: string = formValue.attackCmd;
       const crackerBinaryId: number = formValue.crackerBinaryId;
-      const iterFiles: [] = formValue.iterFiles;
+      const iterFiles: number[] = formValue.iterFiles;
 
       const attackAlias = this.uiService.getUISettings()?.hashlistAlias ?? '';
       let hasError = false;
@@ -240,9 +255,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.controls['attackCmd'].value,
-      files: this.createForm.controls['baseFiles'].value,
-      otherFiles: this.createForm.controls['iterFiles'].value
+      attackCmd: this.createForm.controls.attackCmd.value,
+      files: this.createForm.controls.baseFiles.value,
+      otherFiles: this.createForm.controls.iterFiles.value
     };
   }
 

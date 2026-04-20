@@ -94,36 +94,34 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getInitialization();
 
-    const sourceTypeControl = this.form.get('sourceType');
-    if (sourceTypeControl) {
-      const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
-        this.hashesAreRequired = false;
-        this.resetHashesValidator();
-        if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
-          void this.loadServerFiles();
-        }
+    const sourceTypeControl = this.form.controls.sourceType;
+    const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
+      this.hashesAreRequired = false;
+      this.resetHashesValidator();
+      if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+        void this.loadServerFiles();
+      }
 
-        if (sourceType !== 'upload') {
-          this.selectedFiles = null;
-          this.fileName = '';
-          this.uploadProgress = 0;
-        }
+      if (sourceType !== 'upload') {
+        this.selectedFiles = null;
+        this.fileName = '';
+        this.uploadProgress = 0;
+      }
 
-        if (sourceType === 'paste') {
-          this.hashesAreRequired = true;
+      if (sourceType === 'paste') {
+        this.hashesAreRequired = true;
 
-          // set required validator now that control is visible
-          const ctrl = this.form.controls.hashes;
-          ctrl.setValidators([Validators.required]);
-          ctrl.updateValueAndValidity();
-          this.form.patchValue({ sourceData: '' });
-        } else {
-          this.form.patchValue({ hashes: '' });
-        }
-      });
+        // set required validator now that control is visible
+        const ctrl = this.form.controls.hashes;
+        ctrl.setValidators([Validators.required]);
+        ctrl.updateValueAndValidity();
+        this.form.patchValue({ sourceData: '' });
+      } else {
+        this.form.patchValue({ hashes: '' });
+      }
+    });
 
-      this.unsubscribeService.add(sourceTypeSubscription$);
-    }
+    this.unsubscribeService.add(sourceTypeSubscription$);
   }
 
   /**

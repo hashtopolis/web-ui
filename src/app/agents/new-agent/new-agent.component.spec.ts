@@ -142,14 +142,14 @@ describe('NewAgentComponent', () => {
 
     // Expect form to contain the generated voucher
     expect(component.generateVoucher).toHaveBeenCalled();
-    expect(component.form.get('voucher')?.value).toBe(fakeVoucher);
+    expect(component.form.controls.voucher.value).toBe(fakeVoucher);
     expect(component.updateVoucher).toHaveBeenCalled();
   }));
 
   it('should call create service and reload table when add button is clicked', fakeAsync(() => {
     // Set voucher value in the form
     const voucher = 'fy7vjq56';
-    component.form.controls['voucher'].setValue(voucher);
+    component.form.controls.voucher.setValue(voucher);
     component.form.updateValueAndValidity();
     expect(component.form.valid).toBeTrue();
 

@@ -172,11 +172,11 @@ describe('NewHashlistComponent', () => {
   describe('Form changes', () => {
     it('should patch isSalted and format when hashTypeId changes', () => {
       // Simulate user changing the hashTypeId
-      component.form.get('hashTypeId')?.setValue('2500');
+      component.form.controls.hashTypeId.setValue('2500');
 
       // Allow Angular to process the valueChanges subscription (synchronously here)
-      expect(component.form.get('isSalted')?.value).toBe(true);
-      expect(component.form.get('format')?.value).toBe(1);
+      expect(component.form.controls.isSalted.value).toBe(true);
+      expect(component.form.controls.format.value).toBe(1);
     });
 
     it('onFilesSelected should set fileName and selectedFiles', () => {

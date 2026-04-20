@@ -29,6 +29,14 @@ import {
   USER_ACTIONS
 } from '@src/app/core/_constants/notifications.config';
 
+export interface NewNotificationForm {
+  action: FormControl<string>;
+  actionFilter: FormControl<string>;
+  notification: FormControl<string>;
+  receiver: FormControl<string>;
+  isActive: FormControl<boolean>;
+}
+
 @Component({
   selector: 'app-new-notification',
   templateUrl: './new-notification.component.html',
@@ -47,7 +55,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  form: FormGroup;
+  form: FormGroup<NewNotificationForm>;
   filters: Filter[];
   active = false;
   actionFilterIsRequired = false;
@@ -116,16 +124,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Initializes form controls with default values and validators.
    */
   createForm(): void {
-    this.form = new FormGroup({
-      action: new FormControl('', [Validators.required]),
-      actionFilter: new FormControl(String('')),
-      notification: new FormControl('ChatBot', [Validators.required]),
-      receiver: new FormControl('', [Validators.required]),
-      isActive: new FormControl(true)
+    this.form = new FormGroup<NewNotificationForm>({
+      action: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      actionFilter: new FormControl<string>('', { nonNullable: true }),
+      notification: new FormControl<string>('ChatBot', { nonNullable: true, validators: [Validators.required] }),
+      receiver: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      isActive: new FormControl<boolean>(true, { nonNullable: true })
     });
 
     //subscribe to changes to handle select trigger actions
-    this.form.controls['action'].valueChanges.subscribe((newvalue: string) => {
+    this.form.controls.action.valueChanges.subscribe((newvalue: string) => {
       this.changeAction(newvalue);
     });
   }
@@ -152,7 +160,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.actionFilterIsRequired = true;
 
       // set required validator now that control is visible
-      const ctrl = this.form.controls['actionFilter'];
+      const ctrl = this.form.controls.actionFilter;
       ctrl.setValidators([Validators.required]);
       ctrl.updateValueAndValidity();
 
@@ -188,7 +196,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Resets the action filter control by clearing validators, resetting the value, and updating validity.
    */
   resetActionFilter(): void {
-    const ctrl = this.form.controls['actionFilter'];
+    const ctrl = this.form.controls.actionFilter;
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
@@ -209,7 +217,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     this.form.patchValue({
-      actionFilter: String(this.form.controls['actionFilter'].value)
+      actionFilter: String(this.form.controls.actionFilter.value)
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;

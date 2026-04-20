@@ -66,8 +66,8 @@ describe('AuthComponent', () => {
   it('should create the component and initialize form', () => {
     expect(component).toBeTruthy();
     expect(component.loginForm).toBeTruthy();
-    expect(component.loginForm.controls['username']).toBeTruthy();
-    expect(component.loginForm.controls['password']).toBeTruthy();
+    expect(component.loginForm.controls.username).toBeTruthy();
+    expect(component.loginForm.controls.password).toBeTruthy();
   });
 
   it('should mark form invalid if empty', () => {
