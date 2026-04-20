@@ -2,7 +2,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
-import { BaseModel } from '@models/base.model';
+import { BaseModel, Thin, With } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
@@ -10,8 +10,8 @@ import { JUser } from '@models/user.model';
 
 import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
-/** Keys for include-dependent relationship fields on JAgent. */
-export type JAgentExcludeKeys =
+/** Keys for include-dependent relationship fields on JAgent (populated only when `?include=` is requested). */
+export type JAgentIncludes =
   | 'user'
   | 'agentStats'
   | 'agentErrors'
@@ -63,7 +63,7 @@ export interface JAgent extends BaseModel {
 }
 
 /** Agent without include-dependent relationship fields. */
-export type ThinJAgent = Omit<JAgent, JAgentExcludeKeys>;
+export type ThinJAgent = Thin<JAgent, JAgentIncludes>;
 
 /** Agent with only specific include-dependent fields present. */
-export type JAgentWith<K extends JAgentExcludeKeys> = ThinJAgent & Pick<JAgent, K>;
+export type JAgentWith<K extends JAgentIncludes> = With<JAgent, JAgentIncludes, K>;
