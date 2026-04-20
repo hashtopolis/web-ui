@@ -9699,6 +9699,344 @@
         "operationId": "deleteTaskwrappersById"
       }
     },
+    "/api/v2/ui/taskwrapperdisplays": {
+      "get": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayListResponse" } }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "GET many request to retrieve multiple objects.",
+        "parameters": [
+          {
+            "name": "page[after]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 0,
+            "description": "Pointer to paginate to retrieve the data after the value provided"
+          },
+          {
+            "name": "page[before]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 0,
+            "description": "Pointer to paginate to retrieve the data before the value provided"
+          },
+          {
+            "name": "page[size]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 100,
+            "description": "Amout of data to retrieve inside a single page"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": { "type": "object" },
+            "description": "Filters results using a query",
+            "example": "\"filter[hashlistId__gt]\": 200"
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Items to include, comma seperated. Possible options: Array"
+          }
+        ],
+        "summary": "List TaskWrapperDisplays",
+        "operationId": "getTaskwrapperdisplays"
+      }
+    },
+    "/api/v2/ui/taskwrapperdisplays/count": {
+      "get": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayListResponse" } }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "GET many request to retrieve multiple objects.",
+        "parameters": [
+          {
+            "name": "page[after]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 0,
+            "description": "Pointer to paginate to retrieve the data after the value provided"
+          },
+          {
+            "name": "page[before]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 0,
+            "description": "Pointer to paginate to retrieve the data before the value provided"
+          },
+          {
+            "name": "page[size]",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32" },
+            "example": 100,
+            "description": "Amout of data to retrieve inside a single page"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": { "type": "object" },
+            "description": "Filters results using a query",
+            "example": "\"filter[hashlistId__gt]\": 200"
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Items to include, comma seperated. Possible options: Array"
+          }
+        ],
+        "summary": "Count TaskWrapperDisplays",
+        "operationId": "getTaskwrapperdisplaysCount"
+      }
+    },
+    "/api/v2/ui/taskwrapperdisplays/{id}/{relation}": {
+      "get": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          },
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayRelationTasksGetResponse" }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "GET request to retrieve a single object.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "example": 10 }
+          },
+          { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "summary": "Get TaskWrapperDisplays",
+        "operationId": "getTaskwrapperdisplaysByIdByRelation"
+      }
+    },
+    "/api/v2/ui/taskwrapperdisplays/{id}/relationships/{relation}": {
+      "get": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          },
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayResponse" } }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "GET request for  for a to-one relationship link. Returns the resource record of the object that is part of the specified relation.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "example": 10 }
+          },
+          { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "summary": "Get TaskWrapperDisplays",
+        "operationId": "getTaskwrapperdisplaysByIdRelationshipsByRelation"
+      },
+      "patch": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "204": { "description": "Successfull operation" },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "PATCH request to update a to one relationship.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayRelationTasks" } }
+          }
+        },
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "summary": "Update TaskWrapperDisplays",
+        "operationId": "patchTaskwrapperdisplaysByIdRelationshipsByRelation"
+      },
+      "post": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "204": { "description": "successfully created" },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "POST request to create a to-one relationship link.",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "summary": "Add TaskWrapperDisplays relationship",
+        "operationId": "postTaskwrapperdisplaysByIdRelationshipsByRelation"
+      },
+      "delete": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "204": { "description": "successfully deleted" },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "Remove TaskWrapperDisplays relationship",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayRelationTasks" } }
+          }
+        },
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "relation", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "summary": "Remove TaskWrapperDisplays relationship",
+        "operationId": "deleteTaskwrapperdisplaysByIdRelationshipsByRelation"
+      }
+    },
+    "/api/v2/ui/taskwrapperdisplays/{id}": {
+      "get": {
+        "tags": ["TaskWrapperDisplays"],
+        "responses": {
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NotFoundResponse" } } }
+          },
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaskWrapperDisplayResponse" } }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }],
+        "description": "GET request to retrieve a single object.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "example": 10 }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Items to include. Comma seperated"
+          }
+        ],
+        "summary": "Get TaskWrapperDisplays",
+        "operationId": "getTaskwrapperdisplaysById"
+      }
+    },
     "/api/v2/ui/users": {
       "get": {
         "tags": ["Users"],
@@ -24630,6 +24968,449 @@
           }
         }
       },
+      "TaskWrapperDisplayResponse": {
+        "type": "object",
+        "required": ["jsonapi", "data"],
+        "properties": {
+          "jsonapi": {
+            "type": "object",
+            "required": ["version"],
+            "properties": {
+              "version": { "type": "string", "default": "1.1" },
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25" },
+              "first": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0" },
+              "last": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500" },
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25"
+              }
+            }
+          },
+          "data": {
+            "type": "object",
+            "required": ["id", "type", "attributes"],
+            "properties": {
+              "id": { "type": "integer" },
+              "type": { "type": "string", "const": "taskWrapperDisplay" },
+              "attributes": {
+                "type": "object",
+                "required": [
+                  "taskWrapperPriority",
+                  "taskWrapperMaxAgents",
+                  "taskType",
+                  "hashlistId",
+                  "accessGroupId",
+                  "taskWrapperName",
+                  "displayName",
+                  "taskWrapperIsArchived",
+                  "cracked",
+                  "taskId",
+                  "taskName",
+                  "attackCmd",
+                  "chunkTime",
+                  "statusTimer",
+                  "keyspace",
+                  "keyspaceProgress",
+                  "taskPriority",
+                  "taskMaxAgents",
+                  "isSmall",
+                  "isCpuTask",
+                  "taskIsArchived",
+                  "preprocessorId",
+                  "hashlistName",
+                  "hashCount",
+                  "hashlistCracked",
+                  "hashTypeId",
+                  "hashTypeDescription",
+                  "groupName"
+                ],
+                "properties": {
+                  "taskWrapperPriority": { "type": "integer" },
+                  "taskWrapperMaxAgents": { "type": "integer" },
+                  "taskType": {
+                    "oneOf": [
+                      { "const": 0, "title": "TaskType is Task", "type": "integer" },
+                      { "const": 1, "title": "TaskType is Supertask", "type": "integer" }
+                    ]
+                  },
+                  "hashlistId": { "type": "integer" },
+                  "accessGroupId": { "type": "integer" },
+                  "taskWrapperName": { "type": "string" },
+                  "displayName": { "type": "string" },
+                  "taskWrapperIsArchived": { "type": "boolean" },
+                  "cracked": { "type": "integer" },
+                  "taskId": { "type": "integer" },
+                  "taskName": { "type": "string" },
+                  "attackCmd": { "type": "string" },
+                  "chunkTime": { "type": "integer" },
+                  "statusTimer": { "type": "integer" },
+                  "keyspace": { "type": "integer", "format": "int64" },
+                  "keyspaceProgress": { "type": "integer", "format": "int64" },
+                  "taskPriority": { "type": "integer" },
+                  "taskMaxAgents": { "type": "integer" },
+                  "isSmall": { "type": "boolean" },
+                  "isCpuTask": { "type": "boolean" },
+                  "taskIsArchived": { "type": "boolean" },
+                  "preprocessorId": { "type": "integer" },
+                  "hashlistName": { "type": "string" },
+                  "hashCount": { "type": "integer" },
+                  "hashlistCracked": { "type": "integer" },
+                  "hashTypeId": { "type": "integer" },
+                  "hashTypeDescription": { "type": "string" },
+                  "groupName": { "type": "string" }
+                }
+              }
+            }
+          },
+          "relationships": {
+            "type": "object",
+            "required": ["tasks"],
+            "properties": {
+              "tasks": {
+                "type": "object",
+                "required": ["links"],
+                "properties": {
+                  "links": {
+                    "type": "object",
+                    "required": ["self", "related"],
+                    "properties": {
+                      "self": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays/relationships/tasks" },
+                      "related": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays/tasks" }
+                    }
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["type", "id"],
+                      "properties": { "type": { "type": "string", "const": "task" }, "id": { "type": "integer" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "included": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "attributes"],
+              "properties": {
+                "id": { "type": "integer" },
+                "type": { "type": "string", "const": "task" },
+                "attributes": {
+                  "type": "object",
+                  "required": [
+                    "taskName",
+                    "attackCmd",
+                    "chunkTime",
+                    "statusTimer",
+                    "keyspace",
+                    "keyspaceProgress",
+                    "priority",
+                    "maxAgents",
+                    "color",
+                    "isSmall",
+                    "isCpuTask",
+                    "useNewBench",
+                    "skipKeyspace",
+                    "crackerBinaryId",
+                    "crackerBinaryTypeId",
+                    "taskWrapperId",
+                    "isArchived",
+                    "notes",
+                    "staticChunks",
+                    "chunkSize",
+                    "forcePipe",
+                    "preprocessorId",
+                    "preprocessorCommand"
+                  ],
+                  "properties": {
+                    "taskName": { "type": "string" },
+                    "attackCmd": { "type": "string" },
+                    "chunkTime": { "type": "integer" },
+                    "statusTimer": { "type": "integer" },
+                    "keyspace": { "type": "integer", "format": "int64" },
+                    "keyspaceProgress": { "type": "integer", "format": "int64" },
+                    "priority": { "type": "integer" },
+                    "maxAgents": { "type": "integer" },
+                    "color": { "type": ["string", "null"] },
+                    "isSmall": { "type": "boolean" },
+                    "isCpuTask": { "type": "boolean" },
+                    "useNewBench": { "type": "boolean" },
+                    "skipKeyspace": { "type": "integer", "format": "int64" },
+                    "crackerBinaryId": { "type": "integer" },
+                    "crackerBinaryTypeId": { "type": ["integer", "null"] },
+                    "taskWrapperId": { "type": "integer" },
+                    "isArchived": { "type": "boolean" },
+                    "notes": { "type": "string" },
+                    "staticChunks": { "type": "integer" },
+                    "chunkSize": { "type": "integer", "format": "int64" },
+                    "forcePipe": { "type": "boolean" },
+                    "preprocessorId": { "type": "integer" },
+                    "preprocessorCommand": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TaskWrapperDisplayListResponse": {
+        "type": "object",
+        "required": ["jsonapi", "data"],
+        "properties": {
+          "jsonapi": {
+            "type": "object",
+            "required": ["version"],
+            "properties": {
+              "version": { "type": "string", "default": "1.1" },
+              "ext": {
+                "type": "array",
+                "items": { "type": "string" },
+                "default": ["https://jsonapi.org/profiles/ethanresnick/cursor-pagination"]
+              }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25" },
+              "first": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0" },
+              "last": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500" },
+              "next": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25"
+              },
+              "previous": {
+                "type": ["string", "null"],
+                "default": "/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "attributes"],
+              "properties": {
+                "id": { "type": "integer" },
+                "type": { "type": "string", "const": "taskWrapperDisplay" },
+                "attributes": {
+                  "type": "object",
+                  "required": [
+                    "taskWrapperPriority",
+                    "taskWrapperMaxAgents",
+                    "taskType",
+                    "hashlistId",
+                    "accessGroupId",
+                    "taskWrapperName",
+                    "displayName",
+                    "taskWrapperIsArchived",
+                    "cracked",
+                    "taskId",
+                    "taskName",
+                    "attackCmd",
+                    "chunkTime",
+                    "statusTimer",
+                    "keyspace",
+                    "keyspaceProgress",
+                    "taskPriority",
+                    "taskMaxAgents",
+                    "isSmall",
+                    "isCpuTask",
+                    "taskIsArchived",
+                    "preprocessorId",
+                    "hashlistName",
+                    "hashCount",
+                    "hashlistCracked",
+                    "hashTypeId",
+                    "hashTypeDescription",
+                    "groupName"
+                  ],
+                  "properties": {
+                    "taskWrapperPriority": { "type": "integer" },
+                    "taskWrapperMaxAgents": { "type": "integer" },
+                    "taskType": {
+                      "oneOf": [
+                        { "const": 0, "title": "TaskType is Task", "type": "integer" },
+                        { "const": 1, "title": "TaskType is Supertask", "type": "integer" }
+                      ]
+                    },
+                    "hashlistId": { "type": "integer" },
+                    "accessGroupId": { "type": "integer" },
+                    "taskWrapperName": { "type": "string" },
+                    "displayName": { "type": "string" },
+                    "taskWrapperIsArchived": { "type": "boolean" },
+                    "cracked": { "type": "integer" },
+                    "taskId": { "type": "integer" },
+                    "taskName": { "type": "string" },
+                    "attackCmd": { "type": "string" },
+                    "chunkTime": { "type": "integer" },
+                    "statusTimer": { "type": "integer" },
+                    "keyspace": { "type": "integer", "format": "int64" },
+                    "keyspaceProgress": { "type": "integer", "format": "int64" },
+                    "taskPriority": { "type": "integer" },
+                    "taskMaxAgents": { "type": "integer" },
+                    "isSmall": { "type": "boolean" },
+                    "isCpuTask": { "type": "boolean" },
+                    "taskIsArchived": { "type": "boolean" },
+                    "preprocessorId": { "type": "integer" },
+                    "hashlistName": { "type": "string" },
+                    "hashCount": { "type": "integer" },
+                    "hashlistCracked": { "type": "integer" },
+                    "hashTypeId": { "type": "integer" },
+                    "hashTypeDescription": { "type": "string" },
+                    "groupName": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "relationships": {
+            "type": "object",
+            "required": ["tasks"],
+            "properties": {
+              "tasks": {
+                "type": "object",
+                "required": ["links"],
+                "properties": {
+                  "links": {
+                    "type": "object",
+                    "required": ["self", "related"],
+                    "properties": {
+                      "self": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays/relationships/tasks" },
+                      "related": { "type": "string", "default": "/api/v2/ui/taskwrapperdisplays/tasks" }
+                    }
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["type", "id"],
+                      "properties": { "type": { "type": "string", "const": "task" }, "id": { "type": "integer" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "included": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "attributes"],
+              "properties": {
+                "id": { "type": "integer" },
+                "type": { "type": "string", "const": "task" },
+                "attributes": {
+                  "type": "object",
+                  "required": [
+                    "taskName",
+                    "attackCmd",
+                    "chunkTime",
+                    "statusTimer",
+                    "keyspace",
+                    "keyspaceProgress",
+                    "priority",
+                    "maxAgents",
+                    "color",
+                    "isSmall",
+                    "isCpuTask",
+                    "useNewBench",
+                    "skipKeyspace",
+                    "crackerBinaryId",
+                    "crackerBinaryTypeId",
+                    "taskWrapperId",
+                    "isArchived",
+                    "notes",
+                    "staticChunks",
+                    "chunkSize",
+                    "forcePipe",
+                    "preprocessorId",
+                    "preprocessorCommand"
+                  ],
+                  "properties": {
+                    "taskName": { "type": "string" },
+                    "attackCmd": { "type": "string" },
+                    "chunkTime": { "type": "integer" },
+                    "statusTimer": { "type": "integer" },
+                    "keyspace": { "type": "integer", "format": "int64" },
+                    "keyspaceProgress": { "type": "integer", "format": "int64" },
+                    "priority": { "type": "integer" },
+                    "maxAgents": { "type": "integer" },
+                    "color": { "type": ["string", "null"] },
+                    "isSmall": { "type": "boolean" },
+                    "isCpuTask": { "type": "boolean" },
+                    "useNewBench": { "type": "boolean" },
+                    "skipKeyspace": { "type": "integer", "format": "int64" },
+                    "crackerBinaryId": { "type": "integer" },
+                    "crackerBinaryTypeId": { "type": ["integer", "null"] },
+                    "taskWrapperId": { "type": "integer" },
+                    "isArchived": { "type": "boolean" },
+                    "notes": { "type": "string" },
+                    "staticChunks": { "type": "integer" },
+                    "chunkSize": { "type": "integer", "format": "int64" },
+                    "forcePipe": { "type": "boolean" },
+                    "preprocessorId": { "type": "integer" },
+                    "preprocessorCommand": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TaskWrapperDisplayRelationTasks": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": { "type": "string", "const": "tasks" },
+                "id": { "type": "integer", "default": 1 }
+              }
+            }
+          }
+        }
+      },
+      "TaskWrapperDisplayRelationTasksGetResponse": {
+        "type": "object",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": { "type": "string", "const": "tasks" },
+                "id": { "type": "integer", "default": 1 }
+              }
+            }
+          }
+        }
+      },
       "UserCreate": {
         "type": "object",
         "required": ["data"],
@@ -25525,6 +26306,7 @@
     { "name": "Preprocessors" },
     { "name": "Speeds" },
     { "name": "Supertasks" },
+    { "name": "TaskWrapperDisplays" },
     { "name": "TaskWrappers" },
     { "name": "Tasks" },
     { "name": "Users" },

@@ -24,7 +24,7 @@ describe('NewEditPreprocessorComponent', () => {
   let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
   let httpMock: HttpTestingController;
 
-  const preprocessorResponse = {
+  const preprocessorResponse = mockResponse({
     data: {
       id: 9,
       type: 'preprocessor',
@@ -37,7 +37,7 @@ describe('NewEditPreprocessorComponent', () => {
         limitCommand: '--limit'
       }
     }
-  };
+  });
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create', 'get', 'update']);
