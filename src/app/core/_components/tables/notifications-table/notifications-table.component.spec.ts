@@ -29,7 +29,7 @@ class TestNotificationsTableComponent extends NotificationsTableComponent {
       [NotificationsTableCol.RECEIVER]: 'Receiver'
     });
     this.tableColumns = this.getColumns();
-    this.dataSource = new MockNotificationsDataSource() as any;
+    this.dataSource = new MockNotificationsDataSource() as unknown as typeof this.dataSource;
   }
 }
 

@@ -3,8 +3,9 @@
  */
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
 import { GlobalPermissionGroupId, UserId } from '@models/id.types';
+
+import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
 
 /**
  * Interface definition for the updatable user attributes

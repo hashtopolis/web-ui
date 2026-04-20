@@ -5,6 +5,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JHashlist } from '@models/hashlist.model';
+import { HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -17,7 +18,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { HashlistId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface NewSuperhashlistForm {

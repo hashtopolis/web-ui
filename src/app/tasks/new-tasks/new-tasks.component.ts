@@ -17,6 +17,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
+import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -39,7 +40,6 @@ import {
 } from '@src/app/core/_constants/select.config';
 import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';

@@ -6,7 +6,13 @@ import { Injectable } from '@angular/core';
 export class CookieService {
   defaultSettings = false;
 
-  public checkDefault(defaults: boolean, e: Event | false, COOKIE: string, VALUE: string, EXPIRE_DAYS: number): boolean | string {
+  public checkDefault(
+    defaults: boolean,
+    e: Event | false,
+    COOKIE: string,
+    VALUE: string,
+    EXPIRE_DAYS: number
+  ): boolean | string {
     if (defaults === true) {
       return this.defaultSettings;
     } else if (defaults === false) {

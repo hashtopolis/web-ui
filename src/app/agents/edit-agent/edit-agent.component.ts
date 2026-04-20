@@ -1,6 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
-import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
@@ -12,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentWith, ThinJAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
+import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -32,12 +32,12 @@ import {
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
 import { ASC, IGNORE_ERROR_CHOICES } from '@src/app/core/_constants/agentsc.config';
+import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import {
   ACCESS_GROUP_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING,
   TASKS_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({

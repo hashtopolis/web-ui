@@ -19,6 +19,7 @@ import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { SpeedStat } from '@models/speed-stat.model';
@@ -38,7 +39,6 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
-import { AgentId } from '@models/id.types';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';

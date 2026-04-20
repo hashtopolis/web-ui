@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { ServerImportFile } from '@models/file.model';
+import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -21,7 +22,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
-import { AccessGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';

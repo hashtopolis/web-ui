@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { zFormRouteData, FormRouteData } from '@models/routes.schema';
+import { FormRouteData, zFormRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -168,7 +168,7 @@ export class FormComponent implements OnInit, OnDestroy {
     const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
       next: (response: ResponseWrapper) => {
         this.formValues = this.responseSchema
-          ? new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>
+          ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
           : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
         this.isloaded = true; // Data is loaded and ready for form rendering
       },

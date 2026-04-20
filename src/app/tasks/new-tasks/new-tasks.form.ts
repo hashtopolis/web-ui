@@ -4,6 +4,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
+
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';

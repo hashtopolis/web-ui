@@ -6,7 +6,14 @@ import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model
 import { JFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
-import { AccessGroupId, CrackerBinaryId, CrackerBinaryTypeId, HashlistId, PreprocessorId, TaskWrapperId } from '@models/id.types';
+import {
+  AccessGroupId,
+  CrackerBinaryId,
+  CrackerBinaryTypeId,
+  HashlistId,
+  PreprocessorId,
+  TaskWrapperId
+} from '@models/id.types';
 import { SpeedStat } from '@models/speed-stat.model';
 
 /**

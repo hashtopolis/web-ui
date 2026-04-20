@@ -1,3 +1,4 @@
+import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { Observable } from 'rxjs';
 import { z } from 'zod';
 
@@ -6,7 +7,6 @@ import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { ResponseWrapper } from '@models/response.model';
 
-import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';

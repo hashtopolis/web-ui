@@ -1,7 +1,10 @@
-import { RequestParamBuilder } from './builder-implementation.service';
-import { setParameter } from '@src/app/core/_services/buildparams';
-import { uiConfigDefault, TableConfig } from '@models/config-ui.model';
+import { TableConfig, uiConfigDefault } from '@models/config-ui.model';
+
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { setParameter } from '@src/app/core/_services/buildparams';
 
 function isTableConfig(value: number[] | TableConfig): value is TableConfig {
   return !Array.isArray(value) && typeof value === 'object' && 'order' in value;

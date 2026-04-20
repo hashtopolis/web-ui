@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { Component, Input, ViewEncapsulation, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 /**
@@ -44,6 +44,9 @@ import { Router } from '@angular/router';
   standalone: false
 })
 export class ButtonSubmitComponent {
+  private router = inject(Router);
+  private location = inject(Location);
+
   /**
    * The label to display on the button.
    */
@@ -58,11 +61,6 @@ export class ButtonSubmitComponent {
    * The type of the button (cancel or normal).
    */
   @Input() type: string;
-
-  constructor(
-    private router: Router,
-    private location: Location
-  ) {}
 
   /**
    * Get the custom CSS class based on the button type.

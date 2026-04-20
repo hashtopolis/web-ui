@@ -13,6 +13,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JConfig } from '@models/configs.model';
 import { ServerImportFile } from '@models/file.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId, HashTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -28,7 +29,6 @@ import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/cor
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hashlist/new-hashlist.form';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
-import { AccessGroupId, HashTypeId } from '@models/id.types';
 import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({

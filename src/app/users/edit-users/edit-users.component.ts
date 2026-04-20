@@ -6,6 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -22,7 +23,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING, USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
-import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   EditUserForm,

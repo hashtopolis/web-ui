@@ -27,7 +27,7 @@ export type HealthCheckStatusValue = -1 | 0 | 1;
 export const HealthCheckStatus = {
   ABORTED: -1 as const,
   RUNNING: 0 as const,
-  COMPLETED: 1 as const,
+  COMPLETED: 1 as const
 };
 
 /**

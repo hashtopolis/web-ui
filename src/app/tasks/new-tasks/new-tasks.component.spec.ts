@@ -212,9 +212,21 @@ const MOCK_TASK_GET_RESPONSE = {
         isArchived: false
       }
     },
-    { id: 100, type: 'file', attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
-    { id: 101, type: 'file', attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } },
-    { id: 10, type: 'crackerBinary', attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' } },
+    {
+      id: 100,
+      type: 'file',
+      attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+    },
+    {
+      id: 101,
+      type: 'file',
+      attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+    },
+    {
+      id: 10,
+      type: 'crackerBinary',
+      attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' }
+    },
     { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
 };
@@ -228,7 +240,13 @@ const MOCK_PRETASK_GET_RESPONSE = {
       pretaskFiles: { data: [{ id: 200, type: 'file' }] }
     }
   },
-  included: [{ id: 200, type: 'file', attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 } }]
+  included: [
+    {
+      id: 200,
+      type: 'file',
+      attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+    }
+  ]
 };
 
 function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {

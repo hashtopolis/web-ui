@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -17,7 +18,6 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { GlobalPermissionGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.form';
 

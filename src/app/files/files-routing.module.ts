@@ -1,9 +1,10 @@
+import { zFileResponse } from '@generated/api/zod';
+
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
-import { zFileResponse } from '@generated/api/zod';
 import { SERV } from '@services/main.config';
 import { FileRoleService } from '@services/roles/file-role.service';
 

@@ -44,9 +44,7 @@ export class BaseMenuComponent<T extends BaseModel = BaseModel> {
     }
 
     const value = (data as DynamicModel)[condition.key];
-    const matches = Array.isArray(value)
-      ? (value.length > 0) === condition.value
-      : Boolean(value) === condition.value;
+    const matches = Array.isArray(value) ? value.length > 0 === condition.value : Boolean(value) === condition.value;
 
     if (matches) {
       this.addActionMenuItem(item.index, item.menuItem);

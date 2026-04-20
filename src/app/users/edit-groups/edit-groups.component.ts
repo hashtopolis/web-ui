@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { ThinJAgent } from '@models/agent.model';
+import { AgentId, UserId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { JUser } from '@models/user.model';
 
@@ -25,7 +26,6 @@ import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
-import { AgentId, UserId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   AddAgentsForm,

@@ -7,6 +7,7 @@ import { ChunkData, JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
+
 import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /** Keys for include-dependent relationship fields on JAgent. */
@@ -66,4 +67,3 @@ export type ThinJAgent = Omit<JAgent, JAgentExcludeKeys>;
 
 /** Agent with only specific include-dependent fields present. */
 export type JAgentWith<K extends JAgentExcludeKeys> = ThinJAgent & Pick<JAgent, K>;
-

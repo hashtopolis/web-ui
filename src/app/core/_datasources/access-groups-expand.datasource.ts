@@ -2,8 +2,8 @@ import { zAccessGroupResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JAccessGroup } from '@models/access-group.model';
-import { DynamicModel } from '@models/base.model';
 import { JAgent } from '@models/agent.model';
+import { DynamicModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 

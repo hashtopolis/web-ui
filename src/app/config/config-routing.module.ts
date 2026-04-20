@@ -1,9 +1,10 @@
+import { zAgentBinaryResponse, zCrackerBinaryResponse, zHashTypeResponse } from '@generated/api/zod';
+
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
-import { zAgentBinaryResponse, zCrackerBinaryResponse, zHashTypeResponse } from '@generated/api/zod';
 import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';

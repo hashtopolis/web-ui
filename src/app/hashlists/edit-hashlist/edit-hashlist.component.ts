@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -24,7 +25,6 @@ import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.conf
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
-import { AccessGroupId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**

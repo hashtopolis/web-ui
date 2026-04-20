@@ -16,4 +16,3 @@ export interface BaseModel {
 
 /** BaseModel with index signature for dynamic property access (menus, table utils, etc.). */
 export type DynamicModel = BaseModel & Record<string, unknown>;
-

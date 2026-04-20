@@ -3,22 +3,22 @@
  **/
 
 export class ACTION {
-  static readonly AGENT_ERROR: 'agentError' = 'agentError';
-  static readonly OWN_AGENT_ERROR: 'ownAgentError' = 'ownAgentError';
-  static readonly DELETE_AGENT: 'deleteAgent' = 'deleteAgent';
-  static readonly NEW_TASK: 'newTask' = 'newTask';
-  static readonly TASK_COMPLETE: 'taskComplete' = 'taskComplete';
-  static readonly DELETE_TASK: 'deleteTask' = 'deleteTask';
-  static readonly NEW_HASHLIST: 'newHashlist' = 'newHashlist';
-  static readonly DELETE_HASHLIST: 'deleteHashlist' = 'deleteHashlist';
-  static readonly HASHLIST_ALL_CRACKED: 'hashlistAllCracked' = 'hashlistAllCracked';
-  static readonly HASHLIST_CRACKED_HASH: 'hashlistCrackedHash' = 'hashlistCrackedHash';
-  static readonly USER_CREATED: 'userCreated' = 'userCreated';
-  static readonly USER_DELETED: 'userDeleted' = 'userDeleted';
-  static readonly USER_LOGIN_FAILED: 'userLoginFailed' = 'userLoginFailed';
-  static readonly LOG_WARN: 'logWarn' = 'logWarn';
-  static readonly LOG_FATAL: 'logFatal' = 'logFatal';
-  static readonly LOG_ERROR: 'logError' = 'logError';
+  static readonly AGENT_ERROR = 'agentError' as const;
+  static readonly OWN_AGENT_ERROR = 'ownAgentError' as const;
+  static readonly DELETE_AGENT = 'deleteAgent' as const;
+  static readonly NEW_TASK = 'newTask' as const;
+  static readonly TASK_COMPLETE = 'taskComplete' as const;
+  static readonly DELETE_TASK = 'deleteTask' as const;
+  static readonly NEW_HASHLIST = 'newHashlist' as const;
+  static readonly DELETE_HASHLIST = 'deleteHashlist' as const;
+  static readonly HASHLIST_ALL_CRACKED = 'hashlistAllCracked' as const;
+  static readonly HASHLIST_CRACKED_HASH = 'hashlistCrackedHash' as const;
+  static readonly USER_CREATED = 'userCreated' as const;
+  static readonly USER_DELETED = 'userDeleted' as const;
+  static readonly USER_LOGIN_FAILED = 'userLoginFailed' as const;
+  static readonly LOG_WARN = 'logWarn' as const;
+  static readonly LOG_FATAL = 'logFatal' as const;
+  static readonly LOG_ERROR = 'logError' as const;
 }
 
 export class NOTIF {

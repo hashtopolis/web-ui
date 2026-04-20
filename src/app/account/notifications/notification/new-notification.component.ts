@@ -1,3 +1,4 @@
+import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -10,7 +11,6 @@ import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
-import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
