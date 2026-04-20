@@ -76,7 +76,7 @@ describe('AuthComponent', () => {
   });
 
   it('should call authService.logIn on valid form submission via button click', fakeAsync(() => {
-    const fakeResponse = of({}).pipe(observeOn(asyncScheduler));
+    const fakeResponse = of(void 0).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(fakeResponse);
     component.loginForm.setValue({ username: 'user', password: 'pass' });
 

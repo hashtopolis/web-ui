@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
@@ -118,7 +118,7 @@ export const tableSettingsSchema = z.record(z.string(), z.union([z.array(z.coerc
  * Each field has a default so that when we add new entries the existing data is not replaced but each
  * missing field (due to adding a new value) automatically is set to the default provided.
  */
-export const uiConfigSchema: z.ZodType<UIConfig> = z.object({
+export const uiConfigSchema = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
   theme: z.enum(['light', 'dark']).default(uiConfigDefault.theme),
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),

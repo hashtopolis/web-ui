@@ -36,11 +36,8 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
   ): string | null;
   override transform(
     epoch: number | Date | string | null | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _format?: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _timezone?: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _locale?: string
   ): string | null {
     if (epoch === undefined || epoch === null) return null;

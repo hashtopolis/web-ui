@@ -23,7 +23,7 @@ export interface NewFilesForm {
  * Interface for prepared form data used handled in onBeforeSubmit method
  */
 export interface PreparedFormData {
-  update: FormGroup<NewFilesForm>['value'];
+  update: { [K in keyof FormGroup<NewFilesForm>['value']]?: FormGroup<NewFilesForm>['value'][K] | undefined };
   status: boolean;
 }
 

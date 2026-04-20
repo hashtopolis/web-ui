@@ -354,7 +354,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   getRowDeleteLabel(data: JTaskWrapperDisplay): JTaskWrapperDisplay {
     return {
       ...data,
-      taskName: data.displayName
+      ...(data.displayName !== undefined && { taskName: data.displayName })
     };
   }
 

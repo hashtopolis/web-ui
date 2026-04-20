@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -17,7 +18,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { CrackerBinaryTypeId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**

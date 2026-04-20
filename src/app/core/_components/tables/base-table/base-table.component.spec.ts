@@ -13,7 +13,7 @@ import { BaseModel } from '@src/app/core/_models/base.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
-import { JTask, JTaskWrapper, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
+import { JTask, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';

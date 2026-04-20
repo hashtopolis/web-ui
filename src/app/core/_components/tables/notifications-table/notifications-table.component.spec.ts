@@ -53,10 +53,10 @@ describe('NotificationsTableComponent', () => {
     const notification: JNotification = {
       type: 'notificationSetting',
       id: 1,
-      action: ACTION.USER_DELETED,
+      action: 'createNotification',
       objectId: 42,
       isActive: true,
-      notification: 'Test notification',
+      notification: ACTION.USER_DELETED,
       receiver: 'test@test.com',
       userId: 123
     };
@@ -75,10 +75,9 @@ describe('NotificationsTableComponent', () => {
     const notification: JNotification = {
       type: 'notificationSetting',
       id: 2,
-      action: ACTION.USER_DELETED,
-      objectId: undefined,
+      action: 'createNotification',
       isActive: true,
-      notification: 'Test notification',
+      notification: ACTION.USER_DELETED,
       receiver: 'test@test.com',
       userId: 123
     };

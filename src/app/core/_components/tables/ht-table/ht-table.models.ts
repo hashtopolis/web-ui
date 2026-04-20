@@ -50,10 +50,10 @@ export interface HTTableIcon {
 }
 
 export interface HTTableRouterLink {
-  label?: string | number;
+  label?: string | number | undefined;
   routerLink: Array<string | number> | null;
-  tooltip?: string;
-  icon?: { faIcon?: IconDefinition; tooltip?: string };
+  tooltip?: string | undefined;
+  icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
   visualGraph?: {
     enabled: boolean;
     taskId: number;
@@ -125,5 +125,5 @@ export interface SortingColumn {
   dataKey: string;
   direction: SortDirection | string;
   isSortable: boolean;
-  parent?: string; // Parent is in order to build sort queries for relationships
+  parent?: string | undefined; // Parent is in order to build sort queries for relationships
 }

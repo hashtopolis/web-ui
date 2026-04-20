@@ -21,13 +21,12 @@ export class SecondsToTimePipe implements PipeTransform {
 
   transform(seconds: number): string {
 
-    let result: number | string = 0;
     let formatted: string;
     let daylabel: string;
     let daysformatted = '';
 
     if (Number.isNaN(seconds) || seconds < 1 ) {
-      return result = 'N/A';
+      return 'N/A';
     }
 
     const secondsDay = (60*60*24);  // Seconds in a day

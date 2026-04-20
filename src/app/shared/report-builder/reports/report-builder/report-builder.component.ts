@@ -310,7 +310,6 @@ export class ReportBuilderComponent implements OnInit {
           contentAccessibility: true,
           documentAssembly: true
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         header: function (currentPage: number, _pageCount: number) {
           const headerTextData: ReportHeaderText = { ...headerText };
           const result: (ReportImageConfig | ReportHeaderText)[] = [];

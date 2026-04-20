@@ -52,13 +52,13 @@ describe('RequestParamBuilder – default sort serialization', () => {
     });
 
     it('tasksTable: sorts by -taskWrapperPriority (descending)', () => {
-      const order = (uiConfigDefault.tableSettings.tasksTable as TableConfig).order as SortingColumn;
+      const order = (uiConfigDefault.tableSettings['tasksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
       expect(params.sort).toEqual(['-taskWrapperPriority']);
     });
 
     it('cracksTable: sorts by -timeCracked (descending)', () => {
-      const order = (uiConfigDefault.tableSettings.cracksTable as TableConfig).order as SortingColumn;
+      const order = (uiConfigDefault.tableSettings['cracksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
       expect(params.sort).toEqual(['-timeCracked']);
     });

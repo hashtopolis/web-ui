@@ -44,7 +44,7 @@ export interface JHealthCheck extends BaseModel {
   hashtypeId: HashTypeId;
   hashTypeId?: HashTypeId;
   hashType?: JHashtype;
-  hashTypeDescription?: string;
+  hashTypeDescription?: string | undefined;
   status: HealthCheckStatusValue;
   time: number;
 }

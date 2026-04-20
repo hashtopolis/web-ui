@@ -14,8 +14,8 @@ import { Filter, type RequestParams } from '@src/app/core/_models/request-params
  */
 export class RequestParamsIntermediate {
   public pageSize?: number;
-  public pageBefore?: number;
-  public pageAfter?: number;
+  public pageBefore?: number | undefined;
+  public pageAfter?: number | undefined;
   public includes?: Array<string>;
   public filters?: Array<Filter>;
   public sortOrder?: Array<string>;

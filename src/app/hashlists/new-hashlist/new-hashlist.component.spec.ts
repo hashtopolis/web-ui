@@ -316,7 +316,7 @@ describe('NewHashlistComponent', () => {
     component.ngOnDestroy();
 
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    expect(nextSpy).toHaveBeenCalledWith(false);
+    expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
   });
 

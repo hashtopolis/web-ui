@@ -15,7 +15,7 @@ export interface JHashlist extends BaseModel {
   name: string;
   hashTypeId: HashTypeId;
   hashType?: JHashtype | null;
-  hashTypeDescription?: string;
+  hashTypeDescription?: string | undefined;
   isHexSalt: boolean;
   isSecret: boolean;
   isSalted: boolean;

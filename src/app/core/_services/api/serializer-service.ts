@@ -57,7 +57,7 @@ export class JsonAPISerializer {
     stuff: TJsonaModel | Array<TJsonaModel>;
     includeNames?: TJsonaDenormalizedIncludeNames | TJsonaNormalizedIncludeNamesTree;
   }) {
-    return this.formatter.serialize({ stuff, includeNames });
+    return this.formatter.serialize({ stuff, ...(includeNames !== undefined && { includeNames }) });
   }
 
   /**

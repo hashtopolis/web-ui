@@ -76,7 +76,7 @@ describe('NewCrackerComponent', () => {
   });
 
   it('should not submit if form is invalid', async () => {
-    component.newCrackerForm.patchValue({ typeName: '', isChunkingAvailable: undefined }); // invalid
+    component.newCrackerForm.patchValue({ typeName: '', isChunkingAvailable: null }); // invalid
     await component.onSubmit();
     expect(mockGlobalService.create).not.toHaveBeenCalled();
   });
@@ -124,7 +124,7 @@ describe('NewCrackerComponent', () => {
   it('should show required field error message if fields are empty', () => {
     component.newCrackerForm.patchValue({
       typeName: '',
-      isChunkingAvailable: undefined
+      isChunkingAvailable: null
     });
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
@@ -139,7 +139,7 @@ describe('NewCrackerComponent', () => {
     // Make form invalid by clearing required fields
     component.newCrackerForm.patchValue({
       typeName: '',
-      isChunkingAvailable: undefined
+      isChunkingAvailable: null
     });
     mockRoleService.hasRole.and.returnValue(true);
     component.newCrackerForm.markAllAsTouched();

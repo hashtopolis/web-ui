@@ -169,7 +169,7 @@ export class FormComponent implements OnInit, OnDestroy {
       next: (response: ResponseWrapper) => {
         this.formValues = this.responseSchema
           ? new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>
-          : new JsonAPISerializer().deserialize<Record<string, unknown>>({ data: response.data, included: response.included });
+          : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
         this.isloaded = true; // Data is loaded and ready for form rendering
       },
       error: (err: unknown) => {

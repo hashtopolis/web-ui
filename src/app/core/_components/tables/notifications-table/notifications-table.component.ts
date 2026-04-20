@@ -282,7 +282,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       return of(links);
     }
 
-    switch (notification.action) {
+    switch (notification.notification) {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:

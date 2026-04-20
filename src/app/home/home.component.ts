@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private pageReloadTimeout: NodeJS.Timeout;
 
   /** Auto-refresh subscription */
-  private autoRefreshSubscription?: Subscription;
+  private autoRefreshSubscription?: Subscription | undefined;
 
   /**
    * HomeComponent constructor.

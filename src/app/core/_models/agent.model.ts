@@ -43,7 +43,7 @@ export interface JAgent extends BaseModel {
   clientSignature: string;
   accessGroup?: string;
   taskId?: TaskId;
-  taskName?: string;
+  taskName?: string | undefined;
   chunkId?: ChunkId;
   benchmark?: string;
   assignmentId?: number;

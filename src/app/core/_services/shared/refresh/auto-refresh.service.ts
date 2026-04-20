@@ -39,7 +39,7 @@ export class AutoRefreshService implements OnDestroy {
   /** Observable that components can subscribe to for refresh events */
   readonly refresh$ = this.refreshSubject.asObservable();
   /** Subscription for the timer */
-  private timerSub?: Subscription;
+  private timerSub?: Subscription | undefined;
 
   /** Timestamp of the next scheduled refresh */
   nextRefreshTimestamp: number | undefined;

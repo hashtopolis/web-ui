@@ -12,14 +12,14 @@ export type ChunkState = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
  */
 export interface JChunk extends BaseModel {
   taskId: TaskId;
-  taskName?: string;
+  taskName?: string | undefined;
   task?: JTask;
   format?: string;
   skip: number;
   length: number;
   agentId: AgentId;
   agent?: JAgent;
-  agentName?: string;
+  agentName?: string | undefined;
   dispatchTime: number;
   solveTime: number;
   checkpoint: number;

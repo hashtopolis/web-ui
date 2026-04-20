@@ -14,7 +14,7 @@ class AuthGuard {
         private router: Router
     ) { }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> {
     return this.authService.user.pipe(
         take(1),
         map(user => {

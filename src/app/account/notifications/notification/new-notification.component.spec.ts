@@ -324,9 +324,9 @@ describe('NewNotificationComponent', () => {
     spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
-    component.form.controls.actionFilter.patchValue('1');
-    component.form.controls.notification.patchValue(NOTIF.EMAIL);
-    component.form.controls.receiver.patchValue('test@mail.com');
+    component.form.controls['actionFilter'].patchValue('1');
+    component.form.controls['notification'].patchValue(NOTIF.EMAIL);
+    component.form.controls['receiver'].patchValue('test@mail.com');
     fixture.detectChanges();
 
     expectButtonToBeEnabled();
@@ -420,10 +420,10 @@ describe('NewNotificationComponent', () => {
   // --- Helper functions ---
   const setValidFormValues = (): void => {
     setAction(ACTION.NEW_TASK);
-    component.form.controls.action.patchValue('1');
-    component.form.controls.actionFilter.patchValue('1');
-    component.form.controls.notification.patchValue(NOTIF.EMAIL);
-    component.form.controls.receiver.patchValue('test@mail.com');
+    component.form.controls['action'].patchValue('1');
+    component.form.controls['actionFilter'].patchValue('1');
+    component.form.controls['notification'].patchValue(NOTIF.EMAIL);
+    component.form.controls['receiver'].patchValue('test@mail.com');
 
     fixture.detectChanges();
   };
@@ -442,7 +442,7 @@ describe('NewNotificationComponent', () => {
   };
 
   const setAction = (action: string): void => {
-    component.form.controls.action.patchValue(action);
+    component.form.controls['action'].patchValue(action);
     fixture.detectChanges();
   };
 
@@ -464,7 +464,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe((agentValues.data! as TJsonApiData[])[i].attributes!.agentName);
+      expect(option).toBe((agentValues.data! as TJsonApiData[])[i].attributes!['agentName']);
     }
   };
 
@@ -475,7 +475,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe((taskValues.data! as TJsonApiData[])[i].attributes!.taskName);
+      expect(option).toBe((taskValues.data! as TJsonApiData[])[i].attributes!['taskName']);
     }
   };
 
@@ -486,7 +486,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe((hashlistValues.data! as TJsonApiData[])[i].attributes!.name);
+      expect(option).toBe((hashlistValues.data! as TJsonApiData[])[i].attributes!['name']);
     }
   };
 
@@ -497,7 +497,7 @@ describe('NewNotificationComponent', () => {
 
     for (let i = 0; i < options.length; i++) {
       const option = await options[i].getText();
-      expect(option).toBe((userValues.data! as TJsonApiData[])[i].attributes!.name);
+      expect(option).toBe((userValues.data! as TJsonApiData[])[i].attributes!['name']);
     }
   };
 });

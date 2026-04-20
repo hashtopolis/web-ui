@@ -14,7 +14,6 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 
-import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';

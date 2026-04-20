@@ -53,8 +53,8 @@ export class UISettingsUtilityClass {
     settings: {
       page?: number;
       index?: number;
-      start?: number | string;
-      before?: number | string;
+      start?: number | string | undefined;
+      before?: number | string | undefined;
       totalItems?: number;
       columns?: number[];
       order?: Sorting | Sorting[];

@@ -132,13 +132,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   get oldPasswordValueFromForm() {
-    return this.changepasswordFormGroup.controls.oldPassword.value;
+    return this.changepasswordFormGroup.controls['oldPassword'].value;
   }
   get newPasswordValueFromForm() {
-    return this.changepasswordFormGroup.controls.newPassword.value;
+    return this.changepasswordFormGroup.controls['newPassword'].value;
   }
   get confirmNewPasswordValueFromForm() {
-    return this.changepasswordFormGroup.controls.confirmNewPassword.value;
+    return this.changepasswordFormGroup.controls['confirmNewPassword'].value;
   }
 
   /**

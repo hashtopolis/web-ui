@@ -1,4 +1,4 @@
-import { Component, Inject, Input, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AgentTemperatureInformationDialogData } from './agent-temperature-information-dialog.model';

@@ -785,7 +785,7 @@ describe('NewTasksComponent', () => {
       // should NOT have called setValue again since value didn't change.
       const handlerCalls = spy.calls
         .allArgs()
-        .filter((args) => args.length > 1 && (args[1] as Record<string, unknown>)?.emitEvent === false);
+        .filter((args) => args.length > 1 && (args[1] as Record<string, unknown>)?.['emitEvent'] === false);
       expect(handlerCalls.length).toBe(0);
     });
   });

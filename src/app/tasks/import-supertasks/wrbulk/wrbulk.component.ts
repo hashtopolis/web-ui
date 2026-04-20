@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -19,7 +20,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { CrackerBinaryTypeId } from '@models/id.types';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface WrbulkFormValue {
@@ -240,9 +240,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.controls.attackCmd.value,
-      files: this.createForm.controls.baseFiles.value,
-      otherFiles: this.createForm.controls.iterFiles.value
+      attackCmd: this.createForm.controls['attackCmd'].value,
+      files: this.createForm.controls['baseFiles'].value,
+      otherFiles: this.createForm.controls['iterFiles'].value
     };
   }
 

@@ -80,7 +80,6 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
    * @param _collectionViewer - The collection viewer to connect.
    * @returns Observable of the data source.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_collectionViewer: CollectionViewer): Observable<T[]> {
     return this.dataSubject.asObservable();
   }
@@ -90,7 +89,6 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();

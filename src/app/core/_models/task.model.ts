@@ -21,7 +21,7 @@ export enum TaskType {
  * Common attributes shared between tasks and task wrappers
  */
 export interface TaskAttributes extends BaseModel {
-  taskName?: string;
+  taskName?: string | undefined;
   priority: number;
   maxAgents: number;
 }
@@ -31,8 +31,8 @@ export interface TaskAttributes extends BaseModel {
  */
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
-  activeAgents?: number;
-  totalAssignedAgents?: number;
+  activeAgents?: number | undefined;
+  totalAssignedAgents?: number | undefined;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
@@ -57,15 +57,15 @@ export interface JTask extends BaseModel, TaskAttributes {
   forcePipe: boolean;
   preprocessorId: PreprocessorId;
   preprocessorCommand: string;
-  dispatched?: string;
-  searched?: string;
+  dispatched?: string | undefined;
+  searched?: string | undefined;
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
-  status?: number;
-  timeSpent?: number;
-  currentSpeed?: number;
-  estimatedTime?: number;
-  cprogress?: number;
+  status?: number | undefined;
+  timeSpent?: number | undefined;
+  currentSpeed?: number | undefined;
+  estimatedTime?: number | undefined;
+  cprogress?: number | undefined;
   isrunning?: boolean;
   isCompleted?: boolean;
   activeSubtasks?: number;

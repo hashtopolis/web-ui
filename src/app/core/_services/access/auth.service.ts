@@ -183,7 +183,8 @@ export class AuthService {
             console.warn('No userId available for post-login redirect');
           }
           this.redirectUrl = '';
-        })
+        }),
+        map(() => void 0)
       );
   }
 

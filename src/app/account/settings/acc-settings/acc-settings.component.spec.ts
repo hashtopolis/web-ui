@@ -66,11 +66,9 @@ describe('AccountSettingsComponent', () => {
     chelper: (() => {
       return of(mockResponse());
     }) as GlobalService['chelper'],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ghelper(_serviceConfig: unknown, _option: string) {
       return of(mockResponse({ data: userResponse }));
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     uhelper(_serviceConfig: unknown, _id: number, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
@@ -143,7 +141,7 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates email format', () => {
-      const emailControl = component.form.controls.email;
+      const emailControl = component.form.controls['email'];
 
       emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
@@ -244,8 +242,8 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('validates password length', () => {
-      const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
-      const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
+      const newPasswordControl = component.changepasswordFormGroup.controls['newPassword'];
+      const confirmPasswordControl = component.changepasswordFormGroup.controls['confirmNewPassword'];
 
       // Too short
       newPasswordControl.patchValue('123');

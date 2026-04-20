@@ -42,7 +42,7 @@ export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent>
         )
         .subscribe((response: ResponseWrapper) => {
           const accessGroup: JAccessGroup = this.serializer.deserialize(response, zAccessGroupResponse);
-          this.originalData = ((accessGroup as DynamicModel)[this._include] as (JAgent | JUser)[]) || [];
+          this.originalData = ((accessGroup as unknown as DynamicModel)[this._include] as (JAgent | JUser)[]) || [];
           this.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
         })
     );

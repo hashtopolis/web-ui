@@ -32,6 +32,15 @@ export default defineConfig([
     },
 
     rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
+        }
+      ],
+
       '@angular-eslint/prefer-standalone': 'off',
 
       'no-console': [

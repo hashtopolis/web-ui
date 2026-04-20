@@ -30,9 +30,7 @@ export class FileSizePipe implements PipeTransform {
     const units = longForm
       ? FILE_SIZE_UNITS_LONG
       : FILE_SIZE_UNITS;
-    let result: number | string = 0;
-
-    if (sizeB < 1 ) { return result = '0 B'; }
+    if (sizeB < 1 ) { return '0 B'; }
 
     const scale = sizeB > THRESHOLD ? (sizeB / THRESHOLD):sizeB; //Change scale. ie. 113.44MB instead of 0.13GB
 
