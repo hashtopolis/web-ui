@@ -1,7 +1,7 @@
 import { Observable, map, take } from 'rxjs';
 
 import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 
 import { AuthService } from '@services/access/auth.service';
 
@@ -14,7 +14,7 @@ class AuthGuard {
 
   isAuthenticated: boolean;
 
-  canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> {
+  canActivate(): Observable<boolean> {
     return this.authService.user.pipe(
       take(1),
       map((user) => {
@@ -29,9 +29,6 @@ class AuthGuard {
   }
 }
 
-export const IsAuth: CanActivateFn = (
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
-): Observable<boolean> => {
-  return inject(AuthGuard).canActivate(route, state);
+export const IsAuth: CanActivateFn = (): Observable<boolean> => {
+  return inject(AuthGuard).canActivate();
 };

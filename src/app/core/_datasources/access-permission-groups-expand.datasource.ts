@@ -19,12 +19,12 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
     this._accesspermgroupId = accesspermgroupId;
   }
 
-  setAccessPermGroupExpand(_expand: string) {
-    this._expand = _expand;
+  setAccessPermGroupExpand(expand: string) {
+    this._expand = expand;
   }
 
-  setPermissions(_perm: number) {
-    this._perm = _perm;
+  setPermissions(perm: number) {
+    this._perm = perm;
   }
 
   loadAll(): void {

@@ -51,8 +51,8 @@ describe('AccountSettingsComponent', () => {
 
   // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    get(_serviceConfig) {
-      if (_serviceConfig.URL === SERV.USERS.URL) {
+    get(serviceConfig) {
+      if (serviceConfig.URL === SERV.USERS.URL) {
         return of(mockResponse({ data: userResponse }));
       }
       return of(mockResponse());
