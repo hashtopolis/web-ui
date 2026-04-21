@@ -17474,7 +17474,7 @@
                   "salt": { "type": "string" },
                   "plaintext": { "type": "string" },
                   "timeCracked": { "type": "integer", "format": "int64" },
-                  "chunkId": { "type": "integer" },
+                  "chunkId": { "type": ["integer", "null"] },
                   "isCracked": { "type": "boolean" },
                   "crackPos": { "type": "integer", "format": "int64" }
                 }
@@ -17699,7 +17699,7 @@
                     "salt": { "type": "string" },
                     "plaintext": { "type": "string" },
                     "timeCracked": { "type": "integer", "format": "int64" },
-                    "chunkId": { "type": "integer" },
+                    "chunkId": { "type": ["integer", "null"] },
                     "isCracked": { "type": "boolean" },
                     "crackPos": { "type": "integer", "format": "int64" }
                   }
@@ -18241,7 +18241,7 @@
                         "salt": { "type": "string" },
                         "plaintext": { "type": "string" },
                         "timeCracked": { "type": "integer", "format": "int64" },
-                        "chunkId": { "type": "integer" },
+                        "chunkId": { "type": ["integer", "null"] },
                         "isCracked": { "type": "boolean" },
                         "crackPos": { "type": "integer", "format": "int64" }
                       }
@@ -18600,7 +18600,7 @@
                         "salt": { "type": "string" },
                         "plaintext": { "type": "string" },
                         "timeCracked": { "type": "integer", "format": "int64" },
-                        "chunkId": { "type": "integer" },
+                        "chunkId": { "type": ["integer", "null"] },
                         "isCracked": { "type": "boolean" },
                         "crackPos": { "type": "integer", "format": "int64" }
                       }
@@ -19056,7 +19056,7 @@
                         "salt": { "type": "string" },
                         "plaintext": { "type": "string" },
                         "timeCracked": { "type": "integer", "format": "int64" },
-                        "chunkId": { "type": "integer" },
+                        "chunkId": { "type": ["integer", "null"] },
                         "isCracked": { "type": "boolean" },
                         "crackPos": { "type": "integer", "format": "int64" }
                       }
