@@ -12,7 +12,7 @@
             aria-label="Font Style"
             hideSingleSelectionIndicator=true
             >
-            @for (item of menuItems; track item) {
+            @for (item of menuItems; track item.routeName) {
               <mat-button-toggle
                 [ngClass]="getButtonClass(item.routeName)"
                 (click)="navigateTo(item.routeName)"

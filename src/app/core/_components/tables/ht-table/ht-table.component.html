@@ -71,7 +71,7 @@
         <mat-form-field>
           <mat-label class="filter-input-lable">Filter by column</mat-label>
           <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
-            @for (column of filterableColumns; track column) {
+            @for (column of filterableColumns; track column.id) {
             <mat-option [value]="column">{{ columnLabels[column.id] }}</mat-option>
             }
           </mat-select>
@@ -166,7 +166,7 @@
     </ng-container>
     }
 
-    @for (tableColumn of tableColumns; track tableColumn) {
+    @for (tableColumn of tableColumns; track tableColumn.id) {
     <ng-container [matColumnDef]="tableColumn.id + ''">
       <!-- if sortable column header -->
       @if (tableColumn.isSortable) {
