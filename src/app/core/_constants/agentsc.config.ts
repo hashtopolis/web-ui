@@ -9,6 +9,15 @@ export class ASC {
 }
 
 /**
+ * Enum for agent operating system
+ */
+export enum AgentOS {
+  LINUX = 0,
+  WINDOWS = 1,
+  MACOS = 2
+}
+
+/**
  * Enum for agent ignore errors
  */
 export enum IgnoreErrors {

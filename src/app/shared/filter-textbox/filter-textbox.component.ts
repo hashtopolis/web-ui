@@ -7,9 +7,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
  * and emits a changed event when the filter value is updated.
  */
 @Component({
-    selector: 'cm-filter-textbox',
-    templateUrl: './filter-textbox.component.html',
-    standalone: false
+  selector: 'cm-filter-textbox',
+  templateUrl: './filter-textbox.component.html',
+  standalone: false
 })
 export class FilterTextboxComponent {
   /** The model containing the filter string. */
@@ -24,7 +24,7 @@ export class FilterTextboxComponent {
    *
    * @param event - The input event triggering the filter change.
    */
-  filterChanged(event: any): void {
+  filterChanged(event: Event): void {
     event.preventDefault();
     this.changed.emit(this.model.filter); // Raise changed event
   }

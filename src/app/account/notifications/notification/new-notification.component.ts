@@ -1,13 +1,15 @@
+import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JAgent } from '@models/agent.model';
-import { BaseModel } from '@models/base.model';
+import { ThinJAgent } from '@models/agent.model';
+import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -27,6 +29,14 @@ import {
   USER_ACTIONS
 } from '@src/app/core/_constants/notifications.config';
 
+export interface NewNotificationForm {
+  action: FormControl<string>;
+  actionFilter: FormControl<string>;
+  notification: FormControl<string>;
+  receiver: FormControl<string>;
+  isActive: FormControl<boolean>;
+}
+
 @Component({
   selector: 'app-new-notification',
   templateUrl: './new-notification.component.html',
@@ -45,7 +55,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  form: FormGroup;
+  form: FormGroup<NewNotificationForm>;
   filters: Filter[];
   active = false;
   actionFilterIsRequired = false;
@@ -56,7 +66,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
-  actionToServiceMap = {
+  actionToServiceMap: Record<string, { URL: string; RESOURCE: string } | null> = {
     [ACTION.AGENT_ERROR]: SERV.AGENTS,
     [ACTION.OWN_AGENT_ERROR]: SERV.AGENTS,
     [ACTION.DELETE_AGENT]: SERV.AGENTS,
@@ -75,7 +85,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     [ACTION.LOG_ERROR]: null
   };
 
-  actionsWithFilters = [
+  actionsWithFilters: readonly string[] = [
     ACTION.AGENT_ERROR,
     ACTION.OWN_AGENT_ERROR,
     ACTION.DELETE_AGENT,
@@ -114,16 +124,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Initializes form controls with default values and validators.
    */
   createForm(): void {
-    this.form = new FormGroup({
-      action: new FormControl('', [Validators.required]),
-      actionFilter: new FormControl(String('')),
-      notification: new FormControl('ChatBot', [Validators.required]),
-      receiver: new FormControl('', [Validators.required]),
-      isActive: new FormControl(true)
+    this.form = new FormGroup<NewNotificationForm>({
+      action: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      actionFilter: new FormControl<string>('', { nonNullable: true }),
+      notification: new FormControl<string>('ChatBot', { nonNullable: true, validators: [Validators.required] }),
+      receiver: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      isActive: new FormControl<boolean>(true, { nonNullable: true })
     });
 
     //subscribe to changes to handle select trigger actions
-    this.form.get('action').valueChanges.subscribe((newvalue) => {
+    this.form.controls.action.valueChanges.subscribe((newvalue: string) => {
       this.changeAction(newvalue);
     });
   }
@@ -150,32 +160,28 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.actionFilterIsRequired = true;
 
       // set required validator now that control is visible
-      const ctrl = this.form.get('actionFilter');
+      const ctrl = this.form.controls.actionFilter;
       ctrl.setValidators([Validators.required]);
       ctrl.updateValueAndValidity();
 
       this.subscriptions.push(
         this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
-          const resource = new JsonAPISerializer().deserialize<BaseModel[]>({
-            data: response.data,
-            included: response.included
-          });
+          let _filters: Filter[] = [];
 
-          const _filters: Filter[] = [];
-          for (let i = 0; i < resource.length; i++) {
-            if (path === SERV.AGENTS) {
-              const agent = resource[i] as JAgent;
-              _filters.push({ id: agent.id, name: agent.agentName });
-            }
-            if (path === SERV.TASKS) {
-              const task = resource[i] as JTask;
-              _filters.push({ id: task.id, name: task.taskName });
-            }
-            if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const obj = resource[i] as BaseModel;
-              _filters.push({ id: obj.id, name: obj['name'] });
-            }
+          if (path === SERV.AGENTS) {
+            const agents = new JsonAPISerializer().deserialize(response, zAgentListResponse) as ThinJAgent[];
+            _filters = agents.map((a) => ({ id: a.id, name: a.agentName }));
+          } else if (path === SERV.TASKS) {
+            const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);
+            _filters = tasks.map((t) => ({ id: t.id, name: t.taskName ?? '' }));
+          } else if (path === SERV.USERS) {
+            const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
+            _filters = users.map((u) => ({ id: u.id, name: u.name }));
+          } else if (path === SERV.HASHLISTS) {
+            const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+            _filters = hashlists.map((h) => ({ id: h.id, name: h.name }));
           }
+
           this.filters = _filters;
         })
       );
@@ -190,7 +196,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Resets the action filter control by clearing validators, resetting the value, and updating validity.
    */
   resetActionFilter(): void {
-    const ctrl = this.form.get('actionFilter');
+    const ctrl = this.form.controls.actionFilter;
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
@@ -211,7 +217,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     this.form.patchValue({
-      actionFilter: String(this.form.get('actionFilter').value)
+      actionFilter: String(this.form.controls.actionFilter.value)
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;

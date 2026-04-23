@@ -542,6 +542,228 @@ export const zTaskWrapperRelationTasksGetResponse = z.object({
   )
 });
 
+export const zTaskWrapperDisplayResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z
+    .object({
+      self: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
+      first: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0'),
+      last: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500'),
+      next: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25'),
+      previous: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25')
+    })
+    .optional(),
+  data: z.object({
+    id: z.int(),
+    type: z.literal('taskWrapperDisplay'),
+    attributes: z.object({
+      taskWrapperPriority: z.int(),
+      taskWrapperMaxAgents: z.int(),
+      taskType: z.union([z.literal(0), z.literal(1)]),
+      hashlistId: z.int(),
+      accessGroupId: z.int(),
+      taskWrapperName: z.string(),
+      displayName: z.string(),
+      taskWrapperIsArchived: z.boolean(),
+      cracked: z.int(),
+      taskId: z.int(),
+      taskName: z.string(),
+      attackCmd: z.string(),
+      chunkTime: z.int(),
+      statusTimer: z.int(),
+      keyspace: z.number(),
+      keyspaceProgress: z.number(),
+      taskPriority: z.int(),
+      taskMaxAgents: z.int(),
+      isSmall: z.boolean(),
+      isCpuTask: z.boolean(),
+      taskIsArchived: z.boolean(),
+      preprocessorId: z.int(),
+      hashlistName: z.string(),
+      hashCount: z.int(),
+      hashlistCracked: z.int(),
+      hashTypeId: z.int(),
+      hashTypeDescription: z.string(),
+      groupName: z.string()
+    })
+  }),
+  relationships: z
+    .object({
+      tasks: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/taskwrapperdisplays/relationships/tasks'),
+          related: z.string().default('/api/v2/ui/taskwrapperdisplays/tasks')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('task'),
+              id: z.int()
+            })
+          )
+          .optional()
+      })
+    })
+    .optional(),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+          taskName: z.string(),
+          attackCmd: z.string(),
+          chunkTime: z.int(),
+          statusTimer: z.int(),
+          keyspace: z.number(),
+          keyspaceProgress: z.number(),
+          priority: z.int(),
+          maxAgents: z.int(),
+          color: z.string().nullable(),
+          isSmall: z.boolean(),
+          isCpuTask: z.boolean(),
+          useNewBench: z.boolean(),
+          skipKeyspace: z.number(),
+          crackerBinaryId: z.int(),
+          crackerBinaryTypeId: z.int().nullable(),
+          taskWrapperId: z.int(),
+          isArchived: z.boolean(),
+          notes: z.string(),
+          staticChunks: z.int(),
+          chunkSize: z.number(),
+          forcePipe: z.boolean(),
+          preprocessorId: z.int(),
+          preprocessorCommand: z.string()
+        })
+      })
+    )
+    .optional()
+});
+
+export const zTaskWrapperDisplayListResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z
+    .object({
+      self: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
+      first: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0'),
+      last: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500'),
+      next: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25'),
+      previous: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25')
+    })
+    .optional(),
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('taskWrapperDisplay'),
+      attributes: z.object({
+        taskWrapperPriority: z.int(),
+        taskWrapperMaxAgents: z.int(),
+        taskType: z.union([z.literal(0), z.literal(1)]),
+        hashlistId: z.int(),
+        accessGroupId: z.int(),
+        taskWrapperName: z.string(),
+        displayName: z.string(),
+        taskWrapperIsArchived: z.boolean(),
+        cracked: z.int(),
+        taskId: z.int(),
+        taskName: z.string(),
+        attackCmd: z.string(),
+        chunkTime: z.int(),
+        statusTimer: z.int(),
+        keyspace: z.number(),
+        keyspaceProgress: z.number(),
+        taskPriority: z.int(),
+        taskMaxAgents: z.int(),
+        isSmall: z.boolean(),
+        isCpuTask: z.boolean(),
+        taskIsArchived: z.boolean(),
+        preprocessorId: z.int(),
+        hashlistName: z.string(),
+        hashCount: z.int(),
+        hashlistCracked: z.int(),
+        hashTypeId: z.int(),
+        hashTypeDescription: z.string(),
+        groupName: z.string()
+      })
+    })
+  ),
+  relationships: z
+    .object({
+      tasks: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/taskwrapperdisplays/relationships/tasks'),
+          related: z.string().default('/api/v2/ui/taskwrapperdisplays/tasks')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('task'),
+              id: z.int()
+            })
+          )
+          .optional()
+      })
+    })
+    .optional(),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('task'),
+        attributes: z.object({
+          taskName: z.string(),
+          attackCmd: z.string(),
+          chunkTime: z.int(),
+          statusTimer: z.int(),
+          keyspace: z.number(),
+          keyspaceProgress: z.number(),
+          priority: z.int(),
+          maxAgents: z.int(),
+          color: z.string().nullable(),
+          isSmall: z.boolean(),
+          isCpuTask: z.boolean(),
+          useNewBench: z.boolean(),
+          skipKeyspace: z.number(),
+          crackerBinaryId: z.int(),
+          crackerBinaryTypeId: z.int().nullable(),
+          taskWrapperId: z.int(),
+          isArchived: z.boolean(),
+          notes: z.string(),
+          staticChunks: z.int(),
+          chunkSize: z.number(),
+          forcePipe: z.boolean(),
+          preprocessorId: z.int(),
+          preprocessorCommand: z.string()
+        })
+      })
+    )
+    .optional()
+});
+
+export const zTaskWrapperDisplayRelationTasks = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('tasks'),
+      id: z.int().default(1)
+    })
+  )
+});
+
+export const zTaskWrapperDisplayRelationTasksGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('tasks'),
+      id: z.int().default(1)
+    })
+  )
+});
+
 export const zDeleteTaskwrappersData = z.object({
   body: z.never().optional(),
   path: z.never().optional(),

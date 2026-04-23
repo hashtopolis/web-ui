@@ -17,9 +17,9 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
         return of(null);
       }
       return fromEvent<StorageEvent>(window, 'storage').pipe(
-        filter((event) => event.key === 'theme'),
-        map((event) => event.newValue),
-        startWith(localStorage.getItem('theme', themeSchema))
+        filter((event: StorageEvent) => event.key === 'theme'),
+        map((event: StorageEvent): string | null => event.newValue),
+        startWith<string | null>(localStorage.getItem('theme', themeSchema) ?? null)
       );
     };
   }
@@ -43,11 +43,6 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
     };
   }
 });
-
-export interface ThemeObject {
-  oldValue: string;
-  newValue: string;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -74,7 +69,7 @@ export class ThemeService {
     @Inject(THEME_LOADER) private loadHandler: ThemeLoader,
     @Inject(THEME_SAVER) private saveHandler: ThemeSaver
   ) {
-    (loadHandler as ThemeLoader)().subscribe((theme) => this._theme.next(theme));
+    loadHandler().subscribe((theme) => this._theme.next(theme));
 
     this.renderer = rendererFactory.createRenderer(null, null);
 
@@ -94,7 +89,7 @@ export class ThemeService {
         document.body.removeAttribute('data-theme');
       }
 
-      (saveHandler as ThemeSaver)(theme);
+      saveHandler(theme);
     });
   }
 

@@ -59,7 +59,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -225,7 +225,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
 
   private rowActionEdit(accessGroup: JAccessGroup): void {
     this.renderAccessGroupLink(accessGroup).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 }

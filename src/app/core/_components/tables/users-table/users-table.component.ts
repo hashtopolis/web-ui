@@ -57,7 +57,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -132,8 +132,8 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: false,
-        render: (user: JUser) => this.sanitize(user.globalPermissionGroup.name),
-        export: async (user: JUser) => user.globalPermissionGroup.name
+        render: (user: JUser) => this.sanitize(user.globalPermissionGroup?.name ?? ''),
+        export: async (user: JUser) => user.globalPermissionGroup?.name ?? ''
       }
     ];
   }
@@ -285,7 +285,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(user: JUser): void {
     this.renderUserLink(user).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 }

@@ -21,6 +21,7 @@ import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { HomeComponent } from '@src/app/home/home.component';
 import { HomeModule } from '@src/app/home/home.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 /**
  * Stub component to replace the real app-heatmap-chart component in tests.
@@ -91,7 +92,7 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
 
   // Handle HASHES — return an empty dataset for now
   if (service === SERV.HASHES) {
-    return of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }); // simulate empty response
+    return of(mockResponse()); // simulate empty response
   }
 
   // Default fallback for any other service

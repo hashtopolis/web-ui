@@ -49,9 +49,12 @@ export class UIConfigService {
     this.gs.getAll(SERV.CONFIGS, params).subscribe({
       next: (response: ResponseWrapper) => {
         const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
-        const raw = convertNameValueConfigPairs(configs, this.cachevar);
-        raw['_timestamp'] = Date.now();
-        raw['_expiresin'] = this.cexprity;
+        const configValues = convertNameValueConfigPairs(configs, this.cachevar);
+        const raw: Record<string, unknown> = {
+          ...configValues,
+          _timestamp: Date.now(),
+          _expiresin: this.cexprity
+        };
 
         const result = uisSettingsSchema.safeParse(raw);
         if (!result.success) {
@@ -78,8 +81,8 @@ export class UIConfigService {
   }
 }
 
-function convertNameValueConfigPairs(configs: JConfig[], keys: readonly string[]): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+function convertNameValueConfigPairs(configs: JConfig[], keys: readonly string[]): Record<string, string | undefined> {
+  const result: Record<string, string | undefined> = {};
   for (const name of keys) {
     result[name] = configs.find((c) => c.item === name)?.value;
   }

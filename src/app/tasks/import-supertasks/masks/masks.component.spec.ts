@@ -14,8 +14,10 @@ import { MasksComponent } from '@src/app/tasks/import-supertasks/masks/masks.com
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
   data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
-  included: []
-};
+  included: [],
+  links: { self: '', next: null, prev: null },
+  meta: { page: { total_elements: 1 } }
+} as unknown as import('@models/response.model').ResponseWrapper;
 
 describe('MasksComponent', () => {
   let component: MasksComponent;

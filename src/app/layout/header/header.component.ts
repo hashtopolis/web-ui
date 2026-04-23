@@ -2,7 +2,7 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { AuthUser } from '@models/auth-user.model';
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -83,7 +83,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.user.subscribe((user: AuthUser) => {
+      this.authService.user.subscribe((user) => {
         if (user) {
           this.username = user.canonicalUsername;
         }
@@ -137,7 +137,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.uiSettings.updateSettings({ theme: newTheme });
   }
 
-  menuItemClicked(event: ActionMenuEvent<unknown>): void {
+  menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
     }
