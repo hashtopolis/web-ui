@@ -113,7 +113,11 @@ export class EditPreconfiguredTasksComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (!this.updateForm.valid || this.isReadOnly) {
+    if (this.isReadOnly) {
+      return;
+    }
+
+    if (!this.updateForm.valid) {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
       return;

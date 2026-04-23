@@ -8,7 +8,8 @@ import {
 import { finalize, firstValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -101,6 +102,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.titleService.set(['Edit Task']);
@@ -269,25 +271,30 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.updateForm.valid && !this.isReadOnly) {
-      // Check if attackCmd has been modified
-      if (this.updateForm.controls.updateData.controls.attackCmd.value !== this.originalValue.attackCmd) {
-        const message =
-          'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
-        this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
-          if (confirmed) {
-            this.updateTask();
-          } else {
-            this.alertService.showInfoMessage('Task Information has not been updated');
-          }
-        });
-      } else {
-        this.updateTask();
-      }
-    } else {
+    if (this.isReadOnly) {
+      return;
+    }
+
+    if (!this.updateForm.valid) {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
+      return;
     }
+
+    if (this.updateForm.controls.updateData.controls.attackCmd.value !== this.originalValue.attackCmd) {
+      const message =
+        'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
+      this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
+        if (confirmed) {
+          this.updateTask();
+        } else {
+          this.alertService.showInfoMessage('Task Information has not been updated');
+        }
+      });
+      return;
+    }
+
+    this.updateTask();
   }
 
   private updateTask(): void {
@@ -401,7 +408,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private assignChunksInit(): void {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       switch (data['kind'] as EditTaskRouteKind) {
         case EditTaskRouteKind.EditTask:
           this.chunkview = ChunkView.Live;
