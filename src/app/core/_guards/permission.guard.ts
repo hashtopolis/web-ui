@@ -24,7 +24,8 @@ export class PermissionGuard {
       .trim()
       .toLowerCase();
 
-    return `${action} ${domain}s`;
+    const plural = /s$/i.test(domain) ? domain : `${domain}s`;
+    return `${action} ${plural}`;
   }
 
   /**
