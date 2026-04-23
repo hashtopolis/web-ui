@@ -21,11 +21,11 @@ describe('AuthService', () => {
   beforeEach(() => {
     // Create a working mock storage that actually stores/retrieves data
     const storageMock = {
-      _store: {} as Record<string, any>,
+      _store: {} as Record<string, unknown>,
       getItem(key: string) {
         return this._store[key] || null;
       },
-      setItem(key: string, value: any) {
+      setItem(key: string, value: unknown) {
         this._store[key] = value;
       },
       removeItem(key: string) {

@@ -110,10 +110,6 @@ export class AuthService {
     const tokenExpiration = expires.getTime() - Date.now();
     this.autologOut(tokenExpiration);
 
-    // `take(1)` guarantees the returned observable *completes* after the first emission.
-    // `provideAppInitializer` subscribes with `{ complete: resolve }` — without this, the
-    // cache-hit branch of `loadPermissions()` (which returns a BehaviorSubject that emits
-    // synchronously but never completes) would hang bootstrap forever.
     return this.injector
       .get(PermissionService)
       .loadPermissions()

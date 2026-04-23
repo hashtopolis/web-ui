@@ -10,7 +10,7 @@ import { AlertService } from '@services/shared/alert.service';
   providedIn: 'root'
 })
 export class PermissionGuard {
-  constructor(private alert: AlertService) {}
+  private alert = inject(AlertService);
 
   /**
    * Convert role and domain names into a human-readable format
