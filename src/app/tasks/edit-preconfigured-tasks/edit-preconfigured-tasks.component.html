@@ -39,7 +39,7 @@
         <input-text title="Status timer" formControlName="statusTimer"></input-text>
       </div>
 
-      @if (roleService.hasRole('edit')) {
+      @if (roleService.hasRole(PretaskRole.Edit)) {
         <grid-buttons>
           <button-submit [name]="'Update'"></button-submit>
           @if (isUpdatingLoading) {
@@ -70,7 +70,7 @@
           [isDetailPage]="true"
           filterMode="client"
           [editIndex]="editedPretaskIndex"
-          [editType]="1"
+          [editType]="FileEditType.Pretask"
         ></app-files-table>
       </mat-expansion-panel>
     </mat-accordion>

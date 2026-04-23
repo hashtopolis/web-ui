@@ -1,59 +1,52 @@
 import { zPreTaskResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
-import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import {
+  PreconfiguredTasksRoleService,
+  PretaskRole
+} from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { yesNo } from '@src/app/core/_constants/general.config';
-import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
+import {
+  EditPretaskForm,
+  getEmptyEditPretaskForm
+} from '@src/app/tasks/edit-preconfigured-tasks/edit-preconfigured-tasks.form';
+import { FileEditType, TaskRoutePath } from '@src/app/tasks/tasks-routing.constants';
 
-/**
- * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
- */
 @Component({
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html',
   standalone: false
 })
-export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
-  /** Flag indicating whether data is still loading. */
+export class EditPreconfiguredTasksComponent implements OnInit {
   isLoading = true;
-
-  /** Form group for the Pretask. */
-  updateForm: FormGroup;
-
-  /** On form update show a spinner loading */
   isUpdatingLoading = false;
-
-  /** Select Options. */
-  selectYesno = yesNo;
-
-  // Edit Options
-  editedPretaskIndex: number;
-
-  /** Read-only mode based on roles */
   isReadOnly = false;
 
-  /** HttpClient without interceptors to avoid global error dialog */
-  private httpNoInterceptors: HttpClient;
+  updateForm!: FormGroup<EditPretaskForm>;
 
-  private unsubscribeService = inject(UnsubscribeService);
+  selectYesno = yesNo;
+
+  editedPretaskIndex!: PretaskId;
+
+  protected readonly FileEditType = FileEditType;
+  protected readonly PretaskRole = PretaskRole;
+
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
@@ -62,28 +55,20 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   private serializer = inject(JsonAPISerializer);
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
-  private httpBackend = inject(HttpBackend);
   protected roleService = inject(PreconfiguredTasksRoleService);
 
   constructor() {
     this.titleService.set(['Edit Preconfigured Tasks']);
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
-    this.buildForm();
   }
 
-  /**
-   * Lifecycle hook called after component initialization.
-   */
   async ngOnInit(): Promise<void> {
-    this.isReadOnly = !this.roleService.hasRole('edit');
-
-    this.buildForm();
+    this.isReadOnly = !this.roleService.hasRole(PretaskRole.Edit);
+    this.updateForm = getEmptyEditPretaskForm(this.isReadOnly);
 
     this.editedPretaskIndex = +this.route.snapshot.params['id'];
 
     try {
       await this.loadPretask();
-      this.loadData();
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
@@ -97,131 +82,54 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // For other errors (500 etc.) show a friendly message instead of redirecting
-      // so the user knows the server failed. Keep the loading flag disabled.
-
       console.error('Error loading pretask:', e);
       const msg = status ? `Error loading pretask (server returned ${status}).` : 'Error loading pretask.';
       this.alert.showErrorMessage(msg);
       this.isLoading = false;
-      return;
     }
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
-   * Builds the empty form.
-   */
-  buildForm(): void {
-    this.updateForm = new FormGroup({
-      pretaskId: new FormControl({ value: '', disabled: true }),
-      statusTimer: new FormControl({ value: '', disabled: true }),
-      useNewBench: new FormControl({ value: '', disabled: true }),
-      updateData: new FormGroup({
-        taskName: new FormControl(
-          { value: '', disabled: this.isReadOnly },
-          this.isReadOnly ? [] : [Validators.required]
-        ),
-        attackCmd: new FormControl(
-          { value: '', disabled: this.isReadOnly },
-          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
-        ),
-        chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
-        color: new FormControl({ value: '', disabled: this.isReadOnly }),
-        priority: new FormControl({ value: '', disabled: this.isReadOnly }),
-        maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
-        isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
-        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
-      })
-    });
   }
 
   private async loadPretask(): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
 
     const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-
     const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
-    this.updateForm = new FormGroup({
-      pretaskId: new FormControl({
-        value: pretask.id,
-        disabled: true
-      }),
-      statusTimer: new FormControl({
-        value: pretask.statusTimer,
-        disabled: true
-      }),
-      useNewBench: new FormControl({
-        value: pretask.useNewBench,
-        disabled: true
-      }),
-      updateData: new FormGroup({
-        taskName: new FormControl(pretask.taskName, this.isReadOnly ? [] : [Validators.required]),
-        attackCmd: new FormControl(
-          pretask.attackCmd,
-          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
-        ),
-        chunkTime: new FormControl(pretask.chunkTime),
-        color: new FormControl(pretask.color),
-        priority: new FormControl(pretask.priority),
-        maxAgents: new FormControl(pretask.maxAgents),
-        isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
-        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required])
-      })
+    this.updateForm.setValue({
+      pretaskId: pretask.id,
+      statusTimer: pretask.statusTimer,
+      useNewBench: pretask.useNewBench,
+      updateData: {
+        taskName: pretask.taskName,
+        attackCmd: pretask.attackCmd,
+        color: pretask.color ?? null,
+        chunkTime: pretask.chunkTime,
+        priority: pretask.priority,
+        maxAgents: pretask.maxAgents,
+        isCpuTask: pretask.isCpuTask,
+        isSmall: pretask.isSmall
+      }
     });
   }
 
-  /**
-   * Loads data, specifically Pretasks/files, for the component.
-   */
-  loadData(): void {
-    const params = new RequestParamBuilder()
-      .addFilter({
-        field: 'pretaskId',
-        operator: FilterType.EQUAL,
-        value: this.editedPretaskIndex
-      })
-      .addInclude('pretaskFiles')
-      .create();
-
-    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe();
-
-    this.unsubscribeService.add(loadtableSubscription$);
-  }
-
-  /**
-   * Handles form submission, edit Pretask
-   * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
-   */
-  onSubmit(): void {
-    if (this.updateForm.valid && !this.isReadOnly) {
-      this.isUpdatingLoading = true;
-      const updateSubscription$ = this.gs
-        .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
-        .subscribe({
-          next: () => {
-            this.alert.showSuccessMessage('PreTask saved');
-            this.isUpdatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
-          },
-          error: (err) => {
-            console.error('Error updating preconfigured Task', err);
-            this.isUpdatingLoading = false;
-          }
-        });
-
-      this.unsubscribeService.add(updateSubscription$);
-    } else {
+  async onSubmit(): Promise<void> {
+    if (!this.updateForm.valid || this.isReadOnly) {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
+      return;
+    }
+
+    this.isUpdatingLoading = true;
+    try {
+      await firstValueFrom(
+        this.gs.update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.controls.updateData.getRawValue())
+      );
+      this.alert.showSuccessMessage('PreTask saved');
+      this.router.navigate([TaskRoutePath.PretaskList]);
+    } catch (err) {
+      console.error('Error updating preconfigured Task', err);
+    } finally {
+      this.isUpdatingLoading = false;
     }
   }
 }

@@ -2,33 +2,43 @@
   <app-page-title [title]="'Supertask Details'"></app-page-title>
   <form [formGroup]="viewForm">
     <div class="flex flex-wrap items-center gap-2">
-      <input-text title="ID" formControlName="supertaskId" ></input-text>
-      <input-text title="Name" formControlName="supertaskName" ></input-text>
+      <input-text title="ID" formControlName="supertaskId"></input-text>
+      <input-text title="Name" formControlName="supertaskName"></input-text>
     </div>
     <div class="flex">
-      @if (roleService.hasRole("delete")) {
+      @if (roleService.hasRole(SupertaskRole.Delete)) {
         <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
       }
-      @if (roleService.hasRole("editSupertaskApplyHashlist")) {
-        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']">
+      @if (roleService.hasRole(SupertaskRole.EditSupertaskApplyHashlist)) {
+        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/', editedSTIndex, 'applyhashlist']">
         </button-submit>
       }
     </div>
   </form>
-
 </grid-main>
 
-@if(roleService.hasRole("editSupertaskPreTasks")) {
+@if (roleService.hasRole(SupertaskRole.EditSupertaskPreTasks)) {
   <!--Table Pretasks-->
   <app-table>
     <app-page-title [title]="'Preconfigured tasks part of this supertask'"></app-page-title>
-    <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
-                        [unassignOption]=true (pretasksChanged)="onPretaskChanged()"></app-pretasks-table>
+    <app-pretasks-table
+      #superTasksPretasksTable
+      name="superTasksPretasksEditTable"
+      [supertTaskId]="editedSTIndex"
+      [unassignOption]="true"
+      (pretasksChanged)="onPretaskChanged()"
+    ></app-pretasks-table>
   </app-table>
 
   <app-table>
     <app-page-title [title]="'Preconfigured tasks not part of this supertask'"></app-page-title>
-    <app-pretasks-table #superTasksPretaskNotContainedTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [reverseQuery]=true
-                        (pretasksChanged)="onPretaskChanged()" (pretaskAdd)="onPretaskAdd($event)"></app-pretasks-table>
+    <app-pretasks-table
+      #superTasksPretaskNotContainedTable
+      name="superTasksPretasksEditTable"
+      [supertTaskId]="editedSTIndex"
+      [reverseQuery]="true"
+      (pretasksChanged)="onPretaskChanged()"
+      (pretaskAdd)="onPretaskAdd($event)"
+    ></app-pretasks-table>
   </app-table>
 }

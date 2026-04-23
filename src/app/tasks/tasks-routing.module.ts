@@ -24,7 +24,12 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
 import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
 import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
-import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
+import {
+  EditTaskRouteKind,
+  NewTaskRouteKind,
+  PretaskRouteKind,
+  SupertaskRouteKind
+} from '@src/app/tasks/tasks-routing.constants';
 
 const taskRoleServiceClass = TasksRoleService;
 const supertaskRoleServiceClass = SupertasksRoleService;
@@ -61,7 +66,7 @@ const routes: MyRoute[] = [
         path: 'show-tasks/:id/edit',
         component: EditTasksComponent,
         data: {
-          kind: 'edit-task',
+          kind: EditTaskRouteKind.EditTask,
           breadcrumb: 'Edit Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
@@ -72,7 +77,7 @@ const routes: MyRoute[] = [
         path: 'show-tasks/:id/edit/show-all-chunks',
         component: EditTasksComponent,
         data: {
-          kind: 'edit-task-cAll',
+          kind: EditTaskRouteKind.EditTaskShowAllChunks,
           breadcrumb: 'Edit Task > Show All chunks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
@@ -117,7 +122,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks',
         component: PreconfiguredTasksComponent,
         data: {
-          kind: 'preconfigured-tasks',
+          kind: PretaskRouteKind.List,
           breadcrumb: 'Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'read'
@@ -128,7 +133,7 @@ const routes: MyRoute[] = [
         path: 'new-preconfigured-tasks',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'new-preconfigured-tasks',
+          kind: PretaskRouteKind.New,
           breadcrumb: 'New Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
@@ -139,7 +144,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks/:id/edit',
         component: EditPreconfiguredTasksComponent,
         data: {
-          kind: 'edit-preconfigured-tasks',
+          kind: PretaskRouteKind.Edit,
           breadcrumb: 'Edit Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'read'
@@ -151,7 +156,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks/:id/copy',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'copy-preconfigured-tasks',
+          kind: PretaskRouteKind.CopyPretask,
           breadcrumb: 'Copy Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
@@ -162,7 +167,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks/:id/copytask',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'copy-tasks',
+          kind: PretaskRouteKind.CopyTaskToPretask,
           breadcrumb: 'Copy Task to Preconfigured task',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
@@ -173,7 +178,7 @@ const routes: MyRoute[] = [
         path: 'supertasks',
         component: SupertasksComponent,
         data: {
-          kind: 'supertasks',
+          kind: SupertaskRouteKind.List,
           breadcrumb: 'Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'
@@ -184,7 +189,7 @@ const routes: MyRoute[] = [
         path: ':id/applyhashlist',
         component: ApplyHashlistComponent,
         data: {
-          kind: 'applyhashlist',
+          kind: SupertaskRouteKind.ApplyHashlist,
           breadcrumb: 'Apply hashlist',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
@@ -195,7 +200,7 @@ const routes: MyRoute[] = [
         path: 'new-supertasks',
         component: NewSupertasksComponent,
         data: {
-          kind: 'new-supertasks',
+          kind: SupertaskRouteKind.New,
           breadcrumb: 'New Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'create'
@@ -206,7 +211,7 @@ const routes: MyRoute[] = [
         path: ':id/edit',
         component: EditSupertasksComponent,
         data: {
-          kind: 'edit-supertasks',
+          kind: SupertaskRouteKind.Edit,
           breadcrumb: 'Edit Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'

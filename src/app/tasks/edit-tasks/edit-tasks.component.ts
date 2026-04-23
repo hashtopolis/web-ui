@@ -5,12 +5,11 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Subscription, finalize, firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -36,45 +35,45 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
-import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
-import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import {
+  AssignAgentForm,
+  ChunkView,
+  EditTaskForm,
+  EditTaskUpdateDataForm,
+  ForcePipeLabel
+} from '@src/app/tasks/edit-tasks/edit-tasks.form';
+import { EditTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
-  providers: [FileSizePipe],
   standalone: false
 })
 export class EditTasksComponent implements OnInit, OnDestroy {
-  editMode = false;
   editedTaskIndex: number;
-  taskWrapperId: number;
   originalValue: JTask;
 
-  updateForm: FormGroup;
-  createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
+  updateForm: FormGroup<EditTaskForm>;
+  createForm: FormGroup<AssignAgentForm>; // Assign Agent
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 
   // loading gate to avoid painting the screen before data is ready
   isLoading = true;
 
-  color = '';
   tusepreprocessor: number;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
-  availAgents: ThinJAgent[] = [];
   selectAgents: SelectOption<AgentId>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
-  @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
   // Time calculation
   cprogress: number; // Keyspace searched
@@ -82,17 +81,14 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   estimatedTime: number; // Estimated time till task is finished
   searched: string;
 
-  chunkview: number;
-  isactive = 0;
+  chunkview?: ChunkView;
   currenspeed = 0;
 
   isReadOnly = false;
+  protected readonly ChunkView = ChunkView;
 
   taskProgressImageUrl: SafeUrl | null = null;
   private rawTaskProgressObjectUrl: string | null = null;
-
-  private routeSub: Subscription | undefined;
-  private httpNoInterceptors: HttpClient;
 
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -105,18 +101,15 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
-  private httpBackend = inject(HttpBackend);
 
   constructor() {
     this.titleService.set(['Edit Task']);
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   async ngOnInit(): Promise<void> {
     this.isReadOnly = !this.roleService.hasRole('edit');
 
     this.editedTaskIndex = +this.route.snapshot.params['id'];
-    this.editMode = Number.isFinite(this.editedTaskIndex);
 
     this.buildForm();
 
@@ -125,9 +118,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
       this.originalValue = task;
       this.searched = task.searched ?? '';
-      this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
-      this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
       this.ctimespent = task.timeSpent ?? 0;
@@ -153,7 +144,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
       this.updateForm.setValue({
         taskId: task.id,
-        forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+        forcePipe: task.forcePipe ? ForcePipeLabel.Yes : ForcePipeLabel.No,
         staticChunks: this.getStaticChunkingLabel(task.staticChunks),
         skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
         keyspace: task.keyspace,
@@ -161,11 +152,11 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         crackerBinaryId: task.crackerBinaryId,
         chunkSize: task.chunkSize,
         updateData: {
-          taskName: task.taskName,
+          taskName: task.taskName ?? '',
           attackCmd: task.attackCmd,
           notes: task.notes,
-          color: task.color,
-          chunkTime: Number(task.chunkTime),
+          color: task.color ?? null,
+          chunkTime: task.chunkTime,
           statusTimer: task.statusTimer,
           priority: task.priority,
           maxAgents: task.maxAgents,
@@ -209,8 +200,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-
     if (this.rawTaskProgressObjectUrl) {
       URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
       this.rawTaskProgressObjectUrl = null;
@@ -218,36 +207,39 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private buildForm(): void {
-    this.updateForm = new FormGroup({
-      taskId: new FormControl({ value: '', disabled: true }),
-      forcePipe: new FormControl({ value: '', disabled: true }),
-      staticChunks: new FormControl({ value: '', disabled: true }),
-      skipKeyspace: new FormControl({ value: '', disabled: true }),
-      keyspace: new FormControl({ value: '', disabled: true }),
-      keyspaceProgress: new FormControl({ value: '', disabled: true }),
-      crackerBinaryId: new FormControl({ value: '', disabled: true }),
-      chunkSize: new FormControl({ value: '', disabled: true }),
-      updateData: new FormGroup({
-        taskName: new FormControl(
+    this.updateForm = new FormGroup<EditTaskForm>({
+      taskId: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+      forcePipe: new FormControl<ForcePipeLabel>({ value: ForcePipeLabel.No, disabled: true }, { nonNullable: true }),
+      staticChunks: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+      skipKeyspace: new FormControl<number | 'N/A'>({ value: 'N/A', disabled: true }, { nonNullable: true }),
+      keyspace: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+      keyspaceProgress: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+      crackerBinaryId: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+      chunkSize: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+      updateData: new FormGroup<EditTaskUpdateDataForm>({
+        taskName: new FormControl<string>(
           { value: '', disabled: this.isReadOnly },
-          this.isReadOnly ? [] : [Validators.required]
+          { nonNullable: true, validators: this.isReadOnly ? [] : [Validators.required] }
         ),
-        attackCmd: new FormControl(
+        attackCmd: new FormControl<string>(
           { value: '', disabled: this.isReadOnly },
-          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+          {
+            nonNullable: true,
+            validators: this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+          }
         ),
-        notes: new FormControl({ value: '', disabled: this.isReadOnly }),
-        color: new FormControl({ value: '', disabled: this.isReadOnly }),
-        chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
-        statusTimer: new FormControl({ value: '', disabled: this.isReadOnly }),
-        priority: new FormControl({ value: '', disabled: this.isReadOnly }),
-        maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
-        isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
-        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
+        notes: new FormControl<string>({ value: '', disabled: this.isReadOnly }, { nonNullable: true }),
+        color: new FormControl<string | null>({ value: '', disabled: this.isReadOnly }),
+        chunkTime: new FormControl<number>({ value: 0, disabled: this.isReadOnly }, { nonNullable: true }),
+        statusTimer: new FormControl<number>({ value: 0, disabled: this.isReadOnly }, { nonNullable: true }),
+        priority: new FormControl<number>({ value: 0, disabled: this.isReadOnly }, { nonNullable: true }),
+        maxAgents: new FormControl<number>({ value: 0, disabled: this.isReadOnly }, { nonNullable: true }),
+        isCpuTask: new FormControl<boolean>({ value: false, disabled: this.isReadOnly }, { nonNullable: true }),
+        isSmall: new FormControl<boolean>({ value: false, disabled: this.isReadOnly }, { nonNullable: true })
       })
     });
 
-    this.createForm = new FormGroup<{ agentId: FormControl<number | null> }>({
+    this.createForm = new FormGroup<AssignAgentForm>({
       agentId: new FormControl<number | null>(null)
     });
   }
@@ -279,7 +271,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.updateForm.valid && !this.isReadOnly) {
       // Check if attackCmd has been modified
-      if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
+      if (this.updateForm.controls.updateData.controls.attackCmd.value !== this.originalValue.attackCmd) {
         const message =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
         this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
@@ -300,7 +292,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private updateTask(): void {
     this.isUpdatingLoading = true;
-    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe({
+    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.controls.updateData.getRawValue()).subscribe({
       next: () => {
         this.isUpdatingLoading = false;
         this.router.navigate(['tasks/show-tasks']).then(() => {
@@ -359,8 +351,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
       const agents: ThinJAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
-      this.availAgents = agents;
-      this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
+      this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       this.isLoadingAgents = false;
     });
   }
@@ -384,7 +375,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
-        agentId: this.createForm.value['agentId']
+        agentId: this.createForm.controls.agentId.value
       };
       this.gs
         .create(SERV.AGENT_ASSIGN, payload)
@@ -411,19 +402,15 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private assignChunksInit(): void {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
-        case 'edit-task':
-          this.chunkview = 0;
+      switch (data['kind'] as EditTaskRouteKind) {
+        case EditTaskRouteKind.EditTask:
+          this.chunkview = ChunkView.Live;
           break;
-        case 'edit-task-cAll':
-          this.chunkview = 1;
+        case EditTaskRouteKind.EditTaskShowAllChunks:
+          this.chunkview = ChunkView.All;
           break;
       }
     });
-  }
-
-  onChunkViewChange(event: MatButtonToggleChange): void {
-    this.chunkview = event.value;
   }
 
   purgeTask(): void {

@@ -241,19 +241,19 @@
   }
 
   <!-- Dispatched Chunks -->
-  @if (roleService.hasRole('editTaskChunks')) {
+  <!-- chunkview is assigned once route data resolves (see assignChunksInit); guard prevents rendering with an undefined toggle value. -->
+  @if (roleService.hasRole('editTaskChunks') && chunkview !== undefined) {
     <app-table>
       <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
 
       <mat-button-toggle-group
         style="margin: 0"
         [(ngModel)]="chunkview"
-        (change)="onChunkViewChange($event)"
         appearance="standard"
         exclusive
       >
-        <mat-button-toggle [value]="0">Live Chunks</mat-button-toggle>
-        <mat-button-toggle [value]="1">All Chunks</mat-button-toggle>
+        <mat-button-toggle [value]="ChunkView.Live">Live Chunks</mat-button-toggle>
+        <mat-button-toggle [value]="ChunkView.All">All Chunks</mat-button-toggle>
       </mat-button-toggle-group>
 
       <br /><br />
