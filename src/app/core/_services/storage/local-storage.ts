@@ -17,7 +17,7 @@ import { environment } from '@src/environments/environment';
  */
 export class TypedStorage<T = unknown> {
   private readonly nativeStorage: Storage;
-  private readonly defaultSchema?: z.ZodType<T>;
+  private readonly defaultSchema?: z.ZodType<T> | undefined;
 
   constructor(native: Storage, schema?: z.ZodType<T>) {
     this.nativeStorage = native;

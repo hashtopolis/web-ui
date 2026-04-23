@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { JConfig } from '@models/configs.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zFormConfigRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -65,7 +66,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * If provided, these values are used to initialize form controls in the dynamic form.
 
    */
-  formValues: object;
+  formValues: ConfigValues;
 
   /**
    * An array of objects containing IDs and corresponding item names.
@@ -90,10 +91,11 @@ export class FormConfigComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
-      const formKind = data.kind;
+    this.route.data.subscribe((data) => {
+      const routeData = zFormConfigRouteData.parse(data);
+      const formKind = routeData.kind;
       this.isServerAction = formKind === 'server-actions';
-      this.serviceConfig = data.serviceConfig; // Get the API path from route data
+      this.serviceConfig = routeData.serviceConfig;
       // Load metadata and form information
       if (!this.isServerAction) {
         this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];

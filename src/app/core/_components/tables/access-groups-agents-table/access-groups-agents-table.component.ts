@@ -2,6 +2,8 @@ import { catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
+import { JUser } from '@models/user.model';
+
 import { AccessGroupsAgentContextMenuService } from '@services/context-menu/users/access-groups-agent-menu.service';
 
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -100,22 +102,23 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
     this.exportService.handleExportAction<JAgent>(
-      event,
+      event as ActionMenuEvent<JAgent[]>,
       this.tableColumns,
       AccessGroupsAgentsTableColumnLabel,
       'hashtopolis-access-groups-agents'
     );
   }
 
-  bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
+    const agents = event.data as JAgent[];
     // Prepare dialog data
     const dialogData: DialogData<JAgent> = {
-      rows: event.data,
-      title: `Remove ${event.data.length} access group agent${event.data.length > 1 ? 's' : ''} ...`,
+      rows: agents,
+      title: `Remove ${agents.length} access group agent${agents.length > 1 ? 's' : ''} ...`,
       icon: 'warning',
-      body: `Are you sure you want to remove the above agent${event.data.length > 1 ? 's' : ''} from the access group?`,
+      body: `Are you sure you want to remove the above agent${agents.length > 1 ? 's' : ''} from the access group?`,
       warn: true,
       listAttribute: 'agentName',
       action: BulkActionMenuAction.DELETE
@@ -125,13 +128,14 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     this.openDialog(dialogData);
   }
 
-  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
+  rowActionClicked(event: ActionMenuEvent<JUser | JAgent>): void {
+    const agent = event.data as JAgent;
     if (event.menuItem.action === RowActionMenuAction.DELETE) {
       this.openDialog({
-        rows: [event.data],
+        rows: [agent],
         title: `Remove agent from access group`,
         icon: 'warning',
-        body: `Are you sure you want to remove "${event.data.agentName}" from this access group?`,
+        body: `Are you sure you want to remove "${agent.agentName}" from this access group?`,
         warn: true,
         action: event.menuItem.action
       });

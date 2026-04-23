@@ -1,28 +1,25 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output
-} from '@angular/core';
-import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
+import { BaseModel } from '@models/base.model';
+
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
 @Component({
-    selector: 'ht-table-editable-checkbox',
-    templateUrl: './ht-table-type-editable-checkbox.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'ht-table-editable-checkbox',
+  templateUrl: './ht-table-type-editable-checkbox.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class HTTableTypeEditableCheckboxComponent implements OnInit {
-  checkbox: HTTableEditable<any>;
+  checkbox: HTTableEditable<BaseModel>;
   original: string;
 
-  @Input() element: any;
+  @Input() element: BaseModel;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<any>> =
-    new EventEmitter<HTTableEditable<any>>();
+  @Output() editableCheckboxSaved: EventEmitter<HTTableEditable<BaseModel>> = new EventEmitter<
+    HTTableEditable<BaseModel>
+  >();
 
   editMode = false;
 
@@ -38,7 +35,7 @@ export class HTTableTypeEditableCheckboxComponent implements OnInit {
   }
 
   onEditableInputSaved(checked: boolean): void {
-    event.stopPropagation();
+    event?.stopPropagation();
     this.checkbox.value = checked.toString();
     this.editableCheckboxSaved.emit(this.checkbox);
     this.editMode = false;

@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -31,7 +32,7 @@ export class NewUserComponent implements OnInit {
   private alert = inject(AlertService);
 
   newUserForm: FormGroup<NewUserForm> = getNewUserForm();
-  selectGlobalPermissionGroups: SelectOption[];
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
   loading = false;
   loadingPermissionGroups: boolean = false;
 

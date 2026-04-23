@@ -10,8 +10,11 @@
             <div class="flex">
               <mat-form-field>
                 <mat-label>{{ ui.names.inputLabel }} 1</mat-label>
-                <input [formControl]="getFormControl(names.controls[0])" [placeholder]="ui.names.inputPlaceholder"
-                  matInput />
+                <input
+                  [formControl]="getFormControl(names.controls[0])"
+                  [placeholder]="ui.names.inputPlaceholder"
+                  matInput
+                />
                 <mat-icon [matTooltip]="ui.names.hint" color="primary" matSuffix>help</mat-icon>
               </mat-form-field>
               <button (click)="addControl('names')" color="primary" mat-icon-button type="button">
@@ -22,12 +25,14 @@
               <div>
                 <mat-form-field>
                   <mat-label>{{ ui.names.inputLabel }} {{ i + 2 }}</mat-label>
-                  <input [formControl]="getFormControl(control)" [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
-                    matInput />
+                  <input
+                    [formControl]="getFormControl(control)"
+                    [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
+                    matInput
+                  />
                 </mat-form-field>
                 @if (names.controls.length > 1) {
-                  <button (click)="removeItem('names', i + 1 )" color="warn" mat-icon-button
-                    type="button">
+                  <button (click)="removeItem('names', i + 1)" color="warn" mat-icon-button type="button">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -40,8 +45,11 @@
             <div class="flex">
               <mat-form-field>
                 <mat-label>{{ ui.sparetext.inputLabel }} 1</mat-label>
-                <input [formControl]="getFormControl(sparetext.controls[0])" [placeholder]="ui.sparetext.inputPlaceholder"
-                  matInput />
+                <input
+                  [formControl]="getFormControl(sparetext.controls[0])"
+                  [placeholder]="ui.sparetext.inputPlaceholder"
+                  matInput
+                />
                 <mat-icon [matTooltip]="ui.sparetext.hint" color="primary" matSuffix>help</mat-icon>
               </mat-form-field>
               <button (click)="addControl('sparetext')" color="primary" mat-icon-button type="button">
@@ -52,12 +60,14 @@
               <div>
                 <mat-form-field>
                   <mat-label>{{ ui.sparetext.inputLabel }} {{ i + 2 }}</mat-label>
-                  <input [formControl]="getFormControl(control)" [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
-                    matInput />
+                  <input
+                    [formControl]="getFormControl(control)"
+                    [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
+                    matInput
+                  />
                 </mat-form-field>
                 @if (sparetext.controls.length > 1) {
-                  <button (click)="removeItem('sparetext', i + 1)" color="warn" mat-icon-button
-                    type="button">
+                  <button (click)="removeItem('sparetext', i + 1)" color="warn" mat-icon-button type="button">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -69,17 +79,21 @@
           <div>
             <mat-form-field>
               <mat-label>{{ ui.specialDate.inputLabel }}</mat-label>
-              <input [formControlName]="ui.specialDate.formControlName" [matDatepicker]="datepicker" [name]="ui.specialDate.inputName"
-                [placeholder]="ui.specialDate.inputPlaceholder" matInput />
+              <input
+                [formControlName]="ui.specialDate.formControlName"
+                [matDatepicker]="datepicker"
+                [name]="ui.specialDate.inputName"
+                [placeholder]="ui.specialDate.inputPlaceholder"
+                matInput
+              />
               <mat-icon [matTooltip]="ui.specialDate.hint" color="primary" matSuffix>help</mat-icon>
               <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
               <mat-datepicker #datepicker></mat-datepicker>
-
             </mat-form-field>
           </div>
         </div>
         <div class="w-full">
-          @if (submitted && form.errors?.atLeastOneRequired) {
+          @if (submitted && form.errors?.['atLeastOneRequired']) {
             <mat-error>
               {{ ui.formError }}
             </mat-error>
@@ -90,16 +104,21 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <span><b>{{ ui.additionalOptions.title }}</b></span>
+                <span
+                  ><b>{{ ui.additionalOptions.title }}</b></span
+                >
               </mat-panel-title>
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <mat-form-field style="width: 200px;">
+              <mat-form-field style="width: 200px">
                 <mat-label>{{ ui.additionalOptions.fileName.inputLabel }}</mat-label>
-                <input [formControlName]="ui.additionalOptions.fileName.formControlName" [name]="ui.additionalOptions.fileName.inputName"
+                <input
+                  [formControlName]="ui.additionalOptions.fileName.formControlName"
+                  [name]="ui.additionalOptions.fileName.inputName"
                   [placeholder]="ui.additionalOptions.fileName.inputPlaceholder"
-                  matInput />
+                  matInput
+                />
                 <mat-icon [matTooltip]="ui.additionalOptions.fileName.hint" color="primary" matSuffix>help</mat-icon>
                 <mat-error>{{ ui.additionalOptions.fileName.inputLabel }} is required</mat-error>
               </mat-form-field>

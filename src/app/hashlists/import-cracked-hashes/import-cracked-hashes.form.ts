@@ -13,7 +13,7 @@ export interface ImportCrackedHashesForm {
   sourceType: FormControl<string>;
   sourceData: FormControl<string>;
   hashes: FormControl<string>;
-  conflictResolution?: FormControl<boolean>;
+  conflictResolution: FormControl<boolean>;
 }
 
 /**
@@ -21,17 +21,18 @@ export interface ImportCrackedHashesForm {
  */
 export const getImportCrackedHashesForm = () => {
   return new FormGroup<ImportCrackedHashesForm>({
-    name: new FormControl({ value: '', disabled: true }),
-    hashlistFormat: new FormControl({ value: '', disabled: true }),
-    fieldSeparator: new FormControl('', {
+    name: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    hashlistFormat: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
+    fieldSeparator: new FormControl<string>('', {
+      nonNullable: true,
       validators: [Validators.required]
     }),
-    isSalted: new FormControl({ value: false, disabled: true }),
-    hashCount: new FormControl({ value: 0, disabled: true }),
-    separator: new FormControl(''),
-    sourceType: new FormControl('paste'),
-    sourceData: new FormControl(''),
-    hashes: new FormControl(''),
-    conflictResolution: new FormControl(false)
+    isSalted: new FormControl<boolean>({ value: false, disabled: true }, { nonNullable: true }),
+    hashCount: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
+    separator: new FormControl<string>('', { nonNullable: true }),
+    sourceType: new FormControl<string>('paste', { nonNullable: true }),
+    sourceData: new FormControl<string>('', { nonNullable: true }),
+    hashes: new FormControl<string>('', { nonNullable: true }),
+    conflictResolution: new FormControl<boolean>(false, { nonNullable: true })
   });
 };

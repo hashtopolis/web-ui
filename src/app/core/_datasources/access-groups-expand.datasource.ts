@@ -1,8 +1,9 @@
 import { zAccessGroupResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
+import { DynamicModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -36,12 +37,12 @@ export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent>
     this.subscriptions.push(
       accessGroup$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
           const accessGroup: JAccessGroup = this.serializer.deserialize(response, zAccessGroupResponse);
-          this.originalData = accessGroup[this._include] || [];
+          this.originalData = ((accessGroup as unknown as DynamicModel)[this._include] as (JAgent | JUser)[]) || [];
           this.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
         })
     );

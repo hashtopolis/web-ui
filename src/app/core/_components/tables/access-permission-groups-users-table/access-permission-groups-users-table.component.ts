@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
+import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -88,9 +89,9 @@ export class AccessPermissionGroupsUsersTableComponent
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
     this.exportService.handleExportAction<JUser>(
-      event,
+      event as ActionMenuEvent<JUser[]>,
       this.tableColumns,
       AccessPermissionGroupsUsersTableColumnLabel,
       'hashtopolis-access-permission-groups-users'
