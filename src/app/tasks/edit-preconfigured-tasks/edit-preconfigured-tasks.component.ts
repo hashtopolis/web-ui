@@ -13,10 +13,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import {
-  PreconfiguredTasksRoleService,
-  PretaskRole
-} from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { PreconfiguredTasksRoleService, PretaskRole } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
