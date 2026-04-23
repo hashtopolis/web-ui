@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
   standalone: false
 })
 export class TableComponent {
-  public getResizeTable() {
+  public getResizeTable(): string {
     return 'card-body overflow-x-auto';
   }
 }

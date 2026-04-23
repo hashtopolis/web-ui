@@ -11,6 +11,7 @@ import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binar
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewCrackerComponent', () => {
   let component: NewCrackerComponent;
@@ -75,7 +76,7 @@ describe('NewCrackerComponent', () => {
   });
 
   it('should not submit if form is invalid', async () => {
-    component.newCrackerForm.patchValue({ typeName: '', isChunkingAvailable: undefined }); // invalid
+    component.newCrackerForm.patchValue({ typeName: '', isChunkingAvailable: null }); // invalid
     await component.onSubmit();
     expect(mockGlobalService.create).not.toHaveBeenCalled();
   });
@@ -89,13 +90,13 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 
     const payload = {
-      typeName: component.newCrackerForm.get('typeName').value,
-      isChunkingAvailable: component.newCrackerForm.get('isChunkingAvailable').value
+      typeName: component.newCrackerForm.controls.typeName.value,
+      isChunkingAvailable: component.newCrackerForm.controls.isChunkingAvailable.value
     };
 
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.CRACKERS_TYPES, payload);
@@ -123,7 +124,7 @@ describe('NewCrackerComponent', () => {
   it('should show required field error message if fields are empty', () => {
     component.newCrackerForm.patchValue({
       typeName: '',
-      isChunkingAvailable: undefined
+      isChunkingAvailable: null
     });
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
@@ -138,7 +139,7 @@ describe('NewCrackerComponent', () => {
     // Make form invalid by clearing required fields
     component.newCrackerForm.patchValue({
       typeName: '',
-      isChunkingAvailable: undefined
+      isChunkingAvailable: null
     });
     mockRoleService.hasRole.and.returnValue(true);
     component.newCrackerForm.markAllAsTouched();

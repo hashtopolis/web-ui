@@ -13,3 +13,12 @@ export interface BaseModel {
   links?: TJsonApiLinks;
   relationshipNames?: string[];
 }
+
+/** BaseModel with index signature for dynamic property access (menus, table utils, etc.). */
+export type DynamicModel = BaseModel & Record<string, unknown>;
+
+/** Shape of `T` with all include-dependent relationship fields removed. */
+export type Thin<T, Includes extends keyof T> = Omit<T, Includes>;
+
+/** Shape of `T` with only a chosen subset `K` of include-dependent fields present. */
+export type With<T, Includes extends keyof T, K extends Includes> = Omit<T, Includes> & Pick<T, K>;

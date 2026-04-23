@@ -21,7 +21,7 @@ export type HashResponse = {
       salt: string;
       plaintext: string;
       timeCracked: number;
-      chunkId: number;
+      chunkId: number | null;
       isCracked: boolean;
       crackPos: number;
     };
@@ -110,7 +110,7 @@ export type HashListResponse = {
       salt: string;
       plaintext: string;
       timeCracked: number;
-      chunkId: number;
+      chunkId: number | null;
       isCracked: boolean;
       crackPos: number;
     };

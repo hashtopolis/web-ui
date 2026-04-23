@@ -1,5 +1,5 @@
 import { zHashTypeListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -14,7 +14,7 @@ import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -26,7 +26,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create(), httpOptions);
@@ -35,7 +35,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )

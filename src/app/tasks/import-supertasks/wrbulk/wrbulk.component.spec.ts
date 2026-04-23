@@ -17,8 +17,10 @@ import { WrbulkComponent } from '@src/app/tasks/import-supertasks/wrbulk/wrbulk.
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
   data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
-  included: []
-};
+  included: [],
+  links: { self: '', next: null, prev: null },
+  meta: { page: { total_elements: 1 } }
+} as unknown as import('@models/response.model').ResponseWrapper;
 
 describe('WrbulkComponent', () => {
   let component: WrbulkComponent;
@@ -330,7 +332,8 @@ describe('WrbulkComponent', () => {
     component.onUpdateForm({
       type: 'CMD',
       attackCmd: '#HL# -a 0 dict.txt FILE',
-      files: [10, 20]
+      files: [10, 20],
+      otherFiles: []
     });
 
     expect(component.createForm.value.attackCmd).toBe('#HL# -a 0 dict.txt FILE');
@@ -340,6 +343,8 @@ describe('WrbulkComponent', () => {
   it('should update iterFiles on non-CMD event', () => {
     component.onUpdateForm({
       type: 'ITER',
+      attackCmd: '',
+      files: [],
       otherFiles: [30, 40]
     });
 

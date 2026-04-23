@@ -1,11 +1,13 @@
-import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { DynamicModel } from '@models/base.model';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile, TaskSelectFile } from '@models/file.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
@@ -32,7 +34,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   isCreatingLoading = false;
 
   selectCrackertypeMap = {
@@ -119,8 +121,8 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   getFormData() {
     return {
-      attackCmd: this.createForm?.get('attackCmd')?.value ?? '',
-      files: this.createForm?.get('files')?.value ?? []
+      attackCmd: this.createForm?.controls.attackCmd.value ?? '',
+      files: this.createForm?.controls.files.value ?? []
     };
   }
 
@@ -140,14 +142,12 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           include: isPretask ? ['pretaskFiles'] : ['files']
         })
         .subscribe((response: ResponseWrapper) => {
-          const result = new JsonAPISerializer().deserialize<JPretask | JTask>({
-            data: response.data,
-            included: response.included
-          });
+          const schema = isPretask ? zPreTaskResponse : zTaskResponse;
+          const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
 
-          const filesArray: number[] = (result[isPretask ? 'pretaskFiles' : 'files'] || []).map(
-            (file: JFile) => file['id']
-          );
+          const filesArray: number[] = (
+            ((result as unknown as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []
+          ).map((file: JFile) => file['id']);
 
           this.createForm.setValue({
             taskName:
@@ -157,9 +157,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             chunkTime: result['chunkTime'],
             statusTimer: result['statusTimer'],
             priority: result['priority'],
-            color: result['color'],
+            color: result['color'] ?? '',
             isCpuTask: result['isCpuTask'],
-            crackerBinaryTypeId: result['crackerBinaryTypeId'],
+            crackerBinaryTypeId: result['crackerBinaryTypeId'] ?? 1,
             isSmall: result['isSmall'],
             useNewBench: result['useNewBench'],
             isMaskImport: false,

@@ -28,7 +28,7 @@ export class BaseReportComponent {
   protected gs = inject(GlobalService);
   protected cs = inject(ConfigService);
   protected router = inject(Router);
-  protected settingsService = inject(LocalStorageService) as LocalStorageService<UIConfig>;
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   protected sanitizer = inject(DomSanitizer);
   protected uiService = inject(UIConfigService);
   protected exportService = inject(ExportService);

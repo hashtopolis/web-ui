@@ -13,6 +13,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { InputModule } from '@src/app/shared/input/input.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {
@@ -23,8 +24,7 @@ describe('NewUserComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
-  const mockPermissionResponse: ResponseWrapper = {
-    jsonapi: { version: '1.1', ext: [] },
+  const mockPermissionResponse: ResponseWrapper = mockResponse({
     data: [
       {
         id: 1,
@@ -42,9 +42,8 @@ describe('NewUserComponent', () => {
           permissions: {}
         }
       }
-    ],
-    included: []
-  };
+    ]
+  });
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
@@ -114,7 +113,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -138,7 +137,7 @@ describe('NewUserComponent', () => {
     });
     component.newUserForm.updateValueAndValidity();
 
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 

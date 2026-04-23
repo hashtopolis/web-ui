@@ -3,6 +3,7 @@ import { catchError } from 'rxjs/operators';
 
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
+import { JAgent } from '@models/agent.model';
 import { JUser } from '@models/user.model';
 
 import { AccessGroupsUserContextMenuService } from '@services/context-menu/users/access-groups-user-menu.service';
@@ -96,12 +97,13 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   }
 
   // --- Add bulk action handler ---
-  bulkActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
+    const users = event.data as JUser[];
     const dialogData: DialogData<JUser> = {
-      rows: event.data,
-      title: `Remove ${event.data.length} user${event.data.length > 1 ? 's' : ''} ...`,
+      rows: users,
+      title: `Remove ${users.length} user${users.length > 1 ? 's' : ''} ...`,
       icon: 'warning',
-      body: `Are you sure you want to remove the above user${event.data.length > 1 ? 's' : ''} from the access group?`,
+      body: `Are you sure you want to remove the above user${users.length > 1 ? 's' : ''} from the access group?`,
       warn: true,
       listAttribute: 'name',
       action: BulkActionMenuAction.DELETE
@@ -165,13 +167,14 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<JUser>): void {
+  rowActionClicked(event: ActionMenuEvent<JUser | JAgent>): void {
+    const user = event.data as JUser;
     if (event.menuItem.action === RowActionMenuAction.DELETE) {
       this.openDialog({
-        rows: [event.data],
+        rows: [user],
         title: `Remove user from access group`,
         icon: 'warning',
-        body: `Are you sure you want to remove "${event.data.name}" from this access group?`,
+        body: `Are you sure you want to remove "${user.name}" from this access group?`,
         warn: true,
         action: event.menuItem.action
       });
@@ -179,9 +182,9 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   }
 
   // --- Existing export action ---
-  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
     this.exportService.handleExportAction<JUser>(
-      event,
+      event as ActionMenuEvent<JUser[]>,
       this.tableColumns,
       AccessGroupsUsersTableColumnLabel,
       'hashtopolis-access-groups-users'

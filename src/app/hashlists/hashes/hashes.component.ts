@@ -7,7 +7,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -16,6 +15,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
+
+export interface HashesViewForm {
+  display: FormControl<string | null>;
+  displaydes: FormControl<string | null>;
+  filter: FormControl<string | null>;
+  filterdes: FormControl<string | null>;
+}
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes
@@ -33,7 +39,7 @@ export class HashesComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   /** Form group for the Hashes View. */
-  viewForm: FormGroup;
+  viewForm: FormGroup<HashesViewForm>;
 
   /** Select Options */
   selectFilters = filters;
@@ -83,26 +89,26 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
     if (qp['filter']) {
       this.filtering = qp['filter'];
-      this.filteringDescr = this.getDescrip(this.filtering, 2);
+      this.filteringDescr = this.getDescrip(this.filtering, 2) ?? '';
     }
     if (qp['display']) {
       this.displaying = qp['display'];
-      this.displayingDescr = this.getDescrip(this.displaying, 3);
+      this.displayingDescr = this.getDescrip(this.displaying, 3) ?? '';
     }
-    this.viewForm = new FormGroup({
-      display: new FormControl(this.displaying),
-      displaydes: new FormControl(this.displayingDescr),
-      filter: new FormControl(this.filtering),
-      filterdes: new FormControl(this.filteringDescr)
+    this.viewForm = new FormGroup<HashesViewForm>({
+      display: new FormControl<string | null>(this.displaying),
+      displaydes: new FormControl<string | null>(this.displayingDescr),
+      filter: new FormControl<string | null>(this.filtering),
+      filterdes: new FormControl<string | null>(this.filteringDescr)
     });
 
     //subscribe to changes to handle select trigger actions
-    this.viewForm.get('display').valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue, 0);
+    this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
+      this.onQueryp(newvalue ?? '', 0);
     });
 
-    this.viewForm.get('filter').valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue, 1);
+    this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
+      this.onQueryp(newvalue ?? '', 1);
     });
   }
 
@@ -147,8 +153,8 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'taskhas':
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task: JTask = new JsonAPISerializer().deserialize(response, zTaskResponse);
-            this.titleName = task.taskName;
+            const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
+            this.titleName = task.taskName ?? '';
           });
           break;
 
@@ -184,16 +190,16 @@ export class HashesComponent implements OnInit, OnDestroy {
   onDisplaying(name: string, type: number) {
     if (type == 0) {
       this.displaying = name;
-      this.viewForm.setValue({
+      this.viewForm.patchValue({
         display: this.displaying,
-        displaydes: this.getDescrip(name, type)
+        displaydes: this.getDescrip(name, type) ?? null
       });
     }
     if (type == 1) {
       this.filtering = name;
-      this.viewForm.setValue({
+      this.viewForm.patchValue({
         filter: this.filtering,
-        filterdes: this.getDescrip(name, type)
+        filterdes: this.getDescrip(name, type) ?? null
       });
     }
   }

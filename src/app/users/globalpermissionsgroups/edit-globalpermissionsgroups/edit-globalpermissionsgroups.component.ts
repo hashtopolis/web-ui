@@ -29,12 +29,12 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
 
-  updateForm: FormGroup;
+  updateForm: FormGroup<{ name: FormControl<string | null> }>;
   processing = false;
 
   // Filters and forms
   editedGPGIndex: number;
-  editedGPG: JGlobalPermissionGroup;
+  editedGPG: JGlobalPermissionGroup | undefined;
 
   constructor() {
     this.onInitialize();
@@ -70,7 +70,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * Build the form with default values for permissions.
    */
   buildForm() {
-    this.updateForm = new FormGroup({
+    this.updateForm = new FormGroup<{ name: FormControl<string | null> }>({
       name: new FormControl('', [Validators.required])
     });
   }
@@ -111,7 +111,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   private buildFormValues() {
     return {
-      name: this.editedGPG['name'],
+      name: this.editedGPG!['name'],
       permissions: {}
     };
   }

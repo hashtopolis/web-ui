@@ -48,7 +48,7 @@ export abstract class ContextMenuService {
    * Get all context menu entries
    * @return list of context menu entries
    */
-  getMenuItems() {
+  getMenuItems(): ContextMenuType[] {
     return this.contextMenuItems;
   }
 
@@ -56,7 +56,7 @@ export abstract class ContextMenuService {
    * Get all bulk menu entries
    * @return list of bulk menu entries
    */
-  getBulkMenuItems() {
+  getBulkMenuItems(): ContextMenuType[] {
     return this.bulkMenuItems;
   }
 
@@ -72,7 +72,7 @@ export abstract class ContextMenuService {
     action: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
-  ) {
+  ): void {
     this.createMenuItem(label, 0, action, RowActionMenuAction.EDIT, permissions, condition);
   }
 
@@ -81,7 +81,7 @@ export abstract class ContextMenuService {
     action: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
-  ) {
+  ): void {
     this.createMenuItem(label, 0, action, RowActionMenuIcon.ADD, permissions, condition);
   }
 
@@ -104,7 +104,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  protected addBulkDeactivateItem(label: string, permissions: Array<PermissionValues>) {
+  protected addBulkDeactivateItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(
       label,
       0,
@@ -123,7 +123,7 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @protected
    */
-  protected addBulkAddItem(label: string, permissions: Array<PermissionValues>) {
+  protected addBulkAddItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(
       label,
       0,
@@ -155,7 +155,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  protected addBulkActivateItem(label: string, permissions: Array<PermissionValues>) {
+  protected addBulkActivateItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(
       label,
       0,
@@ -199,7 +199,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  protected addBulkDeleteItem(label: string, permissions: Array<PermissionValues>) {
+  protected addBulkDeleteItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(
       label,
       0,
@@ -304,7 +304,7 @@ export abstract class ContextMenuService {
       key: '',
       value: false
     }
-  ) {
+  ): void {
     this.createMenuItem(label, 0, RowActionMenuAction.IMPORT, RowActionMenuIcon.IMPORT, permissions, condition);
   }
 
@@ -321,7 +321,7 @@ export abstract class ContextMenuService {
       key: '',
       value: false
     }
-  ) {
+  ): void {
     this.createMenuItem(label, 0, RowActionMenuAction.EXPORT, RowActionMenuIcon.EXPORT, permissions, condition);
   }
 
@@ -376,7 +376,7 @@ export abstract class ContextMenuService {
     condition: ContextMenuCondition = { key: '', value: false },
     toContextMenu: boolean = true,
     warning: boolean = false
-  ) {
+  ): void {
     if (this.permissionService.hasAllPermissionsSync(permissions)) {
       const menuItem: ContextMenuType = {
         index: groupIndex,

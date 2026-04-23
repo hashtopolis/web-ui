@@ -7,6 +7,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
+import { AuthData } from '@models/auth-user.model';
 import { Permission } from '@models/global-permission-group.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -21,11 +22,11 @@ describe('AuthService', () => {
   beforeEach(() => {
     // Create a working mock storage that actually stores/retrieves data
     const storageMock = {
-      _store: {} as Record<string, unknown>,
-      getItem(key: string) {
+      _store: {} as Record<string, AuthData>,
+      getItem(key: string): AuthData | null {
         return this._store[key] || null;
       },
-      setItem(key: string, value: unknown) {
+      setItem(key: string, value: AuthData) {
         this._store[key] = value;
       },
       removeItem(key: string) {

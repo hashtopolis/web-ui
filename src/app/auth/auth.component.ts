@@ -16,6 +16,11 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
 
+export interface LoginForm {
+  username: FormControl<string | null>;
+  password: FormControl<string | null>;
+}
+
 @Component({
   selector: 'app-login',
   templateUrl: './auth.component.html',
@@ -30,7 +35,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private host = inject(ElementRef);
 
   /** Form group for the new SuperHashlist. */
-  loginForm: FormGroup;
+  loginForm: FormGroup<LoginForm>;
 
   errorRes: string | null;
 
@@ -87,9 +92,9 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
    * Builds the form for Logging an user in
    */
   buildForm(): void {
-    this.loginForm = new FormGroup({
-      username: new FormControl(null, [Validators.required, Validators.minLength(2)]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(3)])
+    this.loginForm = new FormGroup<LoginForm>({
+      username: new FormControl<string | null>(null, [Validators.required, Validators.minLength(2)]),
+      password: new FormControl<string | null>(null, [Validators.required, Validators.minLength(3)])
     });
   }
 
@@ -102,8 +107,8 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       this.loginForm.updateValueAndValidity();
       return;
     }
-    const username = this.loginForm.value.username;
-    const password = this.loginForm.value.password;
+    const username = this.loginForm.value.username ?? '';
+    const password = this.loginForm.value.password ?? '';
 
     this.isLoading = true; // Show spinner
 

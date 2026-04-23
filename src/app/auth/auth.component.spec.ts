@@ -66,8 +66,8 @@ describe('AuthComponent', () => {
   it('should create the component and initialize form', () => {
     expect(component).toBeTruthy();
     expect(component.loginForm).toBeTruthy();
-    expect(component.loginForm.controls['username']).toBeTruthy();
-    expect(component.loginForm.controls['password']).toBeTruthy();
+    expect(component.loginForm.controls.username).toBeTruthy();
+    expect(component.loginForm.controls.password).toBeTruthy();
   });
 
   it('should mark form invalid if empty', () => {
@@ -76,7 +76,7 @@ describe('AuthComponent', () => {
   });
 
   it('should call authService.logIn on valid form submission via button click', fakeAsync(() => {
-    const fakeResponse = of({}).pipe(observeOn(asyncScheduler));
+    const fakeResponse = of(void 0).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(fakeResponse);
     component.loginForm.setValue({ username: 'user', password: 'pass' });
 

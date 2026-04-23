@@ -27,27 +27,25 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   ],
   standalone: false
 })
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class InputFileComponent extends AbstractInputComponent<any> {
+export class InputFileComponent extends AbstractInputComponent<FileList> {
   @Input() accept = '';
   @Input() multiple = false;
   fileInfoText = '';
   @Output() filesSelected = new EventEmitter<FileList>();
   private fs = inject(FileSizePipe);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChangeValue(value: any) {
+  onChangeValue(value: FileList) {
     this.value = value;
     this.onChange(value);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleFileInput(event: any): void {
-    const fileToUpload = event.target.files[0];
+  handleFileInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const fileToUpload = input.files![0];
     const fileSize = fileToUpload.size;
     const fileName = fileToUpload.name;
     this.fileInfoText = fileName + ' / Size: ' + this.fs.transform(fileSize, false);
-    const files = event.target.files;
+    const files = input.files!;
     this.filesSelected.emit(files);
     this.value = files;
     this.onChange(files);
