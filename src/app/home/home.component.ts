@@ -295,10 +295,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       .create();
 
     const paramsCompletedSupertasks = new RequestParamBuilder()
-      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
-      .addInclude('tasks')
       .create();
 
     return forkJoin([
