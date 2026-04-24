@@ -75,7 +75,7 @@ export const serverlog = [
  **/
 export const proxytype = [
   { value: 'HTTP', label: 'HTTP' },
-  { value: 'HTTP', label: 'HTTPS' },
-  { value: 'HTTP', label: 'SOCKS4' },
-  { value: 'HTTP', label: 'SOCKS5' }
+  { value: 'HTTPS', label: 'HTTPS' },
+  { value: 'SOCKS4', label: 'SOCKS4' },
+  { value: 'SOCKS5', label: 'SOCKS5' }
 ];

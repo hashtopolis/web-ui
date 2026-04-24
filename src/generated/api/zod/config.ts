@@ -27,11 +27,30 @@ export const zConfigResponse = z.object({
   data: z.object({
     id: z.int(),
     type: z.literal('config'),
-    attributes: z.object({
-      configSectionId: z.int(),
-      item: z.string(),
-      value: z.string()
-    })
+    attributes: z.union([
+      z.object({
+        configSectionId: z.int(),
+        item: z.literal('serverLogLevel'),
+        value: z.union([
+          z.literal('0'),
+          z.literal('10'),
+          z.literal('20'),
+          z.literal('30'),
+          z.literal('40'),
+          z.literal('50')
+        ])
+      }),
+      z.object({
+        configSectionId: z.int(),
+        item: z.literal('notificationsProxyType'),
+        value: z.union([z.literal('HTTP'), z.literal('HTTPS'), z.literal('SOCKS4'), z.literal('SOCKS5')])
+      }),
+      z.object({
+        configSectionId: z.int(),
+        item: z.string(),
+        value: z.string()
+      })
+    ])
   }),
   relationships: z
     .object({
@@ -70,11 +89,30 @@ export const zConfigPostPatchResponse = z.object({
   data: z.object({
     id: z.int(),
     type: z.literal('config'),
-    attributes: z.object({
-      configSectionId: z.int(),
-      item: z.string(),
-      value: z.string()
-    })
+    attributes: z.union([
+      z.object({
+        configSectionId: z.int(),
+        item: z.literal('serverLogLevel'),
+        value: z.union([
+          z.literal('0'),
+          z.literal('10'),
+          z.literal('20'),
+          z.literal('30'),
+          z.literal('40'),
+          z.literal('50')
+        ])
+      }),
+      z.object({
+        configSectionId: z.int(),
+        item: z.literal('notificationsProxyType'),
+        value: z.union([z.literal('HTTP'), z.literal('HTTPS'), z.literal('SOCKS4'), z.literal('SOCKS5')])
+      }),
+      z.object({
+        configSectionId: z.int(),
+        item: z.string(),
+        value: z.string()
+      })
+    ])
   })
 });
 
@@ -96,11 +134,30 @@ export const zConfigListResponse = z.object({
     z.object({
       id: z.int(),
       type: z.literal('config'),
-      attributes: z.object({
-        configSectionId: z.int(),
-        item: z.string(),
-        value: z.string()
-      })
+      attributes: z.union([
+        z.object({
+          configSectionId: z.int(),
+          item: z.literal('serverLogLevel'),
+          value: z.union([
+            z.literal('0'),
+            z.literal('10'),
+            z.literal('20'),
+            z.literal('30'),
+            z.literal('40'),
+            z.literal('50')
+          ])
+        }),
+        z.object({
+          configSectionId: z.int(),
+          item: z.literal('notificationsProxyType'),
+          value: z.union([z.literal('HTTP'), z.literal('HTTPS'), z.literal('SOCKS4'), z.literal('SOCKS5')])
+        }),
+        z.object({
+          configSectionId: z.int(),
+          item: z.string(),
+          value: z.string()
+        })
+      ])
     })
   ),
   relationships: z

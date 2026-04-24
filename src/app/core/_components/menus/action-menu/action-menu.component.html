@@ -25,8 +25,8 @@
     (mouseenter)="onMenuMouseEnter()"
     (mouseleave)="onMenuMouseLeave($event)"
   >
-    @for (section of actionMenuItems; track section; let last = $last) {
-      @for (item of section; track item) {
+    @for (section of actionMenuItems; track $index; let last = $last) {
+      @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
           <div class="menu-item-content">
             <span>
@@ -95,8 +95,8 @@
     }
   </button>
   <mat-menu #actionMenu="matMenu">
-    @for (section of actionMenuItems; track section; let last = $last) {
-      @for (item of section; track item) {
+    @for (section of actionMenuItems; track $index; let last = $last) {
+      @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
           @if (item.icon) {
             <mat-icon [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>

@@ -8,7 +8,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
     <div>
       <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
-      @for (field of formMetadata; track field.name) {
+      @for (field of formMetadata; track field.name || field.label) {
         <div>
           @if (field.type !== 'hidden') {
             <div>

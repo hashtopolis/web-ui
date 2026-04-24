@@ -18,7 +18,7 @@
       [class.ng-invalid]="hasError"
       [class.ng-touched]="isTouched"
     >
-      @for (item of selectedItems; track item) {
+      @for (item of selectedItems; track item.id) {
         <mat-chip-row (removed)="remove(item)">
           <div matTooltip="{{ item.name }}">
             {{ item.id }}

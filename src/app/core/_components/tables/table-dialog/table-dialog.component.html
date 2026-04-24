@@ -7,7 +7,7 @@
 <div mat-dialog-content>
   @if (data.listAttribute && data.rows.length > 0) {
     <ul>
-      @for (row of data.rows; track row) {
+      @for (row of data.rows; track $index) {
         <li>
           {{ $any(row)[data.listAttribute!] }}
         </li>
