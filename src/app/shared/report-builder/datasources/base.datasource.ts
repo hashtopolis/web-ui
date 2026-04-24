@@ -1,10 +1,12 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-
-import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { environment } from 'src/environments/environment';
+
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { ChangeDetectorRef } from '@angular/core';
+
+import { ReportSection } from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 export abstract class ReportBaseDataSource<T> implements DataSource<T> {
   /**
@@ -30,7 +32,7 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
   /**
    * An array of report.
    */
-  protected dataStructure: any[] = [];
+  protected dataStructure: ReportSection[] = [];
 
   /**
    * Max rows in API response
@@ -68,7 +70,7 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
     return this.originalData;
   }
 
-  setDataStructure(data: any): void {
+  setDataStructure(data: ReportSection[]): void {
     this.dataStructure = data;
   }
 
@@ -78,7 +80,6 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
    * @param _collectionViewer - The collection viewer to connect.
    * @returns Observable of the data source.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_collectionViewer: CollectionViewer): Observable<T[]> {
     return this.dataSubject.asObservable();
   }
@@ -88,7 +89,6 @@ export abstract class ReportBaseDataSource<T> implements DataSource<T> {
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();

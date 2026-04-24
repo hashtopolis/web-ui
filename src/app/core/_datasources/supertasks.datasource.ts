@@ -1,5 +1,5 @@
 import { zSupertaskListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -14,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   loadAll(query?: Filter): void {
     this.loading = true;
     // Store the current filter if provided
@@ -36,7 +36,7 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )
@@ -45,8 +45,8 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(supertasks);

@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Disables the any error for this file, because it is too tedious to fix all any types now.
 import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Params } from '@angular/router';
 
-import { ServiceConfig } from '@services/main.config';
+import { HelperEndpoint, ServiceConfig } from '@services/main.config';
 
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
@@ -15,6 +12,10 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
+
+interface JsonApiRelationshipData {
+  data: { type: string; id: number }[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -54,9 +55,9 @@ export class GlobalService {
     serviceConfig: ServiceConfig,
     routerParams?: RequestParams,
     httpOptions?: { headers?: HttpHeaders }
-  ): Observable<any> {
-    let queryParams: Params = {};
-    let fixedMaxResults: boolean;
+  ): Observable<ResponseWrapper> {
+    let queryParams = new HttpParams();
+    let fixedMaxResults = false;
 
     // Check if routerParams exist
     if (routerParams) {
@@ -69,42 +70,46 @@ export class GlobalService {
       fixedMaxResults = true;
     }
 
-    const options: { params?: Params; headers?: HttpHeaders } = { params: queryParams };
+    const options: { params?: HttpParams; headers?: HttpHeaders } = { params: queryParams };
     if (httpOptions?.headers) {
       options.headers = httpOptions.headers;
     }
 
-    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL, options).pipe(
-      switchMap((response: any) => {
-        const total = response.total || 0;
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, options).pipe(
+      switchMap((response: ResponseWrapper) => {
+        // TODO: ResponseWrapper has no 'total' field — should be response.meta?.page?.total_elements.
+        // This means the pagination branch below has likely never executed.
+        const total = (response as ResponseWrapper & { total?: number }).total || 0;
         const maxResults = this.maxResults;
 
         // Check if total is greater than maxResults and fixedMaxResults is true
         if (total > maxResults && fixedMaxResults) {
-          const requests: Observable<any>[] = [];
+          const requests: Observable<ResponseWrapper>[] = [];
           const numRequests = Math.ceil(total / maxResults);
 
           // Create multiple requests based on the total number of items
           for (let i = 0; i < numRequests; i++) {
             const startsAt = i * maxResults;
             const partialParams = setParameter({
-              ...queryParams,
+              ...(routerParams ?? {}),
               page: { after: startsAt }
             });
-            const partialOptions: { params?: Params; headers?: HttpHeaders } = { params: partialParams };
+            const partialOptions: { params?: HttpParams; headers?: HttpHeaders } = { params: partialParams };
             if (httpOptions?.headers) {
               partialOptions.headers = httpOptions.headers;
             }
-            requests.push(this.http.get(this.cs.getEndpoint() + serviceConfig.URL, partialOptions));
+            requests.push(this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, partialOptions));
           }
 
           // Use forkJoin to combine the original response with additional responses
+          // Note: forkJoin returns ResponseWrapper[] on success — callers expect a single ResponseWrapper.
+          // This branch has never executed (see TODO above), so this cast preserves existing behavior.
           return forkJoin([of(response), ...requests]).pipe(
             catchError((error) => {
               console.error('Error in forkJoin:', error);
               return of(response); // Return the original response in case of an error
             })
-          );
+          ) as unknown as Observable<ResponseWrapper>;
         } else {
           return of(response);
         }
@@ -123,35 +128,35 @@ export class GlobalService {
    * Overloads keep backwards compatibility and allow passing custom headers.
    */
   // Overload 1 (compat)
-  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<any>;
+  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<ResponseWrapper>;
   // Overload 2 (with headers)
   get(
     serviceConfig: ServiceConfig,
     id: number,
     routerParams: RequestParams | undefined,
     httpOptions: { headers?: HttpHeaders }
-  ): Observable<any>;
+  ): Observable<ResponseWrapper>;
   // Implementation
   get(
     serviceConfig: ServiceConfig,
     id: number,
     routerParams?: RequestParams,
     httpOptions?: { headers?: HttpHeaders }
-  ): Observable<any> {
-    let queryParams: Params = {};
+  ): Observable<ResponseWrapper> {
+    let queryParams = new HttpParams();
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
 
-    const options: { params?: Params; headers?: HttpHeaders } = {};
-    if (Object.keys(queryParams).length) {
+    const options: { params?: HttpParams; headers?: HttpHeaders } = {};
+    if (queryParams.keys().length) {
       options.params = queryParams;
     }
     if (httpOptions?.headers) {
       options.headers = httpOptions.headers;
     }
 
-    return this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, options);
+    return this.http.get<ResponseWrapper>(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, options);
   }
 
   /**
@@ -191,10 +196,14 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param item          Data of item to create
    */
-  create(serviceConfig: ServiceConfig, item: any, httpOptions?: { headers?: HttpHeaders }): Observable<any> {
+  create(
+    serviceConfig: ServiceConfig,
+    item: Record<string, unknown>,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper> {
     const data = { type: serviceConfig.RESOURCE, ...item };
     const serializedData = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.post<any>(this.cs.getEndpoint() + serviceConfig.URL, serializedData, httpOptions);
+    return this.http.post<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, serializedData, httpOptions);
   }
 
   /**
@@ -202,31 +211,18 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param id            ID of object to delete
    */
-  delete(serviceConfig: ServiceConfig, id: number): Observable<any> {
-    return this.http.delete(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
-    /*
-    .pipe(
-      tap(data => console.log(JSON.stringify(data))),
-      retryWhen(errors => {
-          return errors
-                  .pipe(
-                    tap(() => console.log("Retrying..."))),
-                    delay(2000), // Add a delay before retry delete
-                    take(3)  // Retry max 3 times
-                  );
-      } )
-    );
-    */
+  delete(serviceConfig: ServiceConfig, id: number): Observable<object> {
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
   }
 
-  bulkDelete(serviceConfig: ServiceConfig, objects: any): Observable<any> {
-    const objectdata = [];
+  bulkDelete(serviceConfig: ServiceConfig, objects: { id: number }[]): Observable<object> {
+    const objectdata: { id: number; type: string }[] = [];
 
     for (const object of objects) {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    return this.http.delete<number>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
   }
 
   /**
@@ -236,20 +232,26 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  update(serviceConfig: ServiceConfig, id: number, arr: any): Observable<any> {
-    let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
-    data = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, data).pipe(debounceTime(2000));
+  update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
+    const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: item });
+    return this.http
+      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
+      .pipe(debounceTime(2000));
   }
 
-  bulkUpdate(serviceConfig: ServiceConfig, objects: any, attributes: any) {
-    /**
-     * Bulk update information of object
-     * @param serviceConfig the serviceconfig of the API endpoint
-     * @param objects the objects that needs to be updated
-     * @param attributes the attributes that needs to be changed
-     */
-    const objectdata = [];
+  /**
+   * Bulk update information of object
+   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param objects the objects that needs to be updated
+   * @param attributes the attributes that needs to be changed
+   */
+  bulkUpdate(
+    serviceConfig: ServiceConfig,
+    objects: { id: number }[],
+    attributes: Record<string, unknown>
+  ): Observable<object> {
+    const objectdata: { id: number; type: string; attributes: Record<string, unknown> }[] = [];
 
     for (const object of objects) {
       objectdata.push({
@@ -259,24 +261,34 @@ export class GlobalService {
       });
     }
     const data = { data: objectdata };
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
   }
 
-  postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+  postRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    data: JsonApiRelationshipData
+  ): Observable<object> {
     return this.http
-      .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
       .pipe(debounceTime(2000));
   }
 
-  deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+  deleteRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    data: JsonApiRelationshipData
+  ): Observable<object> {
     return this.http
-      .delete<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
       })
       .pipe(debounceTime(2000));
   }
 
-  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<any> {
+  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
     return this.http
       .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
       .pipe(debounceTime(2000));
@@ -288,8 +300,8 @@ export class GlobalService {
    * @param id - agent id
    * @returns Object
    **/
-  archive(serviceConfig: ServiceConfig, id: number): Observable<any> {
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
+  archive(serviceConfig: ServiceConfig, id: number): Observable<object> {
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
   }
 
   /**
@@ -297,8 +309,20 @@ export class GlobalService {
    * @param serviceConfig the serviceconfig of the API endpoint
    * @param option        Method used, i.e. getUserPermission
    */
-  ghelper(serviceConfig: ServiceConfig, option: string): Observable<any> {
-    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL + '/' + option);
+  ghelper(
+    serviceConfig: ServiceConfig,
+    option: HelperEndpoint,
+    params?: Record<string, string | number>
+  ): Observable<ResponseWrapper> {
+    let httpParams = new HttpParams();
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    }
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, {
+      params: httpParams
+    });
   }
 
   /**
@@ -307,17 +331,30 @@ export class GlobalService {
    * @param option - method used. ie. /abort /reset /importFile
    * @param arr - fields to be updated (optional)
    * @param method - HTTP method: 'POST' (default) or 'GET'
-   * @returns Observable<any>
+   * @returns Observable<T>
    **/
-  chelper(serviceConfig: ServiceConfig, option: string, arr?: any, method: 'POST' | 'GET' = 'POST'): Observable<any> {
+  chelper<T = ResponseWrapper>(
+    serviceConfig: ServiceConfig,
+    option: HelperEndpoint,
+    arr?: Record<string, unknown>,
+    method: 'POST' | 'GET' = 'POST'
+  ): Observable<T> {
     const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
 
     if (method === 'GET') {
-      return this.http.get(url, { params: arr || {} });
+      let params = new HttpParams();
+      if (arr) {
+        for (const [key, value] of Object.entries(arr)) {
+          if (value != null) {
+            params = params.set(key, String(value));
+          }
+        }
+      }
+      return this.http.get<T>(url, { params });
     }
 
     // default POST
-    return this.http.post(url, arr || {});
+    return this.http.post<T>(url, arr ?? {});
   }
 
   /**
@@ -327,9 +364,14 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(serviceConfig: ServiceConfig, id: number, option: string, arr: any): Observable<any> {
-    let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
-    data = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, data);
+  uhelper(
+    serviceConfig: ServiceConfig,
+    id: number,
+    option: HelperEndpoint,
+    arr: Record<string, unknown>
+  ): Observable<object> {
+    const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: item });
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, serializedData);
   }
 }

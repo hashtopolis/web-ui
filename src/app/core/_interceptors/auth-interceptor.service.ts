@@ -3,7 +3,7 @@ import { Observable, switchMap, take } from 'rxjs';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { AuthUser } from '@models/auth-user.model';
+import { AuthData } from '@models/auth-user.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { CheckTokenService } from '@services/access/checktoken.service';
@@ -35,7 +35,7 @@ export class AuthInterceptorService implements HttpInterceptor {
 
     return this.authService.user.pipe(
       take(1),
-      switchMap((user: AuthUser) => {
+      switchMap((user: AuthData | null) => {
         if (!user) {
           // No logged-in user, forward request without auth
           return next.handle(req);

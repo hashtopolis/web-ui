@@ -62,7 +62,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -169,7 +169,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting health check Brute Force (${event.data.hashType.description}) ...`,
+          title: `Deleting health check Brute Force (${event.data.hashType?.description ?? ''}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,

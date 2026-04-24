@@ -6,6 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -48,10 +49,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select List of Global Permission Groups. */
-  selectGlobalPermissionGroups: SelectOption[];
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
 
   /** User Access Group Permissions. */
-  selectUserAgps: SelectOption[];
+  selectUserAgps: SelectOption<AccessGroupId>[];
 
   // Edit Configuration
   editedUserIndex: number;
@@ -117,7 +118,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
-        this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
+        this.selectUserAgps = transformSelectOptions(user.accessGroups ?? [], USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
 
@@ -153,8 +154,8 @@ export class EditUsersComponent implements OnInit, OnDestroy {
           id: user.id,
           name: user.name,
           email: user.email,
-          registered: this.datePipe.transform(user.registeredSince),
-          lastLogin: this.datePipe.transform(user.lastLoginDate),
+          registered: this.datePipe.transform(user.registeredSince) ?? '',
+          lastLogin: this.datePipe.transform(user.lastLoginDate) ?? '',
           globalPermissionGroup: user.globalPermissionGroup,
           updateData: {
             globalPermissionGroupId: user.globalPermissionGroupId,
@@ -175,7 +176,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       this.onUpdatePass(this.updatePassForm.value);
 
       const onSubmitSubscription$ = this.gs
-        .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
+        .update(SERV.USERS, this.editedUserIndex, { ...this.updateForm.value.updateData } as Record<string, unknown>)
         .pipe(finalize(() => (this.isUpdatingLoading = false)))
         .subscribe(() => {
           this.updateForm.reset(); // success, we reset form

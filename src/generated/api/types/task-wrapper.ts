@@ -478,6 +478,198 @@ export type TaskWrapperRelationTasksGetResponse = {
   }>;
 };
 
+export type TaskWrapperDisplayResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links?: {
+    self: string;
+    first?: string;
+    last?: string;
+    next?: string | null;
+    previous?: string | null;
+  };
+  data: {
+    id: number;
+    type: 'taskWrapperDisplay';
+    attributes: {
+      taskWrapperPriority: number;
+      taskWrapperMaxAgents: number;
+      taskType: 0 | 1;
+      hashlistId: number;
+      accessGroupId: number;
+      taskWrapperName: string;
+      displayName: string;
+      taskWrapperIsArchived: boolean;
+      cracked: number;
+      taskId: number;
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      taskPriority: number;
+      taskMaxAgents: number;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      taskIsArchived: boolean;
+      preprocessorId: number;
+      hashlistName: string;
+      hashCount: number;
+      hashlistCracked: number;
+      hashTypeId: number;
+      hashTypeDescription: string;
+      groupName: string;
+    };
+  };
+  relationships?: {
+    tasks: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'task';
+        id: number;
+      }>;
+    };
+  };
+  included?: Array<{
+    id: number;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: number;
+      crackerBinaryTypeId: number | null;
+      taskWrapperId: number;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+    };
+  }>;
+};
+
+export type TaskWrapperDisplayListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links?: {
+    self: string;
+    first?: string;
+    last?: string;
+    next?: string | null;
+    previous?: string | null;
+  };
+  data: Array<{
+    id: number;
+    type: 'taskWrapperDisplay';
+    attributes: {
+      taskWrapperPriority: number;
+      taskWrapperMaxAgents: number;
+      taskType: 0 | 1;
+      hashlistId: number;
+      accessGroupId: number;
+      taskWrapperName: string;
+      displayName: string;
+      taskWrapperIsArchived: boolean;
+      cracked: number;
+      taskId: number;
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      taskPriority: number;
+      taskMaxAgents: number;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      taskIsArchived: boolean;
+      preprocessorId: number;
+      hashlistName: string;
+      hashCount: number;
+      hashlistCracked: number;
+      hashTypeId: number;
+      hashTypeDescription: string;
+      groupName: string;
+    };
+  }>;
+  relationships?: {
+    tasks: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'task';
+        id: number;
+      }>;
+    };
+  };
+  included?: Array<{
+    id: number;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: number;
+      crackerBinaryTypeId: number | null;
+      taskWrapperId: number;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+    };
+  }>;
+};
+
+export type TaskWrapperDisplayRelationTasks = {
+  data: Array<{
+    type: 'tasks';
+    id: number;
+  }>;
+};
+
+export type TaskWrapperDisplayRelationTasksGetResponse = {
+  data: Array<{
+    type: 'tasks';
+    id: number;
+  }>;
+};
+
 export type DeleteTaskwrappersData = {
   body?: never;
   path?: never;

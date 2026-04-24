@@ -79,7 +79,7 @@ describe('JsonAPISerializer', () => {
 
       // This is the Bug 1 pattern: code does user[0] expecting array behavior
       // On a flat object, [0] is undefined
-      expect(user[0]).toBeUndefined();
+      expect((user as Record<number, unknown>)[0]).toBeUndefined();
     });
   });
 

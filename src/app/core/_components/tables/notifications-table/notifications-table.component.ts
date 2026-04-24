@@ -59,7 +59,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -282,7 +282,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       return of(links);
     }
 
-    switch (notification.action) {
+    switch (notification.notification) {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:

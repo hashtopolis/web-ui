@@ -24,6 +24,18 @@ export interface UpdateUserPassword {
   newPassword: string;
   confirmPassword: string;
 }
+
+export interface AccSettingsForm {
+  name: FormControl<string | null>;
+  registeredSince: FormControl<string | null>;
+  email: FormControl<string | null>;
+}
+
+export interface AccChangePasswordForm {
+  oldPassword: FormControl<string | null>;
+  newPassword: FormControl<string | null>;
+  confirmNewPassword: FormControl<string | null>;
+}
 @Component({
   selector: 'app-acc-settings',
   templateUrl: './acc-settings.component.html',
@@ -41,8 +53,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   pageSubtitlePassword = 'Password Update';
 
   /** Form group for main form. */
-  form: FormGroup;
-  changepasswordFormGroup: FormGroup;
+  form: FormGroup<AccSettingsForm>;
+  changepasswordFormGroup: FormGroup<AccChangePasswordForm>;
 
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
@@ -105,7 +117,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Creates and configures basic controls
    */
   createForm(): void {
-    this.form = new FormGroup({
+    this.form = new FormGroup<AccSettingsForm>({
       name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       email: new FormControl('', [Validators.required, emailValidator])
@@ -113,7 +125,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   createUpdatePassForm() {
-    this.changepasswordFormGroup = new FormGroup(
+    this.changepasswordFormGroup = new FormGroup<AccChangePasswordForm>(
       {
         oldPassword: new FormControl('', Validators.required),
         newPassword: new FormControl('', [
@@ -132,13 +144,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   get oldPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('oldPassword').value;
+    return this.changepasswordFormGroup.controls.oldPassword.value ?? '';
   }
   get newPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('newPassword').value;
+    return this.changepasswordFormGroup.controls.newPassword.value ?? '';
   }
   get confirmNewPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('confirmNewPassword').value;
+    return this.changepasswordFormGroup.controls.confirmNewPassword.value ?? '';
   }
 
   /**
@@ -158,7 +170,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.uhelper(SERV.HELPER, this.gs.userId, 'currentUser', this.form.value).subscribe({
+        this.gs.uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value).subscribe({
           next: () => {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;
@@ -197,7 +209,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     };
     this.subscriptions.push(
       this.gs
-        .chelper(SERV.HELPER, 'changeOwnPassword', payload)
+        .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
         .pipe(
           map((r) => {
             const parseResult = changeOwnPasswordResponseSchema.safeParse(r);

@@ -1,7 +1,10 @@
-import { RequestParamBuilder } from './builder-implementation.service';
-import { setParameter } from '@src/app/core/_services/buildparams';
-import { uiConfigDefault, TableConfig } from '@models/config-ui.model';
+import { TableConfig, uiConfigDefault } from '@models/config-ui.model';
+
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { setParameter } from '@src/app/core/_services/buildparams';
 
 function isTableConfig(value: number[] | TableConfig): value is TableConfig {
   return !Array.isArray(value) && typeof value === 'object' && 'order' in value;
@@ -52,13 +55,13 @@ describe('RequestParamBuilder – default sort serialization', () => {
     });
 
     it('tasksTable: sorts by -taskWrapperPriority (descending)', () => {
-      const order = (uiConfigDefault.tableSettings.tasksTable as TableConfig).order as SortingColumn;
+      const order = (uiConfigDefault.tableSettings['tasksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
       expect(params.sort).toEqual(['-taskWrapperPriority']);
     });
 
     it('cracksTable: sorts by -timeCracked (descending)', () => {
-      const order = (uiConfigDefault.tableSettings.cracksTable as TableConfig).order as SortingColumn;
+      const order = (uiConfigDefault.tableSettings['cracksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
       expect(params.sort).toEqual(['-timeCracked']);
     });

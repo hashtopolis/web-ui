@@ -48,14 +48,13 @@ describe('HttpCacheInterceptor', () => {
     });
 
     const firstReq = httpMock.expectOne(testUrl);
-    firstReq.flush(testData);
+    firstReq.flush(testData, { headers: { 'Cache-Control': 'max-age=60' } });
 
-    // Second request - should come from cache
+    // Second request - served from a fresh cache entry, no network call
     httpClient.get(testUrl).subscribe((data) => {
       expect(data).toEqual(testData);
     });
 
-    // No new request should be made
     httpMock.expectNone(testUrl);
   });
 
@@ -328,6 +327,44 @@ describe('HttpCacheInterceptor', () => {
 
       // No network request should be made for a fresh hit
       httpMock.expectNone(testUrl);
+    });
+
+    it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', () => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate(new Date());
+      try {
+        const testUrl = 'https://api.test.com/data';
+        const staleData = { id: 1, name: 'v1' };
+        const freshData = { id: 1, name: 'v2' };
+
+        // Seed the cache with a 1s TTL and a 60s stale window
+        httpClient.get(testUrl).subscribe();
+        const first = httpMock.expectOne(testUrl);
+        first.flush(staleData, { headers: { 'Cache-Control': 'max-age=1, stale-while-revalidate=60' } });
+
+        // Advance past the TTL but stay inside the stale window
+        jasmine.clock().tick(5_000);
+
+        // Second GET: stale entry is served immediately, background revalidation fires
+        let firstRead: unknown;
+        httpClient.get(testUrl).subscribe((data) => {
+          firstRead = data;
+        });
+        expect(firstRead).toEqual(staleData);
+
+        const revalidation = httpMock.expectOne(testUrl);
+        revalidation.flush(freshData, { headers: { 'Cache-Control': 'max-age=60, stale-while-revalidate=60' } });
+
+        // Third GET: cache is fresh again with the revalidated data, no network call
+        let secondRead: unknown;
+        httpClient.get(testUrl).subscribe((data) => {
+          secondRead = data;
+        });
+        expect(secondRead).toEqual(freshData);
+        httpMock.expectNone(testUrl);
+      } finally {
+        jasmine.clock().uninstall();
+      }
     });
   });
 });

@@ -39,7 +39,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
    * @param {ActivatedRoute} route - The activated route.
    * @param {GlobalService} gs - The global service.
    */
-  protected settingsService = inject(LocalStorageService) as LocalStorageService<UIConfig>;
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
