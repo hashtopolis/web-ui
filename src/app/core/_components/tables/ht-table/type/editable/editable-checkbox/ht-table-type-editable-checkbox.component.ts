@@ -3,8 +3,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
-  Output
+  Output,
+  SimpleChanges
 } from '@angular/core';
 import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
@@ -14,7 +16,7 @@ import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })
-export class HTTableTypeEditableCheckboxComponent implements OnInit {
+export class HTTableTypeEditableCheckboxComponent implements OnInit, OnChanges {
   checkbox: HTTableEditable<any>;
   original: string;
 
@@ -27,7 +29,17 @@ export class HTTableTypeEditableCheckboxComponent implements OnInit {
   editMode = false;
 
   ngOnInit(): void {
-    if (this.tableColumn.checkbox) {
+    this.initCheckbox();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['element'] && !changes['element'].firstChange) {
+      this.initCheckbox();
+    }
+  }
+
+  private initCheckbox(): void {
+    if (this.tableColumn?.checkbox) {
       this.checkbox = this.tableColumn.checkbox(this.element);
       this.original = this.checkbox.value;
     }
@@ -38,7 +50,7 @@ export class HTTableTypeEditableCheckboxComponent implements OnInit {
   }
 
   onEditableInputSaved(checked: boolean): void {
-    event.stopPropagation();
+    event?.stopPropagation();
     this.checkbox.value = checked.toString();
     this.editableCheckboxSaved.emit(this.checkbox);
     this.editMode = false;

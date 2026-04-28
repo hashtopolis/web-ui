@@ -220,6 +220,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Fetches user customizations */
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
+  /** Emits true when all rows become selected, false when all become deselected via the header checkbox */
+  @Output() allToggled = new EventEmitter<boolean>();
+
+  /** Emits when a single row checkbox is toggled, with the row data and new checked state */
+  @Output() rowToggled = new EventEmitter<{ row: any; checked: boolean }>();
+
   private uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription = new Subscription();
 
@@ -545,6 +551,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   toggleAll(): void {
     this.dataSource.toggleAll();
+    this.cd.markForCheck();
+    this.allToggled.emit(this.dataSource.isAllSelected());
   }
 
   /**
@@ -566,9 +574,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to toggle.
    */
-  toggleSelect(row: any): void {
+  toggleSelect(row: any, checked?: boolean): void {
     if (this.isSelectable) {
       this.dataSource.toggleRow(row);
+      this.cd.markForCheck();
+      if (checked !== undefined) {
+        this.rowToggled.emit({ row, checked });
+      }
     }
   }
 
@@ -657,7 +669,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isDetailPage) {
       this.uiSettings.updateTableSettings(this.name, {
         start: pageAfter,
-        before: pageBefore,
+        before: pageBefore ?? undefined,
         page: event.pageSize, // Store the new page size
         index: index //store the new table index
       });

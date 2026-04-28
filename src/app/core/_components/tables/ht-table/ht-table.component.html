@@ -135,7 +135,7 @@
           'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || row.color ? '8px' : '16px'
         }">
         @if (!isCmdTask) {
-        <mat-checkbox (change)="toggleSelect(row)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
+        <mat-checkbox (change)="toggleSelect(row, $event.checked)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
         } @else {
         <!-- CMD Task -->
         <ng-container>
