@@ -245,9 +245,9 @@ describe('NewFilesComponent', () => {
       await fixture.whenStable();
 
       expect(component.selectAccessgroup.length).toBe(1);
-      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
-      expect(component.form.get('accessGroupId').value).toBe(1);
-      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.selectAccessgroup[0]).toEqual({ id: 1, name: 'Default' });
+      expect(component.form.get('accessGroupId')!.value).toBe(1);
+      expect(component.form.get('accessGroupId')!.disabled).toBeTrue();
       expect(component.isLoading).toBeFalse();
     });
 
@@ -257,9 +257,9 @@ describe('NewFilesComponent', () => {
       await fixture.whenStable();
 
       expect(component.selectAccessgroup.length).toBe(1);
-      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
-      expect(component.form.get('accessGroupId').value).toBe(1);
-      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.selectAccessgroup[0]).toEqual({ id: 1, name: 'Default' });
+      expect(component.form.get('accessGroupId')!.value).toBe(1);
+      expect(component.form.get('accessGroupId')!.disabled).toBeTrue();
       expect(component.isLoading).toBeFalse();
     });
 

@@ -220,7 +220,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   @Output() allToggled = new EventEmitter<boolean>();
 
   /** Emits when a single row checkbox is toggled, with the row data and new checked state */
-  @Output() rowToggled = new EventEmitter<{ row: any; checked: boolean }>();
+  @Output() rowToggled = new EventEmitter<{ row: T; checked: boolean }>();
 
   private uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription = new Subscription();

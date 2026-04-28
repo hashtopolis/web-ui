@@ -327,9 +327,9 @@ describe('NewHashlistComponent', () => {
       expect(callArgs[0]).toEqual(SERV.USERS);
       expect(callArgs[1]).toBe(1);
       expect(callArgs[2]).toBe(RelationshipType.ACCESSGROUPS);
-      expect(callArgs[3]).toBeDefined();
-      expect(callArgs[3].headers).toBeInstanceOf(HttpHeaders);
-      expect(callArgs[3].headers.get('X-Skip-Error-Dialog')).toBe('true');
+      expect(callArgs[3]!).toBeDefined();
+      expect(callArgs[3]!.headers).toBeInstanceOf(HttpHeaders);
+      expect(callArgs[3]!.headers!.get('X-Skip-Error-Dialog')).toBe('true');
 
       // getAll must NOT be called for access groups
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
@@ -343,23 +343,25 @@ describe('NewHashlistComponent', () => {
       fixture.detectChanges();
 
       expect(component.selectAccessgroup.length).toBe(1);
-      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
-      expect(component.form.get('accessGroupId').value).toBe(1);
-      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.selectAccessgroup[0]).toEqual({ id: 1, name: 'Default' });
+      expect(component.form.get('accessGroupId')!.value).toBe(1);
+      expect(component.form.get('accessGroupId')!.disabled).toBeTrue();
       expect(component.isLoadingAccessGroups).toBeFalse();
     });
 
     it('should fall back to default access group when response has empty data', () => {
       // Re-create component with empty access groups (full ResponseWrapper shape for Zod validation)
-      gsSpy.getRelationships.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+      gsSpy.getRelationships.and.returnValue(
+        of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] } as any)
+      );
       fixture = TestBed.createComponent(NewHashlistComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
 
       expect(component.selectAccessgroup.length).toBe(1);
-      expect(component.selectAccessgroup[0]).toEqual({ id: '1', name: 'Default' });
-      expect(component.form.get('accessGroupId').value).toBe(1);
-      expect(component.form.get('accessGroupId').disabled).toBeTrue();
+      expect(component.selectAccessgroup[0]).toEqual({ id: 1, name: 'Default' });
+      expect(component.form.get('accessGroupId')!.value).toBe(1);
+      expect(component.form.get('accessGroupId')!.disabled).toBeTrue();
       expect(component.isLoadingAccessGroups).toBeFalse();
     });
   });

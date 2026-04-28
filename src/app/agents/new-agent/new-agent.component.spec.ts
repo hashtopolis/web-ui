@@ -199,7 +199,7 @@ describe('NewAgentComponent', () => {
     const voucher = 'fy7vjq56';
     component.form.controls['voucher'].setValue(voucher);
     component.table = jasmine.createSpyObj('VouchersTableComponent', ['reload']);
-    globalServiceSpy.create.and.returnValue(of({}));
+    globalServiceSpy.create.and.returnValue(of({} as any));
 
     component.onSubmit();
     tick();
