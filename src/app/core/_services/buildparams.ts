@@ -31,7 +31,7 @@ export function setParameter(params: RequestParams): HttpParams {
   }
 
   // Handle filter parameters
-  const filters: Array<Filter> = params.filter;
+  const filters: Array<Filter> = params.filter ?? [];
   if (Array.isArray(filters)) {
     filters.forEach((filter) => {
       const parent = filter.parent ? `${filter.parent}.` : '';

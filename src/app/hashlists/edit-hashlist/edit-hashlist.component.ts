@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -48,7 +49,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: Array<SelectOption> = [];
+  selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
 
   private httpNoInterceptors: HttpClient;
 
@@ -132,7 +133,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
-      this.hashtype = hashlist.hashType;
+      this.hashtype = hashlist.hashType ?? undefined;
 
       this.updateForm.setValue({
         hashlistId: hashlist.id,
@@ -160,7 +161,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        this.hashtype = hashlist.hashType ?? undefined;
 
         this.updateForm.setValue({
           hashlistId: hashlist.id,
@@ -191,7 +192,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       return;
     }
     const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
+      this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
     );
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);

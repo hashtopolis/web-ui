@@ -1,6 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
-import { StoreModule } from '@ngrx/store';
 import { MomentModule } from 'ngx-moment';
 
 import { CommonModule } from '@angular/common';
@@ -31,7 +30,6 @@ import { AuthModule } from '@src/app/auth/auth.module';
 import { AuthInterceptorService } from '@src/app/core/_interceptors/auth-interceptor.service';
 import { HttpCacheInterceptor } from '@src/app/core/_interceptors/http-cache.interceptor';
 import { HttpResInterceptor } from '@src/app/core/_interceptors/http-res.interceptor';
-import { configReducer } from '@src/app/core/_store/config.reducer';
 import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
 import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
 import { FooterComponent } from '@src/app/layout/footer/footer.component';
@@ -77,8 +75,7 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     MatSnackBarModule,
     CoreComponentsModule,
     AppRoutingModule, // Main routes for the App
-    NgIdleKeepaliveModule.forRoot(),
-    StoreModule.forRoot({ configList: configReducer })
+    NgIdleKeepaliveModule.forRoot()
   ],
   providers: [
     Title,

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 interface PasswordStrength {
   score: number;
   label: string;

@@ -1,14 +1,13 @@
-import { zCrackerBinaryTypeListResponse, zFileResponse, zPreTaskResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { JFile } from '@models/file.model';
+import { TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
-import { JPretask } from '@models/pretask.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -21,7 +20,31 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+interface WrbulkFormValue {
+  name: string;
+  maxAgents: number;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  crackerBinaryId: number;
+  attackCmd: string;
+  baseFiles: number[];
+  iterFiles: number[];
+}
+
+export interface WrbulkForm {
+  name: FormControl<string>;
+  maxAgents: FormControl<number>;
+  isSmall: FormControl<boolean>;
+  isCpuTask: FormControl<boolean>;
+  useNewBench: FormControl<boolean>;
+  crackerBinaryId: FormControl<number>;
+  attackCmd: FormControl<string>;
+  baseFiles: FormControl<number[]>;
+  iterFiles: FormControl<number[]>;
+}
 
 @Component({
   selector: 'app-wrbulk',
@@ -41,11 +64,11 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   ];
 
   /** Form group for the new Mask. */
-  createForm: FormGroup;
+  createForm: FormGroup<WrbulkForm>;
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -89,16 +112,19 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Mask.
    */
   buildForm(): void {
-    this.createForm = new FormGroup({
-      name: new FormControl('', [Validators.required]),
-      maxAgents: new FormControl(0),
-      isSmall: new FormControl(false),
-      isCpuTask: new FormControl(false),
-      useNewBench: new FormControl(true),
-      crackerBinaryId: new FormControl(1),
-      attackCmd: new FormControl(this.uiService.getUISettings()?.hashlistAlias ?? '', [Validators.required]),
-      baseFiles: new FormControl([]),
-      iterFiles: new FormControl([])
+    this.createForm = new FormGroup<WrbulkForm>({
+      name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      maxAgents: new FormControl<number>(0, { nonNullable: true }),
+      isSmall: new FormControl<boolean>(false, { nonNullable: true }),
+      isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
+      useNewBench: new FormControl<boolean>(true, { nonNullable: true }),
+      crackerBinaryId: new FormControl<number>(1, { nonNullable: true }),
+      attackCmd: new FormControl<string>(this.uiService.getUISettings()?.hashlistAlias ?? '', {
+        nonNullable: true,
+        validators: [Validators.required]
+      }),
+      baseFiles: new FormControl<number[]>([], { nonNullable: true }),
+      iterFiles: new FormControl<number[]>([], { nonNullable: true })
     });
   }
 
@@ -110,71 +136,51 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   loadData() {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
-        this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
-      );
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+        );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+        this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
-   * Create pre-tasks asynchronously.
+   * Create pre-tasks and supertask via the backend helper.
    *
    * @param {Object} form - The form data containing task configurations.
-   * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<number[]> {
-    const preTasksIds: number[] = [];
-    const iterFiles: number[] = form.iterFiles;
+  private createSupertask(form: WrbulkFormValue): void {
+    const payload = {
+      name: form.name,
+      command: form.attackCmd,
+      isCpu: form.isCpuTask,
+      isSmall: form.isSmall,
+      crackerBinaryTypeId: form.crackerBinaryId,
+      benchtype: form.useNewBench ? 'speed' : 'runtime',
+      maxAgents: form.maxAgents,
+      basefiles: form.baseFiles,
+      iterfiles: form.iterFiles
+    };
 
-    try {
-      const promises = iterFiles.map(async (iter, index) => {
-        const payload = {
-          taskName: '',
-          attackCmd: '',
-          maxAgents: form.maxAgents,
-          chunkTime: this.uiService.getUISettings()?.chunktime ?? 0,
-          statusTimer: this.uiService.getUISettings()?.statustimer ?? 0,
-          priority: index + 1,
-          color: '',
-          isCpuTask: form.isCpuTask,
-          crackerBinaryTypeId: form.crackerBinaryId,
-          isSmall: form.isSmall,
-          useNewBench: form.useNewBench,
-          isMaskImport: true,
-          files: form.baseFiles
-        };
+    const subscription$ = this.gs.chelper(SERV.HELPER, 'bulkSupertaskBuilder', payload).subscribe({
+      next: () => {
+        this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
+        this.router.navigate(['/tasks/supertasks']);
+      },
+      error: (error) => {
+        console.error('Error creating bulk supertask:', error);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
 
-        // Get file name
-        const fileName: string = await new Promise((resolve, reject) => {
-          const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
-            next: (response: ResponseWrapper) => {
-              const file: JFile = new JsonAPISerializer().deserialize(response, zFileResponse);
-              resolve(file.filename);
-            },
-            error: reject
-          });
-
-          this.unsubscribeService.add(fileSubscription$);
-        });
-
-        const updatedAttackCmd = form.attackCmd.replace('FILE', fileName);
-        payload.taskName = form.name + ' + ' + fileName;
-        payload.attackCmd = updatedAttackCmd;
-
-        const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
-        const pretask: JPretask = new JsonAPISerializer().deserialize(result, zPreTaskResponse);
-        preTasksIds.push(pretask.id);
-      });
-
-      await Promise.all(promises);
-      return preTasksIds;
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    this.unsubscribeService.add(subscription$);
   }
 
   /**
@@ -187,10 +193,10 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   async onSubmit(): Promise<void> {
     if (this.createForm.valid) {
-      const formValue = this.createForm.value;
+      const formValue = this.createForm.getRawValue();
       const attackCmd: string = formValue.attackCmd;
       const crackerBinaryId: number = formValue.crackerBinaryId;
-      const iterFiles: [] = formValue.iterFiles;
+      const iterFiles: number[] = formValue.iterFiles;
 
       const attackAlias = this.uiService.getUISettings()?.hashlistAlias ?? '';
       let hasError = false;
@@ -231,13 +237,11 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         }
 
         this.isLoading = true; // Show spinner
-        const ids = await this.preTasks(formValue);
-        this.superTask(formValue.name, ids);
+        this.createSupertask(formValue);
       } catch (error) {
         console.error('Error when importing supertask:', error);
-        // Handle error if needed
       } finally {
-        this.isLoading = false; // Hide spinner regardless of success or error
+        this.isLoading = false;
       }
     } else {
       this.createForm.markAllAsTouched();
@@ -246,31 +250,14 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Creates a new super task with the given name and preTasks IDs.
-   * @param {string} name - The name of the super task.
-   * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
-   * @returns {void}
-   */
-  private superTask(name: string, ids: number[]) {
-    const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
-      this.router.navigate(['/tasks/supertasks']);
-    });
-
-    this.unsubscribeService.add(createSubscription$);
-    this.isLoading = false;
-  }
-
-  /**
    * Retrieves the form data containing attack command and files.
    * @returns An object with attack command and files.
    */
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('baseFiles').value,
-      otherFiles: this.createForm.get('iterFiles').value
+      attackCmd: this.createForm.controls.attackCmd.value,
+      files: this.createForm.controls.baseFiles.value,
+      otherFiles: this.createForm.controls.iterFiles.value
     };
   }
 
@@ -278,7 +265,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event): void {
+  onUpdateForm(event: TaskSelectFile): void {
     if (event.type === 'CMD') {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,

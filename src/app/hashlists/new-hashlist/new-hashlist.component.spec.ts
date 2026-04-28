@@ -25,9 +25,9 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
-const mockAccessGroups: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockAccessGroups: ResponseWrapper = mockResponse({
   data: [
     {
       id: 1,
@@ -43,12 +43,10 @@ const mockAccessGroups: ResponseWrapper = {
         groupName: 'User'
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockHashtypes: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockHashtypes: ResponseWrapper = mockResponse({
   data: [
     {
       id: 2500,
@@ -77,12 +75,10 @@ const mockHashtypes: ResponseWrapper = {
         isSlowHash: true
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockConfigs: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockConfigs: ResponseWrapper = mockResponse({
   data: {
     id: 66,
     type: 'config',
@@ -91,9 +87,8 @@ const mockConfigs: ResponseWrapper = {
       item: 'Enable Brain',
       value: '1'
     }
-  },
-  included: []
-};
+  }
+});
 
 describe('NewHashlistComponent', () => {
   let component: NewHashlistComponent;
@@ -171,18 +166,18 @@ describe('NewHashlistComponent', () => {
 
     it('should load config and patch form for brainenabled', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.get('useBrain').value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeTrue();
     });
   });
 
   describe('Form changes', () => {
     it('should patch isSalted and format when hashTypeId changes', () => {
       // Simulate user changing the hashTypeId
-      component.form.get('hashTypeId')?.setValue('2500');
+      component.form.controls.hashTypeId.setValue('2500');
 
       // Allow Angular to process the valueChanges subscription (synchronously here)
-      expect(component.form.get('isSalted')?.value).toBe(true);
-      expect(component.form.get('format')?.value).toBe(1);
+      expect(component.form.controls.isSalted.value).toBe(true);
+      expect(component.form.controls.format.value).toBe(1);
     });
 
     it('onFilesSelected should set fileName and selectedFiles', () => {
@@ -265,7 +260,7 @@ describe('NewHashlistComponent', () => {
     }));
 
     it('should submit form with "paste" sourceType', fakeAsync(() => {
-      gsSpy.create.and.returnValue(of({}));
+      gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
@@ -322,7 +317,7 @@ describe('NewHashlistComponent', () => {
     component.ngOnDestroy();
 
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    expect(nextSpy).toHaveBeenCalledWith(false);
+    expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
   });
 

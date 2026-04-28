@@ -49,8 +49,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   currentStep: string;
   idleState = 'Not Started';
   timedOut = false;
-  lastPing?: Date = null;
-  timeoutCountdown: number = null;
+  lastPing: Date | null = null;
+  timeoutCountdown: number | null = null;
   timeoutMax = this.onTimeout();
   idleTime: number = this.onTimeout();
   showingModal = false;
@@ -64,7 +64,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const idle = this.idle;
 
     inject(CheckTokenService);
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe((e) => {
       this.currentUrl = e.url;
       this.findCurrentStep(this.currentUrl);
       if (isPlatformBrowser(this.platformId)) {

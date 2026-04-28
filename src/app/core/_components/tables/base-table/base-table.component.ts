@@ -25,7 +25,7 @@ import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.m
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTask, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -70,7 +70,7 @@ export class BaseTableComponent {
   readonly tasksRoleService = inject(TasksRoleService);
   readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
 
-  @ViewChild('table') table: HTTableComponent;
+  @ViewChild('table') table: HTTableComponent<BaseModel>;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
   @Input() name: TableSettingsKey;
@@ -84,7 +84,7 @@ export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
+  protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
 
   constructor() {
@@ -105,7 +105,9 @@ export class BaseTableComponent {
    * Call this in ngOnInit of child table components to automatically handle filter errors.
    * @param dataSource - The datasource with filterError$ observable
    */
-  protected setupFilterErrorSubscription<T, P extends MatPaginator>(dataSource: BaseDataSource<T, P>): void {
+  protected setupFilterErrorSubscription<T extends BaseModel, P extends MatPaginator>(
+    dataSource: BaseDataSource<T, P>
+  ): void {
     const ngZone = this.injector.get<NgZone>(NgZone);
 
     // Subscribe to filter errors from the datasource
@@ -185,7 +187,7 @@ export class BaseTableComponent {
    */
   renderCrackedLinkFromTask(task: JTask): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (task.chunkData.cracked) {
+    if (task.chunkData?.cracked) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', task.id],
         label: task.chunkData.cracked.toLocaleString()
@@ -200,16 +202,18 @@ export class BaseTableComponent {
    * @param wrapper - the task wrapper object to render the link for
    * @return observable containing an array of router links to be rendered in HTML
    */
-  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    if (wrapper.cracked === 0) {
-      return of([{ label: null, routerLink: null }]);
+  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapperDisplay): Observable<HTTableRouterLink[]> {
+    const cracked = wrapper.cracked ?? 0;
+    if (cracked === 0) {
+      return of([{ label: undefined, routerLink: null }]);
     }
 
     const isSupertask = wrapper.taskType === TaskType.SUPERTASK;
+    const taskId = wrapper.taskId ?? 0;
 
     const link: HTTableRouterLink = {
-      label: wrapper.cracked.toLocaleString(),
-      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
+      label: cracked.toLocaleString(),
+      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', taskId],
       tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
     };
 
@@ -342,10 +346,10 @@ export class BaseTableComponent {
    */
   renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (model) {
+    if (model?.taskId) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString()
+        label: idLink ? model.taskId.toString() : model.task?.taskName?.toString()
       });
     }
     return of(links);
@@ -361,7 +365,7 @@ export class BaseTableComponent {
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
-        label: idLink ? model.id.toString() : model.taskName.toString()
+        label: idLink ? model.id.toString() : model.taskName?.toString()
       });
     }
     return of(links);
@@ -399,10 +403,10 @@ export class BaseTableComponent {
    * @returns A SafeHtml object that represents the sanitized HTML.
    */
   protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.sanitize(SecurityContext.HTML, html);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
   }
 
-  protected setColumnLabels(labels: { [key: string]: string }): void {
+  protected setColumnLabels(labels: Record<string, string>): void {
     this.columnLabels = labels;
   }
 

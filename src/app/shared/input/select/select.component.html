@@ -35,7 +35,7 @@
       </mat-option>
     }
 
-    @for (item of items; track item) {
+    @for (item of items; track item.id) {
       <mat-option [value]="item.id">
         {{ item.name }}
       </mat-option>

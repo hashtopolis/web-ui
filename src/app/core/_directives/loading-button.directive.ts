@@ -1,4 +1,14 @@
-import { Directive, ElementRef, HostListener, Input, OnChanges, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+  OnChanges,
+  OnInit,
+  Renderer2,
+  SimpleChanges,
+  inject
+} from '@angular/core';
 
 /**
  * Directive to make any button unresponsive during loading
@@ -12,15 +22,13 @@ import { Directive, ElementRef, HostListener, Input, OnChanges, OnInit, Renderer
   standalone: false
 })
 export class LoadingButtonDirective implements OnInit, OnChanges {
+  private elementRef = inject(ElementRef);
+  private renderer = inject(Renderer2);
+
   @Input() loading = false;
 
   private originalDisabledState: boolean | null = null;
   private targetButton: HTMLElement | null = null;
-
-  constructor(
-    private elementRef: ElementRef,
-    private renderer: Renderer2
-  ) {}
 
   ngOnInit(): void {
     // Find the actual button element - it could be the host element or a child
@@ -86,7 +94,7 @@ export class LoadingButtonDirective implements OnInit, OnChanges {
 
   // Prevent click when loading
   @HostListener('click', ['$event'])
-  onClick(event: Event): void {
+  onClick(event: MouseEvent): void {
     if (this.loading) {
       event.preventDefault();
       event.stopPropagation();

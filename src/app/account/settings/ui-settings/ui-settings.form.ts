@@ -22,14 +22,17 @@ export class UiSettingsFormGroup extends FormGroup<UiSettingsForm> {
 
   constructor() {
     super({
-      timefmt: new FormControl(''),
-      layout: new FormControl<Layout>('fixed'),
-      theme: new FormControl<Theme>('light'),
-      refreshPage: new FormControl(false),
-      refreshInterval: new FormControl(undefined, [
-        Validators.min(UiSettingsFormGroup.REFRESH_INTERVAL_MIN),
-        Validators.max(UiSettingsFormGroup.REFRESH_INTERVAL_MAX)
-      ])
+      timefmt: new FormControl<string>('', { nonNullable: true }),
+      layout: new FormControl<Layout>('fixed', { nonNullable: true }),
+      theme: new FormControl<Theme>('light', { nonNullable: true }),
+      refreshPage: new FormControl<boolean>(false, { nonNullable: true }),
+      refreshInterval: new FormControl<number>(UiSettingsFormGroup.REFRESH_INTERVAL_MIN, {
+        nonNullable: true,
+        validators: [
+          Validators.min(UiSettingsFormGroup.REFRESH_INTERVAL_MIN),
+          Validators.max(UiSettingsFormGroup.REFRESH_INTERVAL_MAX)
+        ]
+      })
     });
   }
 }

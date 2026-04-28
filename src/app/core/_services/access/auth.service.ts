@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 
-import { BehaviorSubject, Observable, ReplaySubject, Subject, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, of, switchMap, take, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -8,6 +8,7 @@ import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
+import { Permission } from '@models/global-permission-group.model';
 import { JwtPayload } from '@models/jwt-payload.model';
 
 import { LoginRedirectService } from '@services/access/login-redirect.service';
@@ -54,9 +55,9 @@ export class AuthService {
   /**
    * Auto-login user, if there is a token in localStorage
    */
-  autoLogin() {
+  autoLogin(): Observable<Permission | null> {
     const raw = this.storage.getItem(AuthService.STORAGE_KEY);
-    if (!raw) return;
+    if (!raw) return of(null);
 
     const userData = raw as StoredAuthData;
 
@@ -69,53 +70,59 @@ export class AuthService {
 
     const loadedUser = new AuthUser(token, expires, userId, canonicalUsername);
 
-    if (loadedUser._token && expires > new Date()) {
-      this.user.next(loadedUser);
-      this._authUser$.next(loadedUser);
-
-      if (!loadedUser.canonicalUsername && loadedUser.userId) {
-        this.fetchCanonicalUsername(loadedUser.userId, loadedUser._token).subscribe({
-          next: (canonicalFromApi) => {
-            const canonical = canonicalFromApi ?? '';
-
-            const updated: AuthData = {
-              _token: loadedUser._token,
-              _expires: loadedUser._expires,
-              userId: loadedUser.userId,
-              canonicalUsername: canonical
-            };
-
-            this.storage.setItem(AuthService.STORAGE_KEY, updated, 0);
-            this.user.next(updated);
-            this._authUser$.next(
-              new AuthUser(
-                updated._token,
-                updated._expires instanceof Date ? updated._expires : new Date(updated._expires),
-                updated.userId,
-                updated.canonicalUsername
-              )
-            );
-          },
-          error: (err) => {
-            console.warn('Failed to fetch canonical username on autoLogin', err);
-          }
-        });
-      }
-
-      const tokenExpiration = expires.getTime() - Date.now();
-      this.autologOut(tokenExpiration);
-
-      const permissionService = this.injector.get(PermissionService);
-      permissionService.loadPermissions().subscribe({
-        next: () => {},
-        error: (err) => console.error('Failed to load permissions on autoLogin:', err)
-      });
-    } else {
+    if (!loadedUser._token || expires <= new Date()) {
       this.logOut();
+      return of(null);
     }
+
+    this.user.next(loadedUser);
+    this._authUser$.next(loadedUser);
+
+    if (!loadedUser.canonicalUsername && loadedUser.userId) {
+      this.fetchCanonicalUsername(loadedUser.userId, loadedUser._token).subscribe({
+        next: (canonicalFromApi) => {
+          const canonical = canonicalFromApi ?? '';
+
+          const updated: AuthData = {
+            _token: loadedUser._token,
+            _expires: loadedUser._expires,
+            userId: loadedUser.userId,
+            canonicalUsername: canonical
+          };
+
+          this.storage.setItem(AuthService.STORAGE_KEY, updated, 0);
+          this.user.next(updated);
+          this._authUser$.next(
+            new AuthUser(
+              updated._token,
+              updated._expires instanceof Date ? updated._expires : new Date(updated._expires),
+              updated.userId,
+              updated.canonicalUsername
+            )
+          );
+        },
+        error: (err) => {
+          console.warn('Failed to fetch canonical username on autoLogin', err);
+        }
+      });
+    }
+
+    const tokenExpiration = expires.getTime() - Date.now();
+    this.autologOut(tokenExpiration);
+
+    return this.injector
+      .get(PermissionService)
+      .loadPermissions()
+      .pipe(
+        take(1),
+        catchError((err) => {
+          console.error('Failed to load permissions on autoLogin:', err);
+          return of(null);
+        })
+      );
   }
 
-  logIn(username: string, password: string) {
+  logIn(username: string, password: string): Observable<void> {
     // Send credentials via basic authorization header. Encode using Buffer with 'utf8' to correctly
     // handle non-Latin characters and to produce a correctly padded base64 string.
     const basic = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
@@ -183,11 +190,12 @@ export class AuthService {
             console.warn('No userId available for post-login redirect');
           }
           this.redirectUrl = '';
-        })
+        }),
+        map(() => void 0)
       );
   }
 
-  get token(): string {
+  get token(): string | null {
     const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     return userData ? userData._token : null;
   }
@@ -207,7 +215,8 @@ export class AuthService {
     }
   }
 
-  private getUserId(token: string): number | null {
+  private getUserId(token: string | null): number | null {
+    if (!token) return null;
     const p = this.decodeJwt<JwtPayload>(token);
     if (!p) return null;
 
@@ -230,7 +239,7 @@ export class AuthService {
     return p?.username ?? p?.name ?? p?.user ?? null;
   }
 
-  private fetchCanonicalUsername(userId: number, token: string) {
+  private fetchCanonicalUsername(userId: number, token: string): Observable<string | null> {
     const base = this.cs.getEndpoint();
     const url = `${base}/ui/users/${userId}`;
 
@@ -293,7 +302,7 @@ export class AuthService {
   }
 
   checkStatus() {
-    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     if (userData) {
       this.logged.next(true);
     } else {
@@ -301,11 +310,11 @@ export class AuthService {
     }
   }
 
-  private userAuthChanged(status: boolean) {
+  private userAuthChanged(status: boolean): void {
     this.authChanged.emit(status);
   }
 
-  private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string) {
+  private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string): void {
     const expires = new Date(expiresEpochSec * 1000);
 
     const userId = this.getUserId(token) ?? 0;
@@ -331,7 +340,7 @@ export class AuthService {
     this.autologOut(tokenExpiration);
   }
 
-  private handleError(errorRes: HttpErrorResponse) {
+  private handleError(errorRes: HttpErrorResponse): Observable<never> {
     return throwError(() => errorRes.message);
   }
 }

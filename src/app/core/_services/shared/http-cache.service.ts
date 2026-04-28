@@ -163,7 +163,7 @@ export class HttpCacheService {
       body: serialized.body,
       status: serialized.status,
       statusText: serialized.statusText,
-      url: serialized.url ?? undefined,
+      ...(serialized.url != null && { url: serialized.url }),
       headers: new HttpHeaders(serialized.headers)
     });
   }

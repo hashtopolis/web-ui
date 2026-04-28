@@ -23,6 +23,7 @@ import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 // Mock services
 class MockUnsubscribeService {
@@ -34,12 +35,8 @@ class MockUploadTUSService {
 }
 
 class MockGlobalService {
-  getAll = jasmine
-    .createSpy('getAll')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
-  getRelationships = jasmine
-    .createSpy('getRelationships')
-    .and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+  getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
+  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of(mockResponse()));
   create = jasmine.createSpy('create').and.returnValue(of({}));
   userId = 1;
 }
@@ -129,12 +126,12 @@ describe('NewFilesComponent', () => {
       ['filename', 'isSecret', 'fileType', 'accessGroupId', 'sourceType', 'sourceData'].forEach((key) => {
         expect(form.get(key)).toBeTruthy();
       });
-      expect(form.get('filename')!.value).toBe('');
-      expect(form.get('isSecret')!.value).toBeTrue();
-      expect(form.get('fileType')!.value).toBe(expectedFileType);
-      expect(form.get('accessGroupId')!.value).toBe(1);
-      expect(form.get('sourceType')!.value).toBe('import');
-      expect(form.get('sourceData')!.value).toBe('');
+      expect(form.controls.filename.value).toBe('');
+      expect(form.controls.isSecret.value).toBeTrue();
+      expect(form.controls.fileType.value).toBe(expectedFileType);
+      expect(form.controls.accessGroupId.value).toBe(1);
+      expect(form.controls.sourceType.value).toBe('import');
+      expect(form.controls.sourceData.value).toBe('');
     });
   });
 
@@ -194,7 +191,7 @@ describe('NewFilesComponent', () => {
         {
           filename: file.name,
           isSecret: true,
-          fileType: component.form.get('fileType')!.value,
+          fileType: component.form.controls.fileType.value,
           accessGroupId: 1,
           sourceType: 'import',
           sourceData: file.name
@@ -275,19 +272,17 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }) as any);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }) as any);
+      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }));
+      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
       // The user belongs to 2 out of 5 total groups.
       // We mock loadData to bypass JsonAPISerializer (which needs an injection
       // context unavailable in tests) and verify the dropdown binding.
-      const userScopedGroups: SelectOption[] = [
-        { id: '1', name: 'Group A' },
-        { id: '3', name: 'Group C' }
+      const userScopedGroups: SelectOption<number>[] = [
+        { id: 1, name: 'Group A' },
+        { id: 3, name: 'Group C' }
       ];
 
       TestBed.overrideProvider(ActivatedRoute, {

@@ -4,6 +4,7 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
+import { ChunkData } from '@models/chunk.model';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
@@ -93,7 +94,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -195,7 +196,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
+        export: async (agent: JAgent) => (agent.task ? (agent.taskName ?? '') : '')
       },
       {
         id: AgentsTableCol.ACCESS_GROUP,
@@ -203,7 +204,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => agent.accessGroup
+        export: async (agent: JAgent) => agent.accessGroup ?? ''
       }
     ];
   }
@@ -253,7 +254,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private getChunkDataValue(agent: JAgent, property: string): number | undefined {
     if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property];
+      return agent.chunkData[property as keyof ChunkData] as number | undefined;
     }
     return undefined;
   }
@@ -320,7 +321,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   renderDevices(agent: JAgent): SafeHtml {
     const deviceList = agent.devices.split('\n');
-    const deviceCountMap: { [key: string]: number } = {};
+    const deviceCountMap: Record<string, number> = {};
 
     // Count occurrences of each device
     deviceList.forEach((device) => {
@@ -461,17 +462,18 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
-    if (agent[0].assignmentId) {
+  private rowActionDelete(agents: JAgent[]): void {
+    const agent = agents[0];
+    if (agent.assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
+        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
@@ -481,7 +483,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink!).then(() => {});
     });
   }
 
