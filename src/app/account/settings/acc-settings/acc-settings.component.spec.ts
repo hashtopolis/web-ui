@@ -21,7 +21,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
@@ -108,14 +107,6 @@ describe('AccountSettingsComponent', () => {
         provideHttpClient(withInterceptorsFromDi())
       ]
     }).compileComponents();
-
-    // Spy on JsonAPISerializer.prototype.deserialize to bypass Zod schema
-    // validation of mock data (in non-production, validation failure throws).
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue({
-      id: userResponse.id,
-      type: userResponse.type,
-      ...userResponse.attributes
-    });
 
     fixture = TestBed.createComponent(AccountSettingsComponent);
     component = fixture.componentInstance;
