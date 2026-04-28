@@ -199,9 +199,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   private setDefaultAccessGroup(): void {
-    this.selectAccessgroup = [{ id: '1', name: 'Default' }];
+    this.selectAccessgroup = [{ id: 1, name: 'Default' }];
     this.form.patchValue({ accessGroupId: 1 });
-    this.form.get('accessGroupId').disable();
+    this.form.get('accessGroupId')?.disable();
   }
 
   /**
