@@ -164,7 +164,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
-        parent: 'hashlist',
         routerLink: (wrapper: JTaskWrapperDisplay) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapperDisplay) => {
           const allHashesCracked =
