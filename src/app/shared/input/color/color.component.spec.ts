@@ -72,6 +72,24 @@ describe('InputColorComponent', () => {
     });
   });
 
+  describe('defaultColor', () => {
+    it('applies the default when registerOnChange runs after a null writeValue', () => {
+      component.defaultColor = 'random';
+      component.writeValue(null);
+      component.registerOnChange(jasmine.createSpy('onChange'));
+
+      expect(component.value).toMatch(HEX_PATTERN);
+    });
+
+    it('does not apply the default when the form provided a non-null value', () => {
+      component.defaultColor = 'random';
+      component.writeValue('#abc123');
+      component.registerOnChange(jasmine.createSpy('onChange'));
+
+      expect(component.value).toBe('#abc123');
+    });
+  });
+
   describe('derived state', () => {
     it('marks unset when writeValue receives null', () => {
       component.writeValue(null);

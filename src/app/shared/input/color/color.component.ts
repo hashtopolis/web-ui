@@ -56,18 +56,14 @@ export class InputColorComponent extends AbstractInputComponent<string | null> {
   // If the default color is shown is still dependent on defaultColor input
   inputValue = DEFAULT_COLOR;
 
-  override ngOnInit(): void {
-    super.ngOnInit();
-    // Defer to the next microtask so writeValue (which the form fires after
-    // ngOnInit during CVA setup) has settled before we decide whether to
-    // apply the default. Running once in the microtask also guarantees the
-    // default is not re-applied when the user later clears the value.
-    Promise.resolve().then(() => this.applyDefault());
-  }
-
   override writeValue(newValue: string | null): void {
     super.writeValue(newValue);
     this.updateDerivedState();
+  }
+
+  override registerOnChange(fn: (value: string | null) => void): void {
+    super.registerOnChange(fn);
+    this.applyDefault();
   }
 
   generateRandomColor() {
