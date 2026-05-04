@@ -71,20 +71,15 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   pointer-events: none; /* allows clicking through to the color picker */
 
   &.color-value-on-light {
     color: black;
-    text-shadow:
-      0 0 2px rgba(255, 255, 255, 0.9),
-      0 0 4px rgba(255, 255, 255, 0.6);
   }
 
   &.color-value-on-dark {
     color: white;
-    text-shadow:
-      0 0 2px rgba(0, 0, 0, 0.9),
-      0 0 4px rgba(0, 0, 0, 0.6);
   }
 }
