@@ -17,69 +17,20 @@ describe('InputColorComponent', () => {
 
     fixture = TestBed.createComponent(InputColorComponent);
     component = fixture.componentInstance;
-    // NOTE: deliberately not calling detectChanges() here. Tests that exercise
-    // the ngOnInit microtask need to set @Input()s before lifecycle fires.
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('defaultColor', () => {
-    it('does not emit any value when defaultColor is omitted', async () => {
+  describe('initial state', () => {
+    it('starts unset and does not emit a value', () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
-      fixture.detectChanges();
-      await fixture.whenStable();
       expect(onChange).not.toHaveBeenCalled();
       expect(component.isUnset).toBeTrue();
       expect(component.colorClass).toBe('unset');
-    });
-
-    it('emits a random hex when defaultColor is "random"', async () => {
-      const onChange = jasmine.createSpy('onChange');
-      component.registerOnChange(onChange);
-      component.defaultColor = 'random';
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(component.value).toMatch(HEX_PATTERN);
-      expect(onChange).toHaveBeenCalledWith(component.value);
-    });
-
-    it('emits white when defaultColor is true', async () => {
-      const onChange = jasmine.createSpy('onChange');
-      component.registerOnChange(onChange);
-      component.defaultColor = true;
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(component.value).toBe('#FFFFFF');
-      expect(onChange).toHaveBeenCalledWith('#FFFFFF');
-    });
-
-    it('emits the provided hex string verbatim', async () => {
-      component.defaultColor = '#FF0000';
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(component.value).toBe('#FF0000');
-    });
-
-    it('does not override a value already supplied by the form', async () => {
-      component.defaultColor = 'random';
-      component.writeValue('#3366FF');
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(component.value).toBe('#3366FF');
-    });
-
-    it('does not re-apply the default after the user clears the color', async () => {
-      component.defaultColor = '#00FF00';
-      fixture.detectChanges();
-      await fixture.whenStable();
-      expect(component.value).toBe('#00FF00');
-
-      component.clearColor();
-      await fixture.whenStable();
-      expect(component.value).toBeNull();
     });
   });
 

@@ -1,29 +1,27 @@
 <div class="custom-input-container">
   <div class="color-input-wrapper">
-    <div class="color-input-container">
-      <mat-form-field
-        appearance="outline"
-        [class.mat-form-field-invalid]="hasError"
-        [class.mat-form-field-touched]="isTouched"
-      >
-        <mat-label>{{ title }}</mat-label>
-        <input
-          #selectInput
-          matInput
-          type="color"
-          [id]="inputId"
-          [value]="inputValue"
-          [class.ng-invalid]="hasError"
-          [class.ng-touched]="isTouched"
-          [class.color-unset]="isUnset"
-          (input)="onValueChange($event)"
-          (blur)="onTouched()"
-          [style.background]="isUnset ? null : value"
-          [disabled]="disabled"
-        />
-        <span class="color-value" [ngClass]="'color-value-' + colorClass">{{ isUnset ? 'No color' : value }}</span>
-      </mat-form-field>
-    </div>
+    <mat-form-field
+      appearance="outline"
+      [class.mat-form-field-invalid]="hasError"
+      [class.mat-form-field-touched]="isTouched"
+    >
+      <mat-label>{{ title }}</mat-label>
+      <input
+        #selectInput
+        matInput
+        type="color"
+        [id]="inputId"
+        [value]="inputValue"
+        [class.ng-invalid]="hasError"
+        [class.ng-touched]="isTouched"
+        [class.color-unset]="isUnset"
+        (input)="onValueChange($event)"
+        (blur)="onTouched()"
+        [style.background]="isUnset ? null : value"
+        [disabled]="disabled"
+      />
+      <span class="color-value" [ngClass]="'color-value-' + colorClass">{{ isUnset ? 'No color' : value }}</span>
+    </mat-form-field>
 
     @if (randomColor) {
       <button
