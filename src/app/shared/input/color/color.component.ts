@@ -2,7 +2,31 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { randomColor } from '@src/app/shared/utils/forms';
+import { isColorLight, randomColor } from '@src/app/shared/utils/forms';
+
+/**
+ * `'random'` generates a fresh color via `randomColor()`; `true` selects white;
+ * any other string is used verbatim as a hex.
+ */
+export type DefaultColorMode = 'random' | true | HexColor;
+
+type HexColor = `#${string}`;
+
+const DEFAULT_COLOR = '#FFFFFF';
+
+/**
+ * The three contrast/visibility states the overlay text can be in. The string
+ * values are appended to `color-value-` to derive the SCSS class name.
+ */
+const ColorClass = {
+  // no color
+  Unset: 'unset',
+  // light color
+  OnLight: 'on-light',
+  // dark color
+  OnDark: 'on-dark'
+} as const;
+type ColorClass = (typeof ColorClass)[keyof typeof ColorClass];
 
 /**
  * Simple native color picker component.
@@ -20,26 +44,71 @@ import { randomColor } from '@src/app/shared/utils/forms';
   ],
   standalone: false
 })
-export class InputColorComponent extends AbstractInputComponent<string> {
-  @Input() defaultColor = '#FFFFFF';
+export class InputColorComponent extends AbstractInputComponent<string | null> {
+  @Input() defaultColor?: DefaultColorMode;
   @Input() randomColor = true;
 
-  generateRandomColor() {
-    this.value = randomColor();
-    this.onChange(this.value);
+  isUnset = true;
+  colorClass: ColorClass = ColorClass.Unset;
+  // The native <input type="color"> requires a valid 7-char hex; empty/null
+  // values produce an "invalid RGB value" console warning.
+  // The default color is set just to make sure this error does not occur.
+  // If the default color is shown is still dependent on defaultColor input
+  inputValue = DEFAULT_COLOR;
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+    // Defer to the next microtask so writeValue (which the form fires after
+    // ngOnInit during CVA setup) has settled before we decide whether to
+    // apply the default. Running once in the microtask also guarantees the
+    // default is not re-applied when the user later clears the value.
+    Promise.resolve().then(() => this.applyDefault());
   }
 
-  // Ensure we never return an empty color
-  getDisplayColor(): string {
-    if (!this.value) {
-      this.value = this.defaultColor;
-    }
-    return this.value;
+  override writeValue(newValue: string | null): void {
+    super.writeValue(newValue);
+    this.updateDerivedState();
+  }
+
+  generateRandomColor() {
+    this.setValue(randomColor());
+  }
+
+  clearColor() {
+    this.setValue(null);
   }
 
   onValueChange(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.value = target.value;
+    this.setValue(target.value);
+  }
+
+  private setValue(next: string | null): void {
+    this.value = next;
+    this.updateDerivedState();
     this.onChange(this.value);
+  }
+
+  private updateDerivedState(): void {
+    this.isUnset = !this.value;
+    this.inputValue = this.value || DEFAULT_COLOR;
+    this.colorClass = this.isUnset
+      ? ColorClass.Unset
+      : isColorLight(this.value)
+        ? ColorClass.OnLight
+        : ColorClass.OnDark;
+  }
+
+  private applyDefault(): void {
+    if (this.value != null || this.defaultColor === undefined) return;
+    const resolved = this.resolveDefault(this.defaultColor);
+    if (resolved !== null) this.setValue(resolved);
+  }
+
+  private resolveDefault(mode: DefaultColorMode): string | null {
+    if (mode === 'random') return randomColor();
+    if (mode === true) return DEFAULT_COLOR;
+    if (typeof mode === 'string') return mode;
+    return null;
   }
 }

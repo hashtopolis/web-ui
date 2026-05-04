@@ -1,8 +1,91 @@
+/* Without color-scheme, <input type="color"> renders its UA chrome in the
+   light palette even inside a dark theme, leaving a white swatch box. */
+:host {
+  color-scheme: light dark;
+}
 
+:host-context(.dark-theme) {
+  color-scheme: dark;
+}
+
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 .color-input-container {
   position: relative;
   display: inline-block;
+}
+
+/* Material's form-field bottom padding is sized for <input type="text">;
+   <input type="color"> has a different intrinsic height and visibly inflates
+   the picker beyond sibling text fields without this override. */
+:host ::ng-deep .mdc-text-field,
+:host ::ng-deep .mat-mdc-form-field-infix {
+  padding-bottom: 0 !important;
+}
+
+/* min-width gives the absolutely-positioned overlay text room to breathe;
+   height matches <input type="text"> intrinsic height so the form-field row
+   doesn't inflate. */
+:host ::ng-deep input[type='color'] {
+  min-width: 110px;
+  height: 19px;
+}
+
+/* Strip UA padding/border around the swatch so the form-field surface doesn't
+   show through as a grey strip. transparent (not none) preserves border box
+   so dimensions don't shift between unset and set states. */
+:host ::ng-deep input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+:host ::ng-deep input[type='color']::-webkit-color-swatch {
+  border-color: transparent;
+}
+
+:host ::ng-deep input[type='color']::-moz-color-swatch {
+  border-color: transparent;
+}
+
+.random-color-btn,
+.clear-color-btn {
+  flex: 0 0 auto;
+  /* Aligns the icon-button row with the input's outline midline (the form-field's
+     subscript area drags its own midline down). */
+  margin-bottom: 1em;
+}
+
+/* The UA paints the swatch from the input's `value` attribute with high
+   specificity that the shorthand `background` doesn't beat — !important and
+   explicit -color/-image overrides are required to clear the white fill. */
+:host ::ng-deep input[type='color'].color-unset {
+  background-color: transparent !important;
+  background-image: none !important;
+
+  &::-webkit-color-swatch-wrapper {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  &::-webkit-color-swatch {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  &::-moz-color-swatch {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+}
+
+/* visibility (not display) keeps the box reserved so toggling unset → set
+   doesn't reflow the row. */
+.clear-color-btn-hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .color-value {
@@ -10,23 +93,30 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
   font-size: 12px;
   pointer-events: none; /* allows clicking through to the color picker */
-}
 
-/* Optional: Adjust text color based on background brightness for better visibility */
-:host ::ng-deep input[type="color"][value^="#f"],
-:host ::ng-deep input[type="color"][value^="#e"],
-:host ::ng-deep input[type="color"][value^="#d"],
-:host ::ng-deep input[type="color"][value^="#c"],
-:host ::ng-deep input[type="color"][value^="#b"],
-:host ::ng-deep input[type="color"][value^="#a"],
-:host ::ng-deep input[type="color"][value^="#0f"],
-:host ::ng-deep input[type="color"][value^="#ff"] {
-  & + .color-value {
+  &.color-value-on-light {
+    color: black;
+    text-shadow:
+      0 0 2px rgba(255, 255, 255, 0.9),
+      0 0 4px rgba(255, 255, 255, 0.6);
+  }
+
+  &.color-value-on-dark {
+    color: white;
+    text-shadow:
+      0 0 2px rgba(0, 0, 0, 0.9),
+      0 0 4px rgba(0, 0, 0, 0.6);
+  }
+
+  &.color-value-unset {
     color: black;
     text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
   }
+}
+
+:host-context(.dark-theme) .color-value.color-value-unset {
+  color: white;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
 }

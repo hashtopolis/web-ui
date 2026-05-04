@@ -1,23 +1,27 @@
 <div class="custom-input-container">
   <div class="color-input-wrapper">
     <div class="color-input-container">
-      <mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
+      <mat-form-field
+        appearance="outline"
+        [class.mat-form-field-invalid]="hasError"
+        [class.mat-form-field-touched]="isTouched"
+      >
         <mat-label>{{ title }}</mat-label>
         <input
           #selectInput
           matInput
-          [placeholder]="getDisplayColor()"
           type="color"
           [id]="inputId"
-          [value]="getDisplayColor()"
+          [value]="inputValue"
           [class.ng-invalid]="hasError"
           [class.ng-touched]="isTouched"
+          [class.color-unset]="isUnset"
           (input)="onValueChange($event)"
           (blur)="onTouched()"
-          [style.background]="getDisplayColor()"
+          [style.background]="isUnset ? null : value"
           [disabled]="disabled"
-          />
-        <span class="color-value">{{ getDisplayColor() }}</span>
+        />
+        <span class="color-value" [ngClass]="'color-value-' + colorClass">{{ isUnset ? 'No color' : value }}</span>
       </mat-form-field>
     </div>
 
@@ -30,9 +34,21 @@
         title="Randomize Color"
         (click)="generateRandomColor()"
         [disabled]="disabled"
-        >
+      >
         <mat-icon>casino</mat-icon>
       </button>
     }
+    <button
+      mat-icon-button
+      matTooltip="Clear Color"
+      type="button"
+      class="clear-color-btn"
+      title="Clear Color"
+      (click)="clearColor()"
+      [disabled]="disabled || isUnset"
+      [class.clear-color-btn-hidden]="isUnset"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
 </div>
