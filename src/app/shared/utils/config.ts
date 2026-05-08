@@ -32,9 +32,28 @@ export class UISettingsUtilityClass {
     private themeService?: ThemeService
   ) {
     this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
+    this.backfillMissingTableSettings();
     if (this.themeService && this.uiConfig.theme) {
       this.themeService.theme = this.uiConfig.theme;
     }
+  }
+
+  /**
+   * Stored configs from prior sessions can lack newly-added entries in `uiConfigDefault.tableSettings` —
+   * `tableSettingsSchema` is `z.record(...)` and parses such stored values verbatim, so missing keys would
+   * later make `getTableSettings` return `[]` and tables render with no data columns. Shallow-merge defaults
+   * for keys absent from storage (existing user customisation wins for keys that are present), then persist
+   * the merged config so the migration is one-shot.
+   */
+  private backfillMissingTableSettings(): void {
+    const defaults = structuredClone(uiConfigDefault.tableSettings);
+    const stored = this.uiConfig.tableSettings;
+    const missing = Object.keys(defaults).filter((k) => !(k in stored));
+    if (missing.length === 0) {
+      return;
+    }
+    this.uiConfig = { ...this.uiConfig, tableSettings: { ...defaults, ...stored } };
+    this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
   }
 
   /**
