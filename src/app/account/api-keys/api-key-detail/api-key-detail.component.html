@@ -1,0 +1,57 @@
+@if (loading) {
+  <grid-main>
+    <div class="loading-spinner">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Loading API key…</span>
+    </div>
+  </grid-main>
+} @else if (notFound || !token) {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'API key not found'"></app-page-subtitle>
+    <p class="help-block">The requested API key could not be loaded. It may have been deleted.</p>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-main>
+} @else {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'API Key #' + token.id"></app-page-subtitle>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <simulate-form-field label="ID" [message]="token.id + ''"></simulate-form-field>
+      <simulate-form-field
+        label="Status"
+        [icon]="
+          status === ApiTokenStatus.ACTIVE ? 'check_circle' : status === ApiTokenStatus.REVOKED ? 'block' : 'schedule'
+        "
+        [message]="status ?? '' | titlecase"
+      ></simulate-form-field>
+      <simulate-form-field label="Revoked" [message]="token.isRevoked ? 'Yes' : 'No'"></simulate-form-field>
+    </div>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <simulate-form-field label="Valid From" [message]="formatTimestamp(token.startValid)"></simulate-form-field>
+      <simulate-form-field label="Valid Until" [message]="formatTimestamp(token.endValid)"></simulate-form-field>
+    </div>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <simulate-form-field label="Creator" [message]="token.user?.name ?? '—'"></simulate-form-field>
+      <simulate-form-field label="User ID" [message]="token.userId + ''"></simulate-form-field>
+    </div>
+  </grid-main>
+
+  <grid-main>
+    <app-page-subtitle [subtitle]="'Permissions'"></app-page-subtitle>
+    <p class="help-block">
+      Scopes are baked into the signed JWT at creation and not stored server-side, so this matrix shows the permission
+      structure for reference only — the granted scope set cannot be recovered from the API key after issuance.
+    </p>
+    <access-permission-groups-user-table
+      mode="view"
+      [granted]="fullPermissions"
+      [selection]="selection"
+    ></access-permission-groups-user-table>
+  </grid-main>
+
+  <grid-buttons>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-buttons>
+}

@@ -19,6 +19,7 @@ import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlis
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -55,6 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private preprocessorRoleService = inject(PreprocessorRoleService);
   private configRoleWrapper = inject(ConfigRoleWrapperService);
   private userRoleWrapperService = inject(UserRoleWrapperService);
+  private apiTokensRoleService = inject(ApiTokensRoleService);
 
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
@@ -376,6 +378,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions.push({
         label: 'Notifications',
         routerLink: ['account', 'notifications']
+      });
+    }
+
+    if (this.apiTokensRoleService.hasRole('read')) {
+      actions.push({
+        label: 'API Keys',
+        routerLink: ['account', 'api-keys']
       });
     }
 

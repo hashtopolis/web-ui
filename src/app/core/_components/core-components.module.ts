@@ -37,6 +37,7 @@ import { AgentBinariesTableComponent } from '@components/tables/agent-binaries-t
 import { AgentErrorTableComponent } from '@components/tables/agent-error-table/agent-error-table.component';
 import { AgentsStatusTableComponent } from '@components/tables/agents-status-table/agents-status-table.component';
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+import { ApiTokensTableComponent } from '@components/tables/api-tokens-table/api-tokens-table.component';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ChunksTableComponent } from '@components/tables/chunks-table/chunks-table.component';
 import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
@@ -120,6 +121,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     AccessPermissionGroupsUserTableComponent,
     AccessPermissionGroupsUsersTableComponent,
     NotificationsTableComponent,
+    ApiTokensTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,
     VouchersTableComponent,
@@ -200,6 +202,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     AccessPermissionGroupsUserTableComponent,
     AccessPermissionGroupsUsersTableComponent,
     NotificationsTableComponent,
+    ApiTokensTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,
     VouchersTableComponent,

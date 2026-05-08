@@ -7,6 +7,7 @@ import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/a
 import { AgentErrorTableCol } from '@components/tables/agent-error-table/agent-error-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
+import { ApiTokensTableCol } from '@components/tables/api-tokens-table/api-tokens-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -116,6 +117,22 @@ const _uiConfigDefault = {
         dataKey: 'id',
         isSortable: true,
         direction: 'asc'
+      },
+      search: ''
+    },
+    apiTokensTable: {
+      page: 25,
+      columns: [
+        ApiTokensTableCol.ID,
+        ApiTokensTableCol.VALID_FROM,
+        ApiTokensTableCol.VALID_UNTIL,
+        ApiTokensTableCol.STATUS
+      ],
+      order: {
+        id: ApiTokensTableCol.ID,
+        dataKey: 'id',
+        isSortable: true,
+        direction: 'desc'
       },
       search: ''
     },

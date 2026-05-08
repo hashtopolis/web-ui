@@ -1,0 +1,57 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="'Create New API Key'"></app-page-subtitle>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-4">
+      <p class="help-block">API keys let you call the Hashtopolis API programmatically.</p>
+      <p class="help-block">The token is shown only once after creation — copy it immediately.</p>
+
+      <div class="flex flex-wrap items-start gap-4">
+        <input-date title="Valid From" formControlName="validFrom" hint="DD/MM/YYYY" [isRequired]="true"></input-date>
+        <input-date title="Valid Until" formControlName="validUntil" hint="DD/MM/YYYY" [isRequired]="true"></input-date>
+      </div>
+
+      @if (validityDays !== null) {
+        <span class="help-block">Total validity: {{ validityDays }} {{ validityDays === 1 ? 'day' : 'days' }}.</span>
+      }
+
+      @if (form.errors?.['validityRange']) {
+        <span class="help-block text-critical">"Valid Until" must be after "Valid From".</span>
+      }
+
+      <div class="flex flex-col gap-2 mt-2">
+        <span class="font-medium">Scopes</span>
+        @if (loadingScopes) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading available scopes…</span>
+          </div>
+        } @else if (!granted) {
+          <span class="help-block">No scopes available — you do not currently hold any permissions to grant.</span>
+        } @else {
+          <access-permission-groups-user-table
+            mode="form"
+            [granted]="granted"
+            [selection]="form.controls.scopes.value"
+            (selectionChange)="onSelectionChange($event)"
+          ></access-permission-groups-user-table>
+          @if (form.controls.scopes.touched && form.controls.scopes.hasError('required')) {
+            <span class="help-block text-critical">Pick at least one scope.</span>
+          }
+        }
+      </div>
+    </div>
+
+    <grid-buttons>
+      <div class="flex items-center gap-6">
+        <button mat-stroked-button type="button" routerLink="/account/api-keys">Cancel</button>
+        <button-submit
+          appLoadingButton
+          [loading]="submitting"
+          [name]="submitting ? 'Creating…' : 'Create'"
+          [disabled]="loadingScopes"
+        ></button-submit>
+      </div>
+    </grid-buttons>
+  </form>
+</grid-main>

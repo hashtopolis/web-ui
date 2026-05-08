@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>API Key Created</h2>
+<mat-dialog-content>
+  <div class="flex flex-col gap-4">
+    <div class="p-4 border border-warning rounded text-warning">
+      <strong>Save this token now.</strong> Hashtopolis will never display it again. If you lose it, revoke this key and
+      create a new one.
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="font-medium" for="api-key-token-output">API Key</label>
+      <textarea
+        id="api-key-token-output"
+        class="w-full font-mono text-sm p-2 border rounded"
+        rows="8"
+        readonly
+        [value]="token"
+        (focus)="$any($event.target).select()"
+      ></textarea>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="copy()"><mat-icon>content_copy</mat-icon> Copy to Clipboard</button>
+  <button mat-flat-button color="primary" type="button" (click)="done()">Done</button>
+</mat-dialog-actions>

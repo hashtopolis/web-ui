@@ -1,0 +1,13 @@
+<ht-table
+  #table
+  name="apiTokensTable"
+  dataType="apiTokens"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="false"
+  [contextMenuService]="contextMenuService"
+  [isFilterable]="false"
+  [isPageable]="true"
+  (rowActionClicked)="rowActionClicked($event)"
+/>
