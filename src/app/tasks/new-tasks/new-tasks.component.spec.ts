@@ -164,7 +164,7 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
   maxAgents: 0,
   chunkTime: 300,
   priority: 5,
-  color: '',
+  color: null,
   isCpuTask: true,
   crackerBinaryTypeId: 1,
   isSmall: true,

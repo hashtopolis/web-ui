@@ -157,7 +157,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             chunkTime: result['chunkTime'],
             statusTimer: result['statusTimer'],
             priority: result['priority'],
-            color: result['color'] ?? '',
+            color: result['color'] ?? null,
             isCpuTask: result['isCpuTask'],
             crackerBinaryTypeId: result['crackerBinaryTypeId'] ?? 1,
             isSmall: result['isSmall'],

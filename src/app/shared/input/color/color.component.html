@@ -2,25 +2,31 @@
   <div class="color-input-wrapper">
     <mat-form-field
       appearance="outline"
+      subscriptSizing="dynamic"
       [class.mat-form-field-invalid]="hasError"
       [class.mat-form-field-touched]="isTouched"
     >
       <mat-label>{{ title }}</mat-label>
       <input
-        #selectInput
+        #inputField
         matInput
         type="color"
         [id]="inputId"
-        [value]="inputValue"
+        [value]="value ?? DEFAULT_NATIVE_INPUT_PLACEHOLDER"
         [class.ng-invalid]="hasError"
         [class.ng-touched]="isTouched"
-        [class.color-unset]="isUnset"
+        [class.color-unset]="!value"
         (input)="onValueChange($event)"
         (blur)="onTouched()"
-        [style.background]="isUnset ? null : value"
+        [style.background]="value"
         [disabled]="disabled"
       />
-      <span class="color-value" [ngClass]="'color-value-' + colorClass">{{ isUnset ? 'No color' : value }}</span>
+      <span
+        class="color-value"
+        [class.color-value-on-light]="value && isLight(value)"
+        [class.color-value-on-dark]="value && !isLight(value)"
+        >{{ value ?? 'No color' }}</span
+      >
     </mat-form-field>
 
     @if (randomColor) {
@@ -43,8 +49,8 @@
       class="clear-color-btn"
       title="Clear Color"
       (click)="clearColor()"
-      [disabled]="disabled || isUnset"
-      [class.clear-color-btn-hidden]="isUnset"
+      [disabled]="disabled || !value"
+      [class.clear-color-btn-hidden]="!value"
     >
       <mat-icon>close</mat-icon>
     </button>

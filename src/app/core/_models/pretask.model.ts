@@ -9,7 +9,7 @@ import { CrackerBinaryTypeId } from '@models/id.types';
 export interface JPretask extends BaseModel {
   attackCmd: string;
   chunkTime: number;
-  color: string;
+  color: string | null;
   crackerBinaryTypeId: CrackerBinaryTypeId;
   isCpuTask: boolean;
   isMaskImport: boolean;

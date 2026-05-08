@@ -237,7 +237,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
         ),
         notes: new FormControl({ value: '', disabled: this.isReadOnly }),
-        color: new FormControl({ value: '', disabled: this.isReadOnly }),
+        color: new FormControl<string | null>({ value: null, disabled: this.isReadOnly }),
         chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
         statusTimer: new FormControl({ value: '', disabled: this.isReadOnly }),
         priority: new FormControl({ value: '', disabled: this.isReadOnly }),
