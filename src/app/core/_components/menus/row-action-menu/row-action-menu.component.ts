@@ -15,6 +15,7 @@ import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.compone
 })
 export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {
   @Input() contextMenuService: ContextMenuService;
+  @Input() disabledTooltip = 'No actions available';
 
   ngOnInit(): void {
     if (this.contextMenuService) {
@@ -22,5 +23,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         this.conditionallyAddMenuItem(item, this.data);
       });
     }
+    this.disabled = this.disabled || this.actionMenuItems.every((section) => !section?.length);
   }
 }

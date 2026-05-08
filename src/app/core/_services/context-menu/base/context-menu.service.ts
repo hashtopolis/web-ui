@@ -225,6 +225,30 @@ export abstract class ContextMenuService {
   }
 
   /**
+   * Add a new revoke entry to context menu. Distinct from delete so destructive
+   * but reversible-by-policy actions (e.g. revoking a token) read clearly.
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
+   */
+  protected addCtxRevokeItem(
+    label: string,
+    permissions: Array<PermissionValues>,
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    this.createMenuItem(
+      label,
+      1,
+      RowActionMenuAction.REVOKE,
+      RowActionMenuIcon.REVOKE,
+      permissions,
+      condition,
+      true,
+      true
+    );
+  }
+
+  /**
    * Add a new copy entry to context menu
    * @param label - label of the entry
    * @param action - copy action event to emit on click

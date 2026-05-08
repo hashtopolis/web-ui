@@ -85,7 +85,8 @@ export const RowActionMenuAction = {
   DOWNLOAD: 'download',
   UNARCHIVE: 'unarchive',
   RESET: 'reset',
-  VIEW: 'view'
+  VIEW: 'view',
+  REVOKE: 'revoke'
 };
 
 export const RowActionMenuIcon = {
@@ -102,5 +103,6 @@ export const RowActionMenuIcon = {
   DEACTIVATE: 'remove_circle',
   DOWNLOAD: 'file_download',
   RESET: 'restore',
-  VIEW: 'preview'
+  VIEW: 'preview',
+  REVOKE: 'block'
 };
