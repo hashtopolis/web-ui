@@ -1,6 +1,26 @@
 //import moment from 'moment';
 
 /**
+ * Returns a copy of the given date set to the start of its local-time calendar day (00:00:00.000).
+ * Non-mutating: the input is not modified.
+ */
+export const startOfDay = (date: Date): Date => {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+};
+
+/**
+ * Returns a copy of the given date set to the end of its local-time calendar day (23:59:59.999).
+ * Non-mutating: the input is not modified.
+ */
+export const endOfDay = (date: Date): Date => {
+  const copy = new Date(date);
+  copy.setHours(23, 59, 59, 999);
+  return copy;
+};
+
+/**
  * Calculate a Unix timestamp for a date in the past.
  *
  * @param {number} days - The number of days to go back in the past.
@@ -33,10 +53,7 @@ export const unixTimestampInPast = (days: number): number => {
  *
  * @returns The formatted date-time string.
  */
-export function formatUnixTimestamp(
-  unixTimestamp: number,
-  fmt: string
-): string {
+export function formatUnixTimestamp(unixTimestamp: number, fmt: string): string {
   if (unixTimestamp === 0) {
     return 'N/A';
   }
