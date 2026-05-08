@@ -37,9 +37,6 @@
 
           <div class="flex flex-wrap gap-2">
             <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
-            @if (form.controls.isSalted.value) {
-              <input-text title="Field separator" formControlName="separator"></input-text>
-            }
           </div>
 
           @if (sourceType === 'paste') {
