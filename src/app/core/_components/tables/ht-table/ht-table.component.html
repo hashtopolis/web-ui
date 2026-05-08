@@ -193,8 +193,22 @@
 
     @for (tableColumn of tableColumns; track tableColumn.id) {
       <ng-container [matColumnDef]="tableColumn.id + ''">
-        <!-- if sortable column header -->
-        @if (tableColumn.isSortable) {
+        <!-- if header checkbox is supplied (matrix-style toggle) -->
+        @if (tableColumn.headerCheckbox; as headerCheckboxFn) {
+          <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
+            @let headerCheckbox = headerCheckboxFn();
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="headerCheckbox.change($event.checked)"
+              [checked]="headerCheckbox.state === 'checked'"
+              [indeterminate]="headerCheckbox.state === 'indeterminate'"
+              [matTooltip]="headerCheckbox.tooltip || ''"
+            >
+              {{ headerCheckbox.label ?? columnLabels[tableColumn.id] }}
+            </mat-checkbox>
+          </th>
+        } @else if (tableColumn.isSortable) {
+          <!-- if sortable column header -->
           <th
             mat-header-cell
             *matHeaderCellDef

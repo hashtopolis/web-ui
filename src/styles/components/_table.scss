@@ -53,6 +53,14 @@ table.hashtopolis-table {
     .mat-sort-header-arrow {
       color: #fff;
     }
+
+    // Headers rendered inside a mat-checkbox (matrix-style toggle columns)
+    // declare their label color via Material's own MDC token, which doesn't
+    // inherit the header cell color above. Force it to match so checkbox
+    // headers read the same as sortable text headers.
+    .mat-mdc-checkbox label {
+      color: #fff;
+    }
   }
 
   .mat-mdc-row:hover {
@@ -122,17 +130,17 @@ table.hashtopolis-table {
       align-items: center;
       position: relative;
 
-      
-      button[mat-icon-button], .mat-mdc-icon-button {
-       display: inline-flex;
-       align-items: center;
-       justify-content: center;
-       width: 40px;
-       height: 40px;
-       padding: 0;
-       margin: 0 2px;
-       vertical-align: middle;
-       box-sizing: border-box;
+      button[mat-icon-button],
+      .mat-mdc-icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        margin: 0 2px;
+        vertical-align: middle;
+        box-sizing: border-box;
       }
 
       button[mat-icon-button] .mat-icon,
@@ -185,10 +193,10 @@ table.hashtopolis-table {
   top: 50%;
   transform: translateY(-50%);
 }
-.filter-container{
-  display: flex; 
-  align-items: center; 
-  gap: 16px
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 div.table-actions {
   display: flex;

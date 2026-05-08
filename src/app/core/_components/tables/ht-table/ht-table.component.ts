@@ -352,7 +352,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       data: {
         availableColumns: this.filterKeys(
           this.columnLabels,
-          this.tableColumns.map((col) => col.id + '')
+          this.tableColumns.filter((col) => !col.alwaysShown).map((col) => col.id + '')
         ),
         selectedColumns: this.displayedColumns
       }
@@ -433,6 +433,13 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     if (this.isSelectable) {
       // Add checkbox if enabled
       this.displayedColumns.push(COL_SELECT + '');
+    }
+    // Pin "structural" columns (alwaysShown) before the user-configurable columns,
+    // so e.g. a row-toggle column survives even if the stored UI config predates it.
+    for (const col of this.tableColumns) {
+      if (col.alwaysShown && !columnNames.includes(col.id)) {
+        this.displayedColumns.push(col.id + '');
+      }
     }
     for (const num of columnNames) {
       if (this.tableColumns.some((col) => col.id === num)) {

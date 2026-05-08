@@ -1,12 +1,19 @@
 @if (tableColumn.checkbox) {
   <div class="editable-container">
     @if (checkbox.value !== 'undefined') {
-      <mat-checkbox
-        class="editable-checkbox"
-        [ngModel]="parseCheckboxValue(checkbox.value)"
-        (change)="onEditableInputSaved($event.checked)"
-        matTooltip="Click to edit value"
-      ></mat-checkbox>
+      <!-- Tooltip lives on the wrapper, not the checkbox: Material's MDC checkbox sets
+           pointer-events: none when disabled, so a matTooltip bound directly on it never
+           fires. The span keeps receiving hover events, so disabled cells still surface
+           their reason. -->
+      <span [matTooltip]="checkbox.tooltip || 'Click to edit value'">
+        <mat-checkbox
+          class="editable-checkbox"
+          [ngModel]="parseCheckboxValue(checkbox.value)"
+          [indeterminate]="!!checkbox.indeterminate"
+          (change)="onEditableInputSaved($event.checked)"
+          [disabled]="!!checkbox.disabled"
+        ></mat-checkbox>
+      </span>
     }
   </div>
 }
