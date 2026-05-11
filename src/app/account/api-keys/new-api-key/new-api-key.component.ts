@@ -17,7 +17,13 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { NewApiKeyForm, getNewApiKeyForm } from '@src/app/account/api-keys/new-api-key/new-api-key.form';
-import { endOfDay, startOfDay } from '@src/app/shared/utils/datetime';
+import {
+  daysBetween,
+  endOfDay,
+  startOfDay,
+  startOfNextDay,
+  unixTimestampFromDate
+} from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-new-api-key',
@@ -32,7 +38,9 @@ export class NewApiKeyComponent implements OnInit {
   private revealStore = inject(ApiKeyRevealStore);
   private titleService = inject(AutoTitleService);
 
-  form: FormGroup<NewApiKeyForm> = getNewApiKeyForm();
+  private static readonly DEFAULT_VALIDITY_DAYS = 90;
+
+  form: FormGroup<NewApiKeyForm> = getNewApiKeyForm(NewApiKeyComponent.DEFAULT_VALIDITY_DAYS);
   /**
    * The current user's permission map. The matrix only allows toggling cells
    * the user holds (`granted[key] === true`); the rest render disabled with
@@ -50,7 +58,7 @@ export class NewApiKeyComponent implements OnInit {
     if (!from || !until) {
       return null;
     }
-    const days = Math.round((until.getTime() - from.getTime()) / (24 * 60 * 60 * 1000));
+    const days = daysBetween(startOfDay(from), endOfDay(until));
     return days > 0 ? days : null;
   }
 
@@ -94,8 +102,10 @@ export class NewApiKeyComponent implements OnInit {
     try {
       const payload = {
         scopes,
-        startValid: Math.floor(startOfDay(validFrom).getTime() / 1000),
-        endValid: Math.floor(endOfDay(validUntil).getTime() / 1000),
+        startValid: unixTimestampFromDate(startOfDay(validFrom)),
+        // endValid is an *exclusive* cutoff: the token is valid through the
+        // whole picked day and expires exactly at the next-day midnight.
+        endValid: unixTimestampFromDate(startOfNextDay(validUntil)),
         userId: this.gs.userId,
         isRevoked: false
       };

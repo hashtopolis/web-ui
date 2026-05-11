@@ -1,5 +1,9 @@
 //import moment from 'moment';
 
+type Seconds = number
+type Days = number
+type UnixTimestampSeconds = number
+
 /**
  * Returns a copy of the given date set to the start of its local-time calendar day (00:00:00.000).
  * Non-mutating: the input is not modified.
@@ -21,16 +25,49 @@ export const endOfDay = (date: Date): Date => {
 };
 
 /**
+ * Returns 00:00:00.000 of the day after the given date in local time.
+ */
+export const startOfNextDay = (date: Date): Date => {
+  const copy = startOfDay(date);
+  copy.setDate(copy.getDate() + 1);
+  return copy;
+};
+
+/**
+ * Given an exclusive end-of-validity cutoff in unix seconds (i.e. the first
+ * instant at which a token is considered expired), returns the unix second
+ * at which it is still valid for the last time.
+ */
+export const lastValidSecond = (endValidSec: Seconds): number => endValidSec - 1;
+
+/**
  * Calculate a Unix timestamp for a date in the past.
  *
  * @param {number} days - The number of days to go back in the past.
  * @returns {number} The Unix timestamp (in seconds) for the specified date in the past.
  */
-export const unixTimestampInPast = (days: number): number => {
+export const unixTimestampInPast = (days: Days): UnixTimestampSeconds => {
   const currentDate = new Date();
   const inPast = new Date(currentDate.getTime() - days * 24 * 60 * 60 * 1000);
 
-  return Math.floor(inPast.getTime() / 1000);
+  return unixTimestampFromDate(inPast);
+};
+
+/**
+ * Returns the number of whole days between two dates, rounded to the nearest day.
+ * The result is signed: positive when `until` is after `from`, negative when before.
+ * Caller is responsible for clamping if non-positive ranges should be excluded.
+ */
+export const daysBetween = (from: Date, until: Date): Days => {
+  return Math.round((until.getTime() - from.getTime()) / (24 * 60 * 60 * 1000));
+};
+
+/**
+ * Converts a Date to a Unix timestamp in seconds, flooring sub-second precision
+ * to match Unix epoch convention.
+ */
+export const unixTimestampFromDate = (date: Date): UnixTimestampSeconds => {
+  return Math.floor(date.getTime() / 1000);
 };
 
 /**

@@ -29,7 +29,7 @@
 
     <div class="flex flex-wrap items-start gap-2">
       <simulate-form-field label="Valid From" [message]="formatTimestamp(token.startValid)"></simulate-form-field>
-      <simulate-form-field label="Valid Until" [message]="formatTimestamp(token.endValid)"></simulate-form-field>
+      <simulate-form-field label="Expires At" [message]="formatExpiry(token.endValid)"></simulate-form-field>
     </div>
 
     <div class="flex flex-wrap items-start gap-2">

@@ -22,7 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { ApiTokensDataSource } from '@datasources/api-tokens.datasource';
 
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-api-tokens-table',
@@ -71,9 +71,9 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
       {
         id: ApiTokensTableCol.VALID_UNTIL,
         dataKey: 'endValid',
-        render: (token: JApiToken) => formatUnixTimestamp(token.endValid, this.dateFormat),
+        render: (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat),
         isSortable: true,
-        export: async (token: JApiToken) => formatUnixTimestamp(token.endValid, this.dateFormat)
+        export: async (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat)
       },
       {
         id: ApiTokensTableCol.STATUS,

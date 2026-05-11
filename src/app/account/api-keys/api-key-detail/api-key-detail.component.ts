@@ -16,7 +16,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-api-key-detail',
@@ -34,9 +34,8 @@ export class ApiKeyDetailComponent implements OnInit {
 
   protected readonly ApiTokenStatus = ApiTokenStatus;
 
-  /** Loaded token. Null until the GET resolves; the template gates on this. */
+  // null until fetched
   token: JApiToken | null = null;
-  /** Status derived from the token's lifecycle (active / expired / revoked). */
   status: ApiTokenStatus | null = null;
   loading = true;
   notFound = false;
@@ -50,7 +49,11 @@ export class ApiKeyDetailComponent implements OnInit {
     this.titleService.set(['API Key Details']);
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
+    this.loadToken();
+  }
+
+  private async loadToken(): Promise<void> {
     const id = Number(this.route.snapshot.params['id']);
     if (!Number.isFinite(id)) {
       this.notFound = true;
@@ -76,6 +79,11 @@ export class ApiKeyDetailComponent implements OnInit {
 
   formatTimestamp(ts: number): string {
     return formatUnixTimestamp(ts, this.dateFormat);
+  }
+
+  /** Format an exclusive endValid cutoff as the last second of validity. */
+  formatExpiry(endValidSec: number): string {
+    return formatUnixTimestamp(lastValidSecond(endValidSec), this.dateFormat);
   }
 
   goBack(): void {

@@ -10,7 +10,7 @@ export type ApiTokensTableCol = (typeof ApiTokensTableCol)[keyof typeof ApiToken
 export const ApiTokensTableColumnLabel: Record<ApiTokensTableCol, string> = {
   [ApiTokensTableCol.ID]: 'ID',
   [ApiTokensTableCol.VALID_FROM]: 'Valid From',
-  [ApiTokensTableCol.VALID_UNTIL]: 'Valid Until',
+  [ApiTokensTableCol.VALID_UNTIL]: 'Expires At',
   [ApiTokensTableCol.STATUS]: 'Status',
   [ApiTokensTableCol.CREATOR]: 'Creator'
 };

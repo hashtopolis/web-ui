@@ -3,16 +3,11 @@ import { FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } fro
 import { endOfDay, startOfDay } from '@src/app/shared/utils/datetime';
 
 /**
- * Reactive form shape for the New API Key page.
+ * Form for generating a new API key.
  *
  * Times are picked as `Date` objects in the form and converted to unix-second
- * timestamps at submit time (the only place the conversion happens, to keep the
- * UI free of timestamp arithmetic).
- *
+ * timestamps at submit time.
  * `scopes` is an array of permission name strings (e.g. `permTaskRead`).
- * Numeric indices were considered but rejected: the backend matches scopes by
- * name against the user's right-group permission map, so passing names through
- * unchanged avoids an avoidable id↔name lookup.
  */
 export interface NewApiKeyForm {
   validFrom: FormControl<Date | null>;
@@ -20,24 +15,23 @@ export interface NewApiKeyForm {
   scopes: FormControl<string[]>;
 }
 
-const DEFAULT_VALIDITY_DAYS = 90;
-
-const validityRangeValidator: ValidatorFn = (group): ValidationErrors | null => {
-  const from = group.get('validFrom')?.value as Date | null;
-  const until = group.get('validUntil')?.value as Date | null;
-  if (from && until && until.getTime() <= from.getTime()) {
+const validityRangeValidator: ValidatorFn = (control): ValidationErrors | null => {
+  const { validFrom, validUntil } = (control as FormGroup<NewApiKeyForm>).controls;
+  const from = validFrom.value;
+  const until = validUntil.value;
+  if (from && until && startOfDay(until).getTime() < startOfDay(from).getTime()) {
     return { validityRange: true };
   }
   return null;
 };
 
-/** Build a New API Key form pre-filled with sensible defaults (90-day validity, no scopes). */
-export const getNewApiKeyForm = (): FormGroup<NewApiKeyForm> => {
+/** Build a New API Key form pre-filled with sensible defaults (`validityDays` calendar days, no scopes). */
+export const getNewApiKeyForm = (validityDays: number): FormGroup<NewApiKeyForm> => {
   // Inclusive day count: from = today 00:00, until = day (N-1) 23:59:59 → exactly N calendar days.
-  // Using +DEFAULT_VALIDITY_DAYS would inclusive-count to N+1 and the help text would disagree.
+  // Using +validityDays would inclusive-count to N+1 and the help text would disagree.
   const validFrom = startOfDay(new Date());
   const lastDay = new Date(validFrom);
-  lastDay.setDate(lastDay.getDate() + DEFAULT_VALIDITY_DAYS - 1);
+  lastDay.setDate(lastDay.getDate() + validityDays - 1);
   const validUntil = endOfDay(lastDay);
 
   return new FormGroup<NewApiKeyForm>(

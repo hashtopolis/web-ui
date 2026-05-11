@@ -28,7 +28,6 @@ export class ApiKeysComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     // When we navigate here after creating a key (which is put in the store)
     // show the dialog with the key, is a bit nicer to show it here in the list than on the create screen
     const token = this.revealStore.consume();

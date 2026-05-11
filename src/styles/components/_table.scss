@@ -54,10 +54,7 @@ table.hashtopolis-table {
       color: #fff;
     }
 
-    // Headers rendered inside a mat-checkbox (matrix-style toggle columns)
-    // declare their label color via Material's own MDC token, which doesn't
-    // inherit the header cell color above. Force it to match so checkbox
-    // headers read the same as sortable text headers.
+    // When rendering a checkbox with label within the column have the same label color
     .mat-mdc-checkbox label {
       color: #fff;
     }

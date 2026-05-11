@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';

@@ -17,6 +17,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { NewApiKeyComponent } from '@src/app/account/api-keys/new-api-key/new-api-key.component';
+import { startOfDay, startOfNextDay, unixTimestampFromDate } from '@src/app/shared/utils/datetime';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewApiKeyComponent', () => {
@@ -99,6 +100,39 @@ describe('NewApiKeyComponent', () => {
     expect(mockAlert.showSuccessMessage).toHaveBeenCalled();
   });
 
+  it('sends endValid as the exclusive next-day-midnight cutoff (not end-of-picked-day)', async () => {
+    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
+
+    // Pin a specific validUntil so we don't depend on the 90-day default math.
+    const pickedUntil = new Date(2026, 4, 15, 0, 0, 0, 0); // 2026-05-15 local
+    component.form.controls.validUntil.setValue(pickedUntil);
+
+    await component.onSubmit();
+
+    const expectedEndValid = unixTimestampFromDate(startOfNextDay(pickedUntil));
+    expect(mockGlobalService.create).toHaveBeenCalledWith(
+      SERV.API_TOKENS,
+      jasmine.objectContaining({ endValid: expectedEndValid })
+    );
+  });
+
+  it('sends startValid as start-of-day of the picked validFrom', async () => {
+    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
+
+    const pickedFrom = new Date(2026, 4, 1, 9, 30); // 2026-05-01 09:30 local
+    component.form.controls.validFrom.setValue(pickedFrom);
+
+    await component.onSubmit();
+
+    const expectedStartValid = unixTimestampFromDate(startOfDay(pickedFrom));
+    expect(mockGlobalService.create).toHaveBeenCalledWith(
+      SERV.API_TOKENS,
+      jasmine.objectContaining({ startValid: expectedStartValid })
+    );
+  });
+
   it('shows an error and navigates without storing when the response has no token', async () => {
     component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
@@ -120,5 +154,64 @@ describe('NewApiKeyComponent', () => {
     expect(mockStore.set).not.toHaveBeenCalled();
     expect(mockRouter.navigate).not.toHaveBeenCalled();
     expect(mockAlert.showErrorMessage).toHaveBeenCalled();
+  });
+
+  describe('validityDays getter', () => {
+    // The mat-datepicker emits picked dates at 00:00:00 local time, so the
+    // getter must normalise to whole-day boundaries to report an inclusive
+    // day count regardless of what time the form value carries.
+
+    it('counts a three-day range inclusively when the picker emits midnight values', () => {
+      component.form.controls.validFrom.setValue(new Date(2026, 4, 11, 0, 0, 0, 0));
+      component.form.controls.validUntil.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
+
+      expect(component.validityDays).toBe(3);
+    });
+
+    it('counts a same-day pick as one day', () => {
+      const sameDay = new Date(2026, 4, 11, 0, 0, 0, 0);
+      component.form.controls.validFrom.setValue(sameDay);
+      component.form.controls.validUntil.setValue(sameDay);
+
+      expect(component.validityDays).toBe(1);
+    });
+
+    it('returns null when validFrom is missing', () => {
+      component.form.controls.validFrom.setValue(null);
+      component.form.controls.validUntil.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
+
+      expect(component.validityDays).toBeNull();
+    });
+
+    it('returns null when validUntil is before validFrom', () => {
+      component.form.controls.validFrom.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
+      component.form.controls.validUntil.setValue(new Date(2026, 4, 11, 0, 0, 0, 0));
+
+      expect(component.validityDays).toBeNull();
+    });
+  });
+
+  describe('validity range validator', () => {
+    it('accepts same-day picks at midnight', () => {
+      const sameDay = new Date(2026, 4, 11, 0, 0, 0, 0);
+      component.form.controls.validFrom.setValue(sameDay);
+      component.form.controls.validUntil.setValue(sameDay);
+
+      expect(component.form.errors?.['validityRange']).toBeFalsy();
+    });
+
+    it('accepts validUntil strictly after validFrom', () => {
+      component.form.controls.validFrom.setValue(new Date(2026, 4, 11, 0, 0, 0, 0));
+      component.form.controls.validUntil.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
+
+      expect(component.form.errors?.['validityRange']).toBeFalsy();
+    });
+
+    it('rejects validUntil strictly before validFrom', () => {
+      component.form.controls.validFrom.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
+      component.form.controls.validUntil.setValue(new Date(2026, 4, 11, 0, 0, 0, 0));
+
+      expect(component.form.errors?.['validityRange']).toBeTrue();
+    });
   });
 });
