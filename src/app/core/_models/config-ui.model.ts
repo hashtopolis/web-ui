@@ -126,7 +126,8 @@ const _uiConfigDefault = {
         ApiTokensTableCol.ID,
         ApiTokensTableCol.VALID_FROM,
         ApiTokensTableCol.VALID_UNTIL,
-        ApiTokensTableCol.STATUS
+        ApiTokensTableCol.STATUS,
+        ApiTokensTableCol.CREATOR
       ],
       order: {
         id: ApiTokensTableCol.ID,

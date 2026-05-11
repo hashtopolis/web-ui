@@ -38,19 +38,6 @@
     </div>
   </grid-main>
 
-  <grid-main>
-    <app-page-subtitle [subtitle]="'Permissions'"></app-page-subtitle>
-    <p class="help-block">
-      Scopes are baked into the signed JWT at creation and not stored server-side, so this matrix shows the permission
-      structure for reference only — the granted scope set cannot be recovered from the API key after issuance.
-    </p>
-    <access-permission-groups-user-table
-      mode="view"
-      [granted]="fullPermissions"
-      [selection]="selection"
-    ></access-permission-groups-user-table>
-  </grid-main>
-
   <grid-buttons>
     <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
   </grid-buttons>

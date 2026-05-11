@@ -15,10 +15,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { Permission } from '@src/app/core/_models/global-permission-group.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-import { buildAllPermissionsMap } from '@src/app/shared/utils/permission-matrix';
 
 @Component({
   selector: 'app-api-key-detail',
@@ -40,10 +38,6 @@ export class ApiKeyDetailComponent implements OnInit {
   token: JApiToken | null = null;
   /** Status derived from the token's lifecycle (active / expired / revoked). */
   status: ApiTokenStatus | null = null;
-  /** Resource-by-CRUD map driving the read-only matrix. All keys true → full grid. */
-  fullPermissions: Permission = buildAllPermissionsMap();
-  /** Always empty here: scopes are write-only at creation, never returned. */
-  selection: string[] = [];
   loading = true;
   notFound = false;
 
