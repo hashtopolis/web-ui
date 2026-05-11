@@ -96,6 +96,31 @@ describe('uiConfigSchema', () => {
     }
   });
 
+  it('should backfill missing tableSettings keys from uiConfigDefault while preserving stored entries', () => {
+    const customColumns = [9, 8, 7];
+    const config = {
+      ...defaults,
+      tableSettings: {
+        usersTable: {
+          columns: customColumns,
+          page: 25,
+          search: '',
+          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+        }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      // stored entry wins
+      expect((result.data.tableSettings['usersTable'] as TableConfig).columns).toEqual(customColumns);
+      // missing default keys are filled
+      expect(result.data.tableSettings['notificationsTable']).toBeDefined();
+      expect(result.data.tableSettings['apiTokensTable']).toBeDefined();
+    }
+  });
+
   it('should fail on invalid tableSettings entry', () => {
     const config = {
       ...defaults,

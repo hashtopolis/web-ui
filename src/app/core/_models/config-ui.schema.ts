@@ -110,8 +110,14 @@ export const tableConfigSchema = z.object({
  * Zod schema for the full tableSettings record.
  * Compile-time table name typing is handled by the `TableSettingsKey` union in config-ui.model.ts.
  * The runtime schema intentionally stays permissive (z.record) to tolerate stale/extra keys in localStorage.
+ *
+ * `.transform()` shallow-merges in any default entries missing from the stored object so configs written
+ * before a new table was added still yield a complete map. Stored entries win on conflict, preserving
+ * user customisation. The merged result is what `LocalStorageService.setItem` persists on the next write.
  */
-export const tableSettingsSchema = z.record(z.string(), z.union([z.array(z.coerce.number()), tableConfigSchema]));
+export const tableSettingsSchema = z
+  .record(z.string(), z.union([z.array(z.coerce.number()), tableConfigSchema]))
+  .transform((stored) => ({ ...uiConfigDefault.tableSettings, ...stored }));
 
 /**
  * Zod schema for the top-level UIConfig.

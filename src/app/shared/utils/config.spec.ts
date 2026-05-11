@@ -1,25 +1,33 @@
+import { z } from 'zod';
+
 import { TableConfig, UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { uiConfigSchema } from '@models/config-ui.schema';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
- * Unit tests for the constructor's `tableSettings` backfill: when a stored
- * `ui-config` lacks keys present in `uiConfigDefault.tableSettings` (because
- * the user's localStorage predates a freshly-added table entry), the missing
- * keys must be populated from defaults so consumers (`getTableSettings`,
- * `getTableConfig`) don't render empty data tables.
+ * Verifies that the constructor loads a complete `tableSettings` map even when the stored value lacks
+ * newly-added default keys. The merge itself is performed by `tableSettingsSchema.transform(...)`; this
+ * suite exercises the integration through the utility class so consumers (`getTableSettings`,
+ * `getTableConfig`) never see a partial map.
  */
-describe('UISettingsUtilityClass — backfillMissingTableSettings', () => {
-  let setItemSpy: jasmine.Spy;
-
+describe('UISettingsUtilityClass — tableSettings backfill via schema', () => {
+  /**
+   * Mocks `LocalStorageService` so it routes `getItem` through the provided Zod schema, matching the
+   * real implementation. Without this, the utility would receive the raw partial object and bypass the
+   * schema-level merge entirely.
+   */
   function makeStorage(stored: UIConfig): LocalStorageService<UIConfig> {
-    setItemSpy = jasmine.createSpy('setItem');
     return {
-      getItem: jasmine.createSpy('getItem').and.returnValue(stored),
-      setItem: setItemSpy
+      getItem: jasmine.createSpy('getItem').and.callFake((_key: string, schema?: z.ZodType<UIConfig>) => {
+        if (!schema) {
+          return stored;
+        }
+        const result = schema.safeParse(stored);
+        return result.success ? result.data : stored;
+      }),
+      setItem: jasmine.createSpy('setItem')
     } as unknown as LocalStorageService<UIConfig>;
   }
 
@@ -27,7 +35,7 @@ describe('UISettingsUtilityClass — backfillMissingTableSettings', () => {
     return JSON.parse(JSON.stringify(uiConfigDefault));
   }
 
-  it('backfills a missing default key so getTableSettings returns the default columns and does not log', () => {
+  it('backfills a missing default key so getTableSettings returns the default columns', () => {
     const errorSpy = spyOn(console, 'error');
     const stored = cloneDefault();
     delete (stored.tableSettings as Record<string, unknown>)['apiTokensTable'];
@@ -51,28 +59,5 @@ describe('UISettingsUtilityClass — backfillMissingTableSettings', () => {
     const utility = new UISettingsUtilityClass(makeStorage(stored));
 
     expect(utility.getTableSettings('usersTable')).toEqual(customColumns);
-  });
-
-  it('persists the merged config exactly once when keys were missing', () => {
-    const stored = cloneDefault();
-    delete (stored.tableSettings as Record<string, unknown>)['apiTokensTable'];
-
-    new UISettingsUtilityClass(makeStorage(stored));
-
-    expect(setItemSpy).toHaveBeenCalledTimes(1);
-    expect(setItemSpy).toHaveBeenCalledWith(
-      UISettingsUtilityClass.KEY,
-      jasmine.objectContaining({
-        tableSettings: jasmine.objectContaining({ apiTokensTable: jasmine.anything() })
-      }),
-      0,
-      uiConfigSchema
-    );
-  });
-
-  it('does not call setItem when storage already contains every default key', () => {
-    new UISettingsUtilityClass(makeStorage(cloneDefault()));
-
-    expect(setItemSpy).not.toHaveBeenCalled();
   });
 });
