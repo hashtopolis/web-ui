@@ -63,7 +63,6 @@ export const RowActionMenuLabel = {
   ARCHIVE_PRETASK: 'Archive PreTask',
   UNARCHIVE_PRETASK: 'Unarchive PreTask',
   SHOW_SUBTASK: 'Show Subtasks',
-  REVOKE_API_TOKEN: 'Revoke API Key',
   DELETE_API_TOKEN: 'Delete API Key'
 };
 
@@ -87,8 +86,7 @@ export const RowActionMenuAction = {
   DOWNLOAD: 'download',
   UNARCHIVE: 'unarchive',
   RESET: 'reset',
-  VIEW: 'view',
-  REVOKE: 'revoke'
+  VIEW: 'view'
 };
 
 export const RowActionMenuIcon = {
@@ -105,6 +103,5 @@ export const RowActionMenuIcon = {
   DEACTIVATE: 'remove_circle',
   DOWNLOAD: 'file_download',
   RESET: 'restore',
-  VIEW: 'preview',
-  REVOKE: 'block'
+  VIEW: 'preview'
 };

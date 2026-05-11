@@ -14,3 +14,9 @@ export const ApiTokensTableColumnLabel: Record<ApiTokensTableCol, string> = {
   [ApiTokensTableCol.STATUS]: 'Status',
   [ApiTokensTableCol.CREATOR]: 'Creator'
 };
+
+export const ApiTokensRowAction = { REVOKE: 'revoke' } as const;
+export type ApiTokensRowAction = (typeof ApiTokensRowAction)[keyof typeof ApiTokensRowAction];
+
+export const ApiTokensRowActionLabel = { REVOKE: 'Revoke API Key' } as const;
+export const ApiTokensRowActionIcon = { REVOKE: 'block' } as const;

@@ -225,30 +225,6 @@ export abstract class ContextMenuService {
   }
 
   /**
-   * Add a new revoke entry to context menu. Distinct from delete so destructive
-   * but reversible-by-policy actions (e.g. revoking a token) read clearly.
-   * @param label - label of the entry
-   * @param permissions - list of permissions which must be granted to the user to display the menu entry
-   * @param condition - condition to check for display state of menu entry
-   */
-  protected addCtxRevokeItem(
-    label: string,
-    permissions: Array<PermissionValues>,
-    condition: ContextMenuCondition = { key: '', value: false }
-  ): void {
-    this.createMenuItem(
-      label,
-      1,
-      RowActionMenuAction.REVOKE,
-      RowActionMenuIcon.REVOKE,
-      permissions,
-      condition,
-      true,
-      true
-    );
-  }
-
-  /**
    * Add a new copy entry to context menu
    * @param label - label of the entry
    * @param action - copy action event to emit on click
@@ -377,6 +353,33 @@ export abstract class ContextMenuService {
    */
   protected addCtxViewItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.VIEW, RowActionMenuIcon.VIEW, permissions);
+  }
+
+  /**
+   * Register a subclass-local context-menu item. Use this for actions that are
+   * specific to a single table and don't warrant a shared `addCtx*Item` helper
+   * on the base class.
+   */
+  protected addCtxCustomItem(opts: {
+    label: string;
+    action: string;
+    icon: string;
+    permissions: Array<PermissionValues>;
+    condition?: ContextMenuCondition;
+    groupIndex?: number;
+    toContextMenu?: boolean;
+    warning?: boolean;
+  }): void {
+    this.createMenuItem(
+      opts.label,
+      opts.groupIndex ?? 0,
+      opts.action,
+      opts.icon,
+      opts.permissions,
+      opts.condition ?? { key: '', value: false },
+      opts.toContextMenu ?? true,
+      opts.warning ?? false
+    );
   }
 
   /**

@@ -12,6 +12,7 @@ import { SERV } from '@services/main.config';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
+  ApiTokensRowAction,
   ApiTokensTableCol,
   ApiTokensTableColumnLabel
 } from '@components/tables/api-tokens-table/api-tokens-table.constants';
@@ -130,7 +131,7 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
 
   rowActionClicked(event: ActionMenuEvent<JApiToken>): void {
     switch (event.menuItem.action) {
-      case RowActionMenuAction.REVOKE:
+      case ApiTokensRowAction.REVOKE:
         this.openDialog({
           rows: [event.data],
           title: `Revoke API key #${event.data.id}?`,
@@ -166,7 +167,7 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
         }
         const token: JApiToken = result.data[0];
         switch (result.action) {
-          case RowActionMenuAction.REVOKE:
+          case ApiTokensRowAction.REVOKE:
             void this.revoke(token);
             break;
           case RowActionMenuAction.DELETE:
