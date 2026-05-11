@@ -95,6 +95,11 @@ export const sortingSchema = z.object({
  * @TODO -> The numeric field conversion exists for the moment to not break first introduction of this schema.
  * Maybe remove if we want to migrate certain user data, otherwise just change to number and let the local storage data be reset.
  * - Numeric fields use coercion to tolerate string representations in stored data.
+ *
+ * NOTE: If you add a *required* field here, also add it to every entry in
+ * `uiConfigDefault.tableSettings` (config-ui.model.ts). Otherwise the defaults themselves
+ * fail `tableEntrySchema`, the per-entry repair below cannot heal stored data, and the whole
+ * `ui-config` ends up wiped by `LocalStorageService`'s self-heal.
  */
 export const tableConfigSchema = z.object({
   columns: z.array(z.coerce.number()),
@@ -107,17 +112,34 @@ export const tableConfigSchema = z.object({
 });
 
 /**
- * Zod schema for the full tableSettings record.
- * Compile-time table name typing is handled by the `TableSettingsKey` union in config-ui.model.ts.
- * The runtime schema intentionally stays permissive (z.record) to tolerate stale/extra keys in localStorage.
- *
- * `.transform()` shallow-merges in any default entries missing from the stored object so configs written
- * before a new table was added still yield a complete map. Stored entries win on conflict, preserving
- * user customisation. The merged result is what `LocalStorageService.setItem` persists on the next write.
+ * @TODO -> can probably be refactored so that we only have the new tableConfigSchema?
+ * Shape of a single tableSettings entry: either a legacy column-id array or a full TableConfig.
  */
-export const tableSettingsSchema = z
-  .record(z.string(), z.union([z.array(z.coerce.number()), tableConfigSchema]))
-  .transform((stored) => ({ ...uiConfigDefault.tableSettings, ...stored }));
+const tableEntrySchema = z.union([z.array(z.coerce.number()), tableConfigSchema]);
+
+/**
+ * Full tableSettings record.
+ *
+ * The preprocess seeds defaults for missing keys and overlays only stored entries that pass
+ * `tableEntrySchema`. Invalid entries with a matching default stay defaulted; invalid entries
+ * without a default are dropped. Non-object inputs fall through so the outer record rejects
+ * them, triggering `LocalStorageService`'s self-heal for fully-corrupt data.
+ */
+export const tableSettingsSchema = z.preprocess(
+  (val) => {
+    if (!val || typeof val !== 'object' || Array.isArray(val)) {
+      return val;
+    }
+    const result: Record<string, unknown> = { ...uiConfigDefault.tableSettings };
+    for (const [k, v] of Object.entries(val)) {
+      if (tableEntrySchema.safeParse(v).success) {
+        result[k] = v;
+      }
+    }
+    return result;
+  },
+  z.record(z.string(), tableEntrySchema)
+);
 
 /**
  * Zod schema for the top-level UIConfig.

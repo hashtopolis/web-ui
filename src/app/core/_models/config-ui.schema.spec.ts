@@ -121,14 +121,70 @@ describe('uiConfigSchema', () => {
     }
   });
 
-  it('should fail on invalid tableSettings entry', () => {
+  it('should replace an invalid tableSettings entry with the default and not fail', () => {
     const config = {
       ...defaults,
       tableSettings: {
-        brokenTable: { columns: 'not-an-array', page: 'bad' }
+        usersTable: { columns: 'not-an-array', page: 'bad' }
       }
     };
 
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      const expected = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
+      const repaired = result.data.tableSettings['usersTable'] as TableConfig;
+      expect(repaired.columns).toEqual([...expected.columns]);
+      expect(result.data.theme).toBe(defaults.theme);
+      expect(result.data.layout).toBe(defaults.layout);
+    }
+  });
+
+  it('should drop stale keys whose shape is invalid and which have no default', () => {
+    const config = {
+      ...defaults,
+      tableSettings: {
+        legacyDeadTable: { columns: 'nope', page: 'bad' }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      expect(result.data.tableSettings['legacyDeadTable']).toBeUndefined();
+    }
+  });
+
+  it('should preserve valid entries when sibling entries are repaired', () => {
+    const customColumns = [4, 2, 0];
+    const config = {
+      ...defaults,
+      tableSettings: {
+        usersTable: { columns: 'not-an-array', page: 'bad' },
+        agentsTable: {
+          columns: customColumns,
+          page: 25,
+          search: '',
+          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+        }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      // bad entry repaired from default
+      const repaired = result.data.tableSettings['usersTable'] as TableConfig;
+      const usersDefault = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
+      expect(repaired.columns).toEqual([...usersDefault.columns]);
+      // sibling custom entry kept
+      const kept = result.data.tableSettings['agentsTable'] as TableConfig;
+      expect(kept.columns).toEqual(customColumns);
+    }
+  });
+
+  it('should still fail when tableSettings itself is non-object garbage', () => {
+    const config = { ...defaults, tableSettings: 'string' };
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeFalse();
   });
