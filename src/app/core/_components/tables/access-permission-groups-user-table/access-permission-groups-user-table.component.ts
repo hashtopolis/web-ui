@@ -201,15 +201,41 @@ export class AccessPermissionGroupsUserTableComponent
       id: AccessPermissionGroupsUserTableCol.ROW_TOGGLE,
       isSortable: false,
       alwaysShown: true,
-      checkbox: (perm: UserPermissions) => this.rowToggleCellCheckbox(perm as PermissionMatrixRow)
+      checkbox: (perm: UserPermissions) => this.rowToggleCellCheckbox(perm as PermissionMatrixRow),
+      headerCheckbox: () => this.matrixHeaderCheckbox()
+    };
+  }
+
+  /**
+   * Form-mode-only master toggle living in the ROW_TOGGLE column header. Flips
+   * every grantable cell in the matrix on or off in a single click — the row
+   * axis of the existing column-header "select all" affordance, generalized to
+   * the full grid. Mirrors {@link columnHeaderCheckbox}: only grantable cells
+   * count toward the tri-state, so selecting every cell the user is allowed to
+   * grant promotes the master toggle to CHECKED.
+   */
+  private matrixHeaderCheckbox(): HTTableHeaderCheckbox {
+    const grantedKeys: string[] = [];
+    for (const row of this.rows) {
+      for (const k of Object.values(row.keys ?? {}) as Array<string | undefined>) {
+        if (k && this.granted?.[k]) grantedKeys.push(k);
+      }
+    }
+
+    return {
+      state: getHeaderCheckboxState(grantedKeys, this.selected),
+      change: (next) => this.toggleColumn(grantedKeys, next),
+      tooltip: 'Toggle all permissions'
     };
   }
 
   private rowToggleCellCheckbox(row: PermissionMatrixRow): HTTableEditable<UserPermissions> {
-    // CRUD verbs the resource exposes at all (some resources are read-only, etc.). N/A cells
-    // render visibly as disabled, so the row toggle's tri-state has to account for them.
-    const definedKeys = (Object.values(row.keys ?? {}) as Array<string | undefined>).filter((k): k is string => !!k);
-    const grantedKeys = definedKeys.filter((k) => !!this.granted?.[k]);
+    // Only grantable cells (defined for this resource AND held by the current user) count
+    // toward the row toggle. N/A and denied cells are excluded from the population, so
+    // selecting every cell the user can grant promotes the row to fully checked.
+    const grantedKeys = (Object.values(row.keys ?? {}) as Array<string | undefined>)
+      .filter((k): k is string => Boolean(k))
+      .filter((k) => Boolean(this.granted?.[k]));
     if (grantedKeys.length === 0) {
       // The user holds no CRUD permissions for this resource — nothing to toggle.
       return {
@@ -221,11 +247,10 @@ export class AccessPermissionGroupsUserTableComponent
       };
     }
     const selectedCount = grantedKeys.filter((k) => this.selected.has(k)).length;
-    const allGrantedSelected = selectedCount === grantedKeys.length;
-    const allCellsGrantable = grantedKeys.length === definedKeys.length;
-    // "Fully filled" requires every visible cell to be both grantable and selected; otherwise
-    // there is at least one unchecked-disabled cell on this row, so promote to indeterminate.
-    const fullyChecked = allGrantedSelected && allCellsGrantable;
+    // "Fully filled" means every grantable cell on this row is selected. N/A and denied cells
+    // are excluded from the population entirely, so they no longer block the checked state —
+    // otherwise indeterminate would be a dead-end: the user can never toggle the row "full."
+    const fullyChecked = selectedCount === grantedKeys.length;
     const partial = selectedCount > 0 && !fullyChecked;
     return {
       data: row,
@@ -300,7 +325,7 @@ export class AccessPermissionGroupsUserTableComponent
     }
 
     // Form mode
-    const userHolds = !!this.granted?.[key];
+    const userHolds = Boolean(this.granted?.[key]);
     const checked = this.selected.has(key);
     return {
       data: row,
@@ -312,30 +337,16 @@ export class AccessPermissionGroupsUserTableComponent
   }
 
   private columnHeaderCheckbox(verb: CrudVerb): HTTableHeaderCheckbox {
-    // Mirror rowToggleCellCheckbox's two-set model on the column axis: rows where the verb
-    // is N/A (no key in row.keys) are excluded from both populations entirely, so they don't
-    // drag the header into INDETERMINATE. Denied rows (key defined, user doesn't hold) still
-    // count toward definedKeys but not grantedKeys, so they keep the header indeterminate.
-    const definedKeys = this.rows.map((row) => row.keys?.[verb]).filter((k): k is string => !!k);
-    const grantedKeys = definedKeys.filter((k) => !!this.granted?.[k]);
-    const allDefinedGrantable = grantedKeys.length === definedKeys.length;
-
-    let state: HTTableHeaderCheckboxState;
-    if (grantedKeys.length === 0) {
-      state = HTTableHeaderCheckboxState.UNCHECKED;
-    } else {
-      const selectedCount = grantedKeys.filter((k) => this.selected.has(k)).length;
-      if (selectedCount === 0) {
-        state = HTTableHeaderCheckboxState.UNCHECKED;
-      } else if (selectedCount === grantedKeys.length && allDefinedGrantable) {
-        state = HTTableHeaderCheckboxState.CHECKED;
-      } else {
-        state = HTTableHeaderCheckboxState.INDETERMINATE;
-      }
-    }
+    // Mirror rowToggleCellCheckbox on the column axis: only grantable cells count toward the
+    // header state. Rows where the verb is N/A or denied are excluded from the population,
+    // so selecting every cell the user is allowed to grant promotes the header to CHECKED.
+    const grantedKeys = this.rows
+      .map((row) => row.keys?.[verb])
+      .filter((k): k is string => Boolean(k))
+      .filter((k) => Boolean(this.granted?.[k]));
 
     return {
-      state,
+      state: getHeaderCheckboxState(grantedKeys, this.selected),
       change: (next) => this.toggleColumn(grantedKeys, next),
       label: AccessPermissionGroupsUserTableColumnLabel[VERB_TO_COL[verb]]
     };
@@ -405,7 +416,7 @@ export class AccessPermissionGroupsUserTableComponent
   private handleRowToggle(editable: HTTableEditable<PermissionMatrixRow>): void {
     const row = editable.data;
     const grantedKeys = (Object.values(row.keys ?? {}) as Array<string | undefined>).filter(
-      (k): k is string => !!k && !!this.granted?.[k]
+      (k): k is string => Boolean(k) && Boolean(this.granted?.[k])
     );
     if (grantedKeys.length === 0) return;
     // mat-checkbox flips its value before the (change) event fires — `value` here is post-flip.
@@ -470,4 +481,13 @@ export class AccessPermissionGroupsUserTableComponent
         })
     );
   }
+}
+
+
+function getHeaderCheckboxState(grantedKeys: string[], selected: Set<string>): HTTableHeaderCheckboxState {
+  if (grantedKeys.length === 0) return HTTableHeaderCheckboxState.UNCHECKED;
+  const selectedCount = grantedKeys.filter((k) => selected.has(k)).length;
+  if (selectedCount === 0) return HTTableHeaderCheckboxState.UNCHECKED;
+  if (selectedCount === grantedKeys.length) return HTTableHeaderCheckboxState.CHECKED;
+  return HTTableHeaderCheckboxState.INDETERMINATE;
 }
