@@ -14,8 +14,8 @@ import { Filter, type RequestParams } from '@src/app/core/_models/request-params
  */
 export class RequestParamsIntermediate {
   public pageSize?: number;
-  public pageBefore?: number | undefined;
-  public pageAfter?: number | undefined;
+  public pageBefore?: number | string | undefined;
+  public pageAfter?: number | string | undefined;
   public includes?: Array<string>;
   public filters?: Array<Filter>;
   public sortOrder?: Array<string>;
@@ -28,9 +28,9 @@ export class RequestParamsIntermediate {
 export interface IParamBuilder {
   setPageSize(pageSize: number): IParamBuilder;
 
-  setPageBefore(pageBefore: number | undefined): IParamBuilder;
+  setPageBefore(pageBefore: number | string | undefined): IParamBuilder;
 
-  setPageAfter(pageAfter: number | undefined): IParamBuilder;
+  setPageAfter(pageAfter: number | string | undefined): IParamBuilder;
 
   addInclude(include: string): IParamBuilder;
 
