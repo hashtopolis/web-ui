@@ -1,8 +1,8 @@
 //import moment from 'moment';
 
-type Seconds = number
-type Days = number
-type UnixTimestampSeconds = number
+type Seconds = number;
+type Days = number;
+type UnixTimestampSeconds = number;
 
 /**
  * Returns a copy of the given date set to the start of its local-time calendar day (00:00:00.000).
