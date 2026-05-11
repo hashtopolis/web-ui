@@ -162,7 +162,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       this.form.updateValueAndValidity();
       return;
     } else {
-      const separator: string = this.form.controls.separator.value;
+      const separator: string = this.form.controls.fieldSeparator.value;
       const sourceData: string = this.form.controls.hashes.value;
       const conflictResolution: number = this.form.controls.conflictResolution.value ? 1 : 0;
 
@@ -271,7 +271,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       this.submitImport({
         sourceType: 'import',
         hashlistId: this.editedHashlistIndex,
-        separator: this.form.controls.separator.value,
+        separator: this.form.controls.fieldSeparator.value,
         sourceData: filename,
         overwrite: this.form.controls.conflictResolution.value ? 1 : 0
       });
@@ -295,7 +295,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.submitImport({
             sourceType: 'import',
             hashlistId: this.editedHashlistIndex,
-            separator: this.form.controls.separator.value,
+            separator: this.form.controls.fieldSeparator.value,
             sourceData: filename,
             overwrite: this.form.controls.conflictResolution.value ? 1 : 0
           });
@@ -368,7 +368,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           fieldSeparator: ':',
           isSalted: hashlist.isSalted,
           hashCount: hashlist.hashCount,
-          separator: hashlist.separator || ':',
           sourceType: 'paste',
           sourceData: '',
           hashes: '',
