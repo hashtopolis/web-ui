@@ -18,7 +18,6 @@ export class RevealApiKeyDialogComponent {
   private alert = inject(AlertService);
   private dialogRef = inject(MatDialogRef<RevealApiKeyDialogComponent>);
 
-  /** The freshly minted JWT, handed in by the list page after consuming the reveal store. */
   readonly token: string = inject<RevealApiKeyDialogData>(MAT_DIALOG_DATA).token;
 
   copy(): void {

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ApiKeyRevealStore } from '@services/api-key-reveal.store';
-import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
+import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import {
@@ -21,7 +21,7 @@ export class ApiKeysComponent implements OnInit {
   private revealStore = inject(ApiKeyRevealStore);
   private dialog = inject(MatDialog);
 
-  protected showCreateButton = this.roleService.hasRole('create');
+  protected showCreateButton = this.roleService.hasRole(ApiTokensRole.CREATE);
 
   constructor() {
     this.titleService.set(['API Keys']);

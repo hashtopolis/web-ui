@@ -5,10 +5,16 @@
       <span>Loading API key…</span>
     </div>
   </grid-main>
-} @else if (notFound || !token) {
+} @else if (notFound) {
   <grid-main>
     <app-page-subtitle [subtitle]="'API key not found'"></app-page-subtitle>
     <p class="help-block">The requested API key could not be loaded. It may have been deleted.</p>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-main>
+} @else if (loadError || !token) {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'Could not load API key'"></app-page-subtitle>
+    <p class="help-block">Something went wrong while loading this API key. Please try again later.</p>
     <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
   </grid-main>
 } @else {

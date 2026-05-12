@@ -85,8 +85,6 @@ const routes: MyRoute[] = [
         canActivate: [IsAuth]
       },
       {
-        // Must come *after* `api-keys/new` so that the literal segment matches
-        // first; with the param-route declared earlier, `:id` would swallow `new`.
         path: 'api-keys/:id',
         component: ApiKeyDetailComponent,
         data: {

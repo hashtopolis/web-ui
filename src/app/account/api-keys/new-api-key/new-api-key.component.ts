@@ -17,6 +17,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { NewApiKeyForm, getNewApiKeyForm } from '@src/app/account/api-keys/new-api-key/new-api-key.form';
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 import {
   daysBetween,
   endOfDay,
@@ -52,16 +53,6 @@ export class NewApiKeyComponent implements OnInit {
   loadingScopes = false;
   submitting = false;
 
-  get validityDays(): number | null {
-    const from = this.form.controls.validFrom.value;
-    const until = this.form.controls.validUntil.value;
-    if (!from || !until) {
-      return null;
-    }
-    const days = daysBetween(startOfDay(from), endOfDay(until));
-    return days > 0 ? days : null;
-  }
-
   ngOnInit(): void {
     this.titleService.set(['New API Key']);
     void this.loadGranted();
@@ -71,9 +62,11 @@ export class NewApiKeyComponent implements OnInit {
     this.loadingScopes = true;
     try {
       this.granted = await firstValueFrom(this.permissionService.loadPermissions());
+      // Permission is a Record<string, boolean>, so the filtered keys come back as
+      // string[]. We trust the backend's map to be keyed by valid PermissionValues.
       const allGranted = Object.entries(this.granted)
         .filter(([, held]) => held)
-        .map(([key]) => key);
+        .map(([key]) => key) as PermissionValues[];
       this.form.controls.scopes.setValue(allGranted);
     } catch {
       this.alert.showErrorMessage('Could not load available scopes for this user.');
@@ -82,7 +75,7 @@ export class NewApiKeyComponent implements OnInit {
     }
   }
 
-  onSelectionChange(next: string[]): void {
+  onSelectionChange(next: PermissionValues[]): void {
     this.form.controls.scopes.setValue(next);
     this.form.controls.scopes.markAsDirty();
   }
@@ -95,6 +88,7 @@ export class NewApiKeyComponent implements OnInit {
 
     const { validFrom, validUntil, scopes } = this.form.getRawValue();
     if (!validFrom || !validUntil) {
+      this.alert.showErrorMessage('Please select a valid date range.');
       return;
     }
 
@@ -114,8 +108,6 @@ export class NewApiKeyComponent implements OnInit {
       const created: JApiToken = new JsonAPISerializer().deserialize(response, zApiTokenPostPatchResponse);
 
       if (!created.token) {
-        // No token in the response means we can't show the user anything useful;
-        // the row will appear in the list but the secret is unrecoverable.
         this.alert.showErrorMessage('API key was created but no token was returned. Please contact an administrator.');
         await this.router.navigate(['/account/api-keys']);
         return;
@@ -129,5 +121,15 @@ export class NewApiKeyComponent implements OnInit {
     } finally {
       this.submitting = false;
     }
+  }
+
+  get validityDays(): number | null {
+    const from = this.form.controls.validFrom.value;
+    const until = this.form.controls.validUntil.value;
+    if (!from || !until) {
+      return null;
+    }
+    const days = daysBetween(startOfDay(from), endOfDay(until));
+    return days > 0 ? days : null;
   }
 }

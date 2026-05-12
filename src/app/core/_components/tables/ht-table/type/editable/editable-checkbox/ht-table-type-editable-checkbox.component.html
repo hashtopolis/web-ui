@@ -1,10 +1,7 @@
 @if (tableColumn.checkbox) {
   <div class="editable-container">
     @if (checkbox.value !== 'undefined') {
-      <!-- Tooltip lives on the wrapper, not the checkbox: Material's MDC checkbox sets
-           pointer-events: none when disabled, so a matTooltip bound directly on it never
-           fires. The span keeps receiving hover events, so disabled cells still surface
-           their reason. -->
+      <!-- Tooltip is on wrapper because when checkbox is disabled -> no tooltip is shown but here we want the tooltip to always show -->
       <span [matTooltip]="checkbox.tooltip || 'Click to edit value'">
         <mat-checkbox
           class="editable-checkbox"

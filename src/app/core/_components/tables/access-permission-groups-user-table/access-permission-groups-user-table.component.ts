@@ -104,10 +104,10 @@ export class AccessPermissionGroupsUserTableComponent
   @Input() granted?: Permission;
 
   /** Form mode — currently-selected permission keys. */
-  @Input() selection: string[] = [];
+  @Input() selection: PermissionValues[] = [];
 
   /** Form mode — emitted when the user toggles a cell or a column header. */
-  @Output() selectionChange = new EventEmitter<string[]>();
+  @Output() selectionChange = new EventEmitter<PermissionValues[]>();
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;
@@ -133,7 +133,7 @@ export class AccessPermissionGroupsUserTableComponent
       }
     } else {
       // Form / view modes — seed the selection set and matrix rows synchronously.
-      this.selected = new Set(this.selection as PermissionValues[]);
+      this.selected = new Set(this.selection);
       if (this.granted) {
         this.rows = buildPermissionMatrix(this.granted);
       }
@@ -153,7 +153,7 @@ export class AccessPermissionGroupsUserTableComponent
       return;
     }
     if (changes['selection']) {
-      this.selected = new Set(this.selection as PermissionValues[]);
+      this.selected = new Set(this.selection);
     }
     if (changes['granted'] && this.granted) {
       this.rows = buildPermissionMatrix(this.granted);

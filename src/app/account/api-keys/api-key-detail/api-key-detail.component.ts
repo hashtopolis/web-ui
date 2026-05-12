@@ -1,6 +1,7 @@
 import { zApiTokenResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -39,17 +40,16 @@ export class ApiKeyDetailComponent implements OnInit {
   status: ApiTokenStatus | null = null;
   loading = true;
   notFound = false;
+  loadError = false;
 
-  protected dateFormat: string;
-
-  constructor() {
-    const uiSettings = new UISettingsUtilityClass(this.settingsService);
-    const fmt = uiSettings.getSetting('timefmt');
-    this.dateFormat = fmt ? fmt : uiConfigDefault.timefmt;
-    this.titleService.set(['API Key Details']);
-  }
+  protected dateFormat = uiConfigDefault.timefmt;
 
   ngOnInit() {
+    this.titleService.set(['API Key Details']);
+    const fmt = new UISettingsUtilityClass(this.settingsService).getSetting('timefmt');
+    if (fmt) {
+      this.dateFormat = fmt;
+    }
     this.loadToken();
   }
 
@@ -69,9 +69,14 @@ export class ApiKeyDetailComponent implements OnInit {
       });
       this.token = token;
       this.status = computeApiTokenStatus(token);
-    } catch {
-      this.notFound = true;
-      this.alert.showErrorMessage('Could not load API key.');
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        this.notFound = true;
+        this.alert.showErrorMessage('Could not load API key.');
+      } else {
+        this.loadError = true;
+        this.alert.showErrorMessage('Could not load API key — please try again later.');
+      }
     } finally {
       this.loading = false;
     }

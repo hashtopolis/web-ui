@@ -68,19 +68,14 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
-  /** When true, the cell's checkbox renders as disabled and ignores clicks. */
   disabled?: boolean;
-  /** Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled. */
+  // Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled.
   tooltip?: string;
-  /**
-   * When true, the cell's checkbox renders in indeterminate state (a partial selection
-   * representation), regardless of `value`. Used by row-toggle cells in matrix-style
-   * tables when only some — but not all — sub-items in the row are selected.
-   */
+  // indeterminate if checkbox is half filled (instead of full check) so we know that only some and not all entries are checked
   indeterminate?: boolean;
 }
 
-/** Tri-state of a header checkbox driving "select all in column" toggles. */
+// indeterminate means some are checked, dash line in checkbox instead of checkmark
 export const HTTableHeaderCheckboxState = {
   CHECKED: 'checked',
   UNCHECKED: 'unchecked',
@@ -88,20 +83,14 @@ export const HTTableHeaderCheckboxState = {
 } as const;
 export type HTTableHeaderCheckboxState = (typeof HTTableHeaderCheckboxState)[keyof typeof HTTableHeaderCheckboxState];
 
-/**
- * Header-level checkbox descriptor for a column. When a column's
- * `headerCheckbox` callback is supplied, ht-table renders a `<mat-checkbox>`
- * in the column header instead of the static label. Used to drive
- * "select all rows in this column" toggles for matrix-style tables.
- */
+// allow rendering checkbox in the header instead of just label
 export interface HTTableHeaderCheckbox {
-  /** Tri-state representing the column's aggregate selection. */
+  // state of checkbox based on column if all are selected, none are selected or some
   state: HTTableHeaderCheckboxState;
-  /** Invoked when the user clicks the header checkbox. */
+  // invoked when user clicks on the header checkbox
   change: (next: boolean) => void;
-  /** Optional matTooltip text displayed on the header checkbox. */
   tooltip?: string;
-  /** Optional label rendered next to the checkbox (defaults to the column label). */
+  // optional label shown next to the checkbox (column label)
   label?: string;
 }
 
@@ -138,11 +127,7 @@ export interface HTTableColumn {
   icon?(data: BaseModel): HTTableIcon;
   isCopy?: boolean;
   parent?: string; //parent is to build relation sort query in format "task.taskName"
-  /**
-   * When supplied, the column header renders a mat-checkbox bound to the returned
-   * descriptor instead of (or in addition to) the static label. Used by matrix-style
-   * tables to expose a "select all rows in this column" toggle.
-   */
+  // if passed render a checkbox in the header instead of just label
   headerCheckbox?(): HTTableHeaderCheckbox;
   /**
    * When true, this column is treated as structural: it is always rendered (regardless

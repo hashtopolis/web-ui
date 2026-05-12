@@ -19,7 +19,7 @@ import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlis
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
-import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
+import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -381,7 +381,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (this.apiTokensRoleService.hasRole('read')) {
+    if (this.apiTokensRoleService.hasRole(ApiTokensRole.READ)) {
       actions.push({
         label: 'API Keys',
         routerLink: ['account', 'api-keys']

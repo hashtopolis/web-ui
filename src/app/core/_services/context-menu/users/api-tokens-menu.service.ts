@@ -19,11 +19,9 @@ export class ApiTokensContextMenuService extends ContextMenuService {
     const permUpdate: Array<PermissionValues> = [Perm.JwtApiKey.UPDATE];
     const permDelete: Array<PermissionValues> = [Perm.JwtApiKey.DELETE];
 
-    // Revoke shows only for active rows; once revoked the action is meaningless.
+    // only allow revoke if not already revoked
     const revokeCondition: ContextMenuCondition = { key: 'isActive', value: true };
-    // Backend only permits hard delete after the validity window has lapsed —
-    // the row datasource sets `isExpired` from `endValid` so we never offer a
-    // delete that the server is going to 403.
+    // We can only delete expired tokens therefore only show in this case
     const deleteCondition: ContextMenuCondition = { key: 'isExpired', value: true };
 
     this.addCtxCustomItem({

@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Single-use in-memory carrier for a freshly-minted JWT.
- *
- * The backend only returns the actual token on the POST response; subsequent
- * reads never expose it. The create page stashes the secret here and immediately
- * navigates to the reveal page, which `consume()`s it once. We deliberately
- * don't persist or pass it via URL/history — a refresh on the reveal page must
- * fail closed (token gone, redirect to list).
+ * Single-use short time in memory store for passing a newly created JWT api token from the create screen to the reveal screen.
+ * The key is only visible on creation (afterwards not accessible anymore), and will be consumed once on the reveal screen.
  */
 @Injectable({
   providedIn: 'root'

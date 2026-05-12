@@ -17,6 +17,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { NewApiKeyComponent } from '@src/app/account/api-keys/new-api-key/new-api-key.component';
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { startOfDay, startOfNextDay, unixTimestampFromDate } from '@src/app/shared/utils/datetime';
 import { mockResponse } from '@src/app/testing/mock-response';
 
@@ -89,7 +90,7 @@ describe('NewApiKeyComponent', () => {
   });
 
   it('stores the freshly minted token and navigates to the list on success', async () => {
-    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
@@ -101,7 +102,7 @@ describe('NewApiKeyComponent', () => {
   });
 
   it('sends endValid as the exclusive next-day-midnight cutoff (not end-of-picked-day)', async () => {
-    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     // Pin a specific validUntil so we don't depend on the 90-day default math.
@@ -118,7 +119,7 @@ describe('NewApiKeyComponent', () => {
   });
 
   it('sends startValid as start-of-day of the picked validFrom', async () => {
-    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     const pickedFrom = new Date(2026, 4, 1, 9, 30); // 2026-05-01 09:30 local
@@ -134,7 +135,7 @@ describe('NewApiKeyComponent', () => {
   });
 
   it('shows an error and navigates without storing when the response has no token', async () => {
-    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
     deserializeSpy.and.returnValue({ ...createdToken, token: undefined });
 
@@ -145,8 +146,22 @@ describe('NewApiKeyComponent', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/account/api-keys']);
   });
 
+  it('shows an error when validFrom is missing even if the form-invalid guard is bypassed', async () => {
+    // Validators.required normally keeps the form invalid when validFrom is null, so
+    // onSubmit() would short-circuit at the first guard. This test exercises the
+    // defensive backstop just below it by forcing form.invalid to false.
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
+    component.form.controls.validFrom.setValue(null);
+    spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+
+    await component.onSubmit();
+
+    expect(mockGlobalService.create).not.toHaveBeenCalled();
+    expect(mockAlert.showErrorMessage).toHaveBeenCalled();
+  });
+
   it('shows an error and does not navigate when the POST fails', async () => {
-    component.form.controls.scopes.setValue(['permJwtApiKeyRead']);
+    component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(throwError(() => new Error('boom')));
 
     await component.onSubmit();
