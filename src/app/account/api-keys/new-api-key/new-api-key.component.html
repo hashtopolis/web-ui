@@ -7,12 +7,11 @@
       <p class="help-block">The token is shown only once after creation — copy it immediately.</p>
 
       <div class="flex flex-wrap items-start gap-4">
-        <input-date title="Valid From" formControlName="validFrom" hint="DD/MM/YYYY" [isRequired]="true"></input-date>
-        <!-- @TODO -> hint should adhere to format -->
+        <input-date title="Valid From" formControlName="validFrom" [isRequired]="true"></input-date>
         <input-date
           title="Valid Until"
           formControlName="validUntil"
-          hint="DD/MM/YYYY · token valid through end of selected day (23:59:59)"
+          hint="token valid through end of selected day (23:59:59)"
           [isRequired]="true"
         ></input-date>
       </div>
