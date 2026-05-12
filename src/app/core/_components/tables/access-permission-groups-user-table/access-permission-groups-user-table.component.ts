@@ -34,6 +34,7 @@ import {
 
 import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 import {
   CrudVerb,
   PERMISSION_DENIED_TOOLTIP,
@@ -116,7 +117,7 @@ export class AccessPermissionGroupsUserTableComponent
   /** Form mode — matrix rows, kept here so column-toggle helpers can iterate them. */
   private rows: PermissionMatrixRow[] = [];
   /** Form mode — fast lookup for `selection.includes(key)` during render. */
-  private selected: Set<string> = new Set();
+  private selected: Set<PermissionValues> = new Set();
 
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUserTableColumnLabel);
@@ -132,7 +133,7 @@ export class AccessPermissionGroupsUserTableComponent
       }
     } else {
       // Form / view modes — seed the selection set and matrix rows synchronously.
-      this.selected = new Set(this.selection);
+      this.selected = new Set(this.selection as PermissionValues[]);
       if (this.granted) {
         this.rows = buildPermissionMatrix(this.granted);
       }
@@ -152,7 +153,7 @@ export class AccessPermissionGroupsUserTableComponent
       return;
     }
     if (changes['selection']) {
-      this.selected = new Set(this.selection);
+      this.selected = new Set(this.selection as PermissionValues[]);
     }
     if (changes['granted'] && this.granted) {
       this.rows = buildPermissionMatrix(this.granted);
@@ -215,9 +216,9 @@ export class AccessPermissionGroupsUserTableComponent
    * grant promotes the master toggle to CHECKED.
    */
   private matrixHeaderCheckbox(): HTTableHeaderCheckbox {
-    const grantedKeys: string[] = [];
+    const grantedKeys: PermissionValues[] = [];
     for (const row of this.rows) {
-      for (const k of Object.values(row.keys ?? {}) as Array<string | undefined>) {
+      for (const k of Object.values(row.keys ?? {})) {
         if (k && this.granted?.[k]) grantedKeys.push(k);
       }
     }
@@ -233,8 +234,8 @@ export class AccessPermissionGroupsUserTableComponent
     // Only grantable cells (defined for this resource AND held by the current user) count
     // toward the row toggle. N/A and denied cells are excluded from the population, so
     // selecting every cell the user can grant promotes the row to fully checked.
-    const grantedKeys = (Object.values(row.keys ?? {}) as Array<string | undefined>)
-      .filter((k): k is string => Boolean(k))
+    const grantedKeys = Object.values(row.keys ?? {})
+      .filter((k): k is PermissionValues => Boolean(k))
       .filter((k) => Boolean(this.granted?.[k]));
     if (grantedKeys.length === 0) {
       // The user holds no CRUD permissions for this resource — nothing to toggle.
@@ -342,7 +343,7 @@ export class AccessPermissionGroupsUserTableComponent
     // so selecting every cell the user is allowed to grant promotes the header to CHECKED.
     const grantedKeys = this.rows
       .map((row) => row.keys?.[verb])
-      .filter((k): k is string => Boolean(k))
+      .filter((k): k is PermissionValues => Boolean(k))
       .filter((k) => Boolean(this.granted?.[k]));
 
     return {
@@ -352,7 +353,7 @@ export class AccessPermissionGroupsUserTableComponent
     };
   }
 
-  private toggleColumn(grantedKeys: string[], next: boolean): void {
+  private toggleColumn(grantedKeys: PermissionValues[], next: boolean): void {
     const updated = new Set(this.selected);
     for (const key of grantedKeys) {
       if (next) {
@@ -415,8 +416,8 @@ export class AccessPermissionGroupsUserTableComponent
 
   private handleRowToggle(editable: HTTableEditable<PermissionMatrixRow>): void {
     const row = editable.data;
-    const grantedKeys = (Object.values(row.keys ?? {}) as Array<string | undefined>).filter(
-      (k): k is string => Boolean(k) && Boolean(this.granted?.[k])
+    const grantedKeys = Object.values(row.keys ?? {}).filter(
+      (k): k is PermissionValues => Boolean(k) && Boolean(this.granted?.[k])
     );
     if (grantedKeys.length === 0) return;
     // mat-checkbox flips its value before the (change) event fires — `value` here is post-flip.
@@ -432,7 +433,7 @@ export class AccessPermissionGroupsUserTableComponent
     this.emitSelection(updated);
   }
 
-  private emitSelection(updated: Set<string>): void {
+  private emitSelection(updated: Set<PermissionValues>): void {
     this.selected = updated;
     const next = Array.from(updated);
     // Push fresh rows so cells re-render with the updated selection / header state.
@@ -483,8 +484,10 @@ export class AccessPermissionGroupsUserTableComponent
   }
 }
 
-
-function getHeaderCheckboxState(grantedKeys: string[], selected: Set<string>): HTTableHeaderCheckboxState {
+function getHeaderCheckboxState(
+  grantedKeys: PermissionValues[],
+  selected: Set<PermissionValues>
+): HTTableHeaderCheckboxState {
   if (grantedKeys.length === 0) return HTTableHeaderCheckboxState.UNCHECKED;
   const selectedCount = grantedKeys.filter((k) => selected.has(k)).length;
   if (selectedCount === 0) return HTTableHeaderCheckboxState.UNCHECKED;
