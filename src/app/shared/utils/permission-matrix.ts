@@ -1,6 +1,6 @@
 import { Permission, UserPermissions } from '@models/global-permission-group.model';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 /**
  * One row of the CRUD permission matrix.
@@ -19,10 +19,10 @@ import { Perm } from '@src/app/core/_constants/userpermissions.config';
  */
 export interface PermissionMatrixRow extends UserPermissions {
   keys: {
-    create?: string;
-    read?: string;
-    update?: string;
-    delete?: string;
+    create?: PermissionValues;
+    read?: PermissionValues;
+    update?: PermissionValues;
+    delete?: PermissionValues;
   };
 }
 
@@ -72,7 +72,7 @@ export function buildPermissionMatrix(permissions: Permission): PermissionMatrix
       acc.push(row);
     }
     row[verb] = value;
-    row.keys[verb] = key;
+    row.keys[verb] = key as PermissionValues;
     return acc;
   }, []);
 
