@@ -70,7 +70,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       const input = this.host.nativeElement.querySelector(
-        'input[formControlName="username"]'
+        'input-text[formControlName="username"] input'
       ) as HTMLInputElement | null;
       input?.focus();
     });

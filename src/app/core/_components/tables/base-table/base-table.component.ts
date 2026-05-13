@@ -214,7 +214,9 @@ export class BaseTableComponent {
     const link: HTTableRouterLink = {
       label: cracked.toLocaleString(),
       routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', taskId],
-      tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
+      ...(isSupertask && {
+        tooltip: 'Please access the cracked hashes via the row\'s context menu "show subtasks"'
+      })
     };
 
     return of([link]);
