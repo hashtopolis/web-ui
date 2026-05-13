@@ -93,6 +93,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   templateUrl: './ht-table.component.html',
   styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block' },
   standalone: false
 })
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {

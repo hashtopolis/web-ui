@@ -89,6 +89,12 @@ export interface HTTableColumn {
   id: number;
   dataKey?: string;
   position?: 'right' | 'left';
+  /**
+   * Marks the column as numeric — right-aligns the cell and applies
+   * tabular-nums so digits stack with consistent place-value alignment.
+   * Use for counts, sizes, speeds, IDs, priorities, etc.
+   */
+  isNumeric?: boolean;
   isSortable?: boolean;
   isSearchable?: boolean;
   render?(data: BaseModel): SafeHtml;

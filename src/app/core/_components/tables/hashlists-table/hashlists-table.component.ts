@@ -98,6 +98,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -113,6 +114,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       },
       {
         id: HashlistsTableCol.HASH_COUNT,
+        isNumeric: true,
         dataKey: 'hashCount',
         isSortable: true,
         routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
@@ -120,6 +122,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       },
       {
         id: HashlistsTableCol.CRACKED,
+        isNumeric: true,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         routerLink: (hashlist: JHashlist) => this.renderCrackedHashesLink(hashlist),
@@ -257,7 +260,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
     if (hashlist.hashCount === hashlist.cracked) {
       return {
-        name: 'check_circle',
+        name: 'check',
         tooltip: 'Cracked',
         cls: 'text-ok'
       };

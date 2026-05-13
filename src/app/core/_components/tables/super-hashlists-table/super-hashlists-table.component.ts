@@ -213,7 +213,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
     if (superHashlist.hashCount === superHashlist.cracked) {
       return {
-        name: 'check_circle',
+        name: 'check',
         tooltip: 'Cracked',
         cls: 'text-ok'
       };

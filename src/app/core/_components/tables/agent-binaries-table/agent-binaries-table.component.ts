@@ -84,6 +84,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     return [
       {
         id: AgentBinariesTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
