@@ -59,7 +59,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   providers: [
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' }
+      useValue: { appearance: 'fill', subscriptSizing: 'dynamic', floatLabel: 'always' }
     }
   ]
 })

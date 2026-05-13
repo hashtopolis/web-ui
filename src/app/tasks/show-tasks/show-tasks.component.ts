@@ -9,6 +9,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 @Component({
   selector: 'app-show-tasks',
   templateUrl: './show-tasks.component.html',
+  styleUrls: ['./show-tasks.component.scss'],
   standalone: false
 })
 export class ShowTasksComponent {

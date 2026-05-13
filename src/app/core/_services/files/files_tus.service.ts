@@ -10,6 +10,7 @@ import { AuthData } from '@models/auth-user.model';
 import { AuthService } from '@services/access/auth.service';
 import { ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -56,7 +57,8 @@ export class UploadTUSService {
     private cs: ConfigService,
     private gs: GlobalService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alert: AlertService
   ) {}
 
   /**
@@ -96,7 +98,7 @@ export class UploadTUSService {
         chunkSize = Infinity;
       }
       if (!tus.isSupported) {
-        alert('This browser does not support uploads. Please use a modern browser instead.');
+        this.alert.showErrorMessage('This browser does not support uploads. Please use a modern browser instead.');
       }
       const upload = new tus.Upload(file, {
         endpoint: this.cs.getEndpoint() + this.endpoint,

@@ -935,6 +935,7 @@ export class MetadataService {
   // </span>
 
   servernotif = [
+    { label: 'Sender Settings', isTitle: true },
     {
       name: 'emailSender',
       label: 'Notification Sender Email',

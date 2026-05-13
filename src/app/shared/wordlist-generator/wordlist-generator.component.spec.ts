@@ -13,6 +13,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AlertService } from '@services/shared/alert.service';
 
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
@@ -42,7 +43,8 @@ describe('WordlistGeneratorComponent', () => {
         MatDatepickerModule,
         MatNativeDateModule,
         MatTooltipModule,
-        GridModule
+        GridModule,
+        ButtonsModule
       ],
       providers: [{ provide: AlertService, useClass: MockAlertService }]
     }).compileComponents();

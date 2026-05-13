@@ -17,7 +17,7 @@ export class PassStrenghtComponent implements OnChanges {
   strength: PasswordStrength = {
     score: 0,
     label: 'Enter password',
-    color: '#666666'
+    color: 'var(--subtle-foreground)'
   };
 
   ngOnChanges(): void {
@@ -29,7 +29,7 @@ export class PassStrenghtComponent implements OnChanges {
       this.strength = {
         score: 0,
         label: 'Enter password',
-        color: '#666666'
+        color: 'var(--subtle-foreground)'
       };
       return;
     }
@@ -40,25 +40,25 @@ export class PassStrenghtComponent implements OnChanges {
       this.strength = {
         score: 1,
         label: 'Weak',
-        color: '#ff4444'
+        color: 'var(--destructive)'
       };
     } else if (score <= 4) {
       this.strength = {
         score: 2,
         label: 'Fair',
-        color: '#ff8800'
+        color: 'color-mix(in oklch, var(--destructive), var(--warning))'
       };
     } else if (score <= 6) {
       this.strength = {
         score: 3,
         label: 'Good',
-        color: '#ffbb00'
+        color: 'var(--warning)'
       };
     } else {
       this.strength = {
         score: 4,
         label: 'Excellent',
-        color: '#00cc44'
+        color: 'var(--success)'
       };
     }
   }

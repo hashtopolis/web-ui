@@ -65,7 +65,9 @@ type CopyData = Pick<
 @Component({
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
+  styleUrls: ['./new-tasks.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
+  host: { class: 'block' },
   standalone: false
 })
 export class NewTasksComponent implements OnInit {
@@ -431,7 +433,7 @@ export class NewTasksComponent implements OnInit {
 
   // Modal Information
   protected openHelpDialog(): void {
-    this.dialog.open(CheatsheetComponent, { width: '100%' });
+    this.dialog.open(CheatsheetComponent);
   }
 
   /**
