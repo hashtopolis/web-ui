@@ -103,6 +103,39 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   hoveringButton = false;
   hoveringMenu = false;
 
+  /**
+   * Maximum viewport width (px) below which we treat the layout as "mobile"
+   * regardless of pointer type. Aligns with the dashboard's `<= sm` breakpoint.
+   */
+  private static readonly mobileBreakpointPx = 768;
+
+  /**
+   * True when the layout is desktop-like: a fine-pointer device with hover
+   * capability AND a viewport wider than the mobile breakpoint. On mobile
+   * (touch-only OR narrow viewport) a tap fires mouseenter + click + mouseleave
+   * in rapid succession, which caused the menu to open, navigate to the first
+   * item, and close again in the same gesture. Hover-intent + first-item
+   * navigation logic is gated behind this getter so mobile falls back to
+   * standard mat-menu-trigger tap-to-toggle behavior.
+   *
+   * Read as a getter so viewport-resize transitions (e.g. devtools toggle)
+   * pick up the new state on the next interaction.
+   */
+  private get isDesktopLayout(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+    const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const wideViewport = window.matchMedia(`(min-width: ${ActionMenuComponent.mobileBreakpointPx + 1}px)`).matches;
+    return fineHover && wideViewport;
+  }
+
+  /**
+   * @deprecated kept for backwards-compatibility with callers reading the field
+   * as `supportsHover`. Reads from `isDesktopLayout` so behavior stays consistent.
+   */
+  private get supportsHover(): boolean {
+    return this.isDesktopLayout;
+  }
+
   private static openMenuTrigger: MatMenuTrigger | null = null;
 
   private router = inject(Router);
@@ -165,6 +198,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * The listener updates last known coordinates and delegates to `checkPointerOutside`.
    */
   addGlobalMouseListener() {
+    if (!this.supportsHover) return;
     if (this.globalMouseMoveListener) return;
 
     this.globalMouseMoveListener = this.renderer.listen('document', 'mousemove', (event: MouseEvent) => {
@@ -263,6 +297,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse entered the trigger button: open menu (when configured) and clear any pending close.
    */
   onMouseEnter(): void {
+    if (!this.supportsHover) return;
     this.hoveringButton = true;
     this.clearHoverTimeout();
 
@@ -280,6 +315,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse left the trigger button: record coordinates and start deferred close.
    */
   onMouseLeave(event: MouseEvent): void {
+    if (!this.supportsHover) return;
     this.hoveringButton = false;
     // capture last coords immediately so timeout checks current pointer
     this.lastMouseX = event.clientX;
@@ -291,6 +327,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse entered the menu panel: cancel any pending close.
    */
   onMenuMouseEnter(): void {
+    if (!this.supportsHover) return;
     this.hoveringMenu = true;
     this.clearHoverTimeout();
   }
@@ -299,6 +336,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse left the menu panel: record coordinates and start deferred close.
    */
   onMenuMouseLeave(event: MouseEvent): void {
+    if (!this.supportsHover) return;
     this.hoveringMenu = false;
     this.lastMouseX = event.clientX;
     this.lastMouseY = event.clientY;
@@ -348,8 +386,14 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Programmatically navigate to the first menu item (used when trigger is clicked).
+   *
+   * On touch devices this shortcut is disabled — a tap is indistinguishable from
+   * the "open the menu" intent, so we let mat-menu-trigger's default click
+   * toggle take over. Running the shortcut on touch caused the menu to open and
+   * then close immediately when NavigationEnd fired.
    */
   navigateToFirst(event: MouseEvent): void {
+    if (!this.supportsHover) return;
     event.stopPropagation();
     const firstItem = this.actionMenuItems[0]?.[0];
     if (!firstItem) return;

@@ -15,12 +15,12 @@ export class HorizontalNavComponent implements OnDestroy {
   constructor(private router: Router) {}
 
   /**
-   * Returns the CSS class for a button element based on the current route.
-   * @param routeName The name of the route associated with the button.
-   * @returns The CSS class, including 'select' if the button's route is active.
+   * Whether a route is currently active (used to drive [checked] on the
+   * matching <mat-button-toggle>, which Material then styles via its
+   * --mat-button-toggle-* selection tokens).
    */
-  getButtonClass(routeName: string): string {
-    return this.router.url.includes(routeName) ? 'btn-toogle-select' : '';
+  isActive(routeName: string): boolean {
+    return this.router.url.includes(routeName);
   }
 
   /**

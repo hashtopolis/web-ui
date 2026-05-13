@@ -1,0 +1,12 @@
+/* 32px heading w/ -0.02em tracking has no clean Tailwind named-scale match;
+   keep here so the header keeps its exact metrics while the rest of the
+   layout migrates to utility classes on the template. */
+.page__title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--heading-foreground);
+  margin: 0;
+}

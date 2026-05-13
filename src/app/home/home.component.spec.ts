@@ -200,7 +200,7 @@ describe('HomeComponent (template permissions and view)', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent;
-    const agentCard = debugEl.query(By.css('.co-25:nth-child(1)'));
+    const agentCard = debugEl.query(By.css('.metric-card:nth-child(1)'));
     expect(text).toContain('20 / 50');
     expect(agentCard.nativeElement.textContent).not.toContain('No permission');
   });
@@ -212,7 +212,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const agentCard = debugEl.query(By.css('.co-25:nth-child(1)'));
+    const agentCard = debugEl.query(By.css('.metric-card:nth-child(1)'));
     expect(agentCard.nativeElement.textContent).toContain('No permission');
     expect(agentCard.nativeElement.textContent).not.toContain('10 / 20');
   });
@@ -224,7 +224,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const tasksCard = debugEl.queryAll(By.css('.co-25'))[1];
+    const tasksCard = debugEl.queryAll(By.css('.metric-card'))[1];
     expect(tasksCard.nativeElement.textContent).toContain('Tasks');
     expect(tasksCard.nativeElement.textContent).toContain('15 / 30');
     expect(tasksCard.query(By.css('.no-permission'))).toBeNull();
@@ -237,7 +237,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const tasksCard = debugEl.queryAll(By.css('.co-25'))[1];
+    const tasksCard = debugEl.queryAll(By.css('.metric-card'))[1];
     expect(tasksCard.nativeElement.textContent).toContain('No permission');
     expect(tasksCard.nativeElement.textContent).not.toContain('15 / 30');
   });
@@ -261,7 +261,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const supertasksCard = debugEl.queryAll(By.css('.co-25'))[2];
+    const supertasksCard = debugEl.queryAll(By.css('.metric-card'))[2];
     expect(supertasksCard.nativeElement.textContent).toContain('No permission');
     expect(supertasksCard.nativeElement.textContent).not.toContain('5 / 10');
   });
@@ -273,7 +273,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const cracksCard = debugEl.queryAll(By.css('.co-25'))[3];
+    const cracksCard = debugEl.queryAll(By.css('.metric-card'))[3];
     expect(cracksCard.nativeElement.textContent).toContain('Cracks');
     expect(cracksCard.nativeElement.textContent).toContain('7');
     expect(cracksCard.query(By.css('.no-permission'))).toBeNull();
@@ -286,8 +286,8 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const cracksCard = debugEl.query(By.css('.co-25:nth-child(4)'));
-    const cracksValueSpan = cracksCard.query(By.css('.value'));
+    const cracksCard = debugEl.query(By.css('.metric-card:nth-child(4)'));
+    const cracksValueSpan = cracksCard.query(By.css('.metric-value'));
     const noPermissionSpan = cracksCard.query(By.css('.no-permission'));
     expect(cracksCard).toBeTruthy();
     expect(cracksValueSpan).toBeNull();
@@ -303,7 +303,7 @@ describe('HomeComponent (template permissions and view)', () => {
     fixture.detectChanges();
 
     const heatmap = debugEl.query(By.directive(HeatmapChartStubComponent));
-    const chartContainer = debugEl.query(By.css('.app-echarts'));
+    const chartContainer = debugEl.query(By.css('.chart-wrapper'));
     const noPermText = chartContainer.query(By.css('.no-permission'));
     expect(heatmap).toBeNull();
     expect(chartContainer).toBeTruthy();
@@ -318,7 +318,7 @@ describe('HomeComponent (template permissions and view)', () => {
     debugEl = fixture.debugElement;
     fixture.detectChanges();
 
-    const chartContainer = debugEl.query(By.css('.app-echarts'));
+    const chartContainer = debugEl.query(By.css('.chart-wrapper'));
     const noPermText = chartContainer.query(By.css('.no-permission'));
     expect(noPermText.nativeElement.textContent).toContain('No permission to view chart data');
   });

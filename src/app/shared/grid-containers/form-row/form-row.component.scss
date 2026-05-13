@@ -1,0 +1,40 @@
+:host {
+  display: grid;
+  grid-template-columns: repeat(var(--form-row-cols, 2), minmax(0, 1fr));
+  gap: var(--space-sm);
+  align-items: start;
+  width: 100%;
+}
+
+/* Aligns the row's children to the bottom — used when pairing a checkbox
+   (which has no stacked label slot) with a labeled input control, so the
+   checkbox sits at the input's baseline instead of the input's label. */
+:host(.row-align-end) {
+  align-items: end;
+}
+
+/* Auto-fill mode: when no [columns] is passed, distribute children evenly
+/* Auto-fill mode: when no [columns] is passed, distribute children evenly
+   across the row and stretch them to a shared height. The :not(.row-align-end)
+   guard keeps an explicit row-align-end class winning over the stretch default. */
+:host(.row-fill) {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+:host(.row-fill):not(.row-align-end) {
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  :host {
+    grid-template-columns: 1fr;
+  }
+
+  :host(.row-fill) {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+  }
+}

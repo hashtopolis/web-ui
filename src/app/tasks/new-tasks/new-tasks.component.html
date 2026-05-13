@@ -1,133 +1,199 @@
-<div class="grid grid-cols-12">
-  <div class="col-span-12 md:col-span-6">
-    <grid-main>
-      <app-page-subtitle [subtitle]="'New Task'"></app-page-subtitle>
+<app-page title="New Task">
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 md:col-span-6">
       @if (form) {
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <mat-card appearance="outlined" class="form-section">
+            <mat-card-content>
+              <h2 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">Task Configuration</h2>
+              <div class="form-layout">
+                <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+                <input-color title="Color" formControlName="color"></input-color>
 
-          <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-          <input-color title="Color" formControlName="color"></input-color>
+                @if (!isLoading) {
+                  <input-multiselect
+                    [isLoading]="isLoading"
+                    [placeholder]="'Hashlist...'"
+                    [items]="selectHashlists"
+                    [label]="'Select or search Hashlist'"
+                    [mergeIdAndName]="true"
+                    [multiselectEnabled]="false"
+                    formControlName="hashlistId"
+                    [isRequired]="true"
+                  ></input-multiselect>
+                } @else {
+                  <div class="flex items-center gap-2.5 text-subtle-foreground text-sm py-1.5">
+                    <mat-spinner diameter="20"></mat-spinner>
+                    <span>Loading Hashlists…</span>
+                  </div>
+                }
 
-          @if (!isLoading) {
-            <input-multiselect
-              [isLoading]="isLoading"
-              [placeholder]="'Hashlist...'"
-              [items]="selectHashlists"
-              [label]="'Select or search Hashlist'"
-              [mergeIdAndName]="true"
-              [multiselectEnabled]="false"
-              formControlName="hashlistId"
-              [isRequired]="true"
-            ></input-multiselect>
-          } @else {
-            <div class="loading-spinner">
-              <mat-spinner diameter="32"></mat-spinner>
-              <span>Loading Hashlists...</span>
-            </div>
-          }
+                <div class="form-section__cmd">
+                  <input-text-area
+                    title="Attack command"
+                    formControlName="attackCmd"
+                    [isRequired]="true"
+                  ></input-text-area>
+                  <button
+                    type="button"
+                    matIconButton
+                    matTooltip="Help"
+                    (click)="openHelpDialog()"
+                    aria-label="Attack command help"
+                  >
+                    <mat-icon>help</mat-icon>
+                  </button>
+                </div>
+                <blacklist-attack [value]="form.controls.attackCmd.value"></blacklist-attack>
 
-          <div>
-            <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
-            <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
-              <mat-icon>help</mat-icon>
-            </button>
-            <blacklist-attack [value]="form.controls.attackCmd.value"></blacklist-attack>
-          </div>
+                <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
-          <input-text-area title="Notes" formControlName="notes"></input-text-area>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
-            <input-number title="Max agents" formControlName="maxAgents"></input-number>
-          </div>
-
-          <mat-accordion>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <span><b>Advanced Settings</b></span>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <div class="flex flex-wrap items-center gap-2">
-                <input-number title="Chunk time" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
-                <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
-                <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
-                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-                <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
-                <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
-                <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
+                <app-form-row>
+                  <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
+                  <input-number title="Max agents" formControlName="maxAgents"></input-number>
+                </app-form-row>
               </div>
-              <hr><br>
-              <div class="flex flex-wrap items-center gap-2">
-                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-expansion-panel class="form-section-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Advanced Settings</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="form-layout">
+              <app-form-row>
+                <input-number
+                  title="Chunk time"
+                  formControlName="chunkTime"
+                  [tooltip]="tasktip.chunkTime"
+                ></input-number>
+                <input-number
+                  title="Status timer"
+                  formControlName="statusTimer"
+                  [tooltip]="tasktip.statusTimer"
+                ></input-number>
+                <input-number
+                  title="Skip keyspace"
+                  formControlName="skipKeyspace"
+                  [tooltip]="tasktip.skipKeyspace"
+                ></input-number>
+                <input-select
+                  title="Benchmark Type"
+                  formControlName="useNewBench"
+                  [items]="selectBenchmarktype"
+                ></input-select>
+              </app-form-row>
+
+              <app-form-row [columns]="3">
+                <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
+                <input-check title="Small task" formControlName="isSmall" [tooltip]="tasktip.isSmall"></input-check>
+                <input-check
+                  title="Enforce piping"
+                  formControlName="forcePipe"
+                  [tooltip]="tasktip.forcePipe"
+                ></input-check>
+              </app-form-row>
+
+              <hr class="border-0 border-t border-border-faint my-1.5" />
+
+              <app-form-row>
+                <input-select
+                  title="Use static chunking"
+                  formControlName="staticChunks"
+                  [items]="selectStaticChunking"
+                ></input-select>
                 @if (form.controls.staticChunks.value === 1) {
-                  <input-number title="Fixed size of chunks" formControlName="chunkSize" [tooltip]="tasktip.chunkSize"></input-number>
+                  <input-number
+                    title="Fixed size of chunks"
+                    formControlName="chunkSize"
+                    [tooltip]="tasktip.chunkSize"
+                  ></input-number>
                 } @else if (form.controls.staticChunks.value === 2) {
                   <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
                 }
-              </div>
-              <hr><br>
-              <div class="flex flex-wrap items-center gap-2">
-                <input-select title="Binary type to run task" formControlName="crackerBinaryTypeId" [items]="selectCrackertype"></input-select>
-                <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
+              </app-form-row>
 
-              </div>
-              <hr/>
-              <div class="flex flex-col gap-2">
-                <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
+              <hr class="border-0 border-t border-border-faint my-1.5" />
+
+              <app-form-row>
+                <input-select
+                  title="Binary type to run task"
+                  formControlName="crackerBinaryTypeId"
+                  [items]="selectCrackertype"
+                ></input-select>
+                <input-select
+                  title="Binary version"
+                  formControlName="crackerBinaryId"
+                  [items]="selectCrackerversions"
+                  [isRequired]="true"
+                ></input-select>
+              </app-form-row>
+
+              <hr class="border-0 border-t border-border-faint my-1.5" />
+
+              <div class="form-layout">
+                <input-select
+                  title="Set Preprocessor"
+                  formControlName="preprocessorId"
+                  [items]="selectPreprocessor"
+                  [isBlankOptionDisabled]="true"
+                ></input-select>
                 <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
               </div>
-            </mat-expansion-panel>
-          </mat-accordion>
+            </div>
+          </mat-expansion-panel>
+
           @if (!form.valid && form.touched) {
-            <br>
-            <span class="help-block" >Please fill in all required fields.</span>
-            }<br>
-            <grid-buttons>
-              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-              <button-submit [name]="'Create'" [disabled]="false" ></button-submit>
-              @if (isCreatingLoading) {
-                <div>
-                  <mat-spinner diameter="24" color="accent"></mat-spinner>
-                </div>
-              }
-            </grid-buttons>
-          </form>
+            <div class="text-destructive text-sm my-1.5">Please fill in all required fields.</div>
+          }
+
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="false" [loading]="isCreatingLoading"></button-submit>
+          </grid-buttons>
+        </form>
       }
-      </grid-main>
     </div>
+
     <div class="col-span-12 md:col-span-6">
       <mat-accordion multi>
-
-        <mat-expansion-panel #wordlistPanel>
+        <mat-expansion-panel #wordlistPanel class="form-section-panel">
           <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><b>Wordlists</b></span>
-            </mat-panel-title>
+            <mat-panel-title>Wordlists</mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="FileType.WORDLIST" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="FileType.WORDLIST"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+            [cmdPrepro]="isPreprocessor()"
+          ></app-files-attack-table>
         </mat-expansion-panel>
 
-        <mat-expansion-panel #rulesPanel>
+        <mat-expansion-panel #rulesPanel class="form-section-panel">
           <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><b>Rules</b></span>
-            </mat-panel-title>
+            <mat-panel-title>Rules</mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="FileType.RULES" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="FileType.RULES"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+            [cmdPrepro]="false"
+          ></app-files-attack-table>
         </mat-expansion-panel>
 
-        <mat-expansion-panel #otherPanel>
+        <mat-expansion-panel #otherPanel class="form-section-panel">
           <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><b>Other</b></span>
-            </mat-panel-title>
+            <mat-panel-title>Other</mat-panel-title>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="FileType.OTHER" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="FileType.OTHER"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+            [cmdPrepro]="false"
+          ></app-files-attack-table>
         </mat-expansion-panel>
-
       </mat-accordion>
     </div>
   </div>
-
-
+</app-page>

@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+/* When marked narrow, the card matches the width of a `col-span-6` column
+   in a `grid-cols-12 gap-4` two-column form layout (e.g., new-tasks page),
+   so single-column form pages have the same input widths as two-column ones. */
+:host(.grid-main--narrow) {
+  @media (min-width: 768px) {
+    max-width: calc(50% - var(--space-xs));
+  }
+}

@@ -6,13 +6,9 @@
     <div class="simulate-form-field-infix">
       @for (item of items; track item.id) {
         <div>
-          <span class="simulate-form-field-content" [innerHTML]=" item.name"></span>
-          <!-- <a *ngIf="routerLink" [routerLink]="getLink(item._id,'edit')" [class.active]="isActive()">
-          Link
-        </a> -->
-      </div>
-    }
+          <span class="simulate-form-field-content" [innerHTML]="item.name"></span>
+        </div>
+      }
+    </div>
   </div>
 </div>
-</div>
-

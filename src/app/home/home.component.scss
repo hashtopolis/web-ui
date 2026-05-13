@@ -1,130 +1,88 @@
-.ro-1 {
-  box-sizing: border-box;
-
-  .co {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 8px;
-
-    &.co-25 {
-      width: 100%;
-    }
-
-    .value {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 24px; // same as numbers
-    }
-
-    .spinner-wrapper {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      min-height: 24px;
-    }
-  }
-
-  &.ro-s {
-    .co-25 {
-      width: 50%;
-    }
-  }
-
-  &.ro-m,
-  &.ro-l,
-  &.ro-xl {
-    .co-25 {
-      width: 25%;
-    }
-  }
+/* Wrapper styles (w-9 h-9 rounded-md bg-primary-muted etc.) live on the
+   template as Tailwind utilities. This rule keeps the descendant combinator
+   for sizing + coloring the inner <mat-icon> — Tailwind has no clean way
+   to size a child mat-icon without per-instance classes. */
+.icon-box mat-icon {
+  color: var(--primary);
+  font-size: var(--text-xl);
+  width: 18px;
+  height: 18px;
 }
 
-.ro-2 {
-  box-sizing: border-box;
-
-  .co {
-    display: inline-block;
-    box-sizing: border-box;
-    padding: 8px;
-
-    &.co-100 {
-      width: 100%;
-      position: relative;
-
-      .app-echarts {
-        margin: 0;
-        margin-top: -30px !important;
-        padding: 0;
-        height: 250px;
-        position: relative;
-      }
-
-      .spinner-wrapper {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-    }
-  }
-
-  &.ro-m,
-  &.ro-l,
-  &.ro-xl {
-    .co-100 {
-      width: 100%;
-      padding: 0;
-      overflow: hidden;
-
-      .app-echarts {
-        margin: 0;
-        margin-top: -30px !important;
-        padding: 0;
-        height: 250px;
-      }
-    }
-  }
+/* 18px label maps to --text-xl; the 0.01em tracking is not on a Tailwind
+   utility scale, so the rule stays inline rather than splitting across
+   utility classes + a stub component-scope rule. */
+.metric-label {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--heading-foreground);
+  letter-spacing: 0.01em;
 }
 
-.chart-controls {
-  color: #666;
-  text-align: right;
-
-  .mdc-button {
-    padding: 0;
-    min-width: 32px;
-    margin-left: 4px;
-    margin-bottom: 3px;
-
-    .mat-icon {
-      margin-right: 0;
-    }
-  }
+/* 32px / 36px / -0.02em headline metrics — between text-3xl (30px) and
+   text-4xl (36px) on Tailwind's named scale. */
+.metric-value {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--heading-foreground);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 36px;
 }
 
+.metric-suffix {
+  font-size: var(--text-xs);
+  color: var(--subtle-foreground);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
 
-.no-permission {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #666666;
-  font-style: italic;
+.heatmap-legend__label {
+  font-size: var(--text-2xs);
+  color: var(--subtle-foreground);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Material override — Tailwind classes on a host can't pierce
+   mat-mdc-icon-button's default sizing. */
+.chart-controls .mat-mdc-icon-button {
+  width: 32px;
+  height: 32px;
+  padding: var(--space-2xs);
+}
+
+/* 220px floor pairs with the inner heatmap canvas to prevent CLS while
+   data loads — between Tailwind's h-52 (208px) and h-56 (224px). */
+.chart-wrapper {
+  position: relative;
+  min-height: 220px;
 }
 
 .heatmap-no-permission {
   display: flex;
-  align-items: center;         // vertical center
-  justify-content: center;     // horizontal center
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  height: 250px;               // match the heatmap height
+  height: 220px;
   text-align: center;
 }
 
-#pcard.no-permission-container {
+/* Card footer for the Activity card. Mirrors the table-pagination footer
+   pattern (ht-table.component.html): subtle border-top separator, right
+   aligned, micro-typography in the muted token register. */
+.activity-card__footer {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  justify-content: center;
-  height: 250px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-faint);
+  font-size: var(--text-xs);
+  color: var(--subtle-foreground);
 }
-

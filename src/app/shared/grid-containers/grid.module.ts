@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 
 import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { FormRowComponent } from '@src/app/shared/grid-containers/form-row/form-row.component';
 import { GridAutoColComponent } from '@src/app/shared/grid-containers/grid-autocol';
 import { GridFormInputComponent } from '@src/app/shared/grid-containers/grid-formgroup';
 import { GridMainComponent } from '@src/app/shared/grid-containers/grid-main';
@@ -20,14 +21,16 @@ import { SimulateFormFieldMultiComponent } from '@src/app/shared/grid-containers
     SimulateFormFieldComponent,
     GridFormInputComponent,
     GridAutoColComponent,
-    GridMainComponent
+    GridMainComponent,
+    FormRowComponent
   ],
   declarations: [
     SimulateFormFieldMultiComponent,
     SimulateFormFieldComponent,
     GridFormInputComponent,
     GridAutoColComponent,
-    GridMainComponent
+    GridMainComponent,
+    FormRowComponent
   ]
 })
 export class GridModule {}

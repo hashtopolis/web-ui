@@ -5,19 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgModule } from '@angular/core';
+import { PageComponent } from './page/page.component';
 import { PageSubTitleComponent } from './page-subtitle/page-subtitle.component';
-import { PageTitleComponent } from './page-title/page-title.component';
 
 @NgModule({
-  imports: [
-    FormsModule,
-    CommonModule,
-    FontAwesomeModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule
-  ],
-  exports: [PageTitleComponent, PageSubTitleComponent],
-  declarations: [PageTitleComponent, PageSubTitleComponent]
+  imports: [FormsModule, CommonModule, FontAwesomeModule, MatCardModule, MatButtonModule, MatIconModule],
+  exports: [PageSubTitleComponent, PageComponent],
+  declarations: [PageSubTitleComponent, PageComponent]
 })
 export class PageTitleModule {}

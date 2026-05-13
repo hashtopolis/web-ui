@@ -1,39 +1,42 @@
-<app-table>
-  <app-page-title
-    [title]="'Supertask Builder'"
-  ></app-page-title>
-
-  <horizontalnav [menuItems]="menuItems"></horizontalnav>
-  <!-- Body -->
-  <grid-main>
-    <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
-    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-
-      <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
-      <div class="flex flex-wrap items-center gap-2">
-        <input-number title="maxAgents" formControlName="maxAgents"></input-number>
+<app-page title="Supertask Builder">
+  <app-table>
+    <horizontalnav [menuItems]="menuItems"></horizontalnav>
+    <!-- Body -->
+    <div class="grid grid-cols-12">
+      <div class="col-span-12 md:col-span-6">
+        <grid-main>
+          <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
+          <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+            <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
+            <app-form-row>
+              <input-number title="Max Agents" formControlName="maxAgents"></input-number>
+            </app-form-row>
+            <app-form-row>
+              <input-select
+                title="Benchmark Type"
+                formControlName="useNewBench"
+                [items]="selectBenchmarktype"
+              ></input-select>
+              <input-select
+                title="Binary type to run task"
+                formControlName="crackerBinaryId"
+                [items]="selectCrackertype"
+              ></input-select>
+            </app-form-row>
+            <div class="flex flex-wrap items-center gap-6">
+              <input-check title="Small Tasks" formControlName="isSmall"></input-check>
+              <input-check title="CPU" formControlName="isCpuTask"></input-check>
+              <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>
+            </div>
+            <br />
+            <input-text-area title="Insert Masks" formControlName="masks" [isRequired]="true"></input-text-area>
+            <grid-buttons>
+              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+              <button-submit [name]="'Create'" [disabled]="false" [loading]="isLoading"></button-submit>
+            </grid-buttons>
+          </form>
+        </grid-main>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-        <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <input-check title="Small Tasks" formControlName="isSmall"></input-check>
-        <input-check title="CPU" formControlName="isCpuTask"></input-check>
-        <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>
-      </div>
-      <br/>
-      <input-text-area title="Insert Masks" formControlName="masks" [isRequired]="true"></input-text-area>
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" [disabled]="false"></button-submit>
-        @if (isLoading) {
-          <div>
-            <mat-spinner diameter="24" color="accent"></mat-spinner>
-          </div>
-        }
-      </grid-buttons>
-
-    </form>
-  </grid-main>
-</app-table>
+    </div>
+  </app-table>
+</app-page>

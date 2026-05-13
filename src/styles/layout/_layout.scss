@@ -11,6 +11,8 @@ body.full-width-layout {
 
 body.fixed-width-layout {
 
+  /* 1500px content cap is design-driven (sits between Tailwind's max-w-7xl =
+     1280 and a hypothetical max-w-8xl = 1536). Kept off-scale by intent. */
   .large,
   .xlarge,
   .small,

@@ -1,110 +1,74 @@
-@use "../base/colors";
-
 /* ==================================
           SECTION FILES
    ================================== */
 
 // Notes. Section to customize the files page
 
-.files-theme {
-  color: #345F90;
-  padding: 5px 20px;
-  position: relative;
-  z-index: 2;
-  cursor: pointer;
-  display: inline-block;
-  -webkit-transition: color 250ms ease-in-out;
-  transition: color 250ms ease-in-out;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-
-.files-theme:hover {
-	background: #9aa9be;
-	opacity: 1;
-}
-
-.files-theme.active {
-  color: colors.$color-white;
-  background: colors.$color-grey-metal;
-}
-
-.tab-slider--body {
-  margin-bottom: 20px;
-}
-
-
 .tab-slider--nav {
-  width: 100%;
-  float: left;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
 }
 
 .tab-slider--tabs {
-  display: block;
-  float: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
-  padding: 0;
+  padding: var(--space-2xs);
   list-style: none;
-  position: relative;
-  border-radius: 35px;
-  overflow: hidden;
-  background: #f0eaea;
-  height: 34px;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  user-select: none;
 }
 
-.tab-slider--tabs:after {
-  content: "";
-  width: 50%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  -webkit-transition: all 250ms ease-in-out;
-  transition: all 250ms ease-in-out;
-  border-radius: 35px;
+.files-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--subtle-foreground);
+  font-size: var(--text-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color var(--duration-normal) var(--easing-standard),
+    background var(--duration-normal) var(--easing-standard);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: var(--text-xl);
+    line-height: 18px;
+  }
+
+  &:hover:not(.active) {
+    color: var(--primary);
+    background: var(--primary-muted);
+  }
+
+  &.active {
+    color: var(--primary-foreground);
+    background: var(--primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 }
 
-.tab-slider--tabs.slide:after {
-  left: 50%;
-}
-
-// Show file size style
-
-.custom-file-upload-size {
-  position:relative;
-  top: 50%; left:0;
-  font-size: 0.7em;
-  line-height: 100%;
-  margin-top: -0.35em;
-  font-size:medium;
-  font-family:Verdana;
-  font-weight:bold;
-}
-
-.file-input-container {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  cursor: pointer !important;
-}
-
-input.custom-file-input[type="file"] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  cursor: pointer !important;
-}
-
-.file-upload-label {
-  font-size: 16px;
-  line-height: 24px;
+.tab-slider--body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  background: var(--surface, transparent);
 }

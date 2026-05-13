@@ -20,6 +20,7 @@ import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfigur
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
+import { AlertService } from '@services/shared/alert.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -42,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private themes = inject(ThemeService);
   private permissionService = inject(PermissionService);
   private easterEggService = inject(EasterEggService);
+  private alert = inject(AlertService);
   private tasksRoleService = inject(TasksRoleService);
   private pretasksRoleService = inject(PreconfiguredTasksRoleService);
   private supertaksRoleService = inject(SupertasksRoleService);
@@ -68,6 +70,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
+  userMenu: MainMenuItem[] = [];
   private destroy$ = new Subject<void>();
 
   constructor() {
@@ -124,9 +127,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private activateSecretFeature(): void {
     // Add your secret feature here
     if (this.easterEggFlag) {
-      alert('Blue eyes activated! #️⃣2️⃣💅');
+      this.alert.showInfoMessage('Blue eyes activated! #️⃣2️⃣💅');
     } else {
-      alert('Red eyes activated! #️⃣2️⃣😻');
+      this.alert.showInfoMessage('Red eyes activated! #️⃣2️⃣😻');
     }
     // Example: Enable a hidden feature, change theme, etc.
     this.easterEggFlag = !this.easterEggFlag;
@@ -151,10 +154,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.getFilesMenu(),
       this.getBinariesMenu(),
       this.getConfigMenu(),
-      this.getUsersMenu(),
-      this.getHelpMenu(),
-      this.getAdminMenu()
+      this.getUsersMenu()
     ];
+    this.userMenu = [this.getHelpMenu(), this.getAdminMenu()];
   }
 
   /**
