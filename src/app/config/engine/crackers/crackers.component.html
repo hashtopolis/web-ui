@@ -1,10 +1,10 @@
-<!-- Body -->
-<app-table>
-  <app-page-title
-    title="Crackers"
-    buttontitle="New Cracker"
-    buttonlink="/config/engine/crackers/new"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-crackers-table></app-crackers-table>
-</app-table>
+<app-page
+  title="Crackers"
+  actionTitle="New Cracker"
+  actionLink="/config/engine/crackers/new"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-crackers-table></app-crackers-table>
+  </app-table>
+</app-page>

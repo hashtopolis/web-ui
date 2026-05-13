@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Access Groups"
-    buttontitle="New Access Group"
-    buttonlink="/users/access-groups/new"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-access-groups-table></app-access-groups-table>
-</app-table>
+<app-page
+  title="Access Groups"
+  actionTitle="New Access Group"
+  actionLink="/users/access-groups/new"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-access-groups-table></app-access-groups-table>
+  </app-table>
+</app-page>

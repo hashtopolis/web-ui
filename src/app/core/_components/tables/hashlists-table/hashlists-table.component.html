@@ -15,4 +15,6 @@
   [tableColumns]="tableColumns"
   (backendSqlFilter)="handleBackendSqlFilter($event)"
   dataType="hashlists"
-/>
+>
+  <ng-content select="[extra-actions]" ngProjectAs="[extra-actions]"></ng-content>
+</ht-table>

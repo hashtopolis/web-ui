@@ -1,133 +1,123 @@
-<div class="flex flex-col gap-3">
-  <div class="col-md-7">
-    @if (!isLoading) {
-      <grid-main>
-        <app-page-title
-          [title]="type === 3 ? 'SuperHashlist details' : 'HashList details'"
-          [subbutton]="false"
-        ></app-page-title>
-        <app-page-subtitle [subtitle]="'Import pre-cracked hashes'"></app-page-subtitle>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <input-text title="Name" formControlName="name"></input-text>
-          <div class="flex gap-1">
-            <simulate-form-field
-              label="Hash Type"
-              message="{{ hashtype.id }} - {{ hashtype.description }}"
-            ></simulate-form-field>
-          </div>
-          <div class="flex gap-1">
-            <input-text title="Hashes" formControlName="hashCount"></input-text>
-            <simulate-form-field
-              label="Salted"
-              [message]="form.controls.isSalted.value ? 'Yes' : 'No'"
-              style="padding-left: 17px"
-            >
-            </simulate-form-field>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <input-text title="Hashlist format" formControlName="hashlistFormat"></input-text>
-            <input-text
-              title="Field separator"
-              [isRequired]="true"
-              formControlName="fieldSeparator"
-              style="padding-left: 20px"
-            ></input-text>
-          </div>
-          <p style="margin-top: -3px; margin-bottom: 30px">Accepted format is hash[:salt]:plaintext</p>
+<app-page [title]="type === 3 ? 'SuperHashlist details' : 'HashList details'" subtitle="Import pre-cracked hashes">
+  <div class="flex flex-col gap-3">
+    <div class="col-md-7">
+      @if (!isLoading) {
+        <grid-main>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <input-text title="Name" formControlName="name"></input-text>
+            <div class="flex gap-1">
+              <simulate-form-field
+                label="Hash Type"
+                message="{{ hashtype.id }} - {{ hashtype.description }}"
+              ></simulate-form-field>
+            </div>
+            <div class="flex gap-1">
+              <input-text title="Hashes" formControlName="hashCount"></input-text>
+              <simulate-form-field label="Salted" [message]="form.controls.isSalted.value ? 'Yes' : 'No'">
+              </simulate-form-field>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <input-text title="Hashlist format" formControlName="hashlistFormat"></input-text>
+              <input-text
+                title="Field separator"
+                [isRequired]="true"
+                formControlName="fieldSeparator"
+                class="pl-5"
+              ></input-text>
+            </div>
+            <p class="mb-8">Accepted format is hash[:salt]:plaintext</p>
 
-          <div class="flex flex-wrap gap-2">
-            <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
-          </div>
+            <div class="flex flex-wrap gap-2">
+              <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
+            </div>
 
-          @if (sourceType === 'paste') {
-            <div class="flex gap-0" style="align-items: flex-start">
-              <input-text-area
-                style="flex: 0 0 40%; min-width: 0"
-                title="Hashes"
-                formControlName="hashes"
-                [isRequired]="hashesAreRequired"
-              ></input-text-area>
+            @if (sourceType === 'paste') {
+              <div class="flex gap-0 items-start">
+                <input-text-area
+                  class="basis-2/5 grow-0 shrink-0 min-w-0"
+                  title="Hashes"
+                  formControlName="hashes"
+                  [isRequired]="hashesAreRequired"
+                ></input-text-area>
+                <button
+                  mat-icon-button
+                  matTooltip="Be careful! Hashtopolis does NOT check if the precracked hash is correct!"
+                  type="button"
+                >
+                  <mat-icon color="primary">warning</mat-icon>
+                </button>
+              </div>
+            }
+
+            @if (sourceType === 'upload') {
+              <div>
+                <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+                @if (uploadProgress > 0) {
+                  <div>
+                    <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+                    <span>{{ uploadProgress }}%</span>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (sourceType === 'import') {
+              <div>
+                @if (isLoadingServerFiles) {
+                  <p>Loading files from server import directory...</p>
+                } @else {
+                  <input-select
+                    title="Server import file"
+                    formControlName="sourceData"
+                    [items]="serverFileOptions"
+                    [isRequired]="true"
+                  ></input-select>
+                  @if (serverFileOptions.length === 0) {
+                    <fixed-alert message="No files found in the server import directory."></fixed-alert>
+                  }
+                }
+              </div>
+            }
+
+            @if (sourceType === 'url') {
+              <input-text
+                title="URL path"
+                formControlName="sourceData"
+                pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                [isRequired]="true"
+              ></input-text>
+            }
+
+            <div class="flex gap-0 items-center">
+              <mat-checkbox formControlName="conflictResolution"
+                >Conflict resolution: Overwrite already cracked hashes</mat-checkbox
+              >
               <button
                 mat-icon-button
-                matTooltip="Be careful! Hashtopolis does NOT check if the precracked hash is correct!"
+                matTooltip="Please note: If a hash that has already been cracked is included in the pre-cracked hashes to be imported, the new cracked hash will be adopted and the existing crack will be overwritten!"
                 type="button"
               >
                 <mat-icon color="primary">warning</mat-icon>
               </button>
             </div>
-          }
 
-          @if (sourceType === 'upload') {
-            <div>
-              <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
-              @if (uploadProgress > 0) {
-                <div>
-                  <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
-                  <span>{{ uploadProgress }}%</span>
-                </div>
-              }
-            </div>
-          }
+            <grid-buttons>
+              <button-submit [name]="'Pre-crack hashes'" [loading]="isCreatingLoading"></button-submit>
+            </grid-buttons>
 
-          @if (sourceType === 'import') {
-            <div>
-              @if (isLoadingServerFiles) {
-                <p>Loading files from server import directory...</p>
-              } @else {
-                <input-select
-                  title="Server import file"
-                  formControlName="sourceData"
-                  [items]="serverFileOptions"
-                  [isRequired]="true"
-                ></input-select>
-                @if (serverFileOptions.length === 0) {
-                  <fixed-alert message="No files found in the server import directory."></fixed-alert>
-                }
-              }
-            </div>
-          }
-
-          @if (sourceType === 'url') {
-            <input-text
-              title="URL path"
-              formControlName="sourceData"
-              pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
-              [isRequired]="true"
-            ></input-text>
-          }
-
-          <div class="flex gap-0" style="align-items: center">
-            <mat-checkbox formControlName="conflictResolution"
-              >Conflict resolution: Overwrite already cracked hashes</mat-checkbox
-            >
-            <button
-              mat-icon-button
-              matTooltip="Please note: If a hash that has already been cracked is included in the pre-cracked hashes to be imported, the new cracked hash will be adopted and the existing crack will be overwritten!"
-              type="button"
-            >
-              <mat-icon color="primary">warning</mat-icon>
-            </button>
-          </div>
-
-          <grid-buttons>
-            <button-submit [name]="'Pre-crack hashes'"></button-submit>
-            @if (isCreatingLoading) {
-              <div>
-                <mat-spinner diameter="24" color="accent"></mat-spinner>
-              </div>
+            @if (form.invalid && form.touched) {
+              <span class="text-sm text-destructive" data-testid="form-validation-error"
+                >Please complete all required fields!</span
+              >
             }
-          </grid-buttons>
-
-          @if (form.invalid && form.touched) {
-            <span class="help-block">Please complete all required fields!</span>
-          }
-        </form>
-      </grid-main>
-    }
+          </form>
+        </grid-main>
+      }
+    </div>
   </div>
-</div>
-@if (isLoading) {
-  <div>
-    <p>Loading...</p>
-  </div>
-}
+  @if (isLoading) {
+    <div>
+      <p>Loading...</p>
+    </div>
+  }
+</app-page>
