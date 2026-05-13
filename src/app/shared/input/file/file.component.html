@@ -1,34 +1,37 @@
-<div class="file-input-container">
-  <input
-    #inputField
-    type="file"
-    [accept]="accept"
-    [multiple]="multiple"
-    (change)="handleFileInput($event)"
-    [required]="isRequired"
-    class="custom-file-input"
-    [id]="inputId"
+<div class="inline-block file-input" [class.file-input--invalid]="hasError && isTouched">
+  <div class="flex flex-row items-center gap-2">
+    <button
+      type="button"
+      mat-stroked-button
+      (click)="inputField.click()"
+      [attr.aria-label]="title || 'Choose file to upload'"
+      [disabled]="disabled"
     >
-  <button
-    type="button"
-    mat-stroked-button
-    color="accent"
-    (click)="inputField.click()"
-    aria-label="Choose file to upload"
-    [disabled]="disabled"
-    >
-    <mat-icon>attach_file</mat-icon>
-    <span>Choose File</span>
-  </button>
-  <mat-hint class="mt-2">
-    <span class="fileuploadspan custom-file-upload-size">{{ fileInfoText }}</span>
-  </mat-hint>
+      <mat-icon>attach_file</mat-icon>
+      <span>Choose File</span>
+    </button>
+
+    <input
+      #inputField
+      type="file"
+      class="sr-only"
+      [accept]="accept"
+      [multiple]="multiple"
+      [required]="isRequired"
+      [id]="inputId"
+      (change)="handleFileInput($event)"
+    />
+
+    <span class="file-input__info" [class.file-input__info--empty]="!fileInfoText">
+      {{ fileInfoText || 'No file chosen' }}
+    </span>
+  </div>
 
   @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336); margin-top: 8px;">
+    <span class="block mt-1.5 text-xs text-destructive">
       @if (errors['required']) {
-        <span>{{ title || 'File' }} is required</span>
+        {{ title || 'File' }} is required
       }
-    </mat-hint>
+    </span>
   }
 </div>

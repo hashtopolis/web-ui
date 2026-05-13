@@ -31,6 +31,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-number',
   templateUrl: './number.component.html',
+  styleUrls: ['./number.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

@@ -1,24 +1,26 @@
-<grid-main>
-  <!-- Show own content only for server actions -->
-  @if (isServerAction) {
-    <app-server-actions></app-server-actions>
-  }
+<app-page [title]="title">
+  <grid-main [narrow]="!isServerAction && sections.length < 2">
+    <!-- Show own content only for server actions -->
+    @if (isServerAction) {
+      <app-server-actions></app-server-actions>
+    }
 
-  <app-page-title [title]="title"></app-page-title>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
-    <div>
-      <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
-      @for (field of formMetadata; track field.name || field.label) {
-        <div>
-          @if (field.type !== 'hidden') {
-            <div>
-              @if (field.isTitle) {
-                <h3>{{ field.label }}</h3>
-              } @else {
-                @if (field.type !== 'checkbox') {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
+      <div class="custom-form__sections">
+        @for (section of sections; track section[0]?.label || section[0]?.name) {
+          <div class="custom-form__section">
+            @for (field of section; track field.name || field.label) {
+              @if (field.type !== 'hidden') {
+                @if (field.isTitle) {
+                  <h3 class="custom-form__section-title">{{ field.label }}</h3>
+                } @else if (field.type === 'checkbox') {
                   <div>
-                    <mat-form-field class="matfield-full-width">
-                      <mat-label>
+                    <mat-checkbox [formControlName]="field.name!">{{ field.label }}</mat-checkbox>
+                  </div>
+                } @else {
+                  <div>
+                    <div class="field-stack">
+                      <label class="field-stack__label" [attr.for]="'dynform-' + field.name">
                         {{ field.label }}
                         @if (field.tooltip) {
                           <mat-icon
@@ -31,73 +33,100 @@
                             info
                           </mat-icon>
                         }
-                      </mat-label>
-                      @switch (field.type) {
-                        @case ('number') {
-                          <input matInput type="number" [formControlName]="field.name!" />
-                        }
-                        @case ('text') {
-                          <input matInput [type]="field.type" [formControlName]="field.name!" />
-                        }
-                        @case ('password') {
-                          <input matInput type="password" [formControlName]="field.name!" />
-                        }
-                        @case ('textarea') {
-                          <textarea matInput [formControlName]="field.name!"></textarea>
-                        }
-                        @case ('email') {
-                          <input matInput [type]="field.type" [formControlName]="field.name!" />
-                        }
-                        @case ('url') {
-                          <input matInput [type]="field.type" [formControlName]="field.name!" />
-                        }
-                        @case ('select') {
-                          <mat-select [formControlName]="field.name!">
-                            @for (
-                              option of Array.isArray(field.selectOptions) ? field.selectOptions : [];
-                              track option.value
-                            ) {
-                              <mat-option [value]="option.value">
-                                {{ option.label }}
-                              </mat-option>
+                      </label>
+                      <mat-form-field class="field-stack__field">
+                        @switch (field.type) {
+                          @case ('number') {
+                            <input
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              type="number"
+                              [formControlName]="field.name!"
+                            />
+                          }
+                          @case ('text') {
+                            <input
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              [type]="field.type"
+                              [formControlName]="field.name!"
+                            />
+                          }
+                          @case ('password') {
+                            <input
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              type="password"
+                              [formControlName]="field.name!"
+                            />
+                          }
+                          @case ('textarea') {
+                            <textarea
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              [formControlName]="field.name!"
+                            ></textarea>
+                          }
+                          @case ('email') {
+                            <input
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              [type]="field.type"
+                              [formControlName]="field.name!"
+                            />
+                          }
+                          @case ('url') {
+                            <input
+                              [id]="'dynform-' + field.name"
+                              matInput
+                              [type]="field.type"
+                              [formControlName]="field.name!"
+                            />
+                          }
+                          @case ('select') {
+                            <mat-select [id]="'dynform-' + field.name" [formControlName]="field.name!">
+                              @for (
+                                option of Array.isArray(field.selectOptions) ? field.selectOptions : [];
+                                track option.value
+                              ) {
+                                <mat-option [value]="option.value">
+                                  {{ option.label }}
+                                </mat-option>
+                              }
+                            </mat-select>
+                          }
+                          @case ('selectd') {
+                            <mat-select [id]="'dynform-' + field.name" [formControlName]="field.name!">
+                              @for (
+                                option of Array.isArray(field.selectOptions$) ? field.selectOptions$ : [];
+                                track option.id
+                              ) {
+                                <mat-option [value]="option.id">
+                                  {{ option.name }}
+                                </mat-option>
+                              }
+                            </mat-select>
+                            @if (isLoadingSelect) {
+                              <mat-spinner diameter="16"></mat-spinner>
                             }
-                          </mat-select>
-                        }
-                        @case ('selectd') {
-                          <mat-select [formControlName]="field.name!">
-                            @for (
-                              option of Array.isArray(field.selectOptions$) ? field.selectOptions$ : [];
-                              track option.id
-                            ) {
-                              <mat-option [value]="option.id">
-                                {{ option.name }}
-                              </mat-option>
-                            }
-                          </mat-select>
-                          @if (isLoadingSelect) {
-                            <mat-spinner diameter="16"></mat-spinner>
                           }
                         }
-                      }
-                      @if (form.controls[field.name!].hasError('required')) {
-                        <mat-error> {{ field.label }} is required </mat-error>
-                      }
-                      @if (form.controls[field.name!].hasError('invalidUrl')) {
-                        <mat-error> Invalid URL format </mat-error>
-                      }
-                    </mat-form-field>
-                  </div>
-                }
-                @if (field.type === 'checkbox') {
-                  <div>
-                    <mat-checkbox [formControlName]="field.name!">{{ field.label }}</mat-checkbox>
+                        @if (form.controls[field.name!].hasError('required')) {
+                          <mat-error> {{ field.label }} is required </mat-error>
+                        }
+                        @if (form.controls[field.name!].hasError('invalidUrl')) {
+                          <mat-error> Invalid URL format </mat-error>
+                        }
+                      </mat-form-field>
+                    </div>
                   </div>
                 }
               }
-            </div>
-          }
-        </div>
-      }
+            }
+          </div>
+        }
+      </div>
+
       <grid-buttons>
         @if (isCreateMode) {
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
@@ -107,13 +136,9 @@
         }
         <!-- If the Server Actions component is displayed, the button must not be displayed.-->
         @if (!isServerAction) {
-          <button-submit [name]="buttonText" [disabled]="false"></button-submit>
-        }
-        @if (isSubmitting) {
-          <mat-spinner diameter="24"></mat-spinner>
+          <button-submit [name]="buttonText" [disabled]="false" [loading]="isSubmitting"></button-submit>
         }
       </grid-buttons>
-    </div>
-    <!-- </grid-autocol> -->
-  </form>
-</grid-main>
+    </form>
+  </grid-main>
+</app-page>

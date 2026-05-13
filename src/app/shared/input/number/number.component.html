@@ -1,6 +1,9 @@
-<mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-  <mat-label>
+<div class="field-stack" [class.is-invalid]="hasError && isTouched">
+  <label class="field-stack__label" [attr.for]="inputId">
     {{ title }}
+    @if (isRequired) {
+      <span class="field-stack__required" aria-hidden="true">*</span>
+    }
     @if (tooltip) {
       <mat-icon
         matTooltip="{{ tooltip }}"
@@ -11,38 +14,46 @@
         info
       </mat-icon>
     }
-  </mat-label>
-  <div [class.is-invalid]="error">
-    <input
-      #inputField
-      matInput type="number"
-      [min]="min"
-      [max]="max"
-      [id]="inputId"
-      [value]="value"
-      (input)="onValueChange($event)"
-      (blur)="onTouched()"
-      [required]="isRequired"
-      [class.is-invalid]="error"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
-      [disabled]="disabled"
-      >
-  </div>
-  @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
-      @if (errors['required']) {
-        <span>{{ title }} is required</span>
-      }
-      @if (errors['min']) {
-        <span>Value cannot be less than {{ min }}</span>
-      }
-      @if (errors['max']) {
-        <span>Value cannot be greater than {{ max }}</span>
-      }
-      @if (errors['pattern']) {
-        <span>Please enter a valid number</span>
-      }
-    </mat-hint>
-  }
-</mat-form-field>
+  </label>
+
+  <mat-form-field
+    class="field-stack__field"
+    [class.mat-form-field-invalid]="hasError"
+    [class.mat-form-field-touched]="isTouched"
+  >
+    <div [class.is-invalid]="error">
+      <input
+        #inputField
+        matInput
+        type="number"
+        [min]="min"
+        [max]="max"
+        [id]="inputId"
+        [value]="value"
+        (input)="onValueChange($event)"
+        (blur)="onTouched()"
+        [required]="isRequired"
+        [class.is-invalid]="error"
+        [class.ng-invalid]="hasError"
+        [class.ng-touched]="isTouched"
+        [disabled]="disabled"
+      />
+    </div>
+    @if (hasError && errors) {
+      <mat-hint class="mat-mdc-form-field-error text-destructive">
+        @if (errors['required']) {
+          <span>{{ title }} is required</span>
+        }
+        @if (errors['min']) {
+          <span>Value cannot be less than {{ min }}</span>
+        }
+        @if (errors['max']) {
+          <span>Value cannot be greater than {{ max }}</span>
+        }
+        @if (errors['pattern']) {
+          <span>Please enter a valid number</span>
+        }
+      </mat-hint>
+    }
+  </mat-form-field>
+</div>

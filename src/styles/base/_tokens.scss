@@ -1,0 +1,331 @@
+@use '../m3-palette' as palette;
+
+/* ==================================
+          DESIGN TOKENS
+   ==================================
+   Runtime CSS variable layer for the refreshed design system. Layered on top
+   of Material's SCSS palette (which still drives Material-internal colors).
+   New styling reads from these tokens; ThemeService toggles
+   .light-theme / .dark-theme on <body> to flip themes.
+
+   Values follow the "Toolbar" design system — an ultra-minimal monochrome
+   look built from layered white-alpha on near-black (dark mode) and zinc
+   neutrals on white (light mode).
+   ================================== */
+
+:root {
+  /* Primitives — mono ramp single-sourced from $mono in _m3-palette.scss.
+     Theme-agnostic; semantic tokens below may reference these via var(). */
+  @each $tone, $color in palette.$mono {
+    --mono-#{$tone}: #{$color};
+  }
+
+  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: 'Space Grotesk', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Material M3 typography bindings — drive Material's per-role font tokens
+     from the two global stacks above. Display/headline/title-large get
+     --font-heading; the rest get --font-body. Designs only need to set
+     --font-body and --font-heading; these bindings auto-follow. */
+  --mat-sys-display-large-font: var(--font-heading);
+  --mat-sys-display-medium-font: var(--font-heading);
+  --mat-sys-display-small-font: var(--font-heading);
+  --mat-sys-headline-large-font: var(--font-heading);
+  --mat-sys-headline-medium-font: var(--font-heading);
+  --mat-sys-headline-small-font: var(--font-heading);
+  --mat-sys-title-large-font: var(--font-heading);
+  --mat-sys-title-medium-font: var(--font-body);
+  --mat-sys-title-small-font: var(--font-body);
+  --mat-sys-body-large-font: var(--font-body);
+  --mat-sys-body-medium-font: var(--font-body);
+  --mat-sys-body-small-font: var(--font-body);
+  --mat-sys-label-large-font: var(--font-body);
+  --mat-sys-label-medium-font: var(--font-body);
+  --mat-sys-label-small-font: var(--font-body);
+
+  /* Border-radius scale — aligned with Tailwind v4 defaults so design tokens
+     and utility classes (rounded-*) round-trip cleanly. xs = tag chips,
+     sm = form-field shells, md = buttons / nav pills, lg = cards & dropdown
+     shells, 2xl = generous notification dropdowns, full = pills & scrollbars. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Font-size scale — the in-app size vocabulary actually in use.
+     2xs/xs power dense chips, paginator, tooltips, table-header small-caps;
+     sm/md cover body density inside form fields and table cells; base is the
+     default body size; lg/xl cover section headings. Add a new step only
+     after a clear, repeated need — the smaller the scale, the more
+     consistent the typography reads across the app. */
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+
+  /* Chart sizing — ECharts containers need an explicit pixel height; this
+     token is the project-wide default so charts share a rhythm. */
+  --chart-height-default: 300px;
+
+  /* Spacing scale — semantic tokens that drive the "container owns the
+     rhythm" pattern. Containers use these on `gap`; items keep margin: 0. */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Vertical rhythm between stacked form sections — consumed by the global
+     `form { gap }` rule and by stacked <mat-expansion-panel> collapsibles.
+     Re-target this alone to make every form section breathe the same way. */
+  --form-gap: var(--space-sm);
+
+  --background: #0f0f0f;
+  --muted: #1c1c1c;
+  --well: #242424;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.05);
+  --sidebar: #0a0a0a;
+
+  --foreground: rgba(255, 255, 255, 0.86);
+  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --subtle-foreground: rgba(255, 255, 255, 0.55);
+  --heading-foreground: rgba(255, 255, 255, 0.98);
+
+  --primary: #ffffff;
+  --primary-hover: rgba(255, 255, 255, 0.85);
+  --primary-muted: rgba(255, 255, 255, 0.08);
+  --primary-foreground: #0f0f0f;
+
+  --secondary: rgba(255, 255, 255, 0.7);
+
+  --border: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --border-faint: rgba(255, 255, 255, 0.06);
+
+  --success: #4ade80;
+  --warning: #facc15;
+  --destructive: #f87171;
+  --info: #60a5fa;
+
+  /* Link affordance — distinct from --primary so the monochrome accent stays
+     monochrome while clickable cells, anchors and inline editables read as
+     real links. Designs may re-target this independently of --info. */
+  --link: #60a5fa;
+  --link-hover: #93c5fd;
+
+  /* Tinted surface companions for the semantic colors above. Used by
+     toast/snackbar backgrounds and any surface that wants a faint accent
+     wash (consumed by _snackbar.scss). Derived via color-mix in oklch so
+     the mix stays perceptually clean near the green/yellow boundary.
+     --success-bg is tuned higher (22%) because row-cracked uses it as a
+     full-row highlight, not just a faint wash. */
+  --success-bg: color-mix(in oklch, var(--success) 22%, transparent);
+  --destructive-bg: color-mix(in oklch, var(--destructive) 14%, transparent);
+  --info-bg: color-mix(in oklch, var(--info) 14%, transparent);
+  --warning-soft: color-mix(in oklch, var(--warning) 65%, white 35%);
+
+  /* Floating-surface token — solid background for popovers/dropdowns/hover
+     cards that overlay arbitrary content. Distinct from --card (which is a
+     translucent inset surface on the page bg) so floating elements can't
+     blend into whatever they sit above. */
+  --popover: #1a1a1a;
+  --popover-foreground: var(--foreground);
+
+  /* Search-match highlight tint — consumed by .highlight-text in
+     components/_form.scss for matched substrings in autocomplete dropdowns. */
+  --highlight-bg: #96dcf7;
+
+  /* Hash-cracking status colors for the link-preview legend.
+     ⚠️ Intentionally NOT aliased to the semantic ramp:
+       legend swatches are tiny pills where vividness vs. neighbors matters,
+       so they lean SATURATED (#22c55e, #ef4444);
+       semantic colors are calibrated for text/alerts where contrast vs.
+       background matters, so they lean MUTED (#4ade80, #f87171).
+     Use --status-* for legend dots/pills, --success/--destructive for prose. */
+  --status-cracked: #22c55e;
+  --status-no-crack: var(--warning); /* alias — same value as semantic warning */
+  --status-not-processed: var(--subtle-foreground);
+  --status-error: #ef4444;
+
+  /* Validation focus ring — re-derives via color-mix when --destructive flips. */
+  --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
+
+  /* Mid-layer surface tints — between --bg-secondary and --bg-card. Designs
+     re-target these to retint outlined-button fills, table zebra, row hovers,
+     etc. without binding palette colors directly into --mat-* tokens. */
+  --surface-faint: rgba(255, 255, 255, 0.03);
+  --surface-soft: rgba(255, 255, 255, 0.06);
+  --surface-soft-hover: rgba(255, 255, 255, 0.1);
+
+  /* Per-cell hover affordance for table cells that host an interactive
+     control (editable text/checkbox). Pitched slightly darker than
+     --card-hover (the row-level hover) so the cell reads as a distinct
+     target *within* an already-hovered row. */
+  --cell-hover: rgba(255, 255, 255, 0.14);
+
+  /* Component-semantic aliases — these are RE-TARGETABLE tokens.
+     Designs may override them to point at different sources (e.g. Alpine
+     Snow re-binds --tooltip and --snackbar to var(--primary)). Consumers
+     should always reference the alias name, never the resolved value, so
+     designs can swap the source without touching component code. */
+  --header: var(--muted);
+  --shell-frame-image: none;
+  --ring: color-mix(in oklch, var(--primary) 30%, transparent);
+  --tooltip: var(--well);
+  --tooltip-foreground: var(--foreground);
+  --snackbar: var(--well);
+  --snackbar-foreground: var(--foreground);
+
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  --gradient-accent: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+
+  /* Motion — three-step duration scale + Material standard/emphasized easings.
+     Use --duration-fast for hover/focus state changes (most common), -normal
+     for panels/menus opening, -slow for page-level transitions. */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  /* Z-index scale — named layers so stacking conflicts are visible at the
+     token layer. Use the smallest layer that puts the element above its
+     intended siblings; reserve --z-loading for fullscreen blocking states. */
+  --z-content: 1;
+  --z-sticky: 100;
+  --z-overlay: 1000;
+  --z-tooltip: 3000;
+  --z-modal: 5000;
+  --z-snackbar: 7000;
+  --z-loading: 10000;
+
+  /* Opacity scale — for disabled controls and muted text/icon contrast. */
+  --opacity-disabled: 0.5;
+  --opacity-muted: 0.7;
+}
+
+.dark-theme {
+  --background: #0f0f0f;
+  --muted: #1c1c1c;
+  --well: #242424;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.05);
+  --sidebar: #0a0a0a;
+
+  --foreground: rgba(255, 255, 255, 0.86);
+  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --subtle-foreground: rgba(255, 255, 255, 0.55);
+  --heading-foreground: rgba(255, 255, 255, 0.98);
+
+  --primary: #ffffff;
+  --primary-hover: rgba(255, 255, 255, 0.85);
+  --primary-muted: rgba(255, 255, 255, 0.08);
+  --primary-foreground: #0f0f0f;
+
+  --secondary: rgba(255, 255, 255, 0.7);
+
+  --border: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --border-faint: rgba(255, 255, 255, 0.06);
+
+  --surface-faint: rgba(255, 255, 255, 0.03);
+  --surface-soft: rgba(255, 255, 255, 0.06);
+  --surface-soft-hover: rgba(255, 255, 255, 0.1);
+
+  --cell-hover: rgba(255, 255, 255, 0.14);
+
+  // Semantic colors — explicit in .dark-theme so any design that scopes
+  // overrides under .light-theme has a parallel dark anchor to override
+  // (instead of leaking light values into dark via the :root fallback).
+  // Mirrors the dark baseline declared on :root.
+  --success: #4ade80;
+  --warning: #facc15;
+  --destructive: #f87171;
+  --info: #60a5fa;
+  --link: #60a5fa;
+  --link-hover: #93c5fd;
+
+  // Tinted surfaces — layered over --well (a solid surface) instead of
+  // transparent, so snackbars, .row-cracked rows, destructive button hovers
+  // and info callouts read as solid cards on the #0f0f0f page rather than
+  // disappearing into a near-zero-alpha wash. Light mode keeps the :root
+  // transparent-mix because tints over the snow canvas already read well.
+  --success-bg: color-mix(in oklch, var(--success) 22%, var(--well));
+  --destructive-bg: color-mix(in oklch, var(--destructive) 18%, var(--well));
+  --info-bg: color-mix(in oklch, var(--info) 18%, var(--well));
+
+  // Translucent dark canvas paired with the sticky header's backdrop-filter
+  // blur — mirrors alpine-snow's frosted-glass treatment so light/dark share
+  // the same header shape, not just colors.
+  --header: rgba(15, 15, 15, 0.6);
+
+  // Subtle white gradient hairline so cards/dialogs/tables/menus render the
+  // dual-image shell frame in dark too; without this, the outer layer of
+  // `linear-gradient(var(--card), var(--card)), var(--shell-frame-image)`
+  // collapses to `none` and dark surfaces lose their visible edge.
+  --shell-frame-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  --gradient-accent: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+}
+
+.light-theme {
+  --background: #ffffff;
+  --muted: #fafafa;
+  --well: #f4f4f5;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --input: #fafafa;
+  --sidebar: #fafafa;
+
+  --foreground: #52525b;
+  --muted-foreground: #71717a;
+  --subtle-foreground: #a1a1aa;
+  --heading-foreground: #09090b;
+
+  --primary: #18181b;
+  --primary-hover: #27272a;
+  --primary-muted: rgba(24, 24, 27, 0.08);
+  --primary-foreground: #ffffff;
+
+  --secondary: #52525b;
+
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --border-faint: #f4f4f5;
+
+  --surface-faint: rgba(0, 0, 0, 0.02);
+  --surface-soft: rgba(0, 0, 0, 0.04);
+  --surface-soft-hover: rgba(0, 0, 0, 0.06);
+
+  --cell-hover: rgba(0, 0, 0, 0.07);
+
+  /* Link tones tuned for white background — deeper blue reads clearly on
+     light surfaces; hover lifts to a slightly brighter saturated blue. */
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
+
+  /* Popover sits crisp-white on the page bg with a defined border below. */
+  --popover: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(15, 15, 30, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 15, 30, 0.08);
+  --shadow-lg: 0 10px 30px rgba(15, 15, 30, 0.12);
+
+  --gradient-accent: linear-gradient(135deg, #18181b 0%, #71717a 100%);
+}

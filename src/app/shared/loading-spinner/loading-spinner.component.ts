@@ -27,6 +27,7 @@ import { environment } from '@src/environments/environment'
       </div>
     }
   `,
+  styleUrls: ['./loading-spinner.component.scss'],
   standalone: false
 })
 export class LoadingSpinnerComponent {

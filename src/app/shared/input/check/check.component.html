@@ -1,11 +1,12 @@
-<div class="checkbox-wrapper">
-  <mat-checkbox 
-    [checked]="value" 
-    (change)="onValueChange($event)" 
-    (blur)="onTouched()" 
+<div class="checkbox-wrapper" [class.is-invalid]="hasError && isTouched">
+  <mat-checkbox
+    [checked]="value"
+    (change)="onValueChange($event)"
+    (blur)="onTouched()"
     [disabled]="disabled"
     [id]="inputId"
-    >
+    [class.mat-mdc-checkbox-invalid]="hasError && isTouched"
+  >
     {{ title }}
     @if (tooltip) {
       <mat-icon
@@ -14,14 +15,14 @@
         matTooltipClass="tooltip-custom-style"
         container="body"
         aria-hidden="true"
-        >
+      >
         info
       </mat-icon>
     }
   </mat-checkbox>
-  
+
   @if (hasError && errors) {
-    <div class="error-message" style="color: var(--mat-form-field-error-text-color, #f44336); font-size: 0.75rem; margin-top: 4px;">
+    <div class="error-message text-xs mt-1 text-destructive">
       @if (errors['required']) {
         <span>{{ title }} is required</span>
       }

@@ -2,12 +2,12 @@
           SECTION COMPONENTS DIR
    ================================== */
 
-@use 'alert';
+@use 'material';
+@use 'design-system';
 @use 'button';
 @use 'card';
 @use 'form';
-@use 'loader';
-@use 'popup';
 @use 'table';
+@use 'pill';
 @use 'dialog';
 @use 'snackbar';

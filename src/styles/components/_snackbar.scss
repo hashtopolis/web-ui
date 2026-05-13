@@ -1,60 +1,66 @@
-@use "../base/colors";
+/* ==================================
+          SECTION SNACKBAR
+   ==================================
+   Variant snackbars (.snackbar-error / -success / -info) recolor Material's
+   MDC snackbar by REBINDING its input tokens — --mat-snack-bar-container-color
+   and --mat-snack-bar-supporting-text-color — to a solid accent-tinted surface.
+   Mixing inline over --well (solid in both themes) keeps the container opaque
+   even though the global --*-bg tints are translucent washes for in-page use.
+   The accent border-left + accent message text carry the variant identity;
+   the Close button stays neutral so it doesn't blend into the wash.
+   ================================== */
 
-.snackbar-error, .snackbar-success, .snackbar-info {
+.snackbar-error,
+.snackbar-success,
+.snackbar-info {
   .mat-mdc-snack-bar-label {
-    font-size: 12pt !important;
-    font-weight: 500 !important;
+    font-size: 12pt;
+    font-weight: 500;
   }
-  .mdc-snackbar__surface{
+
+  .mdc-snackbar__surface {
     margin-top: 0.25rem;
     margin-left: 0;
-    backdrop-filter: blur(10px);
   }
-  .mat-mdc-snack-bar-actions{
-    button{
-      font-size: 10pt !important;
-    }
+
+  // Bind both the snackbar-action token AND the inner MDC button label token
+  // — Material doesn't auto-wire --mat-snack-bar-button-color through to the
+  // .mdc-button__label inside the action button, so the outer binding alone
+  // leaves the label at its MDC default (light/near-white). Light mode pays
+  // for that with invisible text on the tinted wash; dark mode just looked OK
+  // by accident.
+  --mat-snack-bar-button-color: var(--foreground);
+
+  .mat-mdc-snack-bar-actions button {
+    --mdc-text-button-label-text-color: var(--foreground);
+    font-size: 10pt;
+    border: 1px solid var(--border-strong);
   }
 }
 
 .snackbar-error {
-  .mdc-snackbar__surface{
-    background-color: var(--background-error) !important;
-    color: var(--color-error)!important;
-    border-left: 5px solid var(--color-error);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-error)!important;
-      border: 1px solid var(--color-error);
-    }
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--destructive) 16%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--destructive);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--destructive);
   }
 }
 
-.snackbar-success{
-  .mdc-snackbar__surface{
-    background-color: var(--background-success) !important;
-    color: var(--color-success)!important;
-    border-left: 5px solid var(--color-success);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-success)!important;
-      border: 1px solid var(--color-success);
-    }
+.snackbar-success {
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--success) 22%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--success);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--success);
   }
 }
 
-.snackbar-info{
-  .mdc-snackbar__surface{
-    background-color: var(--background-info) !important;
-    color: var(--color-info)!important;
-    border-left: 5px solid var(--color-info);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-info)!important;
-      border: 1px solid var(--color-info);
-    }
+.snackbar-info {
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--info) 16%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--info);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--info);
   }
 }

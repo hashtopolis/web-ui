@@ -20,6 +20,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-date',
   templateUrl: './date.component.html',
+  styleUrls: ['./date.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

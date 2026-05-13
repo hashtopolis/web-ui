@@ -28,6 +28,7 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: 'dynamicform.component.html',
+  styleUrls: ['./dynamicform.component.scss'],
   standalone: false
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
@@ -123,6 +124,28 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
 
   // Util functions
   transformSelectOptions = transformSelectOptions;
+
+  /**
+   * Groups the flat formMetadata into sections delimited by `isTitle` entries.
+   * Each section is `[titleField?, ...fields]` so the template can render them
+   * in a multi-column grid (e.g., "Activity / Registration" beside "Graphical
+   * Feedback") instead of stacking every section vertically.
+   */
+  get sections(): MetadataFormField[][] {
+    const groups: MetadataFormField[][] = [];
+    let current: MetadataFormField[] = [];
+    for (const field of this.formMetadata) {
+      if (field.isTitle) {
+        if (current.length) groups.push(current);
+        current = [field];
+      } else {
+        if (current.length === 0) current = [];
+        current.push(field);
+      }
+    }
+    if (current.length) groups.push(current);
+    return groups;
+  }
 
   /**
    * Initializes the dynamic form by creating form controls and setting their initial values.

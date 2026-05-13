@@ -1,60 +1,111 @@
-@use '../base/colors';
 /* ==================================
-            SECTION CARDS
+          SECTION CARDS
    ================================== */
 
-/*
-  01- custom card grid
-*/
+/* ---------------------------------------------------------------------------
+   00- Design-system mat-card tokens (applied globally)
+   These rebind Material's --mat-card-* tokens to design tokens so every
+   <mat-card> — regardless of appearance="outlined" / "elevated" / default —
+   renders with the refreshed look without per-instance overrides.
+   --------------------------------------------------------------------------- */
 
-.grid-wrapper {
-  padding-top: 5px;
+.mat-mdc-card {
+  --mat-card-elevated-container-color: var(--card);
+  --mat-card-elevated-container-shape: var(--radius-md);
+  --mat-card-outlined-container-color: var(--card);
+  --mat-card-outlined-outline-color: var(--border-faint);
+  --mat-card-outlined-container-shape: var(--radius-md);
+  border-radius: var(--radius-md) !important;
+  color: var(--foreground);
 }
 
-.grid-main {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.mat-mdc-card.cursor-pointer:hover,
+.mat-mdc-card[routerLink]:hover {
+  --mat-card-outlined-container-color: var(--card-hover);
+  --mat-card-outlined-outline-color: var(--border);
+  cursor: pointer;
 }
 
-.overflowAuto {
-  overflow-x: hidden;
-  overflow-y: auto;
-  /*   height: calc(100vh - 163px); */
-}
+/* ---------------------------------------------------------------------------
+   00a- Design-system card variants (used across the dashboard + forms)
+   These rules live globally so consumers don't need ::ng-deep to reach
+   .mat-mdc-card-content. Keep them keyed off the variant class name only.
+   --------------------------------------------------------------------------- */
 
-// Overflow for texarea Firefox
-@-moz-document url-prefix() {
-  textarea {
-    height: 4em;
-    width: 100%;
+.metric-card {
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
+  min-height: 168px;
+
+  .mat-mdc-card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    height: 100%;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
 }
+
+.activity-card .mat-mdc-card-content {
+  padding: 18px;
+}
+
+.about-card .mat-mdc-card-content {
+  padding: 18px;
+  color: var(--muted-foreground);
+  font-size: var(--text-md);
+  line-height: 1.5;
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.form-section .mat-mdc-card-content {
+  padding: 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   01- Legacy agent status cards (used by <app-new-agent>)
+   --------------------------------------------------------------------------- */
 
 .card-container-ag {
   width: 25%;
 }
 
 .card-ag {
-  background-color: #fff;
-  border: 1px solid #d4d4d4;
+  background-color: var(--card);
+  border: 1px solid var(--border-faint);
   height: 190px;
   margin-bottom: 10px;
   position: relative;
 }
 
 .card-ag-rack {
-  background-color: #fff;
-  border: 1px solid #d4d4d4;
+  background-color: var(--card);
+  border: 1px solid var(--border-faint);
   height: 220px;
   margin-bottom: 10px;
   position: relative;
 }
 
 .card-header-ag {
-  background-color: #545557;
+  background-color: var(--muted);
   font-size: 14pt;
-  color: white;
+  color: var(--heading-foreground);
   padding: 5px;
   width: 100%;
 }
@@ -62,372 +113,122 @@
 .card-body-left-ag {
   margin-top: -5px;
 }
-
 .card-body-right-ag {
   margin-left: 5px;
   margin-top: 5px;
 }
-
 .card-body-top-right {
   margin-left: 5px;
   position: relative;
 }
-
 .card-body-content-ag {
   width: 100px;
 }
 
-.white-ico {
-  color: white;
-}
-
-.white-ico:hover {
-  color: rgb(177, 172, 172);
-}
-
 .gray-light-ico:hover {
-  color: rgb(177, 172, 172);
+  color: var(--subtle-foreground);
   cursor: pointer;
 }
 
 .highlight {
-  background-color: #999;
-}
-
-hr.break:after {
-  background: none repeat scroll 0% 0% #000;
-  content: '';
-  height: 10px;
-  left: 50%;
-  margin: -5px auto auto -5px;
-  position: absolute;
-  // transform: rotate(-45deg);
-  // width: 10px;
+  background-color: var(--well);
 }
 
 .err-msg {
-  background: colors.$color-grey-light;
-  color: colors.$color-black;
+  background: var(--well);
+  color: var(--foreground);
   padding: 1rem;
   font-family: monospace;
   word-break: break-all;
 }
 
-/*
-  01- End
-*/
+/* ---------------------------------------------------------------------------
+   02- Simulated form-field (used by <simulate-form-field>)
+   Read-only equivalent of a mat-form-field. Mirrors the .field-stack pattern
+   in _form.scss: an external label sits above a bordered value box, so a
+   <simulate-form-field> baseline-aligns with neighbouring <input-*> components
+   in the same flex row without per-instance pl/mt tweaks.
+   --------------------------------------------------------------------------- */
 
-/*
-  02- Dashboard Card
-*/
-
-.card {
-  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
-  background-color: #ffffff;
-  color: black;
-  margin-bottom: 20px;
-  position: relative;
-  border: 0 none;
-
-  -webkit-transition:
-    transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
-    box-shadow 200ms ease;
-  -moz-transition:
-    transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
-    box-shadow 200ms ease;
-  -o-transition:
-    transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
-    box-shadow 200ms ease;
-  -ms-transition:
-    transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
-    box-shadow 200ms ease;
-  transition:
-    transform 300ms cubic-bezier(0.34, 2, 0.6, 1),
-    box-shadow 200ms ease;
-
-  .card-body {
-    padding: 15px 15px 10px 15px;
-
-    &.table-full-width {
-      padding-left: 0;
-      padding-right: 0;
-    }
-  }
-
-  .card-header {
-    &:not([data-background-color]) {
-      background-color: transparent;
-    }
-
-    padding: 15px 15px 0;
-    border: 0;
-
-    .card-title {
-      margin-top: 10px;
-    }
-  }
-
-  .card-footer {
-    background-color: transparent;
-    border: 0;
-
-    .stats {
-      i {
-        margin-right: 5px;
-        position: relative;
-        top: 0px;
-        color: rgb(144, 130, 122);
-      }
-    }
-  }
+/* Custom-element wrappers fill their grid/flex cell, matching the sibling
+   <input-*> components (which set the same via :host { @apply fluid-component }). */
+simulate-form-field,
+simulate-form-field-multi {
+  display: block;
+  width: 100%;
 }
-
-.card-dash {
-  .card-body {
-    padding: 15px 15px 0px;
-
-    .numbers {
-      text-align: right;
-      font-size: 2em;
-
-      p {
-        margin-bottom: 0;
-      }
-
-      .card-category {
-        color: darkblue;
-        font-size: 16px;
-        line-height: 1.4em;
-      }
-    }
-  }
-
-  .card-footer {
-    padding: 0px 15px 15px;
-
-    .stats {
-      color: darkblue;
-    }
-
-    hr {
-      margin-top: 10px;
-      margin-bottom: 15px;
-    }
-  }
-}
-
-.app-echarts {
-  margin: 0 !important;
-  padding: 0 !important;
-  // padding: 1.1rem;
-}
-
-/*
-  02- Dashboard Card End
-*/
-
-.home-grid {
-  margin-top: 50px;
-
-  .mat-mdc-card {
-    position: relative;
-    background-color: transparent;
-    color: colors.$primary-900;
-    text-align: center;
-    box-shadow: none;
-
-    .icon-wrapper {
-      border-radius: 100%;
-      background-color: colors.$accent-900;
-      display: inline-block;
-      padding: 1em;
-      width: 30px;
-      height: 30px;
-      text-align: center;
-
-      &:hover {
-        transform: scale(1.1);
-      }
-
-      .mat-icon {
-        color: #fff;
-        position: relative;
-        font-size: 30px;
-        width: 30px;
-        height: 30px;
-      }
-    }
-
-    &.project-info {
-      text-align: center;
-      background-color: colors.$accent-900;
-      color: #fff;
-    }
-  }
-
-  .mat-mdc-card-content {
-    h3 {
-      color: colors.$primary-900;
-      font-weight: 200;
-      margin-top: 0;
-      margin-bottom: 0.5em;
-      font-size: 1.5em;
-
-      .mat-icon {
-        color: colors.$primary-400;
-        position: relative;
-        top: 4px;
-      }
-    }
-
-    hr {
-      border-width: 1px;
-      border-style: solid;
-      border-color: colors.$primary-900;
-    }
-
-    span {
-      display: inline-block;
-      width: 100%;
-
-      &.value {
-        font-size: 2em;
-        font-weight: 900;
-      }
-
-      &.label {
-        color: colors.$primary-500;
-        font-size: 0.8em;
-
-        .mat-icon {
-          font-size: 16px;
-          height: 16px;
-          width: 16px;
-          position: relative;
-          top: 3px;
-        }
-      }
-    }
-  }
-}
-
-.dark-theme {
-  .card {
-    box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.75);
-    background-color: var(--mat-toolbar-container-background-color);
-    color: #fff;
-  }
-
-  .home-grid {
-    .mat-mdc-card {
-      background-color: transparent;
-      color: #fff;
-
-      &.project-info {
-        background-color: colors.$accent-900;
-      }
-
-      .icon-wrapper {
-        background-color: colors.$accent-900;
-
-        .mat-icon {
-          color: #fff;
-        }
-      }
-    }
-
-    .mat-mdc-card-content {
-      h3 {
-        color: colors.$primary-300;
-
-        .mat-icon {
-          color: colors.$primary-900;
-        }
-      }
-
-      hr {
-        border-color: colors.$primary-900;
-      }
-
-      span {
-        &.label {
-          color: colors.$primary-300;
-        }
-      }
-    }
-  }
-}
-
-
-/*
-  03- Simulate a Mat Form Field to use in forms
-*/
 
 .simulate-form-field {
-  display: inline-block;
-  margin-bottom: 12px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  overflow: hidden;
+  display: block;
   min-width: 210px;
   max-width: 100%;
   box-sizing: border-box;
 }
 
 .simulate-form-field-label {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.54);
-  padding: 4px 8px;
-  background-color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--muted-foreground);
+  margin-bottom: 6px;
 }
 
 .simulate-form-field-flex {
   display: flex;
-  box-sizing: border-box;
   align-items: center;
-}
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--input);
+  overflow: hidden;
 
-.simulate-form-field-flex fa-icon {
-  margin-left: 8px;
-  margin-right: 4px;
+  fa-icon {
+    margin-left: var(--space-xs);
+    margin-right: var(--space-2xs);
+  }
+
+  &.with-icon {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .simulate-form-field-infix {
   flex: 1;
   min-width: 0;
-  padding: 8px;
-}
-
-.simulate-form-field-flex.with-icon {
+  padding: var(--space-sm);
+  min-height: auto;
   display: flex;
   align-items: center;
-}
+  line-height: 1.5;
 
-.simulate-form-field-infix.with-icon {
-  display: flex;
-  align-items: center;
+  &.with-icon {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .simulate-form-field-content {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.87);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--foreground);
 }
 
-.simulate-form-field-disabled {
+/* Disabled variant — applied to the wrapper, scoped to the value box so the
+   label retains its normal typography while the bordered area dims. */
+.simulate-form-field-disabled .simulate-form-field-flex {
   opacity: 0.5;
   pointer-events: none;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  background-color: var(--well);
+  border-color: var(--border-faint);
 }
 
 .smaller-pass-strength {
   width: 17%;
   box-sizing: border-box;
-  padding: 0 16px;
-    padding-top: 0px;
-    padding-right: 16px;
-    padding-bottom: 0px;
-    padding-left: 16px;
+  padding: 0 var(--space-md);
 }
-
-

@@ -1,0 +1,10 @@
+// Design files supply COLOR only. Structural rules (padding, border-radius,
+// font weight/size, gap, margins, …) live in the theme-agnostic component
+// partials under `styles/components/_design-system.scss` so light and dark
+// themes share identical geometry. Designs:
+//   * re-target color tokens under `.light-theme` in their `_tokens.scss`
+//   * (optionally) add hardcoded-color polish that only reads on light surfaces
+//     in their `_components.scss` under `.light-theme`
+// Loaded after the base + components partials so token overrides win.
+
+@use 'alpine-snow/index' as alpine-snow;

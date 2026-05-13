@@ -1,3 +1,8 @@
+/* Hover-graph-preview tooltip — dense in-table UI. Typography uses the
+   compact end of the type scale (--text-xs / --text-sm). Tight 6px / 10px
+   spacing sits between named space-* steps and stays inline; the wrapper
+   width, z-index and calc() bottom anchor likewise can't be expressed
+   cleanly via Tailwind utilities. */
 :host {
   overflow: visible;
 }
@@ -8,27 +13,57 @@
   overflow: visible;
 }
 
+// When a link wraps a trailing fa-icon (faKey for secret hashlists/files,
+// faShield for trusted agents), stretch the anchor and grow the label so the
+// icon sits at the cell's right edge — aligns icons across rows regardless of
+// label length.
+a.link:has(fa-icon) {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+
+  .link-label {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  fa-icon {
+    margin-left: auto;
+  }
+
+  // The global `.flex-container a::after` rule injects a `\a` newline to stack
+  // multiple links — irrelevant once this anchor is its own flex container.
+  &::after {
+    content: none;
+  }
+}
+
+// Floating hover-card — uses the dedicated --popover surface so it stays
+// fully opaque and lifts off the table beneath. --card is translucent on
+// dark themes and blends into the row underneath; --popover is calibrated
+// to sit cleanly above arbitrary content.
 .graph-preview {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + var(--space-xs));
   transform: translateX(-50%);
-  z-index: 3000;
+  z-index: var(--z-tooltip);
   display: none;
   width: min(520px, 85vw);
   min-width: 320px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--popover);
+  color: var(--popover-foreground, var(--foreground));
+  box-shadow: var(--shadow-lg);
 }
 
 .graph-preview-title {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
+  color: var(--heading-foreground);
+  margin-bottom: var(--space-xs);
 }
 
 .link-wrapper.has-graph-preview:hover .graph-preview {
@@ -47,26 +82,26 @@
 }
 
 .overall-progress-label {
-  font-size: 11px;
-  color: #374151;
+  font-size: var(--text-xs);
+  color: var(--foreground);
   margin-bottom: 6px;
 }
 
 .overall-progress-meta {
-  color: #6b7280;
+  color: var(--muted-foreground);
 }
 
 .overall-progress-track {
   width: 100%;
   height: 10px;
-  border-radius: 999px;
-  background: #e5e7eb;
+  border-radius: var(--radius-full);
+  background: var(--well);
   overflow: hidden;
 }
 
 .overall-progress-fill {
   height: 100%;
-  background: #0ea5e9;
+  background: var(--info);
 }
 
 .graph-preview-status {
@@ -74,45 +109,51 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4b5563;
-  font-size: 12px;
+  color: var(--foreground);
+  font-size: var(--text-sm);
 }
 
 .graph-preview-legend {
-  margin-top: 8px;
+  margin-top: var(--space-xs);
   display: grid;
-  row-gap: 4px;
+  row-gap: var(--space-2xs);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  color: #4b5563;
+  font-size: var(--text-xs);
+  color: var(--foreground);
 }
 
 .legend-color {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
   flex: 0 0 10px;
 }
 
 .legend-color.cracked {
-  background: #00ff00;
+  background: var(--status-cracked);
+  border-color: color-mix(in oklch, var(--status-cracked), black 12%);
 }
 
 .legend-color.not-processed {
-  background: #c0c0c0;
+  background: var(--muted-foreground);
+  border-color: var(--border-strong);
 }
 
+// Pure --warning (#facc15) is too vivid against the opaque popover — soften
+// to a desaturated amber so it reads as "in-progress" without shouting.
 .legend-color.no-crack {
-  background: #ffff00;
+  background: var(--warning-soft, var(--status-no-crack));
+  border-color: color-mix(in oklch, var(--warning), black 18%);
 }
 
+// Solid fill is more legible at 10px than an outline-only swatch.
 .legend-color.error {
-  background: #ffffff;
-  border: 2px solid #ff0000;
+  background: var(--status-error);
+  border-color: color-mix(in oklch, var(--status-error), black 12%);
 }

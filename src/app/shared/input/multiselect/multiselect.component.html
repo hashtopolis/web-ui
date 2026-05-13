@@ -5,64 +5,70 @@
     }
   </div>
 } @else {
-  <mat-form-field
-    class="custom-chip-grid"
-    [class.mat-form-field-invalid]="hasError"
-    [class.mat-form-field-touched]="isTouched"
-  >
-    <mat-label>{{ label }}</mat-label>
-    <mat-chip-grid
-      #chipGridRef
-      [required]="isRequired"
-      aria-label="Items selection"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
-    >
-      @for (item of selectedItems; track item.id) {
-        <mat-chip-row (removed)="remove(item)">
-          <div matTooltip="{{ item.name }}">
-            {{ item.id }}
-            <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
-          </div>
-          <button matChipRemove [attr.aria-label]="'remove ' + item">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
+  <div class="field-stack" [class.is-invalid]="hasError && isTouched">
+    <label class="field-stack__label"
+      >{{ label }}
+      @if (isRequired) {
+        <span class="field-stack__required" aria-hidden="true">*</span>
       }
-    </mat-chip-grid>
-    <input
-      matInput
-      #selectInput
-      [matChipInputFor]="chipGridRef"
-      [matAutocomplete]="auto"
-      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-      (matChipInputTokenEnd)="onInputChipAdd($event)"
-      (input)="onSearchInputChange($event)"
-      (blur)="onTouched()"
-      [value]="searchTerm"
-      placeholder="{{ placeholder }}"
-    />
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      (optionSelected)="onAutocompleteSelect($event.option.value)"
-      (opened)="onPanelOpened()"
-      class="multiselect-virtual-panel"
+    </label>
+
+    <mat-form-field
+      class="custom-chip-grid field-stack__field"
+      [class.mat-form-field-invalid]="hasError"
+      [class.mat-form-field-touched]="isTouched"
     >
-      <cdk-virtual-scroll-viewport
-        [itemSize]="itemSize"
-        [style.height.px]="viewportHeight"
-        [minBufferPx]="viewportHeight"
-        [maxBufferPx]="viewportHeight * 2"
+      <mat-chip-grid
+        #chipGridRef
+        [required]="isRequired"
+        aria-label="Items selection"
+        [class.ng-invalid]="hasError"
+        [class.ng-touched]="isTouched"
       >
-        <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
-          <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
-        </mat-option>
-      </cdk-virtual-scroll-viewport>
-    </mat-autocomplete>
-    @if (hasError && errors) {
-      <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
-        This field is required.
-      </mat-hint>
-    }
-  </mat-form-field>
+        @for (item of selectedItems; track item.id) {
+          <mat-chip-row (removed)="remove(item)">
+            <div matTooltip="{{ item.name }}">
+              {{ item.id }}
+              <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
+            </div>
+            <button matChipRemove [attr.aria-label]="'remove ' + item">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      <input
+        matInput
+        #selectInput
+        [matChipInputFor]="chipGridRef"
+        [matAutocomplete]="auto"
+        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        (matChipInputTokenEnd)="onInputChipAdd($event)"
+        (input)="onSearchInputChange($event)"
+        (blur)="onTouched()"
+        [value]="searchTerm"
+        placeholder="{{ placeholder }}"
+      />
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onAutocompleteSelect($event.option.value)"
+        (opened)="onPanelOpened()"
+        class="multiselect-virtual-panel"
+      >
+        <cdk-virtual-scroll-viewport
+          [itemSize]="itemSize"
+          [style.height.px]="viewportHeight"
+          [minBufferPx]="viewportHeight"
+          [maxBufferPx]="viewportHeight * 2"
+        >
+          <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
+            <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
+          </mat-option>
+        </cdk-virtual-scroll-viewport>
+      </mat-autocomplete>
+      @if (hasError && errors) {
+        <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required. </mat-hint>
+      }
+    </mat-form-field>
+  </div>
 }

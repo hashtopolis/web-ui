@@ -1,0 +1,16 @@
+/* 13px body maps to --text-md; the 1.4 line-height, 6px vertical padding and
+   3px accent border are sub-token specifics that don't fit a clean utility,
+   so the alert chrome stays here as one cohesive rule. Host display/margin
+   live on the @Component host class. */
+.fixed-alert {
+  display: flex;
+  align-items: center;
+  padding: 6px var(--space-sm);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--text-md);
+  line-height: 1.4;
+}

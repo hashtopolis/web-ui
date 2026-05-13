@@ -1,0 +1,480 @@
+// =============================================================================
+// SECTION DESIGN SYSTEM
+// =============================================================================
+// Shared structure + token-driven color for the app's component layer. Lives
+// at global scope so BOTH `.light-theme` and `.dark-theme` get identical
+// geometry; color comes from semantic tokens (--primary, --card, --foreground,
+// --shell-frame-image, --shadow-*, …) that flip per theme via base/_tokens.scss
+// and the design-specific token files.
+//
+// Rules in this file must contain only:
+//   - Structural properties (padding, margin, gap, border-radius, font-*,
+//     letter-spacing, line-height, display, position, …)
+//   - Color declarations using design tokens (var(--token)) — token values
+//     are per-theme, so appearance auto-adjusts.
+//
+// Rules with hardcoded color values that don't read across both themes belong
+// in a design-specific partial (today: designs/alpine-snow/_components.scss
+// under `.light-theme`).
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Buttons — raised / unelevated / FAB get tokenized shadow and weight.
+// _material.scss already binds --mat-button-protected-* / --mat-button-filled-*
+// to var(--primary); this block adds shape, font weight and the focus ring.
+// -----------------------------------------------------------------------------
+.mat-mdc-raised-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  --mat-fab-container-color: var(--primary);
+  --mat-fab-foreground-color: var(--primary-foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+  letter-spacing: 0;
+
+  &:hover {
+    --mat-button-protected-container-color: var(--primary-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--shadow-md),
+      0 0 0 2px var(--primary);
+  }
+}
+
+.mat-mdc-unelevated-button {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+  letter-spacing: 0;
+
+  &:hover {
+    --mat-button-filled-container-color: var(--primary-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--shadow-md),
+      0 0 0 2px var(--primary);
+  }
+}
+
+// Outlined / secondary — translucent fill with hairline border, no shadow.
+// Label color stays at body weight (var(--foreground)) to soften secondary
+// actions against primary.
+.mat-mdc-outlined-button {
+  --mat-button-outlined-label-text-color: var(--foreground);
+  background-color: var(--surface-soft);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    background-color: var(--surface-soft-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+}
+
+// Text button — plain primary-tinted text with subtle hover.
+.mat-mdc-button {
+  --mat-button-text-label-text-color: var(--foreground);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    background-color: var(--surface-soft);
+    --mat-button-text-label-text-color: var(--heading-foreground);
+  }
+}
+
+// Icon buttons — match muted-secondary text, hover lifts into heading ink.
+.mat-mdc-icon-button {
+  color: var(--muted-foreground);
+
+  &:hover {
+    background-color: var(--surface-soft);
+    color: var(--heading-foreground);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Signature shell — 1px-padded wrapper with --shell-frame-image as its gradient
+// frame. Designs paint a gradient into --shell-frame-image (alpine-snow does);
+// base sets it to `none` for the monochrome dark mode, so the shell collapses
+// to a plain rounded panel there.
+// -----------------------------------------------------------------------------
+.alpine-shell {
+  padding: 1px;
+  border-radius: var(--radius-lg);
+  background: var(--shell-frame-image);
+
+  > * {
+    border-radius: calc(var(--radius-lg) - 1px);
+    background: var(--card);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cards — apply the shell pattern. The dual-image trick paints the inner panel
+// via a solid gradient layer and the outer frame via --shell-frame-image.
+// background-clip: padding-box, border-box keeps each layer in its own ring.
+// -----------------------------------------------------------------------------
+.mat-mdc-card {
+  --mat-card-elevated-container-color: var(--card);
+  --mat-card-elevated-container-shape: 7px;
+  --mat-card-outlined-container-color: var(--card);
+  --mat-card-outlined-outline-color: var(--border);
+  --mat-card-outlined-container-shape: 7px;
+
+  background-color: var(--card);
+  color: var(--foreground);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: none;
+  padding: 20px;
+
+  &.is-dense,
+  &.card-section {
+    padding: 28px;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dialogs — same gradient-hairline shell as cards.
+// -----------------------------------------------------------------------------
+.mat-mdc-dialog-container {
+  --mat-dialog-container-color: var(--card);
+  --mat-dialog-subhead-color: var(--heading-foreground);
+  --mat-dialog-supporting-text-color: var(--foreground);
+  --mat-dialog-container-shape: 8px;
+
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--shadow-lg);
+}
+
+// -----------------------------------------------------------------------------
+// Form fields — translucent interior, hairline border, small radius.
+// Focused state shows a primary ring via the --ring token.
+// -----------------------------------------------------------------------------
+.mat-mdc-form-field {
+  --mat-form-field-filled-container-color: var(--input);
+  --mat-form-field-filled-container-shape: 3px;
+  --mat-form-field-filled-caret-color: var(--primary);
+  --mat-form-field-filled-focus-active-indicator-color: var(--primary);
+  --mat-form-field-filled-focus-label-text-color: var(--primary);
+  --mat-form-field-filled-label-text-color: var(--muted-foreground);
+  --mat-form-field-filled-input-text-color: var(--heading-foreground);
+
+  --mat-form-field-outlined-outline-color: var(--border);
+  --mat-form-field-outlined-hover-outline-color: var(--border-strong);
+  --mat-form-field-outlined-focus-outline-color: var(--primary);
+  --mat-form-field-outlined-container-shape: 3px;
+  --mat-form-field-outlined-input-text-color: var(--heading-foreground);
+  --mat-form-field-outlined-label-text-color: var(--muted-foreground);
+  --mat-form-field-outlined-focus-label-text-color: var(--primary);
+  --mat-form-field-outlined-caret-color: var(--primary);
+
+  .mat-mdc-text-field-wrapper {
+    border-radius: var(--radius-sm);
+    background-color: var(--input);
+    border: 1px solid var(--border);
+    transition:
+      border-color var(--duration-fast) var(--easing-standard),
+      box-shadow var(--duration-fast) var(--easing-standard);
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+
+  input,
+  textarea {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--heading-foreground);
+  }
+
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.02em;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Select / Menu / Autocomplete panels — gradient-hairline shell.
+// -----------------------------------------------------------------------------
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.mat-mdc-autocomplete-panel {
+  background-color: var(--card);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--shadow-md);
+}
+
+.mat-mdc-option {
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+
+  &:hover,
+  &.mat-mdc-option-active {
+    background-color: var(--surface-soft);
+    color: var(--heading-foreground);
+  }
+
+  &.mdc-list-item--selected {
+    background-color: var(--primary-muted);
+    color: var(--heading-foreground);
+    font-weight: 500;
+  }
+}
+
+.mat-mdc-select-arrow {
+  color: var(--muted-foreground);
+}
+
+// -----------------------------------------------------------------------------
+// Tables — gradient-hairline outer shell, tinted header row, zebra body rows.
+// -----------------------------------------------------------------------------
+.mat-mdc-table {
+  --mat-table-background-color: var(--card);
+  --mat-table-header-headline-color: var(--subtle-foreground);
+  --mat-table-row-item-label-text-color: var(--foreground);
+  --mat-table-row-item-outline-color: var(--border);
+
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.mat-mdc-header-row {
+  background-color: var(--surface-faint);
+  border-bottom: 1px solid var(--border);
+}
+
+.mat-mdc-header-cell {
+  font-family: var(--font-body);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subtle-foreground);
+}
+
+.mat-mdc-row {
+  border-bottom: 1px solid var(--border);
+
+  &:nth-of-type(even) {
+    background-color: var(--surface-faint);
+  }
+
+  &:hover {
+    background-color: var(--surface-soft);
+  }
+}
+
+.mat-mdc-cell {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--foreground);
+}
+
+// -----------------------------------------------------------------------------
+// Chips — two flavors:
+//   * Status pill (default mat-mdc-chip): radius-md, translucent primary fill.
+//   * Tag chip (.tag-chip): radius-xs, ultra-tight padding for table cells.
+// -----------------------------------------------------------------------------
+.mat-mdc-chip,
+.mat-mdc-standard-chip {
+  --mat-chip-container-shape: 6px;
+  --mat-chip-label-text-color: var(--heading-foreground);
+  --mat-chip-outline-color: var(--border-strong);
+  --mat-chip-elevated-container-color: var(--primary-muted);
+
+  background-color: var(--primary-muted);
+  border-radius: var(--radius-md);
+  color: var(--heading-foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+
+  // Breathing room between the chip text and the trailing remove-X button.
+  // MDC's default ~8px is tight once the X is in play.
+  .mdc-evolution-chip__text-label {
+    padding-inline-end: var(--space-xs);
+  }
+
+  &.mat-mdc-chip-selected {
+    background-color: var(--border-strong);
+    color: var(--heading-foreground);
+  }
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 3px 6px 3px 8px;
+  border-radius: var(--radius-xs);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
+  color: var(--heading-foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 14px;
+}
+
+// -----------------------------------------------------------------------------
+// Tabs — primary underline, primary active label.
+// -----------------------------------------------------------------------------
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  --mat-tab-active-indicator-color: var(--primary);
+  --mat-tab-active-label-text-color: var(--heading-foreground);
+  --mat-tab-inactive-label-text-color: var(--muted-foreground);
+  --mat-tab-active-focus-indicator-color: var(--primary);
+  --mat-tab-active-hover-indicator-color: var(--primary);
+  --mat-tab-divider-color: var(--border);
+  --mat-tab-label-text-font: #{var(--font-body)};
+  --mat-tab-label-text-weight: 500;
+}
+
+// -----------------------------------------------------------------------------
+// Progress indicators
+// -----------------------------------------------------------------------------
+.mat-mdc-progress-bar {
+  --mat-progress-bar-active-indicator-color: var(--primary);
+  --mat-progress-bar-track-color: var(--border);
+}
+
+.mat-mdc-progress-spinner,
+.mat-mdc-circular-progress {
+  --mat-progress-spinner-active-indicator-color: var(--primary);
+}
+
+// -----------------------------------------------------------------------------
+// Toolbar — used by the in-app toolbar component. Geometry is theme-agnostic;
+// the app-header's translucent strip is produced via the --header token.
+// -----------------------------------------------------------------------------
+.mat-toolbar,
+.mat-mdc-toolbar {
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+// -----------------------------------------------------------------------------
+// Links — primary text, underline on hover.
+// -----------------------------------------------------------------------------
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Text selection
+// -----------------------------------------------------------------------------
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+// -----------------------------------------------------------------------------
+// Scrollbars — subtle hairline thumb on transparent track.
+// -----------------------------------------------------------------------------
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+// -----------------------------------------------------------------------------
+// Focus ring — 2px primary outline on non-Material interactive elements.
+// Material components (buttons, form fields) ship their own focus treatment
+// above; this catches everything else.
+// -----------------------------------------------------------------------------
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// Snackbar / Tooltip — design-system shape; color comes from --tooltip-* /
+// --snackbar-* tokens (wired through _material.scss).
+// -----------------------------------------------------------------------------
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-button-color: var(--snackbar-foreground);
+  border-radius: var(--radius-md);
+}
+
+.mat-mdc-tooltip {
+  --mat-tooltip-container-shape: 3px;
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+}
+
+// -----------------------------------------------------------------------------
+// Paginator
+// -----------------------------------------------------------------------------
+.mat-mdc-paginator {
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-color: var(--muted-foreground);
+  background-color: transparent;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+}
+
+// -----------------------------------------------------------------------------
+// Page title block — spacing only.
+// -----------------------------------------------------------------------------
+.page__header {
+  gap: 6px;
+  margin-bottom: var(--space-xs);
+}

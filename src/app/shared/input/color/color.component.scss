@@ -1,32 +1,83 @@
+@reference '../../../../styles/tailwind.css';
 
+:host {
+  @apply fluid-component;
+}
+
+.field-stack > .custom-input-container {
+  width: 100%;
+}
+
+.color-input-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  width: 100%;
+}
 
 .color-input-container {
   position: relative;
-  display: inline-block;
+  flex: 1;
+  min-width: 0;
+  display: flex;
 }
 
+.color-input-container mat-form-field {
+  flex: 1;
+}
+
+/* Make the native color swatch fill the fill-variant infix */
+input[type='color'] {
+  width: 100%;
+  min-height: 28px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Vendor pseudo-elements live in the browser's user-agent shadow tree, which
+   doesn't pick up Angular's encapsulation attribute — so ::ng-deep is needed
+   here even though the host element above doesn't need it. */
+:host ::ng-deep input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+:host ::ng-deep input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+:host ::ng-deep input[type='color']::-moz-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+/* Hex value overlay — auto-contrasts over any user-picked swatch.
+   The literal #ffffff is required: `mix-blend-mode: difference` against white
+   yields the exact color inverse, guaranteeing legible contrast on any hue.
+   A theme token would track the theme, not the swatch, breaking the inversion. */
 .color-value {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
-  font-size: 12px;
-  pointer-events: none; /* allows clicking through to the color picker */
+  color: #ffffff;
+  mix-blend-mode: difference;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  text-shadow: none;
 }
 
-/* Optional: Adjust text color based on background brightness for better visibility */
-:host ::ng-deep input[type="color"][value^="#f"],
-:host ::ng-deep input[type="color"][value^="#e"],
-:host ::ng-deep input[type="color"][value^="#d"],
-:host ::ng-deep input[type="color"][value^="#c"],
-:host ::ng-deep input[type="color"][value^="#b"],
-:host ::ng-deep input[type="color"][value^="#a"],
-:host ::ng-deep input[type="color"][value^="#0f"],
-:host ::ng-deep input[type="color"][value^="#ff"] {
-  & + .color-value {
-    color: black;
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+.random-color-btn {
+  align-self: center;
+  color: var(--subtle-foreground);
+  transition: color var(--duration-fast) var(--easing-standard);
+
+  &:hover:not(:disabled) {
+    color: var(--primary);
   }
 }

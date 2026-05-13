@@ -1,230 +1,142 @@
-@use "../base/colors";
-
 /* ==================================
-            SECTION FORM
+          SECTION FORMS
    ================================== */
 
-/*
-  01- Highlight validation in red
-*/
+/* ---------------------------------------------------------------------------
+   00- Filled form field: bordered-box look (app-wide default)
+   Overrides Material's default filled pillow to match the refreshed
+   design-system look — 1px border, token colors, accent focus ring, no line.
+   --------------------------------------------------------------------------- */
 
-/* Material Form Field error styling - paint outline, label, and asterisk red */
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__leading,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__trailing {
-  border-color: var(--mdc-theme-error, #f44336) !important;
+/* Container background + disabled background are driven by the M3 tokens
+   `--mat-form-field-filled-container-color` / `-disabled-container-color`
+   set in _material.scss. The wrapper border below is a design-system
+   addition on top of MDC's default line-ripple variant. */
+.mat-mdc-form-field .mdc-text-field--filled {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-/* Notch piece: only color top/bottom borders; keep left/right transparent
-   (Angular Material uses a transparent border-left + clip-path on the notch
-   for smooth label animation — coloring it red causes a visible vertical line) */
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch {
-  border-top-color: var(--mdc-theme-error, #f44336) !important;
-  border-bottom-color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-text-field--filled:hover:not(.mdc-text-field--disabled):not(.mdc-text-field--focused) {
+  border-color: var(--border-strong);
 }
 
-mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label {
-  color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--focused {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-muted);
 }
 
-/* Make the required asterisk red when there's an error */
+/* Kill Material's bottom line-ripple and hover focus overlay — we render
+   a full border above instead. The `--mat-form-field-filled-*-active-indicator-height`
+   tokens only cover the rest + focus states, so M3 still renders the ripple
+   in hover/disabled. `display: none` on the element catches every state. */
+.mat-mdc-form-field .mdc-line-ripple {
+  display: none;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+  display: none;
+}
+
+.mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--disabled {
+  border-color: var(--border-faint);
+}
+
+/* ---------------------------------------------------------------------------
+   01- Invalid / validation state
+   --------------------------------------------------------------------------- */
+
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-text-field--filled {
+  border-color: var(--destructive) !important;
+}
+
+mat-form-field.mat-form-field-invalid.mat-form-field-touched.mat-focused .mdc-text-field--filled {
+  box-shadow: 0 0 0 2px var(--destructive-ring);
+}
+
+mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label,
+mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label {
+  color: var(--destructive) !important;
+}
+
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mat-mdc-form-field-required-marker,
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label--required::after {
-  color: var(--mdc-theme-error, #f44336) !important;
+  color: var(--destructive) !important;
 }
 
-.requiredak:before {
-  content:" *";
-  color: red;
+/* Filter-error variant — applied via [class.filter-error] on form fields
+   that don't go through Angular forms validation (e.g. table column-filter
+   inputs), so the .mat-form-field-invalid hook isn't triggered. */
+.filter-error .mdc-text-field--filled {
+  border-color: var(--destructive) !important;
+  box-shadow: 0 0 0 2px var(--destructive-ring) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   02- Form field label row (used by custom inputs)
+   --------------------------------------------------------------------------- */
+
+.form-field {
+  label {
+    font-weight: 600;
+    margin-bottom: var(--space-2xs);
+    display: inline-block;
+    color: var(--heading-foreground);
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+  .mat-icon {
+    color: var(--subtle-foreground);
+  }
 }
 
 .form-input-custom {
-  padding-bottom:10px;
-  padding-right:10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
   width: auto;
 }
 
-select, input {
-  max-width: 500px !important;
+.form-field select,
+.form-field input {
+  max-width: 500px;
 }
 
-/*
-  01- End
-*/
+/* ---------------------------------------------------------------------------
+   03- Password strength indicator
+   --------------------------------------------------------------------------- */
 
+.password-strength-container {
+  margin-top: var(--space-xs);
+}
 
-/*
-  02- File Zone Area
-*/
-.filedrop {
+.strength-bars {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  font-weight: 200;
-  height: 300px;
-  width: 420px;
-  border: 2px dashed #8c9199;
-  border-radius: 5px;
-  background: white;
-  margin: 0 0;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-2xs);
 }
 
-.filedrop.active{
-  border: 2px solid #fff;
+.strength-bar {
+  height: 6px;
+  flex: 1;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-slow) var(--easing-standard);
 }
 
-.filedrop.hovering {
-  border: 2px solid rgb(62, 63, 66);
-  color: #dadada !important;
-}
-
-.filedrop .file-label {
-  font-size: 1.2em;
-}
-
-.filedrop header {
-  font-size: 25px;
+.strength-label {
+  font-size: var(--text-sm);
   font-weight: 500;
+  text-align: center;
+  transition: color var(--duration-slow) var(--easing-standard);
 }
 
-.filedrop span {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.filedrop p {
-  font-size: 12px;
-  font-weight: 500;
-  color:rgb(143, 138, 138);
-  margin: 10px 0;
-}
-
-.filedrop button {
-  padding: 10px 25px;
-  font-size: 15px;
-  font-weight: 350;
-  border: none;
-  outline: none;
-  border-radius: 5px;
-  background: #4681f4;
-  color:#fff;
-  cursor: pointer;
-}
-
-.filedrop.hovering button {
-  padding: 10px 25px;
-  font-size: 15px;
-  font-weight: 350;
-  border: none;
-  outline: none;
-  border-radius: 5px;
-  background: #969595;
-  color:#fff;
-}
-
-.filedrop .icon {
-  font-size: 45px;
-  font-weight: 500;
-  margin: 50px 0;
-}
-
-progress::-webkit-progress-value {
-  transition: width 0.1s ease;
-}
-
-/*
-  02- End
-*/
-
-/*
-  03- Custom filter box
-*/
-.filterboxglass{
-  border:none;
-  background:#e7eaed;
-  padding:7px;
-  // width:80%;
-  border-radius:9px;
-  color:black;
-}
-
-#filterbox{
-  border:none;
-  background:#f3f5f7;
-  padding:7px;
-  width:80%;
-  border-radius: 0 9px 9px 0;
-  color:black;
-}
-
-/*
-  03- End
-*/
-
-/*
-  04- Password input field style and eye hidden/show
-*/
-
-.input-icon-container{
-  display: flex;
-  flex-direction: row;
-  border: 1px solid #d4d5db;
-  border-radius: 10px;
-  background : #fff;
-  align-items : center;
-  overflow: hidden;
-}
-
-.input-icon-container input {
-  outline: none;
-  border: none;
-  color: inherit;
-  flex : auto 1 1;
-  width : 100%;
-  background: transparent none;
-}
-
-.input-icon-container .fa{
-  padding : 10px;
-}
-
-/*
-  04- End
-*/
-
-/*
-  05- Password Strength
-*/
-      .password-strength-container {
-        margin-top: 8px;
-      }
-
-      .strength-bars {
-        display: flex;
-        gap: 4px;
-        margin-bottom: 4px;
-      }
-
-      .strength-bar {
-        height: 6px;
-        flex: 1;
-        border-radius: 3px;
-        transition: background-color 0.3s ease;
-      }
-
-      .strength-label {
-        font-size: 12px;
-        font-weight: 500;
-        text-align: center;
-        transition: color 0.3s ease;
-      }
-/*
-  05- End
-*/
-
-/*
-  06- Login Form
-*/
+/* ---------------------------------------------------------------------------
+   04- Login form wrapper (auth component)
+   --------------------------------------------------------------------------- */
 
 .login-container {
   display: flex;
@@ -236,7 +148,7 @@ progress::-webkit-progress-value {
 
 .login-card {
   width: 400px;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .login-logo-container {
@@ -244,8 +156,8 @@ progress::-webkit-progress-value {
   justify-content: center;
   align-items: center;
   height: 100%;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 20px 0;
+
   a {
     text-align: center;
   }
@@ -255,69 +167,51 @@ progress::-webkit-progress-value {
   }
 }
 
-.forgot-password-link {
-  text-align: right;
-}
-
 .card-login-field {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .forgot-password-link {
-  margin-top: 16px;
+  margin-top: var(--space-md);
   text-align: center;
 
   a {
-    color: colors.$hyperlink-color;
+    color: var(--primary);
     text-decoration: none;
   }
 }
 
-.mat-card-alert {
-  background-color: colors.$alert-color;
-  margin-top: 16px;
-}
-
-/*
-  06- End
-*/
-
-/*
-  07- Horizontal Menu Select
-*/
-.btn-toggle-select {
-  color: colors.$btn-text-color;
-  background-color: colors.$btn-bg-color;
-  border-color: colors.$btn-border-color;
-}
-
-/*
-  07- End
-*/
-
-/*
-  08- Mat Autocomplete
-*/
+/* ---------------------------------------------------------------------------
+   05- Autocomplete / chips / virtual-scroll panels
+   --------------------------------------------------------------------------- */
 
 .custom-chip-grid {
   width: 100%;
-  min-width: 300px;
-  max-width: 600px;
-}
+  min-width: 0;
 
-.custom-chip-grid mat-chip-row button[matchipremove] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  mat-chip-row button[matchipremove] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Breathing room between the last chip and the trailing search input.
+  // Material's adjacent-sibling rule (.mat-mdc-chip-set + input.mat-mdc-chip-input)
+  // zeroes both margins when the input directly follows the chip-grid, which is
+  // exactly our markup. Doubling the class bumps specificity over Material's
+  // selector (0,3,1 vs 0,2,1) without resorting to !important.
+  input.mat-mdc-chip-input.mat-mdc-chip-input {
+    margin-inline-start: var(--space-xs);
+  }
 }
 
 .highlight-text {
-  background-color: colors.$search-text-highlight-color;
+  background-color: var(--highlight-bg);
 }
 
-// Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport handle
-// scrolling instead of the mat-autocomplete overlay panel itself.
+/* Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport
+   handle scrolling instead of the mat-autocomplete overlay panel itself. */
 .multiselect-virtual-panel {
   overflow: hidden !important;
   padding: 0 !important;
@@ -327,112 +221,105 @@ progress::-webkit-progress-value {
   }
 }
 
-/*
-  08- End
-*/
-
-/*
-  09- Shared/Input
-*/
+/* ---------------------------------------------------------------------------
+   06- Shared/Input layout helpers
+   --------------------------------------------------------------------------- */
 
 .custom-input-container {
   display: flex;
-  align-items: center; /* Align items vertically */
+  align-items: center;
 }
 
 .custom-hashlist-container {
   display: flex;
-  align-items: center;
-  max-width: 600px;
+  align-items: flex-start;
+  gap: var(--space-2xs);
+
   input-multiselect {
     flex: 1;
     min-width: 0;
   }
-  .mat-form-field {
-    max-width: 100% !important;
-  }
+
+  /* Center the icon button on the multiselect's input row. The field-stack
+     label adds ~22px above the input (13px × 1.2 line-height + 6px margin),
+     and the 48px input row centered against a 40px icon button needs an
+     extra ~4px — total top offset ≈ 26px. Anchored from the top, so the
+     subscript wrapper can grow with an error message without shifting the
+     icon. The required-state error renders inside the form-field's subscript
+     wrapper, so we can't hide it the way custom-agent-container does. */
   > button {
-    margin-left: -40px;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 26px;
   }
 }
 
 .custom-agent-container {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  max-width: 520px; /* Keep the controls compact, up to the + icon */
-  width: fit-content;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 
   input-multiselect {
-    flex: 0 0 320px; /* Reserve room for the buttons without stretching */
-    max-width: 320px;
-    min-width: 240px; /* Keep it usable on narrow screens */
+    flex: 1;
+    min-width: 0;
+
+    /* Collapse the empty subscript area (Material reserves ~22px below the
+       input for hint/error text even when none is shown). With it hidden,
+       the form-field's bottom edge matches the input's bottom edge, so
+       align-items: flex-end on the container aligns the icon buttons with
+       the input baseline — no magic margin needed. The consumer here uses
+       [isRequired]="false", so no error message would render anyway. */
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
   }
 
   .custom-chip-grid {
-    width: 320px;
-    max-width: 320px;
-    min-width: 240px;
+    width: 100%;
+    min-width: 0;
   }
 
   button[mat-icon-button] {
-    margin-bottom: 1.25em; /* Offset the mat-form-field subscript wrapper so buttons sit level with the input */
+    margin-bottom: 0;
   }
-}
-
-.color-picker-field {
-  flex: 1; /* Allow the mat-form-field to grow and take available space */
-  margin-right: 16px; /* Adjust the margin between the field and the button */
 }
 
 .custom-textarea {
   width: 100%;
-  min-width: 300px; /* Set your desired minimum width */
-  max-width: 600px; /* Set your desired maximum width */
-}
-
-.custom-input-multiselect {
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
 }
 
 .flex-grow {
   flex-grow: 1;
   width: 100%;
-  margin-right: 8px;
+  margin-right: var(--space-xs);
 }
-.filter-input-lable {
-  margin-bottom: 15px;
-  display: block;
-}
-
-$custom-form-min-width: 150px;
-$custom-form-max-width: 500px;
-
-$mat-input-font-size: 14px; // Adjust the font size as needed
-$mat-form-field-max-width: 300px; // Adjust the maximum width as needed
 
 .custom-form {
-  min-width: $custom-form-min-width;
-  max-width: $custom-form-max-width;
-  width: 100%;
-}
-
-.matfield-full-width {
   width: 100%;
 }
 
 .mat-input-element {
-  font-size: $mat-input-font-size !important;
+  font-size: var(--text-base) !important;
 }
 
-.mat-form-field {
-  max-width: $mat-form-field-max-width !important;
+/* Vertical-flex form region. The global `form` rule in tailwind.css gives
+   <form> the flex layout for free; `.form-layout` is the equivalent utility
+   for inner regions (mat-card-content, expansion panels) where the form's
+   flex doesn't reach through Material's intermediate containers.
+   Custom input components own their own width via `:host { @apply
+   fluid-component }` (see tailwind.css), so the only thing left to do here
+   is stretch any bare <mat-form-field> instances to fill the column. */
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+form,
+.form-layout,
+app-form-row {
+  mat-form-field {
+    width: 100%;
+  }
 }
 
 .mat-select-value-text {
@@ -441,21 +328,141 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
   white-space: nowrap;
 }
 
+/* ---------------------------------------------------------------------------
+   07- Label-less compact form field
+   The compact rules live in _material.scss under a combined selector that
+   matches both `.mat-mdc-form-field:not(:has(mat-label))` (auto-apply) and
+   `.no-label-form-field.mat-mdc-form-field` (explicit opt-in for fields
+   that *do* render a <mat-label> but want compact density anyway).
+   --------------------------------------------------------------------------- */
 
-:root {
-  --form-field-gap: 5px;
+/* ---------------------------------------------------------------------------
+   08- Stacked label form field
+   Renders the label statically *above* the form field instead of using
+   Material's floating-label animation. Pair `field-stack` on the wrapper
+   with `field-stack__field` on the inner <mat-form-field> (so the label
+   slot collapses and the input keeps a comfortable height).
+   --------------------------------------------------------------------------- */
+
+.field-stack {
+  display: block;
+
+  &--narrow {
+    width: 12.5rem; // 200px on the spacing scale; for compact filename / id fields
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+
+    mat-icon {
+      font-size: var(--text-lg);
+      width: 16px;
+      height: 16px;
+      line-height: 1;
+      vertical-align: middle;
+      color: var(--subtle-foreground);
+      cursor: help;
+    }
+  }
+
+  &__required {
+    color: var(--primary);
+    margin-left: 2px;
+  }
+
+  &.is-invalid &__label {
+    color: var(--destructive);
+  }
+
+  &__field.mat-mdc-form-field {
+    width: 100%;
+
+    .mdc-floating-label,
+    .mat-mdc-floating-label {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      padding-top: 0;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding-top: var(--space-sm);
+      padding-bottom: var(--space-sm);
+      min-height: auto;
+    }
+  }
 }
 
-/* Global rule for custom controls and material form fields */
-input-select,
-input-text,
+/* Components without their own per-component `:host` block still need to be
+   block-level so they participate properly in form layouts. The custom
+   input-* components apply this themselves via the `fluid-component`
+   utility (see tailwind.css); only `input-check`, raw `<mat-form-field>`,
+   and the legacy `.form-field` wrapper rely on this rule. */
 input-check,
 mat-form-field,
 .form-field {
   display: block;
-  margin-bottom: var(--form-field-gap);
 }
 
-/*
-  09 - End
-*/
+/* ---------------------------------------------------------------------------
+   09a- Inline help icon inside checkbox label
+   The default mat-icon ships at 24px, which towers over the 14px checkbox
+   label text and shifts the baseline. Match the surrounding text height
+   so the (info) sits cleanly next to the label.
+   --------------------------------------------------------------------------- */
+
+.checkbox-wrapper mat-checkbox mat-icon {
+  font-size: var(--text-lg);
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: var(--space-2xs);
+  color: var(--subtle-foreground);
+  cursor: help;
+}
+
+/* Invalid state for input-check: ring the checkbox box and tint its label red
+   so the control matches the same error language as field-stack inputs. The
+   mat-checkbox renders its label inside the component, so we can't reuse the
+   field-stack__label selector — we target the rendered nodes here directly. */
+.checkbox-wrapper.is-invalid {
+  .mdc-checkbox__background {
+    border-color: var(--destructive) !important;
+    box-shadow: 0 0 0 2px var(--destructive-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  .mdc-form-field > label,
+  .mdc-label {
+    color: var(--destructive);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   09- Hide native number-input spinners
+   The browser-default up/down chevrons clash with our custom inputs and
+   feel out of place inside a Material form field. Numbers are entered via
+   keyboard or paste; our domain doesn't need spinner controls.
+   --------------------------------------------------------------------------- */
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}

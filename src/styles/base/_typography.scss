@@ -2,26 +2,74 @@
           SECTION TYPOGRAPHY
    ================================== */
 
-.font-small {
-  font-size: 0.875rem;
-  font-weight: 300;
+@reference './tailwind.css';
+
+/* Heading base sizes — Tailwind v4 Preflight strips browser defaults, so we
+   re-establish a sensible scale aligned with Tailwind's text-* tokens. Lives
+   in @layer base so Tailwind utility classes (text-xl, text-2xl, …) win.
+   Headings use --font-heading (Space Grotesk on alpine-snow, default body
+   stack elsewhere) and the heading-foreground color, both of which retarget
+   per design. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-medium text-heading-foreground;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  h4 {
+    @apply text-lg;
+  }
+  h5,
+  h6 {
+    @apply text-base;
+  }
 }
 
-.fw-bold {
-  font-weight: 500 !important;
+/* Headings inside design-system containers do not own vertical spacing —
+   the container's `gap` does. Resetting margin: 0 here keeps the rhythm
+   uniform without touching legacy pages (`.highlight-box`, dashboards). */
+.flow,
+.page,
+.page__content,
+.tab-slider--body,
+form,
+.form-layout {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
 }
 
+/* Status-text utility classes. Bound to design-system tokens so the colors
+   track theme/design changes (previously routed through Bootstrap's
+   `--bs-*-rgb` vars, which is the last bit of Bootstrap in the typography
+   layer). `!important` is intentional: these are utility-class overrides
+   layered over Material's default text colors. */
 .text-gray-900 {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-gray-900-rgb), var(--bs-text-opacity)) !important;
+  color: var(--heading-foreground) !important;
 }
 
 .text-success {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-success-rgb), var(--bs-text-opacity)) !important;
+  color: var(--success) !important;
 }
 
 .text-warning {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
+  color: var(--warning) !important;
 }

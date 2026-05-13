@@ -1,38 +1,50 @@
-<div class="custom-input-container">
-  <div class="color-input-wrapper">
-    <div class="color-input-container">
-      <mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-        <mat-label>{{ title }}</mat-label>
-        <input
-          #selectInput
-          matInput
-          [placeholder]="getDisplayColor()"
-          type="color"
-          [id]="inputId"
-          [value]="getDisplayColor()"
-          [class.ng-invalid]="hasError"
-          [class.ng-touched]="isTouched"
-          (input)="onValueChange($event)"
-          (blur)="onTouched()"
-          [style.background]="getDisplayColor()"
-          [disabled]="disabled"
-          />
-        <span class="color-value">{{ getDisplayColor() }}</span>
-      </mat-form-field>
-    </div>
-
-    @if (randomColor) {
-      <button
-        mat-icon-button
-        matTooltip="Randomize Color"
-        type="button"
-        class="random-color-btn"
-        title="Randomize Color"
-        (click)="generateRandomColor()"
-        [disabled]="disabled"
-        >
-        <mat-icon>casino</mat-icon>
-      </button>
+<div class="field-stack" [class.is-invalid]="hasError && isTouched">
+  <label class="field-stack__label" [attr.for]="inputId">
+    {{ title }}
+    @if (isRequired) {
+      <span class="field-stack__required" aria-hidden="true">*</span>
     }
+  </label>
+
+  <div class="custom-input-container">
+    <div class="color-input-wrapper">
+      <div class="color-input-container">
+        <mat-form-field
+          class="field-stack__field"
+          [class.mat-form-field-invalid]="hasError"
+          [class.mat-form-field-touched]="isTouched"
+        >
+          <input
+            #selectInput
+            matInput
+            [placeholder]="getDisplayColor()"
+            type="color"
+            [id]="inputId"
+            [value]="getDisplayColor()"
+            [class.ng-invalid]="hasError"
+            [class.ng-touched]="isTouched"
+            (input)="onValueChange($event)"
+            (blur)="onTouched()"
+            [style.background]="getDisplayColor()"
+            [disabled]="disabled"
+          />
+          <span class="color-value">{{ getDisplayColor() }}</span>
+        </mat-form-field>
+      </div>
+
+      @if (randomColor) {
+        <button
+          mat-icon-button
+          matTooltip="Randomize Color"
+          type="button"
+          class="random-color-btn"
+          title="Randomize Color"
+          (click)="generateRandomColor()"
+          [disabled]="disabled"
+        >
+          <mat-icon>casino</mat-icon>
+        </button>
+      }
+    </div>
   </div>
 </div>

@@ -5,6 +5,7 @@ import { Component, DOCUMENT, HostListener, Inject } from '@angular/core'
 @Component({
   selector: 'app-scroll-top',
   templateUrl: './scrollytop.component.html',
+  styleUrls: ['./scrollytop.component.scss'],
   standalone: false
 })
 export class ScrollYTopComponent {

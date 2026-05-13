@@ -1,23 +1,9 @@
-@use '../base/colors';
 /* ==================================
           SECTION TABLES
+   ==================================
+   Token-driven table styling. Applied globally to the shared
+   HTTableComponent and all consuming table variants.
    ================================== */
-
-.rounded-start {
-  border-bottom-left-radius: 0.5rem !important;
-  border-top-left-radius: 0.5rem !important;
-}
-
-.rounded-end {
-  border-top-right-radius: 0.5rem !important;
-  border-bottom-right-radius: 0.5rem !important;
-}
-
-.actions-td-right {
-  padding-right: 10px;
-  padding-left: 10px;
-  float: right;
-}
 
 @keyframes pulse {
   0% {
@@ -31,187 +17,32 @@
   }
 }
 
-table.hashtopolis-table {
-  overflow: visible;
-
-  .mat-mdc-row,
-  .mat-mdc-cell,
-  .mat-mdc-header-row,
-  .mat-mdc-header-cell {
-    overflow: visible;
-  }
-
-  .no-data {
-    text-align: center;
-    color: colors.$primary-900;
-    padding: 1em;
-  }
-  .mat-mdc-header-cell {
-    background-color: colors.$primary-800;
-    color: #fff;
-
-    .mat-sort-header-arrow {
-      color: #fff;
-    }
-  }
-
-  .mat-mdc-header-row {
-    background-color: colors.$primary-800;
-  }
-
-  .mat-mdc-row:hover {
-    background-color: colors.$primary-100;
-  }
-
-  .mat-mdc-cell {
-    .editable-container {
-      .mat-icon {
-        font-size: 14px;
-        position: absolute;
-        top: 10px;
-        left: 0;
-      }
-      .mat-mdc-form-field-infix {
-        min-height: auto;
-        padding: 0.5em 0px !important;
-      }
-      .mat-form-field-label-wrapper {
-        top: -1.5em;
-      }
-
-      .mat-mdc-form-field-icon-suffix {
-        display: flex;
-      }
-
-      .mat-mdc-form-field-subscript-wrapper {
-        display: none;
-      }
-      .editable-input {
-        width: 50px;
-        margin: 0;
-      }
-      .editable-text {
-        display: inline-block;
-        border-bottom: 1px dashed colors.$primary-400;
-        cursor: pointer;
-      }
-      .mat-mdc-icon-button {
-        width: 30px;
-        height: 30px;
-      }
-      .mat-mdc-form-field {
-        margin: 0;
-        padding: 0;
-        max-width: 150px;
-      }
-    }
-    .pulsing-progress {
-      color: colors.$warn-900;
-      animation: pulse 1s infinite;
-    }
-
-    .text-container button {
-      color: colors.$accent-900;
-    }
-
-    .row-action {
-      .mat-icon {
-        margin-right: 0;
-      }
-    }
-    .flex-container {
-      display: flex;
-      justify-content: flex-start;
-      flex-direction: row;
-      align-items: center;
-      position: relative;
-
-      
-      button[mat-icon-button], .mat-mdc-icon-button {
-       display: inline-flex;
-       align-items: center;
-       justify-content: center;
-       width: 40px;
-       height: 40px;
-       padding: 0;
-       margin: 0 2px;
-       vertical-align: middle;
-       box-sizing: border-box;
-      }
-
-      button[mat-icon-button] .mat-icon,
-      .mat-mdc-icon-button .mat-icon {
-        margin: 0;
-        font-size: 24px;
-        line-height: 1;
-        display: block;
-      }
-
-      .mat-icon {
-        margin-top: -3px;
-        margin-left: 3px;
-      }
-
-      a {
-        display: inline;
-        border-bottom: 1px dotted colors.$primary-300;
-        &:last-child {
-          border-bottom: none;
-        }
-        &::after {
-          content: '\a';
-          white-space: pre;
-        }
-      }
-      &.icons {
-        flex-direction: row;
-      }
-    }
-    .tructate {
-      a {
-        display: inline-block;
-        max-width: 150px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-
-    &.text-right {
-      text-align: right;
-    }
-  }
-}
-
-.icon-actions {
-  position: absolute;
-  right: -20px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.filter-container{
-  display: flex; 
-  align-items: center; 
-  gap: 16px
-}
+/* Table actions bar — the buttons/filter row above the table. */
 div.table-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0.5rem;
-  font-size: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: var(--text-md);
+
+  /* Match left-side action buttons to the .no-label-form-field height (36px)
+     used by the right-side column selector + filter input, so both sides
+     share the same baseline and visual weight. */
+  .mat-mdc-button-base {
+    --mat-button-text-container-height: 36px;
+    --mat-button-outlined-container-height: 36px;
+    --mat-button-filled-container-height: 36px;
+    min-height: 36px;
+  }
 
   .right-aligned {
     margin-left: auto;
 
-    .mdc-notched-outline {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
-
     .mat-icon {
       padding-right: 0;
-      color: colors.$primary-100;
+      color: var(--subtle-foreground);
     }
 
     .mat-mdc-form-field-subscript-wrapper {
@@ -220,33 +51,482 @@ div.table-actions {
   }
 }
 
-.dark-theme {
-  table.hashtopolis-table {
-    background-color: var(--mat-toolbar-container-background-color);
+.table-action-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
 
-    .mat-mdc-row:hover {
-      background-color: colors.$primary-900;
-    }
+/* Bulk-action pill when a row is selected */
+.table-action-wrapper.has-selection,
+.table-action-wrapper .bulk-action-menu-active {
+  background: var(--primary-muted);
+  border-radius: var(--radius-md);
+  padding: 2px 6px;
+  color: var(--primary);
+}
 
-    .mat-mdc-cell {
-      .pulsing-progress {
-        color: colors.$warn-300;
-      }
-      .text-container button {
-        color: colors.$accent-600;
-      }
-    }
+/* Header row — secondary bg, uppercase small-caps. */
+.mat-mdc-header-row {
+  background: var(--muted) !important;
+  min-height: 42px !important;
+  border-bottom: 1px solid var(--border-faint);
+}
 
-    .no-data {
-      color: colors.$primary-100;
-    }
-  }
-  .mat-mdc-paginator {
-    background-color: var(--mat-toolbar-container-background-color);
+.mat-mdc-row {
+  min-height: 44px !important;
+  transition: background-color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    background: var(--card-hover) !important;
   }
 }
 
-// Table Spinner
+// Zebra striping — keeps rows distinguishable even when --border is too subtle
+// to register on a given theme's canvas (common in dark themes). The mix
+// midpoint between bg and bg-secondary gives a subtle, design-aware tint.
+table.hashtopolis-table .mat-mdc-row:nth-of-type(even) {
+  background-color: color-mix(in oklab, var(--muted), var(--background));
+}
+
+// The visual-graph hover card on the task-name cell escapes ABOVE the row;
+// every ancestor in the stack must allow vertical overflow or the card gets
+// clipped. Override alpine-snow's `.mat-mdc-table { overflow: hidden }` (used
+// there to clip rounded corners) for the hashtopolis-table specifically. The
+// surrounding mat-card and mat-card-content are opted-in inside app-table's
+// component styles (TableComponent.styles).
+table.hashtopolis-table.mat-mdc-table {
+  overflow: visible !important;
+}
+
+table.hashtopolis-table {
+  overflow: visible;
+  background: transparent;
+  width: 100%;
+
+  .mat-mdc-row,
+  .mat-mdc-cell,
+  .mat-mdc-header-row,
+  .mat-mdc-header-cell {
+    overflow: visible;
+    border-bottom-color: var(--border);
+  }
+
+  .no-data {
+    text-align: center;
+    color: var(--subtle-foreground);
+    padding: var(--space-lg) var(--space-md);
+    font-style: italic;
+  }
+
+  .mat-mdc-header-cell {
+    color: var(--muted-foreground);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: transparent;
+
+    .mat-sort-header-arrow {
+      color: var(--primary);
+    }
+  }
+
+  .mat-mdc-cell {
+    color: var(--foreground);
+    font-size: var(--text-md);
+
+    .pulsing-progress {
+      color: var(--warning);
+      animation: pulse 1s infinite;
+    }
+
+    .text-container button {
+      color: var(--primary);
+    }
+
+    .row-action .mat-icon {
+      margin-right: 0;
+    }
+
+    .flex-container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex-direction: row;
+      position: relative;
+
+      button[mat-icon-button],
+      .mat-mdc-icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        margin: 0 2px;
+        box-sizing: border-box;
+      }
+
+      button[mat-icon-button] .mat-icon,
+      .mat-mdc-icon-button .mat-icon {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1;
+        display: block;
+      }
+
+      .mat-icon {
+        margin-top: -2px;
+        margin-left: 3px;
+      }
+
+      // Clickable cells render as real links — blueish text, underlined,
+      // hover darkens. The previous "dotted bottom border" look was too
+      // subtle, especially on dense rows. Multi-link stacks still wrap via
+      // the ::after newline; we keep that for backwards compat.
+      // Use !important to win over global theme rules like
+      // `.light-theme a { color: var(--primary); }` in alpine-snow.
+      a,
+      a.link {
+        display: inline;
+        color: var(--link) !important;
+        text-decoration: underline !important;
+        text-underline-offset: 2px;
+        transition: color var(--duration-fast) var(--easing-standard);
+
+        // The link label sits inside a <span class="link-label"> wrapper —
+        // some themes set explicit color on descendants and break the
+        // inheritance from the parent anchor, leaving the label in the
+        // default foreground color even when the anchor is blueish.
+        .link-label,
+        span {
+          color: inherit !important;
+          text-decoration: inherit;
+        }
+
+        &:hover {
+          color: var(--link-hover) !important;
+        }
+
+        &::after {
+          content: '\a';
+          white-space: pre;
+        }
+        &:last-child::after {
+          content: none;
+        }
+      }
+
+      &.icons {
+        flex-direction: row;
+      }
+
+      // Give the inner flex row the full cell width so children can flow with
+      // a defined edge. For .text the icon then flies to the right edge (see
+      // margin-left: auto rule below); for .links the icon hugs the link
+      // instead — the container width still matters for hover-tint coverage.
+      &.icons.links,
+      &.icons.text {
+        width: 100%;
+      }
+
+      // Trailing icon next to a link sits naturally adjacent to the label
+      // (small gap from .mat-icon's own margin-left), not pinned to the cell
+      // right edge — gluing a "cracked" check to its hashlist name reads as
+      // related, whereas a floating icon at the far edge reads as orphaned.
+      &.icons.links > .mat-icon:last-child {
+        margin-left: var(--space-2xs);
+      }
+
+      // For render columns, only push the icon when render actually produced
+      // content. If the render output is empty (e.g. super-hashlists' CRACKED
+      // column shows only a check icon when fully cracked), the icon stays at
+      // its natural position — it's the cell's sole content.
+      &.icons.text:not(:has(ht-table-default > div:empty)) > .mat-icon:last-child {
+        margin-left: auto;
+      }
+
+      // Stretch the link host so an icon embedded inside the <a> (faKey,
+      // faShield, etc.) can also align to the right edge.
+      &.links app-ht-table-link {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      // …but when a trailing tableColumn.icon sits OUTSIDE the link (the
+      // column has both .links AND .icons), don't let the link grow — the
+      // status icon (e.g. cracked-check on tasks/hashlists) should hug the
+      // label, not float at the cell's right edge orphaned from it.
+      &.icons.links app-ht-table-link {
+        flex: 0 1 auto;
+      }
+
+      // Editable cells host their own flex row inside .editable-container.
+      // Letting the host grow lets the trailing pencil pin to the cell's
+      // right edge regardless of the value length.
+      ht-table-editable {
+        display: block;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+    }
+
+    .tructate a {
+      display: inline-block;
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.text-right {
+      text-align: right;
+    }
+
+    /* Inline editable cell — keep density compact.
+       Layout: the editable-container is a flex row that fills the cell so
+       the trailing pencil icon can lock to the cell's right edge regardless
+       of value length. The pencil fades in only when the cell is hovered,
+       per design feedback that an always-visible icon was too noisy.
+       Use a min-height to keep the cell from collapsing tighter than the
+       affordance asks for — gives the pencil somewhere to land. */
+    .editable-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--space-xs);
+      min-height: 32px;
+      // Force the column to grow so there's daylight between the value and
+      // the trailing pencil — without this the column auto-sizes to the
+      // (numeric) value and the pencil hugs the digit awkwardly.
+      min-width: 96px;
+
+      // Compact form-field — strip the M3 padding scaffolding so the input
+      // sits at the same height as the static value, avoiding a vertical
+      // shift the moment edit mode toggles. align-items: center on the
+      // form-field-flex makes the suffix buttons line up with the input.
+      .mat-mdc-form-field {
+        margin: 0;
+        padding: 0;
+        max-width: 160px;
+        line-height: 1;
+      }
+      .mat-mdc-text-field-wrapper {
+        padding: 0;
+        background: transparent;
+      }
+      .mat-mdc-form-field-flex {
+        align-items: center;
+      }
+      .mat-mdc-form-field-infix {
+        min-height: auto;
+        padding: var(--space-2xs) 0 !important;
+        width: auto;
+      }
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      .editable-input {
+        width: 56px;
+        margin: 0;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      // Edit-mode suffix buttons (save check + cancel close) — square buttons
+      // at the input's height so the row reads as one tidy strip. Override
+      // the broader .flex-container 36×36 rule from above with higher
+      // specificity (this selector is two levels deeper) AND explicit values.
+      // margin-inline-start gives the check breathing room from the input's
+      // right-aligned value — without it the digit and the icon collide.
+      .mat-mdc-form-field-icon-suffix {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 0;
+        margin-inline-start: var(--space-xs);
+
+        .mat-mdc-icon-button {
+          width: 28px;
+          height: 28px;
+          min-width: 28px;
+          min-height: 28px;
+          padding: 0;
+          margin: 0;
+          line-height: 28px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex: 0 0 auto;
+
+          .mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          // Material's MDC ripple/state layer leaks a 40px hit-target around
+          // the icon by default; pull it back so adjacent buttons don't
+          // visually crowd each other.
+          .mat-mdc-button-persistent-ripple,
+          .mat-mdc-button-ripple,
+          .mat-mdc-focus-indicator {
+            border-radius: 50%;
+          }
+        }
+      }
+
+      // Idle-state value — reads as a link (blue, underlined). Sits in the
+      // flex row; for numeric cells text-align: right hugs the value toward
+      // the pencil so they're related but not glued.
+      .editable-text {
+        flex: 1 1 auto;
+        min-width: 0;
+        cursor: pointer;
+        color: var(--link);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color var(--duration-fast) var(--easing-standard);
+      }
+
+      // Pencil locks to the cell's right edge via margin-left: auto, separated
+      // from the value by the parent gap. opacity 0 by default; fades in on
+      // cell hover (rule defined below at .mat-mdc-cell scope so cell-wide
+      // hover triggers it, not just hovering the icon itself).
+      .editable-pencil {
+        flex: 0 0 auto;
+        margin-left: auto;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        opacity: 0;
+        color: var(--muted-foreground);
+        transition: opacity var(--duration-fast) var(--easing-standard);
+      }
+    }
+
+    // Cell-wide hover trigger for the editable affordance: pencil fades in,
+    // value darkens. Placed at .mat-mdc-cell scope so hovering anywhere in
+    // the cell counts, not just over the text itself.
+    &:hover {
+      .editable-text {
+        color: var(--link-hover);
+      }
+      .editable-pencil {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+/* Editable cell click-target & hover surface.
+   The whole <td> is the click target (the (click) handler lives on
+   .editable-container in the template). :has() scopes the rule to
+   cells whose descendant is in idle (read-only) mode, so the hover
+   tint never competes with the active input. Tint appears only on
+   hover — matches the pencil icon, which also fades in on hover. */
+.mat-mdc-cell:has(.editable-container--idle) {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    background-color: var(--cell-hover);
+  }
+}
+
+/* Numeric editable cells — pin the edit-mode form-field to the right edge
+   so the input lands roughly where the read-only value sat (which is
+   right-aligned via .cell-numeric). Without this, clicking the cell would
+   snap the input from the right edge to the left, an unsettling jump. */
+.mat-mdc-cell.cell-numeric .editable-container .mat-mdc-form-field {
+  margin-left: auto;
+}
+
+/* Paginator — muted text + smaller font (background transparent comes from
+   --mat-paginator-container-background-color in _material.scss). */
+.mat-mdc-paginator {
+  color: var(--subtle-foreground);
+  font-size: var(--text-sm);
+}
+
+/* Cracked row accent — highlights successfully-cracked hash rows. The
+   success-bg token re-derives via color-mix when --success flips per theme,
+   so the same rule covers both light and dark.
+
+   Why the tint is applied at .mat-mdc-cell level (not just <tr>): the
+   row-level rule alone gets blotted out by two competing backgrounds —
+   .mat-mdc-row:hover (--card-hover) and the zebra-striping rule on even
+   rows. Painting each cell guarantees the green wins, because a cell's
+   own background renders ON TOP of its row's background. */
+.row-cracked {
+  background-color: var(--success-bg) !important;
+
+  .mat-mdc-cell {
+    background-color: var(--success-bg);
+  }
+
+  /* Editable cell hover layered over green — blend the hover tint with
+     the cracked bg so the green stays readable underneath. */
+  .mat-mdc-cell:has(.editable-container--idle):hover {
+    background-color: color-mix(in oklch, var(--cell-hover) 50%, var(--success-bg));
+  }
+}
+
+/* Numeric columns — right-aligned with tabular figures so place values stack
+   vertically. Opt-in per column via HTTableColumn.isNumeric, which sets
+   .cell-numeric on both the th and td. */
+.mat-mdc-cell.cell-numeric,
+.mat-mdc-header-cell.cell-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.mat-mdc-cell.cell-numeric .flex-container {
+  justify-content: flex-end;
+
+  // In numeric cells, keep link content (number + trailing icon) grouped on
+  // the right edge rather than stretching the anchor across the cell.
+  app-ht-table-link {
+    flex: 0 0 auto;
+  }
+
+  a.link {
+    width: auto;
+  }
+
+  a.link:has(fa-icon) {
+    width: auto;
+    gap: 6px;
+
+    fa-icon {
+      margin-left: 0;
+    }
+  }
+}
+
+.mat-mdc-header-cell.cell-numeric .mat-sort-header-container {
+  justify-content: flex-end;
+}
+
+.icon-actions {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .spinner-table {
   display: flex;
   justify-content: center;

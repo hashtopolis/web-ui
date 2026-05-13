@@ -1,6 +1,6 @@
 <div>
   @if (hasErrors) {
-    <span [style.color]="hasErrors ? 'red' : null" class="error-blacklisted ">
+    <span [class.text-destructive]="hasErrors" class="block mt-2xs">
       Please remove the characters that are on the blacklist.
       <br />
       <b>BlackListed Chars: {{ blacklistedChars.join(', ') }}</b>

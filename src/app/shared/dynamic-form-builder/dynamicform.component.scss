@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+/* Render `isTitle`-delimited sections in two columns at md+ so paired
+   sections (e.g., "Activity / Registration" + "Graphical Feedback") sit
+   side-by-side when there's enough horizontal space. Single-column at
+   smaller widths. */
+.custom-form__sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  /* Two columns only when there are at least two sections — otherwise a
+     single section stops halfway across the container. `:has()` is supported
+     in every browser this app targets. */
+  @media (min-width: 768px) {
+    &:has(> :nth-child(2)) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Sub-card wrapper around each isTitle-delimited section. Visually groups
+   related fields under their heading and gives the form clear hierarchy.
+   18px / 20px padding sits between Tailwind's named spacing steps; kept
+   raw because lint:tokens rejects arbitrary [18px] / [20px] utilities. */
+.custom-form__section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) 20px;
+  align-items: end;
+  background: var(--card);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sections with only one field (e.g. New Access Group, New Global
+     Permission Group) shouldn't render that field at half-width — collapse
+     to a single column when there's no second field div. The title h3 is
+     an `<h3>`, not a div, so title-then-one-field sections collapse too. */
+  &:not(:has(> div + div)) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section title spans the full sub-card width regardless of inner column count.
+   13px maps to --text-md; 0.08em tracking is not on a Tailwind utility scale so
+   stays inline alongside the rest of the typography here. */
+.custom-form__section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--heading-foreground);
+  margin: 0 0 var(--space-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  grid-column: 1 / -1;
+}

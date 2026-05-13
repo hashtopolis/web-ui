@@ -1,124 +1,79 @@
-@use 'colors';
+/* ==================================
+          SECTION BASE STYLES
+   ================================== */
 
 body {
-  font-family: var(
-    --mat-typography-button-font-family,
-    var(--mat-typography-font-family, Roboto, sans-serif)
-  );
+  font-family: var(--font-body);
+  color: var(--foreground);
+  background: var(--background);
 }
 
 a {
-  color: colors.$accent-800 !important;
-}
+  color: var(--primary);
 
-.light-theme {
-  .text-ok {
-    color: colors.$color-green !important;
+  &:hover {
+    color: var(--primary-hover);
   }
 }
 
-.dark-theme {
-  .text-ok {
-    color: colors.$color-green-dark !important;
-  }
+/* Status text colors — used by tables and status indicators. */
+.text-ok {
+  color: var(--success) !important;
 }
-
 .text-warning {
-  color: colors.$color-orange !important;
+  color: var(--warning) !important;
 }
-
-.light-theme {
-  .text-critical {
-    color: colors.$warn-600 !important;
-  }
+.text-critical {
+  color: var(--destructive) !important;
 }
-
-.dark-theme {
-  .text-critical {
-    color: colors.$warn-300 !important;
-  }
-}
-
 .text-inactive {
-  color: colors.$color-grey-light !important;
+  color: var(--subtle-foreground) !important;
 }
-
 .text-unknown {
-  color: colors.$color-blue-light !important;
+  color: var(--info) !important;
 }
-
 .text-invalid {
-  color: colors.$color-red !important;
+  color: var(--destructive) !important;
 }
-
 .text-primary {
-  color: colors.$primary-600 !important;
+  color: var(--primary) !important;
 }
-
-.text-accent-900 {
-  color: colors.$accent-900 !important;
-}
-
-.text-accent-800 {
-  color: colors.$accent-800 !important;
-}
-
-.text-accent-300 {
-  color: colors.$accent-300 !important;
-}
-
 .text-primary-300 {
-  color: colors.$primary-300 !important;
+  color: var(--heading-foreground) !important;
 }
 
+/* Highlight callout box — informational message used by <app-new-agent>'s
+   stepper instructions. Cyan in M2 used to mean "info"; we now use --info. */
 .highlight-box {
-  border-left: 10px solid colors.$accent-300;
-  background-color: colors.$accent-100;
-  color: #333;
+  border-left: 10px solid var(--info);
+  background-color: var(--info-bg);
+  color: var(--foreground);
   padding: 0.5em 1em;
   margin: 2em 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 
   strong {
-    color: colors.$accent-700;
+    color: var(--info);
   }
-
   h3 {
     margin-top: 0;
   }
-
   ol {
     margin-left: 0;
     padding-left: 1em;
   }
-
   button {
     margin-left: 0;
   }
 }
 
-.page-title-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1em;
-  margin-bottom: 1em;
-
-  h2 {
-    margin: 0;
-  }
-
-  button {
-    margin-left: auto;
-  }
+/* Headings on dashboard pages may include a trailing mat-icon. */
+h2 .mat-icon {
+  position: relative;
+  top: var(--space-2xs);
 }
 
-h2 {
-  .mat-icon {
-    position: relative;
-    top: 4px;
-  }
-}
-
+/* Responsive layout-size wrappers set by <app-root>. */
 .xsmall,
 .small,
 .medium,
@@ -143,20 +98,12 @@ h2 {
 
 .dark-theme {
   .mat-stepper-horizontal {
-    background-color: #212121;
+    background-color: var(--well);
   }
-  hr {
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
-  }
-  .highlight-box {
-    border-left-color: colors.$accent-800;
-    background-color: colors.$accent-900;
-    color: #fff;
+}
 
-    strong {
-      color: colors.$accent-200;
-    }
-  }
+hr {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-faint);
 }

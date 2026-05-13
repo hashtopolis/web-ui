@@ -1,0 +1,152 @@
+// =============================================================================
+// alpine-snow — design tokens
+// =============================================================================
+// A bright, editorial light-only design built around a deep-navy primary on
+// an off-white snow canvas. Space Grotesk for display/headlines (with tight
+// negative tracking), Inter for body. Cards and panels use a signature
+// 1px-padded gradient-hairline shell with a translucent inner panel.
+//
+// Scoped under `.light-theme` so the existing ThemeService body class drives
+// the cascade; loaded after `base/_tokens.scss` so its overrides win.
+// =============================================================================
+
+// Body stack — Inter is loaded globally via index.html.
+$inter-stack:
+  'Inter',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  sans-serif;
+
+// Heading stack — Space Grotesk is loaded globally via index.html.
+$grotesk-stack:
+  'Space Grotesk',
+  'Inter',
+  system-ui,
+  -apple-system,
+  sans-serif;
+
+.light-theme {
+  color-scheme: light;
+
+  // ---------------------------------------------------------------------------
+  // Typography
+  // ---------------------------------------------------------------------------
+  --font-body: #{$inter-stack};
+  --font-heading: #{$grotesk-stack};
+
+  // ---------------------------------------------------------------------------
+  // Radius — alpine-snow uses the global scale unchanged: xs (2) for tag chips,
+  // sm (4) for form-field shells, md (6) for buttons & nav pills, lg (8) for
+  // shells, 2xl (16) for the notification dropdown, full for scrollbar thumbs.
+  // ---------------------------------------------------------------------------
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  // ---------------------------------------------------------------------------
+  // Backgrounds — snow canvas with translucent white panels.
+  // ---------------------------------------------------------------------------
+  --background: #fbfcfd; // off-white snow
+  --muted: #f3f5f9; // subtle warm step (sidebar, toolbar wells)
+  --well: #e9edf4; // deeper well for nested zones
+  --card: rgba(255, 255, 255, 0.92); // translucent inner panel
+  --card-hover: rgba(255, 255, 255, 0.98); // slightly more opaque on hover
+  --input: #f5f7fb; // form-field interior — sits a hair below the snow canvas (`--background: #fbfcfd`) so the field reads as a "fillable surface" against the page; still clearly distinct from disabled (`--well: #e9edf4`)
+  --sidebar: rgba(255, 255, 255, 0.6); // header strip translucent
+
+  // ---------------------------------------------------------------------------
+  // Text — navy ramp.
+  // ---------------------------------------------------------------------------
+  --foreground: #1f2c54; // body
+  --muted-foreground: #475a8a; // muted secondary captions
+  --subtle-foreground: #8a99b9; // tertiary captions / placeholders
+  --heading-foreground: #152040; // headings + brand mark
+
+  // ---------------------------------------------------------------------------
+  // Accent — deep navy (filled buttons, focus rings, brand mark, links).
+  // ---------------------------------------------------------------------------
+  --primary: #152040; // navy 800
+  --primary-hover: #1f2c54; // navy 700 — matches button-hover treatment
+  --primary-muted: rgba(21, 32, 64, 0.08); // translucent active tint
+  --primary-foreground: #ffffff; // legible on navy
+
+  --secondary: #475a8a;
+
+  // ---------------------------------------------------------------------------
+  // Borders — translucent navy hairlines.
+  // ---------------------------------------------------------------------------
+  --border: rgba(21, 32, 64, 0.08);
+  --border-strong: rgba(21, 32, 64, 0.18);
+  --border-faint: rgba(21, 32, 64, 0.06);
+
+  // ---------------------------------------------------------------------------
+  // Surface tints — translucent navy washes used by row hovers, outlined
+  // buttons, table zebra, nav-pill bg.
+  // ---------------------------------------------------------------------------
+  --surface-faint: rgba(21, 32, 64, 0.02);
+  --surface-soft: rgba(21, 32, 64, 0.04);
+  --surface-soft-hover: rgba(21, 32, 64, 0.08);
+
+  // ---------------------------------------------------------------------------
+  // Component-semantic chrome — design-specific re-targets so _material.scss
+  // can drive Material colors via these instead of binding palette directly.
+  // ---------------------------------------------------------------------------
+  --header: rgba(255, 255, 255, 0.6); // translucent header strip
+  --shell-frame-image: linear-gradient(to bottom, rgba(21, 32, 64, 0.1), rgba(21, 32, 64, 0.02));
+  --ring: rgba(21, 32, 64, 0.2);
+  --tooltip: var(--primary);
+  --tooltip-foreground: var(--primary-foreground);
+  --snackbar: var(--primary);
+  --snackbar-foreground: var(--primary-foreground);
+
+  // ---------------------------------------------------------------------------
+  // Status — standard light-mode semantic ramp.
+  // ---------------------------------------------------------------------------
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --destructive: #dc2626;
+  --info: #2563eb;
+
+  // ---------------------------------------------------------------------------
+  // Link — saturated blue, distinct from the navy --primary so clickable cells
+  // and inline editables visually read as "this is a link" without competing
+  // with the navy brand color used on buttons / focus rings.
+  // ---------------------------------------------------------------------------
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
+
+  // Popover — fully opaque white on snow canvas, so floating overlays don't
+  // bleed through to whatever's beneath them.
+  --popover: #ffffff;
+
+  // ---------------------------------------------------------------------------
+  // Shadows — near-flat. Lifted button uses the navy "glow" style.
+  // Cards rely on the gradient hairline rather than drop shadows.
+  // ---------------------------------------------------------------------------
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 0 30px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
+
+  // ---------------------------------------------------------------------------
+  // Gradient — brand mark (logo block, badge fills).
+  // ---------------------------------------------------------------------------
+  --gradient-accent: linear-gradient(to right, #152040, #475a8a);
+
+  // ---------------------------------------------------------------------------
+  // Material M3 typography — --mat-sys-*-font tokens follow --font-body and
+  // --font-heading via bindings in base/_tokens.scss; only tracking needs
+  // per-design overrides (tighter on display/headline).
+  // ---------------------------------------------------------------------------
+
+  // Tight tracking on display/headline tokens (-1.5px on 56px ≈ -0.027em).
+  --mat-sys-display-large-tracking: -0.027em;
+  --mat-sys-display-medium-tracking: -0.025em;
+  --mat-sys-display-small-tracking: -0.022em;
+  --mat-sys-headline-large-tracking: -0.018em;
+  --mat-sys-headline-medium-tracking: -0.016em;
+  --mat-sys-headline-small-tracking: -0.014em;
+}
