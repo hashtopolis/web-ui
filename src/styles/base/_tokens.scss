@@ -155,13 +155,6 @@
   --status-not-processed: var(--subtle-foreground);
   --status-error: #ef4444;
 
-  /* Visual-graph canvas — domain-specific aliases over semantic tokens so the
-     graph can retune in isolation without disturbing --status-* consumers. */
-  --visual-graph-cracked: var(--status-cracked);
-  --visual-graph-error: var(--status-error);
-  --visual-graph-no-crack: var(--warning-soft);
-  --visual-graph-not-processed: var(--muted-foreground);
-
   /* Validation focus ring — re-derives via color-mix when --destructive flips. */
   --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
 
