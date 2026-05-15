@@ -75,7 +75,10 @@
           </cdk-virtual-scroll-viewport>
         </mat-autocomplete>
       }
-      <ng-content select="[matSuffix]"></ng-content>
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+      <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">
+        <ng-content select="[matSuffix]"></ng-content>
+      </span>
       @if (hasError && errors && !readonly) {
         <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required. </mat-hint>
       }
