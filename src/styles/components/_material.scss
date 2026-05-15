@@ -107,6 +107,19 @@ textarea.mat-mdc-input-element.custom-textarea {
   align-items: stretch;
 }
 
+/* The "Compact form fields" block below clamps the filled wrapper, flex
+   container, and infix to 36px so labelless single-line inputs share one
+   row height. Textareas are the deliberate exception — release the clamps
+   so cdkTextareaAutosize and the textarea's own min-height (set inline
+   from minRows) can drive the field height. */
+.mat-mdc-form-field:has(textarea.custom-textarea) .mdc-text-field--filled,
+.mat-mdc-form-field:has(textarea.custom-textarea) .mat-mdc-form-field-flex,
+.mat-mdc-form-field:has(textarea.custom-textarea) .mat-mdc-form-field-infix {
+  height: auto;
+  min-height: 0;
+  align-items: stretch;
+}
+
 /* Select tokens (trigger + arrow colors). Panel styles live in section 03. */
 .mat-mdc-select {
   --mat-select-enabled-trigger-text-color: var(--heading-foreground);
