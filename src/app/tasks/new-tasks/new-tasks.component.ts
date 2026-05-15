@@ -433,7 +433,10 @@ export class NewTasksComponent implements OnInit {
 
   // Modal Information
   protected openHelpDialog(): void {
-    this.dialog.open(CheatsheetComponent);
+    this.dialog.open(CheatsheetComponent, {
+      width: '840px',
+      maxWidth: '90vw'
+    });
   }
 
   /**
