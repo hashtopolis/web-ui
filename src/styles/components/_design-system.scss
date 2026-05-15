@@ -151,13 +151,17 @@
 // Dialogs — same gradient-hairline shell as cards.
 // -----------------------------------------------------------------------------
 .mat-mdc-dialog-container {
-  --mat-dialog-container-color: var(--card);
+  --mat-dialog-container-color: var(--popover);
   --mat-dialog-subhead-color: var(--heading-foreground);
   --mat-dialog-supporting-text-color: var(--foreground);
   --mat-dialog-container-shape: 8px;
 
   border: 1px solid transparent;
-  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  /* --popover (not --card): dialogs overlay arbitrary content above a dim
+     backdrop, so they need the solid floating-surface token — --card is
+     intentionally translucent in dark mode and would let the backdrop
+     bleed through. */
+  background-image: linear-gradient(var(--popover), var(--popover)), var(--shell-frame-image);
   background-origin: border-box;
   background-clip: padding-box, border-box;
   box-shadow: var(--shadow-lg);
