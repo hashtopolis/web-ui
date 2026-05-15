@@ -66,6 +66,7 @@
           </mat-option>
         </cdk-virtual-scroll-viewport>
       </mat-autocomplete>
+      <ng-content select="[matSuffix]"></ng-content>
       @if (hasError && errors) {
         <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required. </mat-hint>
       }

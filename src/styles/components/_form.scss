@@ -230,28 +230,6 @@ mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label
   align-items: center;
 }
 
-.custom-hashlist-container {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2xs);
-
-  input-multiselect {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* Center the icon button on the multiselect's input row. The field-stack
-     label adds ~22px above the input (13px × 1.2 line-height + 6px margin),
-     and the 48px input row centered against a 40px icon button needs an
-     extra ~4px — total top offset ≈ 26px. Anchored from the top, so the
-     subscript wrapper can grow with an error message without shifting the
-     icon. The required-state error renders inside the form-field's subscript
-     wrapper, so we can't hide it the way custom-agent-container does. */
-  > button {
-    margin-top: 26px;
-  }
-}
-
 .custom-agent-container {
   display: flex;
   align-items: flex-end;
