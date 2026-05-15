@@ -12,15 +12,15 @@ import {
   Output,
   inject
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
-import { MetadataFormField } from '@services/metadata.service';
+import { FieldType, MetadataFormField } from '@services/metadata.service';
 
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * This component renders a dynamic form based on the provided form metadata.
@@ -126,6 +126,36 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
   transformSelectOptions = transformSelectOptions;
 
   /**
+   * True when the field carries the `required` validator or the explicit
+   * `requiredasterisk` flag — drives the `*` marker on shared input components.
+   */
+  isRequired(field: MetadataFormField): boolean {
+    if (field.requiredasterisk) return true;
+    return Array.isArray(field.validators) && field.validators.includes(Validators.required);
+  }
+
+  /**
+   * Collapses the `string | boolean | undefined` tooltip union to a plain
+   * string the shared inputs expect. `false` means "no tooltip".
+   */
+  asString(value: string | boolean | undefined): string | undefined {
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  /**
+   * Adapts the field's options to `SelectOption<…>` (the `{id, name}` shape
+   * the shared `input-select` consumes). Static `selectOptions` use
+   * `{label, value}` while dynamic `selectOptions$` already use `{id, name}`.
+   */
+  toSelectItems(field: MetadataFormField): SelectOption<number | string | boolean>[] {
+    if (field.type === FieldType.AsyncSelect) {
+      return field.selectOptions$ ?? [];
+    }
+    if (!Array.isArray(field.selectOptions)) return [];
+    return field.selectOptions.map((option) => ({ id: option.value, name: option.label }));
+  }
+
+  /**
    * Groups the flat formMetadata into sections delimited by `isTitle` entries.
    * Each section is `[titleField?, ...fields]` so the template can render them
    * in a multi-column grid (e.g., "Activity / Registration" beside "Graphical
@@ -213,7 +243,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
         field
       ): field is MetadataFormField &
         Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'selectSchema' | 'fieldMapping'>> =>
-        field.type === 'selectd' && !!field.selectEndpoint$ && !!field.selectSchema && !!field.fieldMapping
+        field.type === FieldType.AsyncSelect && !!field.selectEndpoint$ && !!field.selectSchema && !!field.fieldMapping
     );
 
     if (selectFields.length > 0) {
@@ -326,6 +356,4 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  protected readonly Array = Array;
 }

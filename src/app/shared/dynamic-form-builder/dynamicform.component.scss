@@ -67,9 +67,11 @@
 /* Force labels to a single line so neighbouring sections share identical row
    heights. Long labels ellipsize; the full text shows in a Material tooltip on
    hover, driven by appOverflowTooltip which only enables the tooltip when
-   scrollWidth > clientWidth. Scoped to this component so other forms using
-   `.field-stack__label` keep their wrapping behaviour. */
-.field-stack__label {
+   scrollWidth > clientWidth. The label and clamping span live inside the
+   shared `input-*` components (text, number, select, text-area, check), so we
+   pierce their view encapsulation with `::ng-deep`. Other forms using those
+   inputs keep their natural wrapping because they don't add this rule. */
+:host ::ng-deep .field-stack__label {
   width: 100%;
   min-width: 0;
 }
@@ -78,10 +80,13 @@
    `gap: 6px` from the global `.field-stack__label` places the (i) icon
    directly after the text. `flex-shrink: 1` + `min-width: 0` preserves
    the ellipsize behaviour when the grid cell becomes narrower than the
-   label's intrinsic width. */
-.field-stack__label-text {
+   label's intrinsic width. `display: block` is required for the checkbox
+   case, where the span lives inside Material's `.mdc-label` (block flex
+   item) rather than a flex `.field-stack__label`. */
+:host ::ng-deep .field-stack__label-text {
   flex: 0 1 auto;
   min-width: 0;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -94,9 +99,7 @@
    neighbouring column. The Material checkbox projects its content into
    `.mdc-label` inside an `.mdc-form-field` flex container; both of those
    nodes are rendered by Material (no component attribute), so we have to
-   pierce view encapsulation with `::ng-deep` to reach them. Without
-   `min-width: 0` on the label flex item, the text refuses to shrink below
-   its intrinsic width and `text-overflow: ellipsis` never engages. */
+   pierce view encapsulation with `::ng-deep` to reach them. */
 .custom-form__checkbox-cell {
   min-width: 0;
   /* Re-establish the grid cell as the containing block for an inline-flex
@@ -104,7 +107,12 @@
   overflow: hidden;
 }
 
-.custom-form__checkbox.mat-mdc-checkbox {
+.custom-form__checkbox {
+  display: block;
+  max-width: 100%;
+}
+
+.custom-form__checkbox ::ng-deep .mat-mdc-checkbox {
   display: block;
   max-width: 100%;
 }
@@ -119,12 +127,4 @@
   flex: 1 1 auto;
   min-width: 0;
   display: block;
-}
-
-.custom-form__checkbox-label {
-  display: block;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

@@ -15,127 +15,97 @@
                   <h3 class="custom-form__section-title">{{ field.label }}</h3>
                 } @else if (field.type === 'checkbox') {
                   <div class="custom-form__checkbox-cell">
-                    <mat-checkbox
+                    <input-check
                       class="custom-form__checkbox"
+                      [title]="field.label!"
+                      [tooltip]="asString(field.tooltip)!"
+                      [inputId]="'dynform-' + field.name"
                       [formControlName]="field.name!"
-                      [matTooltip]="field.label"
-                      matTooltipPosition="above"
-                      appOverflowTooltip=".custom-form__checkbox-label"
-                    >
-                      <span class="custom-form__checkbox-label">
-                        {{ field.label }}
-                      </span>
-                    </mat-checkbox>
+                    ></input-check>
                   </div>
                 } @else {
                   <div>
-                    <div class="field-stack">
-                      <label class="field-stack__label" [attr.for]="'dynform-' + field.name">
-                        <span
-                          class="field-stack__label-text"
-                          [matTooltip]="field.label"
-                          matTooltipPosition="above"
-                          appOverflowTooltip
-                        >
-                          {{ field.label }}
-                        </span>
-                        @if (field.tooltip) {
-                          <mat-icon
-                            matTooltip="{{ field.tooltip }}"
-                            matTooltipPosition="below"
-                            matTooltipClass="tooltip-custom-style"
-                            container="body"
-                            aria-hidden="true"
-                          >
-                            info
-                          </mat-icon>
-                        }
-                      </label>
-                      <mat-form-field class="field-stack__field">
-                        @switch (field.type) {
-                          @case ('number') {
-                            <input
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              type="number"
-                              [formControlName]="field.name!"
-                            />
-                          }
-                          @case ('text') {
-                            <input
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              [type]="field.type"
-                              [formControlName]="field.name!"
-                            />
-                          }
-                          @case ('password') {
-                            <input
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              type="password"
-                              [formControlName]="field.name!"
-                            />
-                          }
-                          @case ('textarea') {
-                            <textarea
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              [formControlName]="field.name!"
-                            ></textarea>
-                          }
-                          @case ('email') {
-                            <input
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              [type]="field.type"
-                              [formControlName]="field.name!"
-                            />
-                          }
-                          @case ('url') {
-                            <input
-                              [id]="'dynform-' + field.name"
-                              matInput
-                              [type]="field.type"
-                              [formControlName]="field.name!"
-                            />
-                          }
-                          @case ('select') {
-                            <mat-select [id]="'dynform-' + field.name" [formControlName]="field.name!">
-                              @for (
-                                option of Array.isArray(field.selectOptions) ? field.selectOptions : [];
-                                track option.value
-                              ) {
-                                <mat-option [value]="option.value">
-                                  {{ option.label }}
-                                </mat-option>
-                              }
-                            </mat-select>
-                          }
-                          @case ('selectd') {
-                            <mat-select [id]="'dynform-' + field.name" [formControlName]="field.name!">
-                              @for (
-                                option of Array.isArray(field.selectOptions$) ? field.selectOptions$ : [];
-                                track option.id
-                              ) {
-                                <mat-option [value]="option.id">
-                                  {{ option.name }}
-                                </mat-option>
-                              }
-                            </mat-select>
-                            @if (isLoadingSelect) {
-                              <mat-spinner diameter="16"></mat-spinner>
-                            }
-                          }
-                        }
-                        @if (form.controls[field.name!].hasError('required')) {
-                          <mat-error> {{ field.label }} is required </mat-error>
-                        }
-                        @if (form.controls[field.name!].hasError('invalidUrl')) {
-                          <mat-error> Invalid URL format </mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
+                    @switch (field.type) {
+                      @case ('number') {
+                        <input-number
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-number>
+                      }
+                      @case ('text') {
+                        <input-text
+                          inputType="text"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('password') {
+                        <input-text
+                          inputType="password"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('email') {
+                        <input-text
+                          inputType="email"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('url') {
+                        <input-text
+                          inputType="url"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('textarea') {
+                        <input-text-area
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text-area>
+                      }
+                      @case ('select') {
+                        <input-select
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [items]="toSelectItems(field)"
+                          [formControlName]="field.name!"
+                        ></input-select>
+                      }
+                      @case ('asyncSelect') {
+                        <input-select
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [items]="toSelectItems(field)"
+                          [isLoading]="isLoadingSelect"
+                          [formControlName]="field.name!"
+                        ></input-select>
+                      }
+                    }
                   </div>
                 }
               }
