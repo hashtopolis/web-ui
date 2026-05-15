@@ -1,22 +1,3 @@
-/* ==================================
-        SECTION INPUT CHECK
-   ==================================
-   Rules that cross Angular's view encapsulation barrier from <input-check>
-   into Material's MDC internals (.mdc-label, .mdc-checkbox__background,
-   .mdc-form-field). Hosted globally instead of using ::ng-deep inside
-   check.component.scss — globally-loaded SCSS has no encapsulation
-   attribute, so element-anchored selectors like
-   `input-check .checkbox-wrapper X` reach Material-rendered descendants
-   without piercing.
-
-   Paired with structural styles in:
-     src/app/shared/input/check/check.component.scss
-   ================================== */
-
-/* Inline help icon inside the checkbox label.
-   The default mat-icon ships at 24px, which towers over the 14px checkbox
-   label text and shifts the baseline. Flex the label so the (info) is
-   optically centred with the label regardless of font metrics. */
 input-check .checkbox-wrapper mat-checkbox .mdc-label {
   display: inline-flex;
   align-items: center;
@@ -32,10 +13,6 @@ input-check .checkbox-wrapper mat-checkbox mat-icon {
   cursor: help;
 }
 
-/* Invalid state: ring the checkbox box and tint its label red so the control
-   matches the same error language as field-stack inputs. mat-checkbox renders
-   its label inside the component, so we can't reuse the .field-stack__label
-   selector — we target the rendered nodes directly. */
 input-check .checkbox-wrapper.is-invalid {
   .mdc-checkbox__background {
     border-color: var(--destructive);

@@ -1,12 +1,3 @@
-/* Loading spinner — fullscreen overlay with bouncing logo + dot animation.
-   Component-scoped (was previously in global _loader.scss).
-
-   ⚠️ The 300px / 80px / 35px / 100px pixel values below are deliberately
-   raw, not tokenized. Each is referenced by a @keyframes rule below
-   (`translateX(150px)`, `translateX(-100px)`, etc.) that ties the dot
-   travel distance to the spinner box width. Migrating to tokens would
-   either require parallel keyframe-token pairs or break the animation. */
-
 .logo_spinner_container {
   background-color: rgb(from var(--mat-sys-scrim) r g b / 0.1);
   width: 100%;

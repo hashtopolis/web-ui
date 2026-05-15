@@ -1,7 +1,3 @@
-/* Login form wrapper — owns the centered card layout for the unauthenticated
-   landing page. Moved out of styles/components/_form.scss now that the auth
-   component has its own .scss; only this component renders these classes. */
-
 .login-container {
   display: flex;
   flex-direction: column;

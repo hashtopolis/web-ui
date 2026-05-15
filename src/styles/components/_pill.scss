@@ -1,12 +1,3 @@
-/* ==================================
-          SECTION PILLS / STATUS CHIPS
-   ==================================
-   Inline status chip used by table cells (agents, agents-status,
-   tasks-agents, chunks, tasks-chunks). Renders a colored, rounded badge
-   that doubles as the cell's status indicator — replaces the older
-   icon-based active/inactive marker.
-   ================================== */
-
 .pill {
   display: inline-flex;
   align-items: center;

@@ -3,18 +3,6 @@
 @use './light';
 @use './dark';
 
-/* ==================================
-        ANGULAR MATERIAL M3 THEME
-   ==================================
-   Uses mat.theme with custom M3 palettes generated via
-   `ng generate @angular/material:m3-theme` (see _m3-palette.scss).
-
-   Theme type is `color-scheme` — Material uses CSS light-dark() to pick
-   the appropriate variant based on the computed `color-scheme` property.
-   The `.light-theme` / `.dark-theme` class toggle set by ThemeService
-   flips `color-scheme` below, which propagates through light-dark().
-   ================================== */
-
 html {
   color-scheme: light dark;
 

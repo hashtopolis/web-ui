@@ -1,13 +1,3 @@
-/* ==================================
-          SECTION FLOW
-   ==================================
-   Vertical-rhythm utility. Apply `.flow` to any container that should
-   stack its children with a uniform gap. Items keep margin: 0 so the
-   container's gap is the single source of vertical spacing.
-
-   Default gap is --space-sm (12px). Override per-instance with the
-   scale modifiers, or by setting --flow-gap locally. */
-
 .flow {
   --flow-gap: var(--space-sm);
   display: flex;

@@ -1,15 +1,3 @@
-/* ==================================
-          SECTION SNACKBAR
-   ==================================
-   Variant snackbars (.snackbar-error / -success / -info) recolor Material's
-   MDC snackbar by REBINDING its input tokens — --mat-snack-bar-container-color
-   and --mat-snack-bar-supporting-text-color — to a solid accent-tinted surface.
-   Mixing inline over --well (solid in both themes) keeps the container opaque
-   even though the global --*-bg tints are translucent washes for in-page use.
-   The accent border-left + accent message text carry the variant identity;
-   the Close button stays neutral so it doesn't blend into the wash.
-   ================================== */
-
 .snackbar-error,
 .snackbar-success,
 .snackbar-info {
@@ -23,12 +11,6 @@
     margin-left: 0;
   }
 
-  // Bind both the snackbar-action token AND the inner MDC button label token
-  // — Material doesn't auto-wire --mat-snack-bar-button-color through to the
-  // .mdc-button__label inside the action button, so the outer binding alone
-  // leaves the label at its MDC default (light/near-white). Light mode pays
-  // for that with invisible text on the tinted wash; dark mode just looked OK
-  // by accident.
   --mat-snack-bar-button-color: var(--foreground);
 
   .mat-mdc-snack-bar-actions button {

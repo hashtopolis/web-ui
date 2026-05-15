@@ -1,7 +1,3 @@
-/* Wrapper styles (w-9 h-9 rounded-md bg-primary-muted etc.) live on the
-   template as Tailwind utilities. This rule keeps the descendant combinator
-   for sizing + coloring the inner <mat-icon> — Tailwind has no clean way
-   to size a child mat-icon without per-instance classes. */
 .icon-box mat-icon {
   color: var(--primary);
   font-size: var(--text-xl);
@@ -9,9 +5,6 @@
   height: 18px;
 }
 
-/* 18px label maps to --text-xl; the 0.01em tracking is not on a Tailwind
-   utility scale, so the rule stays inline rather than splitting across
-   utility classes + a stub component-scope rule. */
 .metric-label {
   font-size: var(--text-xl);
   font-weight: 600;
@@ -19,8 +12,6 @@
   letter-spacing: 0.01em;
 }
 
-/* 32px / 36px / -0.02em headline metrics — between text-3xl (30px) and
-   text-4xl (36px) on Tailwind's named scale. */
 .metric-value {
   font-family: var(--font-heading);
   font-size: 32px;
@@ -49,16 +40,12 @@
   text-transform: uppercase;
 }
 
-/* Material override — Tailwind classes on a host can't pierce
-   mat-mdc-icon-button's default sizing. */
 .chart-controls .mat-mdc-icon-button {
   width: 32px;
   height: 32px;
   padding: var(--space-2xs);
 }
 
-/* 220px floor pairs with the inner heatmap canvas to prevent CLS while
-   data loads — between Tailwind's h-52 (208px) and h-56 (224px). */
 .chart-wrapper {
   position: relative;
   min-height: 220px;
@@ -73,9 +60,6 @@
   text-align: center;
 }
 
-/* Card footer for the Activity card. Mirrors the table-pagination footer
-   pattern (ht-table.component.html): subtle border-top separator, right
-   aligned, micro-typography in the muted token register. */
 .activity-card__footer {
   display: flex;
   justify-content: flex-end;

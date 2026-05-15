@@ -3,8 +3,3 @@
 :host {
   @apply fluid-component;
 }
-
-/* Material MDC overrides for <mat-checkbox> (.mdc-label / .mdc-checkbox__background
-   / invalid-state ring) live in styles/components/_input-check.scss — globally
-   scoped via the `input-check` element selector so they reach Material-rendered
-   descendants without ::ng-deep. */

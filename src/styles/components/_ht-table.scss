@@ -1,21 +1,3 @@
-/* ==================================
-        SECTION HT TABLE
-   ==================================
-   Filter-error variant — applied via `[class.filter-error]` on column-filter
-   form fields that don't go through Angular forms validation, so the regular
-   `.mat-form-field-invalid` hook isn't triggered. Only <ht-table> renders
-   this class, so no element-selector scoping is needed; `.filter-error` is
-   unique to this component.
-
-   Hosted globally because `.mdc-text-field--filled` is rendered by Material
-   inside <mat-form-field> and never receives Angular's `_ngcontent-*`
-   attribute. Replaces the prior `:host ::ng-deep` rule in
-   ht-table.component.scss (file now removed).
-
-   Paired with the component template in:
-     src/app/core/_components/tables/ht-table/ht-table.component.html
-   ================================== */
-
 .mat-mdc-form-field.filter-error .mdc-text-field--filled {
   border-color: var(--destructive);
   box-shadow: 0 0 0 2px var(--destructive-ring);

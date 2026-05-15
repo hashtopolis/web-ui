@@ -1,10 +1,3 @@
-/* ==================================
-          SECTION TABLES
-   ==================================
-   Token-driven table styling. Applied globally to the shared
-   HTTableComponent and all consuming table variants.
-   ================================== */
-
 @keyframes pulse {
   0% {
     opacity: 1;
@@ -17,7 +10,6 @@
   }
 }
 
-/* Table actions bar — the buttons/filter row above the table. */
 div.table-actions {
   display: flex;
   flex-wrap: wrap;
@@ -27,9 +19,6 @@ div.table-actions {
   margin-bottom: 10px;
   font-size: var(--text-md);
 
-  /* Match left-side action buttons to the .no-label-form-field height (36px)
-     used by the right-side column selector + filter input, so both sides
-     share the same baseline and visual weight. */
   .mat-mdc-button-base {
     --mat-button-text-container-height: 36px;
     --mat-button-outlined-container-height: 36px;
@@ -56,7 +45,6 @@ div.table-actions {
   align-items: center;
 }
 
-/* Bulk-action pill when a row is selected */
 .table-action-wrapper.has-selection,
 .table-action-wrapper .bulk-action-menu-active {
   background: var(--primary-muted);
@@ -65,9 +53,6 @@ div.table-actions {
   color: var(--primary);
 }
 
-/* Header row — secondary bg, uppercase small-caps. Doubled-class lifts the
-   background/min-height selectors to (0,2,0) so they win over Material's
-   equivalent rules at (0,1,0) without `!important`. */
 .mat-mdc-header-row.mat-mdc-header-row {
   background: var(--muted);
   min-height: 42px;
@@ -83,20 +68,10 @@ div.table-actions {
   }
 }
 
-// Zebra striping — keeps rows distinguishable even when --border is too subtle
-// to register on a given theme's canvas (common in dark themes). The mix
-// midpoint between bg and bg-secondary gives a subtle, design-aware tint.
 table.hashtopolis-table .mat-mdc-row:nth-of-type(even) {
   background-color: color-mix(in oklab, var(--muted), var(--background));
 }
 
-// The visual-graph hover card on the task-name cell escapes ABOVE the row;
-// every ancestor in the stack must allow vertical overflow or the card gets
-// clipped. Override alpine-snow's `.mat-mdc-table { overflow: hidden }` (used
-// there to clip rounded corners) for the hashtopolis-table specifically. The
-// surrounding mat-card and mat-card-content are opted-in inside app-table's
-// component styles (TableComponent.styles). Our selector is (0,2,1) vs
-// alpine-snow's (0,1,0) — wins by specificity, no `!important` needed.
 table.hashtopolis-table.mat-mdc-table {
   overflow: visible;
 }
@@ -183,13 +158,6 @@ table.hashtopolis-table {
         margin-left: 3px;
       }
 
-      // Clickable cells render as real links — blueish text, underlined,
-      // hover darkens. The previous "dotted bottom border" look was too
-      // subtle, especially on dense rows. Multi-link stacks still wrap via
-      // the ::after newline; we keep that for backwards compat.
-      // The enclosing nest gives us `table.hashtopolis-table .mat-mdc-cell
-      // .flex-container a` — specificity (0,3,2) — which already beats
-      // alpine-snow's `.light-theme a` (0,1,1) without `!important`.
       a,
       a.link {
         display: inline;
@@ -198,10 +166,6 @@ table.hashtopolis-table {
         text-underline-offset: 2px;
         transition: color var(--duration-fast) var(--easing-standard);
 
-        // The link label sits inside a <span class="link-label"> wrapper —
-        // some themes set explicit color on descendants and break the
-        // inheritance from the parent anchor, leaving the label in the
-        // default foreground color even when the anchor is blueish.
         .link-label,
         span {
           color: inherit;
@@ -225,49 +189,28 @@ table.hashtopolis-table {
         flex-direction: row;
       }
 
-      // Give the inner flex row the full cell width so children can flow with
-      // a defined edge. For .text the icon then flies to the right edge (see
-      // margin-left: auto rule below); for .links the icon hugs the link
-      // instead — the container width still matters for hover-tint coverage.
       &.icons.links,
       &.icons.text {
         width: 100%;
       }
 
-      // Trailing icon next to a link sits naturally adjacent to the label
-      // (small gap from .mat-icon's own margin-left), not pinned to the cell
-      // right edge — gluing a "cracked" check to its hashlist name reads as
-      // related, whereas a floating icon at the far edge reads as orphaned.
       &.icons.links > .mat-icon:last-child {
         margin-left: var(--space-2xs);
       }
 
-      // For render columns, only push the icon when render actually produced
-      // content. If the render output is empty (e.g. super-hashlists' CRACKED
-      // column shows only a check icon when fully cracked), the icon stays at
-      // its natural position — it's the cell's sole content.
       &.icons.text:not(:has(ht-table-default > div:empty)) > .mat-icon:last-child {
         margin-left: auto;
       }
 
-      // Stretch the link host so an icon embedded inside the <a> (faKey,
-      // faShield, etc.) can also align to the right edge.
       &.links app-ht-table-link {
         flex: 1 1 auto;
         min-width: 0;
       }
 
-      // …but when a trailing tableColumn.icon sits OUTSIDE the link (the
-      // column has both .links AND .icons), don't let the link grow — the
-      // status icon (e.g. cracked-check on tasks/hashlists) should hug the
-      // label, not float at the cell's right edge orphaned from it.
       &.icons.links app-ht-table-link {
         flex: 0 1 auto;
       }
 
-      // Editable cells host their own flex row inside .editable-container.
-      // Letting the host grow lets the trailing pencil pin to the cell's
-      // right edge regardless of the value length.
       ht-table-editable {
         display: block;
         flex: 1 1 auto;
@@ -279,28 +222,14 @@ table.hashtopolis-table {
       text-align: right;
     }
 
-    /* Inline editable cell — keep density compact.
-       Layout: the editable-container is a flex row that fills the cell so
-       the trailing pencil icon can lock to the cell's right edge regardless
-       of value length. The pencil fades in only when the cell is hovered,
-       per design feedback that an always-visible icon was too noisy.
-       Use a min-height to keep the cell from collapsing tighter than the
-       affordance asks for — gives the pencil somewhere to land. */
     .editable-container {
       display: flex;
       align-items: center;
       width: 100%;
       gap: var(--space-xs);
       min-height: 32px;
-      // Force the column to grow so there's daylight between the value and
-      // the trailing pencil — without this the column auto-sizes to the
-      // (numeric) value and the pencil hugs the digit awkwardly.
       min-width: 96px;
 
-      // Compact form-field — strip the M3 padding scaffolding so the input
-      // sits at the same height as the static value, avoiding a vertical
-      // shift the moment edit mode toggles. align-items: center on the
-      // form-field-flex makes the suffix buttons line up with the input.
       .mat-mdc-form-field {
         margin: 0;
         padding: 0;
@@ -329,12 +258,6 @@ table.hashtopolis-table {
         font-variant-numeric: tabular-nums;
       }
 
-      // Edit-mode suffix buttons (save check + cancel close) — square buttons
-      // at the input's height so the row reads as one tidy strip. Override
-      // the broader .flex-container 36×36 rule from above with higher
-      // specificity (this selector is two levels deeper) AND explicit values.
-      // margin-inline-start gives the check breathing room from the input's
-      // right-aligned value — without it the digit and the icon collide.
       .mat-mdc-form-field-icon-suffix {
         display: inline-flex;
         align-items: center;
@@ -366,9 +289,6 @@ table.hashtopolis-table {
             justify-content: center;
           }
 
-          // Material's MDC ripple/state layer leaks a 40px hit-target around
-          // the icon by default; pull it back so adjacent buttons don't
-          // visually crowd each other.
           .mat-mdc-button-persistent-ripple,
           .mat-mdc-button-ripple,
           .mat-mdc-focus-indicator {
@@ -377,9 +297,6 @@ table.hashtopolis-table {
         }
       }
 
-      // Idle-state value — reads as a link (blue, underlined). Sits in the
-      // flex row; for numeric cells text-align: right hugs the value toward
-      // the pencil so they're related but not glued.
       .editable-text {
         flex: 1 1 auto;
         min-width: 0;
@@ -390,10 +307,6 @@ table.hashtopolis-table {
         transition: color var(--duration-fast) var(--easing-standard);
       }
 
-      // Pencil locks to the cell's right edge via margin-left: auto, separated
-      // from the value by the parent gap. opacity 0 by default; fades in on
-      // cell hover (rule defined below at .mat-mdc-cell scope so cell-wide
-      // hover triggers it, not just hovering the icon itself).
       .editable-pencil {
         flex: 0 0 auto;
         margin-left: auto;
@@ -407,9 +320,6 @@ table.hashtopolis-table {
       }
     }
 
-    // Cell-wide hover trigger for the editable affordance: pencil fades in,
-    // value darkens. Placed at .mat-mdc-cell scope so hovering anywhere in
-    // the cell counts, not just over the text itself.
     &:hover {
       .editable-text {
         color: var(--link-hover);
@@ -421,12 +331,6 @@ table.hashtopolis-table {
   }
 }
 
-/* Editable cell click-target & hover surface.
-   The whole <td> is the click target (the (click) handler lives on
-   .editable-container in the template). :has() scopes the rule to
-   cells whose descendant is in idle (read-only) mode, so the hover
-   tint never competes with the active input. Tint appears only on
-   hover — matches the pencil icon, which also fades in on hover. */
 .mat-mdc-cell:has(.editable-container--idle) {
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--easing-standard);
@@ -436,52 +340,27 @@ table.hashtopolis-table {
   }
 }
 
-/* Numeric editable cells — pin the edit-mode form-field to the right edge
-   so the input lands roughly where the read-only value sat (which is
-   right-aligned via .cell-numeric). Without this, clicking the cell would
-   snap the input from the right edge to the left, an unsettling jump. */
 .mat-mdc-cell.cell-numeric .editable-container .mat-mdc-form-field {
   margin-left: auto;
 }
 
-/* Paginator — muted text + smaller font (background transparent comes from
-   --mat-paginator-container-background-color in _material.scss). */
 .mat-mdc-paginator {
   color: var(--subtle-foreground);
   font-size: var(--text-sm);
 }
 
-/* Cracked row accent — highlights successfully-cracked hash rows. The
-   success-bg token re-derives via color-mix when --success flips per theme,
-   so the same rule covers both light and dark.
-
-   Why the tint is applied at .mat-mdc-cell level (not just <tr>): the
-   row-level rule alone gets blotted out by two competing backgrounds —
-   .mat-mdc-row:hover (--card-hover) and the zebra-striping rule on even
-   rows. Painting each cell guarantees the green wins, because a cell's
-   own background renders ON TOP of its row's background. */
 .row-cracked {
-  /* Each cell paints its own --success-bg below, which always covers the row
-     background (cell backgrounds render on top of row backgrounds). The
-     row-level rule is a fallback for any non-cell area but doesn't need to
-     beat the hover/zebra rules — the cell-level paint guarantees the green
-     wins where it matters. */
   background-color: var(--success-bg);
 
   .mat-mdc-cell {
     background-color: var(--success-bg);
   }
 
-  /* Editable cell hover layered over green — blend the hover tint with
-     the cracked bg so the green stays readable underneath. */
   .mat-mdc-cell:has(.editable-container--idle):hover {
     background-color: color-mix(in oklch, var(--cell-hover) 50%, var(--success-bg));
   }
 }
 
-/* Numeric columns — right-aligned with tabular figures so place values stack
-   vertically. Opt-in per column via HTTableColumn.isNumeric, which sets
-   .cell-numeric on both the th and td. */
 .mat-mdc-cell.cell-numeric,
 .mat-mdc-header-cell.cell-numeric {
   text-align: right;
@@ -491,8 +370,6 @@ table.hashtopolis-table {
 .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: flex-end;
 
-  // In numeric cells, keep link content (number + trailing icon) grouped on
-  // the right edge rather than stretching the anchor across the cell.
   app-ht-table-link {
     flex: 0 0 auto;
   }

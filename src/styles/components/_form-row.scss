@@ -1,21 +1,3 @@
-/* ==================================
-        SECTION FORM ROW
-   ==================================
-   Cross-encapsulation rule for <app-form-row>'s `row-align-left` mode. The
-   input-check host applies `fluid-component` (display:block; width:100%),
-   which inside a wrapping flex container would push every checkbox onto its
-   own line. In a left-aligned form-row we want them content-sized so the
-   cluster stays horizontal.
-
-   Hosted globally with a context-class selector (matches the pattern used by
-   _dynamicform.scss) — globally-loaded SCSS has no encapsulation attribute,
-   so `app-form-row.row-align-left input-check` reaches the child component's
-   host without ::ng-deep.
-
-   Paired with structural styles in:
-     src/app/shared/grid-containers/form-row/form-row.component.scss
-   ================================== */
-
 app-form-row.row-align-left input-check {
   display: inline-flex;
   width: auto;

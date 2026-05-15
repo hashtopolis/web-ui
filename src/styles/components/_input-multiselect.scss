@@ -1,54 +1,17 @@
-/* ==================================
-        SECTION INPUT MULTISELECT
-   ==================================
-   Two concerns hosted globally for <input-multiselect>:
-
-   1. Material chip-grid internals (the remove button, the inline chip-input).
-      Rendered inside <mat-chip-grid>/<mat-chip-row>, which never receive
-      Angular's `_ngcontent-*` attribute. Scoped by the `input-multiselect`
-      element selector to keep them local to this component's subtree.
-
-   2. Overlay-rendered classes (.highlight-text, .multiselect-virtual-panel).
-      Material renders the autocomplete panel inside `cdk-overlay-container`
-      — a sibling of <body>, outside any component's DOM subtree — so
-      emulated encapsulation cannot scope them. They live here intentionally
-      as global rules, owned by this component.
-
-   Paired with structural styles in:
-     src/app/shared/input/multiselect/multiselect.component.scss
-   ================================== */
-
-/* ---------------------------------------------------------------------------
-   00- Chip-grid internals (component-subtree scope)
-   --------------------------------------------------------------------------- */
-
 input-multiselect .custom-chip-grid mat-chip-row button[matchipremove] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Breathing room between the last chip and the trailing search input.
-   Material's adjacent-sibling rule (.mat-mdc-chip-set + input.mat-mdc-chip-input)
-   zeroes both margins when the input directly follows the chip-grid, which is
-   exactly our markup. Doubling the class bumps specificity over Material's
-   selector without resorting to !important. */
 input-multiselect .custom-chip-grid input.mat-mdc-chip-input.mat-mdc-chip-input {
   margin-inline-start: var(--space-xs);
 }
-
-/* ---------------------------------------------------------------------------
-   01- Overlay-rendered autocomplete panel (intentionally global)
-   --------------------------------------------------------------------------- */
 
 .highlight-text {
   background-color: var(--highlight-bg);
 }
 
-/* Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport
-   handle scrolling instead of the mat-autocomplete overlay panel itself.
-   Doubled-class lifts specificity to (0,2,0) over Material's default
-   `.mat-mdc-autocomplete-panel` rules at (0,1,0). */
 .multiselect-virtual-panel.multiselect-virtual-panel {
   overflow: hidden;
   padding: 0;

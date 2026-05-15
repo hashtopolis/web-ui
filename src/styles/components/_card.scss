@@ -2,13 +2,6 @@
           SECTION CARDS
    ================================== */
 
-/* ---------------------------------------------------------------------------
-   00- Design-system mat-card tokens (applied globally)
-   These rebind Material's --mat-card-* tokens to design tokens so every
-   <mat-card> — regardless of appearance="outlined" / "elevated" / default —
-   renders with the refreshed look without per-instance overrides.
-   --------------------------------------------------------------------------- */
-
 .mat-mdc-card {
   --mat-card-elevated-container-color: var(--card);
   --mat-card-elevated-container-shape: var(--radius-md);
@@ -25,12 +18,6 @@
   cursor: pointer;
 }
 
-/* ---------------------------------------------------------------------------
-   00a- Design-system card variants (used across the dashboard + forms)
-   These rules live globally so consumers don't need ::ng-deep to reach
-   .mat-mdc-card-content. Keep them keyed off the variant class name only.
-   --------------------------------------------------------------------------- */
-
 .metric-card {
   transition:
     border-color var(--duration-fast) var(--easing-standard),
@@ -38,8 +25,6 @@
     transform var(--duration-fast) var(--easing-standard);
   min-height: 168px;
 
-  /* 20px / 18px paddings on card-content variants sit deliberately between
-     --space-md (16) and --space-lg (24); no token rung matches. */
   .mat-mdc-card-content {
     padding: 20px;
     display: flex;
@@ -78,11 +63,3 @@
 .form-section .mat-mdc-card-content {
   padding: 20px;
 }
-
-/* ---------------------------------------------------------------------------
-   01- Per-component partials lifted out of this file
-   - Legacy agent-status cards (.card-ag*, .gray-light-ico, .highlight) →
-     styles/components/_card-ag.scss
-   - .err-msg → src/app/shared/alert/error/error.component.scss (component-local)
-   - .smaller-pass-strength → styles/components/_pass-strength.scss
-   --------------------------------------------------------------------------- */

@@ -4,27 +4,15 @@
   display: block;
 }
 
-/* Base `.custom-form` wrapper — full-width host inside the dynamic form
-   builder. Moved from styles/components/_form.scss; only this component
-   renders the class. */
 .custom-form {
   width: 100%;
 }
 
-/* Render `isTitle`-delimited sections in two columns at md+ so paired
-   sections (e.g., "Activity / Registration" + "Graphical Feedback") sit
-   side-by-side when there's enough horizontal space. Single-column at
-   smaller widths. */
 .custom-form__sections {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
 
-  /* Two columns only when there are at least two sections — otherwise a
-     single section stops halfway across the container. `:has()` is supported
-     in every browser this app targets. Cards keep the default grid
-     `align-items: stretch` so paired sections share heights across every
-     config tab. */
   @media (min-width: 768px) {
     &:has(> :nth-child(2)) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -32,23 +20,10 @@
   }
 }
 
-/* Sub-card wrapper around each isTitle-delimited section. Visually groups
-   related fields under their heading and gives the form clear hierarchy.
-   18px / 20px padding sits between Tailwind's named spacing steps; kept
-   raw because lint:tokens rejects arbitrary [18px] / [20px] utilities. */
 .custom-form__section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-sm) 20px;
-  /* Top-align cells so stacked-label inputs (label above mat-form-field via
-     `.field-stack`) share a top edge across the row — labels line up, fields
-     line up beneath them. The previous `align-items: end` predated the shared
-     `input-*` components, when every cell was a single-line raw mat-form-field
-     or mat-checkbox and bottom-aligning kept controls flush. With taller
-     stacked-label inputs the same rule pinned shorter cells (e.g. a 28px
-     color swatch) to the row bottom, leaving an empty gap above the label.
-     Checkbox-only cells re-introduce bottom alignment via `align-self` below,
-     so a lone checkbox still sits at the labeled neighbour's field baseline. */
   align-items: start;
   background: var(--card);
   border: 1px solid var(--border-faint);
@@ -59,20 +34,11 @@
     grid-template-columns: 1fr;
   }
 
-  /* Sections with only one field (e.g. New Access Group, New Global
-     Permission Group) shouldn't render that field at half-width — collapse
-     to a single column when there's no second field div. The title h3 is
-     an `<h3>`, not a div, so title-then-one-field sections collapse too. */
   &:not(:has(> div + div)) {
     grid-template-columns: 1fr;
   }
 }
 
-/* Section title spans the full sub-card width regardless of inner column count.
-   Uppercase + 0.08em tracking already mark this as a label, so size sits at
-   12px (--text-sm) — a step below the per-card subtitle to keep clear hierarchy
-   between page subtitle / section label / field. Tracking is not on a Tailwind
-   utility scale so stays inline alongside the rest of the typography here. */
 .custom-form__section-title {
   font-family: var(--font-heading);
   font-size: var(--text-sm);
@@ -84,28 +50,13 @@
   grid-column: 1 / -1;
 }
 
-/* Opt-in via `fullWidth: true` on a MetadataFormField. The cell takes the
-   full row, so the next field starts on the following row's first column —
-   leaves visual whitespace to the right of narrow content like checkboxes. */
 .custom-form__cell--full {
   grid-column: 1 / -1;
 }
 
-/* Single-line label clamping and checkbox-layout rules for the dynamic form
-   live globally in src/styles/components/_dynamicform.scss — scoped via the
-   .custom-form__sections / .custom-form__checkbox context classes added by
-   this component's template. Other forms using the same input-* components
-   keep their natural wrapping because they don't add those classes. */
 .custom-form__checkbox-cell {
   min-width: 0;
-  /* Re-establish the grid cell as the containing block for an inline-flex
-     checkbox so it can never spill into the neighbouring column. */
   overflow: hidden;
-  /* The section grid top-aligns cells so labels on stacked-label inputs line
-     up. A bare checkbox has no separate label-above-field, so left top-aligned
-     it would sit beside the neighbouring input's *label* instead of its
-     *field*. Bottom-aligning just the checkbox cell drops it to the row's
-     baseline, level with the labeled neighbour's field. */
   align-self: end;
 }
 

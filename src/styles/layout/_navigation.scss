@@ -44,9 +44,6 @@ a:link {
   min-height: 300px;
 }
 
-/* Horizontal nav — modernized tab redesign.
-   Replaces the boxed mat-button-toggle look with a flat, underline-style
-   tab strip aligned to the design system tokens. */
 .horizontalnav {
   background: transparent;
   padding: 0;
@@ -62,8 +59,6 @@ a:link {
     gap: var(--space-2xs);
   }
 
-  /* 13px / 0.02em compact tab typography sits between Tailwind's named scale
-     steps; lint:tokens rejects arbitrary [13px] / [0.02em] utilities. */
   .mat-button-toggle {
     background: transparent;
     border: none;

@@ -1,8 +1,3 @@
-/* `--narrow` is the only call site for this BEM modifier of the cross-cutting
-   `.field-stack` (defined globally in styles/components/_form.scss). Lives here
-   so the wordlist-generator's compact filename / id field width is owned by
-   the component, not by the design-system stylesheet. */
-
 .field-stack--narrow {
-  width: 12.5rem; // 200px on the spacing scale; for compact filename / id fields
+  width: 12.5rem;
 }

@@ -1,9 +1,3 @@
-/* Error-dialog message body. Monospace + word-break so long stack traces
-   or server messages stay readable inside the dialog without horizontal
-   scroll. Moved out of styles/components/_card.scss now that the error
-   component owns a stylesheet; emulated encapsulation scopes the class to
-   this component's <p class="err-msg"> automatically. */
-
 .err-msg {
   background: var(--well);
   color: var(--foreground);

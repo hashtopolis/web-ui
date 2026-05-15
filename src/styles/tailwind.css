@@ -1,6 +1,3 @@
-/* Establish layer order so Tailwind utilities win over our base rules.
-   Required for forms that intentionally opt out of vertical stacking
-   via Tailwind utilities (e.g. flex-row, gap-2). */
 @layer theme, base, utilities;
 
 @import 'tailwindcss/theme.css' layer(theme);
@@ -17,9 +14,9 @@
    generated utilities — flipping .dark-theme / .light-theme re-cascades through. */
 @theme inline {
   /* Primitives — mono ramp.
-     ⚠️ Must stay synchronized with $mono in _m3-palette.scss. Tailwind v4
-     does not allow @for inside @theme, so this list is hand-maintained;
-     when adding a tone there, mirror it here. */
+   ⚠️ Must stay synchronized with $mono in _m3-palette.scss. Tailwind v4
+   does not allow @for inside @theme, so this list is hand-maintained;
+   when adding a tone there, mirror it here. */
   --color-mono-0: var(--mono-0);
   --color-mono-4: var(--mono-4);
   --color-mono-6: var(--mono-6);

@@ -1,16 +1,3 @@
-/* ==================================
-        SECTION LEGACY AGENT CARDS
-   ==================================
-   Agent-status card family used by <app-new-agent> and adjacent settings/
-   home templates. Lifted out of _card.scss so the cards partial can focus
-   on the design-system card variants (.metric-card, .activity-card, etc.)
-   and this legacy family lives in its own per-component partial.
-
-   Hosted globally because these classes are applied across multiple
-   consumer templates (new-tasks, acc-settings, home). Candidate for
-   eventual cleanup once those screens are reworked.
-   ================================== */
-
 .card-container-ag {
   width: 25%;
 }

@@ -7,16 +7,10 @@
   width: 100%;
 }
 
-/* Aligns the row's children to the bottom — used when pairing a checkbox
-   (which has no stacked label slot) with a labeled input control, so the
-   checkbox sits at the input's baseline instead of the input's label. */
 :host(.row-align-end) {
   align-items: end;
 }
 
-/* Clusters children at the inline-start at their natural content width
-   instead of stretching them across grid tracks. Used for rows of checkboxes
-   where the default 1fr grid would space them awkwardly far apart. */
 :host(.row-align-left) {
   display: flex;
   flex-wrap: wrap;
@@ -24,15 +18,6 @@
   gap: var(--space-lg);
 }
 
-/* The `app-form-row.row-align-left input-check` cross-encapsulation override
-   that makes child input-check hosts content-sized lives in
-   styles/components/_form-row.scss — globally scoped via the context class so
-   it can reach the child component's host without ::ng-deep. */
-
-/* Auto-fill mode: when no [columns] is passed, distribute children evenly
-/* Auto-fill mode: when no [columns] is passed, distribute children evenly
-   across the row and stretch them to a shared height. The :not(.row-align-end)
-   guard keeps an explicit row-align-end class winning over the stretch default. */
 :host(.row-fill) {
   grid-template-columns: none;
   grid-auto-flow: column;

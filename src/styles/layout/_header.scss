@@ -1,35 +1,7 @@
-/* ==================================
-          SECTION HEADER
-   ==================================
-   App top bar. Built on <mat-toolbar> + design-system tokens.
-   Active menu state is driven by the `.active` class that <action-menu>
-   toggles on the inner mat-button when the current route matches.
-
-   Geometry/structure lives here and is theme-agnostic; all color comes
-   through semantic tokens (--header, --surface-soft, --primary-muted,
-   --border-faint, --heading-foreground, ...) so light and dark themes
-   share the exact same shape and spacing, differing only in color.
-   ================================== */
-
-/* The Angular host element <app-header> is inline by default; making it
-   block-level ensures the inner <mat-toolbar> can stick to the viewport top
-   instead of being collapsed inline-flow. */
 app-header {
   display: block;
 }
 
-/* Translucent canvas + backdrop blur for a frosted-glass effect under scroll.
-   The surface color is sourced from var(--header) — a re-targetable semantic
-   token that defaults to var(--muted) but designs may flip to a translucent
-   value (alpine-snow uses rgba(255, 255, 255, 0.6)). The Material toolbar
-   token is rebound to the same value because Material's component CSS —
-   injected after our global styles and using only single-class specificity —
-   would otherwise repaint the element opaque through that token.
-
-   Selector uses `mat-toolbar.app-header` to outrank Material's
-   `.mat-toolbar-single-row` rule (also single-class), which Material adds when
-   the toolbar has no `<mat-toolbar-row>` children and which would otherwise
-   reintroduce `padding: 0 16px` and `height: var(--mat-toolbar-standard-height)`. */
 mat-toolbar.app-header {
   --mat-toolbar-container-background-color: var(--header);
   position: sticky;
@@ -41,22 +13,12 @@ mat-toolbar.app-header {
   height: 64px;
   padding: 0;
   background: var(--header);
-  // Backdrop-filter must be last so it isn't clobbered by Material's `.mat-toolbar`
-  // rule when specificity ties; the prefixed pair keeps Safari/older WebKit happy.
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: var(--heading-foreground);
   border-bottom: 1px solid var(--border-faint);
 }
 
-/* Inner row holds all toolbar content. A 3-column grid (1fr | auto | 1fr) puts
-   the nav pill in the geometric center of the viewport regardless of brand
-   width on the left or user-cluster width on the right — flex with auto
-   margins would only center the nav in the *leftover* space, biasing it
-   toward whichever side has the lighter neighbour. In fixed-width-layout it's
-   constrained to the same max-width as the page wrapper so the brand/nav/icons
-   line up with the page content's left/right edges. Background stays
-   transparent so content scrolling under the sticky header is blurred end-to-end. */
 .app-header__inner {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -74,10 +36,6 @@ body.fixed-width-layout .app-header__inner {
   padding: 0;
 }
 
-/* Dark mode flips the logo to the red devedis variant (see header.component.html),
-   which would otherwise sit on the near-black translucent header surface. The
-   --brand-backdrop token resolves to opaque white in dark mode (giving the red
-   mark a contrast pill) and to transparent in light mode (no pill needed). */
 .app-header__brand {
   display: inline-flex;
   align-items: center;
@@ -106,9 +64,6 @@ body.fixed-width-layout .app-header__inner {
   max-height: 36px;
 }
 
-/* The configured brand name is currently empty, but the span still
-   participates in flex layout (and its `gap`), pushing the click target out
-   of square. Collapse it when empty so the brand link stays a clean square. */
 .app-header__brand-name {
   font-family: var(--font-heading);
   font-weight: 500;
@@ -121,9 +76,6 @@ body.fixed-width-layout .app-header__inner {
   }
 }
 
-/* Centered nav pill — a soft well with a hairline border. Sits in grid
-   column 2 (auto-sized) so it lands in the true viewport center between the
-   1fr tracks on either side. */
 .app-header__nav {
   display: flex;
   align-items: center;
@@ -142,9 +94,6 @@ body.fixed-width-layout .app-header__inner {
   }
 }
 
-/* Right-aligned user cluster: Help/Contact, user/admin menu and the theme
-   toggle. Sits in grid column 3, right-aligned. Stays outside
-   `.app-header__nav` so it doesn't share the nav pill's background or border. */
 .app-header__user {
   display: flex;
   align-items: center;
@@ -181,8 +130,6 @@ body.fixed-width-layout .app-header__inner {
   }
 }
 
-/* Menu buttons inside <action-menu> — rebind Material's button tokens per-state.
-   The sizing (28px / 12px font) matches the centered nav-pill density. */
 .app-header .mat-mdc-button {
   --mat-button-text-label-text-color: var(--foreground);
   --mat-button-text-state-layer-color: var(--surface-soft);

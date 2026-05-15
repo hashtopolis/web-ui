@@ -1,31 +1,5 @@
 @reference './tailwind.css';
 
-/* ==================================
-          SECTION FORMS
-   ==================================
-
-   This file owns ONLY:
-   - Material form-field re-skin (sections 00–01) — global by necessity
-     because the selectors target MDC internals via ViewEncapsulation.None.
-   - Cross-cutting form patterns (`.field-stack` family, `.input--readonly`,
-     `.form-layout`) — true design-system primitives used across 9+ components.
-   - The native `<input type="number">` spinner reset.
-
-   Single-component styles (login, password-strength, .form-field, the chip
-   grid, multiselect overlay panel, .custom-form, etc.) now live in their
-   respective component .scss files or per-component partials in this
-   directory (_input-multiselect.scss for the autocomplete overlay, etc.). */
-
-/* ---------------------------------------------------------------------------
-   00- Filled form field: bordered-box look (app-wide default)
-   Overrides Material's default filled pillow to match the refreshed
-   design-system look — 1px border, token colors, accent focus ring, no line.
-   --------------------------------------------------------------------------- */
-
-/* Container background + disabled background are driven by the M3 tokens
-   `--mat-form-field-filled-container-color` / `-disabled-container-color`
-   set in _material.scss. The wrapper border below is a design-system
-   addition on top of MDC's default line-ripple variant. */
 .mat-mdc-form-field .mdc-text-field--filled {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -43,10 +17,6 @@
   box-shadow: 0 0 0 2px var(--primary-muted);
 }
 
-/* Kill Material's bottom line-ripple and hover focus overlay — we render
-   a full border above instead. The `--mat-form-field-filled-*-active-indicator-height`
-   tokens only cover the rest + focus states, so M3 still renders the ripple
-   in hover/disabled. `display: none` on the element catches every state. */
 .mat-mdc-form-field .mdc-line-ripple {
   display: none;
 }
@@ -59,14 +29,6 @@
   border-color: var(--border-faint);
 }
 
-/* ---------------------------------------------------------------------------
-   01- Invalid / validation state
-   --------------------------------------------------------------------------- */
-
-/* Invalid-state selectors are (0,3,1) — `mat-form-field` + two classes + the
-   nested element class. That already beats Material's own invalid-state rules
-   (which use (0,2,1) at most for the equivalent MDC selectors), so no
-   `!important` is needed. */
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-text-field--filled {
   border-color: var(--destructive);
 }
@@ -85,17 +47,6 @@ mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label
   color: var(--destructive);
 }
 
-/* ---------------------------------------------------------------------------
-   02- Shared form layout helpers
-   --------------------------------------------------------------------------- */
-
-/* Vertical-flex form region. The global `form` rule in tailwind.css gives
-   <form> the flex layout for free; `.form-layout` is the equivalent utility
-   for inner regions (mat-card-content, expansion panels) where the form's
-   flex doesn't reach through Material's intermediate containers.
-   Custom input components own their own width via `:host { @apply
-   fluid-component }` (see tailwind.css), so the only thing left to do here
-   is stretch any bare <mat-form-field> instances to fill the column. */
 .form-layout {
   display: flex;
   flex-direction: column;
@@ -115,25 +66,6 @@ app-form-row {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* ---------------------------------------------------------------------------
-   03- Label-less compact form field
-   The compact rules live in _material.scss under a combined selector that
-   matches both `.mat-mdc-form-field:not(:has(mat-label))` (auto-apply) and
-   `.no-label-form-field.mat-mdc-form-field` (explicit opt-in for fields
-   that *do* render a <mat-label> but want compact density anyway).
-   --------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------
-   04- Stacked label form field
-   Renders the label statically *above* the form field instead of using
-   Material's floating-label animation. Pair `field-stack` on the wrapper
-   with `field-stack__field` on the inner <mat-form-field> (so the label
-   slot collapses and the input keeps a comfortable height).
-
-   This is a cross-cutting pattern used by 13 components (every input-*
-   variant + ad-hoc forms), so it stays global.
-   --------------------------------------------------------------------------- */
 
 .field-stack {
   display: block;
@@ -189,48 +121,16 @@ app-form-row {
   }
 }
 
-/* Components without their own per-component `:host` block still need to be
-   block-level so they participate properly in form layouts. The custom
-   input-* components apply this themselves via the `fluid-component`
-   utility (see tailwind.css); only `input-check` and raw `<mat-form-field>`
-   rely on this rule. */
 input-check,
 mat-form-field {
   display: block;
 }
 
-/* ---------------------------------------------------------------------------
-   05- Multiselect overlay-rendered classes
-   The `.highlight-text` + `.multiselect-virtual-panel` rules moved to
-   styles/components/_input-multiselect.scss, where they now live alongside
-   the chip-grid internals as a single per-component partial.
-   --------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------
-   06- Read-only input variant
-   Applied via `[class.input--readonly]="readonly"` on the wrapper of every
-   input-* component. Replaces the legacy `simulate-form-field*` display
-   shells: same input markup, just non-interactive.
-
-   Semantically distinct from `disabled`:
-     - disabled  → form participant the user can't touch (opacity 0.5, no
-                   cursor, no focus, value not submitted)
-     - readonly  → display of a value the user can read/select/copy (full
-                   opacity, focusable for selection, no edit affordance)
-
-   Theme-agnostic geometry only — colour comes from tokens (--well,
-   --border-faint, --foreground) so light/dark share spacing/radius. */
-
 .input--readonly {
-  // Drop the required-marker color shift since the field is non-editable.
   .field-stack__required {
     display: none;
   }
 
-  // Re-skin the mat-form-field so it reads as "informational" rather than
-  // "editable but locked". MDC keeps its disabled selector active for the
-  // mat-select / mat-checkbox cases (where we set [disabled]="readonly"),
-  // so override that too.
   .mat-mdc-form-field .mdc-text-field--filled,
   .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--disabled {
     background-color: var(--well);
@@ -238,8 +138,6 @@ mat-form-field {
     box-shadow: none;
   }
 
-  // Full opacity for the visible value (override Material's disabled fade
-  // when readonly was implemented via [disabled] on selects / chips).
   .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-form-field-input-control,
   .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-input-element,
   .mat-mdc-select-disabled .mat-mdc-select-value,
@@ -248,14 +146,10 @@ mat-form-field {
     opacity: 1;
   }
 
-  // The chip set still shows the locked cursor; readonly chips are pure
-  // display, so let the OS show the default arrow.
   .mat-mdc-chip-set-disabled .mat-mdc-chip {
     cursor: default;
   }
 
-  // Mat-checkbox in readonly mode: full opacity, default cursor (not
-  // not-allowed), keep the label legible.
   mat-checkbox.mat-mdc-checkbox-disabled {
     opacity: 1;
     cursor: default;
@@ -265,7 +159,6 @@ mat-form-field {
     }
   }
 
-  // Linked labels keep the standard link styling.
   .field-stack__label a {
     color: var(--primary);
     text-decoration: none;
@@ -275,13 +168,6 @@ mat-form-field {
     }
   }
 }
-
-/* ---------------------------------------------------------------------------
-   07- Hide native number-input spinners
-   The browser-default up/down chevrons clash with our custom inputs and
-   feel out of place inside a Material form field. Numbers are entered via
-   keyboard or paste; our domain doesn't need spinner controls.
-   --------------------------------------------------------------------------- */
 
 input[type='number'] {
   -moz-appearance: textfield;

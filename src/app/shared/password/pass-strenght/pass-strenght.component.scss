@@ -1,9 +1,3 @@
-/* Password-strength indicator bars + label. Owned solely by this component;
-   moved out of styles/components/_form.scss when the component got its own
-   stylesheet. The bar colors are driven by inline style bindings from the
-   component (calculatePasswordScore → strength.color), so only geometry and
-   transitions live here. */
-
 .password-strength-container {
   margin-top: var(--space-xs);
 }

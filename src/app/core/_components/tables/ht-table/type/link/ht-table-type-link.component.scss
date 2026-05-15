@@ -1,8 +1,3 @@
-/* Hover-graph-preview tooltip — dense in-table UI. Typography uses the
-   compact end of the type scale (--text-xs / --text-sm). Tight 6px / 10px
-   spacing sits between named space-* steps and stays inline; the wrapper
-   width, z-index and calc() bottom anchor likewise can't be expressed
-   cleanly via Tailwind utilities. */
 :host {
   overflow: visible;
 }
@@ -13,10 +8,6 @@
   overflow: visible;
 }
 
-// When a link wraps a trailing fa-icon (faKey for secret hashlists/files,
-// faShield for trusted agents), stretch the anchor and grow the label so the
-// icon sits at the cell's right edge — aligns icons across rows regardless of
-// label length.
 a.link:has(fa-icon) {
   display: inline-flex;
   align-items: center;
@@ -31,17 +22,11 @@ a.link:has(fa-icon) {
     margin-left: auto;
   }
 
-  // The global `.flex-container a::after` rule injects a `\a` newline to stack
-  // multiple links — irrelevant once this anchor is its own flex container.
   &::after {
     content: none;
   }
 }
 
-// Floating hover-card — uses the dedicated --popover surface so it stays
-// fully opaque and lifts off the table beneath. --card is translucent on
-// dark themes and blends into the row underneath; --popover is calibrated
-// to sit cleanly above arbitrary content.
 .graph-preview {
   position: absolute;
   left: 50%;
@@ -145,14 +130,11 @@ a.link:has(fa-icon) {
   border-color: var(--border-strong);
 }
 
-// Pure --warning (#facc15) is too vivid against the opaque popover — soften
-// to a desaturated amber so it reads as "in-progress" without shouting.
 .legend-color.no-crack {
   background: var(--warning-soft);
   border-color: color-mix(in oklch, var(--warning), black 18%);
 }
 
-// Solid fill is more legible at 10px than an outline-only swatch.
 .legend-color.error {
   background: var(--status-error);
   border-color: color-mix(in oklch, var(--status-error), black 12%);

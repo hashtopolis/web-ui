@@ -2,8 +2,6 @@
           SECTION ANIMATIONS
    ================================== */
 
-/* Brief brightness pulse used by data tables and cards when the underlying
-   data refreshes — toggled via [class.refreshflash] on the host element. */
 .refreshflash {
   animation: flashAnimation 0.1s ease-in-out;
 }

@@ -1,12 +1,3 @@
-/* ==================================
-          DARK THEME COLOR TOKENS
-   ==================================
-   Per-theme CSS variable overrides applied when ThemeService toggles
-   .dark-theme on <body>. Pairs with light.scss; theme-agnostic tokens
-   (geometry, motion, typography bindings, semantic baselines) live in
-   base/_tokens.scss on :root.
-   ================================== */
-
 .dark-theme {
   --background: #0f0f0f;
   --muted: #1c1c1c;
@@ -38,10 +29,6 @@
 
   --cell-hover: rgba(255, 255, 255, 0.14);
 
-  // Semantic colors — explicit in .dark-theme so any design that scopes
-  // overrides under .light-theme has a parallel dark anchor to override
-  // (instead of leaking light values into dark via the :root fallback).
-  // Mirrors the dark baseline declared on :root.
   --success: #4ade80;
   --warning: #facc15;
   --destructive: #f87171;
@@ -49,29 +36,14 @@
   --link: #60a5fa;
   --link-hover: #93c5fd;
 
-  // Tinted surfaces — layered over --well (a solid surface) instead of
-  // transparent, so snackbars, .row-cracked rows, destructive button hovers
-  // and info callouts read as solid cards on the #0f0f0f page rather than
-  // disappearing into a near-zero-alpha wash. Light mode keeps the :root
-  // transparent-mix because tints over the snow canvas already read well.
   --success-bg: color-mix(in oklch, var(--success) 22%, var(--well));
   --destructive-bg: color-mix(in oklch, var(--destructive) 18%, var(--well));
   --info-bg: color-mix(in oklch, var(--info) 18%, var(--well));
 
-  // Translucent dark canvas paired with the sticky header's backdrop-filter
-  // blur — mirrors alpine-snow's frosted-glass treatment so light/dark share
-  // the same header shape, not just colors.
   --header: rgba(15, 15, 15, 0.6);
 
-  // Subtle white gradient hairline so cards/dialogs/tables/menus render the
-  // dual-image shell frame in dark too; without this, the outer layer of
-  // `linear-gradient(var(--card), var(--card)), var(--shell-frame-image)`
-  // collapses to `none` and dark surfaces lose their visible edge.
   --shell-frame-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
 
-  /* Opaque white pill behind the red devedis logo so the brand mark stays
-     readable on the dark translucent header. Light mode uses `transparent`
-     because the logo is dark on a light header (no pill needed). */
   --brand-backdrop: #ffffff;
 
   --shadow-sm: none;

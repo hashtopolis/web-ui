@@ -1,12 +1,3 @@
-/* ==================================
-          SECTION BUTTONS
-   ==================================
-   Token bindings live in _material.scss. This file holds only the
-   button rules that aren't expressible as token reassignments —
-   hover transitions, the filled-tonal variant (no equivalent block
-   in _material.scss), and the .btn-submit component variants.
-   ================================== */
-
 .mat-mdc-outlined-button:hover:not(:disabled) {
   --mat-button-outlined-outline-color: var(--primary);
   color: var(--primary);
@@ -27,20 +18,8 @@
   }
 }
 
-/* ==================================
-  01- button-submit variants
-  ==================================
-   The `<button-submit>` component renders one of these based on `type`:
-     - default          → .btn-submit.btn-submit--primary  (filled)
-     - type="cancel"    → .btn-submit                       (outlined)
-     - type="delete"    → .btn-submit.btn-submit--danger    (outlined, danger)
-*/
-
 .btn-submit {
   min-width: 96px;
-  /* Lock both variants (filled "Create" and outlined "Cancel") to the same
-     visible height. Without this, the outlined variant rendered ~2px
-     shorter in form action rows because it has no elevation. */
   min-height: 40px;
   height: 40px;
   line-height: 40px;

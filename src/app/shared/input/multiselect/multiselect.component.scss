@@ -4,15 +4,7 @@
   @apply fluid-component;
 }
 
-/* Wraps the chips + the inline search input. Rendered in this component's
-   template, so emulated encapsulation works for this rule without piercing. */
 .custom-chip-grid {
   width: 100%;
   min-width: 0;
 }
-
-/* Material MDC overrides for chip-row internals + the overlay-rendered
-   autocomplete panel (.highlight-text, .multiselect-virtual-panel) live in
-   styles/components/_input-multiselect.scss — globally scoped because the
-   panel renders inside `cdk-overlay-container`, outside this component's
-   DOM subtree. */

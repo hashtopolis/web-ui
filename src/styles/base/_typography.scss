@@ -4,12 +4,6 @@
 
 @reference './tailwind.css';
 
-/* Heading base sizes — Tailwind v4 Preflight strips browser defaults, so we
-   re-establish a sensible scale aligned with Tailwind's text-* tokens. Lives
-   in @layer base so Tailwind utility classes (text-xl, text-2xl, …) win.
-   Headings use --font-heading (Space Grotesk on alpine-snow, default body
-   stack elsewhere) and the heading-foreground color, both of which retarget
-   per design. */
 @layer base {
   h1,
   h2,
@@ -38,9 +32,6 @@
   }
 }
 
-/* Headings inside design-system containers do not own vertical spacing —
-   the container's `gap` does. Resetting margin: 0 here keeps the rhythm
-   uniform without touching legacy pages (`.highlight-box`, dashboards). */
 .flow,
 .page,
 .page__content,
@@ -56,11 +47,3 @@ form,
     margin: 0;
   }
 }
-
-/* Status-text utility classes previously lived here. Now removed:
-   - `.text-gray-900` was unused.
-   - `.text-warning` is canonical in src/styles/base/_base.scss alongside the
-     other status text classes (.text-ok, .text-critical, …).
-   - `.text-success` is shadowed by the Tailwind utility generated from
-     `--color-success` via tailwind.css's `@theme inline` bridge, which
-     resolves to the same `var(--success)` token. */

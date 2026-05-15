@@ -1,30 +1,5 @@
 @reference './tailwind.css';
 
-// =============================================================================
-// SECTION DESIGN SYSTEM
-// =============================================================================
-// Shared structure + token-driven color for the app's component layer. Lives
-// at global scope so BOTH `.light-theme` and `.dark-theme` get identical
-// geometry; color comes from semantic tokens (--primary, --card, --foreground,
-// --shell-frame-image, --shadow-*, …) that flip per theme via base/_tokens.scss
-// and the design-specific token files.
-//
-// Rules in this file must contain only:
-//   - Structural properties (padding, margin, gap, border-radius, font-*,
-//     letter-spacing, line-height, display, position, …)
-//   - Color declarations using design tokens (var(--token)) — token values
-//     are per-theme, so appearance auto-adjusts.
-//
-// Rules with hardcoded color values that don't read across both themes belong
-// in a design-specific partial (today: designs/alpine-snow/_components.scss
-// under `.light-theme`).
-// =============================================================================
-
-// -----------------------------------------------------------------------------
-// Buttons — raised / unelevated / FAB get tokenized shadow and weight.
-// _material.scss already binds --mat-button-protected-* / --mat-button-filled-*
-// to var(--primary); this block adds shape, font weight and the focus ring.
-// -----------------------------------------------------------------------------
 .mat-mdc-raised-button,
 .mat-mdc-fab,
 .mat-mdc-mini-fab {
@@ -65,9 +40,6 @@
   }
 }
 
-// Outlined / secondary — translucent fill with hairline border, no shadow.
-// Label color stays at body weight (var(--foreground)) to soften secondary
-// actions against primary.
 .mat-mdc-outlined-button {
   --mat-button-outlined-label-text-color: var(--foreground);
   background-color: var(--surface-soft);
@@ -83,7 +55,6 @@
   }
 }
 
-// Text button — plain primary-tinted text with subtle hover.
 .mat-mdc-button {
   --mat-button-text-label-text-color: var(--foreground);
   border-radius: var(--radius-md);
@@ -94,7 +65,6 @@
   }
 }
 
-// Icon buttons — match muted-secondary text, hover lifts into heading ink.
 .mat-mdc-icon-button {
   color: var(--muted-foreground);
 
@@ -104,12 +74,6 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Signature shell — 1px-padded wrapper with --shell-frame-image as its gradient
-// frame. Designs paint a gradient into --shell-frame-image (alpine-snow does);
-// base sets it to `none` for the monochrome dark mode, so the shell collapses
-// to a plain rounded panel there.
-// -----------------------------------------------------------------------------
 .alpine-shell {
   padding: 1px;
   border-radius: var(--radius-lg);
@@ -121,11 +85,6 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Cards — apply the shell pattern. The dual-image trick paints the inner panel
-// via a solid gradient layer and the outer frame via --shell-frame-image.
-// background-clip: padding-box, border-box keeps each layer in its own ring.
-// -----------------------------------------------------------------------------
 .mat-mdc-card {
   --mat-card-elevated-container-color: var(--card);
   --mat-card-elevated-container-shape: 7px;
@@ -149,9 +108,6 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Dialogs — same gradient-hairline shell as cards.
-// -----------------------------------------------------------------------------
 .mat-mdc-dialog-container {
   --mat-dialog-container-color: var(--popover);
   --mat-dialog-subhead-color: var(--heading-foreground);
@@ -159,20 +115,12 @@
   --mat-dialog-container-shape: 8px;
 
   border: 1px solid transparent;
-  /* --popover (not --card): dialogs overlay arbitrary content above a dim
-     backdrop, so they need the solid floating-surface token — --card is
-     intentionally translucent in dark mode and would let the backdrop
-     bleed through. */
   background-image: linear-gradient(var(--popover), var(--popover)), var(--shell-frame-image);
   background-origin: border-box;
   background-clip: padding-box, border-box;
   box-shadow: var(--shadow-lg);
 }
 
-// -----------------------------------------------------------------------------
-// Form fields — translucent interior, hairline border, small radius.
-// Focused state shows a primary ring via the --ring token.
-// -----------------------------------------------------------------------------
 .mat-mdc-form-field {
   --mat-form-field-filled-container-color: var(--input);
   --mat-form-field-filled-container-shape: 3px;
@@ -222,9 +170,6 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Select / Menu / Autocomplete panels — gradient-hairline shell.
-// -----------------------------------------------------------------------------
 .mat-mdc-select-panel,
 .mat-mdc-menu-panel,
 .mat-mdc-autocomplete-panel {
@@ -259,9 +204,6 @@
   color: var(--muted-foreground);
 }
 
-// -----------------------------------------------------------------------------
-// Tables — gradient-hairline outer shell, tinted header row, zebra body rows.
-// -----------------------------------------------------------------------------
 .mat-mdc-table {
   --mat-table-background-color: var(--card);
   --mat-table-header-headline-color: var(--subtle-foreground);
@@ -310,11 +252,6 @@
   color: var(--foreground);
 }
 
-// -----------------------------------------------------------------------------
-// Chips — two flavors:
-//   * Status pill (default mat-mdc-chip): radius-md, translucent primary fill.
-//   * Tag chip (.tag-chip): radius-xs, ultra-tight padding for table cells.
-// -----------------------------------------------------------------------------
 .mat-mdc-chip,
 .mat-mdc-standard-chip {
   --mat-chip-container-shape: 6px;
@@ -330,8 +267,6 @@
   font-weight: 500;
   letter-spacing: 0.02em;
 
-  // Breathing room between the chip text and the trailing remove-X button.
-  // MDC's default ~8px is tight once the X is in play.
   .mdc-evolution-chip__text-label {
     padding-inline-end: var(--space-xs);
   }
@@ -357,9 +292,6 @@
   line-height: 14px;
 }
 
-// -----------------------------------------------------------------------------
-// Tabs — primary underline, primary active label.
-// -----------------------------------------------------------------------------
 .mat-mdc-tab-group,
 .mat-mdc-tab-nav-bar {
   --mat-tab-active-indicator-color: var(--primary);
@@ -372,9 +304,6 @@
   --mat-tab-label-text-weight: 500;
 }
 
-// -----------------------------------------------------------------------------
-// Progress indicators
-// -----------------------------------------------------------------------------
 .mat-mdc-progress-bar {
   --mat-progress-bar-active-indicator-color: var(--primary);
   --mat-progress-bar-track-color: var(--border);
@@ -385,19 +314,12 @@
   --mat-progress-spinner-active-indicator-color: var(--primary);
 }
 
-// -----------------------------------------------------------------------------
-// Toolbar — used by the in-app toolbar component. Geometry is theme-agnostic;
-// the app-header's translucent strip is produced via the --header token.
-// -----------------------------------------------------------------------------
 .mat-toolbar,
 .mat-mdc-toolbar {
   background-color: transparent;
   color: var(--foreground);
 }
 
-// -----------------------------------------------------------------------------
-// Links — primary text, underline on hover.
-// -----------------------------------------------------------------------------
 a {
   color: var(--primary);
   text-decoration: none;
@@ -410,17 +332,11 @@ a {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Text selection
-// -----------------------------------------------------------------------------
 ::selection {
   background-color: var(--primary);
   color: var(--primary-foreground);
 }
 
-// -----------------------------------------------------------------------------
-// Scrollbars — subtle hairline thumb on transparent track.
-// -----------------------------------------------------------------------------
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -440,20 +356,11 @@ a {
   border: 2px solid transparent;
 }
 
-// -----------------------------------------------------------------------------
-// Focus ring — 2px primary outline on non-Material interactive elements.
-// Material components (buttons, form fields) ship their own focus treatment
-// above; this catches everything else.
-// -----------------------------------------------------------------------------
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-// -----------------------------------------------------------------------------
-// Snackbar / Tooltip — design-system shape; color comes from --tooltip-* /
-// --snackbar-* tokens (wired through _material.scss).
-// -----------------------------------------------------------------------------
 .mat-mdc-snack-bar-container {
   --mat-snack-bar-button-color: var(--snackbar-foreground);
   border-radius: var(--radius-md);
@@ -465,9 +372,6 @@ a {
   letter-spacing: 0.02em;
 }
 
-// -----------------------------------------------------------------------------
-// Paginator
-// -----------------------------------------------------------------------------
 .mat-mdc-paginator {
   --mat-paginator-container-background-color: transparent;
   --mat-paginator-container-text-color: var(--muted-foreground);
@@ -477,9 +381,6 @@ a {
   font-size: var(--text-xs);
 }
 
-// -----------------------------------------------------------------------------
-// Page title block — spacing only.
-// -----------------------------------------------------------------------------
 .page__header {
   gap: 6px;
   margin-bottom: var(--space-xs);

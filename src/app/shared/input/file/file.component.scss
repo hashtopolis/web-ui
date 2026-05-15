@@ -4,10 +4,6 @@
   @apply fluid-component;
 }
 
-/* 13px body maps to --text-md; the 1.4 line-height stays inline. The
-   BEM `--invalid` / `--empty` modifier descendant selectors don't have
-   a clean Tailwind equivalent — Tailwind would need ngClass juggling per
-   state. Keep the BEM rules here so the cascade stays clear at one site. */
 .file-input__info {
   font-size: var(--text-md);
   line-height: 1.4;

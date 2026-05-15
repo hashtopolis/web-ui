@@ -13,9 +13,6 @@
   .mat-mdc-card-content {
     padding-top: var(--space-xs);
 
-    /* 6px nudge baseline-aligns inline mat-icons with surrounding text;
-       off-scale (between Tailwind's top-1 = 4 and top-1.5 = 6 — actually
-       matches top-1.5, but lives in a Material descendant selector). */
     .mat-icon {
       position: relative;
       top: 6px;
