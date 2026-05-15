@@ -8,6 +8,7 @@ import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet
 import { FixedAlertComponent } from '@src/app/shared/alert/fixed-alert/fixed-alert.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
+import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
 import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
@@ -56,7 +57,8 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     GraphsModule,
     TableModule,
     InputModule,
-    GridModule
+    GridModule,
+    DividerModule
   ],
   exports: [
     WordlistGeneratorComponent,
@@ -81,7 +83,8 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     CommonModule,
     InputModule,
     TableModule,
-    GridModule
+    GridModule,
+    DividerModule
   ]
 })
 export class ComponentsModule {}

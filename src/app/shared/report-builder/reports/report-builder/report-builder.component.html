@@ -4,7 +4,7 @@
       @if (reportForm) {
         <form [formGroup]="reportForm">
           <div class="flex flex-col gap-3">
-            <hr />
+            <app-divider />
             <input-check title="Cover Page" formControlName="cover_page"></input-check>
             <input-check title="Letter Head" formControlName="cover_page_letter_head"></input-check>
             <div class="flex flex-col gap-3">
@@ -26,9 +26,9 @@
               <input-text title="Info footer 2" formControlName="info_cover_footer_2"></input-text>
               <input-text title="Info footer 3" formControlName="info_cover_footer_3"></input-text>
             </div>
-            <hr />
+            <app-divider />
             <input-text title="Header text" formControlName="info_header_text"></input-text>
-            <hr />
+            <app-divider />
             <input-text title="Owner Password" formControlName="ownerpassword"></input-text>
             <input-text title="User Password" formControlName="userpassword"></input-text>
           </div>

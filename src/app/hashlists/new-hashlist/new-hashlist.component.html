@@ -47,7 +47,7 @@
 
       @if (+brainenabled === 1) {
         <div>
-          <hr />
+          <app-divider />
           <h5>Hashcat Brain Enabled</h5>
           <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
           <fixed-alert
@@ -55,7 +55,7 @@
       it could cause bottlenecks or collapse the network server. You can disable
       this setting in Config > Server > General Settings."
           ></fixed-alert>
-          <hr />
+          <app-divider />
         </div>
       }
 

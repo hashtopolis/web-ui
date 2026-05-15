@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { ButtonsModule } from '../buttons/buttons.module';
+import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { PageTitleModule } from '../page-headers/page-title.module';
 import { CoreFormsModule } from '../forms.module';
 import { GridModule } from '../grid-containers/grid.module';
@@ -18,7 +19,8 @@ import { InputModule } from '../input/input.module';
     GridModule,
     InputModule,
     PageTitleModule,
-    ButtonsModule
+    ButtonsModule,
+    DividerModule
   ],
   exports: [HashlistReportComponent],
   declarations: [HashlistReportComponent, ReportBuilderComponent]
