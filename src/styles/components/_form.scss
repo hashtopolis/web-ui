@@ -394,17 +394,21 @@ mat-form-field,
 /* ---------------------------------------------------------------------------
    09a- Inline help icon inside checkbox label
    The default mat-icon ships at 24px, which towers over the 14px checkbox
-   label text and shifts the baseline. Match the surrounding text height
-   so the (info) sits cleanly next to the label.
+   label text and shifts the baseline. Flex the label so the (info) is
+   optically centred with the label regardless of font metrics.
    --------------------------------------------------------------------------- */
+
+.checkbox-wrapper mat-checkbox .mdc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
 
 .checkbox-wrapper mat-checkbox mat-icon {
   font-size: var(--text-lg);
   width: 16px;
   height: 16px;
   line-height: 1;
-  vertical-align: middle;
-  margin-left: var(--space-2xs);
   color: var(--subtle-foreground);
   cursor: help;
 }
@@ -423,6 +427,76 @@ mat-form-field,
   .mdc-form-field > label,
   .mdc-label {
     color: var(--destructive);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   10- Read-only input variant
+   Applied via `[class.input--readonly]="readonly"` on the wrapper of every
+   input-* component. Replaces the legacy `simulate-form-field*` display
+   shells: same input markup, just non-interactive.
+
+   Semantically distinct from `disabled`:
+     - disabled  → form participant the user can't touch (opacity 0.5, no
+                   cursor, no focus, value not submitted)
+     - readonly  → display of a value the user can read/select/copy (full
+                   opacity, focusable for selection, no edit affordance)
+
+   Theme-agnostic geometry only — colour comes from tokens (--well,
+   --border-faint, --foreground) so light/dark share spacing/radius. */
+
+.input--readonly {
+  // Drop the required-marker color shift since the field is non-editable.
+  .field-stack__required {
+    display: none;
+  }
+
+  // Re-skin the mat-form-field so it reads as "informational" rather than
+  // "editable but locked". MDC keeps its disabled selector active for the
+  // mat-select / mat-checkbox cases (where we set [disabled]="readonly"),
+  // so override that too.
+  .mat-mdc-form-field .mdc-text-field--filled,
+  .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--disabled {
+    background-color: var(--well);
+    border-color: var(--border-faint);
+    box-shadow: none;
+  }
+
+  // Full opacity for the visible value (override Material's disabled fade
+  // when readonly was implemented via [disabled] on selects / chips).
+  .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-form-field-input-control,
+  .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-input-element,
+  .mat-mdc-select-disabled .mat-mdc-select-value,
+  .mat-mdc-chip-set-disabled .mat-mdc-chip {
+    color: var(--foreground);
+    opacity: 1;
+  }
+
+  // The chip set still shows the locked cursor; readonly chips are pure
+  // display, so let the OS show the default arrow.
+  .mat-mdc-chip-set-disabled .mat-mdc-chip {
+    cursor: default;
+  }
+
+  // Mat-checkbox in readonly mode: full opacity, default cursor (not
+  // not-allowed), keep the label legible.
+  mat-checkbox.mat-mdc-checkbox-disabled {
+    opacity: 1;
+    cursor: default;
+
+    .mdc-label {
+      color: var(--foreground);
+    }
+  }
+
+  // Linked labels keep the standard link styling.
+  .field-stack__label a {
+    color: var(--primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 

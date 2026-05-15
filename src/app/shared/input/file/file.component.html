@@ -1,11 +1,15 @@
-<div class="inline-block file-input" [class.file-input--invalid]="hasError && isTouched">
+<div
+  class="inline-block file-input"
+  [class.file-input--invalid]="hasError && isTouched && !readonly"
+  [class.input--readonly]="readonly"
+>
   <div class="flex flex-row items-center gap-2">
     <button
       type="button"
       mat-stroked-button
       (click)="inputField.click()"
       [attr.aria-label]="title || 'Choose file to upload'"
-      [disabled]="disabled"
+      [disabled]="disabled || readonly"
     >
       <mat-icon>attach_file</mat-icon>
       <span>Choose File</span>

@@ -1,7 +1,11 @@
-<div class="field-stack" [class.is-invalid]="hasError && isTouched">
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
   <label class="field-stack__label" [attr.for]="inputId">
-    {{ title }}
-    @if (isRequired) {
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      {{ title }}
+    }
+    @if (isRequired && !readonly) {
       <span class="field-stack__required" aria-hidden="true">*</span>
     }
     @if (tooltip) {
@@ -18,10 +22,10 @@
 
   <mat-form-field
     class="field-stack__field"
-    [class.mat-form-field-invalid]="hasError"
-    [class.mat-form-field-touched]="isTouched"
+    [class.mat-form-field-invalid]="hasError && !readonly"
+    [class.mat-form-field-touched]="isTouched && !readonly"
   >
-    <div [class.is-invalid]="error">
+    <div [class.is-invalid]="error && !readonly">
       <input
         #inputField
         matInput
@@ -33,13 +37,14 @@
         (input)="onValueChange($event)"
         (blur)="onTouched()"
         [required]="isRequired"
-        [class.is-invalid]="error"
-        [class.ng-invalid]="hasError"
-        [class.ng-touched]="isTouched"
+        [class.is-invalid]="error && !readonly"
+        [class.ng-invalid]="hasError && !readonly"
+        [class.ng-touched]="isTouched && !readonly"
         [disabled]="disabled"
+        [readonly]="readonly"
       />
     </div>
-    @if (hasError && errors) {
+    @if (hasError && errors && !readonly) {
       <mat-hint class="mat-mdc-form-field-error text-destructive">
         @if (errors['required']) {
           <span>{{ title }} is required</span>

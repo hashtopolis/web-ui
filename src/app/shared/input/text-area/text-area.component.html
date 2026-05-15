@@ -1,7 +1,11 @@
-<div class="field-stack" [class.is-invalid]="hasError && isTouched">
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
   <label class="field-stack__label" [attr.for]="inputId">
-    {{ title }}
-    @if (isRequired) {
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      {{ title }}
+    }
+    @if (isRequired && !readonly) {
       <span class="field-stack__required" aria-hidden="true">*</span>
     }
     @if (tooltip) {
@@ -19,14 +23,14 @@
 
   <mat-form-field
     class="custom-textarea field-stack__field"
-    [class.mat-form-field-invalid]="hasError"
-    [class.mat-form-field-touched]="isTouched"
+    [class.mat-form-field-invalid]="hasError && !readonly"
+    [class.mat-form-field-touched]="isTouched && !readonly"
   >
     <textarea
       matInput
-      [class.is-invalid]="error"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
+      [class.is-invalid]="error && !readonly"
+      [class.ng-invalid]="hasError && !readonly"
+      [class.ng-touched]="isTouched && !readonly"
       [id]="inputId"
       [value]="value"
       (input)="onValueChange($event)"
@@ -34,14 +38,17 @@
       cdkTextareaAutosize
       [cdkAutosizeMinRows]="minRows"
       [cdkAutosizeMaxRows]="maxRows"
+      [style.min-height.lh]="minRows"
       [required]="isRequired"
       [disabled]="disabled"
+      [readonly]="readonly"
       class="custom-textarea"
     ></textarea>
+    <ng-content select="[matSuffix]"></ng-content>
     @if (hint) {
       <mat-hint>{{ hint }}</mat-hint>
     }
-    @if (hasError && errors) {
+    @if (hasError && errors && !readonly) {
       <mat-hint class="mat-mdc-form-field-error text-destructive">
         @if (errors['required']) {
           <span>{{ title }} is required</span>

@@ -23,12 +23,25 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   disabled = false;
 
   @Input()
+  readonly = false;
+
+  @Input()
+  linkTo?: string | unknown[];
+
+  @Input()
   error: boolean | string;
 
   @Input()
   isRequired: boolean;
 
-  value: T;
+  @Input()
+  set value(v: T | null) {
+    this._value = v as T;
+  }
+  get value(): T {
+    return this._value;
+  }
+  private _value: T;
 
   @Input()
   inputId: string;

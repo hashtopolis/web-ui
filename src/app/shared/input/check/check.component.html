@@ -1,13 +1,21 @@
-<div class="checkbox-wrapper" [class.is-invalid]="hasError && isTouched">
+<div
+  class="checkbox-wrapper"
+  [class.is-invalid]="hasError && isTouched && !readonly"
+  [class.input--readonly]="readonly"
+>
   <mat-checkbox
     [checked]="value"
     (change)="onValueChange($event)"
     (blur)="onTouched()"
-    [disabled]="disabled"
+    [disabled]="disabled || readonly"
     [id]="inputId"
-    [class.mat-mdc-checkbox-invalid]="hasError && isTouched"
+    [class.mat-mdc-checkbox-invalid]="hasError && isTouched && !readonly"
   >
-    {{ title }}
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      {{ title }}
+    }
     @if (tooltip) {
       <mat-icon
         matTooltip="{{ tooltip }}"
@@ -21,7 +29,7 @@
     }
   </mat-checkbox>
 
-  @if (hasError && errors) {
+  @if (hasError && errors && !readonly) {
     <div class="error-message text-xs mt-1 text-destructive">
       @if (errors['required']) {
         <span>{{ title }} is required</span>

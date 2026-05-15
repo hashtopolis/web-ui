@@ -1,8 +1,12 @@
-<div class="field-stack" [class.is-invalid]="hasError && isTouched">
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
   <label class="field-stack__label" [attr.for]="inputId">
     @if (!isLoading) {
-      {{ title }}
-      @if (isRequired) {
+      @if (linkTo) {
+        <a [routerLink]="linkTo">{{ title }}</a>
+      } @else {
+        {{ title }}
+      }
+      @if (isRequired && !readonly) {
         <span class="field-stack__required" aria-hidden="true">*</span>
       }
       @if (tooltip) {
@@ -24,8 +28,8 @@
 
   <mat-form-field
     class="field-stack__field"
-    [class.mat-form-field-invalid]="hasError"
-    [class.mat-form-field-touched]="isTouched"
+    [class.mat-form-field-invalid]="hasError && !readonly"
+    [class.mat-form-field-touched]="isTouched && !readonly"
   >
     <mat-select
       #inputField
@@ -33,9 +37,9 @@
       (selectionChange)="onChangeValue($event.value)"
       (openedChange)="onOpenedChange($event)"
       [required]="!isLoading && isRequired"
-      [disabled]="disabled"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
+      [disabled]="disabled || readonly"
+      [class.ng-invalid]="hasError && !readonly"
+      [class.ng-touched]="isTouched && !readonly"
     >
       @if (isBlankOptionDisabled) {
         <mat-option [value]="0">
@@ -53,7 +57,7 @@
     @if (hint) {
       <mat-hint>{{ hint }}</mat-hint>
     }
-    @if (hasError && errors) {
+    @if (hasError && errors && !readonly) {
       <mat-hint class="mat-mdc-form-field-error text-destructive">{{ title }} is required</mat-hint>
     }
   </mat-form-field>

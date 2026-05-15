@@ -4,21 +4,9 @@
   @apply fluid-component;
 }
 
-.field-stack > .custom-input-container {
-  width: 100%;
-}
-
-.color-input-wrapper {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-xs);
-  width: 100%;
-}
-
 .color-input-container {
   position: relative;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   display: flex;
 }
 
@@ -73,7 +61,6 @@ input[type='color'] {
 }
 
 .random-color-btn {
-  align-self: center;
   color: var(--subtle-foreground);
   transition: color var(--duration-fast) var(--easing-standard);
 
