@@ -3,7 +3,9 @@
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>
     } @else {
-      {{ title }}
+      <span class="field-stack__label-text" [matTooltip]="title" matTooltipPosition="above" appOverflowTooltip>
+        {{ title }}
+      </span>
     }
     @if (isRequired && !readonly) {
       <span class="field-stack__required" aria-hidden="true">*</span>

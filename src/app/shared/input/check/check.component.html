@@ -14,7 +14,9 @@
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>
     } @else {
-      {{ title }}
+      <span class="field-stack__label-text" [matTooltip]="title" matTooltipPosition="above" appOverflowTooltip>
+        {{ title }}
+      </span>
     }
     @if (tooltip) {
       <mat-icon
