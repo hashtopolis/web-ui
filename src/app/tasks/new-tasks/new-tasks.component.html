@@ -28,22 +28,18 @@
                   </div>
                 }
 
-                <div class="form-section__cmd">
-                  <input-text-area
-                    title="Attack command"
-                    formControlName="attackCmd"
-                    [isRequired]="true"
-                  ></input-text-area>
+                <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true">
                   <button
                     type="button"
-                    matIconButton
+                    mat-icon-button
+                    matSuffix
                     matTooltip="Help"
                     (click)="openHelpDialog()"
                     aria-label="Attack command help"
                   >
                     <mat-icon>help</mat-icon>
                   </button>
-                </div>
+                </input-text-area>
                 <blacklist-attack [value]="form.controls.attackCmd.value"></blacklist-attack>
 
                 <input-text-area title="Notes" formControlName="notes"></input-text-area>

@@ -230,37 +230,6 @@ mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label
   align-items: center;
 }
 
-.custom-agent-container {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-
-  input-multiselect {
-    flex: 1;
-    min-width: 0;
-
-    /* Collapse the empty subscript area (Material reserves ~22px below the
-       input for hint/error text even when none is shown). With it hidden,
-       the form-field's bottom edge matches the input's bottom edge, so
-       align-items: flex-end on the container aligns the icon buttons with
-       the input baseline — no magic margin needed. The consumer here uses
-       [isRequired]="false", so no error message would render anyway. */
-    .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
-  }
-
-  .custom-chip-grid {
-    width: 100%;
-    min-width: 0;
-  }
-
-  button[mat-icon-button] {
-    margin-bottom: 0;
-  }
-}
-
 .custom-textarea {
   width: 100%;
 }
