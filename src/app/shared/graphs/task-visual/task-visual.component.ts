@@ -61,6 +61,15 @@ export class TaskVisualComponent implements AfterViewInit {
   }
 
   drawPoint() {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const readToken = (name: string) => rootStyles.getPropertyValue(name).trim();
+    const colors = {
+      cracked: readToken('--visual-graph-cracked'),
+      error: readToken('--visual-graph-error'),
+      noCrack: readToken('--visual-graph-no-crack'),
+      notProcessed: readToken('--visual-graph-not-processed')
+    };
+
     const maxResults = 10000;
     const paramsTasks = new RequestParamBuilder()
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.taskid })
@@ -92,25 +101,15 @@ export class TaskVisualComponent implements AfterViewInit {
               const crackedTotal = cracked.reduce((a, i) => a + i, 0);
 
               if (crackedTotal > 0) {
-                this.ctx.fillStyle = '#00ff00';
+                this.ctx.fillStyle = colors.cracked;
                 this.ctx.fillRect(
                   (i * this.x) / taskWrappers.length,
                   0,
                   ((i + 1) * this.x) / taskWrappers.length,
                   this.y - 1
                 );
-              }
-              //ToDo need to get the task keypace
-              // if(){
-              //   this.ctx.fillStyle = "#0000FF";
-              //   this.ctx.strokeRect(i*this.x/taskWrappers.length, 0, (i+1)*this.x/taskWrappers.length, (this.y-1));
-              // }
-              // if(){
-              //   this.ctx.fillStyle = "#00ff00";
-              //   this.ctx.strokeRect(i*this.x/taskWrappers.length, 0, (i+1)*this.x/taskWrappers.length, (this.y-1));
-              // }
-              else {
-                this.ctx.fillStyle = '#c0c0c0';
+              } else {
+                this.ctx.fillStyle = colors.notProcessed;
                 this.ctx.fillRect(
                   (i * this.x) / taskWrappers.length,
                   0,
@@ -144,29 +143,29 @@ export class TaskVisualComponent implements AfterViewInit {
 
               if (end - start < 3) {
                 if (ch[i]['state'] >= 6) {
-                  this.ctx.fillStyle = '#ff0000'; //Red
+                  this.ctx.fillStyle = colors.error;
                   this.ctx.fillRect(start, 0, end, this.y - 1);
                 }
                 if (ch[i]['cracked'] > 0) {
-                  this.ctx.fillStyle = '#00ff00'; //Green
+                  this.ctx.fillStyle = colors.cracked;
                   this.ctx.fillRect(start, 0, end, this.y - 1);
                 } else {
-                  this.ctx.fillStyle = '#ffff00'; //Yellow
+                  this.ctx.fillStyle = colors.noCrack;
                   this.ctx.fillRect(start, 0, end, this.y - 1);
                 }
               } else {
                 if (ch[i]['state'] >= 6) {
-                  this.ctx.fillStyle = '#ff0000'; //Red
+                  this.ctx.fillStyle = colors.error;
                   this.ctx.fillRect(start, 0, end, this.y - 1);
                 } else {
-                  this.ctx.fillStyle = '#c0c0c0'; //Gray
+                  this.ctx.fillStyle = colors.notProcessed;
                   this.ctx.fillRect(start, 1, end, this.y);
                 }
                 if (ch[i]['cracked'] > 0) {
-                  this.ctx.fillStyle = '#00ff00'; //Green
+                  this.ctx.fillStyle = colors.cracked;
                   this.ctx.fillRect(start + 1, 1, current - 1, this.y - 2);
                 } else {
-                  this.ctx.fillStyle = '#ffff00'; //Yellow
+                  this.ctx.fillStyle = colors.noCrack;
                   this.ctx.fillRect(start + 1, 1, current - 1, this.y - 2);
                 }
               }
