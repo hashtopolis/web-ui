@@ -8,12 +8,17 @@ import { Component, HostBinding, Input } from '@angular/core';
 })
 export class FormRowComponent {
   @Input() columns?: 1 | 2 | 3 | 4;
+  @Input() align?: 'left';
 
   @HostBinding('style.--form-row-cols') get colsVar(): string {
     return String(this.columns ?? 2);
   }
 
   @HostBinding('class.row-fill') get fillMode(): boolean {
-    return this.columns === undefined;
+    return this.columns === undefined && this.align !== 'left';
+  }
+
+  @HostBinding('class.row-align-left') get alignLeft(): boolean {
+    return this.align === 'left';
   }
 }

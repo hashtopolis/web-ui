@@ -13,6 +13,25 @@
   align-items: end;
 }
 
+/* Clusters children at the inline-start at their natural content width
+   instead of stretching them across grid tracks. Used for rows of checkboxes
+   where the default 1fr grid would space them awkwardly far apart. */
+:host(.row-align-left) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: var(--space-lg);
+}
+
+/* input-check's host applies `fluid-component` (display:block; width:100%),
+   which inside a wrapping flex container would push every checkbox onto its
+   own line. Inside a left-aligned row we want them content-sized so the
+   cluster stays horizontal. */
+:host(.row-align-left) ::ng-deep input-check {
+  display: inline-flex;
+  width: auto;
+}
+
 /* Auto-fill mode: when no [columns] is passed, distribute children evenly
 /* Auto-fill mode: when no [columns] is passed, distribute children evenly
    across the row and stretch them to a shared height. The :not(.row-align-end)
