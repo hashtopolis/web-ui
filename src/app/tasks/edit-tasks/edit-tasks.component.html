@@ -18,14 +18,18 @@
           <input-text-area title="Notes" formControlName="notes"></input-text-area>
         </div>
 
-        <app-form-row formGroupName="updateData" [columns]="4">
-          <input-number title="Priority" formControlName="priority"></input-number>
-          <input-number title="Status timer" formControlName="statusTimer"></input-number>
-          <input-number title="Max agents" formControlName="maxAgents"></input-number>
-          <input-number title="Chunk size" formControlName="chunkTime"></input-number>
-          <input-check title="CPU only" formControlName="isCpuTask"></input-check>
-          <input-check title="Small task" formControlName="isSmall"></input-check>
-        </app-form-row>
+        <div formGroupName="updateData" class="flex flex-col gap-3">
+          <app-form-row [columns]="4">
+            <input-number title="Priority" formControlName="priority"></input-number>
+            <input-number title="Status timer" formControlName="statusTimer"></input-number>
+            <input-number title="Max agents" formControlName="maxAgents"></input-number>
+            <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+          </app-form-row>
+          <app-form-row align="left">
+            <input-check title="CPU only" formControlName="isCpuTask"></input-check>
+            <input-check title="Small task" formControlName="isSmall"></input-check>
+          </app-form-row>
+        </div>
 
         @if (roleService.hasRole('edit')) {
           <grid-buttons>

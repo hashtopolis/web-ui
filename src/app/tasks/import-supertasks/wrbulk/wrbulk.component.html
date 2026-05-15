@@ -23,10 +23,10 @@
                 [items]="selectCrackertype"
               ></input-select>
             </app-form-row>
-            <div class="flex flex-wrap items-center gap-6">
+            <app-form-row align="left">
               <input-check title="Small Tasks" formControlName="isSmall"></input-check>
               <input-check title="CPU" formControlName="isCpuTask"></input-check>
-            </div>
+            </app-form-row>
             <br />
             <input-text-area title="Base Command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
             <blacklist-attack [value]="createForm.controls.attackCmd.value"></blacklist-attack>

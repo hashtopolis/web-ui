@@ -35,11 +35,11 @@
             <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
           </app-form-row>
 
-          <div class="flex flex-wrap items-center gap-6">
+          <app-form-row align="left">
             <input-check title="CPU only" formControlName="cpuOnly"></input-check>
             <input-check title="Trust" formControlName="isTrusted" tooltip="Trust agent with secret data"></input-check>
             <input-check title="Active" formControlName="isActive"></input-check>
-          </div>
+          </app-form-row>
         }
         <mat-accordion>
           <mat-expansion-panel>
