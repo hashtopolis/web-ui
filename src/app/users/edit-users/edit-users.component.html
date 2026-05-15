@@ -11,11 +11,12 @@
       </app-form-row>
       <app-form-row>
         <input-text title="Email" formControlName="email"></input-text>
-        <simulate-form-field-multi
+        <input-multiselect
           label="Member of access groups"
           [items]="selectUserAgps"
-          routerLink="/users/access-groups/"
-        ></simulate-form-field-multi>
+          [linkTo]="'/users/access-groups/'"
+          [readonly]="true"
+        ></input-multiselect>
       </app-form-row>
 
       <div formGroupName="updateData" class="flex flex-col gap-3">

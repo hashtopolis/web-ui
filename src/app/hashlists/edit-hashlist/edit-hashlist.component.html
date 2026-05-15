@@ -15,10 +15,16 @@
         </div>
 
         <app-form-row [columns]="3">
-          <simulate-form-field label="Hash Type" message="{{ hashtype?.id }} - {{ hashtype?.description }}">
-          </simulate-form-field>
-          <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
-          </simulate-form-field>
+          <input-text
+            title="Hash Type"
+            [value]="hashtype?.id + ' - ' + hashtype?.description"
+            [readonly]="true"
+          ></input-text>
+          <input-text
+            title="Using hashcat brain"
+            [value]="editedHashlist?.useBrain ? 'Yes' : 'No'"
+            [readonly]="true"
+          ></input-text>
           <input-text title="Format" formControlName="format"></input-text>
           <input-text title="Hashes" formControlName="hashCount"></input-text>
           <input-text title="Cracked" formControlName="cracked"></input-text>

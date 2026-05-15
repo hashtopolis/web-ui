@@ -4,7 +4,7 @@
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
         @if (showagent) {
           <app-form-row>
-            <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
+            <input-text title="Agent ID" value="{{ showagent['id'] }}" [readonly]="true"></input-text>
             <input-text
               title="Machine Name"
               formControlName="agentName"
@@ -50,39 +50,35 @@
             </mat-expansion-panel-header>
             @if (showagent) {
               <div class="grid grid-cols-3 gap-3 items-start">
-                <simulate-form-field
-                  label="Last activity"
-                  message="{{ showagent['lastTime'] | uiDate }}"
-                ></simulate-form-field>
-                <simulate-form-field label="Last Action" message="{{ showagent['lastAct'] }}"></simulate-form-field>
-                <simulate-form-field label="IP" message="{{ showagent['lastIp'] }}"></simulate-form-field>
-                <simulate-form-field label="Machine ID" message="{{ showagent['uid'] }}"></simulate-form-field>
-                <simulate-form-field label="Access token" message="{{ showagent['token'] }}"></simulate-form-field>
-                <simulate-form-field
-                  label="O.S."
-                  [message]="getOsMessage(showagent['os'])"
-                  [faIcon]="getOsFaIcon(showagent['os'])"
-                ></simulate-form-field>
+                <input-text
+                  title="Last activity"
+                  [value]="showagent['lastTime'] | uiDate"
+                  [readonly]="true"
+                ></input-text>
+                <input-text title="Last Action" [value]="showagent['lastAct']" [readonly]="true"></input-text>
+                <input-text title="IP" [value]="showagent['lastIp']" [readonly]="true"></input-text>
+                <input-text title="Machine ID" [value]="showagent['uid']" [readonly]="true"></input-text>
+                <input-text title="Access token" [value]="showagent['token']" [readonly]="true"></input-text>
+                <input-text title="O.S." [value]="getOsMessage(showagent['os'])" [readonly]="true"></input-text>
                 @if (showagent['devices']) {
-                  <simulate-form-field
-                    label="Graphic cards"
-                    message="{{ this.renderDevices(showagent['devices']) }}"
-                  ></simulate-form-field>
+                  <input-text
+                    title="Graphic cards"
+                    [value]="this.renderDevices(showagent['devices'])"
+                    [readonly]="true"
+                  ></input-text>
                 }
                 @if (agentRoleService.hasRole('readAccessGroup')) {
-                  <simulate-form-field-multi
+                  <input-multiselect
                     label="Member of access groups"
                     [items]="selectUserAgps"
-                    routerLink="/users/access-groups/"
-                  ></simulate-form-field-multi>
+                    [linkTo]="'/users/access-groups/'"
+                    [readonly]="true"
+                  ></input-multiselect>
                 }
               </div>
             }
             @if (timespent) {
-              <simulate-form-field
-                label="Time spent cracking"
-                message="{{ timespent | sectotime }}"
-              ></simulate-form-field>
+              <input-text title="Time spent cracking" [value]="timespent | sectotime" [readonly]="true"></input-text>
             }
           </mat-expansion-panel>
         </mat-accordion>

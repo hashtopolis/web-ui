@@ -1,14 +1,16 @@
 <app-page title="Health Check">
   <grid-main>
     <div class="flex flex-wrap items-center gap-2">
-      <simulate-form-field
-        label="Created"
-        message="{{ healthc ? formatUnixTimestamp(healthc.time, this.dateFormat) : '' }}"
-      ></simulate-form-field>
-      <simulate-form-field
-        label="Created"
-        message="{{ healthc.status | HCstatus | lowercase | titlecase }}"
-      ></simulate-form-field>
+      <input-text
+        title="Created"
+        [value]="healthc ? formatUnixTimestamp(healthc.time, this.dateFormat) : ''"
+        [readonly]="true"
+      ></input-text>
+      <input-text
+        title="Status"
+        [value]="healthc.status | HCstatus | lowercase | titlecase"
+        [readonly]="true"
+      ></input-text>
     </div>
   </grid-main>
 

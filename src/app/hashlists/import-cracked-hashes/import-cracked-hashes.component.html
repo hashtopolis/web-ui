@@ -6,15 +6,19 @@
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <input-text title="Name" formControlName="name"></input-text>
             <div class="flex gap-1">
-              <simulate-form-field
-                label="Hash Type"
-                message="{{ hashtype.id }} - {{ hashtype.description }}"
-              ></simulate-form-field>
+              <input-text
+                title="Hash Type"
+                [value]="hashtype.id + ' - ' + hashtype.description"
+                [readonly]="true"
+              ></input-text>
             </div>
             <div class="flex gap-1">
               <input-text title="Hashes" formControlName="hashCount"></input-text>
-              <simulate-form-field label="Salted" [message]="form.controls.isSalted.value ? 'Yes' : 'No'">
-              </simulate-form-field>
+              <input-text
+                title="Salted"
+                [value]="form.controls.isSalted.value ? 'Yes' : 'No'"
+                [readonly]="true"
+              ></input-text>
             </div>
             <div class="flex flex-wrap gap-2">
               <input-text title="Hashlist format" formControlName="hashlistFormat"></input-text>

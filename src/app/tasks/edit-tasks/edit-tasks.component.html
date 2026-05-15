@@ -56,16 +56,16 @@
 
             <app-form-row [columns]="2">
               @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
-                <simulate-form-field label="Keyspace Searched" message="{{ searched }}"></simulate-form-field>
+                <input-text title="Keyspace Searched" [value]="searched" [readonly]="true"></input-text>
               } @else {
-                <simulate-form-field label="Keyspace Searched" message="N/A"></simulate-form-field>
+                <input-text title="Keyspace Searched" value="N/A" [readonly]="true"></input-text>
               }
 
               @if (roleService.hasRole('editTaskChunks')) {
                 @if (ctimespent) {
-                  <simulate-form-field label="Time spent" message="{{ ctimespent | sectotime }}"></simulate-form-field>
+                  <input-text title="Time spent" [value]="ctimespent | sectotime" [readonly]="true"></input-text>
                 } @else {
-                  <simulate-form-field label="Time spent" message="---"></simulate-form-field>
+                  <input-text title="Time spent" value="---" [readonly]="true"></input-text>
                 }
               }
             </app-form-row>
@@ -73,15 +73,15 @@
             @if (roleService.hasRole('editTaskChunks')) {
               <app-form-row [columns]="2">
                 @if (estimatedTime !== 0) {
-                  <simulate-form-field label="E.T." message="{{ estimatedTime | sectotime }}"></simulate-form-field>
+                  <input-text title="E.T." [value]="estimatedTime | sectotime" [readonly]="true"></input-text>
                 } @else {
-                  <simulate-form-field label="E.T." message="---"></simulate-form-field>
+                  <input-text title="E.T." value="---" [readonly]="true"></input-text>
                 }
 
                 @if (currenspeed !== 0) {
-                  <simulate-form-field label="Speed" message="{{ currenspeed | hashRate }}"></simulate-form-field>
+                  <input-text title="Speed" value="{{ currenspeed | hashRate }}" [readonly]="true"></input-text>
                 } @else {
-                  <simulate-form-field label="Speed" message="---"></simulate-form-field>
+                  <input-text title="Speed" value="---" [readonly]="true"></input-text>
                 }
               </app-form-row>
             }
@@ -89,33 +89,33 @@
             <app-form-row [columns]="2">
               @if (roleService.hasRole('editTaskInfoHashlist')) {
                 @if (hashlistinform) {
-                  <simulate-form-field
-                    [label]="
+                  <input-text
+                    [title]="
                       hashlistinform.format === 0
                         ? 'Hashlist'
                         : hashlistinform.format === 3
                           ? 'SuperHashlist'
                           : 'Hashlist not found'
                     "
-                    message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"
-                    [routerLink]="'/hashlists/hashlist/' + hashlistinform.id + '/edit'"
-                  >
-                  </simulate-form-field>
+                    [value]="hashlistinform.name + ' / ' + hashlistDescrip"
+                    [linkTo]="'/hashlists/hashlist/' + hashlistinform.id + '/edit'"
+                    [readonly]="true"
+                  ></input-text>
                 } @else {
-                  <simulate-form-field label="Hashlist" message="---"></simulate-form-field>
+                  <input-text title="Hashlist" value="---" [readonly]="true"></input-text>
                 }
               }
 
               @if (roleService.hasRole('editTaskInfoCracker')) {
                 @if (crackerinfo) {
-                  <simulate-form-field
-                    label="Cracker Information"
-                    message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"
-                    [routerLink]="'/config/engine/crackers/' + crackerinfo['id'] + '/edit'"
-                  >
-                  </simulate-form-field>
+                  <input-text
+                    title="Cracker Information"
+                    [value]="crackerinfo['binaryName'] + ' - ' + crackerinfo['version']"
+                    [linkTo]="'/config/engine/crackers/' + crackerinfo['id'] + '/edit'"
+                    [readonly]="true"
+                  ></input-text>
                 } @else {
-                  <simulate-form-field label="Cracker Information" message="---"></simulate-form-field>
+                  <input-text title="Cracker Information" value="---" [readonly]="true"></input-text>
                 }
               }
             </app-form-row>
