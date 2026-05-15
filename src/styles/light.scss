@@ -1,0 +1,54 @@
+/* ==================================
+          LIGHT THEME COLOR TOKENS
+   ==================================
+   Per-theme CSS variable overrides applied when ThemeService toggles
+   .light-theme on <body>. Pairs with dark.scss; theme-agnostic tokens
+   (geometry, motion, typography bindings, semantic baselines) live in
+   base/_tokens.scss on :root.
+   ================================== */
+
+.light-theme {
+  --background: #ffffff;
+  --muted: #fafafa;
+  --well: #f4f4f5;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --input: #fafafa;
+  --sidebar: #fafafa;
+
+  --foreground: #52525b;
+  --muted-foreground: #71717a;
+  --subtle-foreground: #a1a1aa;
+  --heading-foreground: #09090b;
+
+  --primary: #18181b;
+  --primary-hover: #27272a;
+  --primary-muted: rgba(24, 24, 27, 0.08);
+  --primary-foreground: #ffffff;
+
+  --secondary: #52525b;
+
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --border-faint: #f4f4f5;
+
+  --surface-faint: rgba(0, 0, 0, 0.02);
+  --surface-soft: rgba(0, 0, 0, 0.04);
+  --surface-soft-hover: rgba(0, 0, 0, 0.06);
+
+  --cell-hover: rgba(0, 0, 0, 0.07);
+
+  /* Link tones tuned for white background — deeper blue reads clearly on
+     light surfaces; hover lifts to a slightly brighter saturated blue. */
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
+
+  /* Popover sits crisp-white on the page bg with a defined border below. */
+  --popover: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(15, 15, 30, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 15, 30, 0.08);
+  --shadow-lg: 0 10px 30px rgba(15, 15, 30, 0.12);
+
+  --gradient-accent: linear-gradient(135deg, #18181b 0%, #71717a 100%);
+}
