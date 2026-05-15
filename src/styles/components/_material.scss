@@ -12,6 +12,7 @@
      03- Overlays (select panel, menu, dialog, tooltip)
      04- Layout containers (expansion panel, toolbar)
      05- Navigation (tabs, paginator)
+     06- Stepper
    ================================== */
 
 /* ==========================================================================
@@ -702,4 +703,31 @@ textarea.mat-mdc-input-element.custom-textarea {
   .mdc-tab__ripple::before {
     opacity: 0 !important;
   }
+}
+
+/* ==========================================================================
+   06- STEPPER
+   ========================================================================== */
+
+/* Material's default horizontal connector uses `margin: 0 -16px` to bleed
+   16px INTO each adjacent step header. Once the hover state-layer paints a
+   rounded rect over the full header, that bleed makes the line punch through
+   the rect's side wall. Use a small positive margin (4px) to pull the line
+   endpoints just clear of the hover rect — close enough to read as connected,
+   far enough that the rect can never overlap the line. Selector is bumped to
+   (0,2,0) so it beats Material's own rule on the cascade — `ViewEncapsulation.None`
+   means Material's CSS is injected at stepper bootstrap, after our global stylesheet. */
+.mat-stepper-horizontal .mat-stepper-horizontal-line,
+.mat-stepper-label-position-bottom .mat-stepper-horizontal-line {
+  margin: 0 var(--space-2xs);
+  min-width: var(--space-md);
+}
+
+/* Opt out of the global :focus-visible outline (design-system.scss). Material
+   ships its own focus indicator on the step header that sits inside the
+   header bounds; the global 2px outline with 2px offset draws a second
+   rectangle 4px outside the header and reproduces the same overshoot
+   problem as the connector. Same pattern as the design-system buttons. */
+.mat-step-header:focus-visible {
+  outline: none;
 }
