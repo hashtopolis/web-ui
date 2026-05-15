@@ -9,7 +9,7 @@
             binary by clicking on the action menu (...) in the agent binaries table above.
           </p>
         </div>
-        <div>
+        <div class="flex gap-sm justify-end">
           <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
         </div>
       </mat-step>
@@ -21,7 +21,7 @@
         <div class="highlight-box">
           <p><strong>Register the agent</strong> using the above URL</p>
         </div>
-        <div>
+        <div class="flex gap-sm justify-end">
           <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
           <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
         </div>
@@ -63,7 +63,7 @@
             </p>
           }
         </div>
-        <div>
+        <div class="flex gap-sm justify-end">
           <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
           <button-submit mat-button (click)="done()" name="Finish" data-testid="finish-button"></button-submit>
         </div>
