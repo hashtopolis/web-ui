@@ -51,11 +51,13 @@
 }
 
 /* Section title spans the full sub-card width regardless of inner column count.
-   13px maps to --text-md; 0.08em tracking is not on a Tailwind utility scale so
-   stays inline alongside the rest of the typography here. */
+   Uppercase + 0.08em tracking already mark this as a label, so size sits at
+   12px (--text-sm) — a step below the per-card subtitle to keep clear hierarchy
+   between page subtitle / section label / field. Tracking is not on a Tailwind
+   utility scale so stays inline alongside the rest of the typography here. */
 .custom-form__section-title {
   font-family: var(--font-heading);
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--heading-foreground);
   margin: 0 0 var(--space-2xs);
