@@ -14,7 +14,7 @@
                 @if (field.isTitle) {
                   <h3 class="custom-form__section-title">{{ field.label }}</h3>
                 } @else if (field.type === 'checkbox') {
-                  <div class="custom-form__checkbox-cell">
+                  <div class="custom-form__checkbox-cell" [class.custom-form__cell--full]="field.fullWidth">
                     <input-check
                       class="custom-form__checkbox"
                       [title]="field.label!"
@@ -24,7 +24,7 @@
                     ></input-check>
                   </div>
                 } @else {
-                  <div>
+                  <div [class.custom-form__cell--full]="field.fullWidth">
                     @switch (field.type) {
                       @case ('number') {
                         <input-number

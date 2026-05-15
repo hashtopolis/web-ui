@@ -64,6 +64,13 @@
   grid-column: 1 / -1;
 }
 
+/* Opt-in via `fullWidth: true` on a MetadataFormField. The cell takes the
+   full row, so the next field starts on the following row's first column —
+   leaves visual whitespace to the right of narrow content like checkboxes. */
+.custom-form__cell--full {
+  grid-column: 1 / -1;
+}
+
 /* Force labels to a single line so neighbouring sections share identical row
    heights. Long labels ellipsize; the full text shows in a Material tooltip on
    hover, driven by appOverflowTooltip which only enables the tooltip when

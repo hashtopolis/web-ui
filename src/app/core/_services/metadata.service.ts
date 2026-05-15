@@ -95,6 +95,7 @@ export interface MetadataFormField {
   tooltip?: string | boolean;
   validators?: ValidatorFn[] | boolean;
   isTitle?: boolean;
+  fullWidth?: boolean;
   replacevalue?: string;
   disabled?: boolean;
   defaultValue?: unknown;
@@ -1020,7 +1021,8 @@ export class MetadataService {
       name: 'hashcatBrainEnable',
       label: 'Enable Hashcat Brain',
       type: 'checkbox',
-      tooltip: false
+      tooltip: false,
+      fullWidth: true
     },
     {
       name: 'hashcatBrainHost',
