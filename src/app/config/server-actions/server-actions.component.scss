@@ -1,12 +1,14 @@
 /* Mobile reflow: stack control under desc and add a visual gap. The order/
    margin-bottom flips can't be expressed cleanly with Tailwind responsive
    prefixes without losing the matching desktop layout, and the .control
-   width (200px / 140px min) is between Tailwind's named scale steps. */
+   width (200px / 140px min) is between Tailwind's named scale steps.
+   No horizontal padding: buttons stay flush with the "Database tools"
+   subtitle that sits at the card's natural left edge. */
 .item {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 5px 15px;
+  padding: 5px 0;
 }
 
 .control {
