@@ -13,7 +13,9 @@
 
   /* Two columns only when there are at least two sections — otherwise a
      single section stops halfway across the container. `:has()` is supported
-     in every browser this app targets. */
+     in every browser this app targets. Cards keep the default grid
+     `align-items: stretch` so paired sections share heights across every
+     config tab. */
   @media (min-width: 768px) {
     &:has(> :nth-child(2)) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -60,4 +62,69 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   grid-column: 1 / -1;
+}
+
+/* Force labels to a single line so neighbouring sections share identical row
+   heights. Long labels ellipsize; the full text shows in a Material tooltip on
+   hover, driven by appOverflowTooltip which only enables the tooltip when
+   scrollWidth > clientWidth. Scoped to this component so other forms using
+   `.field-stack__label` keep their wrapping behaviour. */
+.field-stack__label {
+  width: 100%;
+  min-width: 0;
+}
+
+/* `flex: 0 1 auto` keeps the text at its natural width so the inherited
+   `gap: 6px` from the global `.field-stack__label` places the (i) icon
+   directly after the text. `flex-shrink: 1` + `min-width: 0` preserves
+   the ellipsize behaviour when the grid cell becomes narrower than the
+   label's intrinsic width. */
+.field-stack__label-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Same single-line treatment for checkbox labels — without this the long
+   checkbox prompts (e.g. "Check for Previous Cracks in Other Hashlists at
+   Hashlist Creation", or the three "Rule Splitting…" labels) wrap to two
+   lines, push the checkbox content past its grid cell, and overlap the
+   neighbouring column. The Material checkbox projects its content into
+   `.mdc-label` inside an `.mdc-form-field` flex container; both of those
+   nodes are rendered by Material (no component attribute), so we have to
+   pierce view encapsulation with `::ng-deep` to reach them. Without
+   `min-width: 0` on the label flex item, the text refuses to shrink below
+   its intrinsic width and `text-overflow: ellipsis` never engages. */
+.custom-form__checkbox-cell {
+  min-width: 0;
+  /* Re-establish the grid cell as the containing block for an inline-flex
+     checkbox so it can never spill into the neighbouring column. */
+  overflow: hidden;
+}
+
+.custom-form__checkbox.mat-mdc-checkbox {
+  display: block;
+  max-width: 100%;
+}
+
+.custom-form__checkbox ::ng-deep .mdc-form-field {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.custom-form__checkbox ::ng-deep .mdc-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+}
+
+.custom-form__checkbox-label {
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -14,14 +14,31 @@
                 @if (field.isTitle) {
                   <h3 class="custom-form__section-title">{{ field.label }}</h3>
                 } @else if (field.type === 'checkbox') {
-                  <div>
-                    <mat-checkbox [formControlName]="field.name!">{{ field.label }}</mat-checkbox>
+                  <div class="custom-form__checkbox-cell">
+                    <mat-checkbox
+                      class="custom-form__checkbox"
+                      [formControlName]="field.name!"
+                      [matTooltip]="field.label"
+                      matTooltipPosition="above"
+                      appOverflowTooltip=".custom-form__checkbox-label"
+                    >
+                      <span class="custom-form__checkbox-label">
+                        {{ field.label }}
+                      </span>
+                    </mat-checkbox>
                   </div>
                 } @else {
                   <div>
                     <div class="field-stack">
                       <label class="field-stack__label" [attr.for]="'dynform-' + field.name">
-                        {{ field.label }}
+                        <span
+                          class="field-stack__label-text"
+                          [matTooltip]="field.label"
+                          matTooltipPosition="above"
+                          appOverflowTooltip
+                        >
+                          {{ field.label }}
+                        </span>
                         @if (field.tooltip) {
                           <mat-icon
                             matTooltip="{{ field.tooltip }}"

@@ -20,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
 
 import { ServerActionsComponent } from '@src/app/config/server-actions/server-actions.component';
+import { OverflowTooltipDirective } from '@src/app/core/_directives/overflow-tooltip.directive';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { DynamicFormComponent } from '@src/app/shared/dynamic-form-builder/dynamicform.component';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
@@ -53,7 +54,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     ReactiveFormsModule,
     HorizontalNavModule,
     ButtonsModule,
-    ServerActionsComponent
+    ServerActionsComponent,
+    OverflowTooltipDirective
   ],
   exports: [DynamicFormComponent, FormConfigComponent, FormComponent],
   providers: [
