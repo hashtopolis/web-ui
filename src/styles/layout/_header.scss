@@ -81,9 +81,9 @@ body.fixed-width-layout .app-header__inner {
   gap: 10px;
   text-decoration: none;
   color: inherit;
-  width: 52px;
-  height: 52px;
-  padding: 4px 6px;
+  width: 44px;
+  height: 44px;
+  padding: 4px;
   border-radius: var(--radius-md);
   transition: background-color var(--duration-fast) var(--easing-standard);
   justify-self: start;
@@ -93,12 +93,24 @@ body.fixed-width-layout .app-header__inner {
   }
 }
 
+/* Dark mode flips the logo to the red devedis variant (see header.component.html),
+   which would otherwise sit on the near-black translucent header surface. A solid
+   white pill behind the brand restores contrast for the red mark. Color-only
+   override — geometry stays in the theme-agnostic block above. */
+.dark-theme .app-header__brand {
+  background: #fff;
+
+  &:hover {
+    background: #fff;
+  }
+}
+
 .app-header__logo {
   display: block;
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 44px;
+  max-height: 36px;
 }
 
 /* The configured brand name is currently empty, but the span still
