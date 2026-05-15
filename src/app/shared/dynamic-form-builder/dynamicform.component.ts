@@ -74,6 +74,13 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnD
   @Input() isServerAction = false;
 
   /**
+   * When false, the component renders without its own `<app-page>` wrapper so a
+   * parent page can provide the large title (e.g. tabbed Settings page) and the
+   * form's `title` is shown as a smaller subtitle inside the section container.
+   */
+  @Input() showPageWrapper = true;
+
+  /**
    * Event emitter for submitting the form. Emits the form values when the form is submitted.
    * Parent components can subscribe to this event to handle form submissions.
    */

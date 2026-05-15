@@ -1,5 +1,16 @@
-<app-page [title]="title">
+@if (showPageWrapper) {
+  <app-page [title]="title">
+    <ng-container *ngTemplateOutlet="formBody"></ng-container>
+  </app-page>
+} @else {
+  <ng-container *ngTemplateOutlet="formBody"></ng-container>
+}
+
+<ng-template #formBody>
   <grid-main [narrow]="!isServerAction && sections.length < 2">
+    @if (!showPageWrapper && title) {
+      <app-page-subtitle [subtitle]="title"></app-page-subtitle>
+    }
     <!-- Show own content only for server actions -->
     @if (isServerAction) {
       <app-server-actions></app-server-actions>
@@ -128,4 +139,4 @@
       </grid-buttons>
     </form>
   </grid-main>
-</app-page>
+</ng-template>
