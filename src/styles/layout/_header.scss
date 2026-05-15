@@ -74,6 +74,10 @@ body.fixed-width-layout .app-header__inner {
   padding: 0;
 }
 
+/* Dark mode flips the logo to the red devedis variant (see header.component.html),
+   which would otherwise sit on the near-black translucent header surface. The
+   --brand-backdrop token resolves to opaque white in dark mode (giving the red
+   mark a contrast pill) and to transparent in light mode (no pill needed). */
 .app-header__brand {
   display: inline-flex;
   align-items: center;
@@ -85,23 +89,12 @@ body.fixed-width-layout .app-header__inner {
   height: 44px;
   padding: 4px;
   border-radius: var(--radius-md);
+  background: var(--brand-backdrop);
   transition: background-color var(--duration-fast) var(--easing-standard);
   justify-self: start;
 
   &:hover {
-    background: transparent;
-  }
-}
-
-/* Dark mode flips the logo to the red devedis variant (see header.component.html),
-   which would otherwise sit on the near-black translucent header surface. A solid
-   white pill behind the brand restores contrast for the red mark. Color-only
-   override — geometry stays in the theme-agnostic block above. */
-.dark-theme .app-header__brand {
-  background: #fff;
-
-  &:hover {
-    background: #fff;
+    background: var(--brand-backdrop);
   }
 }
 

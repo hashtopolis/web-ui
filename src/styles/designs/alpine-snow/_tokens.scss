@@ -131,6 +131,12 @@ $grotesk-stack:
   --shadow-md: 0 0 30px rgba(15, 23, 42, 0.1);
   --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
 
+  // Navy "glow" used by alpine's raised/FAB hover bloom. Distinct from
+  // --shadow-md — different opacity, different visual intent. Light-theme
+  // only; dark mode reads the base --shadow-* tokens instead.
+  --alpine-shadow-glow: rgba(15, 23, 42, 0.18);
+  --alpine-shadow-glow-rim: rgba(15, 23, 42, 0.08);
+
   // ---------------------------------------------------------------------------
   // Gradient — brand mark (logo block, badge fills).
   // ---------------------------------------------------------------------------

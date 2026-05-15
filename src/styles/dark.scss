@@ -69,6 +69,11 @@
   // collapses to `none` and dark surfaces lose their visible edge.
   --shell-frame-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
 
+  /* Opaque white pill behind the red devedis logo so the brand mark stays
+     readable on the dark translucent header. Light mode uses `transparent`
+     because the logo is dark on a light header (no pill needed). */
+  --brand-backdrop: #ffffff;
+
   --shadow-sm: none;
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);

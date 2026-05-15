@@ -1,6 +1,7 @@
 :host {
+  --form-row-cols: 2;
   display: grid;
-  grid-template-columns: repeat(var(--form-row-cols, 2), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--form-row-cols), minmax(0, 1fr));
   gap: var(--space-sm);
   align-items: start;
   width: 100%;
@@ -23,14 +24,10 @@
   gap: var(--space-lg);
 }
 
-/* input-check's host applies `fluid-component` (display:block; width:100%),
-   which inside a wrapping flex container would push every checkbox onto its
-   own line. Inside a left-aligned row we want them content-sized so the
-   cluster stays horizontal. */
-:host(.row-align-left) ::ng-deep input-check {
-  display: inline-flex;
-  width: auto;
-}
+/* The `app-form-row.row-align-left input-check` cross-encapsulation override
+   that makes child input-check hosts content-sized lives in
+   styles/components/_form-row.scss — globally scoped via the context class so
+   it can reach the child component's host without ::ng-deep. */
 
 /* Auto-fill mode: when no [columns] is passed, distribute children evenly
 /* Auto-fill mode: when no [columns] is passed, distribute children evenly

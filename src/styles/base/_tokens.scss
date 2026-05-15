@@ -11,6 +11,20 @@
    Values follow the "Toolbar" design system — an ultra-minimal monochrome
    look built from layered white-alpha on near-black (dark mode) and zinc
    neutrals on white (light mode).
+
+   Why a parallel semantic layer instead of consuming `--mat-sys-*` colors:
+     - Granularity. We use 4 foreground tints (--foreground,
+       --heading-foreground, --muted-foreground, --subtle-foreground); M3 only
+       exposes 2 (--mat-sys-on-surface, --mat-sys-on-surface-variant). Same
+       story for borders (3 vs 2) and surface containers (--card / --muted /
+       --well vs M3's algorithmic container ladder).
+     - Tailwind. The @theme block in tailwind.css binds utilities (bg-card,
+       text-foreground, border-border, …) to these semantic names. Replacing
+       the layer with --mat-sys-* would rewrite every Tailwind utility binding.
+     - Designs. alpine-snow (and future designs) extend the semantic names
+       without entangling M3's algorithmic palette generation.
+   We do consume --mat-sys-* where it covers a 1:1 concept: --mat-sys-*-font
+   (typography stacks, below) and --mat-sys-scrim (loading-spinner backdrop).
    ================================== */
 
 :root {

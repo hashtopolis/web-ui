@@ -1,0 +1,19 @@
+/* ==================================
+        SECTION PASSWORD STRENGTH
+   ==================================
+   Width wrapper applied by consumer templates around <app-password-strength>
+   (currently used by acc-settings.component.html) when the strength bars
+   should sit inside a narrower column than the surrounding form. Hosted
+   globally so the class is reusable by any consumer template — the rule is
+   keyed off the wrapper class, not the strength component itself, and
+   emulated encapsulation cannot scope it across component boundaries.
+
+   The strength-bar geometry itself lives in
+     src/app/shared/password/pass-strenght/pass-strenght.component.scss
+   ================================== */
+
+.smaller-pass-strength {
+  width: 17%;
+  box-sizing: border-box;
+  padding: 0 var(--space-md);
+}

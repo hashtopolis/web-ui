@@ -65,19 +65,21 @@ div.table-actions {
   color: var(--primary);
 }
 
-/* Header row — secondary bg, uppercase small-caps. */
-.mat-mdc-header-row {
-  background: var(--muted) !important;
-  min-height: 42px !important;
+/* Header row — secondary bg, uppercase small-caps. Doubled-class lifts the
+   background/min-height selectors to (0,2,0) so they win over Material's
+   equivalent rules at (0,1,0) without `!important`. */
+.mat-mdc-header-row.mat-mdc-header-row {
+  background: var(--muted);
+  min-height: 42px;
   border-bottom: 1px solid var(--border-faint);
 }
 
-.mat-mdc-row {
-  min-height: 44px !important;
+.mat-mdc-row.mat-mdc-row {
+  min-height: 44px;
   transition: background-color var(--duration-fast) var(--easing-standard);
 
   &:hover {
-    background: var(--card-hover) !important;
+    background: var(--card-hover);
   }
 }
 
@@ -93,9 +95,10 @@ table.hashtopolis-table .mat-mdc-row:nth-of-type(even) {
 // clipped. Override alpine-snow's `.mat-mdc-table { overflow: hidden }` (used
 // there to clip rounded corners) for the hashtopolis-table specifically. The
 // surrounding mat-card and mat-card-content are opted-in inside app-table's
-// component styles (TableComponent.styles).
+// component styles (TableComponent.styles). Our selector is (0,2,1) vs
+// alpine-snow's (0,1,0) — wins by specificity, no `!important` needed.
 table.hashtopolis-table.mat-mdc-table {
-  overflow: visible !important;
+  overflow: visible;
 }
 
 table.hashtopolis-table {
@@ -184,13 +187,14 @@ table.hashtopolis-table {
       // hover darkens. The previous "dotted bottom border" look was too
       // subtle, especially on dense rows. Multi-link stacks still wrap via
       // the ::after newline; we keep that for backwards compat.
-      // Use !important to win over global theme rules like
-      // `.light-theme a { color: var(--primary); }` in alpine-snow.
+      // The enclosing nest gives us `table.hashtopolis-table .mat-mdc-cell
+      // .flex-container a` — specificity (0,3,2) — which already beats
+      // alpine-snow's `.light-theme a` (0,1,1) without `!important`.
       a,
       a.link {
         display: inline;
-        color: var(--link) !important;
-        text-decoration: underline !important;
+        color: var(--link);
+        text-decoration: underline;
         text-underline-offset: 2px;
         transition: color var(--duration-fast) var(--easing-standard);
 
@@ -200,12 +204,12 @@ table.hashtopolis-table {
         // default foreground color even when the anchor is blueish.
         .link-label,
         span {
-          color: inherit !important;
+          color: inherit;
           text-decoration: inherit;
         }
 
         &:hover {
-          color: var(--link-hover) !important;
+          color: var(--link-hover);
         }
 
         &::after {
@@ -271,14 +275,6 @@ table.hashtopolis-table {
       }
     }
 
-    .tructate a {
-      display: inline-block;
-      max-width: 150px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     &.text-right {
       text-align: right;
     }
@@ -320,7 +316,7 @@ table.hashtopolis-table {
       }
       .mat-mdc-form-field-infix {
         min-height: auto;
-        padding: var(--space-2xs) 0 !important;
+        padding: var(--space-2xs) 0;
         width: auto;
       }
       .mat-mdc-form-field-subscript-wrapper {
@@ -465,7 +461,12 @@ table.hashtopolis-table {
    rows. Painting each cell guarantees the green wins, because a cell's
    own background renders ON TOP of its row's background. */
 .row-cracked {
-  background-color: var(--success-bg) !important;
+  /* Each cell paints its own --success-bg below, which always covers the row
+     background (cell backgrounds render on top of row backgrounds). The
+     row-level rule is a fallback for any non-cell area but doesn't need to
+     beat the hover/zebra rules — the cell-level paint guarantees the green
+     wins where it matters. */
+  background-color: var(--success-bg);
 
   .mat-mdc-cell {
     background-color: var(--success-bg);

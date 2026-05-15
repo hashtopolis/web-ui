@@ -55,7 +55,7 @@ a.link:has(fa-icon) {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong);
   background: var(--popover);
-  color: var(--popover-foreground, var(--foreground));
+  color: var(--popover-foreground);
   box-shadow: var(--shadow-lg);
 }
 
@@ -148,7 +148,7 @@ a.link:has(fa-icon) {
 // Pure --warning (#facc15) is too vivid against the opaque popover — soften
 // to a desaturated amber so it reads as "in-progress" without shouting.
 .legend-color.no-crack {
-  background: var(--warning-soft, var(--status-no-crack));
+  background: var(--warning-soft);
   border-color: color-mix(in oklch, var(--warning), black 18%);
 }
 

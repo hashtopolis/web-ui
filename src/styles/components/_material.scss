@@ -1,3 +1,5 @@
+@reference './tailwind.css';
+
 /* ==================================
         SECTION MATERIAL OVERRIDES
    ==================================
@@ -19,7 +21,10 @@
    00- BUTTONS
    ========================================================================== */
 
-/* Shape — square corners with design-system radius (no pill) */
+/* Shape — square corners with design-system radius (no pill). The M3 token
+   binds below cover every button variant; Material applies each variant's
+   border-radius via its bound `--mat-button-*-container-shape` token, so no
+   explicit `border-radius` override is needed. */
 .mat-mdc-button,
 .mat-mdc-outlined-button,
 .mat-mdc-unelevated-button,
@@ -29,23 +34,25 @@
   --mat-button-outlined-container-shape: var(--radius-md);
   --mat-button-filled-container-shape: var(--radius-md);
   --mat-button-protected-container-shape: var(--radius-md);
-  border-radius: var(--radius-md) !important;
 }
 
-/* Icon button stays a square (not a circle) with the same radius.
+/* Icon button stays a square (not a circle) with the same radius. Doubled
+   class lifts the selector to (0,2,0) so it wins over Material's MDC base
+   rule at (0,1,0) without `!important`. Same trick for the inner ripple /
+   touch-target — descendant chains at (0,2,0) already beat Material (0,1,0).
    Don't hardcode a state-layer size here — the default tracks the button's
    own w/h, which compact contexts (e.g. 28px clear button inside a compact
    form field) override. A fixed 36px state layer would overflow and pull
    the icon off-center. */
-.mat-mdc-icon-button {
-  border-radius: var(--radius-md) !important;
+.mat-mdc-icon-button.mat-mdc-icon-button {
+  border-radius: var(--radius-md);
 }
 .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
 .mat-mdc-icon-button .mat-mdc-button-ripple {
-  border-radius: var(--radius-md) !important;
+  border-radius: var(--radius-md);
 }
 .mat-mdc-icon-button .mat-mdc-button-touch-target {
-  border-radius: var(--radius-md) !important;
+  border-radius: var(--radius-md);
 }
 
 /* Filled + outlined + text button colors bound to design tokens */
@@ -121,6 +128,20 @@ textarea.mat-mdc-input-element.custom-textarea {
   align-items: stretch;
 }
 
+/* Color input (used by <app-input-color>): same release pattern as the
+   textarea exception above. The native swatch + Chrome's
+   ::-webkit-color-swatch-wrapper padding can render taller than the 36px
+   wrapper's content box, and MDC's `.mdc-text-field { overflow: hidden }`
+   default clips anything sticking out the bottom. Letting the wrapper size
+   to the input's natural height keeps the swatch fully visible. */
+.mat-mdc-form-field:has(input[type='color']) .mdc-text-field--filled,
+.mat-mdc-form-field:has(input[type='color']) .mat-mdc-form-field-flex,
+.mat-mdc-form-field:has(input[type='color']) .mat-mdc-form-field-infix {
+  height: auto;
+  min-height: 0;
+  align-items: stretch;
+}
+
 /* Select tokens (trigger + arrow colors). Panel styles live in section 03. */
 .mat-mdc-select {
   --mat-select-enabled-trigger-text-color: var(--heading-foreground);
@@ -153,9 +174,7 @@ textarea.mat-mdc-input-element.custom-textarea {
 }
 
 .mat-mdc-select-value-text {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  @apply truncate;
   display: block;
 }
 
@@ -163,20 +182,22 @@ textarea.mat-mdc-input-element.custom-textarea {
   color: var(--subtle-foreground);
 }
 
-.mat-mdc-select-arrow-wrapper {
+/* Doubled-class on `.mat-mdc-select-arrow-wrapper` and `.mat-mdc-select-arrow`
+   bumps each rule to (0,2,0) so they win over Material's MDC defaults (0,1,0).
+   `transform: translateY(0)` re-baselines the wrapper so our rotate transition
+   on open animates from a clean zero offset. */
+.mat-mdc-select-arrow-wrapper.mat-mdc-select-arrow-wrapper {
+  @apply inline-flex items-center justify-center;
   flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 16px;
   height: 16px;
-  transform: translateY(0) !important;
+  transform: translateY(0);
   transition: transform var(--duration-fast) var(--easing-standard);
 }
 
-.mat-mdc-select-arrow {
-  width: 12px !important;
-  height: 12px !important;
+.mat-mdc-select-arrow.mat-mdc-select-arrow {
+  width: 12px;
+  height: 12px;
   color: var(--muted-foreground);
 
   svg {
@@ -185,8 +206,11 @@ textarea.mat-mdc-input-element.custom-textarea {
   }
 }
 
+/* Selector specificity (0,3,0): `.mat-mdc-select[aria-expanded='true']` (0,2,0)
+   + descendant `.mat-mdc-select-arrow-wrapper` (0,1,0). Beats any plain MDC
+   class rule. */
 .mat-mdc-select[aria-expanded='true'] .mat-mdc-select-arrow-wrapper {
-  transform: rotate(180deg) !important;
+  transform: rotate(180deg);
 }
 
 .mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {
@@ -211,8 +235,12 @@ textarea.mat-mdc-input-element.custom-textarea {
     display: none;
   }
 
+  /* Nested rules inherit the parent selector's specificity. Both arms of the
+     parent contribute at least (0,2,0) (`.no-label-form-field.mat-mdc-form-field`)
+     or (0,1,1) (`.mat-mdc-form-field:not(:has(mat-label))`), so child rules
+     land at (0,3,0)+ — well above Material's MDC defaults at (0,1,0). */
   .mat-mdc-text-field-wrapper {
-    padding: 0 !important;
+    padding: 0;
   }
 
   .mat-mdc-form-field-flex {
@@ -222,19 +250,27 @@ textarea.mat-mdc-input-element.custom-textarea {
 
   .mat-mdc-form-field-infix {
     min-height: 36px;
-    padding: 0 !important;
+    padding: 0;
     display: flex;
     align-items: center;
     width: auto;
   }
 
-  /* `!important` here defeats the wrapper reset above (also `!important`),
-     which targets the same element. Without it, the trigger text in selects
-     without a prefix icon sits flush against the left edge. */
+  /* `.mat-mdc-text-field-wrapper` and `.mdc-text-field--filled` are two
+     classes on the same DOM element. Both rules target padding at equal
+     specificity, so the later one (this) wins by source order — no
+     `!important` needed. The 10px horizontal padding gives the trigger text
+     daylight from the wrapper's left edge in selects without a prefix icon.
+     `align-items: center` overrides MDC's `.mdc-text-field { align-items:
+     baseline }` default — without it, the wrapper aligns its single flex
+     child (form-field-flex) to a baseline computed from an empty container,
+     which collapses to the wrapper's bottom edge and pushes the entire
+     input stack toward the bottom of the 36px row. */
   .mdc-text-field--filled {
-    padding: 0 10px !important;
+    padding: 0 10px;
     min-height: 36px;
     height: 36px;
+    align-items: center;
   }
 
   /* Outlined variant: the visible border is on `.mdc-notched-outline`
@@ -247,7 +283,7 @@ textarea.mat-mdc-input-element.custom-textarea {
   input.mat-mdc-input-element {
     font-size: var(--text-md);
     line-height: 1.3;
-    padding: 0 !important;
+    padding: 0;
   }
 
   /* Prefix sits flush with the wrapper's left padding (10px), with only
@@ -272,18 +308,20 @@ textarea.mat-mdc-input-element.custom-textarea {
     font-size: var(--text-lg);
     width: 16px;
     height: 16px;
-    padding: 0 !important;
+    padding: 0;
     box-sizing: content-box;
     line-height: 1;
   }
 
-  /* Compact clear button — perfectly centered in the 36px row */
-  .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button {
+  /* Compact clear button — perfectly centered in the 36px row. Doubled-class
+     on `.mat-mdc-icon-button` lifts the width/height rules to (0,4,0) so they
+     win over the icon-button base rule (also at (0,2,0)) without `!important`. */
+  .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button.mat-mdc-icon-button {
     --mat-icon-button-state-layer-size: 24px;
     --mat-icon-button-icon-size: 14px;
-    width: 24px !important;
-    height: 24px !important;
-    padding: 0 !important;
+    width: 24px;
+    height: 24px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -415,20 +453,24 @@ textarea.mat-mdc-input-element.custom-textarea {
    collapsed by `state-layer-size: 0`; hide it to prevent a hover halo.
    Icons: belt-and-suspenders — the size-0 tokens hide the SVGs, but the
    container `display: none` guarantees no layout leftovers. */
+/* Descendant chain lands at (0,2,0), beating Material's MDC base rules
+   at (0,1,0) without `!important`. */
 .mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,
 .mat-mdc-slide-toggle .mdc-switch__ripple,
 .mat-mdc-slide-toggle .mdc-switch__icons {
-  display: none !important;
+  display: none;
 }
 
-/* Chip */
+/* Chip — bind `--mat-chip-container-shape` so Material applies our radius
+   via its own internal `border-radius: var(--mat-chip-container-shape)` rule,
+   no explicit override needed. */
 .mat-mdc-chip {
   --mat-chip-elevated-container-color: var(--well);
   --mat-chip-label-text-color: var(--foreground);
   --mat-chip-outline-color: var(--border);
   --mat-chip-elevated-selected-container-color: var(--primary-muted);
   --mat-chip-selected-label-text-color: var(--primary);
-  border-radius: var(--radius-md) !important;
+  --mat-chip-container-shape: var(--radius-md);
 }
 
 /* Button toggle group — flat / transparent with an accent underline on
@@ -473,14 +515,15 @@ textarea.mat-mdc-input-element.custom-textarea {
    03- OVERLAYS (panels, menus, dialogs, tooltips)
    ========================================================================== */
 
-/* Select panel — the dropdown that opens when a select is clicked. */
-.mat-mdc-select-panel {
+/* Select panel — the dropdown that opens when a select is clicked. No M3
+   token for shape / border / elevation, so we use direct CSS. Doubled-class
+   lifts the selector to (0,2,0) — wins over Material's base rule (0,1,0)
+   without `!important`. */
+.mat-mdc-select-panel.mat-mdc-select-panel {
   --mat-select-panel-background-color: var(--muted);
-  /* No M3 token for the select panel's shape, border, or elevation —
-     these stay as direct overrides. */
   border: 1px solid var(--border);
-  border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-md) !important;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .mat-mdc-option {
@@ -491,13 +534,14 @@ textarea.mat-mdc-input-element.custom-textarea {
   --mat-option-selected-state-layer-color: var(--primary-muted);
 }
 
-/* Menu panels (mat-menu) */
-.mat-mdc-menu-panel {
+/* Menu panels (mat-menu). Shape via `--mat-menu-container-shape` token;
+   border + elevation lack M3 tokens so they're direct CSS. Doubled-class
+   lifts to (0,2,0) — wins over Material's MDC default (0,1,0). */
+.mat-mdc-menu-panel.mat-mdc-menu-panel {
   --mat-menu-container-color: var(--muted);
   --mat-menu-container-shape: var(--radius-md);
-  /* No M3 token for the menu panel's wrapper border or elevation — stay direct. */
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-md) !important;
+  box-shadow: var(--shadow-md);
 }
 
 .mat-mdc-menu-item {
@@ -516,8 +560,10 @@ textarea.mat-mdc-input-element.custom-textarea {
 }
 
 /* Material 21 starts `.mat-mdc-dialog-surface` at `transform: scale(0.8)` and
-   transitions to `none` on open. Pinning it to `none` keeps only the opacity
-   fade on `.mat-mdc-dialog-inner-container`. */
+   transitions to `none` on open. `!important` required to beat the
+   Angular-animations inline `transform: scale(...)` set on the host element
+   during the enter animation — inline styles outrank class rules unless we
+   mark our class rule `!important`. */
 .mat-mdc-dialog-surface {
   transform: none !important;
   border-radius: var(--radius-md);
@@ -562,17 +608,26 @@ textarea.mat-mdc-input-element.custom-textarea {
    04- LAYOUT CONTAINERS (expansion panel, toolbar)
    ========================================================================== */
 
-/* Expansion panel */
-.mat-expansion-panel {
+/* Expansion panel — shape via `--mat-expansion-container-shape` token;
+   no clean token for elevation removal, so doubled-class lifts the rule to
+   (0,2,0) and wins over Material's elevation rules at (0,1,0). */
+.mat-expansion-panel.mat-expansion-panel {
   --mat-expansion-container-background-color: var(--card);
   --mat-expansion-container-text-color: var(--foreground);
+  --mat-expansion-container-shape: var(--radius-md);
   --mat-expansion-header-text-color: var(--heading-foreground);
   --mat-expansion-header-hover-state-layer-color: var(--card-hover);
   --mat-expansion-header-focus-state-layer-color: var(--card-hover);
   --mat-expansion-actions-divider-color: var(--border-faint);
+  /* Replace M3's default elevation shadow via the token (var() resolves at
+     compute time, so no specificity battle with Material's
+     `.mat-expansion-panel:not([class*=mat-elevation-z])` rule at (0,2,0)).
+     The explicit `box-shadow: none` below is the safety net for cases where
+     a prebuilt theme sets the token at `:root` and an ancestor inherits the
+     shadow value back through cascade order. */
+  --mat-expansion-container-elevation-shadow: none;
   border: 1px solid var(--border-faint);
-  border-radius: var(--radius-md) !important;
-  box-shadow: none !important;
+  box-shadow: none;
   margin-bottom: var(--form-gap);
 }
 
@@ -611,11 +666,10 @@ textarea.mat-mdc-input-element.custom-textarea {
   --mat-paginator-container-text-color: var(--subtle-foreground);
 }
 
-/* Tab group — modern, minimal underline with hover state-layer.
-   Shadow hygiene: Material renders shadows in several places on tabs that
-   don't fit a minimal look — the pagination chevron buttons, the tab-header
-   bottom divider (simulated via inset box-shadow), and the active-indicator's
-   default elevation. We null all of those out and keep just the 2px underline. */
+/* Tab group — modern, minimal underline with hover state-layer. Token
+   rebindings carry the color, geometry, and divider work; the tracking and
+   divider-height bindings already kill the typography spacing and bottom
+   border without per-element overrides. */
 .mat-mdc-tab-group,
 .mat-mdc-tab-nav-bar {
   --mat-tab-inactive-label-text-color: var(--muted-foreground);
@@ -633,75 +687,61 @@ textarea.mat-mdc-input-element.custom-textarea {
   --mat-tab-active-hover-indicator-color: var(--primary);
   --mat-tab-active-indicator-color: var(--primary);
   --mat-tab-container-height: 40px;
-
-  /* Kill any residual box-shadow on the tab group container itself */
-  box-shadow: none !important;
 }
 
-/* Tab header strip: the bar that holds all tab buttons. MDC sometimes draws
-   a bottom shadow here as a faux-divider — remove it and let the underline
-   indicator be the only horizontal rule. */
-.mat-mdc-tab-header,
-.mat-mdc-tab-header-pagination,
-.mat-mdc-tab-header .mat-mdc-tab-labels,
-.mat-mdc-tab-nav-bar .mat-mdc-tab-link-container {
-  box-shadow: none !important;
-  border-bottom: none !important;
-}
-
-/* Pagination chevrons (appear when tabs overflow): MDC ships them with a
-   hover box-shadow and subtle background that clashes with our flat tokens. */
-.mat-mdc-tab-header-pagination {
-  background: transparent !important;
+/* Pagination chevrons (appear when tabs overflow): replace MDC's subtle hover
+   background with our flat card-hover token. */
+.mat-mdc-tab-header-pagination.mat-mdc-tab-header-pagination {
+  background: transparent;
 
   &::before,
   &::after {
-    display: none !important;
+    display: none;
   }
 
   &:not(.mat-mdc-tab-header-pagination-disabled):hover {
-    background: var(--card-hover) !important;
-    box-shadow: none !important;
+    background: var(--card-hover);
   }
 }
 
-/* The tab underline indicator — thin, short-shouldered, no elevation. */
+/* The tab underline indicator — thin and short-shouldered. The 3-class
+   descendant chain lands at (0,3,0), well above Material's (0,1,0). */
 .mat-mdc-tab-group .mdc-tab-indicator .mdc-tab-indicator__content--underline,
 .mat-mdc-tab-nav-bar .mdc-tab-indicator .mdc-tab-indicator__content--underline {
-  border-top-width: 2px !important;
+  border-top-width: 2px;
   border-radius: var(--radius-xs) var(--radius-xs) 0 0;
-  box-shadow: none !important;
 }
 
-/* Tab label: tighter, with hover state-layer pulled in from the bg-card palette */
-.mat-mdc-tab,
-.mat-mdc-tab-link {
-  min-width: 0 !important;
-  padding: 0 14px !important;
-  letter-spacing: normal !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
+/* Tab label: tighter horizontal padding than MDC's default 24px and let labels
+   shrink below MDC's 90px min-width. Doubled-class lifts to (0,2,0) to beat
+   Material's tab base rules at (0,1,0). */
+.mat-mdc-tab.mat-mdc-tab,
+.mat-mdc-tab-link.mat-mdc-tab-link {
+  min-width: 0;
+  padding: 0 14px;
 }
 
+/* Selector lands at (0,4,0): two classes + :hover + :not(class) + descendant
+   class. Beats any Material hover-label rule. */
 .mat-mdc-tab:hover:not(.mdc-tab--active) .mdc-tab__text-label,
 .mat-mdc-tab-link:hover:not(.mdc-tab--active) .mdc-tab__text-label {
-  color: var(--foreground) !important;
+  color: var(--foreground);
 }
 
-/* Remove the heavy default ripple / state-layer background on tabs */
+/* Remove the heavy default ripple / state-layer background on tabs. The
+   descendant chain lands at (0,2,0), beating Material's (0,1,0) ripple rule. */
 .mat-mdc-tab .mat-ripple-element,
 .mat-mdc-tab-link .mat-ripple-element {
-  background-color: var(--primary-muted) !important;
+  background-color: var(--primary-muted);
 }
 
-/* Active tab: kill MDC's default inset shadow "pill" that some themes emit
-   on the active label. The underline indicator is enough signal. */
+/* Active tab: suppress MDC's inset state-layer "pill" on the active label.
+   The underline indicator is enough signal. Nested rule lands at (0,3,1),
+   beating Material's (0,1,1). */
 .mat-mdc-tab.mdc-tab--active,
 .mat-mdc-tab-link.mdc-tab--active {
-  box-shadow: none !important;
-
   .mdc-tab__ripple::before {
-    opacity: 0 !important;
+    opacity: 0;
   }
 }
 

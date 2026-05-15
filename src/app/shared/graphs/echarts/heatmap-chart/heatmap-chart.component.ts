@@ -60,6 +60,7 @@ const BUCKET_ALPHAS = [0.18, 0.32, 0.55, 0.85];
   styles: [
     `
       .heatmap {
+        --heatmap-week-count: 52;
         width: 100%;
         padding: 4px 0;
       }
@@ -78,7 +79,7 @@ const BUCKET_ALPHAS = [0.18, 0.32, 0.55, 0.85];
         grid-column: 2;
         grid-row: 1;
         display: grid;
-        grid-template-columns: repeat(var(--heatmap-week-count, 52), 1fr);
+        grid-template-columns: repeat(var(--heatmap-week-count), 1fr);
         gap: 3px;
         min-width: 0;
       }
@@ -111,7 +112,7 @@ const BUCKET_ALPHAS = [0.18, 0.32, 0.55, 0.85];
         grid-column: 2;
         grid-row: 2;
         display: grid;
-        grid-template-columns: repeat(var(--heatmap-week-count, 52), 1fr);
+        grid-template-columns: repeat(var(--heatmap-week-count), 1fr);
         gap: 3px;
         min-width: 0;
       }

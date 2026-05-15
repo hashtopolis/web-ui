@@ -1,3 +1,5 @@
+@reference './tailwind.css';
+
 // =============================================================================
 // SECTION DESIGN SYSTEM
 // =============================================================================
@@ -200,7 +202,7 @@
 
   &.mat-focused .mat-mdc-text-field-wrapper {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--ring);
+    @apply focus-ring;
   }
 
   input,

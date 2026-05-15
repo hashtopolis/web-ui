@@ -34,7 +34,6 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
 @Component({
   selector: 'app-tasks-table',
   templateUrl: './tasks-table.component.html',
-  styleUrls: ['./tasks-table.component.scss'],
   standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {

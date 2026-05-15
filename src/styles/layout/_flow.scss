@@ -9,9 +9,10 @@
    scale modifiers, or by setting --flow-gap locally. */
 
 .flow {
+  --flow-gap: var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--flow-gap, var(--space-sm));
+  gap: var(--flow-gap);
 }
 
 .flow--xs {

@@ -18,16 +18,17 @@
   // Snow-canvas radial highlight — atmospheric feel without image assets.
   background-image: radial-gradient(ellipse at top, rgba(21, 32, 64, 0.04), transparent 60%);
 
-  // Raised / FAB / mini-FAB hover — navy "glow". The rgba(15, 23, 42, …) navy
-  // is hardcoded because the effect is a literal navy bloom; it would look
-  // wrong on the dark theme's near-black canvas, so it stays light-only.
+  // Raised / FAB / mini-FAB hover — navy "glow". Sourced from the alpine-snow
+  // --alpine-shadow-glow* tokens, defined only inside `.light-theme` in
+  // _tokens.scss; dark mode doesn't override the base --shadow-* so this rule
+  // doesn't apply there.
   .mat-mdc-raised-button,
   .mat-mdc-fab,
   .mat-mdc-mini-fab {
     &:hover {
       box-shadow:
-        0 0 30px rgba(15, 23, 42, 0.18),
-        0 1px 2px rgba(15, 23, 42, 0.08);
+        0 0 30px var(--alpine-shadow-glow),
+        0 1px 2px var(--alpine-shadow-glow-rim);
     }
   }
 }

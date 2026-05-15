@@ -7,6 +7,7 @@ interface PasswordStrength {
 @Component({
   selector: 'app-pass-strenght',
   templateUrl: './pass-strenght.component.html',
+  styleUrls: ['./pass-strenght.component.scss'],
   standalone: false
 })
 export class PassStrenghtComponent implements OnChanges {

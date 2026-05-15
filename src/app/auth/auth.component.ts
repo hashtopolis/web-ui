@@ -24,6 +24,7 @@ export interface LoginForm {
 @Component({
   selector: 'app-login',
   templateUrl: './auth.component.html',
+  styleUrls: ['./auth.component.scss'],
   standalone: false
 })
 export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {

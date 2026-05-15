@@ -14,7 +14,7 @@
 .snackbar-success,
 .snackbar-info {
   .mat-mdc-snack-bar-label {
-    font-size: 12pt;
+    font-size: var(--text-md);
     font-weight: 500;
   }
 
@@ -33,7 +33,7 @@
 
   .mat-mdc-snack-bar-actions button {
     --mdc-text-button-label-text-color: var(--foreground);
-    font-size: 10pt;
+    font-size: var(--text-sm);
     border: 1px solid var(--border-strong);
   }
 }

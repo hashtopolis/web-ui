@@ -169,3 +169,12 @@
   width: 100%;
   min-width: 0;
 }
+
+/* Canonical focus-ring (2px outside the element, using the semantic `--ring`
+   token). State-specific rings (filled-input focus uses `--primary-muted`,
+   invalid uses `--destructive-ring`, etc.) stay inline at their call sites —
+   they're not duplicates of this rule, they're contextual variants with
+   different colors. */
+@utility focus-ring {
+  box-shadow: 0 0 0 2px var(--ring);
+}

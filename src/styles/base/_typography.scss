@@ -57,19 +57,10 @@ form,
   }
 }
 
-/* Status-text utility classes. Bound to design-system tokens so the colors
-   track theme/design changes (previously routed through Bootstrap's
-   `--bs-*-rgb` vars, which is the last bit of Bootstrap in the typography
-   layer). `!important` is intentional: these are utility-class overrides
-   layered over Material's default text colors. */
-.text-gray-900 {
-  color: var(--heading-foreground) !important;
-}
-
-.text-success {
-  color: var(--success) !important;
-}
-
-.text-warning {
-  color: var(--warning) !important;
-}
+/* Status-text utility classes previously lived here. Now removed:
+   - `.text-gray-900` was unused.
+   - `.text-warning` is canonical in src/styles/base/_base.scss alongside the
+     other status text classes (.text-ok, .text-critical, …).
+   - `.text-success` is shadowed by the Tailwind utility generated from
+     `--color-success` via tailwind.css's `@theme inline` bridge, which
+     resolves to the same `var(--success)` token. */

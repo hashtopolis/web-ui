@@ -25,27 +25,17 @@ input[type='color'] {
   cursor: pointer;
 }
 
-/* Vendor pseudo-elements live in the browser's user-agent shadow tree, which
-   doesn't pick up Angular's encapsulation attribute — so ::ng-deep is needed
-   here even though the host element above doesn't need it. */
-:host ::ng-deep input[type='color']::-webkit-color-swatch-wrapper {
-  padding: 2px;
-}
-
-:host ::ng-deep input[type='color']::-webkit-color-swatch {
-  border: none;
-  border-radius: calc(var(--radius-md) - 1px);
-}
-
-:host ::ng-deep input[type='color']::-moz-color-swatch {
-  border: none;
-  border-radius: calc(var(--radius-md) - 1px);
-}
+/* Native color-input vendor-pseudo styling (::-webkit-color-swatch* and
+   ::-moz-color-swatch) lives in src/styles/components/_color-input.scss. UA
+   pseudo-elements aren't part of any component's encapsulation tree, so they
+   need a globally-loaded rule rather than a scoped one with ::ng-deep. */
 
 /* Hex value overlay — auto-contrasts over any user-picked swatch.
-   The literal #ffffff is required: `mix-blend-mode: difference` against white
-   yields the exact color inverse, guaranteeing legible contrast on any hue.
-   A theme token would track the theme, not the swatch, breaking the inversion. */
+   #ffffff is a blend-invert-anchor, not a theme color: `mix-blend-mode:
+   difference` against an arbitrary background `bg` computes `|fg - bg|`. With
+   fg = white = (255, 255, 255), the result is `255 - bg` — the exact color
+   inverse, guaranteeing legible contrast on every hue. A theme token (navy in
+   light, white in dark) would break the inversion in light mode. */
 .color-value {
   position: absolute;
   top: 50%;

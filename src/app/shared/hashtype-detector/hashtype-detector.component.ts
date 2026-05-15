@@ -20,6 +20,7 @@ interface HashTypeMatch {
 @Component({
   selector: 'hashtype-detector',
   templateUrl: './hashtype-detector.component.html',
+  styleUrls: ['./hashtype-detector.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })

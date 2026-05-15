@@ -1,5 +1,14 @@
+@reference '../../../styles/tailwind.css';
+
 :host {
   display: block;
+}
+
+/* Base `.custom-form` wrapper — full-width host inside the dynamic form
+   builder. Moved from styles/components/_form.scss; only this component
+   renders the class. */
+.custom-form {
+  width: 100%;
 }
 
 /* Render `isTitle`-delimited sections in two columns at md+ so paired
@@ -31,7 +40,16 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-sm) 20px;
-  align-items: end;
+  /* Top-align cells so stacked-label inputs (label above mat-form-field via
+     `.field-stack`) share a top edge across the row — labels line up, fields
+     line up beneath them. The previous `align-items: end` predated the shared
+     `input-*` components, when every cell was a single-line raw mat-form-field
+     or mat-checkbox and bottom-aligning kept controls flush. With taller
+     stacked-label inputs the same rule pinned shorter cells (e.g. a 28px
+     color swatch) to the row bottom, leaving an empty gap above the label.
+     Checkbox-only cells re-introduce bottom alignment via `align-self` below,
+     so a lone checkbox still sits at the labeled neighbour's field baseline. */
+  align-items: start;
   background: var(--card);
   border: 1px solid var(--border-faint);
   border-radius: var(--radius-md);
@@ -73,67 +91,25 @@
   grid-column: 1 / -1;
 }
 
-/* Force labels to a single line so neighbouring sections share identical row
-   heights. Long labels ellipsize; the full text shows in a Material tooltip on
-   hover, driven by appOverflowTooltip which only enables the tooltip when
-   scrollWidth > clientWidth. The label and clamping span live inside the
-   shared `input-*` components (text, number, select, text-area, check), so we
-   pierce their view encapsulation with `::ng-deep`. Other forms using those
-   inputs keep their natural wrapping because they don't add this rule. */
-:host ::ng-deep .field-stack__label {
-  width: 100%;
-  min-width: 0;
-}
-
-/* `flex: 0 1 auto` keeps the text at its natural width so the inherited
-   `gap: 6px` from the global `.field-stack__label` places the (i) icon
-   directly after the text. `flex-shrink: 1` + `min-width: 0` preserves
-   the ellipsize behaviour when the grid cell becomes narrower than the
-   label's intrinsic width. `display: block` is required for the checkbox
-   case, where the span lives inside Material's `.mdc-label` (block flex
-   item) rather than a flex `.field-stack__label`. */
-:host ::ng-deep .field-stack__label-text {
-  flex: 0 1 auto;
-  min-width: 0;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Same single-line treatment for checkbox labels — without this the long
-   checkbox prompts (e.g. "Check for Previous Cracks in Other Hashlists at
-   Hashlist Creation", or the three "Rule Splitting…" labels) wrap to two
-   lines, push the checkbox content past its grid cell, and overlap the
-   neighbouring column. The Material checkbox projects its content into
-   `.mdc-label` inside an `.mdc-form-field` flex container; both of those
-   nodes are rendered by Material (no component attribute), so we have to
-   pierce view encapsulation with `::ng-deep` to reach them. */
+/* Single-line label clamping and checkbox-layout rules for the dynamic form
+   live globally in src/styles/components/_dynamicform.scss — scoped via the
+   .custom-form__sections / .custom-form__checkbox context classes added by
+   this component's template. Other forms using the same input-* components
+   keep their natural wrapping because they don't add those classes. */
 .custom-form__checkbox-cell {
   min-width: 0;
   /* Re-establish the grid cell as the containing block for an inline-flex
      checkbox so it can never spill into the neighbouring column. */
   overflow: hidden;
+  /* The section grid top-aligns cells so labels on stacked-label inputs line
+     up. A bare checkbox has no separate label-above-field, so left top-aligned
+     it would sit beside the neighbouring input's *label* instead of its
+     *field*. Bottom-aligning just the checkbox cell drops it to the row's
+     baseline, level with the labeled neighbour's field. */
+  align-self: end;
 }
 
 .custom-form__checkbox {
   display: block;
   max-width: 100%;
-}
-
-.custom-form__checkbox ::ng-deep .mat-mdc-checkbox {
-  display: block;
-  max-width: 100%;
-}
-
-.custom-form__checkbox ::ng-deep .mdc-form-field {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-}
-
-.custom-form__checkbox ::ng-deep .mdc-label {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: block;
 }

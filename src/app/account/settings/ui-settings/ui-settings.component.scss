@@ -1,0 +1,28 @@
+/* Legacy `.form-field` wrapper — local to the UI Settings form. Moved out of
+   styles/components/_form.scss now that this component has its own .scss.
+   The class name is kept (no rename) so the template stays untouched; emulated
+   encapsulation scopes it to this component automatically. */
+
+.form-field {
+  display: block;
+
+  label {
+    font-weight: 600;
+    margin-bottom: var(--space-2xs);
+    display: inline-block;
+    color: var(--heading-foreground);
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-icon {
+    color: var(--subtle-foreground);
+  }
+
+  select,
+  input {
+    max-width: 500px;
+  }
+}

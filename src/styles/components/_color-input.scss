@@ -1,0 +1,23 @@
+/* ==================================
+        SECTION COLOR INPUT
+   ==================================
+   Native <input type="color"> wrapper styling lives here at global scope
+   so its UA pseudo-elements (::-webkit-color-swatch*, ::-moz-color-swatch)
+   are reachable without ::ng-deep. UA pseudo-elements live in the browser's
+   user-agent shadow tree and don't pick up Angular's encapsulation attribute,
+   so a globally-loaded rule is the right tool. Paired with the layout/host
+   styles in src/app/shared/input/color/color.component.scss. */
+
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+input[type='color']::-moz-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-md) - 1px);
+}

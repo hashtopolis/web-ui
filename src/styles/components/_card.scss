@@ -15,7 +15,6 @@
   --mat-card-outlined-container-color: var(--card);
   --mat-card-outlined-outline-color: var(--border-faint);
   --mat-card-outlined-container-shape: var(--radius-md);
-  border-radius: var(--radius-md) !important;
   color: var(--foreground);
 }
 
@@ -39,6 +38,8 @@
     transform var(--duration-fast) var(--easing-standard);
   min-height: 168px;
 
+  /* 20px / 18px paddings on card-content variants sit deliberately between
+     --space-md (16) and --space-lg (24); no token rung matches. */
   .mat-mdc-card-content {
     padding: 20px;
     display: flex;
@@ -79,71 +80,9 @@
 }
 
 /* ---------------------------------------------------------------------------
-   01- Legacy agent status cards (used by <app-new-agent>)
+   01- Per-component partials lifted out of this file
+   - Legacy agent-status cards (.card-ag*, .gray-light-ico, .highlight) →
+     styles/components/_card-ag.scss
+   - .err-msg → src/app/shared/alert/error/error.component.scss (component-local)
+   - .smaller-pass-strength → styles/components/_pass-strength.scss
    --------------------------------------------------------------------------- */
-
-.card-container-ag {
-  width: 25%;
-}
-
-.card-ag {
-  background-color: var(--card);
-  border: 1px solid var(--border-faint);
-  height: 190px;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.card-ag-rack {
-  background-color: var(--card);
-  border: 1px solid var(--border-faint);
-  height: 220px;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.card-header-ag {
-  background-color: var(--muted);
-  font-size: 14pt;
-  color: var(--heading-foreground);
-  padding: 5px;
-  width: 100%;
-}
-
-.card-body-left-ag {
-  margin-top: -5px;
-}
-.card-body-right-ag {
-  margin-left: 5px;
-  margin-top: 5px;
-}
-.card-body-top-right {
-  margin-left: 5px;
-  position: relative;
-}
-.card-body-content-ag {
-  width: 100px;
-}
-
-.gray-light-ico:hover {
-  color: var(--subtle-foreground);
-  cursor: pointer;
-}
-
-.highlight {
-  background-color: var(--well);
-}
-
-.err-msg {
-  background: var(--well);
-  color: var(--foreground);
-  padding: 1rem;
-  font-family: monospace;
-  word-break: break-all;
-}
-
-.smaller-pass-strength {
-  width: 17%;
-  box-sizing: border-box;
-  padding: 0 var(--space-md);
-}

@@ -1,6 +1,20 @@
+@reference './tailwind.css';
+
 /* ==================================
           SECTION FORMS
-   ================================== */
+   ==================================
+
+   This file owns ONLY:
+   - Material form-field re-skin (sections 00–01) — global by necessity
+     because the selectors target MDC internals via ViewEncapsulation.None.
+   - Cross-cutting form patterns (`.field-stack` family, `.input--readonly`,
+     `.form-layout`) — true design-system primitives used across 9+ components.
+   - The native `<input type="number">` spinner reset.
+
+   Single-component styles (login, password-strength, .form-field, the chip
+   grid, multiselect overlay panel, .custom-form, etc.) now live in their
+   respective component .scss files or per-component partials in this
+   directory (_input-multiselect.scss for the autocomplete overlay, etc.). */
 
 /* ---------------------------------------------------------------------------
    00- Filled form field: bordered-box look (app-wide default)
@@ -49,8 +63,12 @@
    01- Invalid / validation state
    --------------------------------------------------------------------------- */
 
+/* Invalid-state selectors are (0,3,1) — `mat-form-field` + two classes + the
+   nested element class. That already beats Material's own invalid-state rules
+   (which use (0,2,1) at most for the equivalent MDC selectors), so no
+   `!important` is needed. */
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-text-field--filled {
-  border-color: var(--destructive) !important;
+  border-color: var(--destructive);
 }
 
 mat-form-field.mat-form-field-invalid.mat-form-field-touched.mat-focused .mdc-text-field--filled {
@@ -59,194 +77,17 @@ mat-form-field.mat-form-field-invalid.mat-form-field-touched.mat-focused .mdc-te
 
 mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label,
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label {
-  color: var(--destructive) !important;
+  color: var(--destructive);
 }
 
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mat-mdc-form-field-required-marker,
 mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label--required::after {
-  color: var(--destructive) !important;
-}
-
-/* Filter-error variant — applied via [class.filter-error] on form fields
-   that don't go through Angular forms validation (e.g. table column-filter
-   inputs), so the .mat-form-field-invalid hook isn't triggered. */
-.filter-error .mdc-text-field--filled {
-  border-color: var(--destructive) !important;
-  box-shadow: 0 0 0 2px var(--destructive-ring) !important;
+  color: var(--destructive);
 }
 
 /* ---------------------------------------------------------------------------
-   02- Form field label row (used by custom inputs)
+   02- Shared form layout helpers
    --------------------------------------------------------------------------- */
-
-.form-field {
-  label {
-    font-weight: 600;
-    margin-bottom: var(--space-2xs);
-    display: inline-block;
-    color: var(--heading-foreground);
-  }
-
-  .mat-mdc-form-field {
-    width: 100%;
-  }
-  .mat-icon {
-    color: var(--subtle-foreground);
-  }
-}
-
-.form-input-custom {
-  padding-bottom: 10px;
-  padding-right: 10px;
-  width: auto;
-}
-
-.form-field select,
-.form-field input {
-  max-width: 500px;
-}
-
-/* ---------------------------------------------------------------------------
-   03- Password strength indicator
-   --------------------------------------------------------------------------- */
-
-.password-strength-container {
-  margin-top: var(--space-xs);
-}
-
-.strength-bars {
-  display: flex;
-  gap: var(--space-2xs);
-  margin-bottom: var(--space-2xs);
-}
-
-.strength-bar {
-  height: 6px;
-  flex: 1;
-  border-radius: var(--radius-sm);
-  transition: background-color var(--duration-slow) var(--easing-standard);
-}
-
-.strength-label {
-  font-size: var(--text-sm);
-  font-weight: 500;
-  text-align: center;
-  transition: color var(--duration-slow) var(--easing-standard);
-}
-
-/* ---------------------------------------------------------------------------
-   04- Login form wrapper (auth component)
-   --------------------------------------------------------------------------- */
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-.login-card {
-  width: 400px;
-  margin-bottom: var(--space-md);
-}
-
-.login-logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  margin: 20px 0;
-
-  a {
-    text-align: center;
-  }
-  img {
-    display: block;
-    margin: auto;
-  }
-}
-
-.card-login-field {
-  width: 100%;
-  margin-bottom: var(--space-md);
-}
-
-.forgot-password-link {
-  margin-top: var(--space-md);
-  text-align: center;
-
-  a {
-    color: var(--primary);
-    text-decoration: none;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   05- Autocomplete / chips / virtual-scroll panels
-   --------------------------------------------------------------------------- */
-
-.custom-chip-grid {
-  width: 100%;
-  min-width: 0;
-
-  mat-chip-row button[matchipremove] {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  // Breathing room between the last chip and the trailing search input.
-  // Material's adjacent-sibling rule (.mat-mdc-chip-set + input.mat-mdc-chip-input)
-  // zeroes both margins when the input directly follows the chip-grid, which is
-  // exactly our markup. Doubling the class bumps specificity over Material's
-  // selector (0,3,1 vs 0,2,1) without resorting to !important.
-  input.mat-mdc-chip-input.mat-mdc-chip-input {
-    margin-inline-start: var(--space-xs);
-  }
-}
-
-.highlight-text {
-  background-color: var(--highlight-bg);
-}
-
-/* Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport
-   handle scrolling instead of the mat-autocomplete overlay panel itself. */
-.multiselect-virtual-panel {
-  overflow: hidden !important;
-  padding: 0 !important;
-
-  cdk-virtual-scroll-viewport {
-    width: 100%;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   06- Shared/Input layout helpers
-   --------------------------------------------------------------------------- */
-
-.custom-input-container {
-  display: flex;
-  align-items: center;
-}
-
-.custom-textarea {
-  width: 100%;
-}
-
-.flex-grow {
-  flex-grow: 1;
-  width: 100%;
-  margin-right: var(--space-xs);
-}
-
-.custom-form {
-  width: 100%;
-}
-
-.mat-input-element {
-  font-size: var(--text-base) !important;
-}
 
 /* Vertical-flex form region. The global `form` rule in tailwind.css gives
    <form> the flex layout for free; `.form-layout` is the equivalent utility
@@ -276,7 +117,7 @@ app-form-row {
 }
 
 /* ---------------------------------------------------------------------------
-   07- Label-less compact form field
+   03- Label-less compact form field
    The compact rules live in _material.scss under a combined selector that
    matches both `.mat-mdc-form-field:not(:has(mat-label))` (auto-apply) and
    `.no-label-form-field.mat-mdc-form-field` (explicit opt-in for fields
@@ -284,19 +125,18 @@ app-form-row {
    --------------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------------
-   08- Stacked label form field
+   04- Stacked label form field
    Renders the label statically *above* the form field instead of using
    Material's floating-label animation. Pair `field-stack` on the wrapper
    with `field-stack__field` on the inner <mat-form-field> (so the label
    slot collapses and the input keeps a comfortable height).
+
+   This is a cross-cutting pattern used by 13 components (every input-*
+   variant + ad-hoc forms), so it stays global.
    --------------------------------------------------------------------------- */
 
 .field-stack {
   display: block;
-
-  &--narrow {
-    width: 12.5rem; // 200px on the spacing scale; for compact filename / id fields
-  }
 
   &__label {
     display: flex;
@@ -352,55 +192,22 @@ app-form-row {
 /* Components without their own per-component `:host` block still need to be
    block-level so they participate properly in form layouts. The custom
    input-* components apply this themselves via the `fluid-component`
-   utility (see tailwind.css); only `input-check`, raw `<mat-form-field>`,
-   and the legacy `.form-field` wrapper rely on this rule. */
+   utility (see tailwind.css); only `input-check` and raw `<mat-form-field>`
+   rely on this rule. */
 input-check,
-mat-form-field,
-.form-field {
+mat-form-field {
   display: block;
 }
 
 /* ---------------------------------------------------------------------------
-   09a- Inline help icon inside checkbox label
-   The default mat-icon ships at 24px, which towers over the 14px checkbox
-   label text and shifts the baseline. Flex the label so the (info) is
-   optically centred with the label regardless of font metrics.
+   05- Multiselect overlay-rendered classes
+   The `.highlight-text` + `.multiselect-virtual-panel` rules moved to
+   styles/components/_input-multiselect.scss, where they now live alongside
+   the chip-grid internals as a single per-component partial.
    --------------------------------------------------------------------------- */
 
-.checkbox-wrapper mat-checkbox .mdc-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2xs);
-}
-
-.checkbox-wrapper mat-checkbox mat-icon {
-  font-size: var(--text-lg);
-  width: 16px;
-  height: 16px;
-  line-height: 1;
-  color: var(--subtle-foreground);
-  cursor: help;
-}
-
-/* Invalid state for input-check: ring the checkbox box and tint its label red
-   so the control matches the same error language as field-stack inputs. The
-   mat-checkbox renders its label inside the component, so we can't reuse the
-   field-stack__label selector — we target the rendered nodes here directly. */
-.checkbox-wrapper.is-invalid {
-  .mdc-checkbox__background {
-    border-color: var(--destructive) !important;
-    box-shadow: 0 0 0 2px var(--destructive-ring);
-    border-radius: var(--radius-sm);
-  }
-
-  .mdc-form-field > label,
-  .mdc-label {
-    color: var(--destructive);
-  }
-}
-
 /* ---------------------------------------------------------------------------
-   10- Read-only input variant
+   06- Read-only input variant
    Applied via `[class.input--readonly]="readonly"` on the wrapper of every
    input-* component. Replaces the legacy `simulate-form-field*` display
    shells: same input markup, just non-interactive.
@@ -470,7 +277,7 @@ mat-form-field,
 }
 
 /* ---------------------------------------------------------------------------
-   09- Hide native number-input spinners
+   07- Hide native number-input spinners
    The browser-default up/down chevrons clash with our custom inputs and
    feel out of place inside a Material form field. Numbers are entered via
    keyboard or paste; our domain doesn't need spinner controls.

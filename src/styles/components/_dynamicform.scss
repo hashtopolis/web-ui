@@ -1,0 +1,66 @@
+/* ==================================
+        SECTION DYNAMIC FORM
+   ==================================
+   Rules that cross Angular's view encapsulation barrier from <app-dynamic-form>
+   into the shared input-* components. Hosted globally instead of using ::ng-deep
+   inside dynamicform.component.scss — globally-loaded SCSS has no encapsulation
+   attribute, so a context-class selector like `.custom-form__sections X` matches
+   X regardless of which child component renders it. Scoping via the existing
+   .custom-form__sections / .custom-form__checkbox context classes preserves the
+   "only inside dynamicform" intent: other forms using the same input-* components
+   don't pick up these rules.
+
+   Paired with structural styles in:
+     src/app/shared/dynamic-form-builder/dynamicform.component.scss
+   ================================== */
+
+/* Force labels to a single line so neighbouring sections share identical row
+   heights. Long labels ellipsize; the full text shows in a Material tooltip on
+   hover, driven by appOverflowTooltip which only enables the tooltip when
+   scrollWidth > clientWidth. The label and clamping span live inside the
+   shared input-* components (text, number, select, text-area, check); the
+   .custom-form__sections context-class restricts this rule to dynamic forms. */
+.custom-form__sections .field-stack__label {
+  width: 100%;
+  min-width: 0;
+}
+
+/* `flex: 0 1 auto` keeps the text at its natural width so the inherited
+   `gap: 6px` from the global .field-stack__label places the (i) icon directly
+   after the text. `min-width: 0` preserves the ellipsize behaviour when the
+   grid cell becomes narrower than the label's intrinsic width. `display: block`
+   is required for the checkbox case, where the span lives inside Material's
+   .mdc-label (a block-flex item) rather than a flex .field-stack__label. */
+.custom-form__sections .field-stack__label-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Same single-line treatment for checkbox labels — without this the long
+   checkbox prompts (e.g. "Check for Previous Cracks in Other Hashlists at
+   Hashlist Creation", or the three "Rule Splitting…" labels) wrap to two
+   lines, push the checkbox content past its grid cell, and overlap the
+   neighbouring column. The Material checkbox projects its content into
+   .mdc-label inside an .mdc-form-field flex container — both rendered by
+   Material with no component attribute, so the global context-class scope
+   is what makes the rule reachable here. */
+.custom-form__checkbox .mat-mdc-checkbox {
+  display: block;
+  max-width: 100%;
+}
+
+.custom-form__checkbox .mdc-form-field {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.custom-form__checkbox .mdc-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+}

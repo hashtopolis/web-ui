@@ -91,7 +91,6 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
-  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   standalone: false

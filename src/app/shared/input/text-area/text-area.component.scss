@@ -3,3 +3,9 @@
 :host {
   @apply fluid-component;
 }
+
+/* Textarea wrapper — local to this component; moved from
+   styles/components/_form.scss. */
+.custom-textarea {
+  width: 100%;
+}
