@@ -75,25 +75,6 @@ export interface HTTableEditable<T> {
   indeterminate?: boolean;
 }
 
-// indeterminate means some are checked, dash line in checkbox instead of checkmark
-export const HTTableHeaderCheckboxState = {
-  CHECKED: 'checked',
-  UNCHECKED: 'unchecked',
-  INDETERMINATE: 'indeterminate'
-} as const;
-export type HTTableHeaderCheckboxState = (typeof HTTableHeaderCheckboxState)[keyof typeof HTTableHeaderCheckboxState];
-
-// allow rendering checkbox in the header instead of just label
-export interface HTTableHeaderCheckbox {
-  // state of checkbox based on column if all are selected, none are selected or some
-  state: HTTableHeaderCheckboxState;
-  // invoked when user clicks on the header checkbox
-  change: (next: boolean) => void;
-  tooltip?: string;
-  // optional label shown next to the checkbox (column label)
-  label?: string;
-}
-
 /** Column type for checkbox toggle events in attack file tables. */
 export type CheckboxColumnType = 'CMD' | 'CMD_PREPRO';
 
@@ -127,14 +108,6 @@ export interface HTTableColumn {
   icon?(data: BaseModel): HTTableIcon;
   isCopy?: boolean;
   parent?: string; //parent is to build relation sort query in format "task.taskName"
-  // if passed render a checkbox in the header instead of just label
-  headerCheckbox?(): HTTableHeaderCheckbox;
-  /**
-   * When true, this column is treated as structural: it is always rendered (regardless
-   * of the user's stored column-visibility config) and is hidden from the column-selection
-   * dialog. Use for control columns like a per-row toggle that the form depends on.
-   */
-  alwaysShown?: boolean;
 }
 
 /** Stringified column enum value used as mat-table column identifier */
