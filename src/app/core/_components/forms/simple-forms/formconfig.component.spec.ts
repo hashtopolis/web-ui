@@ -13,6 +13,7 @@ import { MetadataService } from '@services/metadata.service';
 import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
+import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
@@ -31,6 +32,8 @@ describe('FormConfigComponent', () => {
     const autoTitleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
     const uiConfigServiceSpy = jasmine.createSpyObj('UIConfigService', ['onUpdatingCheck']);
     const notificationRoleServiceSpy = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+    const cookieServiceSpy = jasmine.createSpyObj('CookieService', ['getCookie']);
+    cookieServiceSpy.getCookie.and.returnValue('0');
 
     activatedRoute = {
       data: of({
@@ -49,6 +52,7 @@ describe('FormConfigComponent', () => {
         { provide: AlertService, useValue: alertService },
         { provide: AutoTitleService, useValue: autoTitleServiceSpy },
         { provide: UIConfigService, useValue: uiConfigServiceSpy },
+        { provide: CookieService, useValue: cookieServiceSpy },
         { provide: NotificationsRoleService, useValue: notificationRoleServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRoute },
         JsonAPISerializer,
