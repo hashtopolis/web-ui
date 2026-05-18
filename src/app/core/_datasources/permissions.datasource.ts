@@ -1,4 +1,7 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { Filter } from '@models/request-params.model';
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -25,23 +28,30 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
     let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create(), httpOptions);
 
     this.subscriptions.push(
       permissions$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
+          const globalPermissionGroups: JGlobalPermissionGroup[] = this.serializer.deserialize(
+            response,
+            zGlobalPermissionGroupListResponse
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(globalPermissionGroups);

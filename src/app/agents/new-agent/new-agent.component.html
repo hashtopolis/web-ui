@@ -53,10 +53,16 @@
       </form>
       <app-vouchers-table #table></app-vouchers-table>
       <div class="highlight-box">
-        <p>
-          <strong>Generate a voucher</strong> to register the agent. Note that
-          once the voucher is used it will be automatically deleted
+        <p *ngIf="!allowMultiVoucher; else multipleVouchersMessage">
+          <strong>Generate a voucher</strong> to register the agent. Note that once the voucher
+          is used it will be automatically deleted.
         </p>
+        <ng-template #multipleVouchersMessage>
+          <p>
+            <strong>Generate vouchers</strong> to register agents. Vouchers remain available when the
+            "Register Multiple Agents Using Voucher(s)" option is enabled.
+          </p>
+        </ng-template>
       </div>
       <div>
         <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>

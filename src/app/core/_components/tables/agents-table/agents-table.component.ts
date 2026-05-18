@@ -1,9 +1,10 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
+import { ChunkData } from '@models/chunk.model';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
@@ -34,12 +35,11 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'agents-table',
   templateUrl: './agents-table.component.html',
   standalone: false
 })
-export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';
@@ -49,7 +49,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   set taskId(value: number) {
     if (value !== this._taskId) {
       this._taskId = value;
-      this.ngOnInit();
     }
   }
   get taskId(): number {
@@ -62,7 +61,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -81,12 +80,24 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
-    this.dataSource.reload();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
+  }
+
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -105,10 +116,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return [
       {
         id: AgentsTableCol.ID,
-        dataKey: 'agentId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
       {
@@ -121,10 +131,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       },
       {
         id: AgentsTableCol.STATUS,
-        dataKey: 'status',
+        dataKey: 'isActive',
         icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
-        isSortable: false,
+        isSortable: true,
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
@@ -150,7 +160,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'speed') + ''
+        export: async (agent: JAgent) => {
+          if (agent.chunks && agent.chunks.length > 0) {
+            return agent.chunks[0].speed + '';
+          } else {
+            return '-';
+          }
+        }
       },
       {
         id: AgentsTableCol.CURRENT_CHUNK,
@@ -180,7 +196,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
+        export: async (agent: JAgent) => (agent.task ? (agent.taskName ?? '') : '')
       },
       {
         id: AgentsTableCol.ACCESS_GROUP,
@@ -188,7 +204,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: false,
         isSearchable: true,
-        export: async (agent: JAgent) => agent.accessGroup
+        export: async (agent: JAgent) => agent.accessGroup ?? ''
       }
     ];
   }
@@ -238,7 +254,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private getChunkDataValue(agent: JAgent, property: string): number | undefined {
     if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property];
+      return agent.chunkData[property as keyof ChunkData] as number | undefined;
     }
     return undefined;
   }
@@ -250,9 +266,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const agentSpeed: number = this.getChunkDataValue(agent, 'speed');
-    if (agentSpeed) {
-      return this.sanitize(convertCrackingSpeed(agentSpeed));
+    if (agent.chunks) {
+      const chunk = agent.chunks[0];
+      if (chunk) {
+        return this.sanitize(convertCrackingSpeed(chunk.speed));
+      }
     }
     return this.sanitize('-');
   }
@@ -303,7 +321,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   renderDevices(agent: JAgent): SafeHtml {
     const deviceList = agent.devices.split('\n');
-    const deviceCountMap: { [key: string]: number } = {};
+    const deviceCountMap: Record<string, number> = {};
 
     // Count occurrences of each device
     deviceList.forEach((device) => {
@@ -397,10 +415,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (agent && agent.chunkId) {
+    if (agent && agent.chunks && agent.chunks.length > 0) {
+      const chunkID = agent.chunks[0].id;
       links.push({
-        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
-        label: agent.chunkId
+        routerLink: ['/tasks', 'chunks', chunkID, 'view'],
+        label: chunkID
       });
     }
     return of(links);
@@ -443,17 +462,18 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
-    if (agent[0].assignmentId) {
+  private rowActionDelete(agents: JAgent[]): void {
+    const agent = agents[0];
+    if (agent.assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
+        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
@@ -463,7 +483,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink!).then(() => {});
     });
   }
 

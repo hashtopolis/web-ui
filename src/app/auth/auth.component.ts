@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
@@ -16,14 +16,26 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
 
+export interface LoginForm {
+  username: FormControl<string | null>;
+  password: FormControl<string | null>;
+}
+
 @Component({
   selector: 'app-login',
   templateUrl: './auth.component.html',
   standalone: false
 })
-export class AuthComponent implements OnInit, OnDestroy {
+export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
+  private unsubscribeService = inject(UnsubscribeService);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private configService = inject(ConfigService);
+  private authService = inject(AuthService);
+  private alertService = inject(AlertService);
+  private host = inject(ElementRef);
+
   /** Form group for the new SuperHashlist. */
-  loginForm: FormGroup;
+  loginForm: FormGroup<LoginForm>;
 
   errorRes: string | null;
 
@@ -35,13 +47,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   /** on loggin loading */
   isLoading = false;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private storage: LocalStorageService<UIConfig>,
-    private configService: ConfigService,
-    private authService: AuthService,
-    private alertService: AlertService
-  ) {
+  constructor() {
     this.headerConfig = environment.config.header;
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
@@ -54,6 +60,20 @@ export class AuthComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupConfig();
     this.configService.getEndpoint();
+  }
+
+  /**
+   * Lifecycle hook called after the component's view has been fully initialized.
+   * Sets focus to the username input field for better user experience.
+   * Uses a timeout to ensure that the view is fully rendered before trying to access the input element.
+   */
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const input = this.host.nativeElement.querySelector(
+        'input[formControlName="username"]'
+      ) as HTMLInputElement | null;
+      input?.focus();
+    });
   }
 
   private setupConfig(): void {
@@ -69,12 +89,12 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new Hashlist.
+   * Builds the form for Logging an user in
    */
   buildForm(): void {
-    this.loginForm = new FormGroup({
-      username: new FormControl(null, [Validators.required, Validators.minLength(2)]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(3)])
+    this.loginForm = new FormGroup<LoginForm>({
+      username: new FormControl<string | null>(null, [Validators.required, Validators.minLength(2)]),
+      password: new FormControl<string | null>(null, [Validators.required, Validators.minLength(3)])
     });
   }
 
@@ -83,10 +103,12 @@ export class AuthComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.loginForm.updateValueAndValidity();
       return;
     }
-    const username = this.loginForm.value.username;
-    const password = this.loginForm.value.password;
+    const username = this.loginForm.value.username ?? '';
+    const password = this.loginForm.value.password ?? '';
 
     this.isLoading = true; // Show spinner
 
@@ -96,9 +118,10 @@ export class AuthComponent implements OnInit, OnDestroy {
       next: () => {
         this.loginForm.reset();
       },
-      error: () => {
+      error: (error: string) => {
         this.isLoading = false;
-        this.handleError('An error occurred. Please try again later.');
+        const errorMessage = error || 'An error occurred. Please try again later.';
+        this.handleError(errorMessage);
       },
       complete: () => {
         this.isLoading = false; // Hide spinner after attempting to log in

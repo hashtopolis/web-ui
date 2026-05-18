@@ -2,6 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
+import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Custom Select Component.
@@ -29,19 +30,23 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   ],
   standalone: false
 })
-export class InputSelectComponent extends AbstractInputComponent<any> {
-  @Input() items: any;
+export class InputSelectComponent<T extends string | number | boolean = number> extends AbstractInputComponent<T> {
+  @Input() items: SelectOption<T>[] | undefined = [];
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
   @Input() width: string = '';
 
-  constructor() {
-    super();
-  }
-
-  onChangeValue(value) {
+  onChangeValue(value: T) {
     this.value = value;
     this.onChange(value);
+    this.onTouched();
+  }
+
+  onOpenedChange(opened: boolean) {
+    // When the select panel closes, mark as touched
+    if (!opened) {
+      this.onTouched();
+    }
   }
 }

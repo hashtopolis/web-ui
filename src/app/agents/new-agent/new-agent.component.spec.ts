@@ -20,6 +20,7 @@ import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 // AgentBinary table mock
 @Component({
@@ -54,11 +55,12 @@ describe('NewAgentComponent', () => {
     clipboardSpy = jasmine.createSpyObj('Clipboard', ['copy']);
     alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
     configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create']);
+    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     // Provide default stub for configService.getEndpoint()
     configServiceSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
+    globalServiceSpy.getAll.and.returnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [NewAgentComponent, MockAgentBinariesTableComponent, MockVouchersTableComponent],
@@ -91,7 +93,7 @@ describe('NewAgentComponent', () => {
   it('should create the component and initialize form', () => {
     expect(component).toBeTruthy();
     expect(component.form).toBeDefined();
-    expect(component.form.get('voucher').value).toBeTruthy();
+    expect(component.form.controls.voucher.value).toBeTruthy();
   });
 
   it('should generate a voucher of length 8', () => {
@@ -140,20 +142,20 @@ describe('NewAgentComponent', () => {
 
     // Expect form to contain the generated voucher
     expect(component.generateVoucher).toHaveBeenCalled();
-    expect(component.form.get('voucher')?.value).toBe(fakeVoucher);
+    expect(component.form.controls.voucher.value).toBe(fakeVoucher);
     expect(component.updateVoucher).toHaveBeenCalled();
   }));
 
   it('should call create service and reload table when add button is clicked', fakeAsync(() => {
     // Set voucher value in the form
     const voucher = 'fy7vjq56';
-    component.form.controls['voucher'].setValue(voucher);
+    component.form.controls.voucher.setValue(voucher);
     component.form.updateValueAndValidity();
     expect(component.form.valid).toBeTrue();
 
     // Spy on table reload and global service create method
     component.table = jasmine.createSpyObj('VouchersTableComponent', ['reload']);
-    globalServiceSpy.create.and.returnValue(of({}));
+    globalServiceSpy.create.and.returnValue(of(mockResponse()));
 
     const addButton = fixture.nativeElement.querySelector('[data-testid="add-voucher-button"]') as HTMLButtonElement;
     expect(addButton).toBeTruthy();

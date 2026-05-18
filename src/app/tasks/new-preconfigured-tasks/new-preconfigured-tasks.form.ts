@@ -2,6 +2,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -32,15 +33,15 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
       nonNullable: true,
       validators: [Validators.required]
     }),
-    attackCmd: new FormControl(uiService.getUIsettings('hashlistAlias').value, {
+    attackCmd: new FormControl(uiService.getUISettings()?.hashlistAlias ?? '', {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [Validators.required, attackCommandWithAliasValidator()]
     }),
     maxAgents: new FormControl(environment.config.tasks.maxAgents, { nonNullable: true }),
-    chunkTime: new FormControl(Number(uiService.getUIsettings('chunktime').value), { nonNullable: true }),
-    statusTimer: new FormControl(Number(uiService.getUIsettings('statustimer').value), { nonNullable: true }),
+    chunkTime: new FormControl(uiService.getUISettings()?.chunktime ?? 0, { nonNullable: true }),
+    statusTimer: new FormControl(uiService.getUISettings()?.statustimer ?? 0, { nonNullable: true }),
     priority: new FormControl(environment.config.tasks.priority, { nonNullable: true }),
-    color: new FormControl(''),
+    color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl(false, { nonNullable: true }),
     crackerBinaryTypeId: new FormControl(1, { nonNullable: true }),
     isSmall: new FormControl(false, { nonNullable: true }),

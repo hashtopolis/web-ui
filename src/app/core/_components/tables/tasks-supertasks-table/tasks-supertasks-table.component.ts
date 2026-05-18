@@ -1,12 +1,11 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
-import { TaskSuperTaskContextMenuService } from '@services/context-menu/tasks/task-supertask-menu.service';
+import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -23,8 +22,6 @@ import {
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
-
-import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -46,7 +43,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);
     }
-    this.contextMenuService = new TaskSuperTaskContextMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new TaskSupertaskSubtaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -60,23 +57,31 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     this.linkClicked.emit();
   }
 
-  filter(item: JTask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: TasksSupertasksDataSourceTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTask) => wrapper.id + ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
-        //routerLink: (wrapper: JTask) => this.renderTaskLink(wrapper),
+        routerLink: (task: JTask) =>
+          of([
+            {
+              label:
+                (task?.taskName?.length ?? 0) > 40
+                  ? `${(task?.taskName ?? '').substring(0, 40)}...`
+                  : (task?.taskName ?? ''),
+              routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
+              tooltip: task?.attackCmd ?? ''
+            }
+          ]),
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
       {
@@ -129,8 +134,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   openDialog(data: DialogData<JTask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
-      data: data,
-      width: '450px'
+      data: data
     });
 
     this.subscriptions.push(
@@ -153,7 +157,6 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JTask[]>): void {
     this.exportService.handleExportAction<JTask>(
       event,
@@ -165,7 +168,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   rowActionClicked(event: ActionMenuEvent<JTask>): void {
     switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
+      case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
@@ -270,20 +273,17 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   private getDispatchedSearchedString(task: JTask): string {
     if (task.keyspace > 0) {
-      const chunkData: ChunkData = task.chunkData;
-      const disp = convertToLocale(chunkData.dispatched * 100);
-      const sear = convertToLocale(chunkData.searched * 100);
-      return `${disp}% / ${sear}%`;
+      return `${task.dispatched}% / ${task.searched}%`;
     }
     return '';
   }
 
   private getNumAgents(task: JTask): number {
-    return task.chunkData ? task.chunkData.agents.length : 0;
+    return task.totalAssignedAgents ?? 0;
   }
 
   private renderAgents(task: JTask): SafeHtml {
-    const numAgents = this.getNumAgents(task);
+    const numAgents = task.totalAssignedAgents;
     return this.sanitize(`${numAgents}`);
   }
 
@@ -293,25 +293,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionDelete(tasks: JTask[]): void {
-    //Get the IDs of tasks to be deleted
-    const tasksIdsToDelete = tasks.map((tasks) => tasks.id);
-    //Remove the selected tasks from the list
-    const updatedTasks = this.dataSource.getData().filter((tasks) => !tasksIdsToDelete.includes(tasks.id));
-    //Update the supertask with the modified list of tasks
-    const payload = { tasks: updatedTasks.map((tasks) => tasks.id) };
     this.subscriptions.push(
-      this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted tasks!');
-          this.reload();
-        })
+      this.gs.delete(SERV.TASKS, tasks[0].id).subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted task!');
+        this.reload();
+      })
     );
   }
 
@@ -391,11 +377,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionCopyToTask(task: JTask): void {
-    this.router.navigate(['/tasks/new-tasks', task.id, 'copypretask']);
+    this.linkClicked.emit(); // close modal
+    this.router.navigate(['tasks', 'new-tasks', task.id, 'copy']);
   }
 
   private rowActionCopyToPretask(task: JTask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', task.id, 'copy']);
+    this.linkClicked.emit(); // close modal
+    this.router.navigate(['tasks', 'preconfigured-tasks', task.id, 'copytask']);
   }
 
   private rowActionArchive(wrapper: JTask): void {
@@ -407,6 +395,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionEdit(task: JTask): void {
+    this.linkClicked.emit(); // close modal
     this.router.navigate(['tasks', 'show-tasks', task.id, 'edit']);
   }
 

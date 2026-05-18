@@ -1,17 +1,21 @@
-import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Params } from '@angular/router';
 
-import { ServiceConfig } from '@services/main.config';
+import { HelperEndpoint, ServiceConfig } from '@services/main.config';
 
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { AuthService } from '@src/app/core/_services/access/auth.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
+
+interface JsonApiRelationshipData {
+  data: { type: string; id: number }[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +31,6 @@ export class GlobalService {
    * Get logged user id
    * @returns  id
    **/
-
   get userId() {
     return this.as.userId;
   }
@@ -45,11 +48,16 @@ export class GlobalService {
    * If a value is specified for maxResults, it will be utilized; otherwise, the system will default to the maxResults defined in the configuration and load the data in chunks of the specified maxResults.
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param routerParams  Optional request parameters (e.g. filters, includes)
+   * @param httpOptions   Optional HTTP options (e.g., custom headers)
    * @returns An observable that emits the API response.
    */
-  getAll(serviceConfig: ServiceConfig, routerParams?: RequestParams): Observable<any> {
-    let queryParams: Params = {};
-    let fixedMaxResults: boolean;
+  getAll(
+    serviceConfig: ServiceConfig,
+    routerParams?: RequestParams,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper> {
+    let queryParams = new HttpParams();
+    let fixedMaxResults = false;
 
     // Check if routerParams exist
     if (routerParams) {
@@ -62,59 +70,93 @@ export class GlobalService {
       fixedMaxResults = true;
     }
 
-    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL, { params: queryParams }).pipe(
-      switchMap((response: any) => {
-        const total = response.total || 0;
+    const options: { params?: HttpParams; headers?: HttpHeaders } = { params: queryParams };
+    if (httpOptions?.headers) {
+      options.headers = httpOptions.headers;
+    }
+
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, options).pipe(
+      switchMap((response: ResponseWrapper) => {
+        // TODO: ResponseWrapper has no 'total' field — should be response.meta?.page?.total_elements.
+        // This means the pagination branch below has likely never executed.
+        const total = (response as ResponseWrapper & { total?: number }).total || 0;
         const maxResults = this.maxResults;
 
         // Check if total is greater than maxResults and fixedMaxResults is true
         if (total > maxResults && fixedMaxResults) {
-          const requests: Observable<any>[] = [];
+          const requests: Observable<ResponseWrapper>[] = [];
           const numRequests = Math.ceil(total / maxResults);
 
           // Create multiple requests based on the total number of items
           for (let i = 0; i < numRequests; i++) {
             const startsAt = i * maxResults;
-            const partialParams = setParameter({ ...queryParams, page: { after: startsAt } });
-            requests.push(
-              this.http.get(this.cs.getEndpoint() + serviceConfig.URL, {
-                params: partialParams
-              })
-            );
+            const partialParams = setParameter({
+              ...(routerParams ?? {}),
+              page: { after: startsAt }
+            });
+            const partialOptions: { params?: HttpParams; headers?: HttpHeaders } = { params: partialParams };
+            if (httpOptions?.headers) {
+              partialOptions.headers = httpOptions.headers;
+            }
+            requests.push(this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, partialOptions));
           }
 
           // Use forkJoin to combine the original response with additional responses
+          // Note: forkJoin returns ResponseWrapper[] on success — callers expect a single ResponseWrapper.
+          // This branch has never executed (see TODO above), so this cast preserves existing behavior.
           return forkJoin([of(response), ...requests]).pipe(
             catchError((error) => {
               console.error('Error in forkJoin:', error);
               return of(response); // Return the original response in case of an error
             })
-          );
+          ) as unknown as Observable<ResponseWrapper>;
         } else {
           return of(response);
         }
       }),
       catchError((error) => {
         console.error('Error in switchMap:', error);
-        return of({ values: [] }); // Handle errors in switchMap and return a default response
+        // Re-throw the error so downstream handlers (datasource) can catch it
+        // Don't silently convert to empty response
+        return throwError(() => error);
       })
     );
   }
 
   /**
    * Get a single object from backend by its ID
-   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
-   * @param id            ID of object to get
-   * @param routerParams  Optional request parameters (e.g. filters, includes)
+   * Overloads keep backwards compatibility and allow passing custom headers.
    */
-  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<any> {
-    let queryParams: Params = {};
+  // Overload 1 (compat)
+  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<ResponseWrapper>;
+  // Overload 2 (with headers)
+  get(
+    serviceConfig: ServiceConfig,
+    id: number,
+    routerParams: RequestParams | undefined,
+    httpOptions: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper>;
+  // Implementation
+  get(
+    serviceConfig: ServiceConfig,
+    id: number,
+    routerParams?: RequestParams,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper> {
+    let queryParams = new HttpParams();
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
-    return this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, {
-      params: queryParams
-    });
+
+    const options: { params?: HttpParams; headers?: HttpHeaders } = {};
+    if (queryParams.keys().length) {
+      options.params = queryParams;
+    }
+    if (httpOptions?.headers) {
+      options.headers = httpOptions.headers;
+    }
+
+    return this.http.get<ResponseWrapper>(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, options);
   }
 
   /**
@@ -124,25 +166,29 @@ export class GlobalService {
    * @param filename      Filname to use for the downloaded file
    */
   getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
-    this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, { responseType: 'blob' }).subscribe({
-      next: (response: Blob) => {
-        // Generate Blob-URL
-        const blob = new Blob([response], { type: response.type });
-        const url = window.URL.createObjectURL(blob);
+    this.http
+      .get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, {
+        responseType: 'blob'
+      })
+      .subscribe({
+        next: (response: Blob) => {
+          // Generate Blob-URL
+          const blob = new Blob([response], { type: response.type });
+          const url = window.URL.createObjectURL(blob);
 
-        // Create a temporary ‘a’ element for download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
+          // Create a temporary ‘a’ element for download
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          a.click();
 
-        // Release the URL of the blob again
-        window.URL.revokeObjectURL(url);
-      },
-      error: (error) => {
-        console.error('Fehler beim Download der Datei:', error);
-      }
-    });
+          // Release the URL of the blob again
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => {
+          console.error('Fehler beim Download der Datei:', error);
+        }
+      });
   }
 
   /**
@@ -150,10 +196,14 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param item          Data of item to create
    */
-  create(serviceConfig: ServiceConfig, item: any): Observable<any> {
+  create(
+    serviceConfig: ServiceConfig,
+    item: Record<string, unknown>,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper> {
     const data = { type: serviceConfig.RESOURCE, ...item };
     const serializedData = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.post<any>(this.cs.getEndpoint() + serviceConfig.URL, serializedData);
+    return this.http.post<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL, serializedData, httpOptions);
   }
 
   /**
@@ -161,31 +211,18 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param id            ID of object to delete
    */
-  delete(serviceConfig: ServiceConfig, id: number): Observable<any> {
-    return this.http.delete(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
-    /*
-    .pipe(
-      tap(data => console.log(JSON.stringify(data))),
-      retryWhen(errors => {
-          return errors
-                  .pipe(
-                    tap(() => console.log("Retrying...")),
-                    delay(2000), // Add a delay before retry delete
-                    take(3)  // Retry max 3 times
-                  );
-      } )
-    );
-    */
+  delete(serviceConfig: ServiceConfig, id: number): Observable<object> {
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
   }
 
-  bulkDelete(serviceConfig: ServiceConfig, objects: any): Observable<any> {
-    const objectdata = [];
+  bulkDelete(serviceConfig: ServiceConfig, objects: { id: number }[]): Observable<object> {
+    const objectdata: { id: number; type: string }[] = [];
 
     for (const object of objects) {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    return this.http.delete<number>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
   }
 
   /**
@@ -195,39 +232,65 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  update(serviceConfig: ServiceConfig, id: number, arr: any): Observable<any> {
-    let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
-    data = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, data).pipe(debounceTime(2000));
-  }
-
-  bulkUpdate(serviceConfig: ServiceConfig, objects: any, attributes: any) {
-    /**
-     * Bulk update information of object
-     * @param serviceConfig the serviceconfig of the API endpoint
-     * @param objects the objects that needs to be updated
-     * @param attributes the attributes that needs to be changed
-     */
-    const objectdata = [];
-
-    for (const object of objects) {
-      objectdata.push({ id: object.id, type: serviceConfig.RESOURCE, attributes: attributes });
-    }
-    const data = { data: objectdata };
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
-  }
-
-  postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+  update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
+    const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: item });
     return this.http
-      .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
       .pipe(debounceTime(2000));
   }
 
-  deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+  /**
+   * Bulk update information of object
+   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param objects the objects that needs to be updated
+   * @param attributes the attributes that needs to be changed
+   */
+  bulkUpdate(
+    serviceConfig: ServiceConfig,
+    objects: { id: number }[],
+    attributes: Record<string, unknown>
+  ): Observable<object> {
+    const objectdata: { id: number; type: string; attributes: Record<string, unknown> }[] = [];
+
+    for (const object of objects) {
+      objectdata.push({
+        id: object.id,
+        type: serviceConfig.RESOURCE,
+        attributes: attributes
+      });
+    }
+    const data = { data: objectdata };
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
+  }
+
+  postRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    data: JsonApiRelationshipData
+  ): Observable<object> {
     return this.http
-      .delete<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
+  }
+
+  deleteRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    data: JsonApiRelationshipData
+  ): Observable<object> {
+    return this.http
+      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
       })
+      .pipe(debounceTime(2000));
+  }
+
+  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
+    return this.http
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
       .pipe(debounceTime(2000));
   }
 
@@ -237,8 +300,8 @@ export class GlobalService {
    * @param id - agent id
    * @returns Object
    **/
-  archive(serviceConfig: ServiceConfig, id: number): Observable<any> {
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
+  archive(serviceConfig: ServiceConfig, id: number): Observable<object> {
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
   }
 
   /**
@@ -246,19 +309,52 @@ export class GlobalService {
    * @param serviceConfig the serviceconfig of the API endpoint
    * @param option        Method used, i.e. getUserPermission
    */
-  ghelper(serviceConfig: ServiceConfig, option: string): Observable<any> {
-    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL + '/' + option);
+  ghelper(
+    serviceConfig: ServiceConfig,
+    option: HelperEndpoint,
+    params?: Record<string, string | number>
+  ): Observable<ResponseWrapper> {
+    let httpParams = new HttpParams();
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    }
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, {
+      params: httpParams
+    });
   }
 
   /**
    * Helper Create function
-   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param serviceConfig the service config of the API endpoint
    * @param option - method used. ie. /abort /reset /importFile
-   * @param arr - fields to be updated
-   * @returns Object
+   * @param arr - fields to be updated (optional)
+   * @param method - HTTP method: 'POST' (default) or 'GET'
+   * @returns Observable<T>
    **/
-  chelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
-    return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+  chelper<T = ResponseWrapper>(
+    serviceConfig: ServiceConfig,
+    option: HelperEndpoint,
+    arr?: Record<string, unknown>,
+    method: 'POST' | 'GET' = 'POST'
+  ): Observable<T> {
+    const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
+
+    if (method === 'GET') {
+      let params = new HttpParams();
+      if (arr) {
+        for (const [key, value] of Object.entries(arr)) {
+          if (value != null) {
+            params = params.set(key, String(value));
+          }
+        }
+      }
+      return this.http.get<T>(url, { params });
+    }
+
+    // default POST
+    return this.http.post<T>(url, arr ?? {});
   }
 
   /**
@@ -268,7 +364,14 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
-    return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
+  uhelper(
+    serviceConfig: ServiceConfig,
+    id: number,
+    option: HelperEndpoint,
+    arr: Record<string, unknown>
+  ): Observable<object> {
+    const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: item });
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, serializedData);
   }
 }

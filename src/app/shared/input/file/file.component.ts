@@ -1,13 +1,8 @@
-import { AbstractInputComponent } from '../abstract-input';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  forwardRef
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
+
+import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input File Component.
@@ -20,39 +15,40 @@ import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
  * ```
  */
 @Component({
-    selector: 'input-file',
-    templateUrl: './file.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputFileComponent),
-            multi: true
-        },
-        FileSizePipe
-    ],
-    standalone: false
+  selector: 'input-file',
+  templateUrl: './file.component.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputFileComponent),
+      multi: true
+    },
+    FileSizePipe
+  ],
+  standalone: false
 })
-export class InputFileComponent extends AbstractInputComponent<any> {
+export class InputFileComponent extends AbstractInputComponent<FileList> {
   @Input() accept = '';
   @Input() multiple = false;
+  fileInfoText = '';
   @Output() filesSelected = new EventEmitter<FileList>();
-  constructor(private fs: FileSizePipe) {
-    super();
-  }
+  private fs = inject(FileSizePipe);
 
-  onChangeValue(value) {
+  onChangeValue(value: FileList) {
     this.value = value;
     this.onChange(value);
   }
 
-  handleFileInput(event: any): void {
-    const fileToUpload = event.target.files[0];
+  handleFileInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const fileToUpload = input.files![0];
     const fileSize = fileToUpload.size;
     const fileName = fileToUpload.name;
-    $('.fileuploadspan').text(
-      ' ' + fileName + ' / Size: ' + this.fs.transform(fileSize, false)
-    );
-    const files = event.target.files;
+    this.fileInfoText = fileName + ' / Size: ' + this.fs.transform(fileSize, false);
+    const files = input.files!;
     this.filesSelected.emit(files);
+    this.value = files;
+    this.onChange(files);
+    this.onTouched();
   }
 }

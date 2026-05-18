@@ -1,5 +1,6 @@
 import { BaseModel } from '@models/base.model';
 import { JFile } from '@models/file.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 
 /**
  * Interface definition for a pretask
@@ -9,12 +10,12 @@ export interface JPretask extends BaseModel {
   attackCmd: string;
   chunkTime: number;
   color: string;
-  crackerBinaryTypeId: number;
+  crackerBinaryTypeId: CrackerBinaryTypeId;
   isCpuTask: boolean;
   isMaskImport: boolean;
   isSmall: boolean;
   maxAgents: number;
-  pretaskFiles: JFile[];
+  pretaskFiles?: JFile[];
   priority: number;
   statusTimer: number;
   taskName: string;

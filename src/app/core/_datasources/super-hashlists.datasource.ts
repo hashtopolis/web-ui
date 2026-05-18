@@ -1,11 +1,13 @@
 import { HashListFormat } from '@constants/hashlist.config';
-import { catchError, finalize, of } from 'rxjs';
+import { zHashlistListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 
 import { BaseDataSource } from '@datasources/base.datasource';
@@ -14,7 +16,7 @@ import { RequestParamBuilder } from '@src/app/core/_services/params/builder-impl
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
   }
@@ -35,31 +37,33 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
     });
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create(), httpOptions);
 
     this.subscriptions.push(
       hashLists$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const serializer = new JsonAPISerializer();
-          const responseData = { data: response.data, included: response.included };
-          const superHashlists = serializer.deserialize<JHashlist[]>(responseData);
+          const superHashlists: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
 
           const rows: JHashlist[] = [];
-          superHashlists.forEach((value) => {
-            const superHashlist = value;
-            superHashlist.hashTypeDescription = superHashlist.hashType.description;
+          superHashlists.forEach((superHashlist) => {
+            superHashlist.hashTypeDescription = superHashlist.hashType?.description;
             rows.push(superHashlist);
           });
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(rows);

@@ -1,17 +1,21 @@
+import { zFileResponse } from '@generated/api/zod';
+
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
 import { SERV } from '@services/main.config';
+import { FileRoleService } from '@services/roles/file-role.service';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
-import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { FilesComponent } from '@src/app/files/files.component';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
+
+const roleServiceClass = FileRoleService;
 
 const routes: MyRoute[] = [
   {
@@ -24,9 +28,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'wordlist',
           breadcrumb: 'Wordlist',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'wordlist/new-wordlist',
@@ -34,9 +39,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'wordlist-new',
           breadcrumb: 'Wordlist New',
-          permission: Perm.File.CREATE
+          roleServiceClass: roleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: ':id/wordlist-edit',
@@ -45,10 +51,12 @@ const routes: MyRoute[] = [
           kind: 'editwordlist',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Wordlist Edit',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'rules',
@@ -56,9 +64,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'rules',
           breadcrumb: 'Rules',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'rules/new-rule',
@@ -66,9 +75,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'rule-new',
           breadcrumb: 'Rule New',
-          permission: Perm.File.CREATE
+          roleServiceClass: roleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: ':id/rules-edit',
@@ -77,10 +87,12 @@ const routes: MyRoute[] = [
           kind: 'editrule',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Rules Edit',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'other',
@@ -88,9 +100,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'other',
           breadcrumb: 'Other',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'other/new-other',
@@ -98,9 +111,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'other-new',
           breadcrumb: 'Other New',
-          permission: Perm.File.CREATE
+          roleServiceClass: roleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: ':id/other-edit',
@@ -109,10 +123,12 @@ const routes: MyRoute[] = [
           kind: 'editother',
           type: 'edit',
           serviceConfig: SERV.FILES,
+          responseSchema: zFileResponse,
           breadcrumb: 'Other Edit',
-          permission: Perm.File.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       }
     ]
   }

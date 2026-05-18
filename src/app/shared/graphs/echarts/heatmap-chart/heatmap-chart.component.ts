@@ -1,6 +1,7 @@
 // heatmap-chart.component.ts
 
 import { EChartsType, init, time } from 'echarts/core';
+import type { CallbackDataParams } from 'echarts/types/dist/shared';
 
 import {
   AfterViewInit,
@@ -36,9 +37,17 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
     }
   }
 
-
   ngOnChanges(changes: SimpleChanges) {
-    if (this.chart && (changes['data'] || changes['isDarkMode'])) {
+    if (!this.chart) {
+      return;
+    }
+
+    if (changes['isDarkMode'] && !changes['isDarkMode'].firstChange) {
+      this.chart.dispose();
+      this.initChart();
+    }
+
+    if (changes['data'] || changes['isDarkMode']) {
       this.setOption();
     }
   }
@@ -66,9 +75,10 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
       darkMode: this.isDarkMode,
       tooltip: {
         position: 'top',
-        formatter: (p: any) => {
-          const formattedDate = time.format(p.data[0], '{dd}-{MM}-{yyyy}', false);
-          return `${formattedDate}: ${p.data[1]}`;
+        formatter: (params: CallbackDataParams) => {
+          const data = params.data as [string, number];
+          const formattedDate = time.format(data[0], '{dd}-{MM}-{yyyy}', false);
+          return `${formattedDate}: ${data[1]}`;
         }
       },
       visualMap: {
@@ -96,14 +106,21 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
           data: this.data,
           label: {
             show: true,
-            formatter: (params: any) => {
+            formatter: (params: CallbackDataParams) => {
               const todayStr = new Date().toISOString().slice(0, 10);
-              return params.data[0] === todayStr ? 'X' : '';
+              const data = params.data as [string, number];
+              return data[0] === todayStr ? 'X' : '';
             }
           }
         }
       ]
     };
+
+    const currentOption = this.chart.getOption() as Record<string, unknown[]>;
+    const currentVisualMap = currentOption?.['visualMap']?.[0] as Record<string, unknown> | undefined;
+    if (currentVisualMap?.['selected']) {
+      (option.visualMap as Record<string, unknown>)['selected'] = currentVisualMap['selected'];
+    }
 
     this.chart.setOption(option);
   }

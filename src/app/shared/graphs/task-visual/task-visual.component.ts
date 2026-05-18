@@ -1,10 +1,11 @@
+import { zChunkListResponse, zTaskListResponse, zTaskWrapperListResponse } from '@generated/api/zod';
 import { FilterType } from 'src/app/core/_models/request-params.model';
 
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 
 import { JChunk } from '@models/chunk.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTaskWrapper, TaskType } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -25,12 +26,13 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 })
 export class TaskVisualComponent implements AfterViewInit {
   @ViewChild('myCanvas') canvasRef: ElementRef;
-  @Input() view: any;
-  @Input() tkeyspace: any;
-  @Input() taskid: any;
-  @Input() taskWrapperId: any;
-  @Input() cprogress: any;
-  @Input() tusepreprocessor: any;
+  @Input() view: string;
+  @Input() tkeyspace: number;
+  @Input() taskid: number;
+  @Input() taskWrapperId: number;
+  @Input() cprogress: number;
+  @Input() tusepreprocessor: number;
+  private gs = inject(GlobalService);
   private ctx: CanvasRenderingContext2D;
   // public x = 1500;
   public x: number = window.innerWidth; // Dynamic width
@@ -40,11 +42,11 @@ export class TaskVisualComponent implements AfterViewInit {
     if (document.body.className.includes('fixed-width-layout')) {
       this.x = 1467;
     } else if (document.body.className.includes('full-width-layout')) {
-      this.x = $(window).width() - 50;
+      this.x = window.innerWidth - 50;
     }
   }
 
-  constructor(private gs: GlobalService) {
+  constructor() {
     this.getWidth();
   }
 
@@ -66,8 +68,7 @@ export class TaskVisualComponent implements AfterViewInit {
       .create();
 
     this.gs.getAll(SERV.TASKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const tasks = new JsonAPISerializer().deserialize<JTask[]>(responseBody);
+      const tasks = new JsonAPISerializer().deserialize(response, zTaskListResponse);
 
       const paramsTaskWrapper = new RequestParamBuilder()
         .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: tasks[0].taskWrapperId })
@@ -75,24 +76,22 @@ export class TaskVisualComponent implements AfterViewInit {
         .create();
 
       this.gs.getAll(SERV.TASKS_WRAPPER, paramsTaskWrapper).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>(responseBody);
+        const taskWrappers: JTaskWrapper[] = new JsonAPISerializer().deserialize(response, zTaskWrapperListResponse);
         if (taskWrappers[0].taskType === TaskType.SUPERTASK && this.view === 'supertask') {
           for (let i = 0; i < taskWrappers.length; i++) {
             this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-              const responseBody = { data: response.data, included: response.included };
-              const chunks = new JsonAPISerializer().deserialize<JChunk[]>(responseBody);
+              const chunks: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse);
 
               const progress = [];
-              let cracked = [];
+              const cracked: number[] = [];
               for (let i = 0; i < chunks.length; i++) {
                 progress.push(chunks[i].progress);
                 cracked.push(chunks[i].cracked);
               }
               progress.reduce((a, i) => a + i, 0);
-              cracked = cracked.reduce((a, i) => a + i, 0);
+              const crackedTotal = cracked.reduce((a, i) => a + i, 0);
 
-              if (cracked.length > 0) {
+              if (crackedTotal > 0) {
                 this.ctx.fillStyle = '#00ff00';
                 this.ctx.fillRect(
                   (i * this.x) / taskWrappers.length,
@@ -123,8 +122,7 @@ export class TaskVisualComponent implements AfterViewInit {
           }
         } else {
           this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
-            const responseBody = { data: response.data, included: response.included };
-            const ch = new JsonAPISerializer().deserialize<JChunk[]>(responseBody); // Get chunks by id
+            const ch: JChunk[] = new JsonAPISerializer().deserialize(response, zChunkListResponse); // Get chunks by id
 
             // Getting variables
             const keyspace = Number(this.tkeyspace); // Get Keyspace Progress

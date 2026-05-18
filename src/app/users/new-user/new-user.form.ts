@@ -3,6 +3,10 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { GlobalPermissionGroupId } from '@models/id.types';
+
+import { emailValidator } from '@src/app/core/_validators/email.validator';
+
 /**
  * Interface definition for NewUserForm
  * @prop username                     Username
@@ -13,7 +17,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export interface NewUserForm {
   username: FormControl<string>;
   email: FormControl<string>;
-  globalPermissionGroupId: FormControl<number>;
+  globalPermissionGroupId: FormControl<GlobalPermissionGroupId | null>;
   isValid: FormControl<boolean>;
 }
 
@@ -23,9 +27,9 @@ export interface NewUserForm {
  */
 export const getNewUserForm = () => {
   return new FormGroup<NewUserForm>({
-    username: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    globalPermissionGroupId: new FormControl(undefined, [Validators.required]),
-    isValid: new FormControl(false)
+    username: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, emailValidator] }),
+    globalPermissionGroupId: new FormControl<number | null>(null, [Validators.required]),
+    isValid: new FormControl<boolean>(false, { nonNullable: true })
   });
 };

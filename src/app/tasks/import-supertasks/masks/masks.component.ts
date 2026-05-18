@@ -1,24 +1,24 @@
-import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
+import { benchmarkType } from '@constants/tasks.config';
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JPretask } from '@models/pretask.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import { HorizontalNav } from '@models/horizontalnav.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -30,6 +30,23 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
   standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
+  /**
+   * @private unsubscribeService - The service responsible for managing subscriptions.
+   * @private changeDetectorRef - The reference to the Angular ChangeDetectorRef.
+   * @private titleService - The service responsible for setting the page title.
+   * @private alert - The service for displaying alert messages.
+   * @private gs - The service providing global functionality.
+   * @private router - The Angular Router service for navigation.
+   * @private serializer - The serializer service for API response.
+   */
+
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+
   /**
    * Horizontal menu and redirection links.
    */
@@ -46,7 +63,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype = undefined;
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -57,26 +74,11 @@ export class MasksComponent implements OnInit, OnDestroy {
   isLoading = false;
 
   /**
-   * @param {UnsubscribeService} unsubscribeService - The service responsible for managing subscriptions.
-   * @param {ChangeDetectorRef} changeDetectorRef - The reference to the Angular ChangeDetectorRef.
-   * @param {AutoTitleService} titleService - The service responsible for setting the page title.
-   * @param {AlertService} alert - The service for displaying alert messages.
-   * @param {GlobalService} gs - The service providing global functionality.
-   * @param {Router} router - The Angular Router service for navigation.
    * @returns {void}
    *
    * @ngModule AppModule
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
-  ) {
+  constructor() {
     this.buildForm();
   }
 
@@ -107,7 +109,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       optFlag: new FormControl(false),
       useNewBench: new FormControl(true),
       crackerBinaryId: new FormControl(1),
-      masks: new FormControl('')
+      masks: new FormControl('', [Validators.required])
     });
   }
 
@@ -115,114 +117,55 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+        );
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
+        this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
-   * Create Pretasks
-   * Name: first line of mask
-   * Attack: #HL# -a 3 {mask} {options}
-   * Options: Flag -O (Optimize)
+   * Handles the submission of the form to create a new super task via the backend helper.
+   * The backend handles all hcmask parsing, pretask creation and supertask creation.
    */
-  private async preTasks(form): Promise<number[]> {
-    return new Promise<number[]>((resolve, reject) => {
-      const preTasksIds: number[] = [];
+  onSubmit(): void {
+    if (this.createForm.valid) {
+      this.isLoading = true;
+      const form = this.createForm.value;
+      const payload = {
+        name: form.name,
+        masks: form.masks,
+        isCpu: form.isCpuTask,
+        isSmall: form.isSmall,
+        optimized: form.optFlag,
+        crackerBinaryTypeId: form.crackerBinaryId,
+        benchtype: form.useNewBench ? 'speed' : 'runtime',
+        maxAgents: form.maxAgents
+      };
 
-      // Split masks from form.masks by line break and create an array to iterate
-      const masksArray: string[] = form.masks.split('\n');
-
-      // Create an array to hold all subscription promises
-      const subscriptionPromises: Promise<void>[] = [];
-
-      // Iterate over the masks array
-      masksArray.forEach((maskline, index) => {
-        let attackCmdSuffix = '';
-        if (form.optFlag) {
-          attackCmdSuffix = '-O';
+      const subscription$ = this.gs.chelper(SERV.HELPER, 'maskSupertaskBuilder', payload).subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New Supertask Mask created');
+          this.router.navigate(['/tasks/supertasks']);
+        },
+        error: (error) => {
+          console.error('Error creating mask supertask:', error);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
         }
-        const payload = {
-          taskName: maskline,
-          attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
-          maxAgents: form.maxAgents,
-          chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
-          priority: index + 1,
-          color: '',
-          isCpuTask: form.isCpuTask,
-          crackerBinaryTypeId: form.crackerBinaryId,
-          isSmall: form.isSmall,
-          useNewBench: form.useNewBench,
-          isMaskImport: true,
-          files: []
-        };
-
-        // Create a subscription promise and push it to the array
-        const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            const pretask = new JsonAPISerializer().deserialize<JPretask>({
-              data: result.data
-            });
-            preTasksIds.push(pretask.id);
-            resolve(); // Resolve the promise when subscription completes
-          }, reject); // Reject the promise if there's an error
-          this.unsubscribeService.add(onSubmitSubscription$);
-        });
-
-        subscriptionPromises.push(subscriptionPromise);
       });
 
-      // Wait for all subscription promises to resolve
-      Promise.all(subscriptionPromises)
-        .then(() => {
-          resolve(preTasksIds);
-        })
-        .catch(reject);
-    });
-  }
-
-  /**
-   * Handles the submission of the form to create a new super task.
-   * If the form is valid, it asynchronously performs the following steps:
-   * 1. Calls preTasks to create preTasks based on the form data.
-   * 2. Calls superTask with the created preTasks IDs and the super task name.
-   * Any errors that occur during the process are caught and logged.
-   * @returns {Promise<void>} A promise that resolves when the submission process is completed.
-   */
-  async onSubmit(): Promise<void> {
-    if (this.createForm.valid) {
-      try {
-        this.isLoading = true; // Show spinner
-        const ids = await this.preTasks(this.createForm.value);
-        this.superTask(this.createForm.value.name, ids);
-      } catch (error) {
-        console.error('Error in preTasks:', error);
-        // Handle error if needed
-      } finally {
-        this.isLoading = false; // Hide spinner regardless of success or error
-      }
+      this.unsubscribeService.add(subscription$);
+    } else {
+      this.createForm.markAllAsTouched();
+      this.createForm.updateValueAndValidity();
     }
-  }
-
-  /**
-   * Creates a new super task with the given name and preTasks IDs.
-   * @param {string} name - The name of the super task.
-   * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
-   * @returns {void}
-   */
-  private superTask(name: string, ids: number[]) {
-    const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.showSuccessMessage('New Supertask Mask created');
-      this.router.navigate(['/tasks/supertasks']);
-    });
-
-    this.unsubscribeService.add(createSubscription$);
-    this.isLoading = false;
   }
 }

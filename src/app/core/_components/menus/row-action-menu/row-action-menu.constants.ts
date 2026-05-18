@@ -2,6 +2,7 @@ export const RowActionMenuLabel = {
   ACTIVATE_USER: 'Activate User',
   ACTIVATE_AGENT: 'Activate Agent',
   ACTIVATE_NOTIFICATION: 'Activate Notification',
+  ADD_PRETASK_TO_SUPERTASK: 'Add to supertask',
   APPLY_HASHLIST: 'Apply Hashlist',
   ARCHIVE_HASHLIST: 'Archive Hashlist',
   UNARCHIVE_HASHLIST: 'Unarchive Hashlist',
@@ -65,6 +66,7 @@ export const RowActionMenuLabel = {
 };
 
 export const RowActionMenuAction = {
+  ADD: 'add',
   EDIT: 'edit',
   DELETE: 'delete',
   COPY_LINK: 'copy-link',
@@ -87,6 +89,7 @@ export const RowActionMenuAction = {
 };
 
 export const RowActionMenuIcon = {
+  ADD: 'add',
   EDIT: 'edit',
   DELETE: 'delete',
   NEW: 'add',

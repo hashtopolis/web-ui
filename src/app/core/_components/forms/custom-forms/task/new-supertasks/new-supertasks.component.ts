@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { zPreTaskListResponse } from '@generated/api/zod';
+
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -31,21 +34,18 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperTask. */
   form: FormGroup;
 
-  @Input()
-  error;
-
   /** List of PreTasks. */
-  selectPretasks: SelectOption[];
+  selectPretasks: SelectOption<PretaskId>[];
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private formBuilder: FormBuilder,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private formBuilder = inject(FormBuilder);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.buildForm();
     this.titleService.set(['New SuperTask']);
   }
@@ -80,10 +80,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
-      const pretasks = new JsonAPISerializer().deserialize<JPretask[]>({
-        data: response.data,
-        included: response.included
-      });
+      const pretasks: JPretask[] = new JsonAPISerializer().deserialize(response, zPreTaskListResponse);
       this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();
@@ -103,6 +100,9 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
       });
 
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

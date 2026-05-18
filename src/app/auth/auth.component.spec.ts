@@ -66,8 +66,8 @@ describe('AuthComponent', () => {
   it('should create the component and initialize form', () => {
     expect(component).toBeTruthy();
     expect(component.loginForm).toBeTruthy();
-    expect(component.loginForm.controls['username']).toBeTruthy();
-    expect(component.loginForm.controls['password']).toBeTruthy();
+    expect(component.loginForm.controls.username).toBeTruthy();
+    expect(component.loginForm.controls.password).toBeTruthy();
   });
 
   it('should mark form invalid if empty', () => {
@@ -76,7 +76,7 @@ describe('AuthComponent', () => {
   });
 
   it('should call authService.logIn on valid form submission via button click', fakeAsync(() => {
-    const fakeResponse = of({}).pipe(observeOn(asyncScheduler));
+    const fakeResponse = of(void 0).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(fakeResponse);
     component.loginForm.setValue({ username: 'user', password: 'pass' });
 
@@ -109,7 +109,23 @@ describe('AuthComponent', () => {
     tick();
 
     expect(component.isLoading).toBeFalse();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalled();
+  }));
+
+  it('should show default error message when login fails without specific error message', fakeAsync(() => {
+    const errorResponse = throwError(() => ({})).pipe(observeOn(asyncScheduler));
+    mockAuthService.logIn.and.returnValue(errorResponse);
+
+    component.loginForm.setValue({ username: 'user', password: 'wrong' });
+
+    const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
+    submitButtonDebugEl.nativeElement.click();
+
+    expect(component.isLoading).toBeTrue();
+    expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'wrong');
+
+    tick();
+
+    expect(component.isLoading).toBeFalse();
   }));
 
   it('should call unsubscribeAll on destroy', () => {

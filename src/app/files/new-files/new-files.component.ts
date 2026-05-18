@@ -1,16 +1,20 @@
+import { zAccessGroupListResponse } from '@generated/api/zod';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormGroup, Validators } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
+import { ServerImportFile } from '@models/file.model';
+import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -19,6 +23,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { formatFileSize } from '@src/app/shared/utils/util';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 /**
@@ -30,6 +35,9 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   standalone: false
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
+  /** Helper */
+  formatFileSize = formatFileSize;
+
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -47,15 +55,21 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   redirect: string;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
+  selectAccessgroup: SelectOption<AccessGroupId>[];
 
   // Upload files
   selectedFiles: FileList | null = null;
   fileName: string;
   uploadProgress = 0;
 
+  // List of files available on the server in the import directory
+  serverFiles: ServerImportFile[] = [];
+
+  // Selected server files for import
+  selectedServerFiles: Set<string> = new Set();
+
   // Unsubcribe files
-  private fileUnsubscribe = new Subject();
+  private fileUnsubscribe = new Subject<void>();
 
   /**
    * Component for handling new files.
@@ -71,17 +85,17 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - Service for accessing global application state.
    * @param {Router} router - Angular router service for navigating between views.
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private uploadService: UploadTUSService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private dialog: MatDialog,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private uploadService = inject(UploadTUSService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private dialog = inject(MatDialog);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.getLocation();
     this.buildForm();
     this.titleService.set([this.title]);
@@ -128,7 +142,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
   }
 
@@ -138,6 +152,23 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   buildForm() {
     this.form = getNewFilesForm();
     this.form.patchValue({ fileType: this.filterType });
+    this.updateValidatorsBySourceType(this.form.controls.sourceType.value);
+  }
+
+  private updateValidatorsBySourceType(sourceType: string): void {
+    const filenameCtrl = this.form.controls.filename;
+    const urlCtrl = this.form.controls.url;
+
+    if (sourceType === 'url') {
+      filenameCtrl.setValidators([Validators.required]);
+      urlCtrl.setValidators([Validators.required]);
+    } else {
+      filenameCtrl.clearValidators();
+      urlCtrl.clearValidators();
+    }
+
+    filenameCtrl.updateValueAndValidity({ emitEvent: false });
+    urlCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   /**
@@ -147,12 +178,11 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.ACCESS_GROUPS));
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
+      );
 
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
-      });
+      const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
       this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     } catch (error) {
@@ -164,6 +194,22 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Loads the list of files available on the server in the import directory.
+   */
+  async loadServerFiles(): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      this.serverFiles = response.meta || [];
+      this.changeDetectorRef.detectChanges();
+    } catch (error) {
+      console.error('Error fetching server import files:', error);
+      this.alert.showErrorMessage('Could not load files from server import directory.');
+    }
+  }
+
+  /**
    * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the form submission for creating a new file.
    * Checks form validity and submits the form data to create a new file.
@@ -171,7 +217,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async onSubmit(): Promise<void> {
     if (this.form.valid && !this.submitted) {
-      const form = this.onBeforeSubmit(this.form.value, false);
+      const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
       this.isCreatingLoading = true;
       this.submitted = true;
 
@@ -194,7 +240,13 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           this.submitted = false;
           console.error('Error creating file:', error);
         }
+      } else {
+        this.form.markAllAsTouched();
+        this.form.updateValueAndValidity();
       }
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 
@@ -227,7 +279,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the change of file upload type.
    * Updates the view mode and resets form values based on the selected type.
    *
@@ -235,10 +286,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {string} view - The selected view mode.
    */
   onChangeType(type: string, view: string): void {
-    /**
-     * Update the view mode based on the selected type.
-     * Reset form values related to file upload.
-     */
     this.viewMode = view;
     this.form.patchValue({
       filename: '',
@@ -246,6 +293,12 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: type,
       sourceData: ''
     });
+    this.updateValidatorsBySourceType(type);
+
+    // Load server import directory files only when switching to tab3
+    if (view === 'tab3' && this.serverFiles.length === 0) {
+      void this.loadServerFiles();
+    }
   }
 
   /**
@@ -279,19 +332,120 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       this.alert.showErrorMessage('Please select a file to upload.');
       return;
     }
-    const form = this.onBeforeSubmit(this.form.value, false);
+    const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
       this.uploadService
         .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
         .pipe(takeUntil(this.fileUnsubscribe))
-        .subscribe((progress) => {
-          this.uploadProgress = progress;
-          this.changeDetectorRef.detectChanges();
-          if (this.uploadProgress === 100) {
+        .subscribe({
+          next: (progress) => {
+            this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+            if (this.uploadProgress === 100) {
+              this.isCreatingLoading = false;
+            }
+          },
+          error: (error) => {
+            this.uploadProgress = 0;
             this.isCreatingLoading = false;
+            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+            this.changeDetectorRef.detectChanges();
           }
         });
+    }
+  }
+
+  private buildUploadErrorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+      return `Failed to upload file: ${error}`;
+    }
+
+    if (error && typeof error === 'object') {
+      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
+      const backendMessage = errorObject.error?.title || errorObject.error?.message;
+      if (backendMessage) {
+        return `Failed to upload file: ${backendMessage}`;
+      }
+
+      if (errorObject.message) {
+        return `Failed to upload file: ${errorObject.message}`;
+      }
+    }
+
+    return 'Failed to upload file.';
+  }
+
+  /**
+   * Handles the submission of selected server files for import.
+   * @protected
+   */
+  protected async onSubmitServerImport() {
+    if (this.selectedServerFiles.size === 0) return;
+    if (this.submitted) return;
+    if (this.form.invalid) return;
+
+    this.isCreatingLoading = true;
+    this.submitted = true;
+
+    try {
+      const requests = Array.from(this.selectedServerFiles).map((file) => {
+        // Build form data for each server file
+        const payload = {
+          filename: file,
+          isSecret: this.form.value.isSecret || false,
+          fileType: this.filterType,
+          accessGroupId: this.form.value.accessGroupId,
+          sourceType: 'import', // IMPORTANT: tells backend to pick it from server import dir
+          sourceData: file // some backends require this too
+        };
+
+        // POST to SERV.FILES endpoint like a normal new file
+        return firstValueFrom(this.gs.create(SERV.FILES, payload));
+      });
+
+      // Wait for all imports
+      await Promise.all(requests);
+
+      this.alert.showSuccessMessage('Server files imported successfully!');
+      // Reload server files
+      await this.loadServerFiles();
+      this.selectedServerFiles.clear();
+    } catch (error) {
+      console.error('Error importing server files:', error);
+      this.alert.showErrorMessage('Could not import selected files.');
+    } finally {
+      this.isCreatingLoading = false;
+      this.submitted = false;
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+
+  /**
+   * Toggles the selection of a server file for import.
+   * @param $event The checkbox change event.
+   * @param file The server import file to toggle.
+   * @protected
+   */
+  protected toggleServerFile($event: MatCheckboxChange, file: ServerImportFile) {
+    if ($event.checked) {
+      this.selectedServerFiles.add(file.file);
+    } else {
+      this.selectedServerFiles.delete(file.file);
+    }
+  }
+
+  /**
+   * Toggles all server files selection.
+   * @param event MatCheckboxChange event
+   */
+  toggleSelectAll(event: MatCheckboxChange) {
+    if (event.checked) {
+      // Add all file names to the Set
+      this.serverFiles.forEach((file) => this.selectedServerFiles.add(file.file));
+    } else {
+      // Clear all selections
+      this.selectedServerFiles.clear();
     }
   }
 }

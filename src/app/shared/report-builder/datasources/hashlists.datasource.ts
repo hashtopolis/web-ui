@@ -1,6 +1,6 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zHashlistResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
 import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
 import { JHashlist } from '@models/hashlist.model';
@@ -8,7 +8,13 @@ import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
-export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
+import {
+  ReportSection,
+  ReportSubtitleSection,
+  ReportTextItem
+} from '@src/app/shared/report-builder/reports/report-builder/report.models';
+
+export class HashlistReportDataSource extends ReportBaseDataSource<ReportSection> {
   private _hashlistId = 0;
 
   setHashlistId(hashlistId: number): void {
@@ -25,12 +31,11 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.subscriptions.push(
       hashList$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashlist = new JsonAPISerializer().deserialize<JHashlist>(responseBody);
+          const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
           const res = this.getReport(hashlist);
           this.setData(res);
@@ -42,12 +47,12 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loadAll();
   }
 
-  getReport(data: JHashlist) {
+  getReport(data: JHashlist): ReportSection[] {
     let sum = 0;
-    const workflow = [];
-    let preCommand;
-    const files = [];
-    data.tasks.forEach((item: JTask) => {
+    const workflow: ReportSubtitleSection[] = [];
+    const preCommand: Array<{ subtitle: string }> = [];
+    const files: ReportTextItem[] = [];
+    (data.tasks ?? []).forEach((item: JTask) => {
       if (item.keyspace && typeof item.keyspace === 'number') {
         sum += item.keyspace;
       }

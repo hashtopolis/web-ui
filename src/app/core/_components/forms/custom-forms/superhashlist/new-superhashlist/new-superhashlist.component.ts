@@ -1,8 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { zHashlistListResponse } from '@generated/api/zod';
+
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JHashlist } from '@models/hashlist.model';
+import { HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -13,6 +16,14 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+interface NewSuperhashlistForm {
+  name: FormControl<string>;
+  hashlistIds: FormControl<number[] | null>;
+}
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -28,33 +39,21 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   /** Form group for the new SuperHashlist. */
-  form: FormGroup;
+  form: FormGroup<NewSuperhashlistForm>;
 
   /** Select List of hashlists. */
-  selectHashlists: any;
+  selectHashlists: SelectOption<HashlistId>[];
 
-  /**
-   * Constructor of the NewSuperhashlistComponent.
-   *
-   * @param unsubscribeService - The service responsible for managing subscriptions.
-   * @param changeDetectorRef - Reference to the change detector to manually trigger change detection.
-   * @param titleService - Service for managing the title of the page.
-   * @param alert - Service for displaying alerts.
-   * @param globalService - Service for making global API requests.
-   * @param formBuilder - FormBuilder service for creating reactive forms.
-   * @param router - Angular Router service for navigation.
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private globalService: GlobalService,
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private globalService = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.buildForm();
-    titleService.set(['New SuperHashlist']);
+    this.titleService.set(['New SuperHashlist']);
   }
 
   /**
@@ -76,9 +75,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.form = this.formBuilder.group({
-      name: ['', Validators.required],
-      hashlistIds: [null, Validators.required]
+    this.form = new FormGroup<NewSuperhashlistForm>({
+      name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      hashlistIds: new FormControl<number[] | null>(null, [Validators.required])
     });
   }
 
@@ -94,10 +93,8 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+        const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
@@ -118,6 +115,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         });
 
       this.unsubscribeService.add(createSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

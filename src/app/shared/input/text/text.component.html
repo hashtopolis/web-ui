@@ -1,34 +1,39 @@
-<mat-form-field [ngStyle]="{ width: width }" appearance="outline">
+<mat-form-field
+  [ngStyle]="{ width: width }"
+  appearance="outline"
+  [class.mat-form-field-invalid]="hasError"
+  [class.mat-form-field-touched]="isTouched"
+>
   <mat-label>
     {{ title }}
-    <mat-icon
-      *ngIf="tooltip"
-      matTooltip="{{ tooltip }}"
-      matTooltipPosition="below"
-      matTooltipClass="tooltip-custom-style"
-      aria-hidden="true"
-    >
-      info
-    </mat-icon>
+    @if (tooltip) {
+      <mat-icon
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        aria-hidden="true"
+      >
+        info
+      </mat-icon>
+    }
   </mat-label>
 
-  <mat-icon matPrefix *ngIf="icon">{{ icon }}</mat-icon>
+  @if (icon) {
+    <mat-icon matPrefix>{{ icon }}</mat-icon>
+  }
 
-  <!-- important: #inputField="ngModel" is required for validation -->
   <input
     matInput
-    [(ngModel)]="value"
-    #inputField="ngModel"
+    [value]="value"
+    #inputField
     [type]="resolvedInputType"
-    [email]="inputType === 'email' ? true : null"
     [required]="isRequired"
-    [pattern]="pattern"
     [disabled]="disabled"
-    [minlength]="minLength"
-    [maxlength]="maxLength"
     [id]="inputId"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     (blur)="onTouched()"
-    (ngModelChange)="onChange($event)"
+    (input)="onValueChange($event)"
   />
 
   <!-- Show password toggle if enabled -->
@@ -45,23 +50,34 @@
     </button>
   }
 
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
 
-  <!-- Error display based on native ngModel validation -->
-  <mat-error *ngIf="inputField.errors && (inputField.dirty || inputField.touched)">
-    <span *ngIf="inputField.errors.required">{{ title }} is required</span>
-    <span *ngIf="inputField.errors.email">Please enter a valid {{ title?.toLowerCase() }}</span>
-    <span *ngIf="inputField.errors.url">Please enter a valid {{ title?.toLowerCase() }}</span>
-    <span *ngIf="inputField.errors.minlength">
-    Minimum length is {{ inputField.errors.minlength.requiredLength }}
-    </span>
-    <span *ngIf="inputField.errors.pattern">
-      Please enter a valid {{ title }}
-    </span>
-    <span *ngIf="inputField.errors.maxlength">
-    Maximum length is {{ inputField.errors.maxlength.requiredLength }}
-    </span>
-    <span *ngIf="inputField.errors?.passwordMismatch">Passwords do not match</span>
-  </mat-error>
-
+  <!-- Error display based on validation state -->
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
+      @if (errors['required']) {
+        <span>{{ title }} is required</span>
+      }
+      @if (errors['email']) {
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
+      }
+      @if (errors['url']) {
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
+      }
+      @if (errors['minlength']) {
+        <span> Minimum length is {{ errors['minlength'].requiredLength }} </span>
+      }
+      @if (errors['pattern']) {
+        <span> Please enter a valid {{ title }} </span>
+      }
+      @if (errors['maxlength']) {
+        <span> Maximum length is {{ errors['maxlength'].requiredLength }} </span>
+      }
+      @if (errors['passwordMismatch']) {
+        <span>Passwords do not match</span>
+      }
+    </mat-hint>
+  }
 </mat-form-field>

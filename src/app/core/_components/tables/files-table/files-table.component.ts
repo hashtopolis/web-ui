@@ -1,7 +1,7 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -32,7 +32,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _editIndex: number;
 
   @Input() fileType: FileType = 0;
@@ -40,7 +40,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   set editIndex(value: number) {
     if (value !== this._editIndex) {
       this._editIndex = value;
-      this.ngOnInit();
     }
   }
   get editIndex(): number {
@@ -53,11 +52,15 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   @Input() editType?: number; //0 Task 1 Pretask
   @Input() showExport = true;
+  @Input() isSortable = true;
+  @Input() isPageable = true;
+  @Input() filterMode: 'client' | 'backend' = 'backend';
+  @Input() isDetailPage = false;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {
@@ -68,22 +71,25 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     };
     this.editPath = pathMap[this.fileType];
 
-    //AccessGroups should not be shown in files table in pre-tasks
-    if (this.name === 'filesTableInPreTasks') {
-      this.showAccessGroups = false;
-    }
+    this.showAccessGroups = this.editType === undefined;
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    if (this.name !== 'filesTableInPreTasks') {
+    if (!this.isDetailPage) {
       this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
     }
     this.dataSource = new FilesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
     if (this.editIndex) {
-      this.dataSource.setEditValues(this.editIndex, this.editType);
+      this.dataSource.setEditValues(this.editIndex!, this.editType ?? 0);
     }
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -92,16 +98,35 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
+  /**
+   * Reloads the data source with a backend field filter applied to the currently selected column.
+   * Clears the filter and reloads all data when input is empty.
+   *
+   * @param input - The search string to send to the backend.
+   */
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  /**
+   * Handles the backendSqlFilter event emitted by ht-table.
+   * No-ops when filterMode is not 'backend'. Delegates to filter() or clearFilter()
+   * depending on whether the event contains a non-empty search string.
+   *
+   * @param event - The filter string emitted by the table's filter input.
+   */
   handleBackendSqlFilter(event: string) {
+    if (this.filterMode !== 'backend') return;
     if (event && event.trim().length > 0) {
       this.filter(event);
     } else {
@@ -118,16 +143,15 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: FilesTableCol.ID,
         dataKey: 'id',
-        isSortable: true,
+        isSortable: this.isSortable,
         isSearchable: true,
-        render: (file: JFile) => file.id,
         export: async (file: JFile) => file.id + ''
       },
       {
         id: FilesTableCol.NAME,
         dataKey: 'filename',
         routerLink: (file: JFile) => this.renderFileLink(file),
-        isSortable: true,
+        isSortable: this.isSortable,
         isSearchable: true,
         export: async (file: JFile) => file.filename
       },
@@ -135,13 +159,13 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.SIZE,
         dataKey: 'size',
         render: (file: JFile) => formatFileSize(file.size, 'short'),
-        isSortable: true,
+        isSortable: this.isSortable,
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       },
       {
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
-        isSortable: true,
+        isSortable: this.isSortable,
         render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
         export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
       }
@@ -152,8 +176,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: false,
-        render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
-        export: async (file: JFile) => file.accessGroup?.groupName
+        routerLink: (file: JFile) => this.renderAccessGroupLink(file.accessGroup!),
+        export: async (file: JFile) => file.accessGroup?.groupName ?? ''
       });
     }
 
@@ -287,7 +311,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(file: JFile): void {
     this.renderFileLink(file).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 

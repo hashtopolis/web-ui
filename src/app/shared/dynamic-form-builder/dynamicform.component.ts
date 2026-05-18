@@ -4,19 +4,21 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  DoCheck,
   EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output
+  Output,
+  inject
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
 
-import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
+import { MetadataFormField } from '@services/metadata.service';
 
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
@@ -28,7 +30,7 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
   templateUrl: 'dynamicform.component.html',
   standalone: false
 })
-export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DynamicFormComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   /**
    * The title to display.
    * @type {string}
@@ -38,12 +40,12 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    */
-  @Input() formMetadata: any[] = [];
+  @Input() formMetadata: MetadataFormField[] = [];
 
   /**
    * Initial values for form fields (optional). If not provided, an empty object is used as the default.
    */
-  @Input() formValues: any = {};
+  @Input() formValues: Record<string, unknown> = {};
 
   /**
    * The Angular FormGroup that represents the dynamic form.
@@ -68,11 +70,13 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() buttonText: string;
 
+  @Input() isServerAction = false;
+
   /**
    * Event emitter for submitting the form. Emits the form values when the form is submitted.
    * Parent components can subscribe to this event to handle form submissions.
    */
-  @Output() formSubmit: EventEmitter<any> = new EventEmitter();
+  @Output() formSubmit: EventEmitter<Record<string, unknown>> = new EventEmitter<Record<string, unknown>>();
 
   /**
    * Event emitter for handling the delete action. Emits when the "Delete" action is triggered.
@@ -86,6 +90,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
 
   @Output() selectTypeChange: EventEmitter<number> = new EventEmitter<number>();
+
+  private gs = inject(GlobalService);
+  private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
 
   /**
    * A Subject used for managing the lifecycle and unsubscribing from observables when the component is destroyed.
@@ -111,17 +119,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   isSubmitting = false;
 
-  /**
-   * Constructor for the DynamicFormComponent.
-   * @param fb - The Angular FormBuilder for creating form controls and groups.
-   * @param gs - The GlobalService for handling global operations and API requests.
-   * @param cd - The Angular ChangeDetectorRef for triggering change detection manually.
-   */
-  constructor(
-    private fb: FormBuilder,
-    private gs: GlobalService,
-    private cd: ChangeDetectorRef
-  ) {}
+  constructor() {}
 
   // Util functions
   transformSelectOptions = transformSelectOptions;
@@ -132,7 +130,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   ngOnInit() {
     // Initialize an object to store the configuration of form controls.
-    const controlsConfig = {};
+    const controlsConfig: Record<string, unknown> = {};
 
     // Iterate through the form metadata to create and configure form controls.
     for (const field of this.formMetadata) {
@@ -140,9 +138,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!field.isTitle) {
         // Get the name of the field.
         const fieldName = field.name;
+        if (!fieldName) continue;
 
         // Determine the validators for the field, defaulting to an empty array if none are provided.
-        const validators: ValidatorFn[] = field.validators ? field.validators : [];
+        const validators: ValidatorFn[] = Array.isArray(field.validators) ? field.validators : [];
 
         // Initialize the initial value for the form control.
         let initialValue;
@@ -186,28 +185,33 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   ngAfterViewInit() {
     // Check if there are any "select" type fields with "selectOptions$"
-    const selectFields = this.formMetadata.filter((field) => field.type === 'selectd' && field.selectOptions$);
+    const selectFields = this.formMetadata.filter(
+      (
+        field
+      ): field is MetadataFormField &
+        Required<Pick<MetadataFormField, 'name' | 'selectEndpoint$' | 'selectSchema' | 'fieldMapping'>> =>
+        field.type === 'selectd' && !!field.selectEndpoint$ && !!field.selectSchema && !!field.fieldMapping
+    );
 
     if (selectFields.length > 0) {
       // Handle logic for select fields with selectOptions$ after the view is initialized
       selectFields.forEach((field) => {
         // Fetch the select options dynamically here
-        this.selectOptionsSubscription = this.gs
-          .getAll(field.selectEndpoint$, { page: { size: 5000 } })
+        field
+          .selectEndpoint$()
           .pipe(takeUntil(this.destroy$))
           .subscribe((response: ResponseWrapper) => {
-            // Sometimes fields need to be mapped
-            const options = new JsonAPISerializer().deserialize<BaseModel[]>({
-              data: response.data,
-              included: response.included
-            });
+            const options: Record<string, unknown>[] = new JsonAPISerializer().deserialize(
+              response,
+              field.selectSchema
+            ) as Record<string, unknown>[];
             // Assign the fetched options to the field's selectOptions$
             field.selectOptions$ = this.transformSelectOptions(options, field.fieldMapping);
             // Update isLoadingSelect to indicate that loading is complete
             this.isLoadingSelect = false;
 
             // Optionally, update the form control value if needed
-            const control = this.form.get(field.name);
+            const control = this.form.controls[field.name];
 
             // Check if there are options available
             if (control && options && options.length > 0 && !this.isCreateMode) {
@@ -220,9 +224,29 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             }
 
             // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
-            this.cd.detectChanges();
+            this.cdr.detectChanges();
           });
       });
+    }
+  }
+
+  ngDoCheck(): void {
+    if (!this.form) {
+      return;
+    }
+
+    const controls = Object.values(this.form.controls);
+    if (controls.length === 0) {
+      return;
+    }
+
+    const anyTouched = controls.some((control) => control.touched);
+    const allTouched = controls.every((control) => control.touched);
+
+    if (anyTouched && !allTouched) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity({ emitEvent: false });
+      this.cdr.markForCheck();
     }
   }
 
@@ -244,6 +268,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       // Emit the form values to the parent component
       this.formSubmit.emit(this.form.value);
       this.isSubmitting = false;
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 
@@ -259,7 +286,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handles the onchange action.
    * Emits the change action to the parent component when the select option is selected.
    */
-  onChange(value: any) {
+  onChange(value: number) {
     this.selectTypeChange.emit(value);
   }
 
@@ -276,4 +303,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  protected readonly Array = Array;
 }

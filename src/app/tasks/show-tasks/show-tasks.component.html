@@ -3,7 +3,7 @@
     [title]="pageTitle"
     buttontitle="New Task"
     buttonlink="/tasks/new-task"
-    [subbutton]="true"
+    [subbutton]="showCreateButton"
   ></app-page-title>
   <mat-slide-toggle (change)="toggleIsArchived($event)">
     Show Archived

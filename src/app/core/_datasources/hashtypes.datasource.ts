@@ -1,4 +1,7 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zHashTypeListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -11,7 +14,7 @@ import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -23,18 +26,21 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create(), httpOptions);
     this.subscriptions.push(
       hashtypes$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
+          const hashtypes: JHashtype[] = this.serializer.deserialize(response, zHashTypeListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

@@ -1,11 +1,10 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zHashListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -14,6 +13,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
   private _dataType: string;
+  private _filterparam: string;
 
   setId(id: number): void {
     this._id = id;
@@ -23,63 +23,26 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     this._dataType = type;
   }
 
+  setFilterParam(filterparam: string): void {
+    this._filterparam = filterparam;
+  }
+
   loadAll(query?: Filter): void {
     this.loading = true;
 
     if (this._dataType === 'tasks') {
-      const paramsTasks = new RequestParamBuilder().addInitial(this).addInclude('hashlist');
-      if (query) {
-        paramsTasks.addFilter(query);
-      }
-      const taskService = this.service.get(SERV.TASKS, this._id, paramsTasks.create());
+      const hashesService = this.service.ghelper(SERV.HELPER, 'getCracksOfTask', { task: this._id });
 
       this.subscriptions.push(
-        taskService
+        hashesService
           .pipe(
-            catchError(() => of([])),
+            catchError(() => EMPTY),
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const task = new JsonAPISerializer().deserialize<JTask>({
-              data: response.data,
-              included: response.included
-            });
+            const hashes: JHash[] = this.serializer.deserialize(response, zHashListResponse);
 
-            const hashlistId = task.hashlist.id;
-
-            const paramsHashlist = new RequestParamBuilder()
-              .addInitial(this)
-              .addInclude('hashlist')
-              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId })
-              .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
-              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
-            if (query) {
-              paramsHashlist.addFilter(query);
-            }
-            const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());
-
-            this.subscriptions.push(
-              hashlistService
-                .pipe(
-                  catchError(() => of([])),
-                  finalize(() => (this.loading = false))
-                )
-                .subscribe((responseHash: ResponseWrapper) => {
-                  const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-                    data: responseHash.data,
-                    included: responseHash.included
-                  });
-
-                  const length = responseHash.meta.page.total_elements;
-                  const nextLink = responseHash.links.next;
-                  const prevLink = responseHash.links.prev;
-                  const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
-                  const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
-
-                  this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-                  this.setData(hashes);
-                })
-            );
+            this.setData(hashes);
           })
       );
     } else {
@@ -91,6 +54,10 @@ export class HashesDataSource extends BaseDataSource<JHash> {
         params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
       } else if (this._dataType === 'hashlists') {
         params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._id });
+
+        if (this._filterparam) {
+          params.addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true });
+        }
       }
 
       const hashes$ = this.service.getAll(SERV.HASHES, params.create());
@@ -98,14 +65,11 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       this.subscriptions.push(
         hashes$
           .pipe(
-            catchError(() => of([])),
+            catchError(() => EMPTY),
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-              data: response.data,
-              included: response.included
-            });
+            const hashes: JHash[] = this.serializer.deserialize(response, zHashListResponse);
 
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;

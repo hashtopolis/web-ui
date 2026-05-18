@@ -1,7 +1,6 @@
-
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -12,11 +11,11 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SuperHashlistHashlistTableCol,
   SuperHashlistHashlistTableColumnLabel
 } from '@components/tables/super-hashlist-hashlist-table/super-hashlist-hashlist-table.constants';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
@@ -29,11 +28,13 @@ import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
   templateUrl: './super-hashlist-hashlist-table.component.html',
   standalone: false
 })
-export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class SuperHashlistsHashlistsTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistHashlistTableColumnLabel);
@@ -45,48 +46,16 @@ export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent im
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
-    }
-  }
-
-  filter(item: JHashlist, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name?.toLowerCase().includes(filterValue) ||
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'hashTypeDescription': {
-        return (
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
     }
   }
 
@@ -126,8 +95,8 @@ export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent im
         id: SuperHashlistHashlistTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
       }
     ];
 
@@ -137,8 +106,8 @@ export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent im
         dataKey: 'hashTypeDescription',
         isSearchable: true,
         isSortable: true,
-        render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
-        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
+        render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription ?? ''
       });
     }
 
@@ -310,7 +279,7 @@ export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent im
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

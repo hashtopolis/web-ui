@@ -1,10 +1,10 @@
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { ResponseWrapper } from '@models/response.model';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -24,32 +24,32 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
-const mockAccessGroups: ResponseWrapper = {
+const mockAccessGroups: ResponseWrapper = mockResponse({
   data: [
     {
       id: 1,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'Admin'
       }
     },
     {
       id: 2,
-      type: 'access-groups',
+      type: 'accessGroup',
       attributes: {
         groupName: 'User'
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockHashtypes: ResponseWrapper = {
+const mockHashtypes: ResponseWrapper = mockResponse({
   data: [
     {
       id: 2500,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'MD5',
         isSalted: true,
@@ -58,7 +58,7 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 0,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'SHA1',
         isSalted: false,
@@ -67,29 +67,27 @@ const mockHashtypes: ResponseWrapper = {
     },
     {
       id: 16800,
-      type: 'hashtypes',
+      type: 'hashType',
       attributes: {
         description: 'WPA/WPA2',
         isSalted: true,
         isSlowHash: true
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockConfigs: ResponseWrapper = {
+const mockConfigs: ResponseWrapper = mockResponse({
   data: {
     id: 66,
-    type: 'configs',
+    type: 'config',
     attributes: {
       configSectionId: 1,
       item: 'Enable Brain',
       value: '1'
     }
-  },
-  included: []
-};
+  }
+});
 
 describe('NewHashlistComponent', () => {
   let component: NewHashlistComponent;
@@ -104,7 +102,8 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'getRelationships']);
+    Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
@@ -119,9 +118,9 @@ describe('NewHashlistComponent', () => {
         InputModule,
         ButtonsModule,
         ComponentsModule,
+        MatProgressBarModule,
         MatProgressSpinnerModule,
-        MatIconModule,
-        NgbModule
+        MatIconModule
       ],
       providers: [
         FileSizePipe,
@@ -137,9 +136,9 @@ describe('NewHashlistComponent', () => {
   });
 
   beforeEach(() => {
-    gsSpy.getAll.withArgs(SERV.ACCESS_GROUPS).and.returnValue(of(mockAccessGroups));
+    gsSpy.getRelationships.and.returnValue(of(mockAccessGroups));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
-    gsSpy.get.withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
+    (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
       afterClosed: () => of(true)
     } as MatDialogRef<unknown>);
@@ -166,18 +165,18 @@ describe('NewHashlistComponent', () => {
 
     it('should load config and patch form for brainenabled', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.get('useBrain').value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeTrue();
     });
   });
 
   describe('Form changes', () => {
     it('should patch isSalted and format when hashTypeId changes', () => {
       // Simulate user changing the hashTypeId
-      component.form.get('hashTypeId')?.setValue('2500');
+      component.form.controls.hashTypeId.setValue('2500');
 
       // Allow Angular to process the valueChanges subscription (synchronously here)
-      expect(component.form.get('isSalted')?.value).toBe(true);
-      expect(component.form.get('format')?.value).toBe(1);
+      expect(component.form.controls.isSalted.value).toBe(true);
+      expect(component.form.controls.format.value).toBe(1);
     });
 
     it('onFilesSelected should set fileName and selectedFiles', () => {
@@ -191,21 +190,25 @@ describe('NewHashlistComponent', () => {
       expect(component.fileName).toBe('hashes.txt');
       expect(component.selectedFiles).toBe(fileList);
     });
-    it('should disable submit button when form is invalid', () => {
+    it('should keep submit button enabled when form is invalid', fakeAsync(() => {
       expect(component.form.invalid).toBeTrue();
+
       let buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       let button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeTrue();
+      expect(button.nativeElement.disabled).toBeFalse();
 
       component.form.patchValue({
         name: 'test',
         hashTypeId: '2500',
         accessGroupId: 1,
         format: 0,
-        sourceType: 'import',
+        sourceType: 'upload',
         sourceData: 'hashes'
       });
+
       component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
       fixture.detectChanges();
 
       expect(component.form.valid).toBeTrue();
@@ -214,7 +217,7 @@ describe('NewHashlistComponent', () => {
       buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       button = buttonDebugEl.query(By.css('button'));
       expect(button.nativeElement.disabled).toBeFalse();
-    });
+    }));
   });
 
   describe('Form submission', () => {
@@ -226,13 +229,13 @@ describe('NewHashlistComponent', () => {
       dataTransfer.items.add(file);
       component.selectedFiles = dataTransfer.files;
 
-      // Patch form with required values and sourceType 'import'
+      // Patch form with required values and sourceType 'upload'
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
         accessGroupId: 1,
         format: 0,
-        sourceType: 'import'
+        sourceType: 'upload'
       });
 
       uploadSpy.uploadFile.and.returnValue(of(0, 50, 100));
@@ -241,7 +244,13 @@ describe('NewHashlistComponent', () => {
 
       tick();
 
-      expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, component.form.value, [
+      const expectedPayload = {
+        ...component.form.value,
+        sourceType: 'import',
+        sourceData: 'hashes.txt'
+      };
+
+      expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, expectedPayload, [
         '/hashlists/hashlist'
       ]);
 
@@ -250,10 +259,10 @@ describe('NewHashlistComponent', () => {
     }));
 
     it('should submit form with "paste" sourceType', fakeAsync(() => {
-      gsSpy.create.and.returnValue(of({}));
+      gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
-        hashTypeId: '2500',
+        hashTypeId: '0',
         accessGroupId: 1,
         format: 0,
         sourceType: 'paste',
@@ -268,13 +277,13 @@ describe('NewHashlistComponent', () => {
     }));
   });
 
-  it('should NOT submit if sourceType is import and no file selected', () => {
+  it('should NOT submit if sourceType is upload and no file selected', () => {
     component.form.patchValue({
       name: 'Test Hashlist',
       hashTypeId: '2500',
       accessGroupId: 1,
       format: 0,
-      sourceType: 'import'
+      sourceType: 'upload'
     });
     component.selectedFiles = null; // No files selected
 
@@ -307,7 +316,14 @@ describe('NewHashlistComponent', () => {
     component.ngOnDestroy();
 
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    expect(nextSpy).toHaveBeenCalledWith(false);
+    expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
+  });
+
+  describe('Access group scoping', () => {
+    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
+      expect(gsSpy.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+      expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
+    });
   });
 });

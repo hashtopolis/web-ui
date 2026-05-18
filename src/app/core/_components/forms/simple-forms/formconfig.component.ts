@@ -1,17 +1,20 @@
+import { zConfigListResponse } from '@generated/api/zod';
 import { Subscription, forkJoin } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { JConfig } from '@models/configs.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zFormConfigRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { InfoMetadataForm, MetadataFormField, MetadataService } from '@services/metadata.service';
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -63,7 +66,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * If provided, these values are used to initialize form controls in the dynamic form.
 
    */
-  formValues: object;
+  formValues: ConfigValues;
 
   /**
    * An array of objects containing IDs and corresponding item names.
@@ -74,36 +77,32 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   // Subscription for managing asynchronous data retrieval
   private mySubscription: Subscription;
 
-  /**
-   * Constructor for the FormComponent.
-   * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
-   * @param metadataService - The MetadataService for accessing form metadata.
-   * @param titleService - The AutoTitleService for setting titles.
-   * @param uicService
-   * @param route - The ActivatedRoute for retrieving route data.
-   * @param alert - The AlertService for displaying alerts.
-   * @param gs - The GlobalService for handling global operations.
-   * @param serializer - JsonAPISerializer to serialize/deserialize json:api objects
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private metadataService: MetadataService,
-    private titleService: AutoTitleService,
-    private uicService: UIConfigService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private serializer: JsonAPISerializer
-  ) {
+  public isServerAction = false;
+
+  private unsubscribeService = inject(UnsubscribeService);
+  private metadataService = inject(MetadataService);
+  private titleService = inject(AutoTitleService);
+  private uicService = inject(UIConfigService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private serializer = inject(JsonAPISerializer);
+  private notificationRoleService = inject(NotificationsRoleService);
+
+  constructor() {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
-      const formKind = data.kind;
-      this.serviceConfig = data.serviceConfig; // Get the API path from route data
+    this.route.data.subscribe((data) => {
+      const routeData = zFormConfigRouteData.parse(data);
+      const formKind = routeData.kind;
+      this.isServerAction = formKind === 'server-actions';
+      this.serviceConfig = routeData.serviceConfig;
       // Load metadata and form information
-      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
-      this.formMetadata = this.metadataService.getFormMetadata(formKind);
-      this.title = this.globalMetadata['title'];
-      this.titleService.set([this.title]);
+      if (!this.isServerAction) {
+        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+        this.formMetadata = this.metadataService.getFormMetadata(formKind);
+        this.title = this.globalMetadata['title'];
+        this.titleService.set([this.title]);
+      }
     });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
@@ -112,18 +111,21 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   /**
    * Horizontal menu and redirection links.
    */
-  menuItems: HorizontalNav[] = [
-    { label: 'Agent', routeName: 'config/agent' },
-    { label: 'Task/Chunk', routeName: 'config/task-chunk' },
-    { label: 'Hashes/Cracks/Hashlist', routeName: 'config/hch' },
-    { label: 'Notifications', routeName: 'config/notifications' },
-    { label: 'General', routeName: 'config/general-settings' }
-  ];
+  protected menuItems: HorizontalNav[] = [];
 
   /**
    * Angular lifecycle hook: ngOnInit
    */
   ngOnInit(): void {
+    this.menuItems.push({ label: 'Agent', routeName: 'config/agent' });
+    this.menuItems.push({ label: 'Task/Chunk', routeName: 'config/task-chunk' });
+    this.menuItems.push({ label: 'Hashes/Cracks/Hashlist', routeName: 'config/hch' });
+    if (this.notificationRoleService.hasRole('read')) {
+      this.menuItems.push({ label: 'Notifications', routeName: 'config/notifications' });
+    }
+    this.menuItems.push({ label: 'General', routeName: 'config/general-settings' });
+    this.menuItems.push({ label: 'Server Actions', routeName: 'config/server-actions' });
+
     this.loadEdit();
   }
 
@@ -136,8 +138,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = this.gs
       .getAll(this.serviceConfig, { page: { size: 500 } })
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const config = this.serializer.deserialize<JConfig[]>(responseBody);
+        const config: JConfig[] = this.serializer.deserialize(response, zConfigListResponse);
 
         this.formValues = config.reduce<ConfigValues>((configValues, item) => {
           let value: string | boolean = item.value;
@@ -192,7 +193,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = forkJoin(updateRequests).subscribe({
       next: () => {
         // Mark all fields as updated
-        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key));
+        Object.keys(changedFields).forEach((key) =>
+          this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0])
+        );
 
         // Show a single success message
         this.alert.showSuccessMessage(`Saved ${this.title}`);

@@ -1,6 +1,9 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { HttpHeaders } from '@angular/common/http';
+
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -24,16 +27,23 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
 
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params.create(), httpOptions);
+
     this.subscriptions.push(
       crackers$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const crackers = this.serializer.deserialize<JCrackerBinaryType[]>(responseData);
+          const crackers: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+            this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;

@@ -1,25 +1,40 @@
 import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JUser } from '@models/user.model';
+
 import { SERV } from '@services/main.config';
 
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { JUser } from '@src/app/core/_models/user.model';
+import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
+import { zUserResponse } from '@src/generated/api/zod';
 
 export interface UpdateUserPassword {
   oldPassword: string;
   newPassword: string;
   confirmPassword: string;
+}
+
+export interface AccSettingsForm {
+  name: FormControl<string | null>;
+  registeredSince: FormControl<string | null>;
+  email: FormControl<string | null>;
+}
+
+export interface AccChangePasswordForm {
+  oldPassword: FormControl<string | null>;
+  newPassword: FormControl<string | null>;
+  confirmNewPassword: FormControl<string | null>;
 }
 @Component({
   selector: 'app-acc-settings',
@@ -38,8 +53,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   pageSubtitlePassword = 'Password Update';
 
   /** Form group for main form. */
-  form: FormGroup;
-  changepasswordFormGroup: FormGroup;
+  form: FormGroup<AccSettingsForm>;
+  changepasswordFormGroup: FormGroup<AccChangePasswordForm>;
 
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
@@ -69,13 +84,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   showPasswordForm: boolean = true;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private datePipe: uiDatePipe,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private titleService = inject(AutoTitleService);
+  private datePipe = inject(uiDatePipe);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.titleService.set(['Account Settings']);
   }
   /**
@@ -85,6 +100,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.createForm();
     this.loadUserSettings();
     this.createUpdatePassForm();
+
+    this.form.markAllAsTouched();
+    this.form.updateValueAndValidity();
   }
 
   /**
@@ -99,15 +117,15 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Creates and configures basic controls
    */
   createForm(): void {
-    this.form = new FormGroup({
-      name: new FormControl({ value: '', disabled: true }),
-      registeredSince: new FormControl({ value: '', disabled: true }),
-      email: new FormControl('', [Validators.required, Validators.email])
+    this.form = new FormGroup<AccSettingsForm>({
+      name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
+      registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
+      email: new FormControl('', [Validators.required, emailValidator])
     });
   }
 
   createUpdatePassForm() {
-    this.changepasswordFormGroup = new FormGroup(
+    this.changepasswordFormGroup = new FormGroup<AccChangePasswordForm>(
       {
         oldPassword: new FormControl('', Validators.required),
         newPassword: new FormControl('', [
@@ -126,13 +144,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   get oldPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('oldPassword').value;
+    return this.changepasswordFormGroup.controls.oldPassword.value ?? '';
   }
   get newPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('newPassword').value;
+    return this.changepasswordFormGroup.controls.newPassword.value ?? '';
   }
   get confirmNewPasswordValueFromForm() {
-    return this.changepasswordFormGroup.get('confirmNewPassword').value;
+    return this.changepasswordFormGroup.controls.confirmNewPassword.value ?? '';
   }
 
   /**
@@ -152,11 +170,20 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.update(SERV.USERS, Number(this.gs.userId), this.form.value).subscribe(() => {
-          this.alert.showSuccessMessage('User saved');
-          this.isUpdatingLoading = false;
+        this.gs.uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value).subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('User saved');
+            this.isUpdatingLoading = false;
+          },
+          error: (err) => {
+            console.error('Error updating user', err);
+            this.isUpdatingLoading = false;
+          }
         })
       );
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 
@@ -164,9 +191,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    if (this.changepasswordFormGroup.invalid || this.changepasswordFormGroup.pending) {
+    if (this.changepasswordFormGroup.pending) {
       return;
     }
+
+    if (this.changepasswordFormGroup.invalid) {
+      this.changepasswordFormGroup.markAllAsTouched();
+      this.changepasswordFormGroup.updateValueAndValidity();
+      return;
+    }
+
     this.isUpdatingPassLoading = true;
     const payload: UpdateUserPassword = {
       oldPassword: this.oldPasswordValueFromForm,
@@ -174,16 +208,29 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       confirmPassword: this.confirmNewPasswordValueFromForm
     };
     this.subscriptions.push(
-      this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
-        next: (val) => {
-          this.alert.showSuccessMessage(val.meta['Change password']);
-          this.isUpdatingPassLoading = false;
-          this.resetPasswordForm();
-        },
-        error: () => {
-          this.isUpdatingPassLoading = false;
-        }
-      })
+      this.gs
+        .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
+        .pipe(
+          map((r) => {
+            const parseResult = changeOwnPasswordResponseSchema.safeParse(r);
+            if (!parseResult.success) {
+              console.error('Password change response validation failed', parseResult.error);
+              this.alert.showErrorMessage('Unexpected response from server.');
+              throw parseResult.error;
+            }
+            return parseResult.data;
+          })
+        )
+        .subscribe({
+          next: (val) => {
+            this.alert.showSuccessMessage(val.meta['Change password']);
+            this.isUpdatingPassLoading = false;
+            this.resetPasswordForm();
+          },
+          error: () => {
+            this.isUpdatingPassLoading = false;
+          }
+        })
     );
   }
 
@@ -191,13 +238,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
-    const params = new RequestParamBuilder().create();
     this.subscriptions.push(
-      this.gs.get(SERV.USERS, Number(this.gs.userId), params).subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({
-          data: response.data,
-          included: response.included
-        });
+      this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
         this.form.patchValue({
           name: user.name,

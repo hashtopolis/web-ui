@@ -1,6 +1,6 @@
 import { catchError, forkJoin } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
@@ -39,10 +39,10 @@ export class STATCALCULATION {
   templateUrl: './agents-status-table.component.html',
   standalone: false
 })
-export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
@@ -51,7 +51,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
-    this.dataSource.reload();
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
     if (this.dataSource.autoRefreshService.refreshPage) {
       this.dataSource.startAutoRefresh();
     }
@@ -67,7 +72,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -85,10 +95,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: 'agentId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
       {
@@ -126,9 +135,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'taskName',
         isSortable: false,
         isSearchable: true,
-        render: (agent: JAgent) => agent.taskName,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        export: async (agent: JAgent) => agent.taskName
+        export: async (agent: JAgent) => agent.taskName ?? ''
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
@@ -172,7 +180,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
           treshold1: this.getTemp1(),
           treshold2: this.getTemp2(),
-          type: ASC.GPU_UTIL,
+          type: ASC.GPU_TEMP,
           isActive: (agent: JAgent) => agent.isActive,
           lastTime: (agent: JAgent) => agent.lastTime
         }
@@ -346,7 +354,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
+  private rowActionDelete(agent: JAgent[]): void {
     this.subscriptions.push(
       this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted agent!');
@@ -357,7 +365,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 
@@ -368,7 +376,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderActiveAgent(agent: JAgent): string {
-    return agent.agentSpeed > 0 ? 'Running task' : 'Stopped task';
+    return (agent.agentSpeed ?? 0) > 0 ? 'Running task' : 'Stopped task';
   }
 
   /**
@@ -395,13 +403,15 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    */
   private renderWorkingOn(agent: JAgent): SafeHtml {
     let html = '';
-    if (agent.agentSpeed) {
-      const agentSpeed = convertCrackingSpeed(agent.agentSpeed);
+    if (agent.chunks && agent.chunks.length > 0) {
+      const chunk = agent.chunks[0];
+      const agentSpeed = convertCrackingSpeed(chunk.speed);
+
       html = `
         <div>
         <div>Task: <a href="/#/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
         <div>at ${agentSpeed},<br></div>
-        <div>working on chunk <a href="/#//tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        <div>working on chunk <a href="/#//tasks/chunks/${chunk.id}/view">${chunk.id}</a></div>
         </div>
       `;
     }
@@ -416,8 +426,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private exportWorkingOn(agent: JAgent): SafeHtml {
-    if (agent.agentSpeed) {
-      return `Task: ${agent.taskName} at ${agent.agentSpeed} H/s, working on chunk ${agent.chunkId}`;
+    if (agent.chunks && agent.chunks.length > 0) {
+      const chunk = agent.chunks[0];
+      return `Task: ${agent.taskName} at ${chunk.speed} H/s, working on chunk ${chunk.id}`;
     } else {
       return '-';
     }
@@ -439,7 +450,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const stat = agent.agentStats.filter((u) => u.statType == statType);
+    const stat = (agent.agentStats ?? []).filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:
@@ -452,24 +463,20 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
   // Modal Agent Utilisation and OffCanvas menu
 
-  getTemp1() {
-    // Temperature Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold1').value;
+  getTemp1(): number {
+    return this.uiService.getUISettings()?.agentTempThreshold1 ?? 0;
   }
 
-  getTemp2() {
-    // Temperature 2 Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold2').value;
+  getTemp2(): number {
+    return this.uiService.getUISettings()?.agentTempThreshold2 ?? 0;
   }
 
-  getUtil1() {
-    // CPU Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold1').value;
+  getUtil1(): number {
+    return this.uiService.getUISettings()?.agentUtilThreshold1 ?? 0;
   }
 
-  getUtil2() {
-    // CPU 2 Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold2').value;
+  getUtil2(): number {
+    return this.uiService.getUISettings()?.agentUtilThreshold2 ?? 0;
   }
 
   /**

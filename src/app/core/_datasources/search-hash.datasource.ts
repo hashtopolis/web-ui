@@ -1,4 +1,5 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zHashListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JHash, SearchHashModel } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -53,15 +54,14 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
         .pipe(
           catchError((error) => {
             console.error('Error loading hashes', error);
-            return of([]);
+            return EMPTY;
           }),
           finalize(() => {
             this.loading = false;
           })
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const hashes = this.convertHashes(this.serializer.deserialize<JHash[]>(responseData));
+          const hashes = this.convertHashes(this.serializer.deserialize(response, zHashListResponse));
           this.checkMissingHashes(hashes);
           this.setData(hashes);
         })
@@ -90,7 +90,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           id: hash.id,
           hash: hash.hash,
           plaintext: hash.plaintext,
-          hashlists: [hash.hashlist],
+          hashlists: hash.hashlist ? [hash.hashlist!] : [],
           hashInfo: hash.isCracked
             ? `Cracked on ${formatUnixTimestamp(hash.timeCracked, this.dateFormat)}`
             : 'Not cracked yet',
@@ -111,7 +111,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   private conditionallyAddHashlist(searchHashes: SearchHashModel[], hash: JHash): boolean {
     for (const element of searchHashes) {
       if (element.hash === hash.hash) {
-        element.hashlists.push(hash.hashlist);
+        if (hash.hashlist) element.hashlists.push(hash.hashlist!);
         return true;
       }
     }

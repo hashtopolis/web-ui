@@ -1,6 +1,10 @@
+import { BaseModel } from '@models/base.model';
+
+import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 
 /**
  * Builder class fpr request parameters, implements the IParamBuilder interface
@@ -19,14 +23,14 @@ export class RequestParamBuilder implements IParamBuilder {
    * Sets page size, page after and sorting from datasource
    * @param dataSource the datasource to get the values from
    */
-  addInitial(dataSource: BaseDataSource<any>) {
+  addInitial<T extends BaseModel>(dataSource: BaseDataSource<T>) {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
-    if (dataSource.pageAfter != undefined) {
+    if (dataSource.pageAfter != null) {
       this.setPageAfter(dataSource.pageAfter);
     }
-    if (dataSource.pageBefore != undefined) {
+    if (dataSource.pageBefore != null) {
       this.setPageBefore(dataSource.pageBefore);
     }
     if (dataSource.sortingColumn != undefined) {
@@ -46,13 +50,12 @@ export class RequestParamBuilder implements IParamBuilder {
     return this;
   }
 
-
   /**
    * Sets the page befopre
    * @param pageBefore
    * @returns object instance
    */
-  setPageBefore(pageBefore: number): IParamBuilder {
+  setPageBefore(pageBefore: number | string | undefined): IParamBuilder {
     this.params.pageBefore = pageBefore;
     return this;
   }
@@ -62,7 +65,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageAfter
    * @returns object instance
    */
-  setPageAfter(pageAfter: number): IParamBuilder {
+  setPageAfter(pageAfter: number | string | undefined): IParamBuilder {
     this.params.pageAfter = pageAfter;
     return this;
   }
@@ -102,10 +105,14 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param sortingColumn column to get sort values from
    * @returns object instance
    */
-  addSorting(sortingColumn: any): IParamBuilder {
+  addSorting(sortingColumn: SortingColumn): IParamBuilder {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
       const direction = sortingColumn.direction === 'asc' ? '' : '-';
-      this.params.sortOrder = this.addToArray<string>(this.params.sortOrder, `${direction}${sortingColumn.dataKey}`);
+      const parent = sortingColumn.parent ? `${sortingColumn.parent}.` : '';
+      this.params.sortOrder = this.addToArray<string>(
+        this.params.sortOrder,
+        `${direction}${parent}${sortingColumn.dataKey}`
+      );
     }
     return this;
   }

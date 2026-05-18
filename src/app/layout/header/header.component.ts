@@ -1,18 +1,30 @@
 import { Subject, Subscription, takeUntil } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { AuthUser } from '@models/auth-user.model';
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { AgentRoleService } from '@services/roles/agents/agent-role.service';
+import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
+import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
+import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { ConfigRoleWrapperService } from '@services/roles/config/config-role-wrapper.service';
+import { FileRoleService } from '@services/roles/file-role.service';
+import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
+import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
 import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 import { MainMenuItem } from '@src/app/layout/header/header.model';
@@ -25,44 +37,55 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private themes = inject(ThemeService);
+  private permissionService = inject(PermissionService);
+  private easterEggService = inject(EasterEggService);
+  private tasksRoleService = inject(TasksRoleService);
+  private pretasksRoleService = inject(PreconfiguredTasksRoleService);
+  private supertaksRoleService = inject(SupertasksRoleService);
+  private hashListRoleService = inject(HashListRoleService);
+  private agentRoleService = inject(AgentRoleService);
+  private superHashListRoleService = inject(SuperHashListRoleService);
+  private hashRoleService = inject(HashRoleService);
+  private fileRoleService = inject(FileRoleService);
+  private crackerBinaryRoleService = inject(CrackerBinaryRoleService);
+  private agentBinaryRoleService = inject(AgentBinaryRoleService);
+  private preprocessorRoleService = inject(PreprocessorRoleService);
+  private configRoleWrapper = inject(ConfigRoleWrapperService);
+  private userRoleWrapperService = inject(UserRoleWrapperService);
+
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
   private themeSub: Subscription;
 
-  isHovering = false;
-  hoverTimeout: ReturnType<typeof setTimeout>;
-
   // Before showing header check Authentification
   private userSub: Subscription;
-  isAuthentificated = false;
+  isAuthenticated = false;
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
   private destroy$ = new Subject<void>();
-  constructor(
-    private authService: AuthService,
-    private storage: LocalStorageService<UIConfig>,
-    private themes: ThemeService,
-    private permissionService: PermissionService,
-    private easterEggService: EasterEggService
-  ) {
+
+  constructor() {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
   }
 
   isAuth(): void {
     this.userSub = this.authService.user.subscribe((user) => {
-      this.isAuthentificated = !!user;
+      this.isAuthenticated = !!user;
     });
   }
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.user.subscribe((user: AuthUser) => {
+      this.authService.user.subscribe((user) => {
         if (user) {
-          this.username = user._username;
+          this.username = user.canonicalUsername;
         }
       })
     );
@@ -95,7 +118,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   easterEggFlag: boolean = false;
+
   private activateSecretFeature(): void {
     // Add your secret feature here
     if (this.easterEggFlag) {
@@ -110,14 +135,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleTheme() {
     const newTheme = this.isDarkMode ? 'light' : 'dark';
     this.uiSettings.updateSettings({ theme: newTheme });
-    window.location.reload();
   }
 
-  menuItemClicked(event: ActionMenuEvent<unknown>): void {
+  menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
-      this.rebuildMenu();
-      window.location.reload();
     }
   }
 
@@ -140,32 +162,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Agents' menu.
    */
   getAgentsMenu(): MainMenuItem {
-    const canReadAgents = this.permissionService.hasPermissionSync(Perm.Agent.READ);
-    // Require Agent.READ permission for menu to display
-    if (!canReadAgents) {
-      return { display: false, label: HeaderMenuLabel.AGENTS, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.agentRoleService.hasRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.SHOW_AGENTS,
+        routerLink: ['agents', 'show-agents'],
+        showAddButton: this.agentRoleService.hasRole('create'),
+        routerLinkAdd: ['agents', 'new-agent'],
+        tooltipAddButton: 'New Agent'
+      });
     }
 
-    const agentActions = [
-      {
-        label: HeaderMenuLabel.SHOW_AGENTS,
-        routerLink: ['agents', 'show-agents']
-      }
-    ];
-
-    // Reqire AgentStat.READ permission for 'agent-status' menu item to display
-    const canReadAgentStats = this.permissionService.hasPermissionSync(Perm.AgentStat.READ);
-    if (canReadAgentStats) {
-      agentActions.push({
+    if (this.agentRoleService.hasRole('readStat')) {
+      actions.push({
         label: HeaderMenuLabel.AGENT_STATUS,
-        routerLink: ['agents', 'agent-status']
+        routerLink: ['agents', 'agent-status'],
+        showAddButton: false,
+        routerLinkAdd: [],
+        tooltipAddButton: ''
       });
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.AGENTS,
-      actions: [agentActions]
+      actions: [actions]
     };
   }
 
@@ -174,42 +196,63 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns a MainMenuItem for the 'Tasks' menu
    */
   getTasksMenu(): MainMenuItem {
-    // Require TaskWrapper.READ permission for menu to display
-    const canReadTasks = this.permissionService.hasPermissionSync(Perm.TaskWrapper.READ);
-    if (!canReadTasks) {
-      return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
-    }
+    const taskActions: Array<ActionMenuItem> = [];
 
-    const taskActions = [
-      {
-        label: HeaderMenuLabel.SHOW_TASKS,
-        routerLink: ['tasks', 'show-tasks']
-      },
-      {
-        label: HeaderMenuLabel.PRECONFIGURED_TASKS,
-        routerLink: ['tasks', 'preconfigured-tasks']
-      },
-      {
-        label: HeaderMenuLabel.SUPERTASKS,
-        routerLink: ['tasks', 'supertasks']
-      },
-      {
-        label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
-      }
-    ];
-
-    // Require Chunk.READ permission for chunk activity menu item to display
-    const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
-    if (canReadChunks) {
+    if (this.tasksRoleService.hasRole('read')) {
       taskActions.push({
-        label: HeaderMenuLabel.CHUNK_ACTIVITY,
-        routerLink: ['tasks', 'chunks']
+        label: HeaderMenuLabel.SHOW_TASKS,
+        routerLink: ['tasks', 'show-tasks'],
+        showAddButton: this.tasksRoleService.hasRole('create'),
+        routerLinkAdd: ['tasks', 'new-task'],
+        tooltipAddButton: 'New Task'
       });
     }
 
+    if (this.pretasksRoleService.hasRole('read')) {
+      taskActions.push({
+        label: HeaderMenuLabel.PRECONFIGURED_TASKS,
+        routerLink: ['tasks', 'preconfigured-tasks'],
+        showAddButton: this.pretasksRoleService.hasRole('create'),
+        routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
+        tooltipAddButton: 'New Preconfigured Task'
+      });
+    }
+
+    if (this.supertaksRoleService.hasRole('read')) {
+      taskActions.push({
+        label: HeaderMenuLabel.SUPERTASKS,
+        routerLink: ['tasks', 'supertasks'],
+        showAddButton: this.supertaksRoleService.hasRole('create'),
+        routerLinkAdd: ['tasks', 'new-supertasks'],
+        tooltipAddButton: 'New Supertask'
+      });
+    }
+
+    if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
+      taskActions.push({
+        label: HeaderMenuLabel.IMPORT_SUPERTASK,
+        routerLink: ['tasks', 'import-supertasks', 'masks']
+      });
+    }
+
+    // Require TaskWrapper.READ permission for menu to display
+
+    // const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
+
+    // if (!canReadChunks) {
+    //   return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
+    // }
+
+    // Require Chunk.READ permission for chunk activity menu item to display
+    // if (canReadChunks) {
+    taskActions.push({
+      label: HeaderMenuLabel.CHUNK_ACTIVITY,
+      routerLink: ['tasks', 'chunks']
+    });
+    // }
+
     return {
-      display: true,
+      display: taskActions.length > 0,
       label: HeaderMenuLabel.TASKS,
       actions: [taskActions]
     };
@@ -220,38 +263,49 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Hashlists' menu.
    */
   getHashlistsMenu(): MainMenuItem {
-    const canReadHashlists = this.permissionService.hasPermissionSync(Perm.Hashlist.READ);
-    if (!canReadHashlists) {
-      return { display: false, label: HeaderMenuLabel.HASHLISTS, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.hashListRoleService.hasRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.SHOW_HASHLISTS,
+        routerLink: ['hashlists', 'hashlist'],
+        showAddButton: this.hashListRoleService.hasRole('create'),
+        routerLinkAdd: ['hashlists', 'new-hashlist'],
+        tooltipAddButton: 'New Hashlist'
+      });
     }
 
-    const actions = [
-      {
-        label: HeaderMenuLabel.SHOW_HASHLISTS,
-        routerLink: ['hashlists', 'hashlist']
-      },
-      {
+    if (this.superHashListRoleService.hasRole('read')) {
+      actions.push({
         label: HeaderMenuLabel.SUPERHASHLISTS,
-        routerLink: ['hashlists', 'superhashlist']
-      }
-    ];
+        routerLink: ['hashlists', 'superhashlist'],
+        showAddButton: this.superHashListRoleService.hasRole('create'),
+        routerLinkAdd: ['hashlists', 'new-superhashlist'],
+        tooltipAddButton: 'New Superhashlist'
+      });
+    }
 
-    const canReadHash = this.permissionService.hasPermissionSync(Perm.Hash.READ);
-    if (canReadHash) {
+    if (this.hashRoleService.hasRole('read')) {
       actions.push(
         {
           label: HeaderMenuLabel.SEARCH_HASH,
-          routerLink: ['hashlists', 'search-hash']
+          routerLink: ['hashlists', 'search-hash'],
+          showAddButton: false,
+          routerLinkAdd: [],
+          tooltipAddButton: ''
         },
         {
           label: HeaderMenuLabel.SHOW_CRACKS,
-          routerLink: ['hashlists', 'show-cracks']
+          routerLink: ['hashlists', 'show-cracks'],
+          showAddButton: false,
+          routerLinkAdd: [],
+          tooltipAddButton: ''
         }
       );
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.HASHLISTS,
       actions: [actions]
     };
@@ -262,30 +316,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Files' menu.
    */
   getFilesMenu(): MainMenuItem {
-    // Require File.READ permission for menu to display
-    const canRead = this.permissionService.hasPermissionSync(Perm.File.READ);
-    if (!canRead) {
-      return { display: false, label: HeaderMenuLabel.FILES, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.fileRoleService.hasRole('read')) {
+      const canCreateFiles = this.fileRoleService.hasRole('create');
+      actions.push(
+        {
+          label: HeaderMenuLabel.WORDLISTS,
+          routerLink: ['files', 'wordlist'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
+          tooltipAddButton: 'New Wordlist'
+        },
+        {
+          label: HeaderMenuLabel.RULES,
+          routerLink: ['files', 'rules'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'rules', 'new-rule'],
+          tooltipAddButton: 'New Rule'
+        },
+        {
+          label: HeaderMenuLabel.OTHER,
+          routerLink: ['files', 'other'],
+          showAddButton: canCreateFiles,
+          routerLinkAdd: ['files', 'other', 'new-other'],
+          tooltipAddButton: 'New File'
+        }
+      );
     }
+
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.FILES,
-      actions: [
-        [
-          {
-            label: HeaderMenuLabel.WORDLISTS,
-            routerLink: ['files', 'wordlist']
-          },
-          {
-            label: HeaderMenuLabel.RULES,
-            routerLink: ['files', 'rules']
-          },
-          {
-            label: HeaderMenuLabel.OTHER,
-            routerLink: ['files', 'other']
-          }
-        ]
-      ]
+      actions: [actions]
     };
   }
 
@@ -309,8 +372,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     ];
 
-    const canReadNotifications = this.permissionService.hasPermissionSync(Perm.Notif.READ);
-    if (canReadNotifications) {
+    if (this.configRoleWrapper.hasNotificationRole('read')) {
       actions.push({
         label: 'Notifications',
         routerLink: ['account', 'notifications']
@@ -338,31 +400,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Users' menu.
    */
   getUsersMenu(): MainMenuItem {
-    // Require User.READ permission for menu to display
-    const canReadUsers = this.permissionService.hasPermissionSync(Perm.User.READ);
-    if (!canReadUsers) {
-      return { display: false, label: HeaderMenuLabel.USERS, actions: [] };
-    }
+    const actions: Array<ActionMenuItem> = [];
 
-    const actions = [
-      {
+    if (this.userRoleWrapperService.hasUserRole('read')) {
+      actions.push({
         label: HeaderMenuLabel.ALL_USERS,
         routerLink: ['users', 'all-users']
-      }
-    ];
-
-    // Require RightGroup.READ permission for 'Global Permissions' menu item
-    const canReadRightGroup = this.permissionService.hasPermissionSync(Perm.RightGroup.READ);
-    if (canReadRightGroup) {
+      });
+    }
+    if (this.userRoleWrapperService.hasPermissionRole('read')) {
       actions.push({
         label: HeaderMenuLabel.GLOBAL_PERMISSIONS,
         routerLink: ['users', 'global-permissions-groups']
       });
     }
-
-    // Require AccessGroup.READ permission for 'Access Groups' menu item
-    const canReadAccessGroup = this.permissionService.hasPermissionSync(Perm.GroupAccess.READ);
-    if (canReadAccessGroup) {
+    if (this.userRoleWrapperService.hasAccessGroupRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ACCESS_GROUPS,
         routerLink: ['users', 'access-groups']
@@ -370,7 +422,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.USERS,
       actions: [actions]
     };
@@ -381,33 +433,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Config' menu.
    */
   getConfigMenu(): MainMenuItem {
-    const canRead = this.permissionService.hasPermissionSync(Perm.Config.READ);
-    if (!canRead) {
-      return { display: false, label: HeaderMenuLabel.CONFIG, actions: [] };
+    const actions: Array<ActionMenuItem> = [];
+
+    if (this.configRoleWrapper.hasSettingsRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.SETTINGS,
+        routerLink: ['config', 'agent']
+      });
+    }
+    if (this.configRoleWrapper.hasHashTypesRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HASHTYPES,
+        routerLink: ['config', 'hashtypes']
+      });
+    }
+    if (this.configRoleWrapper.hasHealthCheckRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.HEALTH_CHECKS,
+        routerLink: ['config', 'health-checks']
+      });
+    }
+    if (this.configRoleWrapper.hasLogRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.LOG,
+        routerLink: ['config', 'log']
+      });
     }
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.CONFIG,
-      actions: [
-        [
-          {
-            label: HeaderMenuLabel.SETTINGS,
-            routerLink: ['config', 'agent']
-          },
-          {
-            label: HeaderMenuLabel.HASHTYPES,
-            routerLink: ['config', 'hashtypes']
-          },
-          {
-            label: HeaderMenuLabel.HEALTH_CHECKS,
-            routerLink: ['config', 'health-checks']
-          },
-          {
-            label: HeaderMenuLabel.LOG,
-            routerLink: ['config', 'log']
-          }
-        ]
-      ]
+      actions: [actions]
     };
   }
 
@@ -416,32 +471,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Binaries' menu.
    */
   getBinariesMenu(): MainMenuItem {
-    // Require at least one of CrackerBinary.READ, AgentBinary.READ, or Prepro.READ permissions for menu to display
-    const canReadCrackerBinary = this.permissionService.hasPermissionSync(Perm.CrackerBinary.READ);
-    const canReadAgentBinary = this.permissionService.hasPermissionSync(Perm.AgentBinary.READ);
-    const canReadPreprocessors = this.permissionService.hasPermissionSync(Perm.Prepro.READ);
+    const actions: Array<ActionMenuItem> = [];
 
-    if (!canReadCrackerBinary && !canReadAgentBinary && !canReadPreprocessors) {
-      return { display: false, label: HeaderMenuLabel.BINARIES, actions: [] };
-    }
-
-    const actions = [];
-
-    if (canReadCrackerBinary) {
+    if (this.crackerBinaryRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.CRACKERS,
         routerLink: ['config', 'engine', 'crackers']
       });
     }
 
-    if (canReadPreprocessors) {
+    if (this.preprocessorRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.PREPROCESSORS,
         routerLink: ['config', 'engine', 'preprocessors']
       });
     }
 
-    if (canReadAgentBinary) {
+    if (this.agentBinaryRoleService.hasRole('read')) {
       actions.push({
         label: HeaderMenuLabel.AGENT_BINARIES,
         routerLink: ['config', 'engine', 'agent-binaries']
@@ -449,7 +495,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     return {
-      display: true,
+      display: actions.length > 0,
       label: HeaderMenuLabel.BINARIES,
       actions: [actions]
     };

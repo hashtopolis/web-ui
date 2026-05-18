@@ -1,21 +1,25 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
+import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { JAgentWith, ThinJAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
+import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
-import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -28,6 +32,7 @@ import {
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
 import { ASC, IGNORE_ERROR_CHOICES } from '@src/app/core/_constants/agentsc.config';
+import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import {
   ACCESS_GROUP_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING,
@@ -52,62 +57,84 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectUsers: SelectOption[] = [];
+  selectUsers: SelectOption<UserId>[] = [];
   selectIgnorerrors = IGNORE_ERROR_CHOICES;
-  selectUserAgps: SelectOption[];
+  selectUserAgps: SelectOption<AccessGroupId>[] = [];
 
   /** Assign Tasks */
-  assignTasks: SelectOption[];
-  assignNew: boolean;
-  assignId: number;
+  assignTasks: SelectOption<TaskId>[] = [];
+  assignNew = false;
+  assignId: number | null = null;
 
   // Edit Index
   editedAgentIndex: number;
-  showagent: JAgent;
+  showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
 
   // Calculations
-  timespent: number;
-  getchunks: JChunk[];
+  timespent = 0;
+  getchunks: JChunk[] = [];
 
-  currentAssignment: JAgentAssignment;
+  currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
+  protected readonly faLinux = faLinux;
+  protected readonly faWindows = faWindows;
+  protected readonly faApple = faApple;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private uiService = inject(UIConfigService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  protected agentRoleService = inject(AgentRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildEmptyForms();
     this.titleService.set(['Edit Agent']);
   }
 
   /**
-   * Initializes the component by extracting and setting the agent ID,
+   * Initializes the component by extracting and setting the agent ID.
+   * If the id is missing or invalid, redirect to 404.
    */
-  onInitialize() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedAgentIndex = +params['id'];
-      this.ngOnInit();
-    });
+  private onInitialize(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.editedAgentIndex = idParam ? +idParam : NaN;
+
+    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+      this.router.navigate(['/not-found']);
+    }
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
-  async ngOnInit() {
-    await this.loadAgent();
-    await this.loadCurrentAssignment();
-    this.loadSelectTasks();
-    this.loadSelectUsers();
-    this.assignChunksInit(this.editedAgentIndex);
-    this.initForm();
+  async ngOnInit(): Promise<void> {
+    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+      return;
+    }
+
+    try {
+      await this.loadAgent();
+      this.loadSelectTasks();
+      this.loadSelectUsers();
+
+      if (this.agentRoleService.hasRole('readChunk')) {
+        this.assignChunksInit(this.editedAgentIndex);
+      }
+
+      this.initForm();
+    } catch (error) {
+      this.handleLoadError(error);
+      return;
+    } finally {
+      this.isLoading = false;
+    }
   }
+
   /**
    * Lifecycle hook called before the component is destroyed.
    * Unsubscribes from all subscriptions to prevent memory leaks.
@@ -117,28 +144,84 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Centralized handler for 404 / 403 / other load errors.
+   */
+  private handleLoadError(error: unknown): void {
+    const httpError = error as HttpErrorResponse;
+    const status = httpError?.status;
+
+    if (status === 404) {
+      this.router.navigate(['/not-found']);
+    } else if (status === 403) {
+      this.router.navigate(['/forbidden']);
+    } else {
+      this.alert.showErrorMessage('Error loading agent details');
+    }
+  }
+
+  /**
    * Builds the empty forms for editing an agent and updating its assignment to a task
    * @private
    */
   private buildEmptyForms(): void {
-    this.updateForm = getEditAgentForm();
-    this.updateAssignForm = getUpdateAssignmentForm();
+    this.updateForm = getEditAgentForm(!this.agentRoleService.hasRole('update'));
+    this.updateAssignForm = getUpdateAssignmentForm(!this.agentRoleService.hasRole('updateAssignment'));
   }
 
   /**
    * Load agent including its agentStats and accessGroups from server to draw stat graphs
    * @private
    */
-  private async loadAgent() {
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-        include: ['agentStats', 'accessGroups']
-      })
-    );
-    const responseBody = { data: response.data, included: response.included };
-    const agent = this.serializer.deserialize<JAgent>(responseBody);
-    this.showagent = agent;
-    this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+  private async loadAgent(): Promise<void> {
+    const includes = ['agentStats', 'accessGroups'];
+
+    if (this.agentRoleService.hasRole('readAssignment')) {
+      includes.push('assignments');
+    }
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
+          include: includes
+        })
+      );
+
+      const agent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'> = this.serializer.deserialize(
+        response,
+        zAgentResponse,
+        { include: ['agentStats', 'accessGroups', 'assignments'] as const }
+      );
+      this.showagent = agent;
+      this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
+      if (this.agentRoleService.hasRole('readAssignment')) {
+        if ((agent.assignments ?? []).length) {
+          const firstAssignment = (agent.assignments ?? [])[0];
+          this.assignNew = !!firstAssignment.taskId;
+          this.assignId = firstAssignment.id;
+          this.currentAssignment = firstAssignment;
+        } else {
+          this.currentAssignment = null;
+          this.assignId = null;
+          this.assignNew = false;
+        }
+      }
+    } catch (err) {
+      const httpErr = err as HttpErrorResponse;
+
+      // If the server fails while resolving included relations (500+),
+      // try once more without the `include` params so the primary resource can still load.
+      if (httpErr?.status && httpErr.status >= 500) {
+        const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
+
+        // Degraded fallback: no includes loaded due to server error
+        const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
+        this.showagent = agent as JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+        this.selectUserAgps = [];
+        return;
+      }
+
+      // Non-500 errors are rethrown and will be handled by the caller
+      throw err;
+    }
   }
 
   /**
@@ -146,16 +229,17 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadSelectTasks(): void {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .create();
-    const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+    if (!this.agentRoleService.hasRole('readAssignment')) {
+      return;
+    }
 
-      const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0); //Remove completed tasks
-      this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
-    });
+    const loadTasksSubscription$ = this.gs
+      .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
+      .subscribe((response: ResponseWrapper) => {
+        const tasks = this.serializer.deserialize(response, zTaskListResponse);
+        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+      });
+
     this.unsubscribeService.add(loadTasksSubscription$);
   }
 
@@ -163,59 +247,43 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Load all users for the select element
    * @private
    */
-  private loadSelectUsers() {
+  private loadSelectUsers(): void {
     const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
       this.selectUsers = transformSelectOptions(
-        this.serializer.deserialize<JUser[]>(responseBody),
+        this.serializer.deserialize(response, zUserListResponse),
         DEFAULT_FIELD_MAPPING
       );
     });
-    this.unsubscribeService.add(loadUsersSubscription$);
-  }
 
-  /**
-   * Loads assignment from server
-   * @private
-   */
-  private async loadCurrentAssignment() {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({
-        field: 'agentId',
-        operator: FilterType.EQUAL,
-        value: this.editedAgentIndex
-      })
-      .create();
-    const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.AGENT_ASSIGN, requestParams));
-    const assignments = this.serializer.deserialize<JAgentAssignment[]>({
-      data: response.data,
-      included: response.included
-    });
-    if (assignments.length) {
-      this.assignNew = !!assignments?.[0]['taskId'];
-      this.assignId = assignments?.[0]['id'];
-      this.currentAssignment = assignments?.[0];
-    }
+    this.unsubscribeService.add(loadUsersSubscription$);
   }
 
   /**
    * Initializes the forms with data retrieved from the server.
    * @private
    */
-  private initForm() {
+  private initForm(): void {
+    if (!this.showagent) {
+      return;
+    }
+
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
-      userId: this.showagent.userId,
+      userId: this.showagent.userId ?? null,
       agentName: this.showagent.agentName,
-      token: this.showagent.token,
       cpuOnly: this.showagent.cpuOnly,
       cmdPars: this.showagent.cmdPars,
-      ignoreErrors: this.showagent.ignoreErrors,
+      ignoreErrors: this.showagent.ignoreErrors ?? null,
       isTrusted: this.showagent.isTrusted
     });
+
     if (this.currentAssignment) {
       this.updateAssignForm.setValue({
         taskId: this.currentAssignment.taskId
+      });
+    } else {
+      this.updateAssignForm.reset({
+        taskId: null
       });
     }
   }
@@ -224,12 +292,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Calculates the total time spent based on an array of chunks.
    * @param chunks - An array of chunks containing solveTime and dispatchTime properties.
    */
-  timeCalc(chunks: JChunk[]) {
-    const tspent = [];
-    for (let i = 0; i < chunks.length; i++) {
-      tspent.push(Math.max(chunks[i].solveTime, chunks[i].dispatchTime) - chunks[i].dispatchTime);
-    }
-    this.timespent = tspent.reduce((a, i) => a + i);
+  timeCalc(chunks: JChunk[]): void {
+    const tspent = chunks.map((chunk) => Math.max(chunk.solveTime, chunk.dispatchTime) - chunk.dispatchTime);
+    this.timespent = tspent.reduce((a, i) => a + i, 0);
   }
 
   /**
@@ -237,20 +302,16 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @param  agentID - The ID of the agent.
    */
   assignChunksInit(agentID: number): void {
-    // Retrieve chunks associated with the agent
     const chunkRequestParams = new RequestParamBuilder()
       .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agentID })
       .create();
-    this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
 
-      // Retrieve tasks information
-      this.gs.getAll(SERV.TASKS).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+    const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
+      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
-        // Assign taskName of tasks associated with the chunks
+      const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
+        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse);
+
         this.getchunks = chunks.map((chunk) => {
           const matchedTask = tasks.find((task) => task.id === chunk.taskId);
           if (matchedTask) {
@@ -259,32 +320,46 @@ export class EditAgentComponent implements OnInit, OnDestroy {
           return chunk;
         });
 
-        // Calculate and update timespent
         if (this.getchunks.length) {
           this.timeCalc(this.getchunks);
         }
       });
+
+      this.unsubscribeService.add(tasksSub$);
     });
+
+    this.unsubscribeService.add(chunksSub$);
   }
 
   /**
    * Handles the form submission for updating an agent.
    */
-  onSubmit() {
-    if (this.updateForm.valid) {
-      if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-        this.onUpdateAssign(this.updateAssignForm.value.taskId);
-      }
-      this.isUpdatingLoading = true;
-      const onSubmitSubscription$ = this.gs
-        .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
-        .subscribe(() => {
-          this.alert.showSuccessMessage('Agent saved');
-          this.isUpdatingLoading = false;
-          this.router.navigate(['agents/show-agents']);
-        });
-      this.unsubscribeService.add(onSubmitSubscription$);
+  onSubmit(): void {
+    if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
+      return;
     }
+
+    if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
+      this.onUpdateAssign(this.updateAssignForm.value.taskId ?? null);
+    }
+
+    this.isUpdatingLoading = true;
+
+    const onSubmitSubscription$ = this.gs.update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value).subscribe({
+      next: () => {
+        this.alert.showSuccessMessage('Agent saved');
+        this.isUpdatingLoading = false;
+        this.router.navigate(['agents/show-agents']);
+      },
+      error: () => {
+        this.isUpdatingLoading = false;
+        this.alert.showErrorMessage('Error updating agent');
+      }
+    });
+
+    this.unsubscribeService.add(onSubmitSubscription$);
   }
 
   /**
@@ -292,7 +367,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Assigns the agent to the provided taskID or removes a current assignment
    * @param taskId The task ID.
    */
-  onUpdateAssign(taskId: number): void {
+  onUpdateAssign(taskId: number | null): void {
     let request$;
 
     if (taskId) {
@@ -312,22 +387,46 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   }
 
   // Render devices using count by device type
-  renderDevices(devices: string) {
-    const deviceList = devices.split('\n');
-    const deviceCountMap: { [key: string]: number } = {};
+  renderDevices(devices: string): string {
+    const deviceList = devices.split('\n').filter((d) => !!d.trim());
+    const deviceCountMap: Record<string, number> = {};
 
-    // Count occurrences of each device
     deviceList.forEach((device) => {
-      if (deviceCountMap[device]) {
-        deviceCountMap[device]++;
-      } else {
-        deviceCountMap[device] = 1;
-      }
+      deviceCountMap[device] = (deviceCountMap[device] || 0) + 1;
     });
 
-    // Format with HTML line breaks and return the formatted devices as string
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
       .join('<br>');
+  }
+
+  getOsLabel(os: AgentOS): string {
+    switch (os) {
+      case AgentOS.LINUX:
+        return 'Linux';
+      case AgentOS.WINDOWS:
+        return 'Windows';
+      case AgentOS.MACOS:
+        return 'MacOS';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  getOsMessage(os: AgentOS): string {
+    return this.getOsLabel(os);
+  }
+
+  getOsFaIcon(os: AgentOS): IconDefinition | null {
+    switch (os) {
+      case AgentOS.LINUX:
+        return this.faLinux;
+      case AgentOS.WINDOWS:
+        return this.faWindows;
+      case AgentOS.MACOS:
+        return this.faApple;
+      default:
+        return null;
+    }
   }
 }

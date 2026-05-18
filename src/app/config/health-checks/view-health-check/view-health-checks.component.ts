@@ -1,24 +1,26 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { zHealthCheckResponse } from '@generated/api/zod';
+
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { GlobalService } from '@services/main.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'app-view-health-checks',
-    templateUrl: './view-health-checks.component.html',
-    standalone: false
+  selector: 'app-view-health-checks',
+  templateUrl: './view-health-checks.component.html',
+  standalone: false
 })
 export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.
@@ -37,15 +39,15 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
    * @param {ActivatedRoute} route - The activated route.
    * @param {GlobalService} gs - The global service.
    */
-  constructor(
-    protected settingsService: LocalStorageService<UIConfig>,
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private gs: GlobalService
-  ) {
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+
+  constructor() {
     this.onInitialize();
-    titleService.set(['View Health Checks']);
+    this.titleService.set(['View Health Checks']);
   }
 
   /**
@@ -79,16 +81,14 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
-        this.healthc = new JsonAPISerializer().deserialize<JHealthCheck>({
-          data: response.data,
-          included: response.included
-        });
+        const healthCheck: JHealthCheck = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
+        this.healthc = healthCheck;
       });
     this.unsubscribeService.add(loadSubscription$);
   }
 
   private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
+    const fmt = this.uiSettings.getSetting('timefmt');
 
     return fmt ? fmt : uiConfigDefault.timefmt;
   }

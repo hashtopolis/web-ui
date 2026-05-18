@@ -1,8 +1,10 @@
-import { DEFAULT_CONFIG } from '../config/default/app/main';
-import { DEFAULT_CONFIG_TOOLTIP } from '../config/default/app/tooltip';
+/**
+ * environment definition for development environment.
+ * Add a replace section angular.jsom for staging or production environment
+ */
 
-// This file can be replaced during build by using the `fileReplacements` array.
-// The list of file replacements can be found in `angular.json`.
+import { DEFAULT_CONFIG } from '@src/config/default/app/main';
+import { DEFAULT_CONFIG_TOOLTIP } from '@src/config/default/app/tooltip';
 
 export const environment = {
   production: false,

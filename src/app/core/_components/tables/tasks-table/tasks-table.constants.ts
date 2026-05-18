@@ -38,10 +38,3 @@ export const TaskTableEditableAction = {
   CHANGE_PRIORITY: 'change-priority',
   CHANGE_MAX_AGENTS: 'change-max-agents'
 };
-
-export enum TaskStatus {
-  INVALID,
-  RUNNING,
-  COMPLETED,
-  IDLE
-}

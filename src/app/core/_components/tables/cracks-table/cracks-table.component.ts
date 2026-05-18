@@ -1,8 +1,8 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
-import { BaseModel } from '@models/base.model';
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { SERV } from '@services/main.config';
@@ -28,15 +28,19 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './cracks-table.component.html',
   standalone: false
 })
-export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   ngOnInit(): void {
     this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new CracksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll().then(() => {});
   }
 
@@ -49,7 +53,12 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -78,7 +87,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'plaintext',
         isSortable: true,
         isSearchable: true,
-        render: (crack: JHash) => crack.plaintext,
         export: async (crack: JHash) => crack.plaintext
       },
       {
@@ -88,7 +96,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         isSearchable: true,
         isCopy: true,
         truncate: (crack: JHash) => crack.hash.length > 40,
-        render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
       },
       {
@@ -96,14 +103,14 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'agentId',
         isSortable: false,
         routerLink: (crack: JHash) => this.renderAgentLinkFromHash(crack),
-        export: async (crack: JHash) => crack.chunk.agentId + ''
+        export: async (crack: JHash) => (crack.chunk?.agentId ?? '') + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: false,
         routerLink: (crack: JHash) => this.renderTaskLinkFromHash(crack),
-        export: async (crack: JHash) => crack.chunk.taskId + ''
+        export: async (crack: JHash) => (crack.chunk?.taskId ?? '') + ''
       },
       {
         id: CracksTableCol.CHUNK,
@@ -116,14 +123,16 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''),
-        export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
+        render: (crack: JHash) =>
+          crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : '',
+        export: async (crack: JHash) =>
+          crack.hashlist?.format !== undefined ? HashListFormatLabel[crack.hashlist.format] : ''
       }
     ];
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy((event as JHash).hash)) {
+    if (this.clipboard.copy(String((event as JHash).hash))) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');
@@ -174,7 +183,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     if (hash) {
       const chunk = hash.chunk;
       if (chunk) {
-        const modelID = chunk[modelIDKey];
+        const modelID = (chunk as unknown as DynamicModel)[modelIDKey] as string | number;
         links.push({
           routerLink: [relativePath, context, modelID, 'edit'],
           label: modelID
@@ -211,7 +220,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLinkFromHash(crack: JHash): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (crack) {
+    if (crack && crack.chunkId !== null) {
       links.push({
         routerLink: ['/tasks', 'chunks', crack.chunkId, 'view'],
         label: crack.chunkId

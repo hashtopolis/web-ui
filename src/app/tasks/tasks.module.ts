@@ -1,34 +1,33 @@
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { ApplyHashlistComponent } from './supertasks/applyhashlist.component';
-import { ChunksComponent } from './chunks/chunks.component';
-import { CommonModule } from '@angular/common';
-import { ComponentsModule } from '../shared/components.module';
-import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
-import { EditPreconfiguredTasksComponent } from './edit-preconfigured-tasks/edit-preconfigured-tasks.component';
-import { EditSupertasksComponent } from './edit-supertasks/edit-supertasks.component';
-import { EditTasksComponent } from './edit-tasks/edit-tasks.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { MasksComponent } from './import-supertasks/masks/masks.component';
-import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
-import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
-import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
-import { NewSupertasksComponent } from '../core/_components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
-import { NewTasksComponent } from './new-tasks/new-tasks.component';
-import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PipesModule } from '../shared/pipes.module';
-import { PreconfiguredTasksComponent } from './preconfigured-tasks/preconfigured-tasks.component';
-import { RouterModule } from '@angular/router';
-import { ShowTasksComponent } from './show-tasks/show-tasks.component';
-import { SupertasksComponent } from './supertasks/supertasks.component';
-import { TasksRoutingModule } from './tasks-routing.module';
-import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
-import { CoreFormsModule } from '../shared/forms.module';
-import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
-import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
 
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { RouterModule } from '@angular/router';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+import { NewSupertasksComponent } from '@components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
+
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
+import { PipesModule } from '@src/app/shared/pipes.module';
+import { ChunksComponent } from '@src/app/tasks/chunks/chunks.component';
+import { EditPreconfiguredTasksComponent } from '@src/app/tasks/edit-preconfigured-tasks/edit-preconfigured-tasks.component';
+import { EditSupertasksComponent } from '@src/app/tasks/edit-supertasks/edit-supertasks.component';
+import { EditTasksComponent } from '@src/app/tasks/edit-tasks/edit-tasks.component';
+import { MasksComponent } from '@src/app/tasks/import-supertasks/masks/masks.component';
+import { WrbulkComponent } from '@src/app/tasks/import-supertasks/wrbulk/wrbulk.component';
+import { NewPreconfiguredTasksComponent } from '@src/app/tasks/new-preconfigured-tasks/new-preconfigured-tasks.component';
+import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
+import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/preconfigured-tasks.component';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
+import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
+import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
+import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
+import { TasksRoutingModule } from '@src/app/tasks/tasks-routing.module';
 
 @NgModule({
   declarations: [
@@ -52,7 +51,6 @@ import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-spe
     ReactiveFormsModule,
     TasksRoutingModule,
     FontAwesomeModule,
-    DataTablesModule,
     ComponentsModule,
     CoreComponentsModule,
     CoreFormsModule,
@@ -60,7 +58,6 @@ import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-spe
     RouterModule,
     PipesModule,
     FormsModule,
-    NgbModule,
     MatButtonToggle,
     MatButtonToggleGroup,
     TaskSpeedGraphComponent

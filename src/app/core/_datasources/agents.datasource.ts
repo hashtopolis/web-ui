@@ -2,33 +2,26 @@
  * Contains data source for agents resource
  * @module
  */
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentStat } from '@models/agent-stats.model';
 import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
-
 export class AgentsDataSource extends BaseDataSource<JAgent> {
-  private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   private agentStatsRequired: boolean = false;
-
-  // Agent stats intervall to define the max time period agent stats will be retrieved, current preset to 24h
-  private AGENTSTATS_INTERVALL: number = 3600000 * 24;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
@@ -51,53 +44,39 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    const agentParams = new RequestParamBuilder()
+    let agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
-      .addInclude('assignments');
+      .addInclude('assignments')
+      .addInclude('user');
+    if (this.agentStatsRequired) {
+      agentParams = agentParams.addInclude('agentStats');
+    }
 
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
     this.service
-      .getAll(SERV.AGENTS, agentParams.create())
+      .getAll(SERV.AGENTS, agentParams.create(), httpOptions)
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return EMPTY;
+        }),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const serializer = new JsonAPISerializer();
-        const responseBody = { data: response.data, included: response.included };
-        const agents = serializer.deserialize<JAgent[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const agents = this.serializer.deserialize(response, zAgentListResponse) as JAgent[];
 
         if (agents && agents.length > 0) {
-          const agentIds = agents.map((agent) => agent.id);
-          const chunkParams = new RequestParamBuilder().addFilter({
-            field: 'state',
-            operator: FilterType.EQUAL,
-            value: chunkStates.indexOf(ChunkState.RUNNING)
-          });
-
-          const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-          const [users, chunks, agentStats] = await Promise.all([
-            this.loadUserData(userIds),
-            this.loadChunkData(chunkParams, agentIds),
-            this.loadAgentStats(agentIds)
-          ]);
-
           agents.forEach((agent: JAgent) => {
-            agent.user = users.find((user: JUser) => user.id === agent.userId);
             if (agent.tasks && agent.tasks.length > 0) {
               agent.taskId = agent.tasks[0].id;
               agent.task = agent.tasks[0];
               agent.taskName = agent.task.taskName;
-              this.setChunkParams(agent, chunks, agent.assignments);
-            }
-            if (this.agentStatsRequired) {
-              agent.agentStats = agentStats.filter((entry) => entry.agentId === agent.id);
             }
           });
         }
@@ -124,47 +103,28 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     this.service
       .getAll(SERV.AGENT_ASSIGN, assignParams)
       .pipe(
-        catchError(() => of([])),
+        catchError(() => EMPTY),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const serializer = new JsonAPISerializer();
-        const responseBody = { data: response.data, included: response.included };
-        const assignments = serializer.deserialize<JAgentAssignment[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAgentAssignmentListResponse);
         if (assignments && assignments.length > 0) {
-          const userIds: Array<number> = assignments
-            .map((assignment) => assignment.agent.userId)
-            .filter((userId) => userId !== null);
+          const userIds: number[] = assignments
+            .map((assignment) => assignment.agent?.userId)
+            .filter((userId): userId is number => userId !== undefined && userId !== null);
           const users = await this.loadUserData(userIds);
 
           const agents: JAgent[] = [];
           assignments.forEach((assignment) => {
+            if (!assignment.task || !assignment.agent) return;
             const task = assignment.task;
             const agent = assignment.agent;
             agent.task = task;
-            agent.user = users.find((user) => user.id === agent.userId);
+            agent.user = users.find((user) => user.id === agent.userId)!;
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task.id;
             agent.benchmark = assignment.benchmark;
             agents.push(agent);
-          });
-
-          const chunkParams = new RequestParamBuilder().addFilter({
-            field: 'taskId',
-            operator: FilterType.EQUAL,
-            value: this._taskId
-          });
-
-          const chunks = await this.loadChunkData(
-            chunkParams,
-            agents.map((agent) => agent.id)
-          );
-
-          agents.forEach((agent: JAgent) => {
-            this.setChunkParams(agent, chunks, assignments);
           });
 
           const length = response.meta.page.total_elements;
@@ -195,49 +155,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
     this.reload();
   }
-  /**
-   * Load related running chunks for all agents and convert them to ChunkData objects
-   * @private
-   * @param requestParams - request params containing filters
-   * @param agentIds - agentIds which will be applide to the requestParams as new filter
-   */
-  private async loadChunkData(requestParams: IParamBuilder, agentIds: Array<number>): Promise<JChunk[]> {
-    requestParams.addFilter({
-      field: 'agentId',
-      operator: FilterType.IN,
-      value: agentIds
-    });
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, requestParams.create()));
-    const responseBody = { data: response.data, included: response.included };
-    return this.serializer.deserialize<JChunk[]>(responseBody);
-  }
-
-  /**
-   * Set agent chunk parameters and convert to ch8unkdata
-   * @param agent - current agent instance
-   * @param chunks - current chunk collectioz
-   * @param assignments - current agent assignments
-   * @private
-   */
-  private setChunkParams(agent: JAgent, chunks: JChunk[], assignments: JAgentAssignment[]): void {
-    agent.chunk = chunks
-      .filter((chunk) => chunk.state == chunkStates.indexOf(ChunkState.RUNNING))
-      .find((chunk) => chunk.agentId === agent.id);
-
-    agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
-    if (agent.chunk) {
-      agent.chunkId = agent.chunk.id;
-      if (chunks) {
-        agent.agentSpeed = this.getAgentSpeed(agent, chunks);
-      }
-    }
-    agent.chunkData = this.convertChunks(agent.id, chunks, true, agent.task.keyspace);
-  }
 
   /**
    * Load user data from backend given an array of user IDs
    * @param userIds - array of user ids
-   * @return promise containing an array of user objects matching the fiven IDs
+   * @return promise containing an array of user objects matching the given IDs
    * @private
    */
   private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
@@ -248,58 +170,20 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         operator: FilterType.IN,
         value: userIds
       });
-      const response = await firstValueFrom(this.service.getAll(SERV.USERS, userParams.create()));
-      const responseBody = { data: response.data, included: response.included };
-      users = this.serializer.deserialize<JUser[]>(responseBody);
-    }
-    return users;
-  }
-
-  /**
-   * Load related agent statistics for the last 24h
-   * @param agentIds
-   * @private
-   */
-  private async loadAgentStats(agentIds: Array<number>): Promise<JAgentStat[]> {
-    if (this.agentStatsRequired) {
-      const agentStatParams = new RequestParamBuilder()
-        .addFilter({
-          field: 'agentId',
-          operator: FilterType.IN,
-          value: agentIds
-        })
-        .addFilter({
-          field: 'time',
-          operator: FilterType.GREATER,
-          value: Math.floor((Date.now() - this.AGENTSTATS_INTERVALL) / 1000)
-        });
-      const response: ResponseWrapper = await firstValueFrom(
-        this.service.getAll(SERV.AGENTS_STATS, agentStatParams.create())
-      );
-      const responseBody = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JAgentStat[]>(responseBody);
-    }
-
-    return [];
-  }
-
-  /**
-   * Get current agent cracking speed from all asssigned chunks
-   * @param agent - agent instance to get cracking speed for
-   * @param chunks - collection of all available chunks
-   * @return current agent's cracking speed
-   * @private
-   */
-  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
-    let chunkSpeed: number = 0;
-    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
-      if (
-        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
-        chunk.progress < 10000
-      ) {
-        chunkSpeed += chunk.speed;
+      try {
+        const response = await firstValueFrom(
+          this.service.getAll(SERV.USERS, userParams.create()).pipe(
+            catchError((error) => {
+              this.handleFilterError(error);
+              throw error;
+            })
+          )
+        );
+        users = this.serializer.deserialize(response, zUserListResponse);
+      } catch {
+        // Error already handled via handleFilterError
       }
     }
-    return chunkSpeed;
+    return users;
   }
 }

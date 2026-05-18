@@ -1,15 +1,16 @@
 import { Subscription } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
+import { FormRouteData, zFormRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
-import { ServiceConfig } from '@services/main.config';
+import { SERV, ServiceConfig, isHelperEndpoint } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -25,24 +26,37 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private metadataService = inject(MetadataService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private confirmDialog = inject(ConfirmDialogService);
+
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: ReturnType<MetadataService['getInfoMetadata']>[0];
 
   serviceConfig: ServiceConfig;
+
+  responseSchema: FormRouteData['responseSchema'];
+
+  showDeleteButton: boolean;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
    * This property determines whether the form is in the process of creating a new item or editing an existing one.
    * @type {string}
    */
-  type: string;
+  type: 'create' | 'edit' | 'helper';
 
   /**
    * Flag that indicates whether the data for the form has been loaded and the form is ready for rendering.
    * When true, the form is fully loaded and can be displayed; otherwise, it's still being prepared.
    * @type {boolean}
    */
-  isloaded = false;
+  isloaded: boolean = false;
 
   /**
    * Flag that specifies whether the form is in "create" mode.
@@ -87,7 +101,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
    */
-  formValues: (BaseModel & Record<string, unknown>)[] = [];
+  formValues: Record<string, unknown> = {};
 
   // Subscription for managing asynchronous data retrieval
   private subscriptionService: Subscription;
@@ -106,38 +120,29 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param router - The Angular Router for navigation.
    * @param confirmDialog
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private metadataService: MetadataService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private confirmDialog: ConfirmDialogService
-  ) {
+  constructor() {
     // Subscribe to route data to initialize component data
-    this.routeParamsSubscription = this.route.data.subscribe(
-      (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
-        const formKind = data.kind;
-        this.serviceConfig = data.serviceConfig; // Get the API path from route data
-        this.type = data.type;
-        this.isCreate = this.type === 'create';
-        // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
-        this.formMetadata = this.metadataService.getFormMetadata(formKind);
-        this.title = this.globalMetadata['title'];
-        this.customform = this.globalMetadata['customform'];
-        this.titleService.set([this.title]);
-        // Load metadata and form information
-        if (this.type === 'edit') {
-          this.getIndex();
-          this.loadEdit(); // Load data for editing
-        } else {
-          this.isloaded = true;
-        }
+    this.routeParamsSubscription = this.route.data.subscribe((data) => {
+      const routeData = zFormRouteData.parse(data);
+      const formKind = routeData.kind;
+      this.serviceConfig = routeData.serviceConfig;
+      this.responseSchema = routeData.responseSchema;
+      this.type = routeData.type;
+      this.isCreate = this.type === 'create';
+      // Load metadata and form information
+      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+      this.formMetadata = this.metadataService.getFormMetadata(formKind);
+      this.title = this.globalMetadata.title;
+      this.customform = this.globalMetadata.customform ?? false;
+      this.titleService.set([this.title]);
+      // Load metadata and form information
+      if (this.type === 'edit') {
+        this.getIndex();
+        this.loadEdit(); // Load data for editing
+      } else {
+        this.isloaded = true;
       }
-    );
+    });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.subscriptionService);
   }
@@ -160,12 +165,32 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-    const editSubscription = this.gs
-      .get(this.serviceConfig, this.editedIndex)
-      .subscribe((response: ResponseWrapper) => {
-        this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
+    const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
+      next: (response: ResponseWrapper) => {
+        this.formValues = this.responseSchema
+          ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
+          : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
         this.isloaded = true; // Data is loaded and ready for form rendering
-      });
+      },
+      error: (err: unknown) => {
+        const status = err instanceof HttpErrorResponse ? err.status : undefined;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other server errors show a friendly message
+
+        console.error('Error loading form data:', err);
+        const msg = status ? `Error loading data (server returned ${status}).` : 'Error loading data.';
+        this.alert.showErrorMessage(msg);
+        this.isloaded = false;
+      }
+    });
 
     this.unsubscribeService.add(editSubscription);
   }
@@ -188,7 +213,6 @@ export class FormComponent implements OnInit, OnDestroy {
     // Unsubscribe from the route params subscription
     if (this.routeParamsSubscription) {
       this.routeParamsSubscription.unsubscribe();
-      this.routeParamsSubscription = null;
     }
 
     // Unsubscribe from other subscriptions
@@ -199,23 +223,30 @@ export class FormComponent implements OnInit, OnDestroy {
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
    */
-  onFormSubmit(formValues: (BaseModel & Record<string, unknown>)[]) {
+  onFormSubmit(formValues: Record<string, unknown>) {
     if (this.customform) {
       this.modifyFormValues(formValues);
     }
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
-        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
+      });
+
+      this.unsubscribeService.add(createSubscription);
+    } else if (this.type === 'helper' && isHelperEndpoint(this.serviceConfig.RESOURCE)) {
+      const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
       });
 
       this.unsubscribeService.add(createSubscription);
     } else {
       // Update mode: Submit form data for updating an existing item
       const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
-        this.router.navigate([this.globalMetadata['submitokredirect']]);
+        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
       });
       this.unsubscribeService.add(updateSubscription);
     }
@@ -226,11 +257,11 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param formValues - The form values to be modified.
    * @returns The modified form values.
    */
-  modifyFormValues(formValues: (BaseModel | Record<string, unknown>)[]) {
+  modifyFormValues(formValues: Record<string, unknown>) {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
-      if (field.replacevalue) {
+      if (field.replacevalue && field.name) {
         // Replace the value with the 'editedIndex'
         formValues[field.name] = this.editedIndex;
       }
@@ -247,22 +278,22 @@ export class FormComponent implements OnInit, OnDestroy {
    * Emits success alerts and navigates to the appropriate route.
    */
   onDeleteAction() {
-    if (this.globalMetadata['deltitle']) {
+    if (this.globalMetadata.deltitle ?? '') {
       this.getIndex();
     }
     this.confirmDialog
-      .confirmDeletion(this.globalMetadata['deltitle'], `${this.editedIndex}`)
+      .confirmDeletion(this.globalMetadata.deltitle ?? '', `${this.editedIndex}`)
       .subscribe((confirmed) => {
         if (confirmed) {
           // Deletion
           const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
             this.router
-              .navigate([this.globalMetadata['delsubmitokredirect']])
-              .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
+              .navigate([this.globalMetadata.delsubmitokredirect ?? '/'])
+              .then(() => this.alert.showSuccessMessage(this.globalMetadata.delsubmitok ?? ''));
           });
           this.unsubscribeService.add(deleteSubscription);
         } else {
-          this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
+          this.alert.showInfoMessage(this.globalMetadata.delsubmitcancel ?? '');
         }
       });
   }

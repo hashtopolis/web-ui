@@ -1,42 +1,52 @@
-<mat-form-field [ngStyle]="{width: width}">
+<mat-form-field [ngStyle]="{width: width}" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
   <mat-label>
-    <ng-container *ngIf="!isLoading; else loadingLabel">
+    @if (!isLoading) {
       {{ title }}
-      <mat-icon
-        *ngIf="tooltip"
-        matTooltip="{{ tooltip }}"
-        matTooltipPosition="below"
-        matTooltipClass="tooltip-custom-style"
-        container="body"
-        aria-hidden="true"
-      >
-        info
-      </mat-icon>
-    </ng-container>
-    <ng-template #loadingLabel>
+      @if (tooltip) {
+        <mat-icon
+          matTooltip="{{ tooltip }}"
+          matTooltipPosition="below"
+          matTooltipClass="tooltip-custom-style"
+          container="body"
+          aria-hidden="true"
+          >
+          info
+        </mat-icon>
+      }
+    } @else {
       <mat-spinner diameter="16" class="spinner-inline" color="primary"></mat-spinner>
       <span>Loading...</span>
-    </ng-template>
+    }
   </mat-label>
 
   <mat-select
     #inputField
-    [(ngModel)]="value"
-    #ngModel="ngModel"
+    [value]="value"
     (selectionChange)="onChangeValue($event.value)"
+    (openedChange)="onOpenedChange($event)"
     [required]="!isLoading && isRequired"
-    [disabled]="isLoading || disabled"
-  >
-    <mat-option [value]="0" *ngIf="isBlankOptionDisabled">
-      {{ blankOptionText || 'Disabled' }}
-    </mat-option>
+    [disabled]="disabled"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
+    >
+    @if (isBlankOptionDisabled) {
+      <mat-option [value]="0">
+        {{ blankOptionText || 'Disabled' }}
+      </mat-option>
+    }
 
-    <mat-option *ngFor="let item of items" [value]="item.id">
-      {{ item.name }}
-    </mat-option>
+    @for (item of items; track item.id) {
+      <mat-option [value]="item.id">
+        {{ item.name }}
+      </mat-option>
+    }
   </mat-select>
 
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="ngModel.invalid && ngModel.touched">{{ title }} is required</mat-error>
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
+  }
 
 </mat-form-field>

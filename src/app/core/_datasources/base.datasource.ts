@@ -1,10 +1,12 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, SortDirection } from '@angular/material/sort';
+import { MatSort } from '@angular/material/sort';
 
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
@@ -13,11 +15,12 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { HttpCacheService } from '@services/shared/http-cache.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
@@ -31,13 +34,16 @@ import { environment } from '@src/environments/environment';
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
 @Injectable()
-export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
-  public pageSize = 10;
+export abstract class BaseDataSource<
+  T extends BaseModel,
+  P extends MatPaginator = MatPaginator
+> implements DataSource<T> {
+  public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;
-  public sortingColumn: { id: string; direction: SortDirection; isSortable: boolean };
-  public pageAfter = undefined;
-  public pageBefore = undefined;
+  public sortingColumn: SortingColumn;
+  public pageAfter: number | string | null | undefined = undefined;
+  public pageBefore: number | string | null | undefined = undefined;
   public index = 0;
   /**
    * Selection model for row selection in the table.
@@ -56,6 +62,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
+  /**
+   * Subject to emit filter errors to parent components
+   */
+  public filterError$ = new Subject<string>();
   /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
@@ -79,7 +89,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   /**
    * Copy of the original dataSubject data used for filtering
    */
-  private originalData: T[] = [];
+  protected originalData: T[] = [];
 
   private readonly chunkTime: number = 600;
 
@@ -92,8 +102,13 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   protected permissionService: PermissionService;
   public util: UISettingsUtilityClass;
   autoRefreshService: AutoRefreshService;
+  private cacheService: HttpCacheService;
   private autoRefreshSubscription: Subscription;
+  /** Cursor that was used to load the currently displayed page, restored before each auto-refresh reload. */
+  private _refreshPageAfter: number | string | null | undefined = undefined;
+  private _refreshPageBefore: number | string | null | undefined = undefined;
 
+  // eslint-disable-next-line @angular-eslint/prefer-inject
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
     this.service = injector.get(GlobalService);
@@ -101,10 +116,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.permissionService = injector.get(PermissionService);
     this.serializer = new JsonAPISerializer();
     this.autoRefreshService = injector.get(AutoRefreshService);
+    this.cacheService = injector.get(HttpCacheService);
 
-    const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
-    if (chunktimeSetting) {
-      this.chunkTime = Number(chunktimeSetting);
+    const chunktime = this.uiService.getUISettings()?.chunktime;
+    if (chunktime !== undefined) {
+      this.chunkTime = chunktime;
     }
 
     // Create util manually instead of injector.get
@@ -143,9 +159,30 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param _collectionViewer - The collection viewer to connect.
    * @returns Observable of the data source.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_collectionViewer: CollectionViewer): Observable<T[]> {
     return this.dataSubject.asObservable();
+  }
+
+  /**
+   * Helper method to handle HTTP filter errors and emit them to the UI
+   * This centralizes error handling for filter validation across all datasources
+   *
+   * @param error - The HTTP error response
+   */
+  protected handleFilterError(error: HttpErrorResponse): void {
+    // Handle filter validation errors gracefully
+    if (error?.error?.title) {
+      this.filterError$.next(error.error.title);
+    } else if (error?.status === 403) {
+      this.filterError$.next('Access forbidden. Please check your permissions.');
+    } else if (error?.status === 400) {
+      const message = error?.error?.title || 'Invalid filter parameter';
+      this.filterError$.next(message);
+    } else if (error?.status) {
+      // Fallback: emit error for any HTTP error status
+      const message = error?.statusText || error?.message || 'Filter error occurred';
+      this.filterError$.next(message);
+    }
   }
 
   /**
@@ -153,7 +190,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();
@@ -176,6 +212,75 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.dataSubject.next(data);
     this.lastUpdated = new Date();
     this.cdr.detectChanges();
+  }
+
+  /**
+   * Returns items from originalData matching the given filter value and column.
+   * Passing an empty filterValue or null column returns all originalData.
+   * With a null/all column the full JSON representation is searched (catches nested fields).
+   *
+   * @param filterValue - The search string to match against. Case-insensitive. Empty string returns all items.
+   * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches the full JSON of each item.
+   * @returns A new array of items from originalData that match the filter.
+   */
+  protected filterItems(filterValue: string, selectedColumn: HTTableColumn | null): T[] {
+    if (!filterValue) {
+      return [...this.originalData];
+    }
+    const value = filterValue.toLowerCase();
+    return this.originalData.filter((item) => {
+      if (!selectedColumn || selectedColumn.dataKey === 'all') {
+        return JSON.stringify(item).toLowerCase().includes(value);
+      }
+      if (!selectedColumn.dataKey) return false;
+      const fieldValue = (item as DynamicModel)[selectedColumn.dataKey];
+      return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
+    });
+  }
+
+  /**
+   * Sorts an array using the current sortingColumn. Returns a new array without modifying the input.
+   * Supports string (locale-aware) and numeric comparisons. Returns the input array unchanged if no
+   * sortingColumn is set.
+   *
+   * @param data - The array to sort.
+   * @returns A new sorted array, or the original array reference if no sort is active.
+   */
+  protected applySorting(data: T[]): T[] {
+    if (!this.sortingColumn) return data;
+    const isAscending = this.sortingColumn.direction === 'asc';
+    const sortKey = this.sortingColumn.dataKey;
+    return [...data].sort((a, b) => {
+      const aValue = (a as DynamicModel)[sortKey];
+      const bValue = (b as DynamicModel)[sortKey];
+      if (aValue == null || bValue == null) return 0;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const cmp = aValue.localeCompare(bValue);
+        return isAscending ? cmp : -cmp;
+      }
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        const cmp = aValue - bValue;
+        return isAscending ? cmp : -cmp;
+      }
+      return 0;
+    });
+  }
+
+  /**
+   * Applies a client-side filter (and sort if sortingColumn is set) and pushes the result to the table.
+   * Passing an empty filterValue resets to the full data set. Resets pagination to the first page so
+   * filter results are always visible regardless of the previous scroll position.
+   *
+   * @param filterValue - The search string. Empty string clears the filter and restores all rows.
+   * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches all fields.
+   */
+  applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
+    let data = this.filterItems(filterValue, selectedColumn);
+    if (this.sortingColumn) data = this.applySorting(data);
+    this.setPaginationConfig(this.pageSize, data.length, null, null, 0);
+    if (this.paginator) this.paginator.firstPage();
+    this.dataSubject.next(data);
+    this.cdr.markForCheck();
   }
 
   /**
@@ -255,13 +360,17 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setPaginationConfig(
     pageSize: number,
-    totalItems: number,
-    pageAfter: number | string | null,
-    pageBefore: number | string | null,
+    totalItems: number | undefined,
+    pageAfter: number | string | null | undefined,
+    pageBefore: number | string | null | undefined,
     index: number
   ): void {
+    // Capture the cursors that were actually used to load this page before overwriting with the
+    // next/prev page cursors returned by the API. Auto-refresh uses these to reload the same page.
+    this._refreshPageAfter = this.pageAfter;
+    this._refreshPageBefore = this.pageBefore;
     this.pageSize = pageSize;
-    this.totalItems = totalItems;
+    this.totalItems = totalItems ?? this.totalItems;
     this.pageAfter = pageAfter;
     this.pageBefore = pageBefore;
     this.index = index;
@@ -293,6 +402,16 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   abstract reload(): void;
+
+  /**
+   * Invalidates the HTTP cache and reloads the current page.
+   * Use this for explicit user-initiated reloads (e.g. the reload button) so the
+   * response is always fetched from the network rather than served from cache.
+   */
+  forceReload(): void {
+    this.cacheService.invalidate();
+    this.reload();
+  }
 
   /**
    * Convert all JChunk objects related to a task or agent to a ChunkData object
@@ -364,6 +483,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.autoRefreshEnabled = flag; // Keep the flag in sync
     this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
     this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.cacheService.invalidate();
+      this.pageAfter = this._refreshPageAfter;
+      this.pageBefore = this._refreshPageBefore;
       this.reload();
     });
   }
@@ -390,11 +512,18 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.autoRefreshEnabled = true; // Keep the flag in sync
     this.autoRefreshService.startAutoRefresh({ immediate: false });
     this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.cacheService.invalidate();
+      this.pageAfter = this._refreshPageAfter;
+      this.pageBefore = this._refreshPageBefore;
       this.reload();
     });
   }
 
-  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+  applyFilterWithPaginationReset<B extends IParamBuilder>(
+    params: B,
+    activeFilter: Filter | null | undefined,
+    query?: Filter
+  ): B {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)
       if (query && query.value) {

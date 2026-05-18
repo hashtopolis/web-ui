@@ -1,7 +1,6 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JPretask } from '@models/pretask.model';
+import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -22,7 +21,10 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './access-permission-groups-users-table.component.html',
   standalone: false
 })
-export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUsersTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -38,6 +40,10 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
       this.dataSource.setAccessPermGroupExpand(this.expand);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -45,10 +51,6 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-  }
-
-  filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -64,7 +66,6 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: JUser) => user.name,
         export: async (user: JUser) => user.name + ''
       },
       {
@@ -88,9 +89,9 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
     this.exportService.handleExportAction<JUser>(
-      event,
+      event as ActionMenuEvent<JUser[]>,
       this.tableColumns,
       AccessPermissionGroupsUsersTableColumnLabel,
       'hashtopolis-access-permission-groups-users'

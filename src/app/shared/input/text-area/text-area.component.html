@@ -1,27 +1,59 @@
-<mat-form-field class="custom-textarea">
-  <mat-label>{{ title }}
-    <mat-icon
-      matTooltip="{{ tooltip }}"
-      matTooltipPosition="below"
-      matTooltipClass="tooltip-custom-style"
-      matTooltipShowDelay="500"
-      aria-hidden="true"
-      *ngIf="tooltip"
-    >
-      info
-    </mat-icon>
-
+<mat-form-field
+  class="custom-textarea"
+  [class.mat-form-field-invalid]="hasError"
+  [class.mat-form-field-touched]="isTouched"
+>
+  <mat-label
+    >{{ title }}
+    @if (tooltip) {
+      <mat-icon
+        matTooltip="{{ tooltip }}"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip-custom-style"
+        matTooltipShowDelay="500"
+        aria-hidden="true"
+      >
+        info
+      </mat-icon>
+    }
   </mat-label>
   <textarea
     matInput
     [class.is-invalid]="error"
+    [class.ng-invalid]="hasError"
+    [class.ng-touched]="isTouched"
     [id]="inputId"
-    [(ngModel)]="value"
-    (ngModelChange)="onChange(value)"
+    [value]="value"
+    (input)="onValueChange($event)"
+    (blur)="onTouched()"
     cdkTextareaAutosize
-     [required]="isRequired"
-     class="custom-textarea"
+    [required]="isRequired"
+    [disabled]="disabled"
+    class="custom-textarea"
   ></textarea>
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error>{{ title }} is required</mat-error>
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+  @if (hasError && errors) {
+    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
+      @if (errors['required']) {
+        <span>{{ title }} is required</span>
+      }
+      @if (errors['missingHashlistAlias']) {
+        <span>{{ title }} must include #HL#</span>
+      }
+      @if (errors['attackCommandNeedsAdditionalContent']) {
+        <span>{{ title }} must include #HL# plus additional command options</span>
+      }
+      @if (errors['minlength']) {
+        <span>Minimum length is {{ errors['minlength'].requiredLength }}</span>
+      }
+      @if (errors['maxlength']) {
+        <span>Maximum length is {{ errors['maxlength'].requiredLength }}</span>
+      }
+      @if (errors['pattern']) {
+        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
+      }
+    </mat-hint>
+  }
 </mat-form-field>

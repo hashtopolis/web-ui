@@ -1,0 +1,2 @@
+extends:
+  - https://raw.githubusercontent.com/jmlue42/spectral-jsonapi-ruleset/main/.spectral.yml

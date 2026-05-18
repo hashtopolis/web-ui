@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 
@@ -28,10 +28,10 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './permissions-table.component.html',
   standalone: false
 })
-export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
@@ -39,6 +39,12 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     this.dataSource = new PermissionsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -50,7 +56,12 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -85,8 +96,8 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
         id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
         isSortable: false,
-        render: (permission: JGlobalPermissionGroup) => permission.userMembers.length,
-        export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
+        render: (permission: JGlobalPermissionGroup) => permission.userMembers?.length ?? 0,
+        export: async (permission: JGlobalPermissionGroup) => (permission.userMembers?.length ?? 0) + ''
       }
     ];
   }

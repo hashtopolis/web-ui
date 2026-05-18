@@ -33,7 +33,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(UsersTableColumnLabel);
@@ -42,6 +42,8 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new UsersContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngOnDestroy(): void {
@@ -53,7 +55,12 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -74,7 +81,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (user: JUser) => user.id,
         export: async (user: JUser) => user.id + ''
       },
       {
@@ -106,7 +112,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'email',
         isSortable: true,
         isSearchable: true,
-        render: (user: JUser) => user.email,
         export: async (user: JUser) => user.email
       },
       {
@@ -121,15 +126,14 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
-        render: (user: JUser) => user.sessionLifetime,
         export: async (user: JUser) => user.sessionLifetime + ''
       },
       {
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: false,
-        render: (user: JUser) => user.globalPermissionGroup.name,
-        export: async (user: JUser) => user.globalPermissionGroup.name
+        render: (user: JUser) => this.sanitize(user.globalPermissionGroup?.name ?? ''),
+        export: async (user: JUser) => user.globalPermissionGroup?.name ?? ''
       }
     ];
   }
@@ -281,7 +285,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionEdit(user: JUser): void {
     this.renderUserLink(user).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 }

@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistListResponse } from '@generated/api/zod';
+
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -22,6 +25,13 @@ import {
 } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+export interface ApplyHashlistForm {
+  supertaskTemplateId: FormControl<number | null>;
+  hashlistId: FormControl<HashlistId | null>;
+  crackerBinaryId: FormControl<CrackerBinaryId | null>;
+  crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
+}
+
 /**
  * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
  *
@@ -37,15 +47,15 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   /** Form group for the new SuperHashlist. */
-  form: FormGroup;
+  form: FormGroup<ApplyHashlistForm>;
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption[];
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[];
+  selectHashlists: SelectOption<HashlistId>[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
   // Get SuperTask Index
   editedIndex: number;
@@ -62,15 +72,15 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The service providing global functionality.
    * @param {Router} router - The Angular Router service for navigation.
    */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Apply Hashlist']);
@@ -105,11 +115,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.form = new FormGroup({
-      supertaskTemplateId: new FormControl(),
-      hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(),
-      crackerBinaryTypeId: new FormControl()
+    this.form = new FormGroup<ApplyHashlistForm>({
+      supertaskTemplateId: new FormControl<number | null>(null),
+      hashlistId: new FormControl<HashlistId | null>(null),
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
     });
   }
 
@@ -121,16 +131,18 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   initForm() {
-    this.form = new FormGroup({
-      supertaskTemplateId: new FormControl(this.editedIndex),
-      hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(1),
-      crackerBinaryTypeId: new FormControl()
+    this.form = new FormGroup<ApplyHashlistForm>({
+      supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
+      hashlistId: new FormControl<HashlistId | null>(null),
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
-      this.handleChangeBinary(newvalue);
+    this.form.controls.crackerBinaryId.valueChanges.subscribe((newvalue) => {
+      if (newvalue !== null) {
+        this.handleChangeBinary(newvalue);
+      }
     });
 
     this.loadData();
@@ -158,10 +170,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
-          data: response.data,
-          included: response.included
-        });
+        const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
@@ -177,34 +186,36 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   loadCrackerSelectOptions() {
     // Load Cracker Types and Crackers Select Options
-    const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
-      });
-      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-      let id = '';
-      if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
-        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id as string;
-      } else {
-        id = this.selectCrackertype.slice(-1)[0]['id'] as string;
-      }
-      const requestParams = new RequestParamBuilder()
-        .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
-        .create();
-      const loadCrackersSubscription$ = this.gs
-        .getAll(SERV.CRACKERS, requestParams)
-        .subscribe((response: ResponseWrapper) => {
-          const crackers = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-            data: response.data,
-            included: response.included
+    const loadCrackerTypesSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+        );
+        this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+        let id: number = 0;
+        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
+        if (hashcatOption?.id) {
+          id = hashcatOption.id;
+        } else {
+          id = this.selectCrackertype.slice(-1)[0]['id'];
+        }
+        const requestParams = new RequestParamBuilder()
+          .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
+          .create();
+        const loadCrackersSubscription$ = this.gs
+          .getAll(SERV.CRACKERS, requestParams)
+          .subscribe((response: ResponseWrapper) => {
+            const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
+              response,
+              zCrackerBinaryListResponse
+            );
+            this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+            const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
+            this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
           });
-          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-          const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-          this.form.get('crackerBinaryTypeId').patchValue(lastItem);
-        });
-      this.unsubscribeService.add(loadCrackersSubscription$);
-    });
+        this.unsubscribeService.add(loadCrackersSubscription$);
+      });
     this.unsubscribeService.add(loadCrackerTypesSubscription$);
   }
 
@@ -215,20 +226,17 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    *
    * @param id - The selected Cracker Binary ID.
    */
-  handleChangeBinary(id: string) {
+  handleChangeBinary(id: number) {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        const crackers = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-          data: response.data,
-          included: response.included
-        });
+        const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+        this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }
@@ -252,6 +260,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         this.isCreatingLoading = false;
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JSuperTask } from '@models/supertask.model';
 
@@ -29,10 +29,10 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
   templateUrl: './supertasks-table.component.html',
   standalone: false
 })
-export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
@@ -40,6 +40,12 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     this.dataSource = new SuperTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -51,7 +57,12 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -69,10 +80,9 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: SupertasksTableCol.ID,
-        dataKey: 'supertaskId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (supertask: JSuperTask) => supertask.id,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {
@@ -87,8 +97,8 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
         isSortable: false,
-        render: (supertask: JSuperTask) => supertask.pretasks.length,
-        export: async (supertask: JSuperTask) => supertask.pretasks.length.toString()
+        render: (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length : ''),
+        export: async (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length.toString() : '')
       }
     ];
   }
@@ -215,7 +225,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   private rowActionEdit(supertask: JSuperTask): void {
     this.renderSupertaskLink(supertask)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

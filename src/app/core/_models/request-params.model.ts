@@ -16,7 +16,8 @@ export enum FilterType {
   IN = 'in',
   NOTIN = 'nin',
   CONTAINS = 'contains',
-  ICONTAINS = 'icontains'
+  ICONTAINS = 'icontains',
+  LESSER = 'lt'
 }
 
 /**
@@ -29,6 +30,7 @@ export interface Filter {
   field: string;
   operator: FilterType;
   value: string | number | number[] | boolean | string[];
+  parent?: string | undefined;
 }
 
 /**
@@ -37,8 +39,8 @@ export interface Filter {
 interface IRequestParams {
   page?: {
     size?: number;
-    after?: number;
-    before?: number;
+    after?: number | string;
+    before?: number | string;
   };
   //array of object names to include ex. [files, speeds]
   include?: Array<string>;

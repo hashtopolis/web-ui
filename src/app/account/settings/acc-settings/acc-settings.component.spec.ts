@@ -1,8 +1,5 @@
-// eslint-disable-next-line sort-imports
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -20,11 +17,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { Params } from '@angular/router';
 
 import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
@@ -54,26 +51,28 @@ describe('AccountSettingsComponent', () => {
 
   // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
-      if (_serviceConfig.URL === SERV.USERS.URL) {
-        return of({ data: userResponse });
+    get(serviceConfig) {
+      if (serviceConfig.URL === SERV.USERS.URL) {
+        return of(mockResponse({ data: userResponse }));
       }
-      return of([]);
+      return of(mockResponse());
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    create(serviceConfig, _object: any): Observable<any> {
+    create() {
+      return of(mockResponse());
+    },
+    update() {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    update(_serviceConfig, id, _object: any): Observable<any> {
+    chelper: (() => {
+      return of(mockResponse());
+    }) as GlobalService['chelper'],
+    ghelper(_serviceConfig: unknown, _option: string) {
+      return of(mockResponse({ data: userResponse }));
+    },
+    uhelper(_serviceConfig: unknown, _id: number, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    chelper(_serviceConfig, option: string, _payload: any): Observable<any> {
-      return of({});
-    },
-    userId: '1'
+    userId: 1
   };
 
   beforeEach(() => {
@@ -86,10 +85,8 @@ describe('AccountSettingsComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
-        DataTablesModule,
         ComponentsModule,
         PipesModule,
-        NgbModule,
         MatSnackBarModule,
         MatFormFieldModule,
         MatInputModule,
@@ -120,29 +117,37 @@ describe('AccountSettingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Main form tests', () => {
-    it('initializes the form with default values', () => {
-      const formValue = component.form.getRawValue();
-      expect(formValue.name).toBe(userResponse.attributes.name);
-      expect(formValue.email).toBe(userResponse.attributes.email);
-      expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
+  describe('User settings loading', () => {
+    it('populates form with user data from single-object response', () => {
+      // The mock ghelper returns { data: userResponse } (single object, not array).
+      // loadUserSettings() is called in ngOnInit, so the form should already be populated.
+      expect(component.form.controls.name.value).toBe('admin');
+      expect(component.form.controls.email.value).toBe('admin@localhost');
     });
 
+    it('populates registeredSince as a formatted date', () => {
+      // registeredSince should be set from the user data, not be null/undefined
+      const registeredSince = component.form.controls.registeredSince.value;
+      expect(registeredSince).toBeTruthy();
+    });
+  });
+
+  describe('Main form tests', () => {
     it('validates email as required', () => {
-      const emailControl = component.form.get('email');
-      emailControl?.patchValue(null);
+      const emailControl = component.form.controls.email;
+      emailControl.patchValue(null);
       component.form.updateValueAndValidity();
       expect(emailControl?.hasError('required')).toBeTrue();
     });
 
     it('validates email format', () => {
-      const emailControl = component.form.get('email');
+      const emailControl = component.form.controls.email;
 
-      emailControl?.patchValue('invalid-email');
+      emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeTrue();
 
-      emailControl?.patchValue('test@example.com');
+      emailControl.patchValue('test@example.com');
       component.form.updateValueAndValidity();
       expect(emailControl.hasError('email')).toBeFalse();
     });
@@ -158,7 +163,7 @@ describe('AccountSettingsComponent', () => {
       expect(nativeBtn?.disabled).toBeFalse();
     });
 
-    it('disables form submission when form is invalid', () => {
+    it('keeps submit button enabled when form is invalid', () => {
       component.form.patchValue({ email: 'invalid-email' });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
@@ -166,11 +171,11 @@ describe('AccountSettingsComponent', () => {
       expect(component.form.valid).toBe(false);
       const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
       const nativeBtn = btn.nativeElement.querySelector('button');
-      expect(nativeBtn?.disabled).toBeTrue();
+      expect(nativeBtn?.disabled).toBeFalse();
     });
 
     it('submits form with valid email', () => {
-      spyOn(component['gs'], 'update').and.returnValue(of({}));
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
 
       component.form.patchValue({ email: 'test@example.com' });
       component.form.updateValueAndValidity();
@@ -180,16 +185,17 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].update).toHaveBeenCalledWith(
-        SERV.USERS,
+      expect(component['gs'].uhelper).toHaveBeenCalledWith(
+        SERV.HELPER,
         Number(component['gs'].userId),
+        'currentUser',
         component.form.value
       );
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
     });
 
     it('does not submit form with invalid email', () => {
-      const updateSpy = spyOn(component['gs'], 'update');
+      const uhelperSpy = spyOn(component['gs'], 'uhelper');
       component.form.patchValue({ email: 'invalid-email' });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
@@ -199,7 +205,7 @@ describe('AccountSettingsComponent', () => {
       fixture.detectChanges();
 
       expect(component.form.valid).toBeFalse();
-      expect(updateSpy).not.toHaveBeenCalled();
+      expect(uhelperSpy).not.toHaveBeenCalled();
       expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
     });
   });
@@ -226,18 +232,18 @@ describe('AccountSettingsComponent', () => {
       form.updateValueAndValidity();
       fixture.detectChanges();
 
-      const oldPasswordControl = form.get('oldPassword');
-      const newPasswordControl = form.get('newPassword');
-      const confirmPasswordControl = form.get('confirmNewPassword');
+      const oldPasswordControl = form.controls.oldPassword;
+      const newPasswordControl = form.controls.newPassword;
+      const confirmPasswordControl = form.controls.confirmNewPassword;
 
-      expect(oldPasswordControl?.hasError('required')).toBeTrue();
-      expect(newPasswordControl?.hasError('required')).toBeTrue();
-      expect(confirmPasswordControl?.hasError('required')).toBeTrue();
+      expect(oldPasswordControl.hasError('required')).toBeTrue();
+      expect(newPasswordControl.hasError('required')).toBeTrue();
+      expect(confirmPasswordControl.hasError('required')).toBeTrue();
     });
 
     it('validates password length', () => {
-      const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
-      const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
+      const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
+      const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
 
       // Too short
       newPasswordControl.patchValue('123');

@@ -1,14 +1,12 @@
-import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
+import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -17,6 +15,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
+
+export interface HashesViewForm {
+  display: FormControl<string | null>;
+  displaydes: FormControl<string | null>;
+  filter: FormControl<string | null>;
+  filterdes: FormControl<string | null>;
+}
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes
@@ -27,8 +32,14 @@ import { displays, filters } from '@src/app/core/_constants/hashes.config';
   standalone: false
 })
 export class HashesComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
   /** Form group for the Hashes View. */
-  viewForm: FormGroup;
+  viewForm: FormGroup<HashesViewForm>;
 
   /** Select Options */
   selectFilters = filters;
@@ -37,35 +48,22 @@ export class HashesComponent implements OnInit, OnDestroy {
   // Component Properties
   editMode = false;
   editedIndex: number;
-  edited: any; // Change to Model
 
   // View type and filter options
   whichView: string;
-  titleName: any;
+  titleName: string;
+  filterParam: string;
 
   // Filtering and Display Properties
-  crackPos: any = true;
-  cracked: any;
+  crackPos: boolean | string = true;
   filtering = '';
   filteringDescr = '';
   displaying = '';
   displayingDescr = '';
-  matchHashes: any;
 
-  // ViewChild reference to the DataTableDirective
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
+  constructor() {
+    const titleService = this.titleService;
 
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private gs: GlobalService,
-    private router: Router
-  ) {
     titleService.set(['Show Hashes']);
   }
 
@@ -91,30 +89,30 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
     if (qp['filter']) {
       this.filtering = qp['filter'];
-      this.filteringDescr = this.getDescrip(this.filtering, 2);
+      this.filteringDescr = this.getDescrip(this.filtering, 2) ?? '';
     }
     if (qp['display']) {
       this.displaying = qp['display'];
-      this.displayingDescr = this.getDescrip(this.displaying, 3);
+      this.displayingDescr = this.getDescrip(this.displaying, 3) ?? '';
     }
-    this.viewForm = new FormGroup({
-      display: new FormControl(this.displaying),
-      displaydes: new FormControl(this.displayingDescr),
-      filter: new FormControl(this.filtering),
-      filterdes: new FormControl(this.filteringDescr)
+    this.viewForm = new FormGroup<HashesViewForm>({
+      display: new FormControl<string | null>(this.displaying),
+      displaydes: new FormControl<string | null>(this.displayingDescr),
+      filter: new FormControl<string | null>(this.filtering),
+      filterdes: new FormControl<string | null>(this.filteringDescr)
     });
 
     //subscribe to changes to handle select trigger actions
-    this.viewForm.get('display').valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue, 0);
+    this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
+      this.onQueryp(newvalue ?? '', 0);
     });
 
-    this.viewForm.get('filter').valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue, 1);
+    this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
+      this.onQueryp(newvalue ?? '', 1);
     });
   }
 
-  getRouterLink(): any[] {
+  getRouterLink(): (string | number)[] {
     switch (this.whichView) {
       case 'chunks':
         return ['/tasks/show-tasks/', this.editedIndex, 'edit'];
@@ -127,18 +125,19 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Refresh the data and the DataTable
-  onRefresh() {
-    this.ngOnInit();
-  }
-
   /**
    * Fetches Hashes from the server
    * Subscribes to the API response and updates the hashes list.
    */
   loadHashes(): void {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = Number(params['id']);
+      if (params['id'].includes('?')) {
+        const split = params['id'].split('?');
+        this.editedIndex = Number(split[0]);
+        this.filterParam = split[1];
+      } else {
+        this.editedIndex = Number(params['id']);
+      }
     });
 
     this.route.data.subscribe((data) => {
@@ -146,32 +145,23 @@ export class HashesComponent implements OnInit, OnDestroy {
         case 'chunkshash':
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const chunk = new JsonAPISerializer().deserialize<JChunk>({
-              data: response.data,
-              included: response.included
-            });
-            this.titleName = chunk.id;
+            const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
+            this.titleName = String(chunk.id);
           });
           break;
 
         case 'taskhas':
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task = new JsonAPISerializer().deserialize<JTask>({
-              data: response.data,
-              included: response.included
-            });
-            this.titleName = task.taskName;
+            const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
+            this.titleName = task.taskName ?? '';
           });
           break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
           this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-              data: response.data,
-              included: response.included
-            });
+            const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
             this.titleName = hashlist.name;
           });
           break;
@@ -181,7 +171,7 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   // Update query parameters and trigger updates
-  onQueryp(name: any, type: number) {
+  onQueryp(name: string, type: number) {
     let query = {};
     if (type == 0) {
       query = { display: name };
@@ -194,23 +184,22 @@ export class HashesComponent implements OnInit, OnDestroy {
       queryParamsHandling: 'merge'
     });
     this.onDisplaying(name, type);
-    this.ngOnInit();
   }
 
   // Update display or filter options
   onDisplaying(name: string, type: number) {
     if (type == 0) {
       this.displaying = name;
-      this.viewForm.setValue({
+      this.viewForm.patchValue({
         display: this.displaying,
-        displaydes: this.getDescrip(name, type)
+        displaydes: this.getDescrip(name, type) ?? null
       });
     }
     if (type == 1) {
       this.filtering = name;
-      this.viewForm.setValue({
+      this.viewForm.patchValue({
         filter: this.filtering,
-        filterdes: this.getDescrip(name, type)
+        filterdes: this.getDescrip(name, type) ?? null
       });
     }
   }

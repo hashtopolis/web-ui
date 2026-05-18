@@ -26,5 +26,7 @@ export const hashcatbrainFormat = [
 
 export const hashSource = [
   { id: 'paste', name: 'Paste Hash(es)' },
-  { id: 'import', name: 'Upload Input' }
+  { id: 'upload', name: 'Upload Input' },
+  { id: 'import', name: 'Import from server directory' },
+  { id: 'url', name: 'URL download' }
 ];

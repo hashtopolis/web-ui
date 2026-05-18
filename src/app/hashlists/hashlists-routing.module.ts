@@ -3,11 +3,14 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
+import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
+import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
+import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
+
 import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
-import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
 import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.component';
@@ -16,6 +19,10 @@ import { NewHashlistComponent } from '@src/app/hashlists/new-hashlist/new-hashli
 import { SearchHashComponent } from '@src/app/hashlists/search-hash/search-hash.component';
 import { ShowCracksComponent } from '@src/app/hashlists/show-cracks/show-cracks.component';
 import { SuperhashlistComponent } from '@src/app/hashlists/superhashlist/superhashlist.component';
+
+const hashlistRoleServiceClass = HashListRoleService;
+const superhashlistRoleServiceClass = SuperHashListRoleService;
+const hashRoleServiceClass = HashRoleService;
 
 const routes: MyRoute[] = [
   {
@@ -28,9 +35,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashlist',
           breadcrumb: 'Hashlist',
-          permission: Perm.Hashlist.READ
+          roleServiceClass: hashlistRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'archived',
@@ -38,9 +46,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'archived',
           breadcrumb: 'Hashlist Archived',
-          permission: Perm.Hashlist.READ
+          roleServiceClass: hashlistRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'hashlist/:id/edit',
@@ -48,9 +57,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-hashlist',
           breadcrumb: 'Edit Hashlist',
-          permission: Perm.Hashlist.READ
+          roleServiceClass: hashlistRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
         // canDeactivate: [PendingChangesGuard]
       },
       {
@@ -59,9 +69,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'import-cracked-hashes',
           breadcrumb: 'Import Cracked Hashes',
-          permission: Perm.Hashlist.UPDATE
+          roleServiceClass: hashlistRoleServiceClass,
+          roleName: 'update'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-hashlist',
@@ -69,9 +80,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-hashlist',
           breadcrumb: 'New Hashlist',
-          permission: Perm.Hashlist.CREATE
+          roleServiceClass: hashlistRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
         // canDeactivate: [PendingChangesGuard]
       },
       {
@@ -80,9 +92,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'super-hashlist',
           breadcrumb: 'Super Hashlist',
-          permission: Perm.SuperHashlist.READ
+          roleServiceClass: superhashlistRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'superhashlist/:id/edit',
@@ -90,9 +103,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-super-hashlist',
           breadcrumb: 'Edit Super Hashlist',
-          permission: Perm.SuperHashlist.READ
+          roleServiceClass: superhashlistRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-superhashlist',
@@ -100,9 +114,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-superhashlist',
           breadcrumb: 'New Super Hashlist',
-          permission: Perm.SuperHashlist.CREATE
+          roleServiceClass: superhashlistRoleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'hashes/tasks/:id',
@@ -110,9 +125,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'taskhas',
           breadcrumb: 'Task Hashes',
-          permission: Perm.Hash.READ
+          roleServiceClass: hashRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'hashes/hashlists/:id',
@@ -120,9 +136,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashlisthash',
           breadcrumb: 'Hashlist Hashes',
-          permission: Perm.Hash.READ
+          roleServiceClass: hashRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'hashes/chunks/:id',
@@ -130,9 +147,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'chunkshash',
           breadcrumb: 'Chunks Hashes',
-          permission: Perm.Hash.READ
+          roleServiceClass: hashRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'search-hash',
@@ -140,9 +158,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'search-hash',
           breadcrumb: 'Search-hash',
-          permission: Perm.Hash.READ
+          roleServiceClass: hashRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-cracks',
@@ -150,9 +169,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-cracks',
           breadcrumb: 'Show Cracks',
-          permission: Perm.Hash.READ
+          roleServiceClass: hashRoleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       }
     ]
   }

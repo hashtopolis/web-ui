@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAgentBinary } from '@models/agent-binary.model';
 
@@ -29,10 +29,10 @@ import { environment } from '@src/environments/environment';
   templateUrl: './agent-binaries-table.component.html',
   standalone: false
 })
-export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   agentdownloadURL: string;
 
   ngOnInit(): void {
@@ -41,10 +41,15 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
-    this.dataSource.loadAll();
+    this.setupFilterErrorSubscription(this.dataSource);
 
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentdownloadURL = path + environment.config.agentdownloadURL;
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
@@ -55,7 +60,12 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -77,7 +87,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.id,
         export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
@@ -85,7 +94,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'binaryType',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
         export: async (agentBinary: JAgentBinary) => agentBinary.binaryType
       },
       {
@@ -93,7 +101,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'operatingSystems',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
         export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
       {
@@ -101,7 +108,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'filename',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.filename,
         export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
       {
@@ -109,7 +115,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'version',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.version,
         export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
       {
@@ -117,7 +122,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'updateTrack',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
         export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];

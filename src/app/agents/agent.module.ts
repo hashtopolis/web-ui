@@ -1,6 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataTablesModule } from 'angular-datatables';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -8,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
-import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-stat-graph/agent-stat-graph.component';
 
 import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
@@ -19,6 +16,7 @@ import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.com
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-stat-graph/agent-stat-graph.component';
 import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
@@ -35,7 +33,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FontAwesomeModule,
     ReactiveFormsModule,
     AgentsRoutingModule,
-    DataTablesModule,
     DirectivesModule,
     ComponentsModule,
     CoreFormsModule,
@@ -43,7 +40,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     RouterModule,
     FormsModule,
     PipesModule,
-    NgbModule,
     AgentStatGraphComponent
   ]
 })

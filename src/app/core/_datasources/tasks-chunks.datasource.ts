@@ -1,10 +1,12 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -13,7 +15,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;
   private _isChunksLive = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   setTaskId(taskId: number) {
     this._taskId = taskId;
@@ -23,52 +25,72 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
     this._isChunksLive = number;
   }
 
-  loadAll(query?: Filter): void {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
+  async loadAll(query?: Filter): Promise<void> {
+    let chunkTime = this.uiService.getUISettings()?.chunktime ?? 0;
     this.loading = true;
-    // Store the current filter if provided
+
     if (query) {
       this._currentFilter = query;
     }
 
-    // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
+
     let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent').addFilter({
       field: 'taskId',
       operator: FilterType.EQUAL,
       value: this._taskId
     });
+
+    if (!this._isChunksLive) {
+      if (this._taskId) {
+        const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+        try {
+          const response = await firstValueFrom<ResponseWrapper>(
+            this.service.get(SERV.TASKS, this._taskId, undefined, httpOptions).pipe(
+              catchError((error) => {
+                this.handleFilterError(error);
+                throw error;
+              })
+            )
+          );
+          const task = this.serializer.deserialize(response, zTaskResponse);
+          chunkTime = task.chunkTime;
+        } catch {
+          // Error already handled via handleFilterError
+        }
+      }
+      chunkParams.addFilter({ field: 'progress', value: 10000, operator: FilterType.LESSER }).addFilter({
+        field: 'solveTime',
+        value: Math.round(Date.now() / 1000 - chunkTime),
+        operator: FilterType.GREATER
+      });
+    }
+
     chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);
 
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
     this.service
-      .getAll(SERV.CHUNKS, chunkParams.create())
+      .getAll(SERV.CHUNKS, chunkParams.create(), httpOptions)
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return EMPTY;
+        }),
         finalize(() => (this.loading = false))
       )
       .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const chunks = new JsonAPISerializer().deserialize<JChunk[]>({
-          data: responseBody.data,
-          included: responseBody.included
-        });
+        const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
-        const chunksToShow: JChunk[] = [];
-        chunks.forEach((chunk: JChunk) => {
+        const chunksToShow: JChunk[] = chunks.map((chunk: JChunk) => {
           if (chunk.agent) {
             chunk.agentName = chunk.agent.agentName;
           }
           if (chunk.task) {
             chunk.taskName = chunk.task.taskName;
           }
-          if (this._isChunksLive) {
-            chunksToShow.push(chunk);
-          } else if (
-            Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime &&
-            chunk.progress < 10000
-          ) {
-            chunksToShow.push(chunk);
-          }
+          return chunk;
         });
 
         const length = response.meta.page.total_elements;
@@ -84,8 +106,9 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
   reload(): void {
     this.clearSelection();
-    this.loadAll();
+    this.loadAll().then();
   }
+
   clearFilter(): void {
     this._currentFilter = null;
     this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);

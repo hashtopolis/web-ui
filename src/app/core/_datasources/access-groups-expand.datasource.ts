@@ -1,19 +1,24 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zAccessGroupResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
+import { DynamicModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
   private _accessgroupId = 0;
   private _include = '';
+  private _activeFilterValue = '';
+  private _activeFilterColumn: HTTableColumn | null = null;
 
   setAccessGroupId(accessgroupId: number) {
     this._accessgroupId = accessgroupId;
@@ -32,24 +37,38 @@ export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent>
     this.subscriptions.push(
       accessGroup$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-            data: response.data,
-            included: response.included
-          });
-          this.setData(accessGroup[this._include]);
+          const accessGroup: JAccessGroup = this.serializer.deserialize(response, zAccessGroupResponse);
+          this.originalData = ((accessGroup as unknown as DynamicModel)[this._include] as (JAgent | JUser)[]) || [];
+          this.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
         })
     );
+  }
+
+  /**
+   * Overrides the base client filter to persist the active filter state so that
+   * reload() can re-apply it without a network request. Pagination reset and
+   * sorting are handled by the base implementation.
+   *
+   * @param filterValue - The search string. Empty string clears the filter.
+   * @param selectedColumn - The column to filter on. Null searches all fields.
+   */
+  override applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
+    this._activeFilterValue = filterValue || '';
+    if (selectedColumn !== undefined) {
+      this._activeFilterColumn = selectedColumn;
+    }
+    super.applyClientFilter(this._activeFilterValue, this._activeFilterColumn);
   }
 
   getData(): (JUser | JAgent)[] {
     return this.getOriginalData();
   }
 
-  reload(): void {
+  override reload(): void {
     this.clearSelection();
     this.loadAll();
   }

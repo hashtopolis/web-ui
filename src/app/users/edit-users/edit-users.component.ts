@@ -1,10 +1,12 @@
+import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -13,6 +15,8 @@ import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { PermissionRoleService } from '@services/roles/user/permission-role.service';
+import { UserRoleService } from '@services/roles/user/user-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
@@ -45,26 +49,28 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select List of Global Permission Groups. */
-  selectGlobalPermissionGroups: SelectOption[];
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
 
   /** User Access Group Permissions. */
-  selectUserAgps: SelectOption[];
+  selectUserAgps: SelectOption<AccessGroupId>[];
 
   // Edit Configuration
   editedUserIndex: number;
   editedUserName: string;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private datePipe: uiDatePipe,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private confirmDialog: ConfirmDialogService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private datePipe = inject(uiDatePipe);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private confirmDialog = inject(ConfirmDialogService);
+  protected userRoleService = inject(UserRoleService);
+  protected permissionRoleService = inject(PermissionRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Edit User']);
@@ -111,8 +117,8 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loaduserAGPSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
-        this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
+        this.selectUserAgps = transformSelectOptions(user.accessGroups ?? [], USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
 
@@ -121,10 +127,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadAGPSubscription$ = this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
       .subscribe((response: ResponseWrapper) => {
-        const globalPermissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
-          data: response.data,
-          included: response.included
-        });
+        const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+          response,
+          zGlobalPermissionGroupListResponse
+        );
         this.selectGlobalPermissionGroups = transformSelectOptions(globalPermissionGroups, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
@@ -142,14 +148,14 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
         this.updateForm.setValue({
           id: user.id,
           name: user.name,
           email: user.email,
-          registered: this.datePipe.transform(user.registeredSince),
-          lastLogin: this.datePipe.transform(user.lastLoginDate),
+          registered: this.datePipe.transform(user.registeredSince) ?? '',
+          lastLogin: this.datePipe.transform(user.lastLoginDate) ?? '',
           globalPermissionGroup: user.globalPermissionGroup,
           updateData: {
             globalPermissionGroupId: user.globalPermissionGroupId,
@@ -170,7 +176,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       this.onUpdatePass(this.updatePassForm.value);
 
       const onSubmitSubscription$ = this.gs
-        .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
+        .update(SERV.USERS, this.editedUserIndex, { ...this.updateForm.value.updateData } as Record<string, unknown>)
         .pipe(finalize(() => (this.isUpdatingLoading = false)))
         .subscribe(() => {
           this.updateForm.reset(); // success, we reset form
@@ -180,6 +186,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully updated`));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 

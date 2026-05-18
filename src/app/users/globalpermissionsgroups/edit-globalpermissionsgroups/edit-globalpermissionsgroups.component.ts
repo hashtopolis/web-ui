@@ -1,8 +1,10 @@
 /**
  * This module contains the component to manage and edit GlobalPermissionGroups
  */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
+
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
@@ -21,20 +23,20 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
   standalone: false
 })
 export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
-  updateForm: FormGroup;
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+
+  updateForm: FormGroup<{ name: FormControl<string | null> }>;
   processing = false;
 
   // Filters and forms
   editedGPGIndex: number;
-  editedGPG: JGlobalPermissionGroup;
+  editedGPG: JGlobalPermissionGroup | undefined;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService
-  ) {
+  constructor() {
     this.onInitialize();
     this.buildForm();
     this.titleService.set(['Edit Global Permissions']);
@@ -68,8 +70,8 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * Build the form with default values for permissions.
    */
   buildForm() {
-    this.updateForm = new FormGroup({
-      name: new FormControl('')
+    this.updateForm = new FormGroup<{ name: FormControl<string | null> }>({
+      name: new FormControl('', [Validators.required])
     });
   }
 
@@ -92,10 +94,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         if (response) {
-          this.editedGPG = new JsonAPISerializer().deserialize({
-            data: response.data,
-            included: response.included
-          });
+          this.editedGPG = new JsonAPISerializer().deserialize(response, zGlobalPermissionGroupResponse);
           const formValues = this.buildFormValues();
           this.updateForm.patchValue(formValues);
         }
@@ -112,7 +111,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   private buildFormValues() {
     return {
-      name: this.editedGPG['name'],
+      name: this.editedGPG!['name'],
       permissions: {}
     };
   }
@@ -130,6 +129,9 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
           this.processing = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 }

@@ -1,4 +1,3 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -9,13 +8,17 @@
       "@components/*": ["./src/app/core/_components/*"],
       "@datasources/*": ["./src/app/core/_datasources/*"],
       "@services/*": ["./src/app/core/_services/*"],
-      "@constants/*": ["./src/app/core/_constants/*"]
+      "@constants/*": ["./src/app/core/_constants/*"],
+      "@interceptors/*": ["./src/app/core/_interceptors/*"],
+      "@generated/*": ["./src/generated/*"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "strict": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -23,21 +26,17 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
     "allowJs": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "src/decs.d.ts"
-    ],
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
-    "useDefineForClassFields": false
+    "typeRoots": ["node_modules/@types", "src/decs.d.ts"],
+    "lib": ["ES2022", "dom"],
+    "useDefineForClassFields": false,
+    "skipLibCheck": true
   },
+  "exclude": ["src/assets/optparse/**/*.js"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

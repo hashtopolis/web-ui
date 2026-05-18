@@ -1,8 +1,10 @@
+import { z } from 'zod';
+
 import { Injectable } from '@angular/core';
 
 export interface StorageWrapper<T> {
-  value: T
-  expires: number
+  value: T;
+  expires: number;
 }
 
 /**
@@ -13,17 +15,18 @@ export interface StorageWrapper<T> {
  * @template T - The type of data to be stored.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export abstract class BaseStorageService<T> {
-
   /**
    * Retrieves the stored data associated with the specified key.
    *
    * @param key - The key under which the data is stored.
+   * @param schema - Optional Zod schema to validate the stored value against.
+   * @param defaultValue - Optional default value to return when key is missing or validation fails.
    * @returns The stored data if found, or `null` if not found or expired.
    */
-  abstract getItem(key: string): T | null;
+  abstract getItem(key: string, schema?: z.ZodType<T>, defaultValue?: T): T | null;
 
   /**
    * Stores data with an optional expiration time.
@@ -33,8 +36,9 @@ export abstract class BaseStorageService<T> {
    * @param expiresInMs - The optional expiration time in milliseconds.
    *                     If provided and greater than 0, the data will expire
    *                     after the specified time has passed.
+   * @param schema - Optional Zod schema to validate the value before writing.
    */
-  abstract setItem(key: string, value: T, expiresInMs: number): void;
+  abstract setItem(key: string, value: T, expiresInMs: number, schema?: z.ZodType<T>): void;
 
   /**
    * Removes the stored data associated with the specified key.
@@ -65,6 +69,6 @@ export abstract class BaseStorageService<T> {
    * @returns `true` if the wrapper has expired, or `false` if it is still valid or has no expiration timestamp.
    */
   hasExpired(wrapper: StorageWrapper<T>): boolean {
-    return !!(wrapper.expires && wrapper.expires <= Date.now())
+    return !!(wrapper.expires && wrapper.expires <= Date.now());
   }
 }

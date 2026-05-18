@@ -1,16 +1,17 @@
-import * as tus from 'tus-js-client';
 import { Observable } from 'rxjs';
+import * as tus from 'tus-js-client';
 
-import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
+import { HttpEvent, HttpEventType, HttpHeaders, HttpProgressEvent } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthData } from '@models/auth-user.model';
 
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { ConfigService } from '@services/shared/config.service';
-import { GlobalService } from '@services/main.service';
+import { AuthService } from '@services/access/auth.service';
 import { ServiceConfig } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { ConfigService } from '@services/shared/config.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { environment } from '@src/environments/environment';
 
@@ -34,14 +35,13 @@ export class UploadTUSService {
   static readonly STORAGE_KEY = 'userData';
 
   /**
-   * The user authentication token used for setting the Authorization header in file uploads.
-   */
-  private _token: string;
-
-  /**
    * Represents the ongoing TUS upload. It is initialized as null.
    */
   private tusUpload: tus.Upload | null = null;
+
+  private readonly skipErrorDialogHeaders = {
+    headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' })
+  };
 
   /**
    * Constructs an instance of UploadTUSService.
@@ -49,18 +49,23 @@ export class UploadTUSService {
    * @param cs - The ConfigService for fetching endpoint configurations.
    * @param gs - The GlobalService for handling global functionalities.
    * @param router - The Angular Router service for navigation.
+   * @param authService - The AuthService for retrieving the current authentication token.
    */
   constructor(
     protected storage: LocalStorageService<AuthData>,
     private cs: ConfigService,
     private gs: GlobalService,
-    private router: Router
-  ) {
-    /**
-     * Retrieves user data from local storage using the STORAGE_KEY and sets the authentication token.
-     */
-    const userData: AuthData = this.storage.getItem(UploadTUSService.STORAGE_KEY);
-    this._token = userData._token;
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  /**
+   * Gets the current authentication token from the AuthService.
+   * This method retrieves the token dynamically, ensuring that the latest token is used.
+   * @returns The current authentication token, or an empty string if no token is available.
+   */
+  private getCurrentToken(): string {
+    return this.authService.token ?? '';
   }
 
   /**
@@ -78,10 +83,13 @@ export class UploadTUSService {
     file: File,
     filename: string,
     serviceConfig: ServiceConfig,
-    form = null,
-    redirect = null
+    form: Record<string, unknown> | null = null,
+    redirect: string[] | null = null
   ): Observable<number> {
     return new Observable<number>((observer) => {
+      // Get the current authentication token dynamically
+      const token = this.getCurrentToken();
+
       // Get Chunksize config default
       let chunkSize = this.chunked;
       if (Number.isNaN(chunkSize)) {
@@ -93,7 +101,7 @@ export class UploadTUSService {
       const upload = new tus.Upload(file, {
         endpoint: this.cs.getEndpoint() + this.endpoint,
         headers: {
-          Authorization: `Bearer ${this._token}`,
+          Authorization: `Bearer ${token}`,
           'Tus-Resumable': '1.0.0',
           'Tus-Extension': 'checksum',
           'Tus-Checksum-Algorithm': 'md5,sha1,crc32'
@@ -107,30 +115,53 @@ export class UploadTUSService {
           filetype: file.type
         },
         onError: async (error) => {
-          const exist = String(error).includes('exists!');
+          const errorMessage = String(error).toLowerCase();
+          const exist = errorMessage.includes('already exists') || errorMessage.includes('exists!');
           if (exist) {
             const progress = 100;
             observer.next(progress);
             if (form !== null) {
-              this.gs.create(serviceConfig, form).subscribe(() => {
-                this.router.navigate(redirect);
+              this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+                next: () => {
+                  if (redirect) {
+                    this.router.navigate(redirect);
+                  }
+                  observer.complete();
+                },
+                error: (createError) => {
+                  observer.next(0);
+                  observer.error(createError);
+                }
               });
+            } else {
+              observer.complete();
             }
           } else {
-            window.alert(`Failed because: ${error}`);
+            observer.next(0);
+            observer.error(error);
           }
           return false;
         },
         onProgress: (bytesUploaded, bytesTotal) => {
-          const progress = (bytesUploaded / bytesTotal) * 100;
+          const progress = Math.round((bytesUploaded / bytesTotal) * 100);
           observer.next(progress);
         },
         onSuccess: async () => {
-          observer.complete();
           if (form !== null) {
-            this.gs.create(serviceConfig, form).subscribe(() => {
-              this.router.navigate(redirect);
+            this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+              next: () => {
+                if (redirect) {
+                  this.router.navigate(redirect);
+                }
+                observer.complete();
+              },
+              error: (createError) => {
+                observer.next(0);
+                observer.error(createError);
+              }
             });
+          } else {
+            observer.complete();
           }
         }
       });
@@ -142,25 +173,30 @@ export class UploadTUSService {
       });
     });
 
-    async function checkPreviousuploads(upload) {
-      let previousUploads = await upload.findPreviousUploads();
+    async function checkPreviousuploads(upload: tus.Upload) {
+      // Look for previous uploads of the same file
+      const previousUploads = await upload.findPreviousUploads();
 
-      // We only want to consider uploads in the last hour.
+      // Only consider recent uploads within the last 3 hours
       const limitUpload = Date.now() - 3 * 60 * 60 * 1000;
-      previousUploads = previousUploads
-        .map((upload) => {
-          upload.creationTime = new Date(upload.creationTime);
-          return upload;
-        })
-        .filter((upload) => upload.status > limitUpload)
-        .sort((a, b) => b.creationTime - a.creationTime);
+      const recentUploads = previousUploads
+        .map((pu: tus.PreviousUpload) => ({
+          ...pu,
+          creationDate: new Date(pu.creationTime)
+        }))
+        .filter((pu) => pu.creationDate.getTime() > limitUpload)
+        .sort((a, b) => b.creationDate.getTime() - a.creationDate.getTime());
 
-      // if (previousUploads.length === 0) {
-      //   upload.start();
-      // }
+      // If we have a recent previous upload, attempt to resume from it
+      if (recentUploads.length > 0) {
+        try {
+          upload.resumeFromPreviousUpload(recentUploads[0]);
+        } catch {
+          // If resume fails, we will start a new upload below
+        }
+      }
 
-      // File already exist in the import folder, then return progress as 100
-
+      // Start or continue the upload
       upload.start();
     }
   }

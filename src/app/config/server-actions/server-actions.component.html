@@ -1,0 +1,20 @@
+<h2>Database tools</h2>
+
+<div class="actions-list">
+  <div class="item">
+    <div class="control">
+      <button mat-flat-button color="primary" style="width: 190px" (click)="rebuildChunkCache()">Rebuild chunk cache</button>
+    </div>
+    <div class="desc" aria-live="polite">
+      <div class="text">Counts cracked hashes in all chunks and all hashlists using slow but precise COUNT() function.</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="control">
+      <button mat-flat-button color="primary" style="width: 190px" (click)="rescanGlobalFiles()">Rescan global files</button>
+    </div>
+    <div class="desc" aria-live="polite">
+      <div class="text">Scans all global files for size mismatch or inexistence.</div>
+    </div>
+  </div>
+</div>

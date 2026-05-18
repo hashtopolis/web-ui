@@ -9,8 +9,8 @@ export const DEFAULT_CONFIG: Config = {
   favicon: 'assets/img/favicon.ico',
   header: {
     brand: {
-      logo: 'assets/img/logo_blue.svg',
-      logored: 'assets/img/logo_red.png',
+      logo: 'assets/img/logo_rainbow_eyes.svg',
+      logored: 'assets/img/logo_red.svg',
       name: '',
       height: '60',
       width: '60',
@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: Config = {
     }
   },
   footer: {
-    copyright: 's3in!c Hashtopolis: 0.14.3',
+    copyright: 's3in!c Hashtopolis: 1.0.0-rainbow6',
     footer_link_one: {
       link: 'https://github.com/hashtopolis',
       name: 'Github'

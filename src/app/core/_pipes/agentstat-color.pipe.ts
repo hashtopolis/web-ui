@@ -1,7 +1,8 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { ASC } from '@constants/agentsc.config';
 
-import { ASC } from '../_constants/agentsc.config';
-import { UIConfigService } from '../_services/shared/storage.service';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+
+import { UIConfigService } from '@services/shared/storage.service';
 
 /**
  * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilisations, CPU Utilisation)
@@ -18,9 +19,16 @@ import { UIConfigService } from '../_services/shared/storage.service';
   standalone: false
 })
 export class AgentSColorPipe implements PipeTransform {
-  constructor(private uiService: UIConfigService) {}
+  private uiService = inject(UIConfigService);
 
-  transform(value: any, threshold1: number, threshold2: number, stattype: number, isActive: any, lastactivity: number) {
+  transform(
+    value: number | string,
+    threshold1: number,
+    threshold2: number,
+    stattype: number,
+    isActive: number | boolean,
+    lastactivity: number
+  ): string {
     if (!isActive) return '';
     if (value === 'No data') {
       if (isActive == 1 && Date.now() - lastactivity < this.gettime()) {
@@ -29,14 +37,14 @@ export class AgentSColorPipe implements PipeTransform {
       return '#CCCCCC';
     }
     if (+value == 0) return '#FF0000';
-    if (+value > threshold1 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#009933';
-    else if (+value > threshold2 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#ff9900';
-    if (+value <= threshold1 && stattype == ASC.GPU_UTIL) return '#009933';
-    else if (+value <= threshold2 && stattype == ASC.GPU_UTIL) return '#ff9900';
+    if (+value > threshold1 && (stattype == ASC.GPU_UTIL || stattype == ASC.CPU_UTIL)) return '#009933';
+    else if (+value > threshold2 && (stattype == ASC.GPU_UTIL || stattype == ASC.CPU_UTIL)) return '#ff9900';
+    if (+value <= threshold1 && stattype == ASC.GPU_TEMP) return '#009933';
+    else if (+value <= threshold2 && stattype == ASC.GPU_TEMP) return '#ff9900';
     else return '#800000';
   }
 
   gettime() {
-    return this.uiService.getUIsettings('agenttimeout').value;
+    return this.uiService.getUISettings()?.agenttimeout ?? 0;
   }
 }

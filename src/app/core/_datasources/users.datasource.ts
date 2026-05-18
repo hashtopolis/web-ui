@@ -1,4 +1,7 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zUserListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { Filter } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class UsersDataSource extends BaseDataSource<JUser> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -25,24 +28,27 @@ export class UsersDataSource extends BaseDataSource<JUser> {
     let params = new RequestParamBuilder().addInitial(this).addInclude('globalPermissionGroup');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const users$ = this.service.getAll(SERV.USERS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const users$ = this.service.getAll(SERV.USERS, params.create(), httpOptions);
 
     this.subscriptions.push(
       users$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-
-          const users = this.serializer.deserialize<JUser[]>(responseBody);
+          const users: JUser[] = this.serializer.deserialize(response, zUserListResponse);
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(users);

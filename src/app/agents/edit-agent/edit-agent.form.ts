@@ -3,17 +3,20 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { TaskId, UserId } from '@models/id.types';
+
+import { IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
+
 /**
  * Form to edit an agent
  */
 export interface EditAgentForm {
   isActive: FormControl<boolean>;
-  userId: FormControl<number>;
+  userId: FormControl<UserId | null>;
   agentName: FormControl<string>;
-  token: FormControl<string>;
-  cpuOnly: FormControl<number>;
+  cpuOnly: FormControl<boolean | null>;
   cmdPars: FormControl<string>;
-  ignoreErrors: FormControl<number>;
+  ignoreErrors: FormControl<IgnoreErrors | null>;
   isTrusted: FormControl<boolean>;
 }
 
@@ -21,31 +24,36 @@ export interface EditAgentForm {
  * Form to update an agent's assignment to a task
  */
 export interface UpdateAssignmentForm {
-  taskId: FormControl<number>;
+  taskId: FormControl<TaskId | null>;
 }
 
 /**
  * Get empty EditAgentForm
  * @returns Empty Instance of EditAgentForm
  */
-export const getEditAgentForm = () => {
+export const getEditAgentForm = (readonly: boolean = false) => {
   return new FormGroup<EditAgentForm>({
-    isActive: new FormControl(false, [Validators.required]),
-    userId: new FormControl(undefined),
-    agentName: new FormControl('', [Validators.required]),
-    token: new FormControl(''),
-    cpuOnly: new FormControl(undefined),
-    cmdPars: new FormControl(''),
-    ignoreErrors: new FormControl(undefined),
-    isTrusted: new FormControl(false)
+    isActive: new FormControl<boolean>(
+      { value: false, disabled: readonly },
+      { nonNullable: true, validators: [Validators.required] }
+    ),
+    userId: new FormControl<number | null>({ value: null, disabled: readonly }),
+    agentName: new FormControl<string>(
+      { value: '', disabled: readonly },
+      { nonNullable: true, validators: [Validators.required] }
+    ),
+    cpuOnly: new FormControl<boolean | null>({ value: null, disabled: readonly }),
+    cmdPars: new FormControl<string>({ value: '', disabled: readonly }, { nonNullable: true }),
+    ignoreErrors: new FormControl<IgnoreErrors | null>({ value: null, disabled: readonly }),
+    isTrusted: new FormControl<boolean>({ value: false, disabled: readonly }, { nonNullable: true })
   });
 };
 
 /**
  * Get empty instance of updateAssignmentForm
  */
-export const getUpdateAssignmentForm = () => {
+export const getUpdateAssignmentForm = (readonly: boolean = false) => {
   return new FormGroup<UpdateAssignmentForm>({
-    taskId: new FormControl(undefined)
+    taskId: new FormControl<number | null>({ value: null, disabled: readonly })
   });
 };

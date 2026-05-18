@@ -6,7 +6,9 @@
       <label for="timeFormat">Time Format</label>
       <mat-form-field>
         <mat-select formControlName="timefmt" id="timeFormat">
-          <mat-option *ngFor="let d of formats" [value]="d.value">{{ d.description }}</mat-option>
+          @for (d of formats; track d) {
+            <mat-option [value]="d.value">{{ d.description }}</mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>
@@ -15,7 +17,9 @@
       <label for="layout">Layout</label>
       <mat-form-field>
         <mat-select formControlName="layout" id="layout">
-          <mat-option *ngFor="let d of layouts" [value]="d.value">{{ d.description }}</mat-option>
+          @for (d of layouts; track d) {
+            <mat-option [value]="d.value">{{ d.description }}</mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>
@@ -24,7 +28,9 @@
       <label for="theme">Theme</label>
       <mat-form-field>
         <mat-select formControlName="theme" id="theme">
-          <mat-option *ngFor="let t of themes" [value]="t.value">{{ t.description }}</mat-option>
+          @for (t of themes; track t) {
+            <mat-option [value]="t.value">{{ t.description }}</mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>
@@ -35,7 +41,7 @@
         <mat-icon
           matTooltip="Automatically refreshes the dashboard and task and agent status table at the specified refresh interval."
           style="font-size: 16px; cursor: pointer; vertical-align: middle; margin-left: 4px;"
-        >
+          >
           info_outline
         </mat-icon>
       </label>
@@ -56,7 +62,7 @@
           refreshed. Allowed range:
           {{ UiSettingsFormGroup.REFRESH_INTERVAL_MIN }} – {{ UiSettingsFormGroup.REFRESH_INTERVAL_MAX }} seconds."
           style="font-size: 16px; cursor: pointer; vertical-align: middle; margin-left: 4px;"
-        >
+          >
           info_outline
         </mat-icon>
       </label>
@@ -65,13 +71,15 @@
         [max]="UiSettingsFormGroup.REFRESH_INTERVAL_MAX"
         [min]="UiSettingsFormGroup.REFRESH_INTERVAL_MIN"
         formControlName="refreshInterval"
-      />
+        />
     </div>
 
     <button-submit data-testid="button-submit" name="Save Settings"></button-submit>
 
-    <div *ngIf="isUpdatingLoading">
-      <mat-spinner color="accent" diameter="24"></mat-spinner>
-    </div>
+    @if (isUpdatingLoading) {
+      <div>
+        <mat-spinner color="accent" diameter="24"></mat-spinner>
+      </div>
+    }
   </form>
 </app-table>

@@ -1,6 +1,6 @@
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { UIConfigService } from '@services/shared/storage.service';
 
 @Component({
   selector: 'blacklist-attack',
@@ -13,7 +13,7 @@ export class BlacklistAttackComponent implements OnChanges {
   hasErrors = false;
   blacklistedChars: string[] = [];
 
-  constructor(private uiService: UIConfigService) {}
+  private uiService = inject(UIConfigService);
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('value' in changes) {
@@ -27,7 +27,7 @@ export class BlacklistAttackComponent implements OnChanges {
    * @returns {RegExp} A regular expression for matching blacklisted characters.
    */
   getBanChars() {
-    const chars = this.uiService.getUIsettings('blacklistChars').value.replace(']', '\\]').replace('[', '\\[');
+    const chars = (this.uiService.getUISettings()?.blacklistChars ?? '').replace(']', '\\]').replace('[', '\\[');
     return new RegExp('[' + chars + '/]', 'g');
   }
 

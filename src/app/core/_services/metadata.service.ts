@@ -1,15 +1,22 @@
-import { Observable, of } from 'rxjs';
+import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
+import { Observable } from 'rxjs';
+import { z } from 'zod';
 
-import { Injectable } from '@angular/core';
-import { FormControl, ValidatorFn, Validators } from '@angular/forms';
+import { Injectable, inject } from '@angular/core';
+import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
-import { SERV } from '@services/main.config';
+import { ResponseWrapper } from '@models/response.model';
+
+import { RelationshipType, SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
-import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { Option, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
+import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Metadata information for the form page.
@@ -47,7 +54,7 @@ export interface InfoMetadataForm {
  * - placeholder: Placeholder text for the input
  * - selectOptions: Select options if the type is 'select'
  * - selectOptions$: Select options observable if type is 'select' and used with selectEndpoint$
- * - selectEndpoint$: API endpoint route, usually a constant like SERV
+ * - selectEndpoint$: Function returning an observable for fetching select options
  * - fieldMapping: Object with the dropdown options mapping, e.g., { id: '_id', name: 'groupName' }
  * - requiredasterisk: Indicates if the field is required (shows asterisk)
  * - tooltip: Tooltip information as string or more complex type
@@ -59,15 +66,18 @@ export interface MetadataFormField {
   label?: string;
   type?: string;
   placeholder?: string;
-  selectOptions?: (Setting | Option)[];
-  selectOptions$?: Observable<{ label: string; value: number }[]>;
-  selectEndpoint$?: SERV;
-  fieldMapping?: Record<string, string> | FieldMapping;
+  selectOptions?: Option[];
+  selectOptions$?: SelectOption<number>[];
+  selectEndpoint$?: () => Observable<ResponseWrapper>;
+  selectSchema?: z.ZodTypeAny;
+  fieldMapping?: FieldMapping;
   requiredasterisk?: boolean;
   tooltip?: string | boolean;
   validators?: ValidatorFn[] | boolean;
   isTitle?: boolean;
   replacevalue?: string;
+  disabled?: boolean;
+  defaultValue?: unknown;
 }
 
 @Injectable({
@@ -75,6 +85,7 @@ export interface MetadataFormField {
 })
 export class MetadataService {
   private tooltip: ConfigTooltipsLevel;
+  private gs = inject(GlobalService);
 
   constructor(private tooltipService: TooltipService) {
     this.tooltip = this.tooltipService.getConfigTooltips();
@@ -99,7 +110,7 @@ export class MetadataService {
 
   authforgot = [
     {
-      name: 'User Name',
+      name: 'username',
       label: 'User Name',
       type: 'text',
       validators: [Validators.required]
@@ -225,10 +236,16 @@ export class MetadataService {
     }
   ];
 
-  //This variable defines the fields and properties required when editing a wonrdlist, rule or other file.
+  //This variable defines the fields and properties required when editing a wordlist, rule or other file.
   editfile = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
-    { name: 'filename', label: 'Name', type: 'text' },
+    {
+      name: 'filename',
+      label: 'Name',
+      type: 'text',
+      requiredasterisk: true,
+      validators: [Validators.required]
+    },
     {
       name: 'fileType',
       label: 'File Type',
@@ -240,8 +257,9 @@ export class MetadataService {
       label: 'Access group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_GROUPS,
-      selectOptions$: of([]),
+      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
+      selectSchema: zAccessGroupListResponse,
+      selectOptions$: [],
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
@@ -588,7 +606,7 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating a new Hashtype.
   newhashtype = [
     {
-      name: 'hashTypeId',
+      name: 'id',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
@@ -626,7 +644,7 @@ export class MetadataService {
   //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
   edithashtype = [
     {
-      name: 'hashTypeId',
+      name: 'id',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
@@ -1079,8 +1097,10 @@ export class MetadataService {
       label: 'Binary',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: of([]),
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
     },
@@ -1089,8 +1109,10 @@ export class MetadataService {
       label: 'Binary Version',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: of([]),
+      selectEndpoint$: () =>
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
     }
@@ -1129,15 +1151,16 @@ export class MetadataService {
       label: 'Email',
       type: 'email',
       requiredasterisk: true,
-      validators: [Validators.required, Validators.email]
+      validators: [Validators.required, emailValidator]
     },
     {
       name: 'globalPermissionGroupId',
       label: 'Global Permission Group',
       type: 'selectd',
       requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: of([]),
+      selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
     }
@@ -1221,7 +1244,7 @@ export class MetadataService {
       name: 'localtimefmt',
       label: 'Set the time format',
       type: 'select',
-      selectOptions: dateFormats
+      selectOptions: dateFormats.map((f) => ({ label: f.description, value: f.value }))
     },
     {
       name: 'autorefresh',
@@ -1346,7 +1369,7 @@ export class MetadataService {
   }
 
   // Custom validator to convert the input value to a number
-  numberValidator(control: FormControl) {
+  numberValidator(control: AbstractControl) {
     const value = control.value;
     if (value === null || value === undefined) {
       return null;

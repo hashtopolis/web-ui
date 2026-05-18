@@ -1,20 +1,24 @@
+import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JAgent } from '@models/agent.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { ThinJAgent } from '@models/agent.model';
+import { AgentId, UserId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
+import { JUser } from '@models/user.model';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
 
 import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { AGENT_MAPPING, DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
@@ -49,26 +53,30 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   isUpdatingLoading: boolean = false; // Show a spinner loading when form is being updated
   isUsersLoading: boolean = true; // Show a spinner while loading users for multiselect
 
-  selectAgents: SelectOption[]; // Selectable agents to be added to the access group
-  selectUsers: SelectOption[]; // Selectable users to be added to the access group
+  showAddAgentsForm: boolean = false; // Toggle for add agents panel
+  showAddUsersForm: boolean = false; // Toggle for add users panel
+
+  selectAgents: SelectOption<AgentId>[]; // Selectable agents to be added to the access group
+  selectUsers: SelectOption<UserId>[]; // Selectable users to be added to the access group
 
   updateForm: FormGroup; // Form group for editing access group
 
   @ViewChild('userTable') userTable: AccessGroupsUserTableComponent;
   @ViewChild('agentTable') agentTable: AccessGroupsAgentsTableComponent;
 
-  constructor(
-    private alert: AlertService,
-    private confirmDialog: ConfirmDialogService,
-    private gs: GlobalService,
-    private route: ActivatedRoute,
-    private router: Router,
-    readonly titleService: AutoTitleService,
-    private unsubscribeService: UnsubscribeService
-  ) {
+  private alert = inject(AlertService);
+  private confirmDialog = inject(ConfirmDialogService);
+  private gs = inject(GlobalService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  readonly titleService = inject(AutoTitleService);
+  private unsubscribeService = inject(UnsubscribeService);
+  protected roleService = inject(AccessGroupRoleService);
+
+  constructor() {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit Access Group']);
+    this.titleService.set(['Edit Access Group']);
   }
 
   /**
@@ -100,7 +108,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.updateForm = new FormGroup({
-      groupName: new FormControl()
+      groupName: new FormControl('', [Validators.required])
     });
     this.addUsersForm = getAddUsersForm();
     this.addAgentsForm = getAddAgentsForm();
@@ -123,10 +131,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
       );
 
-      this.accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-        data: response.data,
-        included: response.included
-      });
+      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse);
     } catch (error) {
       console.error('Failed to load access group data:', error);
     }
@@ -136,23 +141,20 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Load all users currently not part of the accessGroup as options for select input
    */
   async loadSelectUsers() {
-    this.isUsersLoading = true;
-    const ids = this.accessGroup.userMembers.map((user) => user.id);
-
-    // Only include filter, if there are userMembers
-    const requestParamBuilder = new RequestParamBuilder();
-    if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
-    }
-    const requestParams = requestParamBuilder.create();
-
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
-      const users = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
-      });
-      this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
+      this.isUsersLoading = true;
+      if (this.accessGroup.userMembers) {
+        const ids = this.accessGroup.userMembers.map((user) => user.id);
+        const requestParamBuilder = new RequestParamBuilder();
+        if (ids.length > 0) {
+          requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
+        }
+        const requestParams = requestParamBuilder.create();
+
+        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
+        const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
+        this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
+      }
     } catch (error) {
       console.error('Failed to load user data: ', error);
     } finally {
@@ -164,22 +166,21 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Load all agents currently not part of the accessGroup as options for select input
    */
   async loadSelectAgents() {
-    this.isAgentsLoading = true;
-    const ids = this.accessGroup.agentMembers.map((agent) => agent.id);
-
-    // Only include filter, if there are agentMembers
-    const requestParamBuilder = new RequestParamBuilder();
-    if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
-    }
-    const requestParams = requestParamBuilder.create();
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
-      const agents = new JsonAPISerializer().deserialize<JAgent[]>({
-        data: response.data,
-        included: response.included
-      });
-      this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
+      this.isAgentsLoading = true;
+      if (this.accessGroup.agentMembers) {
+        const ids = this.accessGroup.agentMembers.map((agent) => agent.id);
+
+        // Only include filter, if there are agentMembers
+        const requestParamBuilder = new RequestParamBuilder();
+        if (ids.length > 0) {
+          requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
+        }
+        const requestParams = requestParamBuilder.create();
+        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
+        const agents: ThinJAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
+        this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
+      }
     } catch (error) {
       console.error('Failed to load user data: ', error);
     } finally {
@@ -194,7 +195,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     await this.loadAccessGroup();
     this.editName = this.accessGroup.groupName;
     this.updateForm = new FormGroup({
-      groupName: new FormControl(this.accessGroup.groupName)
+      groupName: new FormControl(this.accessGroup.groupName, [Validators.required])
     });
     void this.loadSelectUsers();
     void this.loadSelectAgents();
@@ -207,6 +208,14 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.onInitialize();
     this.loadData();
+  }
+
+  toggleAddUsersForm(): void {
+    this.showAddUsersForm = !this.showAddUsersForm;
+  }
+
+  toggleAddAgentsForm(): void {
+    this.showAddAgentsForm = !this.showAddAgentsForm;
   }
 
   /**
@@ -225,6 +234,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 
@@ -234,12 +246,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async onAddUsers() {
     if (this.addUsersForm.valid) {
       this.isUpdatingLoading = true;
-      const users = this.addUsersForm.get('userIds').value.map((id) => {
-        return {
-          type: RelationshipType.USERMEMBERS,
-          id: id
-        };
-      });
+      const users = (this.addUsersForm.controls.userIds.value ?? []).map((id) => ({
+        type: RelationshipType.USERMEMBERS,
+        id
+      }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
@@ -247,6 +257,11 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
           })
         );
         this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
+
+        // Reset the form control after successful add
+        this.addUsersForm.controls.userIds.reset();
+        this.showAddUsersForm = false;
+
         this.refresh(); // Reload the select component
         this.userTable.reload();
       } catch (error) {
@@ -256,6 +271,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
       } finally {
         this.isUpdatingLoading = false;
       }
+    } else {
+      this.addUsersForm.markAllAsTouched();
+      this.addUsersForm.updateValueAndValidity();
     }
   }
 
@@ -263,30 +281,36 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Handles the form submission for adding new agents to the access group.
    */
   async onAddAgents() {
-    this.isUpdatingLoading = true;
     if (this.addAgentsForm.valid) {
-      const agents = this.addAgentsForm.get('agentIds').value.map((id) => {
-        return {
-          type: RelationshipType.AGENTMEMBER,
-          id: id
-        };
-      });
+      this.isUpdatingLoading = true;
+      const agents = (this.addAgentsForm.controls.agentIds.value ?? []).map((id) => ({
+        type: RelationshipType.AGENTMEMBER,
+        id
+      }));
       try {
         await firstValueFrom(
           this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {
             data: agents
           })
         );
-        this.alert.showSuccessMessage(`Successfully added ${agents.length} user${agents.length > 1 ? 's' : ''}`);
+        this.alert.showSuccessMessage(`Successfully added ${agents.length} agent${agents.length > 1 ? 's' : ''}`);
+
+        // Reset the form control after successful add
+        this.addAgentsForm.controls.agentIds.reset();
+        this.showAddAgentsForm = false;
+
         this.refresh(); // Reload the select component
         this.agentTable.reload();
       } catch (error) {
-        const msg = `Failed to add user${agents.length > 1 ? 's' : ''} to access group`;
+        const msg = `Failed to add agent${agents.length > 1 ? 's' : ''} to access group`;
         console.error(msg, error);
         this.alert.showErrorMessage(msg);
       } finally {
         this.isUpdatingLoading = false;
       }
+    } else {
+      this.addAgentsForm.markAllAsTouched();
+      this.addAgentsForm.updateValueAndValidity();
     }
   }
 

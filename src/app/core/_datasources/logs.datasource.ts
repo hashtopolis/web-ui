@@ -1,4 +1,7 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zLogEntryListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JLog } from '@models/log.model';
 import { Filter } from '@models/request-params.model';
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class LogsDataSource extends BaseDataSource<JLog> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -26,21 +29,25 @@ export class LogsDataSource extends BaseDataSource<JLog> {
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this);
-    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const logs$ = this.service.getAll(SERV.LOGS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const logs$ = this.service.getAll(SERV.LOGS, params.create(), httpOptions);
 
     this.subscriptions.push(
       logs$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const logs = this.serializer.deserialize<JLog[]>(responseData);
-          /* 
-            this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it 
+          const logs: JLog[] = this.serializer.deserialize(response, zLogEntryListResponse);
+          /*
+            this causes an infinite loop when searching im not sure what is the purpose of it since no other load all has it
           */
           /*           if (this.currentPage * this.pageSize >= logs.length) {
             this.currentPage = 0;
@@ -51,8 +58,8 @@ export class LogsDataSource extends BaseDataSource<JLog> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(logs);

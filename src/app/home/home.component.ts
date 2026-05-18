@@ -1,17 +1,19 @@
+import { zHashListResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
+import { JHash } from '@models/hash.model';
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+import { ThemeService } from '@services/shared/theme.service';
 
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
-import { JHash } from '@src/app/core/_models/hash.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
@@ -30,6 +32,13 @@ import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit, OnDestroy {
+  private gs = inject(GlobalService);
+  protected autoRefreshService = inject(AutoRefreshService);
+  private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private breakpointObserver = inject(BreakpointObserver);
+  private permissionService = inject(PermissionService);
+  private themeService = inject(ThemeService);
+
   /**
    * Utility class for UI settings retrieval and updates.
    */
@@ -81,25 +90,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   private pageReloadTimeout: NodeJS.Timeout;
 
   /** Auto-refresh subscription */
-  private autoRefreshSubscription?: Subscription;
+  private autoRefreshSubscription?: Subscription | undefined;
 
   /**
    * HomeComponent constructor.
    * Sets up breakpoint observers for responsive layout and reads initial theme mode.
-   *
-   * @param gs GlobalService for API calls.
-   * @param autoRefreshService AutoRefreshService to manage auto-refresh logic.
-   * @param service LocalStorageService to manage UI config.
-   * @param breakpointObserver BreakpointObserver to detect screen sizes.
-   * @param permissionService PermissionService to check user permissions.
    */
-  constructor(
-    private gs: GlobalService,
-    protected autoRefreshService: AutoRefreshService,
-    private service: LocalStorageService<UIConfig>,
-    private breakpointObserver: BreakpointObserver,
-    private permissionService: PermissionService
-  ) {
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
 
@@ -128,6 +125,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.canReadCracks = this.permissionService.hasPermissionSync(Perm.Hash.READ);
 
     this.loadData();
+
+    const themeSubscription = this.themeService.theme$.subscribe((theme) => {
+      this.isDarkMode = (theme ?? this.themeService.current) === 'dark';
+    });
+    this.subscriptions.push(themeSubscription);
+
     // Start auto-refresh if enabled.
 
     if (this.autoRefreshService.refreshPage) {
@@ -235,8 +238,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.AGENTS_COUNT, params).pipe(
       map((response: ResponseWrapper) => {
-        this.totalAgents = response.meta.total_count;
-        this.activeAgents = response.meta.count;
+        this.totalAgents = response.meta.total_count ?? 0;
+        this.activeAgents = response.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch agents:', err);
@@ -247,6 +250,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Fetches total and completed tasks count.
+   * Archived tasks are excluded.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getTasks$(): Observable<void> {
@@ -259,19 +263,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     const paramsCompletedTasks = new RequestParamBuilder()
       .addInclude('tasks')
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .create();
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
-        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total tasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
-        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed tasks:', err);
           return of(undefined);
@@ -290,22 +295,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       .create();
 
     const paramsCompletedSupertasks = new RequestParamBuilder()
-      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
-      .addInclude('tasks')
       .create();
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total supertasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed supertasks:', err);
           return of(undefined);
@@ -326,7 +329,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.HASHES_COUNT, params).pipe(
       map((res: ResponseWrapper) => {
-        this.totalCracks = res.meta.count;
+        this.totalCracks = res.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch cracks count:', err);
@@ -348,10 +351,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.HASHES, params).pipe(
       map((res: ResponseWrapper) => {
-        const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-          data: res.data,
-          included: res.included
-        });
+        const hashes: JHash[] = new JsonAPISerializer().deserialize(res, zHashListResponse);
 
         const formattedDates: string[] = hashes.map((h) => formatUnixTimestamp(h.timeCracked, 'yyyy-MM-dd'));
         const dateCounts = this.countOccurrences(formattedDates);
@@ -383,8 +383,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param arr Array of strings (e.g., dates)
    * @returns Object with keys as strings and values as their counts
    */
-  private countOccurrences(arr: string[]): { [key: string]: number } {
-    return arr.reduce((counts, item) => {
+  private countOccurrences(arr: string[]): Record<string, number> {
+    return arr.reduce<Record<string, number>>((counts, item) => {
       counts[item] = (counts[item] || 0) + 1;
       return counts;
     }, {});

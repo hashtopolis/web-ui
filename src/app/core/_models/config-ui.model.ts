@@ -53,10 +53,12 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
-  start: number;
-  order: Sorting;
+  start?: number | string | undefined;
+  order?: Sorting | Sorting[] | undefined;
   page: number;
-  search: string | [];
+  search?: string | unknown[] | undefined;
+  before?: number | string | undefined;
+  index?: number | undefined;
 }
 
 /**
@@ -77,6 +79,8 @@ export interface UIConfig {
   refreshInterval: number;
 }
 
+export type UIConfigKeys = keyof UIConfig;
+
 /**
  * Interface definition for Sorting
  * @prop id         Column id
@@ -88,16 +92,16 @@ export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: string;
+  direction: 'asc' | 'desc' | '';
+  parent?: string | undefined;
 }
 
-export const uiConfigDefault: UIConfig = {
+const _uiConfigDefault = {
   layout: 'fixed',
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
     notificationsTable: {
-      start: undefined,
       page: 25,
       columns: [
         NotificationsTableCol.ID,
@@ -109,38 +113,35 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: NotificationsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     vouchersTable: {
-      start: undefined,
       page: 25,
       columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
         id: VouchersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     permissionsTable: {
-      start: undefined,
       page: 25,
       columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
-        id: PermissionsTableCol.ID,
-        dataKey: '',
+        id: PermissionsTableCol.NAME,
+        dataKey: 'name',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     cracksTable: {
-      start: undefined,
       page: 25,
       columns: [
         CracksTableCol.FOUND,
@@ -152,15 +153,14 @@ export const uiConfigDefault: UIConfig = {
         CracksTableCol.TYPE
       ],
       order: {
-        id: CracksTableCol.ID,
-        dataKey: '',
+        id: CracksTableCol.FOUND,
+        dataKey: 'timeCracked',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
     agentsTable: {
-      start: undefined,
       page: 25,
       columns: [
         AgentsTableCol.ID,
@@ -173,14 +173,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     agentErrorTable: {
-      start: undefined,
       page: 25,
       columns: [
         AgentErrorTableCol.ID,
@@ -191,15 +190,14 @@ export const uiConfigDefault: UIConfig = {
         AgentErrorTableCol.MESSAGE
       ],
       order: {
-        id: AgentErrorTableCol.ID,
-        dataKey: '',
+        id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
     agentStatusTable: {
-      start: undefined,
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
@@ -215,14 +213,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsStatusTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     assignedAgentsTable: {
-      start: undefined,
       page: 25,
       columns: [
         TasksAgentsTableCol.ID,
@@ -237,14 +234,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: TasksAgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     chunksTable: {
-      start: undefined,
       page: 25,
       columns: [
         ChunksTableCol.ID,
@@ -259,14 +255,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: ChunksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     hashlistsTable: {
-      start: undefined,
       page: 25,
       columns: [
         HashlistsTableCol.ID,
@@ -278,14 +273,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     hashlistsInShTable: {
-      start: undefined,
       page: 25,
       columns: [
         HashlistsTableCol.ID,
@@ -296,14 +290,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     superHashlistsTable: {
-      start: undefined,
       page: 25,
       columns: [
         SuperHashlistsTableCol.ID,
@@ -314,14 +307,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: SuperHashlistsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     hashtypesTable: {
-      start: undefined,
       page: 25,
       columns: [
         HashtypesTableCol.HASHTYPE,
@@ -331,14 +323,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HashtypesTableCol.HASHTYPE,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     filesTable: {
-      start: undefined,
       page: 25,
       columns: [
         FilesTableCol.ID,
@@ -349,14 +340,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     filesWordlistTable: {
-      start: undefined,
       page: 25,
       columns: [
         FilesTableCol.ID,
@@ -367,14 +357,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     filesRuleTable: {
-      start: undefined,
       page: 25,
       columns: [
         FilesTableCol.ID,
@@ -385,14 +374,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     filesOtherTable: {
-      start: undefined,
       page: 25,
       columns: [
         FilesTableCol.ID,
@@ -403,7 +391,7 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -415,50 +403,46 @@ export const uiConfigDefault: UIConfig = {
       columns: [FilesTableCol.ID, FilesTableCol.NAME, FilesTableCol.SIZE, FilesTableCol.LINE_COUNT],
       order: {
         id: FilesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     filesAttackTable: {
-      start: undefined,
       page: 25,
       columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
         id: FilesAttackTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     crackersTable: {
-      start: undefined,
       page: 25,
       columns: [CrackersTableCol.ID, CrackersTableCol.TYPE, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     preprocessorsTable: {
-      start: undefined,
       page: 25,
       columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
       order: {
         id: PreprocessorsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     agentBinariesTable: {
-      start: undefined,
       page: 25,
       columns: [
         AgentBinariesTableCol.ID,
@@ -470,14 +454,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentBinariesTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     healthChecksTable: {
-      start: undefined,
       page: 25,
       columns: [
         HealthChecksTableCol.ID,
@@ -487,14 +470,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HealthChecksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     healthCheckAgentsTable: {
-      start: undefined,
       page: 25,
       columns: [
         HealthCheckAgentsTableCol.AGENT_ID,
@@ -506,14 +488,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HealthCheckAgentsTableCol.AGENT_ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     pretasksTable: {
-      start: undefined,
       page: 25,
       columns: [
         PretasksTableCol.ID,
@@ -526,14 +507,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: PretasksTableCol.PRIORITY,
-        dataKey: '',
+        dataKey: 'priority',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     tasksTable: {
-      start: undefined,
       page: 25,
       columns: [
         TaskTableCol.ID,
@@ -550,14 +530,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: TaskTableCol.PRIORITY,
-        dataKey: '',
+        dataKey: 'taskWrapperPriority',
         isSortable: true,
         direction: 'desc'
       },
       search: ''
     },
     tasksChunksTable: {
-      start: undefined,
       page: 25,
       columns: [
         TasksChunksTableCol.ID,
@@ -571,14 +550,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: TasksChunksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     tasksSupertasksTable: {
-      start: undefined,
       page: 25,
       columns: [
         TasksSupertasksDataSourceTableCol.ID,
@@ -591,26 +569,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: TasksSupertasksDataSourceTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     supertasksTable: {
-      start: undefined,
       page: 25,
       columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     supertasksPretasksTable: {
-      start: undefined,
       page: 25,
       columns: [
         SupertasksPretasksTableCol.ID,
@@ -620,21 +596,19 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: SupertasksPretasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     superTasksPretasksEditTable: {
-      start: undefined,
       page: 25,
       columns: [
         PretasksTableCol.ID,
         PretasksTableCol.NAME,
         PretasksTableCol.ATTACK_COMMAND,
         PretasksTableCol.ESTIMATED_KEYSPACE,
-        PretasksTableCol.ATTACK_RUNTIME,
         PretasksTableCol.FILES_TOTAL,
         PretasksTableCol.FILES_SIZE,
         PretasksTableCol.PRIORITY,
@@ -642,26 +616,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: PretasksTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     hashlistTasksTable: {
-      start: undefined,
       page: 25,
       columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
         id: TaskTableCol.ID,
-        dataKey: '',
+        dataKey: 'taskWrapperId',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     hashesTable: {
-      start: undefined,
       page: 25,
       columns: [
         HashesTableCol.HASHES,
@@ -673,14 +645,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: HashesTableCol.TIMECRACKED,
-        dataKey: '',
+        dataKey: 'timeCracked',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     searchHashTable: {
-      start: undefined,
       page: 25,
       columns: [
         SearchHashTableCol.HASH,
@@ -690,14 +661,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: SearchHashTableCol.HASH,
-        dataKey: '',
+        dataKey: 'hash',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     usersTable: {
-      start: undefined,
       page: 25,
       columns: [
         UsersTableCol.ID,
@@ -711,26 +681,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: UsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     logsTable: {
-      start: undefined,
       page: 25,
       columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
         id: LogsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     accessGroupsTable: {
-      start: undefined,
       page: 25,
       columns: [
         AccessGroupsTableCol.ID,
@@ -740,26 +708,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessGroupsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     accessGroupsUsersTable: {
-      start: undefined,
       page: 25,
       columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
         id: AccessGroupsUsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     accessPermissionGroupsUserTable: {
-      start: undefined,
       page: 50,
       columns: [
         AccessPermissionGroupsUserTableCol.NAME,
@@ -770,14 +736,13 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessPermissionGroupsUserTableCol.NAME,
-        dataKey: '',
+        dataKey: 'name',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     accessPermissionGroupsUsersTable: {
-      start: undefined,
       page: 25,
       columns: [
         AccessPermissionGroupsUsersTableCol.ID,
@@ -787,19 +752,18 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessPermissionGroupsUsersTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
       search: ''
     },
     accessGroupsAgentsTable: {
-      start: undefined,
       page: 25,
       columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
       order: {
         id: AccessGroupsAgentsTableCol.ID,
-        dataKey: '',
+        dataKey: 'id',
         isSortable: true,
         direction: 'asc'
       },
@@ -808,4 +772,7 @@ export const uiConfigDefault: UIConfig = {
   },
   refreshPage: false,
   refreshInterval: 10
-};
+} as const satisfies UIConfig;
+
+export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];
+export const uiConfigDefault: UIConfig = _uiConfigDefault;

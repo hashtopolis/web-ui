@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
@@ -30,10 +30,10 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './health-checks-table.component.html',
   standalone: false
 })
-export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
@@ -41,6 +41,13 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     this.dataSource = new HealthChecksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
+    this.dataSource.loadAll();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -53,7 +60,12 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -88,7 +100,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         id: HealthChecksTableCol.TYPE,
         dataKey: 'hashtypeDescription',
         render: (healthCheck: JHealthCheck) =>
-          healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
+          healthCheck.hashType ? `Brute Force (${this.sanitize(healthCheck.hashType.description)})` : '',
         isSortable: false,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
@@ -157,7 +169,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting health check Brute Force (${event.data.hashType.description}) ...`,
+          title: `Deleting health check Brute Force (${event.data.hashType?.description ?? ''}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
@@ -8,7 +9,12 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class CrackersComponent {
-  constructor(private titleService: AutoTitleService) {
+  protected showCreateButton = false;
+  constructor(
+    private titleService: AutoTitleService,
+    private crackerBinaryService: CrackerBinaryRoleService
+  ) {
     this.titleService.set(['Show Crackers']);
+    this.showCreateButton = this.crackerBinaryService.hasRole('create');
   }
 }

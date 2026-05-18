@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -28,11 +28,11 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './super-hashlists-table.component.html',
   standalone: false
 })
-export class SuperHashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class SuperHashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
@@ -41,6 +41,12 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -52,7 +58,12 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -74,7 +85,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (superHashlist: JHashlist) => superHashlist.id,
         export: async (superHashlist: JHashlist) => superHashlist.id + ''
       },
       {
@@ -97,15 +107,14 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: false,
-        render: (hashlist: JHashlist) => hashlist.hashTypeDescription,
-        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
+        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription ?? ''
       },
       {
         id: SuperHashlistsTableCol.HASHLISTS,
         dataKey: 'hashlists',
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
-        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
+        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription ?? ''
       }
     ];
   }
@@ -155,7 +164,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType.description}) ...`,
+          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType?.description}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note: This action cannot be undone.`,
           warn: true,

@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -23,17 +23,19 @@ import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-hashlists-table',
   templateUrl: './hashlists-table.component.html',
   standalone: false
 })
-export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
+  private viewReady = false;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -41,10 +43,19 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+
     this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
+
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.viewReady = true;
     this.dataSource.loadAll();
   }
 
@@ -57,13 +68,24 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+
   handleBackendSqlFilter(event: string) {
+    // Clear any previous filter errors when starting a new filter
+    if (this.table) {
+      this.table.clearFilterError();
+    }
+
     if (event && event.trim().length > 0) {
       this.filter(event);
     } else {
@@ -79,7 +101,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (hashlist: JHashlist) => hashlist.id,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
@@ -101,7 +122,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
-        render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),
+        routerLink: (hashlist: JHashlist) => this.renderCrackedHashesLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, true)
       },
@@ -109,8 +130,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
       }
     ];
 
@@ -120,8 +141,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'hashTypeId',
         isSearchable: true,
         isSortable: false,
-        render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
-        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
+        render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription ?? ''
       });
     }
 
@@ -228,7 +249,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.dataSource.reset(true);
     this.dataSource.setIsArchived(isArchived);
+    this.dataSource.loadAll();
   }
 
   private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
@@ -299,7 +322,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }
@@ -362,6 +385,23 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       links.push({
         routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id],
         label: hashlist.hashCount.toLocaleString()
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Show count of cracked hashes its percentage value
+   * @param hashlist - hashlist object to show count for
+   * @return observable array containing the link to render
+   * @private
+   */
+  private renderCrackedHashesLink(hashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (hashlist) {
+      links.push({
+        routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id + '?cracked'],
+        label: `${hashlist.cracked} (${formatPercentage(hashlist.cracked, hashlist.hashCount)})`
       });
     }
     return of(links);

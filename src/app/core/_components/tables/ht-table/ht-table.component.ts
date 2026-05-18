@@ -10,16 +10,17 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -32,10 +33,13 @@ import {
   COL_ROW_ACTION,
   COL_SELECT,
   CheckboxChangeEvent,
+  CheckboxColumnType,
   CheckboxFiles,
+  ColumnDefId,
   DataType,
   HTTableColumn,
-  HTTableEditable
+  HTTableEditable,
+  SortingColumn
 } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
@@ -91,10 +95,14 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
-  /** The list of column names to be displayed in the table. */
-  displayedColumns: string[] = [];
-  selectedFilterColumn: string = '_id';
+export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
+  dialog = inject(MatDialog);
+  private cd = inject(ChangeDetectorRef);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+
+  /** Stringified column enum IDs for mat-table binding, built by {@link setDisplayedColumns}. */
+  displayedColumns: ColumnDefId[] = [];
+  selectedFilterColumn: HTTableColumn;
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -109,19 +117,19 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort, { static: true }) matSort: MatSort;
 
   /** Name of the table, used when storing user customizations */
-  @Input() name: string;
+  @Input() name: TableSettingsKey;
 
   /** All available column labels */
-  @Input() columnLabels: { [key: number]: string };
+  @Input() columnLabels: Record<number, string>;
 
   /** Data type displayed in the table, used to load relevant context menus */
   @Input() dataType: DataType;
 
-  /** Function used to filter table data. */
-  @Input() filterFn: (item: any, filterValue: string) => boolean;
+  /** Whether filtering is handled client-side (datasource) or sent to the backend. */
+  @Input() filterMode: 'client' | 'backend' = 'backend';
 
   /** The data source for the table. */
-  @Input() dataSource: BaseDataSource<any>;
+  @Input() dataSource: BaseDataSource<T>;
 
   /** Flag to enable or disable pagination. */
   @Input() isPageable = false;
@@ -139,7 +147,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() isCmdTask = false;
 
   /** Selected checkbox Cmd files */
-  @Input() isCmdFiles: CheckboxFiles;
+  @Input() isCmdFiles: CheckboxFiles | number[];
 
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
@@ -166,16 +174,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() defaultPageSize = this.paginationSizes[1];
 
   /** Default start page. */
-  @Input() defaultStartPage = undefined;
+  @Input() defaultStartPage: number | string | undefined = undefined;
 
   /** Default start page. */
-  @Input() defaultBeforePage = undefined;
+  @Input() defaultBeforePage: number | string | undefined = undefined;
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-
-  /** Default total items index */
-  @Input() defaultTotalItems = 0;
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
@@ -186,29 +191,24 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() supportsAutoRefresh = false;
 
   /** Flag to color a table row */
-  @Input() rowClass: (row: any) => string;
+  @Input() rowClass: ((row: T) => string) | undefined;
 
-  /** Event emitter for when the user triggers a row action */
-  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() rowActionClicked = new EventEmitter<ActionMenuEvent<T>>();
 
-  /** Event emitter for when the user triggers a bulk action */
-  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() bulkActionClicked = new EventEmitter<ActionMenuEvent<T[]>>();
 
-  /** Event emitter for when the user triggers an export action */
-  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() exportActionClicked = new EventEmitter<ActionMenuEvent<T[]>>();
 
-  /** Event emitter for when the user saves an editable input */
-  @Output() editableSaved: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
+  @Output() editableSaved = new EventEmitter<HTTableEditable<T>>();
 
-  /** Event emitter for when the user saves a checkbox */
-  @Output() editableCheckbox: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
+  @Output() editableCheckbox = new EventEmitter<HTTableEditable<T>>();
 
   /** Event emitter for checkbox attack */
   @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> = new EventEmitter();
 
   /** Event emitter for checkbox attack */
-  @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() temperatureInformationClicked: EventEmitter<void> = new EventEmitter();
+  @Output() selectedFilterColumnChanged: EventEmitter<HTTableColumn> = new EventEmitter();
   @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
   @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   @Output() linkClicked = new EventEmitter();
@@ -223,23 +223,18 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   filterQueryFormGroup = new FormGroup({
     textFilter: new FormControl('')
   });
-  constructor(
-    public dialog: MatDialog,
-    private cd: ChangeDetectorRef,
-    private storage: LocalStorageService<UIConfig>
-  ) {}
+  filterError: string | null = null;
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+    const tableSettings = this.uiSettings.getTableConfig(this.name);
 
-    if (!this.isDetailPage) {
-      this.defaultPageSize = tableSettings['page'];
-      this.defaultStartPage = tableSettings['start'];
-      this.defaultBeforePage = tableSettings['before'];
-      this.defaultIndex = tableSettings['index'];
-      this.defaultTotalItems = tableSettings['totalItems'];
+    if (!this.isDetailPage && tableSettings) {
+      this.defaultPageSize = tableSettings.page;
+      this.defaultStartPage = tableSettings.start;
+      this.defaultBeforePage = tableSettings.before;
+      this.defaultIndex = tableSettings.index ?? 0;
     }
 
     if (Array.isArray(displayedColumns)) {
@@ -251,15 +246,32 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initFilterableColumns();
     this.onFilterColumnChange();
   }
+  /**
+   * Builds the list of columns available in the filter column selector from tableColumns
+   * that have both a dataKey and isSearchable set. Defaults the active filter column to
+   * the second entry (index 1) when two or more searchable columns exist, otherwise the first.
+   */
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
-    if (this.filterableColumns.length > 0) {
-      this.selectedFilterColumn = this.filterableColumns[0]?.dataKey;
+    if (this.filterableColumns.length >= 2) {
+      this.selectedFilterColumn = this.filterableColumns[1];
+    } else if (this.filterableColumns.length > 0) {
+      this.selectedFilterColumn = this.filterableColumns[0];
     }
   }
-  // Handle filter column change
+  /**
+   * Called when the user changes the active filter column in the dropdown.
+   * Notifies parent components via selectedFilterColumnChanged and, in client mode,
+   * immediately re-applies the current filter value against the new column.
+   */
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
+    if (this.filterMode === 'client') {
+      const currentValue = this.filterQueryFormGroup.controls.textFilter.value;
+      if (currentValue) {
+        this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -273,25 +285,28 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // Get saved before page
       this.dataSource.pageBefore = this.defaultBeforePage;
       this.dataSource.index = this.defaultIndex;
-      this.dataSource.totalItems = this.defaultTotalItems;
-
-      this.dataSource.pageAfter = this.defaultStartPage;
-      // Get saved before page
-      this.dataSource.pageBefore = this.defaultBeforePage;
-      this.dataSource.index = this.defaultIndex;
-      this.dataSource.totalItems = this.defaultTotalItems;
+      // Note: totalItems is NOT restored from localStorage as it should always come from the API response
     }
 
     // Sorted header arrow and sorting initialization
-    this.dataSource.sortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    const viewInitSettings = this.uiSettings.getTableConfig(this.name);
+    this.dataSource.sortingColumn = viewInitSettings?.order as SortingColumn;
     if (!this.isDetailPage) {
       // Search item
-      this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
+      this.dataSource.filter = (viewInitSettings?.search as string) ?? '';
     }
     if (this.dataSource.sortingColumn) {
+      // Use the stored column `id` (stringified) for the matSort header id if present.
+      // This aligns the visual sort indicator (mat-sort-header) with the stored table settings
+      // while the backend request still uses `dataKey` for the actual sort param.
+      const sortId =
+        this.dataSource.sortingColumn.id !== undefined && this.dataSource.sortingColumn.id !== null
+          ? this.dataSource.sortingColumn.id + ''
+          : this.dataSource.sortingColumn.dataKey;
+
       this.matSort.sort({
-        id: this.dataSource.sortingColumn.id,
-        start: this.dataSource.sortingColumn.direction,
+        id: sortId,
+        start: this.dataSource.sortingColumn.direction as SortDirection,
         disableClear: false
       });
     }
@@ -301,18 +316,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         start: undefined,
         before: undefined,
         page: this.dataSource.pageSize, // Store the new page size
-        index: this.dataSource.index, //store the new table index
-        totalItems: this.dataSource.totalItems
+        index: this.dataSource.index //store the new table index
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(
-        this.dataSource.pageSize,
-        this.dataSource.totalItems,
-        undefined,
-        undefined,
-        0
-      );
+      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, null, null, 0);
     });
     this.subscriptions.add(sortSubscription);
   }
@@ -350,11 +358,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed().subscribe((selectedColumns: number[]) => {
+    dialogRef.afterClosed().subscribe((selectedColumns: string[]) => {
       if (selectedColumns) {
-        this.setDisplayedColumns(selectedColumns);
+        const numericColumns = selectedColumns.map(Number);
+        this.setDisplayedColumns(numericColumns);
         this.uiSettings.updateTableSettings(this.name, {
-          columns: selectedColumns
+          columns: numericColumns
         });
         this.cd.detectChanges();
       }
@@ -368,10 +377,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param {any} column - The column that was clicked for sorting.
    * @returns {void}
    */
-  onColumnHeaderClick(column: any): void {
-    const sorting = {
-      ...column,
-      direction: this.dataSource.sort['_direction']
+  onColumnHeaderClick(column: HTTableColumn): void {
+    const sorting: Sorting = {
+      id: column.id,
+      dataKey: column.dataKey ?? '',
+      isSortable: column.isSortable ?? false,
+      direction: this.dataSource.sort['_direction'],
+      ...(column.parent ? { parent: column.parent } : {})
     };
     this.dataSource.sortingColumn = sorting;
     if (!this.isDetailPage) {
@@ -379,11 +391,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         order: sorting
       });
     }
-    this.dataSource.reload();
+    if (this.filterMode === 'client') {
+      const currentValue = this.filterQueryFormGroup.controls.textFilter.value ?? '';
+      this.dataSource.applyClientFilter(currentValue, this.selectedFilterColumn);
+    } else {
+      this.dataSource.reload();
+    }
   }
 
-  private filterKeys(original: { [key: string]: string }, include: string[]): any {
-    const filteredObject: { [key: string]: string } = {};
+  private filterKeys(original: Record<string, string>, include: string[]): Record<string, string> {
+    const filteredObject: Record<string, string> = {};
 
     for (const attribute of include) {
       if (Object.prototype.hasOwnProperty.call(original, attribute)) {
@@ -394,16 +411,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     return filteredObject;
   }
 
-  rowAction(event: ActionMenuEvent<any>): void {
-    this.rowActionClicked.emit(event);
+  rowAction(event: ActionMenuEvent<BaseModel>): void {
+    this.rowActionClicked.emit(event as ActionMenuEvent<T>);
   }
 
-  bulkAction(event: ActionMenuEvent<any>): void {
-    this.bulkActionClicked.emit(event);
+  bulkAction(event: ActionMenuEvent<BaseModel>): void {
+    this.bulkActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
   }
 
-  exportAction(event: ActionMenuEvent<any>): void {
-    this.exportActionClicked.emit(event);
+  exportAction(event: ActionMenuEvent<BaseModel>): void {
+    this.exportActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
   }
 
   /**
@@ -418,7 +435,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
-      if (num < Object.keys(this.columnLabels).length) {
+      if (this.tableColumns.some((col) => col.id === num)) {
         this.displayedColumns.push(num + '');
       }
     }
@@ -429,62 +446,54 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Determines the position of the sorting arrow for the specified column.
-   * If the column is currently sorted, returns the position based on the saved sorting order.
-   * If the column is not sorted, returns null.
-   *
-   * @param {any} tableColumn - The column to determine the sorting arrow position for.
-   * @returns {'before' | 'after' | null} The position of the sorting arrow.
-   *   - 'before': The arrow should be displayed before the column label.
-   *   - 'after': The arrow should be displayed after the column label.
-   *   - null: No sorting arrow should be displayed for the column.
-   */
-  setColumnSorting(tableColumn: any): 'before' | 'after' {
-    if (this.dataSource.sortingColumn && this.dataSource.sortingColumn.id === tableColumn.id) {
-      return this.dataSource.sortingColumn.direction === 'asc' ? 'before' : 'after';
-    } else {
-      return null; // or set a default arrow position if no saved sorting
-    }
-  }
-
-  /**
-   * Applies a filter to the table based on user input.
-   */
-  /*   applyFilter() {
-    if (this.filterFn) {
-      this.dataSource.filterData(this.filterFn);
-      this.uiSettings.updateTableSettings(this.name, {
-        search: this.dataSource.filter
-      });
-    }
-  } */
   emitFilterValue(): void {
-    this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
+    this.filterError = null;
+    const value = this.filterQueryFormGroup.controls.textFilter.value ?? '';
+    if (this.filterMode === 'client') {
+      this.dataSource.applyClientFilter(value, this.selectedFilterColumn);
+    } else {
+      this.backendSqlFilter.emit(value);
+    }
   }
-  /**
-   * Clears a filter to the table based on user input.
-   */
-  /*   clearFilter() {
-    // Reset the filter function to a default that passes all items
-    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
 
-    // Reapply the default filter function
-    this.dataSource.filterData(defaultFilterFn);
-    this.dataSource.filter = '';
-    this.uiSettings.updateTableSettings(this.name, {
-      search: ''
-    });
-  } */
+  setFilterError(error: string): void {
+    // Parse error message - if it's about invalid integer, show user-friendly message
+    let displayError = error;
+    if (error && error.includes('not valid integer')) {
+      displayError = 'Only numeric values allowed';
+    } else if (error && error.includes('not valid')) {
+      displayError = 'Invalid filter value';
+    }
+
+    this.filterError = displayError;
+
+    // Mark the form control as invalid to trigger error display
+    const control = this.filterQueryFormGroup.get('textFilter');
+    if (control) {
+      control.setErrors({ filterError: displayError });
+      control.markAsTouched(); // Ensure the error is visible
+    }
+    this.cd.markForCheck();
+  }
+
+  clearFilterError(): void {
+    this.filterError = null;
+    // Clear the form control errors
+    const control = this.filterQueryFormGroup.get('textFilter');
+    if (control) {
+      control.setErrors(null);
+    }
+    this.cd.markForCheck();
+  }
 
   /**
    * Checks if a row is selected.
    *
    * @param row - The row to check.
    */
-  isSelected(row: any): boolean {
+  isSelected(row: T): boolean {
     if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
-      return this.isCmdFiles.includes(row._id);
+      return this.isCmdFiles.includes(row.id);
     } else {
       return this.dataSource.isSelected(row);
     }
@@ -523,7 +532,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *
    * @param row - The row to toggle.
    */
-  toggleSelect(row: any): void {
+  toggleSelect(row: T): void {
     if (this.isSelectable) {
       this.dataSource.toggleRow(row);
     }
@@ -536,7 +545,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param row - The data of the row.
    * @param type - The type of the column (CMD, main attack, or preprocessor).
    */
-  toggleAttack(event: MatCheckboxChange, row: any, type: string): void {
+  toggleAttack(event: MatCheckboxChange, row: BaseModel, type: CheckboxColumnType): void {
     // Handle the change event for the Cmd Attack checkbox
     const checked = event.checked;
 
@@ -555,15 +564,29 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
-    this.dataSource.reset(true);
-    this.dataSource.reload();
+    this.dataSource.reset(false);
+    const reloadSettings = this.uiSettings.getTableConfig(this.name);
+    if (reloadSettings) {
+      this.dataSource.pageSize = reloadSettings.page;
+      this.dataSource.pageAfter = reloadSettings.start;
+      this.dataSource.pageBefore = reloadSettings.before;
+      this.dataSource.index = reloadSettings.index ?? 0;
+    }
+    // Note: totalItems is NOT restored from localStorage as it should always come from the API response
+    this.dataSource.forceReload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
-    this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.filterQueryFormGroup.controls.textFilter.setValue('', { emitEvent: false });
   }
   clearSearchBox(): void {
-    this.filterQueryFormGroup.get('textFilter').setValue('');
+    this.filterQueryFormGroup.controls.textFilter.setValue('');
+    this.clearFilterError();
+    if (this.filterMode === 'client') {
+      this.dataSource.applyClientFilter('', null);
+    } else {
+      this.backendSqlFilter.emit('');
+    }
   }
   /**
    * Handles the page change event, including changes in page size and page index.
@@ -576,9 +599,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
-      pageBefore = undefined;
+      pageBefore = null;
     } else if (index < this.dataSource.index) {
-      pageAfter = undefined;
+      pageAfter = null;
     }
     if (event.pageSize !== this.dataSource.pageSize) {
       // TODO This code happens when user changes the page size, now we will just reset and
@@ -586,8 +609,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
       index = 0;
-      pageAfter = undefined;
-      pageBefore = undefined;
+      pageAfter = null;
+      pageBefore = null;
     } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
@@ -601,11 +624,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // only store table settings in local storage when it is not a detail page
     if (!this.isDetailPage) {
       this.uiSettings.updateTableSettings(this.name, {
-        start: pageAfter,
-        before: pageBefore,
+        start: pageAfter ?? undefined,
+        before: pageBefore ?? undefined,
         page: event.pageSize, // Store the new page size
-        index: index, //store the new table index
-        totalItems: this.dataSource.totalItems
+        index: index //store the new table index
       });
     }
 
@@ -617,11 +639,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataSource.reload();
   }
 
-  editableInputSaved(editable: HTTableEditable<any>): void {
-    this.editableSaved.emit(editable);
+  editableInputSaved(editable: HTTableEditable<BaseModel>): void {
+    this.editableSaved.emit(editable as HTTableEditable<T>);
   }
 
-  editableCheckboxSaved(editable: any): void {
-    this.editableCheckbox.emit(editable);
+  editableCheckboxSaved(editable: HTTableEditable<BaseModel>): void {
+    this.editableCheckbox.emit(editable as HTTableEditable<T>);
   }
 }

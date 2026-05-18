@@ -1,26 +1,34 @@
 import { Observable, catchError, finalize, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '@services/access/auth.service';
+import { AlertService } from '@services/shared/alert.service';
 import { LoadingService } from '@services/shared/loading.service';
 
 import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component';
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
-  constructor(
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private loadingService: LoadingService
-  ) {}
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private loadingService = inject(LoadingService);
+  private alertService = inject(AlertService);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // If request contains this header, don't show modal/snackbar for errors
+    const skipDialog: boolean = req.headers.has('X-Skip-Error-Dialog');
+
     this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(req, error)),
+      catchError((error: HttpErrorResponse) => {
+        if (skipDialog) {
+          return throwError(() => error);
+        }
+        return this.handleError(req, error);
+      }),
       finalize(() => this.loadingService.handleRequest())
     );
   }
@@ -36,6 +44,7 @@ export class HttpResInterceptor implements HttpInterceptor {
   private handleError(req: HttpRequest<unknown>, error: HttpErrorResponse): Observable<never> {
     let errmsg = '';
     const status = error?.status || 0;
+    let showAlert: boolean = false;
 
     if (error.status === 401) {
       errmsg = 'Invalid credentials. Please try again.';
@@ -45,8 +54,12 @@ export class HttpResInterceptor implements HttpInterceptor {
       } else {
         errmsg = `You don't have permissions. Please contact your Administrator.`;
       }
+      showAlert = true;
     } else if (error.status === 404 && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
+    } else if (error.status === 409 && req.url.includes('crackertypes')) {
+      errmsg = error.error.title;
+      showAlert = true;
     } else if (error.status === 0) {
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
         req.url
@@ -55,8 +68,15 @@ export class HttpResInterceptor implements HttpInterceptor {
       errmsg = error.error?.title || 'An unknown error occurred.';
     }
 
-    this.displayErrorModal(status, errmsg);
-    return throwError(() => new Error(errmsg));
+    if (showAlert) {
+      this.alertService.showErrorMessage(errmsg);
+    } else {
+      this.displayErrorModal(status, errmsg);
+    }
+
+    // Re-throw the original HttpErrorResponse so callers/components
+    // can inspect the status and perform routing (e.g. navigate to /not-found).
+    return throwError(() => error);
   }
 
   /**

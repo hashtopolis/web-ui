@@ -2,7 +2,7 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -10,23 +10,28 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
-/* eslint-disable @angular-eslint/component-selector */
 
 @Component({
   selector: 'logs-table',
   templateUrl: './logs-table.component.html',
   standalone: false
 })
-export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -38,7 +43,12 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -60,7 +70,6 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.id,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -75,7 +84,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'level',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        render: (log: JLog) => this.sanitize(log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()),
         export: async (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
@@ -83,7 +92,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'issuerId',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
+        render: (log: JLog) => this.sanitize(`${log.issuer}-ID-${log.issuerId}`),
         export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
       },
       {
@@ -91,14 +100,12 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'message',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) => log.message,
         export: async (log: JLog) => log.message
       }
     ];
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
     this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }

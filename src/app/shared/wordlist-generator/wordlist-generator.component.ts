@@ -1,6 +1,4 @@
-import { generateCandidates } from 'wordpolis';
-
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormArray, FormControl } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -10,6 +8,7 @@ import {
   GenerateWordListFormGroup
 } from '@src/app/shared/wordlist-generator/wordlist-generator.form';
 import { ui } from '@src/app/shared/wordlist-generator/wordlist-generator.ui';
+import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
 
 /**
  * Component for generating a wordlist based on user-provided parameters.
@@ -22,6 +21,9 @@ import { ui } from '@src/app/shared/wordlist-generator/wordlist-generator.ui';
   standalone: false
 })
 export class WordlistGeneratorComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private alert = inject(AlertService);
+
   /** Reactive form group for wordlist generation. */
   form: GenerateWordListFormGroup;
 
@@ -30,16 +32,6 @@ export class WordlistGeneratorComponent implements OnInit {
 
   /** UI text and configuration imported const in seperated ts file. */
   ui = ui;
-
-  /**
-   * Constructor.
-   * @param cdr ChangeDetectorRef for manual change detection on dynamic form updates.
-   * @param alert AlertService to display error messages to the user.
-   */
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private alert: AlertService
-  ) {}
 
   /**
    * Angular lifecycle hook.
@@ -60,16 +52,16 @@ export class WordlistGeneratorComponent implements OnInit {
    * Getter for the 'names' FormArray.
    * @returns {FormArray} The FormArray containing name controls.
    */
-  get names(): FormArray {
-    return this.form.get('names') as FormArray;
+  get names(): FormArray<FormControl<string>> {
+    return this.form.controls.names;
   }
 
   /**
    * Getter for the 'sparetext' FormArray.
    * @returns {FormArray} The FormArray containing attribute controls.
    */
-  get sparetext(): FormArray {
-    return this.form.get('sparetext') as FormArray;
+  get sparetext(): FormArray<FormControl<string>> {
+    return this.form.controls.sparetext;
   }
 
   /**
@@ -127,26 +119,29 @@ export class WordlistGeneratorComponent implements OnInit {
       } = formData;
 
       const options = {
-        useSpecialchars: useSpecCharacters,
-        usePermutations: usePermutations,
-        isCapitalize: isCapitalize,
-        isAlternated: isAlternated,
-        isUppercase: isUppercase,
-        isLowercase: isLowercase,
-        isSimilarVowels: isSimilarVowels,
-        isSimilarConsonant: isSimilarConsonant,
-        isSimilarSpecialchars: isSimilarSpecialChars,
-        filename: filename
+        useSpecialchars: useSpecCharacters ?? false,
+        usePermutations: usePermutations ?? false,
+        isCapitalize: isCapitalize ?? false,
+        isAlternated: isAlternated ?? false,
+        isUppercase: isUppercase ?? false,
+        isLowercase: isLowercase ?? false,
+        isSimilarVowels: isSimilarVowels ?? false,
+        isSimilarConsonant: isSimilarConsonant ?? false,
+        isSimilarSpecialchars: isSimilarSpecialChars ?? false,
+        filename: filename ?? ''
       };
 
       try {
-        generateCandidates(names, specialdates, sparetext, options);
+        Wordpolis.generateCandidates(names, specialdates, sparetext, options);
       } catch (error) {
         console.error(ui.submitError, error);
         this.alert.showErrorMessage(ui.submitError);
       } finally {
         this.submitted = false;
       }
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 }

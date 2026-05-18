@@ -4,6 +4,8 @@ import { unparse } from 'papaparse';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Injectable } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 import { ExcelColumn } from '@services/export/export.model';
 import { ExportUtil } from '@services/export/export.util';
 import { AlertService } from '@services/shared/alert.service';
@@ -46,11 +48,12 @@ export class ExportService {
    * @private
    */
   private saveCsvFile(inputString: string, fileName: string): void {
-    const byteArray = new Uint8Array(inputString.length);
-    for (let i = 0; i < inputString.length; i++) {
-      byteArray[i] = inputString.codePointAt(i);
-    }
-    this.exportUtil.download(byteArray, `${fileName}.csv`, 'text/csv');
+    // Encode the string as UTF-8 bytes
+    const encoder = new TextEncoder();
+    const byteArray = encoder.encode(inputString); // Uint8Array
+
+    // Pass the underlying ArrayBuffer to match the expected type
+    this.exportUtil.download(byteArray.buffer, `${fileName}.csv`, 'text/csv');
   }
 
   /**
@@ -61,7 +64,7 @@ export class ExportService {
    * @param rawData - The data to export.
    * @param columnLabels - column labels for header row
    */
-  async toExcel<T>(
+  async toExcel<T extends BaseModel>(
     fileName: string,
     tableColumns: HTTableColumn[],
     rawData: T[],
@@ -94,7 +97,7 @@ export class ExportService {
    * @param rawData - The data to export.
    * @param columnLabels - column labels for header row
    */
-  async toCsv<T>(
+  async toCsv<T extends BaseModel>(
     fileName: string,
     tableColumns: HTTableColumn[],
     rawData: T[],
@@ -116,7 +119,7 @@ export class ExportService {
    * @param rawData - The data to export.
    * @param columnLabels - column labels for header row
    */
-  async toClipboard<T>(
+  async toClipboard<T extends BaseModel>(
     tableColumns: HTTableColumn[],
     rawData: T[],
     columnLabels: { [key: number]: string }
@@ -134,7 +137,7 @@ export class ExportService {
    * @param columnLabels - column labels
    * @param fileName - name of file to export data to
    */
-  handleExportAction<T>(
+  handleExportAction<T extends BaseModel>(
     event: ActionMenuEvent<T[]>,
     tableColumns: HTTableColumn[],
     columnLabels: { [key: number]: string },

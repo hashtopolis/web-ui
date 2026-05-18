@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JNotification } from '@models/notification.model';
 
@@ -29,10 +29,10 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './notifications-table.component.html',
   standalone: false
 })
-export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
@@ -40,6 +40,11 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     this.dataSource = new NotificationsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new NotificationsContextMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -52,7 +57,12 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -74,7 +84,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.id,
         export: async (notification: JNotification) => notification.id + ''
       },
       {
@@ -90,7 +99,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'action',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.action,
         export: async (notification: JNotification) => notification.action
       },
       {
@@ -105,7 +113,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'notification',
         isSortable: true,
         isSearchable: true,
-        render: (notification: JNotification) => notification.notification,
         export: async (notification: JNotification) => notification.notification
       },
       {
@@ -113,7 +120,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'receiver',
         isSearchable: true,
         isSortable: true,
-        render: (notification: JNotification) => notification.receiver,
         export: async (notification: JNotification) => notification.receiver
       }
     ];
@@ -267,14 +273,16 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     );
   }
 
-  private rowActionEdit(notification: JNotification): void {
-    this.router.navigate(['/account', 'notifications', notification.id, 'edit']);
-  }
-
   private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    switch (notification.action) {
+    if (!notification.objectId) {
+      // Plain text placeholder, no link
+      links.push({ label: 'N/A', routerLink: null });
+      return of(links);
+    }
+
+    switch (notification.notification) {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:

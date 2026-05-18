@@ -1,21 +1,30 @@
+import { z } from 'zod';
+
+import { Type } from '@angular/core';
+import { CanActivate, CanActivateFn, CanDeactivate, CanDeactivateFn } from '@angular/router';
+
 import { ServiceConfig } from '@services/main.config';
+import { RoleService } from '@services/roles/base/role.service';
 
 /**
  * Interface definition for route data
  */
 export interface RouteData {
   kind?: string;
-  type?: string;
+  type?: 'create' | 'edit' | 'helper';
   serviceConfig?: ServiceConfig;
-  permission?: string;
+  responseSchema?: z.ZodTypeAny;
   breadcrumb?: string;
+  roleName?: string;
+  roleServiceClass?: Type<RoleService>;
 }
 
 export interface MyRoute {
   path: string;
-  component?: any; // Option as first path is empty
+  component?: Type<unknown>; // Option as first path is empty
   data?: RouteData;
-  canActivate?: any[]; // Replace 'any[]' with the actual canActivate guards
-  canDeactivate?: any[]; // Replace 'any[]' with the actual canDeactivate guards
+  // Allow either functional guards or class guards
+  canActivate?: Array<CanActivateFn | Type<CanActivate>>;
+  canDeactivate?: Array<CanDeactivateFn<unknown> | Type<CanDeactivate<unknown>>>;
   children?: MyRoute[];
 }

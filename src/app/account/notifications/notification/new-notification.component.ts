@@ -1,23 +1,41 @@
+import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { JAgent } from '@models/agent.model';
-import { BaseModel } from '@models/base.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { Filter } from '@src/app/account/notifications/notifications.component';
-import { ACTION, ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
+import {
+  ACTION,
+  AGENT_ACTIONS,
+  HASHLIST_ACTIONS,
+  LOG_ACTIONS,
+  NOTIFARRAY,
+  TASK_ACTIONS,
+  USER_ACTIONS
+} from '@src/app/core/_constants/notifications.config';
+
+export interface NewNotificationForm {
+  action: FormControl<string>;
+  actionFilter: FormControl<string>;
+  notification: FormControl<string>;
+  receiver: FormControl<string>;
+  isActive: FormControl<boolean>;
+}
 
 @Component({
   selector: 'app-new-notification',
@@ -25,26 +43,30 @@ import { ACTION, ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifi
   standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private roleService = inject(NotificationsRoleService);
+
   static readonly SUBMITLABEL = 'Save Notification';
   static readonly SUBTITLE = 'Create Notification';
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
 
-  triggerAction: string;
-  form: FormGroup;
+  form: FormGroup<NewNotificationForm>;
   filters: Filter[];
   active = false;
-  allowedActions = ACTIONARRAY.map((action) => ({
-    id: action,
-    name: action
-  }));
+  actionFilterIsRequired = false;
+  allowedActions: Array<{ id: string; name: string }> = [];
+
   maxResults: string | number;
   notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
-  actionToServiceMap = {
+  actionToServiceMap: Record<string, { URL: string; RESOURCE: string } | null> = {
     [ACTION.AGENT_ERROR]: SERV.AGENTS,
     [ACTION.OWN_AGENT_ERROR]: SERV.AGENTS,
     [ACTION.DELETE_AGENT]: SERV.AGENTS,
@@ -63,12 +85,20 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     [ACTION.LOG_ERROR]: null
   };
 
-  constructor(
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  actionsWithFilters: readonly string[] = [
+    ACTION.AGENT_ERROR,
+    ACTION.OWN_AGENT_ERROR,
+    ACTION.DELETE_AGENT,
+    ACTION.TASK_COMPLETE,
+    ACTION.DELETE_TASK,
+    ACTION.DELETE_HASHLIST,
+    ACTION.HASHLIST_ALL_CRACKED,
+    ACTION.HASHLIST_CRACKED_HASH,
+    ACTION.USER_DELETED,
+    ACTION.USER_LOGIN_FAILED
+  ];
+
+  constructor() {
     this.titleService.set(['New Notification']);
   }
 
@@ -76,6 +106,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Initializes the form for creating a new notification.
    */
   ngOnInit(): void {
+    this.buildAllowedActions();
     this.createForm();
   }
 
@@ -93,16 +124,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Initializes form controls with default values and validators.
    */
   createForm(): void {
-    this.form = new FormGroup({
-      action: new FormControl('', [Validators.required]),
-      actionFilter: new FormControl(String('')),
-      notification: new FormControl('ChatBot', [Validators.required]),
-      receiver: new FormControl('', [Validators.required]),
-      isActive: new FormControl(true)
+    this.form = new FormGroup<NewNotificationForm>({
+      action: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      actionFilter: new FormControl<string>('', { nonNullable: true }),
+      notification: new FormControl<string>('ChatBot', { nonNullable: true, validators: [Validators.required] }),
+      receiver: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      isActive: new FormControl<boolean>(true, { nonNullable: true })
     });
 
     //subscribe to changes to handle select trigger actions
-    this.form.get('action').valueChanges.subscribe((newvalue) => {
+    this.form.controls.action.valueChanges.subscribe((newvalue: string) => {
       this.changeAction(newvalue);
     });
   }
@@ -114,46 +145,61 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * @param {string} action - The selected action.
    */
   changeAction(action: string): void {
+    // only enable filter if action requires it
+    if (!this.actionsWithFilters.includes(action)) {
+      this.active = false;
+      this.filters = [];
+      this.actionFilterIsRequired = false;
+      this.resetActionFilter();
+      return;
+    }
+
     const path = this.actionToServiceMap[action];
     if (path) {
       this.active = true;
+      this.actionFilterIsRequired = true;
+
+      // set required validator now that control is visible
+      const ctrl = this.form.controls.actionFilter;
+      ctrl.setValidators([Validators.required]);
+      ctrl.updateValueAndValidity();
 
       this.subscriptions.push(
         this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
-          const resource = new JsonAPISerializer().deserialize<BaseModel[]>({
-            data: response.data,
-            included: response.included
-          });
-          const _filters: Filter[] = [];
-          for (let i = 0; i < resource.length; i++) {
-            if (path === SERV.AGENTS) {
-              const agent = resource[i] as JAgent;
-              _filters.push({
-                id: agent.id,
-                name: agent.agentName
-              });
-            }
-            if (path === SERV.TASKS) {
-              const task = resource[i] as JTask;
-              _filters.push({
-                id: task.id,
-                name: task.taskName
-              });
-            }
-            if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const hashlist = resource[i] as JHashlist;
-              _filters.push({
-                id: hashlist.id,
-                name: hashlist.name
-              });
-            }
+          let _filters: Filter[] = [];
+
+          if (path === SERV.AGENTS) {
+            const agents = new JsonAPISerializer().deserialize(response, zAgentListResponse) as ThinJAgent[];
+            _filters = agents.map((a) => ({ id: a.id, name: a.agentName }));
+          } else if (path === SERV.TASKS) {
+            const tasks: JTask[] = new JsonAPISerializer().deserialize(response, zTaskListResponse);
+            _filters = tasks.map((t) => ({ id: t.id, name: t.taskName ?? '' }));
+          } else if (path === SERV.USERS) {
+            const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
+            _filters = users.map((u) => ({ id: u.id, name: u.name }));
+          } else if (path === SERV.HASHLISTS) {
+            const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+            _filters = hashlists.map((h) => ({ id: h.id, name: h.name }));
           }
+
           this.filters = _filters;
         })
       );
     } else {
       this.active = false;
+      this.actionFilterIsRequired = false;
+      this.resetActionFilter();
     }
+  }
+
+  /**
+   * Resets the action filter control by clearing validators, resetting the value, and updating validity.
+   */
+  resetActionFilter(): void {
+    const ctrl = this.form.controls.actionFilter;
+    ctrl.clearValidators();
+    ctrl.setValue('');
+    ctrl.updateValueAndValidity();
   }
 
   /**
@@ -171,17 +217,48 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     this.form.patchValue({
-      actionFilter: String(this.form.get('actionFilter').value)
+      actionFilter: String(this.form.controls.actionFilter.value)
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;
       this.subscriptions.push(
-        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-          this.alert.showSuccessMessage('New Notification created');
-          this.isCreatingLoading = false;
-          this.router.navigate(['/account/notifications']);
+        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('New Notification created');
+            this.isCreatingLoading = false;
+            this.router.navigate(['/account/notifications']);
+          },
+          error: (err) => {
+            console.error('Error creating new notification', err);
+            this.isCreatingLoading = false;
+          }
         })
       );
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
+    }
+  }
+
+  /**
+   * Build action drop down entries depending on user roles
+   * @private
+   */
+  private buildAllowedActions(): void {
+    if (this.roleService.hasRole('createAgentNotification')) {
+      this.allowedActions.push(...AGENT_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createTaskNotification')) {
+      this.allowedActions.push(...TASK_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createHashListNotification')) {
+      this.allowedActions.push(...HASHLIST_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createUserNotification')) {
+      this.allowedActions.push(...USER_ACTIONS.map((action) => ({ id: action, name: action })));
+    }
+    if (this.roleService.hasRole('createLogNotification')) {
+      this.allowedActions.push(...LOG_ACTIONS.map((action) => ({ id: action, name: action })));
     }
   }
 }

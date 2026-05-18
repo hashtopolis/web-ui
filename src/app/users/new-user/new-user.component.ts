@@ -1,13 +1,15 @@
 /**
  * This module contains the component to create a new user
  */
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -25,18 +27,14 @@ import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.fo
   standalone: false
 })
 export class NewUserComponent implements OnInit {
-  newUserForm: FormGroup<NewUserForm>;
-  selectGlobalPermissionGroups: SelectOption[];
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+
+  newUserForm: FormGroup<NewUserForm> = getNewUserForm();
+  selectGlobalPermissionGroups: SelectOption<GlobalPermissionGroupId>[];
   loading = false;
   loadingPermissionGroups: boolean = false;
-
-  constructor(
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService
-  ) {
-    this.newUserForm = getNewUserForm();
-  }
 
   ngOnInit(): void {
     void this.loadPermissionGroups();
@@ -50,13 +48,12 @@ export class NewUserComponent implements OnInit {
     try {
       const response = await firstValueFrom<ResponseWrapper>(this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS));
 
-      const permissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
-        data: response.data,
-        included: response.included
-      });
+      const permissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
+        response,
+        zGlobalPermissionGroupListResponse
+      );
       this.selectGlobalPermissionGroups = transformSelectOptions(permissionGroups, DEFAULT_FIELD_MAPPING);
-    } catch (err) {
-      console.error('Failed to fetch permission groups:', err);
+    } catch {
       this.alert.showErrorMessage('Error fetching permission groups');
     } finally {
       this.loadingPermissionGroups = false;
@@ -67,7 +64,11 @@ export class NewUserComponent implements OnInit {
    * Create new user upon form submission and redirect to user table page on success
    */
   async onSubmit() {
-    if (this.newUserForm.invalid) return;
+    if (this.newUserForm.invalid) {
+      this.newUserForm.markAllAsTouched();
+      this.newUserForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     try {
@@ -75,15 +76,15 @@ export class NewUserComponent implements OnInit {
         name: this.newUserForm.value.username,
         email: this.newUserForm.value.email,
         globalPermissionGroupId: this.newUserForm.value.globalPermissionGroupId,
-        isValid: this.newUserForm.value.isValid
+        isValid: this.newUserForm.value.isValid,
+        sessionLifetime: 3600
       };
 
       await firstValueFrom(this.gs.create(SERV.USERS, payload));
       this.alert.showSuccessMessage('User created');
       void this.router.navigate(['users/all-users']);
-    } catch (err) {
+    } catch {
       const msg = 'Error creating user';
-      console.error(msg, err);
       this.alert.showErrorMessage(msg);
     } finally {
       this.loading = false;

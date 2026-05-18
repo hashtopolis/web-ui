@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgentErrors } from '@models/agent-errors.model';
@@ -30,11 +30,11 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './agent-error-table.component.html',
   standalone: false
 })
-export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   ngOnDestroy(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
@@ -48,19 +48,25 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       this.dataSource.setAgentId(this.agentId);
     }
     this.contextMenuService = new AgentErrorContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AgentErrorTableCol.ID,
         dataKey: 'id',
         isSearchable: true,
-        render: (agentError: JAgentErrors) => agentError.id.toString(),
         export: async (agentError: JAgentErrors) => agentError.id.toString()
       },
       {
         id: AgentErrorTableCol.TIME,
+        dataKey: 'time',
+        isSortable: true,
         render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError),
         export: async (agentError: JAgentErrors) => formatUnixTimestamp(agentError.time, this.dateFormat)
       },
@@ -75,7 +81,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         id: AgentErrorTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
-        export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
+        export: async (agentError: JAgentErrors) => agentError.task?.taskName || 'N/A'
       },
       {
         id: AgentErrorTableCol.CHUNK,
@@ -104,7 +110,12 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -200,9 +211,9 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(error: JAgentErrors): void {
+  private rowActionDelete(errors: JAgentErrors[]): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENT_ERRORS, error[0].id).subscribe(() => {
+      this.gs.delete(SERV.AGENT_ERRORS, errors[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted error!');
         this.dataSource.reload();
       })

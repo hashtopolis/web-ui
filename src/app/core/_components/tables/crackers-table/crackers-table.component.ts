@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 
@@ -25,10 +25,10 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './crackers-table.component.html',
   standalone: false
 })
-export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -36,6 +36,11 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     this.dataSource = new CrackersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new CrackersContextMenuService(this.permissionService).addContextMenu();
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -47,7 +52,12 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -66,10 +76,9 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     return [
       {
         id: CrackersTableCol.ID,
-        dataKey: 'crackerBinaryTypeId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (cracker: JCrackerBinaryType) => cracker.id,
         export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
@@ -77,7 +86,6 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'typeName',
         isSortable: true,
         isSearchable: true,
-        render: (cracker: JCrackerBinaryType) => cracker.typeName,
         export: async (cracker: JCrackerBinaryType) => cracker.typeName
       },
       {

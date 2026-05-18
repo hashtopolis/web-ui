@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { AgentId, TaskId } from '@models/id.types';
 
 /**
  * Interface for cracking speed statistic
@@ -10,9 +11,9 @@ import { BaseModel } from '@models/base.model';
  * @prop time     Timestamp
  */
 export interface SpeedStat extends BaseModel {
-  speedId: number;
-  agentId: number;
-  taskId: number;
+  speedId?: number;
+  agentId: AgentId;
+  taskId: TaskId;
   speed: number;
   time: number;
 }

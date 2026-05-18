@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAccessGroup } from '@models/access-group.model';
 
@@ -28,10 +28,10 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './access-groups-table.component.html',
   standalone: false
 })
-export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
@@ -39,6 +39,12 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     this.dataSource = new AccessGroupsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AccessGroupsContextMenuService(this.permissionService).addContextMenu();
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -51,7 +57,12 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -72,7 +83,6 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (accessGroup: JAccessGroup) => accessGroup.id,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
@@ -88,18 +98,20 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'nusers',
         isSortable: false,
         render: (accessGroup: JAccessGroup) => {
-          return accessGroup.userMembers.length.toString();
+          return accessGroup.userMembers ? accessGroup.userMembers.length.toString() : '-';
         },
-        export: async (accessGroup: JAccessGroup) => accessGroup.userMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.userMembers ? accessGroup.userMembers.length.toString() : '-'
       },
       {
         id: AccessGroupsTableCol.NAGENTS,
         dataKey: 'nagents',
         isSortable: false,
         render: (accessGroup: JAccessGroup) => {
-          return accessGroup.agentMembers.length.toString();
+          return accessGroup.agentMembers ? accessGroup.agentMembers.length.toString() : '-';
         },
-        export: async (accessGroup: JAccessGroup) => accessGroup.agentMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.agentMembers ? accessGroup.agentMembers.length.toString() : '-'
       }
     ];
   }
@@ -213,7 +225,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
 
   private rowActionEdit(accessGroup: JAccessGroup): void {
     this.renderAccessGroupLink(accessGroup).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 }

@@ -1,5 +1,15 @@
-import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import {
+  Sorting,
+  TableConfig,
+  TableSettingsKey,
+  UIConfig,
+  UIConfigKeys,
+  uiConfigDefault
+} from '@models/config-ui.model';
+import { uiConfigSchema } from '@models/config-ui.schema';
+
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
 
 /**
@@ -21,10 +31,7 @@ export class UISettingsUtilityClass {
     private storage: LocalStorageService<UIConfig>,
     private themeService?: ThemeService
   ) {
-    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY);
-    if (!this.uiConfig) {
-      this.uiConfig = uiConfigDefault;
-    }
+    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
     if (this.themeService && this.uiConfig.theme) {
       this.themeService.theme = this.uiConfig.theme;
     }
@@ -39,54 +46,57 @@ export class UISettingsUtilityClass {
    * @param {number} [settings.start] - The start index to set.
    * @param {number[]} [settings.columns] - An array of column numbers to set.
    * @param {number[]} [settings.search] - An array of column numbers to set.
-   * @param {any[]} [settings.order] - An array defining the order of columns.
+   * @param {Sorting[]} [settings.order] - An array defining the order of columns.
    */
   updateTableSettings(
-    key: string,
+    key: TableSettingsKey,
     settings: {
       page?: number;
       index?: number;
-      start?: number;
-      before?: number;
+      start?: number | string | undefined;
+      before?: number | string | undefined;
       totalItems?: number;
       columns?: number[];
-      order?: any[];
+      order?: Sorting | Sorting[];
       search?: string;
     }
   ): void {
     try {
       const existingTableSettings = this.uiConfig.tableSettings[key];
 
-      if (existingTableSettings) {
+      if (existingTableSettings && !Array.isArray(existingTableSettings)) {
         // Update the settings based on the provided parameters
         if (settings.page !== undefined) {
-          existingTableSettings['page'] = settings.page;
+          existingTableSettings.page = settings.page;
         }
-        existingTableSettings['start'] = settings.start;
-        existingTableSettings['before'] = settings.before;
+        existingTableSettings.start = settings.start;
+        existingTableSettings.before = settings.before;
         if (settings.index !== undefined) {
-          existingTableSettings['index'] = settings.index;
+          existingTableSettings.index = settings.index;
         }
         if (settings.columns !== undefined) {
           // Save columns
-          existingTableSettings['columns'] = settings.columns;
+          existingTableSettings.columns = settings.columns;
           // Check if the value saved in order is visible; if not, remove it
-          if (existingTableSettings['order'] !== undefined) {
-            const orderValue: number = existingTableSettings['order']['id'];
-            const numericColumns: number[] = existingTableSettings['columns'].map(Number);
+          if (existingTableSettings.order !== undefined) {
+            const order = Array.isArray(existingTableSettings.order)
+              ? existingTableSettings.order[0]
+              : existingTableSettings.order;
+            const orderValue: number = order?.id ?? -1;
+            const numericColumns: number[] = existingTableSettings.columns.map(Number);
             if (!numericColumns.includes(orderValue)) {
-              existingTableSettings['order'] = undefined;
+              existingTableSettings.order = undefined;
             }
           }
         }
         if (settings.order !== undefined) {
-          existingTableSettings['order'] = settings.order;
+          existingTableSettings.order = settings.order;
         }
         if (settings.search !== undefined) {
-          existingTableSettings['search'] = settings.search;
+          existingTableSettings.search = settings.search;
         }
 
-        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
       } else {
         // If the key doesn't exist, log an error or handle it accordingly
         console.error(`Table settings not found for key: ${key}`);
@@ -97,19 +107,30 @@ export class UISettingsUtilityClass {
   }
 
   /**
+   * Retrieves the full TableConfig for a specific key from the UI configuration.
+   *
+   * @param key - The key for the table settings.
+   * @returns The TableConfig for the key, or null if the entry is a legacy number array.
+   */
+  getTableConfig(key: TableSettingsKey): TableConfig | null {
+    const setting = this.uiConfig.tableSettings[key];
+    return setting && !Array.isArray(setting) ? setting : null;
+  }
+
+  /**
    * Retrieves the table settings for a specific key from the UI configuration.
    *
    * @param key - The key for the table settings.
    * @returns An array of column names as table settings for the key.
    */
-  getTableSettings(key: string): number[] {
+  getTableSettings(key: TableSettingsKey): number[] {
     try {
       const tableConfig = this.uiConfig.tableSettings[key];
 
       if (Array.isArray(tableConfig)) {
         // If it's an array (number[]), return it
         return tableConfig;
-      } else if ('columns' in tableConfig) {
+      } else if (tableConfig && 'columns' in tableConfig) {
         // If it's a TableConfig, extract and return the columns property
         return tableConfig.columns;
       } else {
@@ -129,10 +150,10 @@ export class UISettingsUtilityClass {
    * @param key - The key for the UI setting.
    * @returns The value of the UI setting, or undefined if not found.
    */
-  getSetting<T>(key: string): T | undefined {
+  getSetting<K extends UIConfigKeys>(key: K): UIConfig[K] | undefined {
     try {
       return this.uiConfig[key];
-    } catch (error) {
+    } catch {
       return undefined;
     }
   }
@@ -143,14 +164,14 @@ export class UISettingsUtilityClass {
    * @param settings - An object containing key-value pairs of settings to update.
    * @returns The number of settings that were successfully changed.
    */
-  updateSettings(settings: { [key: string]: any }): number {
-    const keys = Object.keys(settings);
+  updateSettings(settings: Partial<UIConfig>): number {
+    const keys = Object.keys(settings) as UIConfigKeys[];
     let changedValues = 0;
     let themeChanged = false;
 
     for (const key of keys) {
       if (key in this.uiConfig && this.uiConfig[key] !== settings[key]) {
-        this.uiConfig[key] = settings[key];
+        Object.assign(this.uiConfig, { [key]: settings[key] });
         changedValues += 1;
         if (key === 'theme') {
           themeChanged = true;
@@ -159,7 +180,10 @@ export class UISettingsUtilityClass {
     }
 
     if (changedValues > 0) {
-      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
+      if (themeChanged && this.themeService) {
+        this.themeService.theme = this.uiConfig.theme;
+      }
     }
 
     return changedValues;

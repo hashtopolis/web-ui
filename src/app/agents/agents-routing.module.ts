@@ -3,13 +3,16 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
+import { AgentRoleService } from '@services/roles/agents/agent-role.service';
+
 import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
 import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
 import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
-import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { CheckRole } from '@src/app/core/_guards/permission.guard';
+
+const roleServiceClass = AgentRoleService;
 
 const routes: MyRoute[] = [
   {
@@ -22,9 +25,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'agent-status',
           breadcrumb: 'Agent Status',
-          permission: Perm.AgentStat.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'readStat'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'new-agent',
@@ -32,9 +36,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-agent',
           breadcrumb: 'New Agent',
-          permission: Perm.Agent.CREATE
+          roleServiceClass: roleServiceClass,
+          roleName: 'create'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-agents',
@@ -42,9 +47,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-agents',
           breadcrumb: 'Show Agent',
-          permission: Perm.Agent.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       },
       {
         path: 'show-agents/:id/edit',
@@ -52,9 +58,10 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-agent',
           breadcrumb: 'Edit Agent',
-          permission: Perm.Agent.READ
+          roleServiceClass: roleServiceClass,
+          roleName: 'read'
         },
-        canActivate: [CheckPerm]
+        canActivate: [CheckRole]
       }
     ]
   }

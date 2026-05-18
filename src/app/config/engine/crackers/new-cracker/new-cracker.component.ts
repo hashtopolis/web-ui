@@ -1,13 +1,12 @@
 import { firstValueFrom } from 'rxjs';
 
-import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
-import { FlexModule } from '@angular/flex-layout';
+import { Component, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewCrackerForm, getNewCrackerForm } from '@src/app/config/engine/crackers/new-cracker/new-cracker.form';
@@ -18,36 +17,27 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 @Component({
   selector: 'app-new-cracker',
-  imports: [
-    ButtonsModule,
-    FlexModule,
-    FormsModule,
-    GridModule,
-    InputModule,
-    PageTitleModule,
-    ReactiveFormsModule,
-    NgIf
-  ],
+  imports: [ButtonsModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {
-  newCrackerForm: FormGroup<NewCrackerForm>;
-  loading: boolean;
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+  protected roleService = inject(CrackerBinaryRoleService);
 
-  constructor(
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService
-  ) {
-    this.newCrackerForm = getNewCrackerForm();
-    this.loading = false;
-  }
+  newCrackerForm: FormGroup<NewCrackerForm> = getNewCrackerForm();
+  loading: boolean = false;
 
   /**
    * Create new cracker upon form submission and redirect to cracker type table page on success
    */
   async onSubmit() {
-    if (this.newCrackerForm.invalid) return;
+    if (this.newCrackerForm.invalid) {
+      this.newCrackerForm.markAllAsTouched();
+      this.newCrackerForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     try {
@@ -59,10 +49,10 @@ export class NewCrackerComponent {
       await firstValueFrom(this.gs.create(SERV.CRACKERS_TYPES, payload));
       this.alert.showSuccessMessage('Cracker type created!');
       void this.router.navigate(['config/engine/crackers']);
-    } catch (err) {
-      const msg = 'Error creating cracker type';
-      console.error(msg, err);
-      this.alert.showErrorMessage(msg);
+    } catch (err: unknown) {
+      if (!(err as { error?: { title?: string } })?.error?.title) {
+        this.alert.showErrorMessage('An error occurred while creating the Cracker type.');
+      }
     } finally {
       this.loading = false;
     }

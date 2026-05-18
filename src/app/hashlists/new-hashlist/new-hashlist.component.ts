@@ -1,21 +1,24 @@
 /**
  * This module contains the component class to create a new hashlist
  */
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
+import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JConfig } from '@models/configs.model';
+import { ServerImportFile } from '@models/file.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId, HashTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -36,6 +39,15 @@ import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } fr
   standalone: false
 })
 export class NewHashlistComponent implements OnInit, OnDestroy {
+  private unsubscribeService = inject(UnsubscribeService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private uploadService = inject(UploadTUSService);
+  private titleService = inject(AutoTitleService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+
   /** Flag indicating whether data is still loading. */
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
@@ -47,13 +59,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   // Lists of Selected inputs
-  selectAccessgroup: SelectOption[];
-  selectHashtypes: SelectOption[];
+  selectAccessgroup: SelectOption<AccessGroupId>[];
+  selectHashtypes: SelectOption<HashTypeId>[];
   selectFormat = hashlistFormat;
   selectSource = hashSource;
 
   // Lists of Hashtypes
-  hashtypes: JHashtype[];
+  hashtypes: JHashtype[] = [];
 
   //Hashcat Brain Mode
   brainenabled: number;
@@ -64,19 +76,17 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   fileName: string;
   uploadProgress = 0;
 
-  // Unsubcribe
-  private fileUnsubscribe = new Subject();
+  serverFiles: ServerImportFile[] = [];
+  serverFileOptions: SelectOption[] = [];
+  isLoadingServerFiles = false;
+  hasLoadedServerFiles = false;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private uploadService: UploadTUSService,
-    private titleService: AutoTitleService,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {
+  saltSubscription = new Subscription();
+
+  // Unsubcribe
+  private fileUnsubscribe = new Subject<void>();
+
+  constructor() {
     this.buildForm();
     this.titleService.set(['New Hashlist']);
   }
@@ -86,6 +96,46 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
+
+    const isSaltedCtrl = this.form.controls.isSalted;
+    const isHexSaltCtrl = this.form.controls.isHexSalt;
+    const separatorCtrl = this.form.controls.separator;
+
+    // Disable separator if not salted
+    if (isSaltedCtrl.value) {
+      separatorCtrl.enable();
+      isHexSaltCtrl.enable();
+    } else {
+      separatorCtrl.disable();
+      isHexSaltCtrl.disable();
+    }
+
+    // Check for changes and enable/disable
+    this.saltSubscription.add(
+      isSaltedCtrl.valueChanges.subscribe((val: boolean) => {
+        if (val) {
+          separatorCtrl.enable();
+          isHexSaltCtrl.enable();
+        } else {
+          separatorCtrl.disable();
+          isHexSaltCtrl.disable();
+        }
+      })
+    );
+
+    this.saltSubscription.add(
+      this.form.controls.sourceType.valueChanges.subscribe((sourceType: string) => {
+        if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+          void this.loadServerFiles();
+        }
+
+        if (sourceType !== 'upload') {
+          this.selectedFiles = null;
+          this.fileName = '';
+          this.uploadProgress = 0;
+        }
+      })
+    );
   }
 
   /**
@@ -94,8 +144,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.next();
     this.fileUnsubscribe.complete();
+    this.saltSubscription.unsubscribe();
   }
 
   /**
@@ -105,7 +156,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.form = getNewHashlistForm();
 
     //subscribe to changes to handle select salted hashes
-    this.form.get('hashTypeId').valueChanges.subscribe((newvalue) => {
+    this.form.controls.hashTypeId.valueChanges.subscribe((newvalue) => {
       this.handleSelectedItems(Number(newvalue));
     });
   }
@@ -115,22 +166,18 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.loadConfigs();
-    const accessGroupSubscription = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
+    const accessGroupSubscription = this.gs
+      .getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
+      .subscribe((response: ResponseWrapper) => {
+        const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+        this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        this.isLoadingAccessGroups = false;
+        this.changeDetectorRef.detectChanges();
       });
-      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
-      this.isLoadingAccessGroups = false;
-      this.changeDetectorRef.detectChanges();
-    });
     this.unsubscribeService.add(accessGroupSubscription);
 
     const hashtypesSubscription$ = this.gs.getAll(SERV.HASHTYPES).subscribe((response: ResponseWrapper) => {
-      this.hashtypes = new JsonAPISerializer().deserialize<JHashtype[]>({
-        data: response.data,
-        included: response.included
-      });
+      this.hashtypes = new JsonAPISerializer().deserialize(response, zHashTypeListResponse);
       this.selectHashtypes = transformSelectOptions(this.hashtypes, HASHTYPE_FIELD_MAPPING);
       this.isLoadingHashtypes = false;
       this.changeDetectorRef.detectChanges();
@@ -139,7 +186,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   }
 
   get sourceType() {
-    return this.form.get('sourceType').value;
+    return this.form.controls.sourceType.value;
   }
 
   /**
@@ -148,7 +195,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadConfigs() {
     const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
-      const config = new JsonAPISerializer().deserialize<JConfig>({ data: response.data, included: response.included });
+      const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
       this.brainenabled = Number(config.value);
       this.form.patchValue({ useBrain: !!this.brainenabled });
       this.changeDetectorRef.detectChanges();
@@ -161,14 +208,18 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * @param  files - The list of files to be uploaded.
    */
   onuploadFile(files: FileList | null): void {
+    if (!files || files.length === 0) {
+      this.alert.showErrorMessage('Please select a hash file to upload.');
+      return;
+    }
+
     this.isCreatingLoading = true;
     // Represents the modified form data without the fake path prefix.
-    const newForm = { ...this.form.value };
+    const newForm = { ...this.form.getRawValue() };
 
-    // Modify the sourceData key if it exists
-    if (newForm.sourceData) {
-      newForm.sourceData = removeFakePath(newForm.sourceData);
-    }
+    newForm.sourceData = removeFakePath(this.fileName || files[0].name);
+
+    newForm.sourceType = 'import';
 
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
@@ -191,27 +242,76 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.fileName = files[0].name;
   }
 
+  async loadServerFiles(): Promise<void> {
+    this.isLoadingServerFiles = true;
+    this.changeDetectorRef.detectChanges();
+    try {
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      this.serverFiles = response.meta || [];
+      this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
+      this.hasLoadedServerFiles = true;
+    } catch (error) {
+      console.error('Error fetching server import files:', error);
+      this.alert.showErrorMessage('Could not load files from server import directory.');
+    } finally {
+      this.isLoadingServerFiles = false;
+      this.changeDetectorRef.detectChanges();
+    }
+  }
+
   /**
    * Create Hashlist in case without file upload
    */
   async onSubmit() {
     if (!this.form.valid) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
       return; // form invalid, stop early
     }
 
-    const sourceType = this.form.get('sourceType').value;
+    const sourceType = this.form.controls.sourceType.value;
 
     // Validate required input based on sourceType
-    if (sourceType === 'import') {
+    if (sourceType === 'upload') {
       if (!this.selectedFiles || this.selectedFiles.length === 0) {
         this.alert.showErrorMessage('Please select a hash file to upload.');
         return; // stop submission
       }
     } else if (sourceType === 'paste') {
-      const sourceData = this.form.get('sourceData').value;
+      const sourceData = this.form.controls.sourceData.value;
       if (!sourceData || sourceData.trim() === '') {
         this.alert.showErrorMessage('Please paste your hashes.');
         return; // stop submission
+      } else if (this.form.controls.isSalted.value) {
+        if (!this.form.controls.separator.value) {
+          this.alert.showErrorMessage('Salt separator cannot be empty when hashes are salted!');
+          return; // stop submission
+        } else {
+          const hashLines = sourceData.split('\n');
+          for (const line of hashLines) {
+            const parts = line.split(this.form.controls.separator.value);
+            if (parts.length < 2) {
+              this.alert.showErrorMessage(
+                `Each line must contain a hash and a salt separated by '${this.form.controls.separator.value}'.`
+              );
+              return; // stop submission
+            }
+          }
+        }
+      }
+    } else if (sourceType === 'import') {
+      const sourceData = this.form.controls.sourceData.value;
+      if (!sourceData || sourceData.trim() === '') {
+        this.alert.showErrorMessage('Please select a file from the server import directory.');
+        return;
+      }
+    } else if (sourceType === 'url') {
+      const sourceData = this.form.controls.sourceData.value;
+      if (!sourceData || sourceData.trim() === '') {
+        this.alert.showErrorMessage('Please provide a URL to download hashes from.');
+        return;
       }
     } else {
       this.alert.showErrorMessage('Unknown source type selected.');
@@ -221,12 +321,24 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     // Proceed with existing logic now that input is validated
     if (sourceType === 'paste') {
       this.form.patchValue({
-        sourceData: handleEncode(this.form.get('sourceData').value)
+        sourceData: handleEncode(this.form.controls.sourceData.value)
       });
       this.isCreatingLoading = true;
 
       try {
-        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
+        this.alert.showSuccessMessage('New HashList created');
+        this.router.navigate(['/hashlists/hashlist']);
+      } catch (error) {
+        console.error('Error creating Hashlist', error);
+        this.alert.showErrorMessage('Failed to create hashlist.');
+      } finally {
+        this.isCreatingLoading = false;
+      }
+    } else if (sourceType === 'import' || sourceType === 'url') {
+      this.isCreatingLoading = true;
+      try {
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
         this.alert.showSuccessMessage('New HashList created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {

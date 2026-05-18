@@ -13,7 +13,7 @@ import { ASC } from '@src/app/core/_constants/agentsc.config';
  */
 @Component({
   selector: 'app-agent-stat-graph',
-  template: `<div #chartContainer style="width: 100%; height: 300px;"></div>`
+  templateUrl: './agent-stat-graph.component.html'
 })
 export class AgentStatGraphComponent implements OnChanges, OnDestroy {
   /**
@@ -32,9 +32,11 @@ export class AgentStatGraphComponent implements OnChanges, OnDestroy {
   @ViewChild('chartContainer', { static: true }) chartContainer: ElementRef;
 
   private chartInstance: EChartsType | null = null;
+  hasData: boolean = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['agentStats'] || changes['statType']) {
+      this.hasData = this.agentStats.some((s) => s.statType === this.statType);
       this.renderChart();
     }
   }

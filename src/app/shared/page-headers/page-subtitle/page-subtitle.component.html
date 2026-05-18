@@ -1,9 +1,11 @@
 <div class="page-subtitle-wrapper">
   <h3>{{ subtitle }}</h3>
-  <ng-container *ngIf="actionTitle">
+  @if (actionTitle) {
     <button mat-flat-button color="primary" (click)="onAction()">
-      <mat-icon *ngIf="actionIcon">{{ actionIcon }}</mat-icon>
+      @if (actionIcon) {
+        <mat-icon>{{ actionIcon }}</mat-icon>
+      }
       {{ actionTitle }}
     </button>
-  </ng-container>
+  }
 </div>

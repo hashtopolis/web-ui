@@ -1,9 +1,10 @@
 import { catchError } from 'rxjs';
 
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
+import { DynamicModel } from '@models/base.model';
 import { UserPermissions } from '@models/global-permission-group.model';
+import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';
 
@@ -23,7 +24,10 @@ import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-perm
   templateUrl: './access-permission-groups-user-table.component.html',
   standalone: false
 })
-export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUserTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -41,6 +45,10 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       this.dataSource.setAccessPermGroupExpand(this.expand);
       this.dataSource.setPermissions(this.permissions);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -48,10 +56,6 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-  }
-
-  filter(item: UserPermissions, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -118,9 +122,9 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
+  exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
     this.exportService.handleExportAction<UserPermissions>(
-      event,
+      event as ActionMenuEvent<UserPermissions[]>,
       this.tableColumns,
       AccessPermissionGroupsUserTableColumnLabel,
       'hashtopolis-access-permission-groups-user'
@@ -131,8 +135,8 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
    * Update Permissions on checkbox change event
    * @param editable Editable object containing current permission, action and changed value
    */
-  onCheckboxChange(editable: HTTableEditable<UserPermissions>): void {
-    this.changePermision(editable, editable.value);
+  onCheckboxChange(editable: HTTableEditable<JUser | UserPermissions>): void {
+    this.changePermision(editable as HTTableEditable<UserPermissions>, editable.value);
   }
 
   /**
@@ -144,7 +148,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
     const capitalizedPerm = (editable['action'].match(/-(.*?)-/)?.[1] || '')
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
-    const keyPerm = editable['data']['originalName'] + capitalizedPerm;
+    const keyPerm = String((editable.data as unknown as DynamicModel)['originalName']) + capitalizedPerm;
     const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {
@@ -163,7 +167,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
         )
         .subscribe(() => {
           this.alertService.showSuccessMessage(
-            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
+            `Changed permission in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
           );
           this.reload();
         })

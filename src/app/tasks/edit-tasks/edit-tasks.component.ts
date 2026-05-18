@@ -1,19 +1,28 @@
-import { Subscription, finalize } from 'rxjs';
+import {
+  zAgentAssignmentListResponse,
+  zAgentListResponse,
+  zHashTypeResponse,
+  zSpeedListResponse,
+  zTaskResponse
+} from '@generated/api/zod';
+import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { SpeedStat } from '@models/speed-stat.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -21,14 +30,18 @@ import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
+import { ConfigService } from '@services/shared/config.service';
 
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
+import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -43,110 +56,231 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
 
   updateForm: FormGroup;
-  createForm: FormGroup; // Assign Agent
+  createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
+
+  // loading gate to avoid painting the screen before data is ready
+  isLoading = true;
 
   color = '';
   tusepreprocessor: number;
   hashlistDescrip: string;
-  hashlistinform: JHashlist;
-  availAgents: JAgent[] = [];
-  crackerinfo: JCrackerBinary;
+  hashlistinform: JHashlist | undefined;
+  availAgents: ThinJAgent[] = [];
+  selectAgents: SelectOption<AgentId>[] = [];
+  isLoadingAgents = false;
+  crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
-  @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
-  //Time calculation
+  // Time calculation
   cprogress: number; // Keyspace searched
   ctimespent: number; // Time Spent
   estimatedTime: number; // Estimated time till task is finished
   searched: string;
 
-  // Chunk View
   chunkview: number;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: number;
 
-  private routeSub: Subscription;
+  isReadOnly = false;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private route: ActivatedRoute,
-    private alertService: AlertService,
-    private gs: GlobalService,
-    private fs: FileSizePipe,
-    private router: Router,
-    private serializer: JsonAPISerializer,
-    private confirmDialog: ConfirmDialogService
-  ) {
+  taskProgressImageUrl: SafeUrl | null = null;
+  private rawTaskProgressObjectUrl: string | null = null;
+
+  private routeSub: Subscription | undefined;
+  private httpNoInterceptors: HttpClient;
+
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alertService = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  private confirmDialog = inject(ConfirmDialogService);
+  protected roleService = inject(TasksRoleService);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  private httpBackend = inject(HttpBackend);
+
+  constructor() {
     this.titleService.set(['Edit Task']);
-    this.onInitialize();
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
+    this.isReadOnly = !this.roleService.hasRole('edit');
+
+    this.editedTaskIndex = +this.route.snapshot.params['id'];
+    this.editMode = Number.isFinite(this.editedTaskIndex);
+
     this.buildForm();
-    this.initForm();
-    this.assignChunksInit();
+
+    try {
+      const task = await this.loadTask();
+
+      this.originalValue = task;
+      this.searched = task.searched ?? '';
+      this.color = task.color ?? '';
+      this.crackerinfo = task.crackerBinary;
+      this.taskWrapperId = task.taskWrapperId;
+      this.tkeyspace = task.keyspace;
+      this.tusepreprocessor = task.preprocessorId;
+      this.ctimespent = task.timeSpent ?? 0;
+      this.currenspeed = task.currentSpeed ?? 0;
+      this.estimatedTime = task.estimatedTime ?? 0;
+      this.cprogress = task.cprogress ?? 0;
+
+      if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
+        this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
+      }
+
+      if (this.roleService.hasRole('editTaskSpeed')) {
+        this.getTaskSpeeds((task.assignedAgents ?? []).length);
+      }
+
+      if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
+        this.hashlistinform = task.hashlist;
+        this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
+          const hashtype: JHashtype = this.serializer.deserialize(response, zHashTypeResponse);
+          this.hashlistDescrip = hashtype.description;
+        });
+      }
+
+      this.updateForm.setValue({
+        taskId: task.id,
+        forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+        staticChunks: this.getStaticChunkingLabel(task.staticChunks),
+        skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
+        keyspace: task.keyspace,
+        keyspaceProgress: task.keyspaceProgress,
+        crackerBinaryId: task.crackerBinaryId,
+        chunkSize: task.chunkSize,
+        updateData: {
+          taskName: task.taskName,
+          attackCmd: task.attackCmd,
+          notes: task.notes,
+          color: task.color,
+          chunkTime: Number(task.chunkTime),
+          statusTimer: task.statusTimer,
+          priority: task.priority,
+          maxAgents: task.maxAgents,
+          isCpuTask: task.isCpuTask,
+          isSmall: task.isSmall
+        }
+      });
+
+      this.assignChunksInit();
+
+      if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
+        this.loadTaskProgressImage();
+      }
+
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+      // Only navigate to not-found when the backend explicitly returns 404.
+      // For other server errors (500 etc.) show an error message so the
+      // user knows something went wrong on the server instead of silently
+      // redirecting to the 404 page.
+      if (status === 404) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // Log and show a user-friendly error for unexpected server errors
+      // (500, 502, etc.). Keep the loading flag disabled so the UI can
+      // present an appropriate state.
+
+      console.error('Error loading task:', e);
+      const msg = status ? `Error loading task (server returned ${status}).` : 'Error loading task.';
+      this.alertService.showErrorMessage(msg);
+      this.isLoading = false;
+      return;
+    }
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+
+    if (this.rawTaskProgressObjectUrl) {
+      URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
+      this.rawTaskProgressObjectUrl = null;
+    }
   }
 
-  onInitialize() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedTaskIndex = +params['id'];
-      this.editMode = params['id'] != null;
-
-      this.ngOnInit();
-    });
-  }
-
-  /**
-   * Reload data
-   */
-  refresh(): void {
-    this.onInitialize();
-    this.agentsTable.reload();
-  }
-
-  buildForm() {
+  private buildForm(): void {
     this.updateForm = new FormGroup({
       taskId: new FormControl({ value: '', disabled: true }),
       forcePipe: new FormControl({ value: '', disabled: true }),
+      staticChunks: new FormControl({ value: '', disabled: true }),
       skipKeyspace: new FormControl({ value: '', disabled: true }),
       keyspace: new FormControl({ value: '', disabled: true }),
       keyspaceProgress: new FormControl({ value: '', disabled: true }),
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
-        taskName: new FormControl(''),
-        attackCmd: new FormControl(''),
-        notes: new FormControl(''),
-        color: new FormControl(''),
-        chunkTime: new FormControl(''),
-        statusTimer: new FormControl(''),
-        priority: new FormControl(''),
-        maxAgents: new FormControl(''),
-        isCpuTask: new FormControl(''),
-        isSmall: new FormControl('')
+        taskName: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required]
+        ),
+        attackCmd: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
+        notes: new FormControl({ value: '', disabled: this.isReadOnly }),
+        color: new FormControl({ value: '', disabled: this.isReadOnly }),
+        chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
+        statusTimer: new FormControl({ value: '', disabled: this.isReadOnly }),
+        priority: new FormControl({ value: '', disabled: this.isReadOnly }),
+        maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
       })
     });
-    this.createForm = new FormGroup({
-      agentId: new FormControl()
+
+    this.createForm = new FormGroup<{ agentId: FormControl<number | null> }>({
+      agentId: new FormControl<number | null>(null)
     });
   }
 
-  onSubmit() {
-    if (this.updateForm.valid) {
+  private async loadTask(): Promise<JTask> {
+    const includes = ['hashlist', 'crackerBinary', 'crackerBinaryType', 'assignedAgents'];
+
+    const base = this.cs.getEndpoint() + SERV.TASKS.URL;
+    const url = `${base}/${this.editedTaskIndex}`;
+
+    const params: { [k: string]: string } = { include: includes.join(',') };
+
+    try {
+      const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
+      return this.serializer.deserialize(response, zTaskResponse);
+    } catch (err: unknown) {
+      // If backend fails with server error (500+), try a fallback request without includes.
+      // This helps when the server chokes resolving included relationships but the main
+      // resource exists — the UI can still open the edit form with the primary data.
+      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
+        console.warn('loadTask(): primary request failed, retrying without includes', err);
+        const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+        return this.serializer.deserialize(responseFallback, zTaskResponse);
+      }
+      throw err;
+    }
+  }
+
+  onSubmit(): void {
+    if (this.updateForm.valid && !this.isReadOnly) {
       // Check if attackCmd has been modified
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
-        const message: string =
+        const message =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
         this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
           if (confirmed) {
@@ -158,111 +292,95 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       } else {
         this.updateTask();
       }
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
 
-  private updateTask() {
+  private updateTask(): void {
     this.isUpdatingLoading = true;
-    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.isUpdatingLoading = false;
-      this.router.navigate(['tasks/show-tasks']).then(() => {
-        this.alertService.showSuccessMessage('Task data has been updated successfully.');
-      });
+    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe({
+      next: () => {
+        this.isUpdatingLoading = false;
+        this.router.navigate(['tasks/show-tasks']).then(() => {
+          this.alertService.showSuccessMessage('Task data has been updated successfully.');
+        });
+      },
+      error: (err) => {
+        console.error('Error updating task', err);
+        this.isUpdatingLoading = false;
+      }
     });
   }
 
-  private initForm() {
-    if (this.editMode) {
-      const params = new RequestParamBuilder()
-        .addInclude('hashlist')
-        .addInclude('speeds')
-        .addInclude('crackerBinary')
-        .addInclude('crackerBinaryType')
-        .addInclude('files')
-        .create();
+  /**
+   * Load task progress image from backend
+   * @private
+   */
+  private loadTaskProgressImage(): void {
+    const url = this.cs.getEndpoint() + SERV.HELPER.URL + '/getTaskProgressImage?task=' + this.editedTaskIndex;
 
-      this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const task = this.serializer.deserialize<JTask>(responseBody);
+    try {
+      if (this.rawTaskProgressObjectUrl) {
+        URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
+        this.rawTaskProgressObjectUrl = null;
+        this.taskProgressImageUrl = null;
+      }
 
-        this.originalValue = task;
-        this.searched = task.searched;
-        this.color = task.color;
-        this.crackerinfo = task.crackerBinary;
-        this.taskWrapperId = task.taskWrapperId;
-        // Assigned Agents init
-        this.assingAgentInit();
-        // Hashlist Description and Type
-        if (task.hashlist) {
-          this.hashlistinform = task.hashlist;
-          if (this.hashlistinform) {
-            this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
-              const responseBody = { data: response.data, included: response.included };
-              const hashtype = this.serializer.deserialize<JHashtype>(responseBody);
-              this.hashlistDescrip = hashtype.description;
-            });
-          } else {
-            console.error('hashlistinform is undefined.');
+      this.http.get(url, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          if (!blob || blob.size === 0) {
+            this.taskProgressImageUrl = null;
+            return;
           }
-        } else {
-          console.error('No hashlist found in the result.');
+          const objectUrl = URL.createObjectURL(blob);
+          this.rawTaskProgressObjectUrl = objectUrl;
+          this.taskProgressImageUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+        },
+        error: () => {
+          this.taskProgressImageUrl = null;
         }
-        this.tkeyspace = task.keyspace;
-        this.tusepreprocessor = task.preprocessorId;
-        this.updateForm.setValue({
-          taskId: task.id,
-          forcePipe: task.forcePipe === true ? 'Yes' : 'No',
-          skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
-          keyspace: task.keyspace,
-          keyspaceProgress: task.keyspaceProgress,
-          crackerBinaryId: task.crackerBinaryId,
-          chunkSize: task.chunkSize,
-          updateData: {
-            taskName: task.taskName,
-            attackCmd: task.attackCmd,
-            notes: task.notes,
-            color: task.color,
-            chunkTime: Number(task.chunkTime),
-            statusTimer: task.statusTimer,
-            priority: task.priority,
-            maxAgents: task.maxAgents,
-            isCpuTask: task.isCpuTask,
-            isSmall: task.isSmall
-          }
-        });
       });
+    } catch (e) {
+      console.error(e);
     }
   }
 
   /**
    * The below functions are related with assign, manage and delete agents
-   *
-   **/
-  assingAgentInit() {
-    // TODO possibly we could turn this in a single helper request to the backend if we create a helper endpoint
-    // That retrieves available agents. Or even better, we might be able to use the agents, in the datasource of
-    // the assigned agents table. And use those IDs to filter for available agents.
-    const paramsAgentAssign = new RequestParamBuilder();
-    paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
-    this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
-      const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
-      const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
+   */
+  private assingAgentInit(assignedAgentIds: Array<number>): void {
+    this.isLoadingAgents = true;
+    const params = new RequestParamBuilder();
+    if (assignedAgentIds.length > 0) {
+      params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: assignedAgentIds });
+    }
 
-      const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
-
-      const params = new RequestParamBuilder();
-      if (agentAssignmentsAgentIds.length > 0) {
-        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
-      }
-
-      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-        const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
-      });
+    this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
+      const agents: ThinJAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
+      this.availAgents = agents;
+      this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
+      this.isLoadingAgents = false;
     });
   }
 
-  assignAgent() {
+  reloadAgentAssignment(): void {
+    const paramsAgentAssign = new RequestParamBuilder();
+    paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
+    this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
+      const agentAssignments: JAgentAssignment[] = this.serializer.deserialize(
+        responseAssignments,
+        zAgentAssignmentListResponse
+      );
+      const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
+        (agentAssignment) => agentAssignment.agentId
+      );
+      this.assingAgentInit(agentAssignmentsAgentIds);
+    });
+  }
+
+  assignAgent(): void {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
@@ -272,77 +390,43 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         .create(SERV.AGENT_ASSIGN, payload)
         .pipe(
           finalize(() => {
-            this.assingAgentInit();
+            this.reloadAgentAssignment();
             this.agentsTable.reload();
           })
         )
-        .subscribe(() => {
-          this.createForm.reset();
-          this.alertService.showSuccessMessage('Agent assigned!');
+        .subscribe({
+          next: () => {
+            this.createForm.reset();
+            this.alertService.showSuccessMessage('Agent assigned!');
+          },
+          error: (err: HttpErrorResponse) => {
+            // If backend rejects the assignment, clear selection so the user knows it wasn't added
+            this.createForm.reset();
+            const msg = err?.error?.message ?? 'Agent cannot be assigned to this task.';
+            this.alertService.showErrorMessage(msg);
+          }
         });
     }
   }
 
-  /**
-   * This function calculates Keyspace searched, Time Spent and Estimated Time
-   *
-   **/
-  timeCalc(chunks: JChunk[]) {
-    const cprogress = [];
-    const timespent = [];
-    const current = 0;
-    for (let i = 0; i < chunks.length; i++) {
-      cprogress.push(chunks[i].checkpoint - chunks[i].skip);
-      if (chunks[i].dispatchTime > current) {
-        timespent.push(chunks[i].solveTime - chunks[i].dispatchTime);
-      } else if (chunks[i].solveTime > current) {
-        timespent.push(chunks[i].solveTime - current);
-      }
-    }
-    if (cprogress.length > 0) {
-      this.cprogress = cprogress.reduce((a, i) => a + i);
-    }
-    if (timespent.length > 0) {
-      this.ctimespent = timespent.reduce((a, i) => a + i);
-    }
-  }
-
-  assignChunksInit() {
+  private assignChunksInit(): void {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunkresults = 60000;
-          // this.slideToggle.checked = true;
           break;
       }
     });
-
-    this.gs
-      .ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex)
-      .subscribe((result: ResponseWrapper) => {
-        const taskDetailData = result.meta;
-        this.ctimespent = taskDetailData['timeSpent'];
-        this.currenspeed = taskDetailData['currentSpeed'];
-        this.estimatedTime = taskDetailData['estimatedTime'];
-      });
   }
 
   onChunkViewChange(event: MatButtonToggleChange): void {
     this.chunkview = event.value;
   }
 
-  /**
-   * Helper functions
-   *
-   **/
-
-  purgeTask() {
+  purgeTask(): void {
     this.confirmDialog.confirmYesNo('Purge Task', 'Do you really want to purge the task').subscribe((confirmed) => {
       if (confirmed) {
         const payload = { taskId: this.editedTaskIndex };
@@ -353,5 +437,48 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.alertService.showInfoMessage('Purge was cancelled');
       }
     });
+  }
+
+  /**
+   * Get task speeds for speed diagram.
+   *
+   * Time range is roughly limited to one hour for a maximum of 10 agents.
+   * If we have more than 10 agents, the period will be decreased (e.g. 30 minutes for 20 agents)
+   * Estimation is a new speed entry per agent every 5 seconds: (60 seconds * 60) / 5 = 720
+   *
+   * The resulting array must be reversed to have it sorted ascending by time
+   *
+   * @param assignedAgentsCount - number of assigned agents to the task
+   * @private
+   */
+  private getTaskSpeeds(assignedAgentsCount: number): void {
+    const limitPerAgent = 720;
+    const maxAgents = 10;
+    const requestLimit = Math.min(limitPerAgent * (assignedAgentsCount + 1), limitPerAgent * maxAgents);
+
+    const speedParams = new RequestParamBuilder()
+      .addFilter({
+        field: 'taskId',
+        value: this.editedTaskIndex,
+        operator: FilterType.EQUAL
+      })
+      .addSorting({ dataKey: 'speedId', direction: 'desc', isSortable: true })
+      .setPageSize(requestLimit);
+
+    this.gs.getAll(SERV.SPEEDS, speedParams.create()).subscribe((response: ResponseWrapper) => {
+      const speeds: SpeedStat[] = this.serializer.deserialize(response, zSpeedListResponse);
+      this.originalValue.speeds = [...speeds].reverse();
+    });
+  }
+
+  private getStaticChunkingLabel(staticChunks: number): string {
+    switch (staticChunks) {
+      case 1:
+        return 'Fixed chunk size (1)';
+      case 2:
+        return 'Fixed number of chunks (2)';
+      default:
+        return 'No';
+    }
   }
 }

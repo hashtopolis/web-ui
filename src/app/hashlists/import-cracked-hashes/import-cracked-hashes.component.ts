@@ -1,24 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { zHashlistResponse } from '@generated/api/zod';
+import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+
+import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { ServerImportFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { UploadTUSService } from '@services/files/files_tus.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { hashSource } from '@src/app/core/_constants/hashlist.config';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import {
   ImportCrackedHashesForm,
   getImportCrackedHashesForm
 } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.form';
-import { handleEncode } from '@src/app/shared/utils/forms';
+import { SelectOption } from '@src/app/shared/utils/forms';
+import { handleEncode, removeFakePath } from '@src/app/shared/utils/forms';
 
 /**
  * Component for import pre cracked hashes
@@ -40,32 +48,34 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
   // Edit variables
   editedHashlistIndex: number;
-  hashtype: any;
-  type: any; // Hashlist or SuperHashlist
+  hashtype: JHashtype;
+  type: number; // Hashlist or SuperHashlist
 
-  /**
-   * Initializes and injects required services and dependencies.
-   * Calls necessary methods to set up the component.
-   * @param {UnsubscribeService} unsubscribeService - Service for managing subscriptions.
-   * @param {AutoTitleService} titleService - Service for managing page titles.
-   * @param {StaticArrayPipe} format - Angular pipe for formatting static arrays.
-   * @param {ActivatedRoute} route - The activated route, representing the route associated with this component.
-   * @param {AlertService} alert - Service for displaying alerts.
-   * @param {GlobalService} gs - Service for global application functionality.
-   * @param {Router} router - Angular router service for navigation.
-   */
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private format: StaticArrayPipe,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  selectSource = hashSource;
+
+  selectedFiles: FileList | null = null;
+  fileName: string;
+  uploadProgress = 0;
+  serverFiles: ServerImportFile[] = [];
+  serverFileOptions: SelectOption[] = [];
+  isLoadingServerFiles = false;
+  hasLoadedServerFiles = false;
+  hashesAreRequired = false;
+
+  private fileUnsubscribe = new Subject<void>();
+
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private format = inject(StaticArrayPipe);
+  private route = inject(ActivatedRoute);
+  private uploadService = inject(UploadTUSService);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  constructor() {
     this.buildForm();
-
-    titleService.set(['Import Cracked Hashes']);
+    this.titleService.set(['Import Cracked Hashes']);
   }
 
   /**
@@ -83,6 +93,45 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.getInitialization();
+
+    const sourceTypeControl = this.form.controls.sourceType;
+    const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
+      this.hashesAreRequired = false;
+      this.resetHashesValidator();
+      if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+        void this.loadServerFiles();
+      }
+
+      if (sourceType !== 'upload') {
+        this.selectedFiles = null;
+        this.fileName = '';
+        this.uploadProgress = 0;
+      }
+
+      if (sourceType === 'paste') {
+        this.hashesAreRequired = true;
+
+        // set required validator now that control is visible
+        const ctrl = this.form.controls.hashes;
+        ctrl.setValidators([Validators.required]);
+        ctrl.updateValueAndValidity();
+        this.form.patchValue({ sourceData: '' });
+      } else {
+        this.form.patchValue({ hashes: '' });
+      }
+    });
+
+    this.unsubscribeService.add(sourceTypeSubscription$);
+  }
+
+  /**
+   * Resets the action filter control by clearing validators, resetting the value, and updating validity.
+   */
+  resetHashesValidator(): void {
+    const ctrl = this.form.controls.hashes;
+    ctrl.clearValidators();
+    ctrl.setValue('');
+    ctrl.updateValueAndValidity();
   }
 
   /**
@@ -91,6 +140,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
+    this.fileUnsubscribe.next();
+    this.fileUnsubscribe.complete();
   }
 
   /**
@@ -106,22 +157,195 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   onSubmit() {
-    if (this.form.valid) {
-      this.isCreatingLoading = true;
-      const payload = {
+    if (!this.form.valid) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
+      return;
+    } else {
+      const separator: string = this.form.controls.fieldSeparator.value;
+      const sourceData: string = this.form.controls.hashes.value;
+      const conflictResolution: number = this.form.controls.conflictResolution.value ? 1 : 0;
+
+      const sourceType = this.form.controls.sourceType.value;
+
+      if (sourceType === 'upload') {
+        if (!this.selectedFiles || this.selectedFiles.length === 0) {
+          this.alert.showErrorMessage('Please select a file to upload.');
+          return;
+        }
+        this.uploadAndImport(this.selectedFiles);
+        return;
+      }
+
+      if (sourceType === 'paste') {
+        const hashes = this.form.controls.hashes.value;
+        if (!hashes || hashes.trim() === '') {
+          this.alert.showErrorMessage('Please paste hashes to import.');
+          return;
+        } else if (!sourceData.includes(separator)) {
+          this.alert.showErrorMessage('The hash must contain the specified separator!');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData: handleEncode(hashes),
+          overwrite: conflictResolution
+        });
+        return;
+      }
+
+      if (sourceType === 'import') {
+        const sourceData = this.form.controls.sourceData.value;
+        if (!sourceData || sourceData.trim() === '') {
+          this.alert.showErrorMessage('Please select a file from the server import directory.');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData,
+          overwrite: conflictResolution
+        });
+        return;
+      }
+
+      if (sourceType === 'url') {
+        const sourceData = this.form.controls.sourceData.value;
+        if (!sourceData || sourceData.trim() === '') {
+          this.alert.showErrorMessage('Please provide a URL to download cracked hashes from.');
+          return;
+        }
+        this.submitImport({
+          sourceType: sourceType,
+          hashlistId: this.editedHashlistIndex,
+          separator: separator,
+          sourceData,
+          overwrite: conflictResolution
+        });
+        return;
+      }
+
+      this.alert.showErrorMessage('Unknown source type selected.');
+    }
+  }
+
+  onFilesSelected(files: FileList): void {
+    this.selectedFiles = files;
+    this.fileName = files[0].name;
+    this.form.patchValue({ sourceData: files[0].name });
+  }
+
+  get sourceType() {
+    return this.form.controls.sourceType.value;
+  }
+
+  async loadServerFiles(): Promise<void> {
+    this.isLoadingServerFiles = true;
+    try {
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      this.serverFiles = response.meta || [];
+      this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
+      this.hasLoadedServerFiles = true;
+    } catch (error) {
+      console.error('Error fetching server import files:', error);
+      this.alert.showErrorMessage('Could not load files from server import directory.');
+    } finally {
+      this.isLoadingServerFiles = false;
+    }
+  }
+
+  private async uploadAndImport(files: FileList | null): Promise<void> {
+    if (!files || files.length === 0) {
+      this.alert.showErrorMessage('Please select a file to upload.');
+      return;
+    }
+
+    const filename = removeFakePath(this.fileName || files[0].name);
+    const alreadyExists = await this.fileExistsInServerImportDir(filename);
+    if (alreadyExists) {
+      this.submitImport({
+        sourceType: 'import',
         hashlistId: this.editedHashlistIndex,
-        separator: this.form.get('separator').value,
-        sourceData: handleEncode(this.form.get('hashes').value)
-      };
-      const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe(() => {
-        this.alert.showSuccessMessage('Imported Cracked Hashes');
-        this.isCreatingLoading = false;
+        separator: this.form.controls.fieldSeparator.value,
+        sourceData: filename,
+        overwrite: this.form.controls.conflictResolution.value ? 1 : 0
+      });
+      return;
+    }
+
+    this.isCreatingLoading = true;
+
+    this.uploadService
+      .uploadFile(files[0], files[0].name, SERV.HASHLISTS)
+      .pipe(takeUntil(this.fileUnsubscribe))
+      .subscribe({
+        next: (progress) => {
+          this.uploadProgress = progress;
+        },
+        error: () => {
+          this.isCreatingLoading = false;
+          this.alert.showErrorMessage('Failed to upload file.');
+        },
+        complete: () => {
+          this.submitImport({
+            sourceType: 'import',
+            hashlistId: this.editedHashlistIndex,
+            separator: this.form.controls.fieldSeparator.value,
+            sourceData: filename,
+            overwrite: this.form.controls.conflictResolution.value ? 1 : 0
+          });
+        }
+      });
+  }
+
+  private async fileExistsInServerImportDir(filename: string): Promise<boolean> {
+    if (!filename) {
+      return false;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+      );
+      const files = response.meta || [];
+      this.serverFiles = files;
+      this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
+      this.hasLoadedServerFiles = true;
+      return files.some((file) => file.file === filename);
+    } catch {
+      return false;
+    }
+  }
+
+  private submitImport(payload: {
+    sourceType: string;
+    hashlistId: number;
+    separator: string;
+    sourceData: string;
+    overwrite: number;
+  }): void {
+    this.isCreatingLoading = true;
+    const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe({
+      next: (response: ResponseWrapper) => {
+        this.alert.showSuccessMessage(
+          `Processed pre-cracked hashes: ${response.meta.totalLines} total lines, ${response.meta.newCracked} new cracked hashes, ${response.meta.alreadyCracked} were already cracked, ${response.meta.invalid} invalid lines, ${response.meta.notFound} not matching entries (0s)!`
+        );
         const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
         this.router.navigate([path]);
-      });
-      this.isCreatingLoading = false;
-      this.unsubscribeService.add(createSubscription$);
-    }
+      },
+      error: () => {
+        this.alert.showErrorMessage('Failed to import cracked hashes.');
+      },
+      complete: () => {
+        this.isCreatingLoading = false;
+      }
+    });
+    this.unsubscribeService.add(createSubscription$);
   }
 
   /**
@@ -134,20 +358,20 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         include: ['tasks,hashlists,hashType']
       })
       .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
+        this.type = hashlist.format ?? 0;
+        this.hashtype = hashlist.hashType!;
 
         this.form.setValue({
           name: hashlist.name,
-          format: this.format.transform(hashlist.format, 'formats'),
+          hashlistFormat: this.format.transform(hashlist.format, 'formats'),
+          fieldSeparator: ':',
           isSalted: hashlist.isSalted,
           hashCount: hashlist.hashCount,
-          separator: hashlist.separator || ':',
-          hashes: ''
+          sourceType: 'paste',
+          sourceData: '',
+          hashes: '',
+          conflictResolution: false
         });
 
         this.isLoading = false; // Set isLoading to false after data is loaded

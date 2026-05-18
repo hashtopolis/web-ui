@@ -12,6 +12,38 @@ export interface ServiceConfig {
   RESOURCE: string;
 }
 
+export const HELPER_ENDPOINTS = [
+  // GET helpers (ghelper)
+  'currentUser',
+  'getUserPermission',
+  'getBestTasksAgent',
+  'getCracksOfTask',
+  // POST helpers (chelper)
+  'changeOwnPassword',
+  'importFile',
+  'importCrackedHashes',
+  'exportLeftHashes',
+  'exportCrackedHashes',
+  'exportWordlist',
+  'setUserPassword',
+  'createSupertask',
+  'createSuperHashlist',
+  'maskSupertaskBuilder',
+  'bulkSupertaskBuilder',
+  'purgeTask',
+  'abortChunk',
+  'resetChunk',
+  'rebuildChunkCache',
+  'rescanGlobalFiles',
+  'resetUserPassword'
+] as const;
+
+export type HelperEndpoint = (typeof HELPER_ENDPOINTS)[number];
+
+export function isHelperEndpoint(value: string): value is HelperEndpoint {
+  return (HELPER_ENDPOINTS as readonly string[]).includes(value);
+}
+
 export class SERV {
   // HELPER
   public static HELPER = { URL: '/helper', RESOURCE: 'Helper' };
@@ -51,10 +83,12 @@ export class SERV {
   public static SUPER_TASKS = { URL: '/ui/supertasks', RESOURCE: 'SuperTasks' };
   public static TASKS = { URL: '/ui/tasks', RESOURCE: 'Tasks' };
   public static TASKS_WRAPPER = { URL: '/ui/taskwrappers', RESOURCE: 'TaskWrappers' };
+  public static TASKS_WRAPPER_DISPLAYS = { URL: '/ui/taskwrapperdisplays', RESOURCE: 'TaskWrapperDisplays' };
   public static TASKS_WRAPPER_COUNT = { URL: '/ui/taskwrappers/count', RESOURCE: 'TaskWrappersCount' };
   // USERS
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };
+  public static FORGOT = { URL: '/helper/resetUserPassword', RESOURCE: 'resetUserPassword' };
   // PROJECTS
   public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }

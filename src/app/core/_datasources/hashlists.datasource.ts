@@ -1,4 +1,7 @@
+import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
+
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 import { JHashlist } from '@models/hashlist.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -14,7 +17,6 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
-  private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
     this.reset(true);
@@ -28,37 +30,29 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   }
   loadAll(query?: Filter): void {
     this.loading = true;
-    // Store the current filter if provided
-    if (query) {
-      this._currentFilter = query;
-    }
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
-    // Use stored filter if no new filter is provided
-    const activeFilter = query || this._currentFilter;
     if (this.superHashListID) {
-      let params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');
-      params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+      const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');
       this.subscriptions.push(
         this.service
-          .get(SERV.HASHLISTS, this.superHashListID, params.create())
+          .get(SERV.HASHLISTS, this.superHashListID, params.create(), httpOptions)
           .pipe(
-            catchError(() => of([])),
+            catchError((error: HttpErrorResponse) => {
+              this.handleFilterError(error);
+              return of(null);
+            }),
             finalize(() => (this.loading = false))
           )
-          .subscribe((response: ResponseWrapper) => {
-            const responseData = { data: response.data, included: response.included };
-            const superHashList: JHashlist = this.serializer.deserialize<JHashlist>({
-              data: responseData.data,
-              included: responseData.included
-            });
-            this.setData(superHashList.hashlists);
-            const length = response.meta.page.total_elements;
-            const nextLink = response.links.next;
-            const prevLink = response.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
-
-            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          .subscribe((response: ResponseWrapper | null) => {
+            if (!response) {
+              return;
+            }
+            const superHashList: JHashlist = this.serializer.deserialize(response, zHashlistResponse);
+            const hashlists = superHashList.hashlists ?? [];
+            this.setData(hashlists);
+            this.setPaginationConfig(hashlists.length, hashlists.length, null, null, 0);
           })
       );
     } else {
@@ -78,16 +72,29 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
 
       this.subscriptions.push(
         this.service
-          .getAll(SERV.HASHLISTS, params.create())
+          .getAll(SERV.HASHLISTS, params.create(), httpOptions)
           .pipe(
-            catchError(() => of([])),
+            catchError((error: HttpErrorResponse) => {
+              this.handleFilterError(error);
+              return of(null);
+            }),
             finalize(() => (this.loading = false))
           )
-          .subscribe((response: ResponseWrapper) => {
-            const responseData = { data: response.data, included: response.included };
-            const hashlists = this.serializer.deserialize<JHashlist[]>(responseData).map((element) => {
-              element.hashTypeDescription = element.hashType.description;
-              element.hashTypeId = element.hashType.id;
+          .subscribe((response: ResponseWrapper | null) => {
+            if (!response) {
+              return; // Don't update data if there was an error
+            }
+            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
+            if (!deserialized || !Array.isArray(deserialized)) {
+              return; // Safety check: if deserialize returns null or non-array, exit
+            }
+            const hashlists = deserialized.map((element) => {
+              if (element.hashType) {
+                element.hashTypeDescription = element.hashType.description;
+                element.hashTypeId = element.hashType.id;
+              } else {
+                element.hashTypeDescription = '';
+              }
               return element;
             });
 
@@ -108,8 +115,8 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
     this.clearSelection();
     this.loadAll();
   }
+
   clearFilter(): void {
-    this._currentFilter = null;
     this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
     this.reload();
   }

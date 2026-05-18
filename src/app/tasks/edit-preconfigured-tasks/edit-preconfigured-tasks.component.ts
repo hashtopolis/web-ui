@@ -1,23 +1,27 @@
-import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
-import { FilterType } from 'src/app/core/_models/request-params.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { zPreTaskResponse } from '@generated/api/zod';
+import { firstValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { yesNo } from '../../core/_constants/general.config';
-import { SERV } from '../../core/_services/main.config';
+import { yesNo } from '@src/app/core/_constants/general.config';
+import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -43,38 +47,65 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   // Edit Options
   editedPretaskIndex: number;
 
-  pretask: any = [];
-  files: any; //Add Model
+  /** Read-only mode based on roles */
+  isReadOnly = false;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
-  ) {
-    this.getInitialization();
-    this.buildForm();
+  /** HttpClient without interceptors to avoid global error dialog */
+  private httpNoInterceptors: HttpClient;
+
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private serializer = inject(JsonAPISerializer);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  protected roleService = inject(PreconfiguredTasksRoleService);
+
+  constructor() {
     this.titleService.set(['Edit Preconfigured Tasks']);
-  }
-
-  /**
-   * Initializes the form based on route parameters.
-   */
-  getInitialization() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedPretaskIndex = +params['id'];
-      this.updateFormValues();
-    });
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
+    this.buildForm();
   }
 
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    this.loadData();
+  async ngOnInit(): Promise<void> {
+    this.isReadOnly = !this.roleService.hasRole('edit');
+
+    this.buildForm();
+
+    this.editedPretaskIndex = +this.route.snapshot.params['id'];
+
+    try {
+      await this.loadPretask();
+      this.loadData();
+      this.isLoading = false;
+    } catch (e: unknown) {
+      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+      if (status === 403) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+
+      if (status === 404) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // For other errors (500 etc.) show a friendly message instead of redirecting
+      // so the user knows the server failed. Keep the loading flag disabled.
+
+      console.error('Error loading pretask:', e);
+      const msg = status ? `Error loading pretask (server returned ${status}).` : 'Error loading pretask.';
+      this.alert.showErrorMessage(msg);
+      this.isLoading = false;
+      return;
+    }
   }
 
   /**
@@ -86,7 +117,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the empty form.
    */
   buildForm(): void {
     this.updateForm = new FormGroup({
@@ -94,132 +125,103 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       statusTimer: new FormControl({ value: '', disabled: true }),
       useNewBench: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
-        taskName: new FormControl(''),
-        attackCmd: new FormControl(''),
-        chunkTime: new FormControl(''),
-        color: new FormControl(''),
-        priority: new FormControl(''),
-        maxAgents: new FormControl(''),
-        isCpuTask: new FormControl(''),
-        isSmall: new FormControl('')
+        taskName: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required]
+        ),
+        attackCmd: new FormControl(
+          { value: '', disabled: this.isReadOnly },
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
+        chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
+        color: new FormControl({ value: '', disabled: this.isReadOnly }),
+        priority: new FormControl({ value: '', disabled: this.isReadOnly }),
+        maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
+        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
+      })
+    });
+  }
+
+  private async loadPretask(): Promise<void> {
+    const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
+
+    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+
+    const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
+
+    this.updateForm = new FormGroup({
+      pretaskId: new FormControl({
+        value: pretask.id,
+        disabled: true
+      }),
+      statusTimer: new FormControl({
+        value: pretask.statusTimer,
+        disabled: true
+      }),
+      useNewBench: new FormControl({
+        value: pretask.useNewBench,
+        disabled: true
+      }),
+      updateData: new FormGroup({
+        taskName: new FormControl(pretask.taskName, this.isReadOnly ? [] : [Validators.required]),
+        attackCmd: new FormControl(
+          pretask.attackCmd,
+          this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
+        ),
+        chunkTime: new FormControl(pretask.chunkTime),
+        color: new FormControl(pretask.color),
+        priority: new FormControl(pretask.priority),
+        maxAgents: new FormControl(pretask.maxAgents),
+        isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
+        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required])
       })
     });
   }
 
   /**
-   * Loads data, specifically Pretasks, for the component.
+   * Loads data, specifically Pretasks/files, for the component.
    */
   loadData(): void {
     const params = new RequestParamBuilder()
-      .addFilter({ field: 'pretaskId', operator: FilterType.EQUAL, value: this.editedPretaskIndex })
+      .addFilter({
+        field: 'pretaskId',
+        operator: FilterType.EQUAL,
+        value: this.editedPretaskIndex
+      })
       .addInclude('pretaskFiles')
       .create();
 
-    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const pretasks = this.serializer.deserialize<JPretask[]>(responseBody);
-
-      this.files = pretasks;
-      this.dtTrigger.next(void 0);
-    });
+    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe();
 
     this.unsubscribeService.add(loadtableSubscription$);
-
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      stateSave: true,
-      select: true,
-      buttons: []
-    };
   }
 
   /**
    * Handles form submission, edit Pretask
    * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
    */
-  onSubmit() {
-    if (this.updateForm.valid) {
+  onSubmit(): void {
+    if (this.updateForm.valid && !this.isReadOnly) {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
-        .subscribe(() => {
-          this.alert.showSuccessMessage('PreTask saved');
-          this.isUpdatingLoading = false;
-          this.router.navigate(['tasks/preconfigured-tasks']);
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('PreTask saved');
+            this.isUpdatingLoading = false;
+            this.router.navigate(['tasks/preconfigured-tasks']);
+          },
+          error: (err) => {
+            console.error('Error updating preconfigured Task', err);
+            this.isUpdatingLoading = false;
+          }
         });
+
       this.unsubscribeService.add(updateSubscription$);
+    } else {
+      this.updateForm.markAllAsTouched();
+      this.updateForm.updateValueAndValidity();
     }
   }
-
-  /**
-   * Updates the form values based on the data fetched from the server.
-   * This method retrieves the pre-task data from the server and updates the form controls accordingly.
-   */
-  private updateFormValues() {
-    const params = new RequestParamBuilder().create();
-
-    const loadSubscription$ = this.gs
-      .get(SERV.PRETASKS, this.editedPretaskIndex, params)
-      .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const pretask = this.serializer.deserialize<JPretask>(responseBody);
-
-        this.pretask = pretask;
-        this.updateForm = new FormGroup({
-          pretaskId: new FormControl({
-            value: pretask.id,
-            disabled: true
-          }),
-          statusTimer: new FormControl({
-            value: pretask.statusTimer,
-            disabled: true
-          }),
-          useNewBench: new FormControl({
-            value: pretask.useNewBench,
-            disabled: true
-          }),
-          updateData: new FormGroup({
-            taskName: new FormControl(pretask.taskName, Validators.required),
-            attackCmd: new FormControl(pretask.attackCmd, Validators.required),
-            chunkTime: new FormControl(pretask.chunkTime),
-            color: new FormControl(pretask.color),
-            priority: new FormControl(pretask.priority),
-            maxAgents: new FormControl(pretask.maxAgents),
-            isCpuTask: new FormControl(pretask.isCpuTask, Validators.required),
-            isSmall: new FormControl(pretask.isSmall, Validators.required)
-          })
-        });
-        this.unsubscribeService.add(loadSubscription$);
-      });
-  }
-
-  // TABLES CODE
-
-  // Table Files
-  @ViewChild(DataTableDirective, { static: false })
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  // // @HostListener allows us to also guard against browser refresh, close, etc.
-  // @HostListener('window:beforeunload', ['$event'])
-  // unloadNotification($event: any) {
-  //   if (!this.canDeactivate()) {
-  //     $event.returnValue = 'IE and Edge Message';
-  //   }
-  // }
-
-  // canDeactivate(): Observable<boolean> | boolean {
-  //   if (this.updateForm.valid) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 }

@@ -1,4 +1,7 @@
+import { zChunkListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
   isDetail = false;
 
   setAgentId(agentId: number): void {
@@ -32,20 +35,21 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
-    /*     if (query) {
-      params.addFilter(query);
-    } */
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-    const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
+
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const chunks$ = this.service.getAll(SERV.CHUNKS, params.create(), httpOptions);
 
     forkJoin([chunks$])
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          this.handleFilterError(error);
+          return of([] as ResponseWrapper[]);
+        }),
         finalize(() => (this.loading = false))
       )
-      .subscribe(([response]: [ResponseWrapper]) => {
-        const responseBody = { data: response.data, included: response.included };
-        const assignedChunks = this.serializer.deserialize<JChunk[]>(responseBody);
+      .subscribe(([response]: ResponseWrapper[]) => {
+        const assignedChunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
 
         assignedChunks.forEach((chunk: JChunk) => {
           if (chunk.task != undefined) {

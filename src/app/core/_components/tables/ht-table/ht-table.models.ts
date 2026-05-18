@@ -1,9 +1,10 @@
-import { BaseModel } from '@models/base.model';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
-import { SafeHtml } from '@angular/platform-browser';
+
 import { SortDirection } from '@angular/material/sort';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
@@ -49,10 +50,17 @@ export interface HTTableIcon {
 }
 
 export interface HTTableRouterLink {
-  label?: string | number;
-  routerLink: Array<string | number>;
-  tooltip?: string;
-  icon?: { faIcon: IconDefinition; tooltip?: string };
+  label?: string | number | undefined;
+  routerLink: Array<string | number> | null;
+  tooltip?: string | undefined;
+  icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
+  visualGraph?: {
+    enabled: boolean;
+    taskId: number;
+    imageUrl?: string;
+    overallProgress?: number;
+    overallProgressLabel?: string;
+  };
 }
 
 export interface HTTableEditable<T> {
@@ -61,9 +69,12 @@ export interface HTTableEditable<T> {
   action: string;
 }
 
+/** Column type for checkbox toggle events in attack file tables. */
+export type CheckboxColumnType = 'CMD' | 'CMD_PREPRO';
+
 export interface CheckboxChangeEvent {
-  row: any;
-  columnType: string;
+  row: BaseModel;
+  columnType: CheckboxColumnType;
   checked: boolean;
 }
 
@@ -71,7 +82,7 @@ export interface CheckboxFiles {
   [key: string]: boolean;
 }
 
-export type HTTableColumnType = 'dafeult | link | editable';
+export type HTTableColumnType = 'default' | 'link' | 'editable';
 
 export interface HTTableColumn {
   type?: HTTableColumnType;
@@ -80,33 +91,39 @@ export interface HTTableColumn {
   position?: 'right' | 'left';
   isSortable?: boolean;
   isSearchable?: boolean;
-  render?: (data: any) => SafeHtml;
-  async?: (data: any) => Promise<SafeHtml>;
-  export?: (data: any) => Promise<string>;
-  truncate?: (data: any) => boolean;
-  editable?: (data: any) => HTTableEditable<any>;
-  checkbox?: (data: any) => HTTableEditable<any>;
+  render?(data: BaseModel): SafeHtml;
+  async?(data: BaseModel): Promise<SafeHtml>;
+  export?(data: BaseModel): Promise<string>;
+  truncate?(data: BaseModel): boolean;
+  editable?(data: BaseModel): HTTableEditable<BaseModel>;
+  checkbox?(data: BaseModel): HTTableEditable<BaseModel>;
   customCellColor?: customCellColorInput;
-  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
-  icon?: (data: BaseModel) => HTTableIcon;
+  routerLink?(data: BaseModel): Observable<HTTableRouterLink[]>;
+  icon?(data: BaseModel): HTTableIcon;
   isCopy?: boolean;
+  parent?: string; //parent is to build relation sort query in format "task.taskName"
 }
+
+/** Stringified column enum value used as mat-table column identifier */
+export type ColumnDefId = string;
 
 /** Column def for selectable checkbox */
 export const COL_SELECT = 100;
 /** Column def for row action */
 export const COL_ROW_ACTION = 200;
 export interface customCellColorInput {
-  value: (data: any) => number;
+  value(data: BaseModel): number;
   treshold1: number;
   treshold2: number;
   type: number;
-  isActive: (data: any) => boolean;
-  lastTime: (data: any) => number;
+  isActive(data: BaseModel): boolean;
+  lastTime(data: BaseModel): number;
 }
 
 export interface SortingColumn {
-  id: string;
-  direction: SortDirection;
+  id?: number;
+  dataKey: string;
+  direction: SortDirection | string;
   isSortable: boolean;
+  parent?: string | undefined; // Parent is in order to build sort queries for relationships
 }

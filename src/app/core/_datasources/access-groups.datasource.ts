@@ -1,4 +1,7 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zAccessGroupListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { Filter } from '@models/request-params.model';
@@ -11,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -25,19 +28,21 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
     let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params.create());
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params.create(), httpOptions);
 
     this.subscriptions.push(
       accessGroups$
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return EMPTY;
+          }),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-
-          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
-
+          const accessgroups: JAccessGroup[] = this.serializer.deserialize(response, zAccessGroupListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

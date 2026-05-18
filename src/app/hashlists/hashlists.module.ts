@@ -1,28 +1,28 @@
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { CommonModule } from '@angular/common';
-import { ComponentsModule } from '../shared/components.module';
-import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
-import { DirectivesModule } from '../shared/directives.module';
-import { EditHashlistComponent } from './edit-hashlist/edit-hashlist.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { HashesComponent } from './hashes/hashes.component';
-import { HashlistComponent } from './hashlist/hashlist.component';
-import { HashlistRoutingModule } from './hashlists-routing.module';
-import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
-import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
-import { ImportCrackedHashesComponent } from './import-cracked-hashes/import-cracked-hashes.component';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { PipesModule } from '../shared/pipes.module';
-import { RouterModule } from '@angular/router';
-import { SearchHashComponent } from './search-hash/search-hash.component';
-import { ShowCracksComponent } from './show-cracks/show-cracks.component';
-import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
-import { CoreFormsModule } from '../shared/forms.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'; // You may need to import other modules based on your application's requirements.
+import { RouterModule } from '@angular/router';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
+
+import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
+import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
+import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.component';
+import { HashlistRoutingModule } from '@src/app/hashlists/hashlists-routing.module';
+import { ImportCrackedHashesComponent } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.component';
+import { NewHashlistComponent } from '@src/app/hashlists/new-hashlist/new-hashlist.component';
+import { SearchHashComponent } from '@src/app/hashlists/search-hash/search-hash.component';
+import { ShowCracksComponent } from '@src/app/hashlists/show-cracks/show-cracks.component';
+import { SuperhashlistComponent } from '@src/app/hashlists/superhashlist/superhashlist.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { DirectivesModule } from '@src/app/shared/directives.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
   declarations: [
@@ -44,15 +44,13 @@ import { MatInputModule } from '@angular/material/input'; // You may need to imp
     CoreFormsModule,
     CoreComponentsModule,
     FontAwesomeModule,
-    DataTablesModule,
     DirectivesModule,
     ComponentsModule,
     CoreFormsModule,
     CommonModule,
     RouterModule,
     FormsModule,
-    PipesModule,
-    NgbModule
+    PipesModule
   ]
 })
 export class HashlistModule {}

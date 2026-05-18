@@ -1,11 +1,11 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask, JTaskWrapper } from '@models/task.model';
+import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -22,32 +22,27 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
     this.loading = true;
 
     const params = new RequestParamBuilder()
-      .setPageSize(this.pageSize)
-      .addInclude('tasks')
+      .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
       .create();
 
-    const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
+    const subtasks$ = this.service.getAll(SERV.TASKS, params);
 
     this.subscriptions.push(
       subtasks$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>({
-            data: response.data,
-            included: response.included
-          });
+          const subtasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-          const subtasks = taskWrappers[0].tasks;
           if (subtasks.length > 0) {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
@@ -60,15 +55,14 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
                 .getAll(SERV.CHUNKS, chunkParams.create())
                 .pipe(finalize(() => this.setData(subtasks)))
                 .subscribe((chunkResponse: ResponseWrapper) => {
-                  const chunks = this.serializer.deserialize<JChunk[]>({
-                    data: chunkResponse.data,
-                    included: chunkResponse.included
-                  });
+                  const chunks: JChunk[] = this.serializer.deserialize(chunkResponse, zChunkListResponse);
                   subtasks.forEach((task) => {
                     task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
                   });
                 })
             );
+          } else {
+            this.setData(subtasks);
           }
         })
     );

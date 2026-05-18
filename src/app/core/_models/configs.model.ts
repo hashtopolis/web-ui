@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { ConfigSectionId } from '@models/id.types';
 
 /**
  * Interface definition for storage config object
@@ -8,7 +9,7 @@ import { BaseModel } from '@models/base.model';
  * @prop value           Config value
  */
 export interface JConfig extends BaseModel {
-  configSectionId: number;
+  configSectionId: ConfigSectionId;
   item: string;
   value: string;
 }

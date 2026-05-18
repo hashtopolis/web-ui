@@ -1,8 +1,7 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
-import { JHashlist } from '@models/hashlist.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -21,13 +20,14 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './hashes-table.component.html',
   standalone: false
 })
-export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() id: number;
   @Input() dataType: string;
+  @Input() filterParam: string;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);
@@ -37,7 +37,15 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     if (this.id) {
       this.dataSource.setId(this.id);
       this.dataSource.setDataType(this.dataType);
+
+      if (this.filterParam) {
+        this.dataSource.setFilterParam(this.filterParam);
+      }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -50,7 +58,12 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -66,7 +79,6 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         isSearchable: true,
         isCopy: true,
         truncate: (hash: JHash) => hash.hash.length > 40,
-        render: (hash: JHash) => hash.hash,
         export: async (hash: JHash) => hash.hash + ''
       },
       {
@@ -115,7 +127,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
+  rowActionClicked(event: ActionMenuEvent<JHash>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         // this.rowActionEdit(event.data);
@@ -124,7 +136,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy((event as JHash).hash)) {
+    if (this.clipboard.copy(String((event as JHash).hash))) {
       this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
     } else {
       this.alertService.showErrorMessage('Could not copy hash value clipboard.');

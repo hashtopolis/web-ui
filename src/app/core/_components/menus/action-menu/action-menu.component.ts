@@ -1,6 +1,7 @@
+// typescript
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
@@ -14,11 +15,13 @@ import {
   OnInit,
   Output,
   Renderer2,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -28,16 +31,37 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'action-menu',
   templateUrl: './action-menu.component.html',
+  styleUrls: ['./action-menu.component.scss'],
   standalone: false
 })
+/**
+ * ActionMenuComponent
+ *
+ * Small dropdown/action menu component that supports:
+ * - opening on hover or click (`openOnMouseEnter`)
+ * - optional hover-to-close behavior with a short grace period (`enableHoverClose`)
+ * - routing, external links, and custom menu item click events
+ *
+ * The component uses a global `mousemove` listener while the menu is open to detect
+ * pointer exits and applies a short deferred close to avoid flicker when moving
+ * between trigger and menu.
+ */
 export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
+  /** Delay in milliseconds to prevent hover flickering */
+  static readonly hoverDelayMs = 30;
+
   private subscriptions: Subscription[] = [];
 
+  /** Handle to remove the global mousemove listener */
   private globalMouseMoveListener: (() => void) | null = null;
 
-  hovering = false;
-  hoverTimeout: ReturnType<typeof setTimeout>;
+  /** Handle for the deferred hover-close timeout */
+  hoverTimeout: ReturnType<typeof setTimeout> | null = null;
   menuPanelId: string | undefined;
+
+  // track last known mouse coords for deferred checks
+  private lastMouseX = 0;
+  private lastMouseY = 0;
 
   @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
   @ViewChild('menuTriggerButton', { read: ElementRef }) triggerButton!: ElementRef<HTMLButtonElement>;
@@ -51,7 +75,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() label: string = '';
   @Input() disabled = false;
   @Input() cls = '';
-  @Input() data: unknown;
+  @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
   @Input() openOnMouseEnter = false;
@@ -62,15 +86,16 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() enableHoverClose = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
-
-  openSubmenus: MatMenuTrigger[] = [];
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<
+    ActionMenuEvent<BaseModel | undefined>
+  >();
 
   faDiscord = faDiscord;
   faGithub = faGithub;
   faPaperplane = faPaperPlane;
   faGlobe = faGlobe;
   faBook = faBook;
+  faSquarePlus = faSquarePlus;
 
   isDarkMode = false;
   faIconColor = 'white';
@@ -80,19 +105,19 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private static openMenuTrigger: MatMenuTrigger | null = null;
 
-  constructor(
-    private router: Router,
-    private storage: LocalStorageService<UIConfig>,
-    private renderer: Renderer2
-  ) {
+  private router = inject(Router);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private renderer = inject(Renderer2);
+
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     this.faIconColor = this.isDarkMode ? 'white' : 'black';
   }
 
   /**
-   * Angular lifecycle hook: Initializes component.
-   * Subscribes to router events to close menu on navigation and update active state.
+   * Angular lifecycle hook: subscribes to router events to update active state
+   * and close the menu when navigation occurs.
    */
   ngOnInit(): void {
     this.subscriptions.push(
@@ -101,7 +126,6 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentUrl = event.url.split('/').slice(1);
           this.checkIsActive();
 
-          // Close menu on navigation end
           if (this.trigger?.menuOpen) {
             this.trigger.closeMenu();
           }
@@ -111,8 +135,8 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Angular lifecycle hook: Called after view initialization.
-   * Sets menuPanelId, subscribes to menu open/close events to manage global mouse listener.
+   * Angular lifecycle hook: called after view init. Captures the menu panel id
+   * and subscribes to menu open/close events to manage the global mouse listener.
    */
   ngAfterViewInit(): void {
     this.menuPanelId = this.trigger.menu?.panelId;
@@ -131,27 +155,28 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
         // Slight delay to ensure the menu DOM is initialized before checking pointer
         setTimeout(() => {
           this.addGlobalMouseListener();
-        }, 50); // even 10–30ms might work; tune as needed
+        }, ActionMenuComponent.hoverDelayMs);
       })
     );
   }
 
   /**
-   * Adds a global mousemove event listener on the document.
-   * Used to detect when the mouse pointer moves outside the button and menu to close it.
-   * Prevents multiple listeners by checking if one already exists.
+   * Add a single global mousemove listener to track pointer position while menu is open.
+   * The listener updates last known coordinates and delegates to `checkPointerOutside`.
    */
   addGlobalMouseListener() {
-    if (this.globalMouseMoveListener) return; // already listening
+    if (this.globalMouseMoveListener) return;
 
     this.globalMouseMoveListener = this.renderer.listen('document', 'mousemove', (event: MouseEvent) => {
+      // always keep last coords up to date
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
       this.checkPointerOutside(event);
     });
   }
 
   /**
-   * Removes the global mousemove event listener if it exists.
-   * Called when the menu closes to clean up resources.
+   * Remove the global mousemove listener if present.
    */
   removeGlobalMouseListener() {
     if (this.globalMouseMoveListener) {
@@ -161,7 +186,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Angular lifecycle hook: Cleans up subscriptions and removes global mouse listener.
+   * Angular lifecycle hook: unsubscribe and clean up global listener.
    */
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -171,8 +196,8 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Checks if the current URL matches any of the routerLinks in the menu items.
-   * Sets the isActive flag to highlight the active menu state.
+   * Sets `isActive` based on whether the current route matches any configured menu item.
+   * Used to apply an `active` CSS state to the trigger button.
    */
   checkIsActive(): void {
     this.isActive = false;
@@ -181,7 +206,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
       for (const item of section) {
         if (item.routerLink) {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (partial.every((value, index) => value === item.routerLink[index])) {
+          if (partial.every((value, index) => value === item.routerLink![index])) {
             this.isActive = true;
             break;
           }
@@ -191,11 +216,11 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Handles a click on a menu item.
-   * Navigates internally or externally based on menuItem properties,
-   * or emits an event for custom handling.
-   * Closes the menu afterward.
-   * @param menuItem The clicked ActionMenuItem
+   * Handle a menu item click:
+   * - internal route -> navigate
+   * - external -> open new tab
+   * - otherwise emit `menuItemClicked`
+   * Closes the menu after handling.
    */
   onMenuItemClick(menuItem: ActionMenuItem): void {
     if (menuItem.routerLink && !menuItem.external) {
@@ -215,7 +240,18 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Closes the menu if it is currently open.
+   * Handle clicking the add button inside a menu item.
+   */
+  onAddMenuItemClick(menuItem: ActionMenuItem): void {
+    if (menuItem.routerLinkAdd && !menuItem.external) {
+      this.router.navigate(menuItem.routerLinkAdd).then(() => {
+        this.closeMenuIfOpen();
+      });
+    }
+  }
+
+  /**
+   * Close the menu if it is currently open.
    */
   closeMenuIfOpen(): void {
     if (this.trigger?.menuOpen) {
@@ -224,8 +260,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Handles mouse entering the menu trigger button.
-   * Opens the menu if not already open and closes any other open menus.
+   * Mouse entered the trigger button: open menu (when configured) and clear any pending close.
    */
   onMouseEnter(): void {
     this.hoveringButton = true;
@@ -242,18 +277,18 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Handles mouse leaving the menu trigger button.
-   * Starts a timeout to possibly close the menu if pointer leaves both button and menu.
-   * @param event MouseEvent triggered on mouse leave
+   * Mouse left the trigger button: record coordinates and start deferred close.
    */
   onMouseLeave(event: MouseEvent): void {
     this.hoveringButton = false;
-    this.startHoverTimeout(event);
+    // capture last coords immediately so timeout checks current pointer
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+    this.startHoverTimeout();
   }
 
   /**
-   * Handles mouse entering the menu panel.
-   * Cancels any pending close timeout.
+   * Mouse entered the menu panel: cancel any pending close.
    */
   onMenuMouseEnter(): void {
     this.hoveringMenu = true;
@@ -261,40 +296,50 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Handles mouse leaving the menu panel.
-   * Starts a timeout to possibly close the menu if pointer leaves both button and menu.
-   * @param event MouseEvent triggered on mouse leave
+   * Mouse left the menu panel: record coordinates and start deferred close.
    */
   onMenuMouseLeave(event: MouseEvent): void {
     this.hoveringMenu = false;
-    this.startHoverTimeout(event);
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+    this.startHoverTimeout();
   }
 
   /**
-   * Starts a short timeout (150ms) to check if the mouse pointer
-   * is outside both the trigger button and menu panel before closing the menu.
-   * @param event MouseEvent used to check pointer position
+   * Start a single deferred timeout to check pointer position after a short grace period.
+   * If the pointer is still outside the trigger and menu, close the menu.
    */
-  startHoverTimeout(event: MouseEvent) {
+  startHoverTimeout() {
     if (!this.openOnMouseEnter || !this.enableHoverClose) return;
+
+    // prevent multiple timers
+    this.clearHoverTimeout();
+
     this.hoverTimeout = setTimeout(() => {
-      this.checkPointerOutside(event);
-    }, 150);
+      try {
+        if (this.isPointerOutsideAt(this.lastMouseX, this.lastMouseY)) {
+          this.closeMenuIfOpen();
+        }
+      } finally {
+        // ensure we clear the stored timeout handle
+        this.hoverTimeout = null;
+      }
+    }, ActionMenuComponent.hoverDelayMs);
   }
 
   /**
-   * Clears any pending hover timeout to prevent premature menu closing.
+   * Cancel any pending hover-close timeout.
    */
   clearHoverTimeout() {
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = null;
     }
   }
 
   /**
-   * Prevents the default focus behavior and removes focus from the event target.
-   * Used to manage focus styling or accessibility.
-   * @param event FocusEvent to prevent default behavior
+   * Prevent default focus behavior and blur the event target.
+   * Useful to avoid focus styling when the trigger is activated by mouse.
    */
   preventFocus(event: FocusEvent): void {
     event.preventDefault();
@@ -302,10 +347,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Navigates to the first menu item programmatically.
-   * Opens external links in a new tab or routes internally.
-   * Closes the menu afterward.
-   * @param event MouseEvent to stop propagation
+   * Programmatically navigate to the first menu item (used when trigger is clicked).
    */
   navigateToFirst(event: MouseEvent): void {
     event.stopPropagation();
@@ -323,37 +365,41 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Returns true if mouse pointer is outside both the trigger button and menu panel.
-   * @param event MouseEvent to get pointer location
+   * Determine whether a given screen coordinate is outside the trigger button and menu panel.
+   * Returns `true` when pointer is outside both.
    */
-  isPointerOutside(event: MouseEvent): boolean {
-    const x = event.clientX;
-    const y = event.clientY;
-
+  isPointerOutsideAt(x: number, y: number): boolean {
     const hoveredElement = document.elementFromPoint(x, y);
 
-    const insideTrigger = this.triggerButton.nativeElement.contains(hoveredElement);
+    const insideTrigger = this.triggerButton?.nativeElement.contains(hoveredElement);
     const insideMenu = hoveredElement?.closest(`#${this.menuPanelId ?? ''}`);
 
     return !(insideTrigger || insideMenu);
   }
 
   /**
-   * Checks if the mouse pointer is outside both the trigger button and menu panel,
-   * and closes the menu if so. This method is called on every mousemove event globally.
-   * @param event MouseEvent containing pointer coordinates
+   * Called by the global mousemove handler to decide whether to schedule a deferred close
+   * or cancel one when the pointer returns inside.
    */
   checkPointerOutside(event: MouseEvent) {
     if (!this.openOnMouseEnter || !this.enableHoverClose) return;
-    if (this.isPointerOutside(event)) {
-      this.trigger.closeMenu();
+
+    // update last coords (already done in global listener, but keep safe)
+    this.lastMouseX = event.clientX;
+    this.lastMouseY = event.clientY;
+
+    if (this.isPointerOutsideAt(this.lastMouseX, this.lastMouseY)) {
+      // schedule closure after grace period
+      this.startHoverTimeout();
+    } else {
+      // pointer is inside — cancel any pending close
+      this.clearHoverTimeout();
     }
   }
 
   /**
-   * Helper methods to check if the provided icon name matches a known FontAwesome icon.
-   * @param name The icon name string to check
-   * @returns True if the icon name matches the specific FontAwesome icon
+   * Icon helper checks: return true when the provided name matches a specific icon key.
+   * These helpers are intentionally defensive (handle undefined).
    */
   iconContainsDiscord(name: string): boolean {
     if (name != undefined) {

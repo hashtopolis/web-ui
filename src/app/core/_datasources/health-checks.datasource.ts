@@ -1,4 +1,7 @@
+import { zHealthCheckListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
+
+import { HttpHeaders } from '@angular/common/http';
 
 import { JHealthCheck } from '@models/health-check.model';
 import { Filter } from '@models/request-params.model';
@@ -10,7 +13,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
-  private _currentFilter: Filter = null;
+  private _currentFilter: Filter | null = null;
 
   loadAll(query?: Filter): void {
     this.loading = true;
@@ -23,17 +26,22 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
     const activeFilter = query || this._currentFilter;
     let params = new RequestParamBuilder().addInitial(this).addInclude('hashType');
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params.create());
+
+    // Create headers to skip error dialog for filter validation errors
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params.create(), httpOptions);
 
     this.subscriptions.push(
       forkJoin([healthChecks$])
         .pipe(
-          catchError(() => of([])),
+          catchError((error) => {
+            this.handleFilterError(error);
+            return of([] as ResponseWrapper[]);
+          }),
           finalize(() => (this.loading = false))
         )
-        .subscribe(([response]: [ResponseWrapper]) => {
-          const responseData = { data: response.data, included: response.included };
-          const healthChecks = this.serializer.deserialize<JHealthCheck[]>(responseData);
+        .subscribe(([response]: ResponseWrapper[]) => {
+          const healthChecks: JHealthCheck[] = this.serializer.deserialize(response, zHealthCheckListResponse);
 
           healthChecks.forEach((healthCheck: JHealthCheck) => {
             healthCheck.hashTypeDescription = healthCheck.hashType?.description;
@@ -42,8 +50,8 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(healthChecks);

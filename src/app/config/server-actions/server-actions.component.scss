@@ -1,0 +1,62 @@
+// scss
+        .server-actions {
+          --bg: #ffffff;
+          --surface: #ffffff;
+          --text: #111827;
+          --muted: #6b7280;
+          --border: #e6e6e6;
+          --btn-bg: #fff;
+          --btn-border: #cfd8dc;
+          --hover: #f8fafc;
+
+          background: var(--bg);
+          color: var(--text);
+          padding: 8px;
+          border-radius: 8px;
+        }
+
+        /* Dark theme overrides */
+        .server-actions.dark {
+          --bg: #0b1020;
+          --surface: #0f1724;
+          --text: #e6eef8;
+          --muted: #9aa6bf;
+          --border: rgba(255,255,255,0.06);
+          --btn-bg: #0f1724;
+          --btn-border: rgba(255,255,255,0.08);
+          --hover: rgba(255,255,255,0.02);
+        }
+
+        /* Actions list */
+        .actions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .item {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 5px 15px;
+        }
+
+        .control {
+          flex: 0 0 200px;
+          min-width: 140px;
+        }
+
+        .desc {
+          flex: 1 1 auto;
+        }
+
+        .desc .text {
+          color: var(--muted);
+          line-height: 1.4;
+        }
+
+        @media (max-width: 640px) {
+          .item { grid-template-columns: 1fr; }
+          .control { order: 2; justify-content: flex-start; }
+          .desc { order: 1; margin-bottom: 6px; display: block; }
+        }

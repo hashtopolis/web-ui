@@ -1,14 +1,14 @@
-<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
-  <div fxFlex="70" fxFlex.lt-md="100">
+<div class="grid grid-cols-12">
+  <div class="col-span-12 md:col-span-6">
     <grid-main>
       <app-page-subtitle [subtitle]="'New Task'"></app-page-subtitle>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (form) {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-        <input-color title="Color" formControlName="color"></input-color>
+          <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+          <input-color title="Color" formControlName="color"></input-color>
 
-        <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
-          <ng-container *ngIf="(copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)">
+          @if (!isLoading) {
             <input-multiselect
               [isLoading]="isLoading"
               [placeholder]="'Hashlist...'"
@@ -17,108 +17,117 @@
               [mergeIdAndName]="true"
               [multiselectEnabled]="false"
               formControlName="hashlistId"
-              [initialHashlistId]="isCopyHashlistId"
               [isRequired]="true"
             ></input-multiselect>
-          </ng-container>
-        </div>
-        <ng-template #loadingTemplate>
-          <div class="loading-spinner">
-            <mat-spinner diameter="32"></mat-spinner>
-            <span>Loading Hashlists...</span>
+          } @else {
+            <div class="loading-spinner">
+              <mat-spinner diameter="32"></mat-spinner>
+              <span>Loading Hashlists...</span>
+            </div>
+          }
+
+          <div>
+            <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
+            <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+              <mat-icon>help</mat-icon>
+            </button>
+            <blacklist-attack [value]="form.controls.attackCmd.value"></blacklist-attack>
           </div>
-        </ng-template>
 
-        <div>
-          <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
-          <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
-            <mat-icon>help</mat-icon>
-          </button>
-          <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
-        </div>
+          <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
-        <input-text-area title="Notes" formControlName="notes"></input-text-area>
+          <div class="flex flex-wrap items-center gap-2">
+            <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
+            <input-number title="Max agents" formControlName="maxAgents"></input-number>
+          </div>
 
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
-          <input-number title="Max agents" formControlName="maxAgents"></input-number>
-        </div>
-
-        <mat-accordion>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <span><b>Advanced Settings</b></span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-                <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <span><b>Advanced Settings</b></span>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="flex flex-wrap items-center gap-2">
+                <input-number title="Chunk time" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
                 <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
-                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
-                <input-number title="if yes, chunk size:" formControlName="chunkSize"></input-number>
-                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
                 <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
                 <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
                 <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
               </div>
               <hr><br>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-                <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
-                <input-select title="Binary type version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
+              <div class="flex flex-wrap items-center gap-2">
+                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
+                @if (form.controls.staticChunks.value === 1) {
+                  <input-number title="Fixed size of chunks" formControlName="chunkSize" [tooltip]="tasktip.chunkSize"></input-number>
+                } @else if (form.controls.staticChunks.value === 2) {
+                  <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
+                }
+              </div>
+              <hr><br>
+              <div class="flex flex-wrap items-center gap-2">
+                <input-select title="Binary type to run task" formControlName="crackerBinaryTypeId" [items]="selectCrackertype"></input-select>
+                <input-select title="Binary version" formControlName="crackerBinaryId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
+
               </div>
               <hr/>
-              <div fxLayoutGap="10px">
+              <div class="flex flex-col gap-2">
                 <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
                 <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
               </div>
             </mat-expansion-panel>
           </mat-accordion>
-      <span *ngIf="!form.valid && form.touched" class="help-block" >Please complete all the form!</span><br>
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
-        <div *ngIf="isCreatingLoading">
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      </grid-buttons>
-      </form>
-    </grid-main>
+          @if (!form.valid && form.touched) {
+            <br>
+            <span class="help-block" >Please fill in all required fields.</span>
+            }<br>
+            <grid-buttons>
+              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+              <button-submit [name]="'Create'" [disabled]="false" ></button-submit>
+              @if (isCreatingLoading) {
+                <div>
+                  <mat-spinner diameter="24" color="accent"></mat-spinner>
+                </div>
+              }
+            </grid-buttons>
+          </form>
+      }
+      </grid-main>
+    </div>
+    <div class="col-span-12 md:col-span-6">
+      <mat-accordion multi>
+
+        <mat-expansion-panel #wordlistPanel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span><b>Wordlists</b></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="FileType.WORDLIST" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel #rulesPanel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span><b>Rules</b></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="FileType.RULES" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel #otherPanel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span><b>Other</b></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <app-files-attack-table [fileType]="FileType.OTHER" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
+        </mat-expansion-panel>
+
+      </mat-accordion>
+    </div>
   </div>
-  <div fxFlex="50" fxFlex.lt-md="100">
-    <mat-accordion multi>
-
-      <mat-expansion-panel #wordlistPanel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span><b>Wordlists</b></span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="fileTypeWordlist" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></app-files-attack-table>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel #rulesPanel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span><b>Rules</b></span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
-      </mat-expansion-panel>
-
-      <mat-expansion-panel #otherPanel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span><b>Other</b></span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></app-files-attack-table>
-      </mat-expansion-panel>
-
-    </mat-accordion>
-  </div>
-</div>
 
 

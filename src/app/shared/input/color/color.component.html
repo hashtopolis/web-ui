@@ -1,7 +1,7 @@
 <div class="custom-input-container">
   <div class="color-input-wrapper">
     <div class="color-input-container">
-      <mat-form-field>
+      <mat-form-field [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
         <mat-label>{{ title }}</mat-label>
         <input
           #selectInput
@@ -9,25 +9,30 @@
           [placeholder]="getDisplayColor()"
           type="color"
           [id]="inputId"
-          [(ngModel)]="value"
-          (ngModelChange)="onChange(value)"
           [value]="getDisplayColor()"
+          [class.ng-invalid]="hasError"
+          [class.ng-touched]="isTouched"
+          (input)="onValueChange($event)"
+          (blur)="onTouched()"
           [style.background]="getDisplayColor()"
-        />
+          [disabled]="disabled"
+          />
         <span class="color-value">{{ getDisplayColor() }}</span>
       </mat-form-field>
     </div>
 
-    <button
-      *ngIf="randomColor"
-      mat-icon-button
-      matTooltip="Randomize Color"
-      type="button"
-      class="random-color-btn"
-      title="Randomize Color"
-      (click)="generateRandomColor()"
-    >
-      <mat-icon>casino</mat-icon>
-    </button>
+    @if (randomColor) {
+      <button
+        mat-icon-button
+        matTooltip="Randomize Color"
+        type="button"
+        class="random-color-btn"
+        title="Randomize Color"
+        (click)="generateRandomColor()"
+        [disabled]="disabled"
+        >
+        <mat-icon>casino</mat-icon>
+      </button>
+    }
   </div>
 </div>

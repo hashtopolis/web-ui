@@ -16,6 +16,7 @@ import {
 import { ComposeOption, EChartsType, init } from 'echarts/core';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
 import {
   AfterViewInit,
@@ -24,9 +25,11 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 
+import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
 
 // Compose ECharts option type
@@ -57,13 +60,13 @@ use([
   providers: [HashRatePipe]
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
-  @Input() speeds: any[] = [];
+  @Input() speeds: SpeedStat[] = [];
 
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
 
   private chart: EChartsType;
 
-  constructor(private hashratePipe: HashRatePipe) {}
+  private hashratePipe = inject(HashRatePipe);
 
   /**
    * Initializes the chart after view is ready.
@@ -96,8 +99,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    const result = [];
-    const reducer = this.speeds.reduce((res, value) => {
+    const result: { time: number; speed: number }[] = [];
+    this.speeds.reduce<Record<number, { time: number; speed: number }>>((res, value) => {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -106,8 +109,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return res;
     }, {});
 
-    const arr = [];
-    const timestamps = [];
+    const arr: { name: string; value: [string, number]; unit: string }[] = [];
+    const timestamps: number[] = [];
 
     for (const item of result) {
       const iso = this.transDate(item.time);
@@ -152,11 +155,13 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       },
       tooltip: {
         position: 'top',
-        formatter: (params) => {
+        formatter: (params: TopLevelFormatterParams) => {
+          if (Array.isArray(params)) return '';
+
           if (params.componentType === 'markPoint') {
-            return `${params.name}: <strong>${params.data.value}</strong>`;
+            return `${params.name}: <strong>${(params.data as { value: string }).value}</strong>`;
           }
-          const data = params.data;
+          const data = params.data as { value: [string, number]; unit: string } | undefined;
           if (data?.value?.[1]) {
             return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
           }

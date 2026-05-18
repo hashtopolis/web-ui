@@ -1,7 +1,15 @@
 import { Subscription, interval } from 'rxjs';
 
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  inject
+} from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 import { UIConfig } from '@models/config-ui.model';
@@ -35,7 +43,7 @@ import { formatDate } from '@src/app/shared/utils/datetime';
   selector: 'last-updated',
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
-  imports: [CommonModule, MatProgressSpinner],
+  imports: [MatProgressSpinner],
   providers: [
     {
       provide: UISettingsUtilityClass,
@@ -49,7 +57,7 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   @Input() lastUpdated!: Date;
 
   /** Timestamp (ms) of the next scheduled refresh */
-  @Input() nextRefreshTimestamp!: number;
+  @Input() nextRefreshTimestamp: number | undefined;
 
   /** Whether a refresh is currently in progress */
   @Input() refreshing = false;
@@ -60,15 +68,12 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** Subscription for interval timer */
   private timerSubscription?: Subscription;
 
-  /** Injected utility for UI settings */
-  constructor(
-    private util: UISettingsUtilityClass,
-    private cd: ChangeDetectorRef
-  ) {}
+  private util = inject(UISettingsUtilityClass);
+  private cd = inject(ChangeDetectorRef);
 
   /** Returns the formatted last updated time according to UI settings */
   get lastUpdatedDisplay(): string {
-    return formatDate(this.lastUpdated, this.util.getSetting('timefmt'));
+    return formatDate(this.lastUpdated, this.util.getSetting('timefmt') ?? '');
   }
 
   /** Initialize the countdown timer */

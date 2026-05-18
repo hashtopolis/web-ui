@@ -1,21 +1,33 @@
 <grid-main>
   <app-page-subtitle [subtitle]="'New Cracker type'"></app-page-subtitle>
 
-  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
-    <div fxLayout="column" fxLayoutGap="16px">
-      <input-text width="256px" title="Type" formControlName="typeName" [isRequired]="true"></input-text>
+  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-3">
+
+      <input-select width="256px"
+                                  title="Binary Type Name"
+                                  formControlName="typeName"
+                                  data-testid="input-select-binaryTypeName"
+                                  [isRequired]="true"
+                                  [items]="[
+                                    { id: 'Hashcat', name: 'Hashcat' },
+                                    { id: 'generic', name: 'Generic Cracker' }
+                                  ]"
+                                  style="width: 256px"
+                    ></input-select>
+
       <!-- Only crackers with chunking are supported right now: 
       <input-select width="256px"
-        title="Chunking Available"
-        formControlName="isChunkingAvailable"
-        tooltip="Does the cracker type support chunking?"
-        data-testid="input-select-chunkingAvailable"
-        [isRequired]="true"
-        [items]="[
+                    title="Chunking Available"
+                    formControlName="isChunkingAvailable"
+                    tooltip="Does the cracker type support chunking?"
+                    data-testid="input-select-chunkingAvailable"
+                    [isRequired]="true"
+                    [items]="[
         { id: true, name: 'Yes' },
         { id: false, name: 'No' },
       ]"
-        style="width: 256px"
+                    style="width: 256px"
       ></input-select>
       -->
     </div>
@@ -23,11 +35,14 @@
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
       <button-submit data-testid="submit-button-newCracker" [name]="'Create'"
-        [disabled]="!newCrackerForm.valid"></button-submit>
+                     [disabled]="!roleService.hasRole('create')"
+      ></button-submit>
     </grid-buttons>
 
-    <span *ngIf="newCrackerForm.invalid && newCrackerForm.touched" class="help-block">Please complete all required
-      fields!</span>
+    @if (newCrackerForm.invalid && newCrackerForm.touched) {
+      <span class="help-block"
+      >Please complete all required fields!</span>
+    }
   </form>
 
 </grid-main>

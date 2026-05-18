@@ -1,9 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { zCrackerBinaryTypeListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
+
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { DynamicModel } from '@models/base.model';
+import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile, TaskSelectFile } from '@models/file.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
@@ -27,11 +31,10 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
   standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
-  isLoading = true;
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   isCreatingLoading = false;
 
   selectCrackertypeMap = {
@@ -42,15 +45,15 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
 
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private titleService: AutoTitleService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-    private uiService: UIConfigService
-  ) {
+  private unsubscribeService = inject(UnsubscribeService);
+  private titleService = inject(AutoTitleService);
+  private route = inject(ActivatedRoute);
+  private alert = inject(AlertService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private uiService = inject(UIConfigService);
+
+  constructor() {
     this.onInitialize();
     this.titleService.set(['New Preconfigured Tasks']);
   }
@@ -105,20 +108,21 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
-        data: response.data,
-        included: response.included
+    const loadCrackersSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .subscribe((response: ResponseWrapper) => {
+        const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
+          new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
+        );
+        this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       });
-      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-    });
     this.unsubscribeService.add(loadCrackersSubscription$);
   }
 
   getFormData() {
     return {
-      attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('files').value
+      attackCmd: this.createForm?.controls.attackCmd.value ?? '',
+      files: this.createForm?.controls.files.value ?? []
     };
   }
 
@@ -138,14 +142,12 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           include: isPretask ? ['pretaskFiles'] : ['files']
         })
         .subscribe((response: ResponseWrapper) => {
-          const result = new JsonAPISerializer().deserialize<JPretask | JTask>({
-            data: response.data,
-            included: response.included
-          });
+          const schema = isPretask ? zPreTaskResponse : zTaskResponse;
+          const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
 
-          const filesArray: number[] = (result[isPretask ? 'pretaskFiles' : 'files'] || []).map(
-            (file: JFile) => file['id']
-          );
+          const filesArray: number[] = (
+            ((result as unknown as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []
+          ).map((file: JFile) => file['id']);
 
           this.createForm.setValue({
             taskName:
@@ -155,9 +157,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             chunkTime: result['chunkTime'],
             statusTimer: result['statusTimer'],
             priority: result['priority'],
-            color: result['color'],
+            color: result['color'] ?? '',
             isCpuTask: result['isCpuTask'],
-            crackerBinaryTypeId: result['crackerBinaryTypeId'],
+            crackerBinaryTypeId: result['crackerBinaryTypeId'] ?? 1,
             isSmall: result['isSmall'],
             useNewBench: result['useNewBench'],
             isMaskImport: false,
@@ -172,12 +174,21 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe(() => {
-        this.alert.showSuccessMessage('New PreTask created');
-        this.router.navigate(['tasks/preconfigured-tasks']);
-        this.isCreatingLoading = false;
+      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New PreTask created');
+          this.isCreatingLoading = false;
+          this.router.navigate(['tasks/preconfigured-tasks']);
+        },
+        error: (err) => {
+          console.error('Error creating PreTask', err);
+          this.isCreatingLoading = false;
+        }
       });
       this.unsubscribeService.add(onSubmitSubscription$);
+    } else {
+      this.createForm.markAllAsTouched();
+      this.createForm.updateValueAndValidity();
     }
   }
 }

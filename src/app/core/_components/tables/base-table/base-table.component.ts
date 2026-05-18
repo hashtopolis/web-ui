@@ -2,8 +2,18 @@ import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Injector, Input, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Injector,
+  Input,
+  NgZone,
+  SecurityContext,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -11,17 +21,19 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+import { JTask, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
+import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -29,6 +41,8 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
@@ -40,10 +54,26 @@ import { formatPercentage } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class BaseTableComponent {
-  @ViewChild('table') table: HTTableComponent;
+  protected injector = inject(Injector);
+  protected gs = inject(GlobalService);
+  protected cs = inject(ConfigService);
+  protected clipboard = inject(Clipboard);
+  protected router = inject(Router);
+  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  protected sanitizer = inject(DomSanitizer);
+  protected alertService = inject(AlertService);
+  protected uiService = inject(UIConfigService);
+  protected exportService = inject(ExportService);
+  protected cdr = inject(ChangeDetectorRef);
+  dialog = inject(MatDialog);
+  protected permissionService = inject(PermissionService);
+  readonly tasksRoleService = inject(TasksRoleService);
+  readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
+
+  @ViewChild('table') table: HTTableComponent<BaseModel>;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
-  @Input() name: string;
+  @Input() name: TableSettingsKey;
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
@@ -54,24 +84,12 @@ export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
+  protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
 
-  constructor(
-    protected injector: Injector,
-    protected gs: GlobalService,
-    protected cs: ConfigService,
-    protected clipboard: Clipboard,
-    protected router: Router,
-    protected settingsService: LocalStorageService<UIConfig>,
-    protected sanitizer: DomSanitizer,
-    protected alertService: AlertService,
-    protected uiService: UIConfigService,
-    protected exportService: ExportService,
-    protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    protected permissionService: PermissionService
-  ) {
+  constructor() {
+    const settingsService = this.settingsService;
+
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();
   }
@@ -80,6 +98,45 @@ export class BaseTableComponent {
     if (this.table) {
       this.table.reload();
     }
+  }
+
+  /**
+   * Generic method to setup filter error subscription.
+   * Call this in ngOnInit of child table components to automatically handle filter errors.
+   * @param dataSource - The datasource with filterError$ observable
+   */
+  protected setupFilterErrorSubscription<T extends BaseModel, P extends MatPaginator>(
+    dataSource: BaseDataSource<T, P>
+  ): void {
+    const ngZone = this.injector.get<NgZone>(NgZone);
+
+    // Subscribe to filter errors from the datasource
+    this.subscriptions.push(
+      dataSource.filterError$.subscribe((error: string) => {
+        if (!error) {
+          return;
+        }
+
+        // Run outside Angular to avoid triggering change detection on every retry
+        ngZone.runOutsideAngular(() => {
+          // Keep trying until table is available (max 20 attempts with 100ms interval)
+          let attempts = 0;
+          const maxAttempts = 20;
+          const retryInterval = setInterval(() => {
+            attempts++;
+            if (this.table) {
+              // Run back in Angular zone for the actual update
+              ngZone.run(() => {
+                this.table.setFilterError(error);
+              });
+              clearInterval(retryInterval);
+            } else if (attempts >= maxAttempts) {
+              clearInterval(retryInterval);
+            }
+          }, 100);
+        });
+      })
+    );
   }
 
   renderStatusIcon(model: JAgent | JNotification): HTTableIcon {
@@ -130,7 +187,7 @@ export class BaseTableComponent {
    */
   renderCrackedLinkFromTask(task: JTask): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (task.chunkData.cracked) {
+    if (task.chunkData?.cracked) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', task.id],
         label: task.chunkData.cracked.toLocaleString()
@@ -145,16 +202,18 @@ export class BaseTableComponent {
    * @param wrapper - the task wrapper object to render the link for
    * @return observable containing an array of router links to be rendered in HTML
    */
-  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    if (wrapper.cracked === 0) {
-      return of([{ label: null, routerLink: null }]);
+  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapperDisplay): Observable<HTTableRouterLink[]> {
+    const cracked = wrapper.cracked ?? 0;
+    if (cracked === 0) {
+      return of([{ label: undefined, routerLink: null }]);
     }
 
     const isSupertask = wrapper.taskType === TaskType.SUPERTASK;
+    const taskId = wrapper.taskId ?? 0;
 
     const link: HTTableRouterLink = {
-      label: wrapper.cracked.toLocaleString() + '/' + wrapper.hashlist.hashCount.toLocaleString(),
-      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
+      label: cracked.toLocaleString(),
+      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', taskId],
       tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
     };
 
@@ -241,7 +300,7 @@ export class BaseTableComponent {
     if (chunk) {
       links.push({
         routerLink: ['/agents', 'show-agents', chunk.agentId, 'edit'],
-        label: chunk.agentName
+        label: chunk.agentName?.trim() || String(chunk.agentId)
       });
     }
     return of(links);
@@ -287,14 +346,31 @@ export class BaseTableComponent {
    */
   renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (model) {
+    if (model?.taskId) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString()
+        label: idLink ? model.taskId.toString() : model.task?.taskName?.toString()
       });
     }
     return of(links);
   }
+
+  /* Render edit link for subtask
+   * @param model - agent or chunk to render tasl link for
+   * @param idLink - if true, the task ID will be used as label, otherwise the task name
+   * @return observable object containing a router link array
+   */
+  renderTaskLinkSubtasks(model: JTask, idLink: boolean = false): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      links.push({
+        routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
+        label: idLink ? model.id.toString() : model.taskName?.toString()
+      });
+    }
+    return of(links);
+  }
+
   /**
    * Render a valid or invalid icon for the given user
    * @param user - user th get icon for
@@ -327,10 +403,10 @@ export class BaseTableComponent {
    * @returns A SafeHtml object that represents the sanitized HTML.
    */
   protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
   }
 
-  protected setColumnLabels(labels: { [key: string]: string }): void {
+  protected setColumnLabels(labels: Record<string, string>): void {
     this.columnLabels = labels;
   }
 
@@ -339,7 +415,7 @@ export class BaseTableComponent {
    * @returns The date format string.
    */
   private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
+    const fmt = this.uiSettings.getSetting('timefmt');
 
     return fmt ? fmt : uiConfigDefault.timefmt;
   }

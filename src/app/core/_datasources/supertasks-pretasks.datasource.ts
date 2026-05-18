@@ -1,10 +1,9 @@
-import { catchError, finalize, of } from 'rxjs';
+import { zSupertaskResponse } from '@generated/api/zod';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JSuperTask } from '@models/supertask.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
@@ -25,14 +24,14 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
     this.subscriptions.push(
       pretasks$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const pretasks = new JsonAPISerializer().deserialize<JSuperTask>({
-            data: response.data,
-            included: response.included
-          }).pretasks;
+          const superTask = this.serializer.deserialize(response, zSupertaskResponse, {
+            include: ['pretasks'] as const
+          });
+          const pretasks = superTask.pretasks;
           this.setData(pretasks);
         })
     );

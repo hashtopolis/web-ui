@@ -1,3 +1,4 @@
+import { zConfigListResponse } from '@generated/api/zod';
 import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -5,14 +6,19 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { JConfig } from '@models/configs.model';
 
 import { SERV } from '@services/main.config';
 import { AlertService } from '@services/shared/alert.service';
 
 import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -21,24 +27,24 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class NewAgentComponent implements OnInit, OnDestroy {
-  form: FormGroup<VoucherForm>;
+  private titleService = inject(AutoTitleService);
+  private clipboard = inject(Clipboard);
+  private alertService = inject(AlertService);
+  private cs = inject(ConfigService);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+
+  form: FormGroup<VoucherForm> = new FormGroup<VoucherForm>({
+    voucher: new FormControl('', { nonNullable: true })
+  });
   agentURL: string;
   newVoucherSubscription: Subscription;
+  allowMultiVoucher = false;
 
   @ViewChild('table') table: VouchersTableComponent;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private clipboard: Clipboard,
-    private alertService: AlertService,
-    private cs: ConfigService,
-    private gs: GlobalService,
-    private router: Router
-  ) {
+  constructor() {
     this.titleService.set(['New Agent']);
-    this.form = new FormGroup<VoucherForm>({
-      voucher: new FormControl('', { nonNullable: true })
-    });
   }
 
   ngOnDestroy(): void {
@@ -50,7 +56,32 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentURL = path + '/api' + environment.config.agentURL;
+    this.loadVoucherDeletionSetting();
     this.updateVoucher();
+  }
+
+  private loadVoucherDeletionSetting(): void {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'item', operator: FilterType.EQUAL, value: 'voucherDeletion' })
+      .create();
+
+    this.gs.getAll(SERV.CONFIGS, params).subscribe({
+      next: (response) => {
+        try {
+          const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
+          const setting = configs?.find((config) => config.item === 'voucherDeletion');
+          const rawValue = setting?.value ?? '';
+          const normalized = String(rawValue).toLowerCase();
+          this.allowMultiVoucher = normalized === '1' || normalized === 'true';
+        } catch (error) {
+          console.error('Error parsing voucherDeletion setting', error);
+          this.allowMultiVoucher = false;
+        }
+      },
+      error: () => {
+        this.allowMultiVoucher = false;
+      }
+    });
   }
 
   updateVoucher(): void {
@@ -67,7 +98,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
-    return this.form.valid && this.form.get('voucher').value !== '';
+    return this.form.valid && this.form.controls.voucher.value !== '';
   }
 
   onSubmit() {
@@ -77,6 +108,9 @@ export class NewAgentComponent implements OnInit, OnDestroy {
         this.alertService.showSuccessMessage('New voucher successfully created!');
         this.table.reload();
       });
+    } else {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
     }
   }
 

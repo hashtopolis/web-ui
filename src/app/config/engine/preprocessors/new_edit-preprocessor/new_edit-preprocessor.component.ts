@@ -1,19 +1,19 @@
+import { zPreprocessorResponse } from '@generated/api/zod';
 import { Subscription, firstValueFrom } from 'rxjs';
 
-import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FlexModule } from '@angular/flex-layout';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JPreprocessor } from '@models/preprocessor.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 import { AlertService } from '@services/shared/alert.service';
+import { ConfigService } from '@services/shared/config.service';
 
 import {
   NewEditPreprocessorForm,
@@ -26,16 +26,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 @Component({
   selector: 'app-new-preprocessor',
-  imports: [
-    ButtonsModule,
-    FlexModule,
-    FormsModule,
-    GridModule,
-    InputModule,
-    NgIf,
-    PageTitleModule,
-    ReactiveFormsModule
-  ],
+  imports: [ButtonsModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
   templateUrl: './new_edit-preprocessor.component.html'
 })
 export class NewEditPreprocessorComponent implements OnInit {
@@ -49,65 +40,100 @@ export class NewEditPreprocessorComponent implements OnInit {
 
   newEditPreprocessorForm: FormGroup<NewEditPreprocessorForm>;
 
-  loading: boolean;
+  loading = false;
+
+  isLoading = true;
 
   /**
    * Array to hold subscriptions for cleanup on component destruction.
-   * This prevents memory leaks by unsubscribing from observables when the component is destroyed.
    */
   subscriptions: Subscription[] = [];
 
-  constructor(
-    private route: ActivatedRoute,
-    private gs: GlobalService,
-    private router: Router,
-    private alert: AlertService
-  ) {
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+  private router = inject(Router);
+  private alert = inject(AlertService);
+  private cs = inject(ConfigService);
+  private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  protected roleService = inject(PreprocessorRoleService);
+
+  httpNoInterceptors: HttpClient;
+
+  constructor() {
     this.newEditPreprocessorForm = getNewEditPreprocessorForm();
-    this.loading = false;
+    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
-  ngOnInit() {
-    this.preprocessorId = parseInt(this.route.snapshot.paramMap.get('id'));
-    if (this.preprocessorId) {
+  async ngOnInit(): Promise<void> {
+    const idFromRoute = this.route.snapshot.paramMap.get('id');
+    const parsedId = idFromRoute !== null ? Number(idFromRoute) : NaN;
+
+    if (Number.isFinite(parsedId)) {
+      // Edit mode
       this.isEditMode = true;
+      this.preprocessorId = parsedId;
       this.pageTitle = 'Edit Preprocessor';
       this.submitButtonText = 'Update';
 
-      this.loadPreprocessor(this.preprocessorId);
+      try {
+        await this.loadPreprocessor(this.preprocessorId);
+      } catch (e: unknown) {
+        const status = e instanceof HttpErrorResponse ? e.status : undefined;
+
+        if (status === 403) {
+          void this.router.navigateByUrl('/forbidden');
+          return;
+        }
+
+        if (status === 404) {
+          void this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other server errors show an error message instead of redirecting
+        // so the user knows the server failed. Keep the loading flag disabled.
+
+        const msg = status ? `Error loading preprocessor (server returned ${status}).` : 'Error loading preprocessor.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
+        return;
+      }
     }
+
+    this.isLoading = false;
   }
 
   /**
    * Load preprocessor data from the server and patch the form with the data
    * @param preprocessorId ID of the preprocessor to load
    */
-  private loadPreprocessor(preprocessorId: number) {
-    const params = new RequestParamBuilder().create();
-    this.subscriptions.push(
-      this.gs.get(SERV.PREPROCESSORS, preprocessorId, params).subscribe((response: ResponseWrapper) => {
-        const preprocessor = new JsonAPISerializer().deserialize<JPreprocessor>({
-          data: response.data,
-          included: response.included
-        });
+  private async loadPreprocessor(preprocessorId: number): Promise<void> {
+    const url = `${this.cs.getEndpoint()}${SERV.PREPROCESSORS.URL}/${preprocessorId}`;
 
-        this.newEditPreprocessorForm.patchValue({
-          name: preprocessor.name,
-          binaryName: preprocessor.binaryName,
-          url: preprocessor.url,
-          keyspaceCommand: preprocessor.keyspaceCommand,
-          limitCommand: preprocessor.limitCommand,
-          skipCommand: preprocessor.skipCommand
-        });
-      })
-    );
+    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+
+    const preprocessor = new JsonAPISerializer().deserialize(response, zPreprocessorResponse);
+
+    this.newEditPreprocessorForm.patchValue({
+      name: preprocessor.name,
+      binaryName: preprocessor.binaryName,
+      url: preprocessor.url,
+      keyspaceCommand: preprocessor.keyspaceCommand,
+      limitCommand: preprocessor.limitCommand,
+      skipCommand: preprocessor.skipCommand
+    });
   }
 
   /**
-   * Create new preprocessor upon form submission and redirect to preprocessor page on success
+   * Create / update preprocessor upon form submission and redirect on success
    */
-  async onSubmit() {
-    if (this.newEditPreprocessorForm.invalid) return;
+  async onSubmit(): Promise<void> {
+    if (this.newEditPreprocessorForm.invalid) {
+      this.newEditPreprocessorForm.markAllAsTouched();
+      this.newEditPreprocessorForm.updateValueAndValidity();
+      return;
+    }
     this.loading = true;
 
     const payload = {
@@ -119,7 +145,7 @@ export class NewEditPreprocessorComponent implements OnInit {
       skipCommand: this.newEditPreprocessorForm.value.skipCommand
     };
 
-    if (this.isEditMode) {
+    if (this.isEditMode && this.preprocessorId !== null) {
       try {
         this.subscriptions.push(
           this.gs.update(SERV.PREPROCESSORS, this.preprocessorId, payload).subscribe(() => {
@@ -127,9 +153,8 @@ export class NewEditPreprocessorComponent implements OnInit {
             void this.router.navigate(['config/engine/preprocessors']);
           })
         );
-      } catch (err) {
+      } catch {
         const msg = 'Error updating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;
@@ -139,9 +164,8 @@ export class NewEditPreprocessorComponent implements OnInit {
         await firstValueFrom(this.gs.create(SERV.PREPROCESSORS, payload));
         this.alert.showSuccessMessage('Preprocessor created!');
         void this.router.navigate(['config/engine/preprocessors']);
-      } catch (err) {
+      } catch {
         const msg = 'Error creating preprocessor!';
-        console.error(msg, err);
         this.alert.showErrorMessage(msg);
       } finally {
         this.loading = false;

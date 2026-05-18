@@ -1,1 +1,3 @@
-<div *ngFor="let s of sizes" class="{{s.css + ' ' + (prefix + s.id) }}">{{s.name}}</div>
+@for (s of sizes; track s) {
+  <div class="{{s.css + ' ' + (prefix + s.id) }}">{{s.name}}</div>
+}

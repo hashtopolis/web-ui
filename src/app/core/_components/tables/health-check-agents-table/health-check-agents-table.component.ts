@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 
@@ -22,7 +22,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './health-check-agents-table.component.html',
   standalone: false
 })
-export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() healthCheckId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -36,6 +36,10 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
       this.dataSource.setHealthCheckId(this.healthCheckId);
     }
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
@@ -46,24 +50,26 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   }
 
   filter(item: JHealthCheckAgent, filterValue: string): boolean {
-    return item.agent.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue);
+    return (
+      (item.agent?.agentName?.toLowerCase().includes(filterValue) ?? false) ||
+      item.status.toString().includes(filterValue)
+    );
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: HealthCheckAgentsTableCol.AGENT_ID,
-        dataKey: 'healthCheckAgentId',
+        dataKey: 'id',
         isSortable: true,
-        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id + '',
-        render: (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id + ''
       },
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
         routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLinkFromHealthCheck(HealthCheckAgent),
         isSortable: false,
-        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agent.agentName + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => (HealthCheckAgent.agent?.agentName ?? '') + ''
       },
       {
         id: HealthCheckAgentsTableCol.STATUS,
@@ -113,7 +119,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
    */
   private renderAgentLinkFromHealthCheck(healthCheck: JHealthCheckAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (healthCheck) {
+    if (healthCheck && healthCheck.agent) {
       links.push({
         routerLink: ['/agents', 'show-agents', healthCheck.agentId, 'edit'],
         label: healthCheck.agent.agentName

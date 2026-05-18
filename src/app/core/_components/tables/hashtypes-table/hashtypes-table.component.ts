@@ -2,6 +2,7 @@ import { catchError } from 'rxjs';
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
+import { DynamicModel } from '@models/base.model';
 import { JHashtype } from '@models/hashtype.model';
 
 import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
@@ -32,13 +33,15 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-  selectedFilterColumn: string;
+  selectedFilterColumn: HTTableColumn;
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashtypesDataSource(this.injector);
     this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
+    // Setup filter error handling
+    this.setupFilterErrorSubscription(this.dataSource);
   }
 
   ngAfterViewInit(): void {
@@ -50,10 +53,9 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     return [
       {
         id: HashtypesTableCol.HASHTYPE,
-        dataKey: 'hashTypeId',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (hashtype: JHashtype) => hashtype.id,
         export: async (hashtype: JHashtype) => hashtype.id + ''
       },
       {
@@ -61,7 +63,6 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'description',
         isSortable: true,
         isSearchable: true,
-        render: (hashtype: JHashtype) => hashtype.description,
         export: async (hashtype: JHashtype) => hashtype.description
       },
       {
@@ -84,7 +85,12 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      this.dataSource.loadAll({
+        value: input,
+        field: selectedColumn.dataKey ?? '',
+        operator: FilterType.ICONTAINS,
+        parent: selectedColumn.parent
+      });
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
@@ -215,7 +221,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    * @private
    */
   private renderCheckmarkIcon(hashtype: JHashtype, property: string): HTTableIcon {
-    if (property in hashtype && hashtype[property] === true) {
+    if (property in hashtype && (hashtype as unknown as DynamicModel)[property] === true) {
       return {
         name: 'check_circle',
         tooltip: 'Salted Hash',

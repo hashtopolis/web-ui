@@ -1,7 +1,10 @@
-import { Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { BehaviorSubject, fromEvent, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, fromEvent, of } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
+import { z } from 'zod';
+
+import { DOCUMENT, Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
+
+const themeSchema = z.enum(['light', 'dark']);
 
 export type DetectedTheme = 'dark' | 'light';
 export type ThemeLoader = () => Observable<string | null>;
@@ -14,9 +17,9 @@ export const THEME_LOADER: InjectionToken<ThemeLoader> = new InjectionToken<Them
         return of(null);
       }
       return fromEvent<StorageEvent>(window, 'storage').pipe(
-        filter((event) => event.key === 'theme' && event.storageArea === localStorage),
-        map((event) => event.newValue),
-        startWith(localStorage.getItem('theme'))
+        filter((event: StorageEvent) => event.key === 'theme'),
+        map((event: StorageEvent): string | null => event.newValue),
+        startWith<string | null>(localStorage.getItem('theme', themeSchema) ?? null)
       );
     };
   }
@@ -33,7 +36,7 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
         return;
       }
       if (theme) {
-        localStorage.setItem('theme', theme);
+        localStorage.setItem('theme', theme, themeSchema);
       } else {
         localStorage.removeItem('theme');
       }
@@ -41,23 +44,19 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
   }
 });
 
-export interface ThemeObject {
-  oldValue: string;
-  newValue: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
   private _theme = new BehaviorSubject<string | null>(null);
+  private readonly supportedThemeClasses = ['light', 'dark', 'light-theme', 'dark-theme'];
 
   public get current(): string {
-    return localStorage.getItem('theme') ?? 'light';
+    return localStorage.getItem('theme', themeSchema) ?? 'light';
   }
 
   public set current(value: string) {
-    localStorage.setItem('theme', value);
+    localStorage.setItem('theme', value, themeSchema);
   }
 
   private readonly style: HTMLLinkElement;
@@ -66,11 +65,11 @@ export class ThemeService {
 
   constructor(
     rendererFactory: RendererFactory2,
-    @Inject(DOCUMENT) document: any,
-    @Inject(THEME_LOADER) loadHandler: any,
-    @Inject(THEME_SAVER) saveHandler: any
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(THEME_LOADER) private loadHandler: ThemeLoader,
+    @Inject(THEME_SAVER) private saveHandler: ThemeSaver
   ) {
-    (loadHandler as ThemeLoader)().subscribe((theme) => this._theme.next(theme));
+    loadHandler().subscribe((theme) => this._theme.next(theme));
 
     this.renderer = rendererFactory.createRenderer(null, null);
 
@@ -78,20 +77,19 @@ export class ThemeService {
     this.style.rel = 'stylesheet';
     document.head.appendChild(this.style);
 
-    if (localStorage.getItem('theme') !== undefined) {
-    }
-
     this._theme.subscribe((theme) => {
+      this.supportedThemeClasses.forEach((className) => {
+        this.renderer.removeClass(document.body, className);
+      });
+
       if (theme) {
-        this.renderer.removeClass(document.body, this.current);
         document.body.setAttribute('data-theme', theme);
-        this.renderer.addClass(document.body, theme);
+        this.renderer.addClass(document.body, `${theme}-theme`);
       } else {
         document.body.removeAttribute('data-theme');
-        this.renderer.removeClass(document.body, this.current);
       }
 
-      (saveHandler as ThemeSaver)(theme);
+      saveHandler(theme);
     });
   }
 

@@ -13,6 +13,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { InputModule } from '@src/app/shared/input/input.module';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {
@@ -23,27 +24,26 @@ describe('NewUserComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
-  const mockPermissionResponse: ResponseWrapper = {
+  const mockPermissionResponse: ResponseWrapper = mockResponse({
     data: [
       {
-        id: '1',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 1,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Default Group',
           permissions: {}
         }
       },
       {
-        id: '2',
-        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        id: 2,
+        type: 'globalPermissionGroup',
         attributes: {
           name: 'Custom Group',
           permissions: {}
         }
       }
-    ],
-    included: []
-  };
+    ]
+  });
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
@@ -113,7 +113,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -121,10 +121,28 @@ describe('NewUserComponent', () => {
       name: 'testuser',
       email: 'test@example.com',
       globalPermissionGroupId: 1,
-      isValid: true
+      isValid: true,
+      sessionLifetime: 3600
     });
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('User created');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['users/all-users']);
+  });
+
+  it('should include sessionLifetime as an integer in the create payload', async () => {
+    component.newUserForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      globalPermissionGroupId: 1,
+      isValid: true
+    });
+    component.newUserForm.updateValueAndValidity();
+
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
+
+    await component.onSubmit();
+
+    const payload = mockGlobalService.create.calls.mostRecent().args[1] as Record<string, unknown>;
+    expect(Number.isInteger(payload['sessionLifetime'])).toBeTrue();
   });
 
   it('should show error if create fails', async () => {
@@ -157,7 +175,7 @@ describe('NewUserComponent', () => {
     expect(helpBlock.textContent).toContain('Please complete all required fields!');
   });
 
-  it('should disable the submit button if form is invalid', () => {
+  it('should keep the submit button enabled if form is invalid', () => {
     // Make form invalid by clearing required fields
     component.newUserForm.patchValue({
       username: '',
@@ -167,10 +185,10 @@ describe('NewUserComponent', () => {
     component.newUserForm.markAllAsTouched();
     fixture.detectChanges();
 
-    // Query the submit button and check if it is disabled
+    // Query the submit button and check if it is enabled
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonEl: HTMLButtonElement = buttonDebugEl.nativeElement;
-    expect(buttonEl.disabled).toBeTrue();
+    expect(buttonEl.disabled).toBeFalse();
   });
 });

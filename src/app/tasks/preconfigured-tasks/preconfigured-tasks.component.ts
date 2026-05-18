@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
@@ -12,7 +13,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
  *
  */
 export class PreconfiguredTasksComponent {
-  constructor(private titleService: AutoTitleService) {
+  showCreateButton: boolean = true;
+
+  constructor(
+    private titleService: AutoTitleService,
+    readonly roleService: PreconfiguredTasksRoleService
+  ) {
     titleService.set(['Show Preconfigured Task']);
+    this.showCreateButton = this.roleService.hasRole('create');
   }
 }
