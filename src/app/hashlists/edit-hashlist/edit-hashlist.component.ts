@@ -80,36 +80,38 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
-    this.editedHashlistIndex = +this.route.snapshot.params['id'];
+    this.route.params.subscribe(async (params) => {
+      this.editedHashlistIndex = +params['id'];
+      this.isLoading = true;
 
-    try {
-      await this.loadHashlist();
+      try {
+        await this.loadHashlist();
 
-      await this.loadData();
+        await this.loadData();
 
-      this.isLoading = false;
-    } catch (e: unknown) {
-      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+        this.isLoading = false;
+      } catch (e: unknown) {
+        const status = e instanceof HttpErrorResponse ? e.status : undefined;
 
-      if (status === 403) {
-        this.router.navigateByUrl('/forbidden');
-        return;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other errors (500 etc.) show a friendly message instead of redirecting
+        // so the user knows the server failed. Keep the loading flag disabled.
+
+        console.error('Error loading hashlist:', e);
+        const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
       }
-
-      if (status === 404) {
-        this.router.navigateByUrl('/not-found');
-        return;
-      }
-
-      // For other errors (500 etc.) show a friendly message instead of redirecting
-      // so the user knows the server failed. Keep the loading flag disabled.
-
-      console.error('Error loading hashlist:', e);
-      const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
-      this.alert.showErrorMessage(msg);
-      this.isLoading = false;
-      return;
-    }
+    });
   }
 
   /**
