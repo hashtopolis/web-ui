@@ -38,15 +38,15 @@ describe('InputColorComponent', () => {
   });
 
   describe('clearColor', () => {
-    it('sets value to null and emits null via onChange', () => {
+    it('sets value to empty string and emits empty string via onChange', () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
       component.value = '#FF0000';
 
       component.clearColor();
 
-      expect(component.value).toBeNull();
-      expect(onChange).toHaveBeenCalledWith(null);
+      expect(component.value).toBe('');
+      expect(onChange).toHaveBeenCalledWith('');
     });
   });
 

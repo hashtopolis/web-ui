@@ -15,7 +15,7 @@ export interface NewPretaskForm {
   chunkTime: FormControl<number>;
   statusTimer: FormControl<number>;
   priority: FormControl<number>;
-  color: FormControl<string | null>;
+  color: FormControl<string>;
   isCpuTask: FormControl<boolean>;
   crackerBinaryTypeId: FormControl<number>;
   isSmall: FormControl<boolean>;
@@ -41,7 +41,7 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
     chunkTime: new FormControl(uiService.getUISettings()?.chunktime ?? 0, { nonNullable: true }),
     statusTimer: new FormControl(uiService.getUISettings()?.statustimer ?? 0, { nonNullable: true }),
     priority: new FormControl(environment.config.tasks.priority, { nonNullable: true }),
-    color: new FormControl<string | null>(null),
+    color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl(false, { nonNullable: true }),
     crackerBinaryTypeId: new FormControl(1, { nonNullable: true }),
     isSmall: new FormControl(false, { nonNullable: true }),

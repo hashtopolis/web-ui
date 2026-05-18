@@ -9,7 +9,7 @@
       matInput
       type="color"
       [id]="inputId"
-      [value]="value ?? DEFAULT_NATIVE_INPUT_PLACEHOLDER"
+      [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
       [class.ng-invalid]="hasError"
       [class.ng-touched]="isTouched"
       [class.color-unset]="!value"
@@ -22,7 +22,7 @@
       class="color-value"
       [class.color-value-on-light]="value && isLight(value)"
       [class.color-value-on-dark]="value && !isLight(value)"
-      >{{ value ?? 'No color' }}</span
+      >{{ value || 'No color' }}</span
     >
   </mat-form-field>
 

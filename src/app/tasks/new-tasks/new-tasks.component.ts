@@ -378,7 +378,7 @@ export class NewTasksComponent implements OnInit {
         maxAgents: task.maxAgents,
         chunkTime: task.chunkTime,
         priority: task.priority,
-        color: task.color ?? null,
+        color: task.color ?? '',
         isCpuTask: task.isCpuTask,
         crackerBinaryTypeId: task.crackerBinaryTypeId,
         isSmall: task.isSmall,

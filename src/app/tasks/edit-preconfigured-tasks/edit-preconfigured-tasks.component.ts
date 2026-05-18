@@ -134,7 +134,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
           this.isReadOnly ? [] : [Validators.required, attackCommandWithAliasValidator()]
         ),
         chunkTime: new FormControl({ value: '', disabled: this.isReadOnly }),
-        color: new FormControl<string | null>({ value: null, disabled: this.isReadOnly }),
+        color: new FormControl({ value: '', disabled: this.isReadOnly }),
         priority: new FormControl({ value: '', disabled: this.isReadOnly }),
         maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
         isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),

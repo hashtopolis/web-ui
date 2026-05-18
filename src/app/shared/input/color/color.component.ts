@@ -28,11 +28,11 @@ type HexColor = `#${string}`;
   ],
   standalone: false
 })
-export class InputColorComponent extends AbstractInputComponent<string | null> {
+export class InputColorComponent extends AbstractInputComponent<string> {
   /**
-   * The native `<input type="color">` requires a valid 7-char hex; null/empty
+   * The native `<input type="color">` requires a valid 7-char hex; empty
    * produces an "invalid RGB value" console warning. Bound as the input's
-   * value when the form value is null. The `.color-unset` CSS class then
+   * value when the form value is empty. The `.color-unset` CSS class then
    * masks the swatch transparently so this fallback hex is never visible.
    */
   readonly DEFAULT_NATIVE_INPUT_PLACEHOLDER = '#FFFFFF';
@@ -42,7 +42,7 @@ export class InputColorComponent extends AbstractInputComponent<string | null> {
   @Input() defaultColor?: DefaultColorMode;
   @Input() randomColor = true;
 
-  override registerOnChange(fn: (value: string | null) => void): void {
+  override registerOnChange(fn: (value: string) => void): void {
     super.registerOnChange(fn);
     this.applyDefault();
   }
@@ -52,28 +52,28 @@ export class InputColorComponent extends AbstractInputComponent<string | null> {
   }
 
   clearColor() {
-    this.setValue(null);
+    this.setValue('');
   }
 
   onValueChange(event: Event): void {
     this.setValue((event.target as HTMLInputElement).value);
   }
 
-  private setValue(next: string | null): void {
+  private setValue(next: string): void {
     this.value = next;
     this.onChange(next);
   }
 
   private applyDefault(): void {
-    if (this.value != null || this.defaultColor === undefined) return;
+    if (this.value || this.defaultColor === undefined) return;
     const resolved = this.resolveDefault(this.defaultColor);
-    if (resolved !== null) this.value = resolved;
+    if (resolved) this.value = resolved;
   }
 
-  private resolveDefault(mode: DefaultColorMode): string | null {
+  private resolveDefault(mode: DefaultColorMode): string {
     if (mode === 'random') return randomColor();
     if (mode === true) return this.DEFAULT_NATIVE_INPUT_PLACEHOLDER;
     if (typeof mode === 'string') return mode;
-    return null;
+    return '';
   }
 }

@@ -22,7 +22,7 @@ export interface NewTaskForm {
   maxAgents: FormControl<number>;
   chunkTime: FormControl<number | null>;
   statusTimer: FormControl<number | null>;
-  color: FormControl<string | null>;
+  color: FormControl<string>;
   isCpuTask: FormControl<boolean>;
   skipKeyspace: FormControl<number>;
   crackerBinaryId: FormControl<CrackerBinaryId>;
@@ -64,7 +64,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     maxAgents: new FormControl<number>(maxAgents, { nonNullable: true }),
     chunkTime: new FormControl<number | null>(uiService.getUISettings()?.chunktime ?? null),
     statusTimer: new FormControl<number | null>(uiService.getUISettings()?.statustimer ?? null),
-    color: new FormControl<string | null>(null),
+    color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
     skipKeyspace: new FormControl<number>(0, { nonNullable: true }),
     crackerBinaryId: new FormControl<number>(1, { nonNullable: true, validators: [Validators.required] }),
