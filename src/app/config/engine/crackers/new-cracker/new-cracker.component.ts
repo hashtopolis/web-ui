@@ -53,7 +53,7 @@ export class NewCrackerComponent {
     try {
       const payload = {
         typeName: this.newCrackerForm.value.typeName,
-        isChunkingAvailable: this.newCrackerForm.value.isChunkingAvailable
+        //Only crackers with chunking are supported right now: isChunkingAvailable: this.newCrackerForm.value.isChunkingAvailable
       };
 
       await firstValueFrom(this.gs.create(SERV.CRACKERS_TYPES, payload));
