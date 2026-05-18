@@ -42,7 +42,7 @@ export class NewCrackerComponent {
 
     try {
       const payload = {
-        typeName: this.newCrackerForm.value.typeName,
+        typeName: this.newCrackerForm.value.typeName
         //Only crackers with chunking are supported right now: isChunkingAvailable: this.newCrackerForm.value.isChunkingAvailable
       };
 
