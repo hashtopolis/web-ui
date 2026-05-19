@@ -1,6 +1,6 @@
 import { Observable, of, throwError } from 'rxjs';
 
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -339,7 +339,7 @@ describe('NewTasksComponent', () => {
         { provide: MatDialog, useValue: dialogSpy },
         { provide: Router, useValue: routerSpy }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
   });
 
