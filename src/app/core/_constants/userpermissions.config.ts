@@ -185,6 +185,13 @@ export enum Notif {
   READ = 'permNotificationSettingRead',
   UPDATE = 'permNotificationSettingUpdate'
 }
+// // JWT API KEY
+export enum JwtApiKey {
+  CREATE = 'permJwtApiKeyCreate',
+  DELETE = 'permJwtApiKeyDelete',
+  READ = 'permJwtApiKeyRead',
+  UPDATE = 'permJwtApiKeyUpdate'
+}
 
 export class Perm {
   static readonly Agent = Agent;
@@ -215,6 +222,7 @@ export class Perm {
   static readonly RightGroup = RightGroup;
   static readonly GroupAccess = GroupAccess;
   static readonly Notif = Notif;
+  static readonly JwtApiKey = JwtApiKey;
 }
 
 type NestedEnumValues<T> = T extends Record<string, string> ? T[keyof T] : never;

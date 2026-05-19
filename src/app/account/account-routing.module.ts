@@ -6,6 +6,9 @@ import { MyRoute } from '@models/routes.model';
 import { SERV } from '@services/main.config';
 
 import { AccountComponent } from '@src/app/account/account.component';
+import { ApiKeyDetailComponent } from '@src/app/account/api-keys/api-key-detail/api-key-detail.component';
+import { ApiKeysComponent } from '@src/app/account/api-keys/api-keys.component';
+import { NewApiKeyComponent } from '@src/app/account/api-keys/new-api-key/new-api-key.component';
 import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
 import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
@@ -60,6 +63,33 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-notifications',
           breadcrumb: 'New Notification'
+        },
+        canActivate: [IsAuth]
+      },
+      {
+        path: 'api-keys',
+        component: ApiKeysComponent,
+        data: {
+          kind: 'api-keys',
+          breadcrumb: 'API Keys'
+        },
+        canActivate: [IsAuth]
+      },
+      {
+        path: 'api-keys/new',
+        component: NewApiKeyComponent,
+        data: {
+          kind: 'new-api-key',
+          breadcrumb: 'New API Key'
+        },
+        canActivate: [IsAuth]
+      },
+      {
+        path: 'api-keys/:id',
+        component: ApiKeyDetailComponent,
+        data: {
+          kind: 'api-key-detail',
+          breadcrumb: 'API Key Details'
         },
         canActivate: [IsAuth]
       }
