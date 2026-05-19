@@ -62,7 +62,8 @@ export const RowActionMenuLabel = {
   REMOVE_ACCESSGROUP_USER: 'Remove User',
   ARCHIVE_PRETASK: 'Archive PreTask',
   UNARCHIVE_PRETASK: 'Unarchive PreTask',
-  SHOW_SUBTASK: 'Show Subtasks'
+  SHOW_SUBTASK: 'Show Subtasks',
+  DELETE_API_TOKEN: 'Delete API Key'
 };
 
 export const RowActionMenuAction = {

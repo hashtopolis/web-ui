@@ -1,8 +1,16 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, ViewEncapsulation, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { randomColor } from '@src/app/shared/utils/forms';
+import { isColorLight, randomColor } from '@src/app/shared/utils/forms';
+
+/**
+ * `'random'` generates a fresh color via `randomColor()`; `true` selects white;
+ * any other string is used verbatim as a hex.
+ */
+export type DefaultColorMode = 'random' | true | HexColor;
+
+type HexColor = `#${string}`;
 
 /**
  * Simple native color picker component.
@@ -18,28 +26,55 @@ import { randomColor } from '@src/app/shared/utils/forms';
       multi: true
     }
   ],
-  standalone: false
+  standalone: false,
+  encapsulation: ViewEncapsulation.None
 })
 export class InputColorComponent extends AbstractInputComponent<string> {
-  @Input() defaultColor = '#FFFFFF';
+  /**
+   * The native `<input type="color">` requires a valid 7-char hex; empty
+   * produces an "invalid RGB value" console warning. Bound as the input's
+   * value when the form value is empty. The `.color-unset` CSS class then
+   * masks the swatch transparently so this fallback hex is never visible.
+   */
+  readonly DEFAULT_NATIVE_INPUT_PLACEHOLDER = '#FFFFFF';
+
+  readonly isLight = isColorLight;
+
+  @Input() defaultColor?: DefaultColorMode;
   @Input() randomColor = true;
 
-  generateRandomColor() {
-    this.value = randomColor();
-    this.onChange(this.value);
+  override registerOnChange(fn: (value: string) => void): void {
+    super.registerOnChange(fn);
+    this.applyDefault();
   }
 
-  // Ensure we never return an empty color
-  getDisplayColor(): string {
-    if (!this.value) {
-      this.value = this.defaultColor;
-    }
-    return this.value;
+  generateRandomColor() {
+    this.setValue(randomColor());
+  }
+
+  clearColor() {
+    this.setValue('');
   }
 
   onValueChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.value = target.value;
-    this.onChange(this.value);
+    this.setValue((event.target as HTMLInputElement).value);
+  }
+
+  private setValue(next: string): void {
+    this.value = next;
+    this.onChange(next);
+  }
+
+  private applyDefault(): void {
+    if (this.value || this.defaultColor === undefined) return;
+    const resolved = this.resolveDefault(this.defaultColor);
+    if (resolved) this.value = resolved;
+  }
+
+  private resolveDefault(mode: DefaultColorMode): string {
+    if (mode === 'random') return randomColor();
+    if (mode === true) return this.DEFAULT_NATIVE_INPUT_PLACEHOLDER;
+    if (typeof mode === 'string') return mode;
+    return '';
   }
 }

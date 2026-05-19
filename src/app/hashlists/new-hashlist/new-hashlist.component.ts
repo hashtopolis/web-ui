@@ -18,7 +18,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -167,7 +167,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loadConfigs();
     const accessGroupSubscription = this.gs
-      .getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
+      .ghelper(SERV.HELPER, 'getAccessGroups')
       .subscribe((response: ResponseWrapper) => {
         const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);

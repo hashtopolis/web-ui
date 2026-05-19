@@ -110,6 +110,27 @@ export function randomColor(): string {
 }
 
 /**
+ * Returns true when black text reads better than white on `hex`.
+ * Uses the W3C AERT YIQ brightness formula (https://www.w3.org/TR/AERT/#color-contrast).
+ *
+ * @param hex - A 7-character hex color string (e.g. "#FF0000"). Empty or
+ *   malformed input returns false.
+ */
+export function isColorLight(hex: string | null | undefined): boolean {
+  if (!hex || hex.length < 7) {
+    return false;
+  }
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return false;
+  }
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128;
+}
+
+/**
  * Compare two version strings.
  *
  * @param {Object} a - The first version object with a 'version' property.

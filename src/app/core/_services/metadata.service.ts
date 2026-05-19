@@ -318,7 +318,8 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    },
+    }
+    /* Only crackers with chunking are supported right now
     {
       name: 'isChunkingAvailable',
       label: 'Chunking Available',
@@ -330,7 +331,7 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    }
+    }*/
   ];
 
   // //
@@ -764,8 +765,8 @@ export class MetadataService {
       label: 'Straight Lines or bezier curves for Agent Data Graphs',
       type: 'select',
       selectOptions: [
-        { label: 'Straight lines', value: '0' },
-        { label: 'Bezier curves', value: '1' }
+        { label: 'Straight lines', value: 0 },
+        { label: 'Bezier curves', value: 1 }
       ],
       tooltip: false
     },

@@ -18,6 +18,8 @@ export const HELPER_ENDPOINTS = [
   'getUserPermission',
   'getBestTasksAgent',
   'getCracksOfTask',
+  'getCracksPerDay',
+  'getAccessGroups',
   // POST helpers (chelper)
   'changeOwnPassword',
   'importFile',
@@ -89,6 +91,8 @@ export class SERV {
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };
   public static FORGOT = { URL: '/helper/resetUserPassword', RESOURCE: 'resetUserPassword' };
+  // API TOKENS
+  public static API_TOKENS = { URL: '/ui/apiTokens', RESOURCE: 'apiToken' };
   // PROJECTS
   public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }

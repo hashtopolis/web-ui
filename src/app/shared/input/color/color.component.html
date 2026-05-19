@@ -19,18 +19,23 @@
       <input
         #selectInput
         matInput
-        [placeholder]="getDisplayColor()"
         type="color"
         [id]="inputId"
-        [value]="getDisplayColor()"
+        [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
         [class.ng-invalid]="hasError && !readonly"
         [class.ng-touched]="isTouched && !readonly"
+        [class.color-unset]="!value"
         (input)="onValueChange($event)"
         (blur)="onTouched()"
-        [style.background]="getDisplayColor()"
+        [style.background]="value || null"
         [disabled]="disabled || readonly"
       />
-      <span class="color-value">{{ getDisplayColor() }}</span>
+      <span
+        class="color-value"
+        [class.color-value-on-light]="value && isLight(value)"
+        [class.color-value-on-dark]="value && !isLight(value)"
+        >{{ value || 'No color' }}</span
+      >
       @if (randomColor && !readonly) {
         <button
           mat-icon-button
@@ -43,6 +48,21 @@
           [disabled]="disabled"
         >
           <mat-icon>casino</mat-icon>
+        </button>
+      }
+      @if (!readonly) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          class="clear-color-btn"
+          matTooltip="Clear Color"
+          title="Clear Color"
+          (click)="clearColor()"
+          [disabled]="disabled || !value"
+          [class.clear-color-btn-hidden]="!value"
+        >
+          <mat-icon>close</mat-icon>
         </button>
       }
     </mat-form-field>

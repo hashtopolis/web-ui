@@ -1,2 +1,9 @@
-<action-menu cls="row-action" icon="more_horiz" [data]="data" [disabled]="disabled" [actionMenuItems]="actionMenuItems"
-  (menuItemClicked)="onMenuItemClick($event)"></action-menu>
+<action-menu
+  cls="row-action"
+  icon="more_horiz"
+  [data]="data"
+  [disabled]="disabled"
+  [disabledTooltip]="disabledTooltip"
+  [actionMenuItems]="actionMenuItems"
+  (menuItemClicked)="onMenuItemClick($event)"
+></action-menu>

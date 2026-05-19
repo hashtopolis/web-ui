@@ -1,24 +1,26 @@
 @if (openOnMouseEnter) {
-  <button
-    mat-button
-    #menuTrigger="matMenuTrigger"
-    #menuTriggerButton
-    [ngClass]="cls"
-    [matMenuTriggerFor]="actionMenu"
-    (click)="navigateToFirst($event)"
-    (mouseenter)="onMouseEnter()"
-    (mouseleave)="onMouseLeave($event)"
-    (focus)="preventFocus($event)"
-    [disabled]="disabled"
-    [class.active]="isActive"
-  >
-    @if (icon) {
-      <mat-icon>{{ icon }}</mat-icon>
-    }
-    @if (label) {
-      {{ label }}
-    }
-  </button>
+  <span [matTooltip]="disabledTooltip" [matTooltipDisabled]="!disabled || !disabledTooltip">
+    <button
+      mat-button
+      #menuTrigger="matMenuTrigger"
+      #menuTriggerButton
+      [ngClass]="cls"
+      [matMenuTriggerFor]="actionMenu"
+      (click)="navigateToFirst($event)"
+      (mouseenter)="onMouseEnter()"
+      (mouseleave)="onMouseLeave($event)"
+      (focus)="preventFocus($event)"
+      [disabled]="disabled"
+      [class.active]="isActive"
+    >
+      @if (icon) {
+        <mat-icon>{{ icon }}</mat-icon>
+      }
+      @if (label) {
+        {{ label }}
+      }
+    </button>
+  </span>
   <mat-menu
     #actionMenu="matMenu"
     [hasBackdrop]="false"
@@ -79,22 +81,24 @@
 }
 
 @if (!openOnMouseEnter) {
-  <button
-    mat-button
-    [ngClass]="cls"
-    [matMenuTriggerFor]="actionMenu"
-    #menuTrigger="matMenuTrigger"
-    (click)="$event.stopPropagation()"
-    [disabled]="disabled"
-    [class.active]="isActive"
-  >
-    @if (icon) {
-      <mat-icon>{{ icon }}</mat-icon>
-    }
-    @if (label) {
-      {{ label }}
-    }
-  </button>
+  <span [matTooltip]="disabledTooltip" [matTooltipDisabled]="!disabled || !disabledTooltip">
+    <button
+      mat-button
+      [ngClass]="cls"
+      [matMenuTriggerFor]="actionMenu"
+      #menuTrigger="matMenuTrigger"
+      (click)="$event.stopPropagation()"
+      [disabled]="disabled"
+      [class.active]="isActive"
+    >
+      @if (icon) {
+        <mat-icon>{{ icon }}</mat-icon>
+      }
+      @if (label) {
+        {{ label }}
+      }
+    </button>
+  </span>
   <mat-menu #actionMenu="matMenu">
     @for (section of actionMenuItems; track $index; let last = $last) {
       @for (item of section; track item.label) {

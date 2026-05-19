@@ -19,6 +19,7 @@ import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlis
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ThemeService } from '@services/shared/theme.service';
@@ -57,6 +58,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private preprocessorRoleService = inject(PreprocessorRoleService);
   private configRoleWrapper = inject(ConfigRoleWrapperService);
   private userRoleWrapperService = inject(UserRoleWrapperService);
+  private apiTokensRoleService = inject(ApiTokensRoleService);
 
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
@@ -216,7 +218,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['tasks', 'preconfigured-tasks'],
         showAddButton: this.pretasksRoleService.hasRole('create'),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
-        tooltipAddButton: 'New Preconfigured Task'
+        tooltipAddButton: 'New Preconfigured Task',
+        activeRoutes: [['tasks']]
       });
     }
 
@@ -233,7 +236,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
       taskActions.push({
         label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
+        routerLink: ['tasks', 'import-supertasks', 'masks'],
+        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
       });
     }
 
@@ -273,7 +277,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['hashlists', 'hashlist'],
         showAddButton: this.hashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
-        tooltipAddButton: 'New Hashlist'
+        tooltipAddButton: 'New Hashlist',
+        activeRoutes: [['hashlists']]
       });
     }
 
@@ -328,7 +333,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
           routerLink: ['files', 'wordlist'],
           showAddButton: canCreateFiles,
           routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
-          tooltipAddButton: 'New Wordlist'
+          tooltipAddButton: 'New Wordlist',
+          activeRoutes: [['files']]
         },
         {
           label: HeaderMenuLabel.RULES,
@@ -381,6 +387,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
+    if (this.apiTokensRoleService.hasRole(ApiTokensRole.READ)) {
+      actions.push({
+        label: 'API Keys',
+        routerLink: ['account', 'api-keys']
+      });
+    }
+
     const logoutActions = [
       {
         label: 'Logout',
@@ -407,7 +420,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.userRoleWrapperService.hasUserRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ALL_USERS,
-        routerLink: ['users', 'all-users']
+        routerLink: ['users', 'all-users'],
+        activeRoutes: [['users']]
       });
     }
     if (this.userRoleWrapperService.hasPermissionRole('read')) {
@@ -440,7 +454,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.configRoleWrapper.hasSettingsRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SETTINGS,
-        routerLink: ['config', 'agent']
+        routerLink: ['config', 'agent'],
+        activeRoutes: [
+          ['config', 'task-chunk'],
+          ['config', 'hch'],
+          ['config', 'notifications'],
+          ['config', 'general-settings'],
+          ['config', 'server-actions']
+        ]
       });
     }
     if (this.configRoleWrapper.hasHashTypesRole('read')) {

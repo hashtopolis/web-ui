@@ -107,6 +107,11 @@ table.hashtopolis-table {
     .mat-sort-header-arrow {
       color: var(--primary);
     }
+
+    // Checkbox labels in header cells should share the header's text color.
+    .mat-mdc-checkbox label {
+      color: inherit;
+    }
   }
 
   .mat-mdc-cell {

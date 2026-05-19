@@ -1,7 +1,7 @@
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
-import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permission-group.model';
+import { Permission } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -10,7 +10,9 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | UserPermissions> {
+import { PermissionMatrixRow, buildPermissionMatrix } from '@src/app/shared/utils/permission-matrix';
+
+export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | PermissionMatrixRow> {
   private _accesspermgroupId = 0;
   private _expand = '';
   private _perm = 0;
@@ -43,47 +45,27 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
           const globalPermissionGroup = this.serializer.deserialize(response, zGlobalPermissionGroupResponse, {
             include: ['userMembers'] as const
           });
-          let data: (UserPermissions | JUser)[];
-          if (this._perm) {
-            data = this.processPermissions(globalPermissionGroup);
-          } else {
-            data = globalPermissionGroup.userMembers;
-          }
+          const data: (PermissionMatrixRow | JUser)[] = this._perm
+            ? buildPermissionMatrix(globalPermissionGroup.permissions)
+            : globalPermissionGroup.userMembers;
           this.setData(data);
         })
     );
   }
 
+  /**
+   * Populate the table synchronously from a flat permission map (no API call).
+   * Used by form-mode consumers (e.g. the API-key creation form) where the
+   * matrix is driven by the current user's `granted` map rather than a
+   * persisted permission group.
+   */
+  loadFromMap(permissions: Permission): void {
+    this.loading = false;
+    this.setData(buildPermissionMatrix(permissions));
+  }
+
   reload(): void {
     this.clearSelection();
     this.loadAll();
-  }
-
-  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): UserPermissions[] {
-    let permId = 0;
-    return Object.entries(globalPermissionGroup.permissions).reduce<UserPermissions[]>((acc, [key, value]) => {
-      const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
-      let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
-      operationName = operationName.charAt(0).toUpperCase() + operationName.slice(1);
-      const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
-      const existingPermission = acc.find((item) => item.name === operationName && item.key === operation);
-      if (existingPermission && type) {
-        existingPermission[type.toLowerCase() as 'create' | 'read' | 'update' | 'delete'] = value;
-      } else {
-        const newPermission: UserPermissions = {
-          id: permId++,
-          type: 'userPermission',
-          name: operationName,
-          key: operation,
-          create: false,
-          read: false,
-          update: false,
-          delete: false,
-          ...(type ? { [type.toLowerCase()]: value } : {})
-        };
-        acc.push(newPermission);
-      }
-      return acc;
-    }, []);
   }
 }

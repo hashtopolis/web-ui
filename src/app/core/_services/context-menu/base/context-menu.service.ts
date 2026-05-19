@@ -356,6 +356,33 @@ export abstract class ContextMenuService {
   }
 
   /**
+   * Register a subclass-local context-menu item. Use this for actions that are
+   * specific to a single table and don't warrant a shared `addCtx*Item` helper
+   * on the base class.
+   */
+  protected addCtxCustomItem(opts: {
+    label: string;
+    action: string;
+    icon: string;
+    permissions: Array<PermissionValues>;
+    condition?: ContextMenuCondition;
+    groupIndex?: number;
+    toContextMenu?: boolean;
+    warning?: boolean;
+  }): void {
+    this.createMenuItem(
+      opts.label,
+      opts.groupIndex ?? 0,
+      opts.action,
+      opts.icon,
+      opts.permissions,
+      opts.condition ?? { key: '', value: false },
+      opts.toContextMenu ?? true,
+      opts.warning ?? false
+    );
+  }
+
+  /**
    * Create a new menu item for the context or bulk menu
    * @param label - label of the menu item
    * @param groupIndex - group index of the item

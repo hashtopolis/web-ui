@@ -74,6 +74,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() icon: string = '';
   @Input() label: string = '';
   @Input() disabled = false;
+  @Input() disabledTooltip = '';
   @Input() cls = '';
   @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
@@ -238,13 +239,16 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
     for (const section of this.actionMenuItems) {
       if (this.isActive) break;
       for (const item of section) {
-        if (item.routerLink) {
-          const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (partial.every((value, index) => value === item.routerLink![index])) {
-            this.isActive = true;
-            break;
+        for (const link of [item.routerLink, item.routerLinkAdd, ...(item.activeRoutes ?? [])]) {
+          if (link?.length) {
+            const partial = this.currentUrl.slice(0, link.length);
+            if (partial.every((value, index) => value === link[index])) {
+              this.isActive = true;
+              break;
+            }
           }
         }
+        if (this.isActive) break;
       }
     }
   }
