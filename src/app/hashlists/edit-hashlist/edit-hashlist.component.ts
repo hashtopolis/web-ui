@@ -12,7 +12,7 @@ import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -80,36 +80,38 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
-    this.editedHashlistIndex = +this.route.snapshot.params['id'];
+    this.route.params.subscribe(async (params) => {
+      this.editedHashlistIndex = +params['id'];
+      this.isLoading = true;
 
-    try {
-      await this.loadHashlist();
+      try {
+        await this.loadHashlist();
 
-      await this.loadData();
+        await this.loadData();
 
-      this.isLoading = false;
-    } catch (e: unknown) {
-      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+        this.isLoading = false;
+      } catch (e: unknown) {
+        const status = e instanceof HttpErrorResponse ? e.status : undefined;
 
-      if (status === 403) {
-        this.router.navigateByUrl('/forbidden');
-        return;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other errors (500 etc.) show a friendly message instead of redirecting
+        // so the user knows the server failed. Keep the loading flag disabled.
+
+        console.error('Error loading hashlist:', e);
+        const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
       }
-
-      if (status === 404) {
-        this.router.navigateByUrl('/not-found');
-        return;
-      }
-
-      // For other errors (500 etc.) show a friendly message instead of redirecting
-      // so the user knows the server failed. Keep the loading flag disabled.
-
-      console.error('Error loading hashlist:', e);
-      const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
-      this.alert.showErrorMessage(msg);
-      this.isLoading = false;
-      return;
-    }
+    });
   }
 
   /**
@@ -191,9 +193,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     if (!this.roleService.hasRole('groups')) {
       return;
     }
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
-    );
+    const response = await firstValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
