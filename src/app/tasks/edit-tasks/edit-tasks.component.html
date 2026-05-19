@@ -60,7 +60,7 @@
           <input-text title="Keyspace dispatched" formControlName="keyspaceProgress"></input-text>
 
           @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
-            <simulate-form-field label="Keyspace Searched" message="{{ searched }}"></simulate-form-field>
+            <simulate-form-field label="Keyspace Searched" message="{{ searched }}%"></simulate-form-field>
           } @else {
             <simulate-form-field label="Keyspace Searched" message="N/A"></simulate-form-field>
           }
