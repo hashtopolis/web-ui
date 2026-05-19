@@ -345,18 +345,13 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private updateHeatmapData$(): Observable<void> {
     const cracksPerDaySchema = z.object({
-      data: z.array(
-        z.object({
-          day: z.string(),
-          total: z.number().int()
-        })
-      )
+      meta: z.record(z.string(), z.number())
     });
 
     return this.gs.ghelper(SERV.HELPER, 'getCracksPerDay').pipe(
       map((res: ResponseWrapper) => {
         const parsed = cracksPerDaySchema.parse(res);
-        const rawData: Record<string, number> = Object.fromEntries(parsed.data.map(({ day, total }) => [day, total]));
+        const rawData = parsed.meta;
 
         const today = new Date();
         const year = today.getFullYear();

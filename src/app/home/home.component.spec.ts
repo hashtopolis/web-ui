@@ -100,9 +100,9 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
 });
 
 /**
- * Mock for `ghelper` — returns an empty data array for any helper endpoint.
+ * Mock for `ghelper` — returns an empty meta object for any helper endpoint.
  */
-globalServiceMock.ghelper.and.returnValue(of({ data: [] }));
+globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
 
 /**
  * Mock implementation of LocalStorageService for testing purposes.
@@ -375,7 +375,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     mockAutoRefreshService = createMockAutoRefreshService();
 
     // Reset ghelper to a clean state before each test
-    globalServiceMock.ghelper.and.returnValue(of({ data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
 
     await TestBed.configureTestingModule({
       declarations: [HomeComponent],
@@ -423,7 +423,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     const today = new Date();
     const year = today.getFullYear();
     const jan2 = `${year}-01-02`;
-    globalServiceMock.ghelper.and.returnValue(of({ data: [{ day: jan2, total: 42 }] }));
+    globalServiceMock.ghelper.and.returnValue(of({ meta: { [jan2]: 42 }, data: [] }));
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -441,7 +441,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
 
   it('should include all days from Jan 1st to today', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.ghelper.and.returnValue(of({ data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
