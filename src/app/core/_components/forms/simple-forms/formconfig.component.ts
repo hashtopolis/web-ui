@@ -20,7 +20,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-type ConfigValues = Record<string, string | boolean>;
+type ConfigValues = Record<string, string | boolean | number>;
 type ConfigIds = Record<string, number>;
 
 @Component({
@@ -141,17 +141,25 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const config: JConfig[] = this.serializer.deserialize(response, zConfigListResponse);
 
         this.formValues = config.reduce<ConfigValues>((configValues, item) => {
-          let value: string | boolean = item.value;
+          let value: string | boolean | number = item.value;
+          const fieldMetadata = this.formMetadata.find((field) => field.name === item.item);
 
-          if (item.value === '1') {
-            value = true;
-          } else if (item.value === '0') {
-            value = false;
+          if (fieldMetadata?.type === 'checkbox') {
+            value = item.value === '1';
+          } else if (
+            (fieldMetadata?.type === 'select' || fieldMetadata?.type === 'number') &&
+            typeof item.value === 'string'
+          ) {
+            const numericValue = Number(item.value);
+            if (!Number.isNaN(numericValue) && item.value.trim() !== '') {
+              value = numericValue;
+            }
           }
 
           configValues[item.item] = value;
           return configValues;
         }, {});
+
         // Maps the item with the id, so can be used for update
         this.formIds = config.reduce<ConfigIds>((result, item) => {
           result[item.item] = item.id;
