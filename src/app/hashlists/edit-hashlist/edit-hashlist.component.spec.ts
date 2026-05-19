@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
 
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -123,7 +123,7 @@ describe('EditHashlistComponent', () => {
   let roleServiceSpy: jasmine.SpyObj<HashListRoleService>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getRelationships', 'update', 'chelper']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'ghelper', 'update', 'chelper']);
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
@@ -159,7 +159,7 @@ describe('EditHashlistComponent', () => {
         { provide: HashListRoleService, useValue: roleServiceSpy },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { params: { id: '1' } } }
+          useValue: { params: of({ id: '1' }) }
         }
       ]
     }).compileComponents();
@@ -169,7 +169,7 @@ describe('EditHashlistComponent', () => {
 
   beforeEach(() => {
     roleServiceSpy.hasRole.and.returnValue(true);
-    gsSpy.getRelationships.and.returnValue(of(mockAccessGroupsResponse));
+    gsSpy.ghelper.and.returnValue(of(mockAccessGroupsResponse));
   });
 
   afterEach(() => {
@@ -311,7 +311,7 @@ describe('EditHashlistComponent', () => {
       respondToHashlistRequest(mockHashlistResponse());
       tick();
 
-      expect(gsSpy.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+      expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(component.selectAccessgroup.length).toBe(2);
     }));
 
@@ -322,7 +322,7 @@ describe('EditHashlistComponent', () => {
       respondToHashlistRequest(mockHashlistResponse());
       tick();
 
-      expect(gsSpy.getRelationships).not.toHaveBeenCalled();
+      expect(gsSpy.ghelper).not.toHaveBeenCalled();
       expect(component.selectAccessgroup).toEqual([]);
     }));
   });
@@ -345,8 +345,6 @@ describe('EditHashlistComponent', () => {
     }));
 
     it('should navigate to /hashlists/superhashlist when type is 3', fakeAsync(() => {
-      gsSpy.getRelationships.and.returnValue(of(mockAccessGroupsResponse));
-
       initComponent();
       respondToHashlistRequest(mockSuperHashlistResponse());
       tick();
