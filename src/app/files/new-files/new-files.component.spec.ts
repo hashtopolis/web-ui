@@ -9,7 +9,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
@@ -35,7 +35,7 @@ class MockUploadTUSService {
 
 class MockGlobalService {
   getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
-  getRelationships = jasmine.createSpy('getRelationships').and.returnValue(of(mockResponse()));
+  ghelper = jasmine.createSpy('ghelper').and.returnValue(of(mockResponse()));
   create = jasmine.createSpy('create').and.returnValue(of({}));
   userId = 1;
 }
@@ -208,12 +208,12 @@ describe('NewFilesComponent', () => {
   });
 
   describe('Access group scoping', () => {
-    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
+    it('should fetch access groups via the getAccessGroups helper, not getAll', () => {
       setup('wordlist-new');
       const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
 
-      // Component must use getRelationships to get user-scoped access groups
-      expect(gs.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+      // Component must use the helper endpoint to get user-scoped access groups
+      expect(gs.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
 
       // getAll must NOT be called — the component should not fetch all access groups
       expect(gs.getAll).not.toHaveBeenCalled();

@@ -12,7 +12,7 @@ import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -193,9 +193,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     if (!this.roleService.hasRole('groups')) {
       return;
     }
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
-    );
+    const response = await firstValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
