@@ -14,7 +14,7 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -178,9 +178,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(
-        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS)
-      );
+      const response: ResponseWrapper = await firstValueFrom(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
       const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
