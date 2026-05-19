@@ -85,7 +85,7 @@ export const zCrackerBinaryResponse = z.object({
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
-            isChunkingAvailable: z.boolean()
+            isChunkingAvailable: z.boolean().nullable()
           })
         }),
         z.object({
@@ -203,7 +203,7 @@ export const zCrackerBinaryListResponse = z.object({
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
-            isChunkingAvailable: z.boolean()
+            isChunkingAvailable: z.boolean().nullable()
           })
         }),
         z.object({
