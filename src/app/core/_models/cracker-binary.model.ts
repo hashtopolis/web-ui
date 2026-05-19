@@ -24,7 +24,7 @@ export interface JCrackerBinary extends BaseModel {
  */
 export interface JCrackerBinaryType extends BaseModel {
   crackerVersions: JCrackerBinary[];
-  isChunkingAvailable: boolean;
+  //Only crackers with chunking are supported right now: isChunkingAvailable: boolean;
   typeName: string;
 }
 

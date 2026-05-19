@@ -297,7 +297,8 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    },
+    }
+    /* Only crackers with chunking are supported right now
     {
       name: 'isChunkingAvailable',
       label: 'Chunking Available',
@@ -309,7 +310,7 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    }
+    }*/
   ];
 
   // //

@@ -13,7 +13,7 @@ export type CrackerBinaryTypePatch = {
   data: {
     type: 'crackerBinaryType';
     attributes: {
-      isChunkingAvailable?: boolean;
+      isChunkingAvailable: boolean | null;
       typeName?: string;
     };
   };
@@ -36,7 +36,7 @@ export type CrackerBinaryTypeResponse = {
     type: 'crackerBinaryType';
     attributes: {
       typeName: string;
-      isChunkingAvailable: boolean;
+      isChunkingAvailable: boolean | null;
     };
   };
   relationships?: {
@@ -114,7 +114,7 @@ export type CrackerBinaryTypePostPatchResponse = {
     type: 'crackerBinaryType';
     attributes: {
       typeName: string;
-      isChunkingAvailable: boolean;
+      isChunkingAvailable: boolean | null;
     };
   };
 };
@@ -136,7 +136,7 @@ export type CrackerBinaryTypeListResponse = {
     type: 'crackerBinaryType';
     attributes: {
       typeName: string;
-      isChunkingAvailable: boolean;
+      isChunkingAvailable: boolean | null;
     };
   }>;
   relationships?: {

@@ -63,6 +63,7 @@ describe('NewCrackerComponent', () => {
     expect(inputSelectInstance.items[1].name).toBe('Generic Cracker');
   });
 
+  /* Only crackers with chunking are supported right now:
   it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
     fixture.detectChanges();
     const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
@@ -74,17 +75,18 @@ describe('NewCrackerComponent', () => {
     expect(inputSelectInstance.items[0].name).toBe('Yes');
     expect(inputSelectInstance.items[1].name).toBe('No');
   });
+  */
 
   it('should not submit if form is invalid', async () => {
-    component.newCrackerForm.patchValue({ typeName: '', isChunkingAvailable: null }); // invalid
+    component.newCrackerForm.patchValue({ typeName: '' }); // invalid Add isChunkingAvailable: null once it's supported
     await component.onSubmit();
     expect(mockGlobalService.create).not.toHaveBeenCalled();
   });
 
   it('should call create and navigate on valid form', async () => {
     component.newCrackerForm.patchValue({
-      typeName: 'Hashcat',
-      isChunkingAvailable: true
+      typeName: 'Hashcat'
+      // Only crackers with chunking are supported right now: isChunkingAvailable: true
     });
 
     component.newCrackerForm.updateValueAndValidity();
@@ -95,8 +97,8 @@ describe('NewCrackerComponent', () => {
     await component.onSubmit();
 
     const payload = {
-      typeName: component.newCrackerForm.controls.typeName.value,
-      isChunkingAvailable: component.newCrackerForm.controls.isChunkingAvailable.value
+      typeName: component.newCrackerForm.controls.typeName.value
+      // Only crackers with chunking are supported right now: isChunkingAvailable: component.newCrackerForm.controls.isChunkingAvailable.value
     };
 
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.CRACKERS_TYPES, payload);
@@ -106,8 +108,8 @@ describe('NewCrackerComponent', () => {
 
   it('should show error if create fails', async () => {
     component.newCrackerForm.patchValue({
-      typeName: 'hashcat',
-      isChunkingAvailable: false
+      typeName: 'hashcat'
+      // Only crackers with chunking are supported right now: isChunkingAvailable: false
     });
 
     // Simulate create failure
@@ -123,8 +125,8 @@ describe('NewCrackerComponent', () => {
 
   it('should show required field error message if fields are empty', () => {
     component.newCrackerForm.patchValue({
-      typeName: '',
-      isChunkingAvailable: null
+      typeName: ''
+      // Only crackers with chunking are supported right now: isChunkingAvailable: null
     });
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
@@ -138,8 +140,8 @@ describe('NewCrackerComponent', () => {
   it('should keep the submit button enabled if form is invalid', () => {
     // Make form invalid by clearing required fields
     component.newCrackerForm.patchValue({
-      typeName: '',
-      isChunkingAvailable: null
+      typeName: ''
+      // Only crackers with chunking are supported right now: isChunkingAvailable: null
     });
     mockRoleService.hasRole.and.returnValue(true);
     component.newCrackerForm.markAllAsTouched();
