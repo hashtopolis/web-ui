@@ -214,7 +214,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['tasks', 'preconfigured-tasks'],
         showAddButton: this.pretasksRoleService.hasRole('create'),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
-        tooltipAddButton: 'New Preconfigured Task'
+        tooltipAddButton: 'New Preconfigured Task',
+        activeRoutes: [['tasks']]
       });
     }
 
