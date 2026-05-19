@@ -216,7 +216,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['tasks', 'preconfigured-tasks'],
         showAddButton: this.pretasksRoleService.hasRole('create'),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
-        tooltipAddButton: 'New Preconfigured Task'
+        tooltipAddButton: 'New Preconfigured Task',
+        activeRoutes: [['tasks']]
       });
     }
 
@@ -233,7 +234,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
       taskActions.push({
         label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
+        routerLink: ['tasks', 'import-supertasks', 'masks'],
+        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
       });
     }
 
@@ -273,7 +275,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['hashlists', 'hashlist'],
         showAddButton: this.hashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
-        tooltipAddButton: 'New Hashlist'
+        tooltipAddButton: 'New Hashlist',
+        activeRoutes: [['hashlists']]
       });
     }
 
@@ -328,7 +331,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
           routerLink: ['files', 'wordlist'],
           showAddButton: canCreateFiles,
           routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
-          tooltipAddButton: 'New Wordlist'
+          tooltipAddButton: 'New Wordlist',
+          activeRoutes: [['files']]
         },
         {
           label: HeaderMenuLabel.RULES,
@@ -414,7 +418,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.userRoleWrapperService.hasUserRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ALL_USERS,
-        routerLink: ['users', 'all-users']
+        routerLink: ['users', 'all-users'],
+        activeRoutes: [['users']]
       });
     }
     if (this.userRoleWrapperService.hasPermissionRole('read')) {
@@ -447,7 +452,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.configRoleWrapper.hasSettingsRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SETTINGS,
-        routerLink: ['config', 'agent']
+        routerLink: ['config', 'agent'],
+        activeRoutes: [
+          ['config', 'task-chunk'],
+          ['config', 'hch'],
+          ['config', 'notifications'],
+          ['config', 'general-settings'],
+          ['config', 'server-actions']
+        ]
       });
     }
     if (this.configRoleWrapper.hasHashTypesRole('read')) {
