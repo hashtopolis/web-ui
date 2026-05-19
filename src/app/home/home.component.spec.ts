@@ -1,4 +1,4 @@
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, DebugElement, Injector, Input } from '@angular/core';
@@ -55,7 +55,7 @@ const routes = [{ path: '', component: DummyComponent }];
  * Mock implementation of GlobalService.
  * Simulates various backend service responses based on service type and filter params.
  */
-const globalServiceMock = jasmine.createSpyObj('GlobalService', ['getAll']);
+const globalServiceMock = jasmine.createSpyObj('GlobalService', ['getAll', 'ghelper']);
 
 /**
  * Conditional return logic for the mocked `getAll` method of GlobalService.
@@ -98,6 +98,11 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
   // Default fallback for any other service
   return of({ meta: { count: 0 }, results: [] });
 });
+
+/**
+ * Mock for `ghelper` — returns an empty meta object for any helper endpoint.
+ */
+globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
 
 /**
  * Mock implementation of LocalStorageService for testing purposes.
@@ -359,4 +364,105 @@ describe('HomeComponent (template permissions and view)', () => {
 
     expect(mockAutoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(false, { immediate: true });
   });*/
+});
+
+describe('HomeComponent — updateHeatmapData$()', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
+  let mockAutoRefreshService: ReturnType<typeof createMockAutoRefreshService>;
+
+  beforeEach(async () => {
+    mockAutoRefreshService = createMockAutoRefreshService();
+
+    // Reset ghelper to a clean state before each test
+    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+
+    await TestBed.configureTestingModule({
+      declarations: [HomeComponent],
+      imports: [HomeModule, RouterLink, RouterLinkWithHref, HeatmapChartStubComponent],
+      providers: [
+        provideHttpClientTesting(),
+        provideRouter(routes),
+        { provide: GlobalService, useValue: globalServiceMock },
+        { provide: LocalStorageService, useValue: mockLocalStorageService },
+        { provide: PermissionService, useValue: permissionServiceMock },
+        { provide: AutoRefreshService, useValue: mockAutoRefreshService },
+        { provide: PageTitle, useClass: PageTitleStub }
+      ]
+    }).compileComponents();
+
+    AppModule.injector = TestBed.inject(Injector);
+  });
+
+  it('should call ghelper with SERV.HELPER and getCracksPerDay when canReadCracks is true', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.getAll.calls.reset();
+    globalServiceMock.ghelper.calls.reset();
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(globalServiceMock.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getCracksPerDay');
+  });
+
+  it('should NOT call ghelper when canReadCracks is false', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    globalServiceMock.ghelper.calls.reset();
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(globalServiceMock.ghelper).not.toHaveBeenCalled();
+  });
+
+  it('should populate heatmapData from ghelper response and fill missing days with 0', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const jan2 = `${year}-01-02`;
+    globalServiceMock.ghelper.and.returnValue(of({ meta: { [jan2]: 42 }, data: [] }));
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const jan1 = `${year}-01-01`;
+    const jan1Entry = component.heatmapData.find(([d]) => d === jan1);
+    const jan2Entry = component.heatmapData.find(([d]) => d === jan2);
+
+    expect(jan1Entry).toBeTruthy();
+    expect(jan1Entry![1]).toBe(0); // missing day filled with 0
+    expect(jan2Entry).toBeTruthy();
+    expect(jan2Entry![1]).toBe(42);
+  });
+
+  it('should include all days from Jan 1st to today', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const start = new Date(year, 0, 1);
+    const expectedDays = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
+
+    expect(component.heatmapData.length).toBe(expectedDays);
+  });
+
+  it('should handle ghelper errors gracefully and keep heatmapData empty', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.ghelper.and.returnValue(throwError(() => new Error('network error')));
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(component.heatmapData).toEqual([]);
+  });
 });

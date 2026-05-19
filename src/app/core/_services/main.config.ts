@@ -18,6 +18,7 @@ export const HELPER_ENDPOINTS = [
   'getUserPermission',
   'getBestTasksAgent',
   'getCracksOfTask',
+  'getCracksPerDay',
   'getAccessGroups',
   // POST helpers (chelper)
   'changeOwnPassword',
