@@ -105,8 +105,9 @@ describe('NewApiKeyComponent', () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     mockGlobalService.create.and.returnValue(of(mockResponse()));
 
-    // Pin a specific validUntil so we don't depend on the 90-day default math.
+    const pickedFrom = new Date(2026, 4, 10, 0, 0, 0, 0); // 2026-05-10 local
     const pickedUntil = new Date(2026, 4, 15, 0, 0, 0, 0); // 2026-05-15 local
+    component.form.controls.validFrom.setValue(pickedFrom);
     component.form.controls.validUntil.setValue(pickedUntil);
 
     await component.onSubmit();
@@ -123,7 +124,9 @@ describe('NewApiKeyComponent', () => {
     mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     const pickedFrom = new Date(2026, 4, 1, 9, 30); // 2026-05-01 09:30 local
+    const pickedUntil = new Date(2026, 4, 15, 0, 0, 0, 0); // 2026-05-15 local
     component.form.controls.validFrom.setValue(pickedFrom);
+    component.form.controls.validUntil.setValue(pickedUntil);
 
     await component.onSubmit();
 
