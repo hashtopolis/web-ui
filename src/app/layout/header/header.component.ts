@@ -231,7 +231,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
       taskActions.push({
         label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
+        routerLink: ['tasks', 'import-supertasks', 'masks'],
+        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
       });
     }
 
@@ -438,7 +439,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.configRoleWrapper.hasSettingsRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SETTINGS,
-        routerLink: ['config', 'agent']
+        routerLink: ['config', 'agent'],
+        activeRoutes: [
+          ['config', 'task-chunk'],
+          ['config', 'hch'],
+          ['config', 'notifications'],
+          ['config', 'general-settings'],
+          ['config', 'server-actions']
+        ]
       });
     }
     if (this.configRoleWrapper.hasHashTypesRole('read')) {
