@@ -65,7 +65,7 @@ const mockHashlistResponse = (): ResponseWrapper =>
         }
       }
     ]
-  }) as ResponseWrapper;
+  });
 
 const mockSuperHashlistResponse = (): ResponseWrapper =>
   mockResponse({
@@ -99,14 +99,14 @@ const mockSuperHashlistResponse = (): ResponseWrapper =>
         attributes: { description: 'MD5', isSalted: false, isSlowHash: false }
       }
     ]
-  }) as ResponseWrapper;
+  });
 
 const mockAccessGroupsResponse: ResponseWrapper = mockResponse({
   data: [
     { id: 1, type: 'accessGroup', attributes: { groupName: 'Admin' } },
     { id: 2, type: 'accessGroup', attributes: { groupName: 'User' } }
   ]
-}) as ResponseWrapper;
+});
 
 describe('EditHashlistComponent', () => {
   let component: EditHashlistComponent;
