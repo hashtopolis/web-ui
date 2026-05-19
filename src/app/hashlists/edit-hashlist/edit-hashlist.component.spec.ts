@@ -65,7 +65,7 @@ const mockHashlistResponse = (): ResponseWrapper =>
         }
       }
     ]
-  });
+  }) as ResponseWrapper;
 
 const mockSuperHashlistResponse = (): ResponseWrapper =>
   mockResponse({
@@ -99,14 +99,14 @@ const mockSuperHashlistResponse = (): ResponseWrapper =>
         attributes: { description: 'MD5', isSalted: false, isSlowHash: false }
       }
     ]
-  });
+  }) as ResponseWrapper;
 
 const mockAccessGroupsResponse: ResponseWrapper = mockResponse({
   data: [
     { id: 1, type: 'accessGroup', attributes: { groupName: 'Admin' } },
     { id: 2, type: 'accessGroup', attributes: { groupName: 'User' } }
   ]
-});
+}) as ResponseWrapper;
 
 describe('EditHashlistComponent', () => {
   let component: EditHashlistComponent;
@@ -188,34 +188,31 @@ describe('EditHashlistComponent', () => {
   };
 
   describe('Component initialization', () => {
-    it('should create component and initialize form', fakeAsync(() => {
+    it('should create component and initialize form', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
 
       expect(component).toBeTruthy();
       expect(component.updateForm).toBeDefined();
       expect(component.updateForm.get('hashlistId')).toBeDefined();
       expect(component.updateForm.get('updateData')).toBeDefined();
-    }));
+    });
 
-    it('should set title on construction', fakeAsync(() => {
+    it('should set title on construction', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
 
       expect(titleSpy.set).toHaveBeenCalledWith(['Edit Hashlist']);
-    }));
+    });
 
-    it('should unsubscribe on destroy', fakeAsync(() => {
+    it('should unsubscribe on destroy', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
 
       component.ngOnDestroy();
 
       expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    }));
+    });
   });
 
   describe('ngOnInit', () => {
@@ -253,7 +250,6 @@ describe('EditHashlistComponent', () => {
       fixture = TestBed.createComponent(EditHashlistComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      tick();
 
       const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
@@ -272,7 +268,6 @@ describe('EditHashlistComponent', () => {
 
     it('should show generic error message on non-HttpError error', fakeAsync(() => {
       initComponent();
-      tick();
       const req = httpMock.expectOne((request) => request.url.includes('/hashlists/'));
       req.error(new ProgressEvent('error'));
       tick();
@@ -285,7 +280,6 @@ describe('EditHashlistComponent', () => {
       fixture = TestBed.createComponent(EditHashlistComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      tick();
 
       const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
@@ -368,10 +362,9 @@ describe('EditHashlistComponent', () => {
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/superhashlist']);
     }));
 
-    it('should mark all fields as touched on invalid form', fakeAsync(() => {
+    it('should mark all fields as touched on invalid form', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
 
       const markAllAsTouchedSpy = spyOn(component.updateForm, 'markAllAsTouched');
       const updateValueAndValiditySpy = spyOn(component.updateForm, 'updateValueAndValidity');
@@ -379,32 +372,29 @@ describe('EditHashlistComponent', () => {
       component.updateForm.get('updateData.name')?.setValue('');
       component.updateForm.markAsUntouched();
       component.onSubmit();
-      tick();
 
       expect(markAllAsTouchedSpy).toHaveBeenCalled();
       expect(updateValueAndValiditySpy).toHaveBeenCalled();
       expect(gsSpy.update).not.toHaveBeenCalled();
-    }));
+    });
   });
 
   describe('importCrackedHashes', () => {
-    it('should navigate to import cracked hashes page', fakeAsync(() => {
+    it('should navigate to import cracked hashes page', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
       component.editedHashlistIndex = 42;
 
       component.importCrackedHashes();
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist/42/import-cracked-hashes']);
-    }));
+    });
   });
 
   describe('exportLeftHashes', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
       component.editedHashlistIndex = 42;
       gsSpy.chelper.and.returnValue(of({}));
 
@@ -421,7 +411,6 @@ describe('EditHashlistComponent', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
       component.editedHashlistIndex = 42;
       gsSpy.chelper.and.returnValue(of({}));
 
@@ -438,7 +427,6 @@ describe('EditHashlistComponent', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
       component.editedHashlistIndex = 42;
       gsSpy.chelper.and.returnValue(of({}));
 
@@ -452,29 +440,27 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('goToHashes', () => {
-    it('should navigate to hashes page', fakeAsync(() => {
+    it('should navigate to hashes page', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
       component.editedHashlistIndex = 42;
 
       component.goToHashes();
 
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists', 'hashes', 'hashlists', 42]);
-    }));
+    });
   });
 
   describe('canDeactivate', () => {
-    it('should return true when form is not dirty', fakeAsync(() => {
+    it('should return true when form is not dirty', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      tick();
 
       const result = component.canDeactivate();
 
       expect(result).toBeTrue();
       expect(unsavedChangesSpy.setUnsavedChanges).not.toHaveBeenCalled();
-    }));
+    });
 
     it('should return false and set unsaved changes when form is dirty', fakeAsync(() => {
       initComponent();
