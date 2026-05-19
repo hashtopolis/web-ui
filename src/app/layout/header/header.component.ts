@@ -329,7 +329,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
           routerLink: ['files', 'wordlist'],
           showAddButton: canCreateFiles,
           routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
-          tooltipAddButton: 'New Wordlist'
+          tooltipAddButton: 'New Wordlist',
+          activeRoutes: [['files']]
         },
         {
           label: HeaderMenuLabel.RULES,
@@ -408,7 +409,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.userRoleWrapperService.hasUserRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ALL_USERS,
-        routerLink: ['users', 'all-users']
+        routerLink: ['users', 'all-users'],
+        activeRoutes: [['users']]
       });
     }
     if (this.userRoleWrapperService.hasPermissionRole('read')) {
