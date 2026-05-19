@@ -273,7 +273,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['hashlists', 'hashlist'],
         showAddButton: this.hashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
-        tooltipAddButton: 'New Hashlist'
+        tooltipAddButton: 'New Hashlist',
+        activeRoutes: [['hashlists']]
       });
     }
 
