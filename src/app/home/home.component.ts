@@ -1,10 +1,9 @@
-import { zHashListResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
+import { z } from 'zod';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { JHash } from '@models/hash.model';
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
@@ -16,13 +15,12 @@ import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
+import { unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-home',
@@ -340,29 +338,38 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Loads cracked hashes and prepares heatmap data as date/count pairs.
-   * Updates the lastUpdated timestamp.
+   * Calls getCracksPerDay, validates the JSON:API response with Zod and builds
+   * heatmap data for every day from January 1st of the current year up to today,
+   * filling days with no cracks with a count of 0.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private updateHeatmapData$(): Observable<void> {
-    const params = new RequestParamBuilder()
-      .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: 1 })
-      .create();
+    const cracksPerDaySchema = z.object({
+      meta: z.record(z.string(), z.number())
+    });
 
-    return this.gs.getAll(SERV.HASHES, params).pipe(
+    return this.gs.ghelper(SERV.HELPER, 'getCracksPerDay').pipe(
       map((res: ResponseWrapper) => {
-        const hashes: JHash[] = new JsonAPISerializer().deserialize(res, zHashListResponse);
+        const parsed = cracksPerDaySchema.parse(res);
+        const rawData = parsed.meta;
 
-        const formattedDates: string[] = hashes.map((h) => formatUnixTimestamp(h.timeCracked, 'yyyy-MM-dd'));
-        const dateCounts = this.countOccurrences(formattedDates);
+        const today = new Date();
+        const year = today.getFullYear();
+        const allDays: [string, number][] = [];
+        const cursor = new Date(year, 0, 1);
 
-        this.heatmapData = Object.entries(dateCounts).map(([date, count]) => [date, count]);
+        while (cursor <= today) {
+          const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+          allDays.push([dateStr, rawData[dateStr] ?? 0]);
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        this.heatmapData = allDays;
       }),
       catchError((err) => {
-        console.error('Failed to fetch hash heatmap data:', err);
+        console.error('Failed to fetch heatmap data:', err);
         return of(undefined);
-      }),
-      map(() => undefined)
+      })
     );
   }
 
@@ -375,18 +382,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.refreshFlash = false;
     }, 500); // duration of the flash in ms
-  }
-
-  /**
-   * Counts occurrences of each string in the given array.
-   *
-   * @param arr Array of strings (e.g., dates)
-   * @returns Object with keys as strings and values as their counts
-   */
-  private countOccurrences(arr: string[]): Record<string, number> {
-    return arr.reduce<Record<string, number>>((counts, item) => {
-      counts[item] = (counts[item] || 0) + 1;
-      return counts;
-    }, {});
   }
 }

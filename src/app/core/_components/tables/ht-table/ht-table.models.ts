@@ -29,6 +29,7 @@ export type DataType =
   | 'users'
   | 'notifications'
   | 'agent-binaries'
+  | 'apiTokens'
   | 'health-checks'
   | 'health-check-agents'
   | 'logs'
@@ -67,6 +68,11 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+  disabled?: boolean;
+  // Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled.
+  tooltip?: string;
+  // indeterminate if checkbox is half filled (instead of full check) so we know that only some and not all entries are checked
+  indeterminate?: boolean;
 }
 
 /** Column type for checkbox toggle events in attack file tables. */

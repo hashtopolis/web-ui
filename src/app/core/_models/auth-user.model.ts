@@ -6,6 +6,7 @@ import { UserId } from '@models/id.types';
  * @prop _token     access token
  * @prop _username  Name of user
  */
+
 export interface AuthData {
   _expires: Date | string;
   _token: string;
