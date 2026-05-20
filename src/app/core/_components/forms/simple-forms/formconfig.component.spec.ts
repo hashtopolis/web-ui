@@ -1,10 +1,8 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -18,20 +16,23 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { FormConfigComponent } from '@src/app/core/_components/forms/simple-forms/formconfig.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('FormConfigComponent', () => {
   let component: FormConfigComponent;
   let fixture: ComponentFixture<FormConfigComponent>;
   let globalService: jasmine.SpyObj<GlobalService>;
   let alertService: jasmine.SpyObj<AlertService>;
+  let uiConfigService: jasmine.SpyObj<UIConfigService>;
+  let notificationRoleService: jasmine.SpyObj<NotificationsRoleService>;
   let activatedRoute: Partial<ActivatedRoute>;
 
   beforeEach(async () => {
     const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'update']);
     alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     const autoTitleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    const uiConfigServiceSpy = jasmine.createSpyObj('UIConfigService', ['onUpdatingCheck']);
-    const notificationRoleServiceSpy = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+    uiConfigService = jasmine.createSpyObj('UIConfigService', ['onUpdatingCheck']);
+    notificationRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
     const cookieServiceSpy = jasmine.createSpyObj('CookieService', ['getCookie']);
     cookieServiceSpy.getCookie.and.returnValue('0');
 
@@ -51,9 +52,9 @@ describe('FormConfigComponent', () => {
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: AlertService, useValue: alertService },
         { provide: AutoTitleService, useValue: autoTitleServiceSpy },
-        { provide: UIConfigService, useValue: uiConfigServiceSpy },
+        { provide: UIConfigService, useValue: uiConfigService },
         { provide: CookieService, useValue: cookieServiceSpy },
-        { provide: NotificationsRoleService, useValue: notificationRoleServiceSpy },
+        { provide: NotificationsRoleService, useValue: notificationRoleService },
         { provide: ActivatedRoute, useValue: activatedRoute },
         JsonAPISerializer,
         MetadataService,
@@ -62,13 +63,7 @@ describe('FormConfigComponent', () => {
     }).compileComponents();
 
     globalService = TestBed.inject(GlobalService) as jasmine.SpyObj<GlobalService>;
-    globalService.getAll.and.returnValue(
-      of({
-        jsonapi: { version: '1.1' },
-        links: { self: '/api/v2/ui/configs' },
-        data: []
-      } as unknown as ResponseWrapper)
-    );
+    globalService.getAll.and.returnValue(of(mockResponse()));
 
     fixture = TestBed.createComponent(FormConfigComponent);
     component = fixture.componentInstance;
@@ -81,9 +76,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert numeric string values to numbers for select fields', () => {
     // Mock API response with serverLogLevel = '30' (WARNING)
-    const mockApiResponse = {
-      jsonapi: { version: '1.1' },
-      links: { self: '/api/v2/ui/configs' },
+    const mockApiResponse = mockResponse({
       data: [
         {
           type: 'config',
@@ -95,7 +88,7 @@ describe('FormConfigComponent', () => {
           }
         }
       ]
-    } as unknown as ResponseWrapper;
+    });
 
     globalService.getAll.and.returnValue(of(mockApiResponse));
 
@@ -122,9 +115,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert numeric string values to numbers for agentStatTension select field', () => {
     // Mock API response with agentStatTension = '1' (Bezier curves)
-    const mockApiResponse = {
-      jsonapi: { version: '1.1' },
-      links: { self: '/api/v2/ui/configs' },
+    const mockApiResponse = mockResponse({
       data: [
         {
           type: 'config',
@@ -136,7 +127,7 @@ describe('FormConfigComponent', () => {
           }
         }
       ]
-    } as unknown as ResponseWrapper;
+    });
 
     globalService.getAll.and.returnValue(of(mockApiResponse));
 
@@ -161,9 +152,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert "1" and "0" to booleans only for checkbox fields', () => {
     // Mock API response with checkbox and select fields
-    const mockApiResponse = {
-      jsonapi: { version: '1.1' },
-      links: { self: '/api/v2/ui/configs' },
+    const mockApiResponse = mockResponse({
       data: [
         {
           type: 'config',
@@ -184,7 +173,7 @@ describe('FormConfigComponent', () => {
           }
         }
       ]
-    } as unknown as ResponseWrapper;
+    });
 
     globalService.getAll.and.returnValue(of(mockApiResponse));
 
@@ -218,9 +207,7 @@ describe('FormConfigComponent', () => {
 
   it('should preserve string values that are not numeric', () => {
     // Mock API response with text field
-    const mockApiResponse = {
-      jsonapi: { version: '1.1' },
-      links: { self: '/api/v2/ui/configs' },
+    const mockApiResponse = mockResponse({
       data: [
         {
           type: 'config',
@@ -232,7 +219,7 @@ describe('FormConfigComponent', () => {
           }
         }
       ]
-    } as unknown as ResponseWrapper;
+    });
 
     globalService.getAll.and.returnValue(of(mockApiResponse));
 
@@ -249,5 +236,126 @@ describe('FormConfigComponent', () => {
     // Should remain as string
     expect(component.formValues['timefmt']).toBe('yyyy-MM-dd HH:mm:ss');
     expect(typeof component.formValues['timefmt']).toBe('string');
+  });
+
+  it('should set form ids and mark the form as loaded after loadEdit', () => {
+    const mockApiResponse = mockResponse({
+      data: [
+        {
+          type: 'config',
+          id: 11,
+          attributes: {
+            configSectionId: 1,
+            item: 'hashcatBrainEnable',
+            value: '1'
+          }
+        },
+        {
+          type: 'config',
+          id: 12,
+          attributes: {
+            configSectionId: 1,
+            item: 'timefmt',
+            value: 'yyyy-MM-dd HH:mm:ss'
+          }
+        }
+      ]
+    });
+
+    globalService.getAll.and.returnValue(of(mockApiResponse));
+
+    component.loadEdit();
+
+    expect(component.isloaded).toBeTrue();
+    expect(component.formIds).toEqual({
+      hashcatBrainEnable: 11,
+      timefmt: 12
+    });
+    expect(component.formValues).toEqual({
+      hashcatBrainEnable: true,
+      timefmt: 'yyyy-MM-dd HH:mm:ss'
+    });
+  });
+
+  it('should update only changed fields and notify on success', () => {
+    component.title = 'General Settings';
+    component.formValues = {
+      serverLogLevel: 20 as unknown as string | boolean,
+      hashcatBrainEnable: true
+    } as unknown as typeof component.formValues;
+    component.formIds = {
+      serverLogLevel: 21,
+      hashcatBrainEnable: 22
+    };
+
+    globalService.update.and.returnValue(of({} as object));
+
+    component.onFormSubmit({
+      serverLogLevel: 30,
+      hashcatBrainEnable: false
+    });
+
+    expect(globalService.update).toHaveBeenCalledTimes(2);
+    expect(globalService.update.calls.allArgs()).toEqual([
+      [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
+      [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
+    ]);
+    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('serverLogLevel' as any);
+    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('hashcatBrainEnable' as any);
+    expect(alertService.showSuccessMessage).toHaveBeenCalledWith('Saved General Settings');
+  });
+
+  it('should do nothing when form values have not changed', () => {
+    component.formValues = {
+      serverLogLevel: 20 as unknown as string | boolean,
+      hashcatBrainEnable: true
+    } as unknown as typeof component.formValues;
+    component.formIds = {
+      serverLogLevel: 21,
+      hashcatBrainEnable: 22
+    };
+
+    component.onFormSubmit({
+      serverLogLevel: 20,
+      hashcatBrainEnable: true
+    });
+
+    expect(globalService.update).not.toHaveBeenCalled();
+    expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
+    expect(alertService.showErrorMessage).not.toHaveBeenCalled();
+  });
+
+  it('should show error message when update fails', () => {
+    component.formValues = {
+      serverLogLevel: 20 as unknown as string | boolean
+    } as unknown as typeof component.formValues;
+    component.formIds = {
+      serverLogLevel: 21
+    };
+
+    globalService.update.and.returnValue(throwError(() => new Error('update failed')));
+
+    component.onFormSubmit({ serverLogLevel: 30 });
+
+    expect(alertService.showErrorMessage).toHaveBeenCalledWith('Failed to save ' + component.title);
+    expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
+  });
+
+  it('should add the notifications menu item when user has read role', () => {
+    notificationRoleService.hasRole.and.returnValue(true);
+    (component as any).menuItems = [];
+
+    component.ngOnInit();
+
+    expect((component as any).menuItems.some((item: any) => item.label === 'Notifications')).toBeTrue();
+  });
+
+  it('should call unsubscribeAll when destroyed', () => {
+    const unsubscribeService = TestBed.inject(UnsubscribeService);
+    spyOn(unsubscribeService, 'unsubscribeAll');
+
+    component.ngOnDestroy();
+
+    expect(unsubscribeService.unsubscribeAll).toHaveBeenCalled();
   });
 });
