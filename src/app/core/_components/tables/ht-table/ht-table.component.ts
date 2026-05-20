@@ -423,7 +423,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   }
 
   exportAction(event: ActionMenuEvent<BaseModel>): void {
-    this.exportActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
+    this.exportActionClicked.emit({
+      ...event,
+      data: this.dataSource.selection.selected
+    } as ActionMenuEvent<T[]>);
   }
 
   /**
