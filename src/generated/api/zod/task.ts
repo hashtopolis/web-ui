@@ -97,7 +97,8 @@ export const zTaskResponse = z.object({
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
+      cprogress: z.int().optional(),
+      totalNumberOfChunks: z.number()
     })
   }),
   relationships: z
@@ -310,7 +311,8 @@ export const zTaskPostPatchResponse = z.object({
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
+      cprogress: z.int().optional(),
+      totalNumberOfChunks: z.number()
     })
   })
 });
@@ -364,7 +366,8 @@ export const zTaskListResponse = z.object({
         estimatedTime: z.int().optional(),
         timeSpent: z.int().optional(),
         currentSpeed: z.int().optional(),
-        cprogress: z.int().optional()
+        cprogress: z.int().optional(),
+        totalNumberOfChunks: z.number()
       })
     })
   ),
