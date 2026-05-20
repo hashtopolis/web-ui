@@ -44,6 +44,14 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
+
+    // taskName is a client-side computed field (derived from the tasks relationship).
+    // The backend agents endpoint does not expose it as a filterable attribute, so
+    // sending filter[taskName__icontains] would return a 403. We detect this case and
+    // apply the filter client-side after the data has been loaded and taskName populated.
+    const isClientSideFilter = activeFilter?.field === 'taskName';
+    const backendFilter = isClientSideFilter ? null : activeFilter;
+
     let agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
@@ -54,7 +62,14 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       agentParams = agentParams.addInclude('agentStats');
     }
 
-    this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
+    this.applyFilterWithPaginationReset(agentParams, backendFilter, isClientSideFilter ? undefined : query);
+
+    // For client-side filters reset pagination to first page when a new filter value is entered
+    if (isClientSideFilter && query?.value) {
+      this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+      agentParams.setPageAfter(undefined);
+      agentParams.setPageBefore(undefined);
+    }
 
     // Create headers to skip error dialog for filter validation errors
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
@@ -87,8 +102,16 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
         const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-        this.setData(agents);
+        // For taskName, apply client-side filter after taskName has been populated
+        if (isClientSideFilter && activeFilter?.value) {
+          const filterValue = activeFilter.value.toString().toLowerCase();
+          const filteredAgents = agents.filter((agent) => (agent.taskName ?? '').toLowerCase().includes(filterValue));
+          this.setPaginationConfig(this.pageSize, filteredAgents.length, null, null, 0);
+          this.setData(filteredAgents);
+        } else {
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(agents);
+        }
       });
   }
 
