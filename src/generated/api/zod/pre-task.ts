@@ -70,7 +70,7 @@ export const zPreTaskResponse = z.object({
       maxAgents: z.int(),
       isMaskImport: z.boolean(),
       crackerBinaryTypeId: z.int(),
-      auxiliaryKeyspace: z.int().optional()
+      auxiliaryKeyspace: z.number().optional()
     })
   }),
   relationships: z
@@ -130,7 +130,7 @@ export const zPreTaskPostPatchResponse = z.object({
       maxAgents: z.int(),
       isMaskImport: z.boolean(),
       crackerBinaryTypeId: z.int(),
-      auxiliaryKeyspace: z.int().optional()
+      auxiliaryKeyspace: z.number().optional()
     })
   })
 });
@@ -166,7 +166,7 @@ export const zPreTaskListResponse = z.object({
         maxAgents: z.int(),
         isMaskImport: z.boolean(),
         crackerBinaryTypeId: z.int(),
-        auxiliaryKeyspace: z.int().optional()
+        auxiliaryKeyspace: z.number().optional()
       })
     })
   ),
