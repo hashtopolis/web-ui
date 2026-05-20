@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Share+Tech+Mono&family=VT323&display=swap');
+
+@keyframes fallout-flicker {
+    0% {
+        opacity: 0.95;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+
+    100% {
+        opacity: 0.96;
+    }
+}
+
+.fallout-theme {
+    /* Refined monochrome Pip-Boy palette */
+    --background: #0b0f0b;
+    --muted: #101610;
+    --well: #121b12;
+    --card: rgba(124, 255, 91, 0.06);
+    --card-hover: rgba(124, 255, 91, 0.11);
+    --input: rgba(124, 255, 91, 0.05);
+    --sidebar: #090d09;
+
+    --foreground: #b5ff9f;
+    --muted-foreground: rgba(181, 255, 159, 0.78);
+    --subtle-foreground: rgba(181, 255, 159, 0.58);
+    --heading-foreground: #d6ffca;
+
+    --primary: #7cff5b;
+    --primary-hover: #9dff84;
+    --primary-muted: rgba(124, 255, 91, 0.16);
+    --primary-foreground: #041004;
+    --secondary: rgba(85, 255, 85, 0.82);
+
+    --border: rgba(124, 255, 91, 0.32);
+    --border-strong: rgba(124, 255, 91, 0.52);
+    --border-faint: rgba(124, 255, 91, 0.16);
+
+    --surface-faint: rgba(124, 255, 91, 0.03);
+    --surface-soft: rgba(124, 255, 91, 0.06);
+    --surface-soft-hover: rgba(124, 255, 91, 0.1);
+    --cell-hover: rgba(124, 255, 91, 0.09);
+
+    --success: #7cff5b;
+    --warning: #c8ff70;
+    --destructive: #63d648;
+    --info: #8bff73;
+    --link: #9dff84;
+    --link-hover: #cbffba;
+
+    --success-bg: color-mix(in oklch, var(--success) 20%, var(--well));
+    --destructive-bg: color-mix(in oklch, var(--destructive) 20%, var(--well));
+    --info-bg: color-mix(in oklch, var(--info) 16%, var(--well));
+
+    --header: rgba(8, 12, 8, 0.88);
+    --shell-frame-image: linear-gradient(to bottom, rgba(124, 255, 91, 0.08), rgba(124, 255, 91, 0.02));
+    --brand-backdrop: #7cff5b;
+
+    --shadow-sm: 0 0 0 1px rgba(124, 255, 91, 0.15), 0 0 6px rgba(124, 255, 91, 0.12);
+    --shadow-md: 0 0 0 1px rgba(124, 255, 91, 0.22), 0 0 10px rgba(124, 255, 91, 0.16);
+    --shadow-lg: 0 0 0 1px rgba(124, 255, 91, 0.28), 0 0 18px rgba(124, 255, 91, 0.22);
+    --gradient-accent: linear-gradient(180deg, rgba(124, 255, 91, 0.22), rgba(124, 255, 91, 0.04));
+
+    /* Recommended terminal-style font stack */
+    --font-body: 'IBM Plex Mono', 'Share Tech Mono', 'VT323', 'Courier Prime', 'Courier New', monospace;
+    --font-heading: 'Share Tech Mono', 'IBM Plex Mono', 'VT323', 'Courier Prime', 'Courier New', monospace;
+    --mat-sys-body-large-font: var(--font-body);
+    --mat-sys-body-medium-font: var(--font-body);
+    --mat-sys-body-small-font: var(--font-body);
+    --mat-sys-title-large-font: var(--font-heading);
+    --mat-sys-title-medium-font: var(--font-heading);
+    --mat-sys-title-small-font: var(--font-heading);
+    --mat-sys-headline-large-font: var(--font-heading);
+    --mat-sys-headline-medium-font: var(--font-heading);
+    --mat-sys-headline-small-font: var(--font-heading);
+}
+
+body.fallout-theme {
+    position: relative;
+    background-color: var(--background);
+    color: var(--foreground);
+    text-shadow: 0 0 6px rgba(124, 255, 91, 0.2);
+    letter-spacing: 0.01em;
+}
+
+/* Subtle CRT stack: scanline + grain + vignette */
+body.fallout-theme::before,
+body.fallout-theme::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.fallout-theme::before {
+    z-index: 2;
+    background-image:
+        repeating-linear-gradient(to bottom,
+            rgba(124, 255, 91, 0.055) 0,
+            rgba(124, 255, 91, 0.055) 1px,
+            transparent 1px,
+            transparent 3px),
+        radial-gradient(circle at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.35) 100%);
+    opacity: 0.36;
+}
+
+body.fallout-theme::after {
+    z-index: 1;
+    background-image:
+        radial-gradient(circle, rgba(124, 255, 91, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 20% 20%, rgba(124, 255, 91, 0.08), transparent 35%);
+    background-size: 3px 3px, 100% 100%;
+    mix-blend-mode: screen;
+    opacity: 0.12;
+    animation: fallout-flicker 3.8s steps(2, end) infinite;
+}
+
+.fallout-theme {
+
+    .mat-mdc-unelevated-button,
+    .mat-mdc-raised-button,
+    .mat-mdc-outlined-button,
+    .mat-mdc-button {
+        border-radius: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        border: 1px solid var(--border);
+        box-shadow: inset 0 0 0 1px rgba(124, 255, 91, 0.06);
+        transition:
+            box-shadow var(--duration-fast) var(--easing-standard),
+            border-color var(--duration-fast) var(--easing-standard),
+            color var(--duration-fast) var(--easing-standard),
+            background-color var(--duration-fast) var(--easing-standard);
+
+        &:hover:not(:disabled) {
+            border-color: var(--border-strong);
+            box-shadow: 0 0 10px rgba(124, 255, 91, 0.28), inset 0 0 0 1px rgba(124, 255, 91, 0.2);
+        }
+    }
+
+    .mat-mdc-unelevated-button,
+    .mat-mdc-raised-button {
+        --mat-button-filled-container-color: color-mix(in oklch, var(--primary) 14%, var(--well));
+        --mat-button-filled-label-text-color: var(--heading-foreground);
+        --mat-button-protected-container-color: color-mix(in oklch, var(--primary) 14%, var(--well));
+        --mat-button-protected-label-text-color: var(--heading-foreground);
+    }
+
+    .mat-mdc-card,
+    .panel,
+    .terminal-panel {
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        background:
+            linear-gradient(var(--card), var(--card)),
+            var(--shell-frame-image);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .mat-mdc-card:hover,
+    .panel:hover,
+    .terminal-panel:hover {
+        border-color: var(--border-strong);
+        box-shadow: var(--shadow-md);
+    }
+
+    .mat-mdc-form-field .mdc-text-field--filled,
+    .mat-mdc-form-field .mdc-text-field--outlined,
+    input,
+    select,
+    textarea {
+        border-radius: 2px;
+        border-color: var(--border);
+        background: color-mix(in oklch, var(--input) 70%, var(--well));
+        color: var(--heading-foreground);
+    }
+
+    .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--focused,
+    .mat-mdc-form-field .mdc-text-field--outlined.mdc-text-field--focused,
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 1px var(--primary), 0 0 10px rgba(124, 255, 91, 0.2);
+    }
+
+    table,
+    .mat-mdc-table,
+    table.hashtopolis-table {
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        background: color-mix(in oklch, var(--card) 72%, var(--background));
+    }
+
+    .mat-mdc-header-row,
+    .mat-mdc-header-row.mat-mdc-header-row {
+        background: color-mix(in oklch, var(--muted) 78%, var(--background));
+        border-bottom: 1px solid var(--border-strong);
+    }
+
+    .mat-mdc-row:hover,
+    .mat-mdc-row.mat-mdc-row:hover {
+        background: color-mix(in oklch, var(--primary) 10%, var(--background));
+    }
+
+    .snackbar-error,
+    .snackbar-success,
+    .snackbar-info {
+        --mat-snack-bar-button-color: var(--heading-foreground);
+
+        .mdc-snackbar__surface {
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            box-shadow: 0 0 14px rgba(124, 255, 91, 0.2);
+            background-image:
+                linear-gradient(var(--card), var(--card)),
+                repeating-linear-gradient(to bottom,
+                    rgba(124, 255, 91, 0.06) 0,
+                    rgba(124, 255, 91, 0.06) 1px,
+                    transparent 1px,
+                    transparent 3px);
+        }
+    }
+}

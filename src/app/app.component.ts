@@ -139,7 +139,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    * The classes reflect the chosen layout and theme, allowing dynamic theming of the application.
    *
    * - For layout, it supports 'fixed' and 'full' layouts.
-   * - For themes, it supports 'light' and 'dark' themes.
+  * - For themes, it supports 'light', 'dark', and 'fallout' themes.
    *
    * @remarks
    * This function retrieves layout and theme settings from the `uiSettings` service and sets
@@ -160,6 +160,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         classes.push('light-theme');
       } else if (theme === 'dark') {
         classes.push('dark-theme');
+      } else if (theme === 'fallout') {
+        classes.push('fallout-theme');
       }
     }
     if (classes) {

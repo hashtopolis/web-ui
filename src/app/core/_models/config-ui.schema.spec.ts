@@ -194,7 +194,7 @@ describe('uiConfigSchema', () => {
     expect(result.success).toBeTrue();
     if (result.success) {
       expect(['full', 'fixed']).toContain(result.data.layout);
-      expect(['light', 'dark']).toContain(result.data.theme);
+      expect(['light', 'dark', 'fallout']).toContain(result.data.theme);
       expect(typeof result.data.timefmt).toBe('string');
       expect(typeof result.data.refreshPage).toBe('boolean');
       expect(typeof result.data.refreshInterval).toBe('number');

@@ -55,7 +55,8 @@ export const layouts: Setting[] = [
 
 export const themes: Setting[] = [
   { value: 'light', description: 'Light Mode' },
-  { value: 'dark', description: 'Dark Mode' }
+  { value: 'dark', description: 'Dark Mode' },
+  { value: 'fallout', description: 'Rainbow-Fallout Mode' }
 ];
 
 /**

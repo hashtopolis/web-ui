@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { DOCUMENT, Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
 
-const themeSchema = z.enum(['light', 'dark']);
+const themeSchema = z.enum(['light', 'dark', 'fallout']);
 
 export type DetectedTheme = 'dark' | 'light';
 export type ThemeLoader = () => Observable<string | null>;
@@ -49,7 +49,7 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
 })
 export class ThemeService {
   private _theme = new BehaviorSubject<string | null>(null);
-  private readonly supportedThemeClasses = ['light', 'dark', 'light-theme', 'dark-theme'];
+  private readonly supportedThemeClasses = ['light', 'dark', 'fallout', 'light-theme', 'dark-theme', 'fallout-theme'];
 
   public get current(): string {
     return localStorage.getItem('theme', themeSchema) ?? 'light';
