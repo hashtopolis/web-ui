@@ -55,7 +55,8 @@ const MOCK_TASK: JTask = {
   searched: '',
   status: 0,
   totalAssignedAgents: 0,
-  assignedAgents: []
+  assignedAgents: [],
+  totalNumberOfChunks: 0
 };
 
 describe('EditTasksComponent', () => {
