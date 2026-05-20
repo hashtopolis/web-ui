@@ -68,6 +68,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   searched?: string | undefined;
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
+  totalNumberOfChunks: number;
   status?: number | undefined;
   timeSpent?: number | undefined;
   currentSpeed?: number | undefined;
