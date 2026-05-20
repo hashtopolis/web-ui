@@ -63,7 +63,9 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
         )
         .subscribe((response: ResponseWrapper) => {
           // Use JsonAPISerializer without Zod
-          const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapperDisplay[]>(response);
+          const taskWrappers = new JsonAPISerializer()
+            .deserialize<JTaskWrapperDisplay[]>(response)
+            .map((w) => ({ ...w, taskWrapperId: w.taskWrapperId ?? w.id }));
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
