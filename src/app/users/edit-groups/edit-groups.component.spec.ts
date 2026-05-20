@@ -93,13 +93,17 @@ describe('EditGroupsComponent deserialization', () => {
     serializer = new JsonAPISerializer();
   });
 
-  it('should throw when user data is deserialized with zAccessGroupListResponse (the bug)', () => {
-    // This is the current (buggy) code path:
-    //   const users: JAccessGroup[] = serializer.deserialize(response, zAccessGroupListResponse);
-    // It should throw because user-shaped data does not match access group schema.
+  it('logs an error when user data is deserialized with zAccessGroupListResponse (the bug)', () => {
+    // Validation against the wrong schema no longer throws — it reports the mismatch
+    // via console.error (and an alert in dev mode) so the UI stays responsive even when
+    // backend payloads drift from the expected shape.
+    const consoleSpy = spyOn(console, 'error');
+
     expect(() => {
       serializer.deserialize(userListBody, zAccessGroupListResponse);
-    }).toThrow();
+    }).not.toThrow();
+
+    expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
   });
 
   it('should correctly deserialize user data with zUserListResponse (the fix)', () => {
