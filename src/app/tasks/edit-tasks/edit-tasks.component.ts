@@ -161,6 +161,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         keyspaceProgress: task.keyspaceProgress,
         crackerBinaryId: task.crackerBinaryId,
         chunkSize: task.chunkSize,
+        totalNumberOfChunks: task.totalNumberOfChunks,
         updateData: {
           taskName: task.taskName,
           attackCmd: task.attackCmd,
@@ -228,6 +229,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       keyspaceProgress: new FormControl({ value: '', disabled: true }),
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
+      totalNumberOfChunks: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
         taskName: new FormControl(
           { value: '', disabled: this.isReadOnly },

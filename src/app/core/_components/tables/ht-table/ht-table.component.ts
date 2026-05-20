@@ -416,11 +416,17 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   }
 
   bulkAction(event: ActionMenuEvent<BaseModel>): void {
-    this.bulkActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
+    this.bulkActionClicked.emit({
+      ...event,
+      data: this.dataSource.selection.selected
+    } as ActionMenuEvent<T[]>);
   }
 
   exportAction(event: ActionMenuEvent<BaseModel>): void {
-    this.exportActionClicked.emit(event as unknown as ActionMenuEvent<T[]>);
+    this.exportActionClicked.emit({
+      ...event,
+      data: this.dataSource.selection.selected
+    } as ActionMenuEvent<T[]>);
   }
 
   /**

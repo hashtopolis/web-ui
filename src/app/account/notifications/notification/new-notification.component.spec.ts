@@ -91,7 +91,8 @@ describe('NewNotificationComponent', () => {
           chunkSize: 0,
           forcePipe: false,
           preprocessorId: 0,
-          preprocessorCommand: ''
+          preprocessorCommand: '',
+          totalNumberOfChunks: 0
         }
       },
       {
@@ -120,7 +121,8 @@ describe('NewNotificationComponent', () => {
           chunkSize: 0,
           forcePipe: false,
           preprocessorId: 0,
-          preprocessorCommand: ''
+          preprocessorCommand: '',
+          totalNumberOfChunks: 0
         }
       }
     ]

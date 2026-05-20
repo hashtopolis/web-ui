@@ -210,7 +210,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'groupName',
-        parent: 'accessGroup',
+        parent: '',
         isSortable: true,
         routerLink: (wrapper: JTaskWrapperDisplay) =>
           this.renderAccessGroupLinkFromId(wrapper.accessGroupId, wrapper.groupName),
@@ -228,7 +228,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_SMALL,
         dataKey: 'isSmall',
-        parent: 'task',
+        parent: '',
         position: 'right',
         icon: (wrapper: JTaskWrapperDisplay) => this.renderIsSmallIcon(wrapper),
         isSortable: true,
@@ -238,7 +238,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_CPU_TASK,
         dataKey: 'isCpuTask',
-        parent: 'task',
+        parent: '',
         position: 'right',
         icon: (wrapper: JTaskWrapperDisplay) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: true,

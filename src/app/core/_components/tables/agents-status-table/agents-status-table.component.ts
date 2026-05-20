@@ -133,7 +133,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: false,
-        isSearchable: true,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName ?? ''
       },

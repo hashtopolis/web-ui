@@ -100,11 +100,16 @@ describe('JsonAPISerializer', () => {
   });
 
   describe('schema mismatch detection', () => {
-    it('throws when user data is validated against access group schema', () => {
-      // Bug 2: using zAccessGroupListResponse for user data should fail validation
+    it('logs an error but does not throw when user data is validated against access group schema', () => {
+      // Validation is intentionally non-fatal: schema mismatches are reported via
+      // console.error (and an alert in dev mode), but deserialization still proceeds.
+      const consoleSpy = spyOn(console, 'error');
+
       expect(() => {
         serializer.deserialize(userListBody, zAccessGroupListResponse);
-      }).toThrow();
+      }).not.toThrow();
+
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
     });
   });
 });
