@@ -314,7 +314,7 @@ export abstract class BaseDataSource<
     const numSelected = this.selection.selected ? this.selection.selected.length : 0;
     const numRows = this.dataSubject && this.dataSubject.value ? this.dataSubject.value.length : 0;
 
-    return !!(numSelected > 0 && numSelected === numRows);
+    return numSelected > 0 && numSelected === numRows;
   }
 
   // Checks if a row is selected.
@@ -337,7 +337,7 @@ export abstract class BaseDataSource<
    * @returns True if the selection is in an indeterminate state; otherwise, false.
    */
   indeterminate() {
-    return !!(this.selection.hasValue() && !this.isAllSelected());
+    return this.selection.hasValue() && !this.isAllSelected();
   }
 
   /**
