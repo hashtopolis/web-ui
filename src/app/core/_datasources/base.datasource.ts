@@ -351,6 +351,7 @@ export abstract class BaseDataSource<
 
   /**
    * Sets the pagination configuration for the data source, including page size, current page, and total items.
+   * Auto-corrects the pagination state if a deletion causes the current page to become out of bounds.
    *
    * @param pageSize - The number of items to display per page.
    * @param totalItems - The total number of items in the data source.
@@ -369,11 +370,45 @@ export abstract class BaseDataSource<
     // next/prev page cursors returned by the API. Auto-refresh uses these to reload the same page.
     this._refreshPageAfter = this.pageAfter;
     this._refreshPageBefore = this.pageBefore;
+
     this.pageSize = pageSize;
     this.totalItems = totalItems ?? this.totalItems;
+
+    // Calculate the maximum valid page index (0-based)
+    const maxPageIndex = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
+
+    // Detect if the current page became out of bounds (e.g. last item on the page was deleted)
+    if (index > maxPageIndex) {
+      // Because this relies on cursor-based pagination (pageAfter/pageBefore),
+      // we don't have the exact cursor for the newly calculated maxPageIndex.
+      // The safest fallback is to clear cursors and go back to the first page.
+      this.index = 0;
+      this.pageAfter = undefined;
+      this.pageBefore = undefined;
+
+      if (this.paginator) {
+        this.paginator.length = this.totalItems;
+        this.paginator.pageIndex = this.index;
+      }
+
+      // If items still exist in the database, fetch the corrected page data
+      if (this.totalItems > 0) {
+        // Wrapped in setTimeout to prevent Angular ExpressionChangedAfterItHasBeenChecked errors
+        setTimeout(() => this.reload());
+      }
+      return;
+    }
+
+    // Normal state
     this.pageAfter = pageAfter;
     this.pageBefore = pageBefore;
     this.index = index;
+
+    // Sync state to the MatPaginator so the UI correctly reflects the numbers
+    if (this.paginator) {
+      this.paginator.length = this.totalItems;
+      this.paginator.pageIndex = this.index;
+    }
   }
 
   /**
