@@ -1,4 +1,4 @@
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faRadiation } from '@fortawesome/free-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 
@@ -16,6 +16,7 @@ export class SwitchThemeComponent implements OnInit {
 
   faSun = faSun;
   faMoon = faMoon;
+  faRadiation = faRadiation;
 
   private themes = inject(ThemeService);
 

@@ -2,26 +2,19 @@
 @use './m3-palette' as palette;
 @use './light';
 @use './dark';
+@use './fallout';
 
 html {
   color-scheme: light dark;
 
-  @include mat.theme(
-    (
-      color: (
-        primary: palette.$primary-palette,
-        tertiary: palette.$tertiary-palette
-      ),
-      typography: (
-        plain-family: 'Inter, "Helvetica Neue", Arial, sans-serif',
+  @include mat.theme((color: (primary: palette.$primary-palette,
+        tertiary: palette.$tertiary-palette ),
+      typography: (plain-family: 'Inter, "Helvetica Neue", Arial, sans-serif',
         brand-family: 'Space Grotesk, "Helvetica Neue", Arial, sans-serif',
         regular-weight: 400,
         medium-weight: 500,
-        bold-weight: 700
-      ),
-      density: -1
-    )
-  );
+        bold-weight: 700),
+      density: -1));
 }
 
 /* Class-based toggle (ThemeService sets .light-theme / .dark-theme on <body>).

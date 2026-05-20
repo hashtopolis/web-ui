@@ -2,6 +2,8 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
+import { Theme } from '@models/config-ui.model';
+
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
@@ -62,6 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
+  currentTheme: Theme = 'light';
   private themeSub: Subscription;
 
   // Before showing header check Authentification
@@ -99,7 +102,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
     );
     this.themeSub = this.themes.theme$.subscribe((theme) => {
-      this.isDarkMode = theme === 'dark';
+      this.currentTheme = (theme ?? this.themes.current) as Theme;
+      this.isDarkMode = this.currentTheme === 'dark';
     });
     // Listen for Konami code
     this.easterEggService
@@ -135,9 +139,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.easterEggFlag = !this.easterEggFlag;
   }
 
-  toggleTheme() {
-    const newTheme = this.isDarkMode ? 'light' : 'dark';
-    this.uiSettings.updateSettings({ theme: newTheme });
+  selectTheme(theme: Theme) {
+    this.uiSettings.updateSettings({ theme });
   }
 
   menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {
