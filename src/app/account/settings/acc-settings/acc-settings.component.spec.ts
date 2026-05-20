@@ -20,6 +20,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { AlertService } from '@services/shared/alert.service';
 
+import { JsonAPISerializer } from '@services/api/serializer-service';
+
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { mockResponse } from '@src/app/testing/mock-response';
 
@@ -75,8 +77,27 @@ describe('AccountSettingsComponent', () => {
     userId: 1
   };
 
+  const mockUser = {
+    id: 1,
+    name: userResponse.attributes.name,
+    email: userResponse.attributes.email,
+    isValid: userResponse.attributes.isValid,
+    isComputedPassword: userResponse.attributes.isComputedPassword,
+    lastLoginDate: userResponse.attributes.lastLoginDate,
+    registeredSince: userResponse.attributes.registeredSince,
+    sessionLifetime: userResponse.attributes.sessionLifetime,
+    globalPermissionGroupId: userResponse.attributes.globalPermissionGroupId,
+    yubikey: userResponse.attributes.yubikey,
+    otp1: userResponse.attributes.otp1,
+    otp2: userResponse.attributes.otp2,
+    otp3: userResponse.attributes.otp3,
+    otp4: userResponse.attributes.otp4
+  };
+
   beforeEach(() => {
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+
+    spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
 
     TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
