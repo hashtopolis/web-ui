@@ -18,9 +18,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
-import { AlertService } from '@services/shared/alert.service';
-
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { mockResponse } from '@src/app/testing/mock-response';
