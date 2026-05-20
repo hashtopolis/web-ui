@@ -155,7 +155,8 @@ const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   timeSpent: 0,
   currentSpeed: 0,
   estimatedTime: 0,
-  cprogress: 0
+  cprogress: 0,
+  totalNumberOfChunks: 0
 };
 
 const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
