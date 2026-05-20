@@ -18,6 +18,10 @@ function makeComponent() {
   const selectedRows: TestModel[] = [];
   const mockSelection = new SelectionModel<TestModel>(true, selectedRows);
 
+  const mockDataSource = {
+    selection: mockSelection
+  } as unknown as BaseDataSource<TestModel>;
+
   component['dataSource'] = mockDataSource;
   component['bulkActionClicked'] = {
     emit: jasmine.createSpy('emit')
