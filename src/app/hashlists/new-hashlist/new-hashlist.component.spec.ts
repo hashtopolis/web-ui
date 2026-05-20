@@ -258,7 +258,7 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     }));
 
-    it('should submit form with "paste" sourceType', fakeAsync(() => {
+    it('should submit form with "paste" sourceType and base64-encode sourceData', fakeAsync(() => {
       gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
@@ -271,7 +271,12 @@ describe('NewHashlistComponent', () => {
       component.onSubmit();
       tick();
 
-      expect(gsSpy.create).toHaveBeenCalled();
+      const expectedEncoded = btoa('some data');
+      expect(gsSpy.create).toHaveBeenCalledWith(
+        jasmine.anything(),
+        jasmine.objectContaining({ sourceData: expectedEncoded })
+      );
+      expect(component.form.controls.sourceData.value).toBe('some data');
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
