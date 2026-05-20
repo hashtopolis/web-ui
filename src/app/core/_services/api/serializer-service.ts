@@ -110,7 +110,6 @@ export class JsonAPISerializer {
         // eslint-disable-next-line no-console
         console.log('Actual API response body:', JSON.stringify(body, null, 2));
         this.alertService?.showErrorMessage('API response validation failed: ' + parseResult.error.message);
-        throw parseResult.error;
       }
     }
   }

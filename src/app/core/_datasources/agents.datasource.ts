@@ -44,6 +44,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
+
     let agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
