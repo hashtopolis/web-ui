@@ -76,6 +76,9 @@ describe('EditTasksComponent', () => {
   let configServiceSpy: jasmine.SpyObj<ConfigService>;
 
   beforeEach(async () => {
+    spyOn(console, 'error');
+    spyOn(console, 'warn');
+
     titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
     alertServiceSpy = jasmine.createSpyObj('AlertService', [
       'showErrorMessage',
