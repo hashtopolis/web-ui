@@ -425,6 +425,16 @@ textarea.mat-mdc-input-element.custom-textarea {
   --mat-menu-item-focus-state-layer-color: var(--card-hover);
 }
 
+.mat-mdc-menu-panel.app-header-menu-panel {
+  --mat-menu-item-label-text-size: var(--text-md);
+
+  .mat-mdc-menu-item .mat-mdc-menu-item-text,
+  .mat-mdc-menu-item .mdc-list-item__primary-text,
+  .mat-mdc-menu-item {
+    font-size: var(--text-md);
+  }
+}
+
 .mat-mdc-dialog-container {
   --mat-dialog-container-color: var(--popover);
   --mat-dialog-subhead-color: var(--heading-foreground);

@@ -76,6 +76,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() disabled = false;
   @Input() disabledTooltip = '';
   @Input() cls = '';
+  @Input() panelClass = '';
   @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 

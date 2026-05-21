@@ -24,6 +24,7 @@
   <mat-menu
     #actionMenu="matMenu"
     [hasBackdrop]="false"
+    [class]="panelClass"
     (mouseenter)="onMenuMouseEnter()"
     (mouseleave)="onMenuMouseLeave($event)"
   >
@@ -99,7 +100,7 @@
       }
     </button>
   </span>
-  <mat-menu #actionMenu="matMenu">
+  <mat-menu #actionMenu="matMenu" [class]="panelClass">
     @for (section of actionMenuItems; track $index; let last = $last) {
       @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
