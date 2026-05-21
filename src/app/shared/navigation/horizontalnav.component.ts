@@ -1,12 +1,13 @@
+import { Subject } from 'rxjs';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
+
 import { Component, Input, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
 
 @Component({
-    selector: 'horizontalnav',
-    templateUrl: 'horizontalnav.component.html',
-    standalone: false
+  selector: 'horizontalnav',
+  templateUrl: 'horizontalnav.component.html',
+  standalone: false
 })
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];

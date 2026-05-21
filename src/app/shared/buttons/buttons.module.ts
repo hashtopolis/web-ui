@@ -1,13 +1,14 @@
-import { ButtonSubmitComponent } from './button-submit';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { GridButtonsComponent } from './grid-cancel';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { NgModule } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { ButtonSubmitComponent } from './button-submit';
+import { GridButtonsComponent } from './grid-cancel';
 
 @NgModule({
   imports: [

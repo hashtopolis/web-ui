@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ConfirmDialogComponent } from '@components/confirm-dialog/confirm-dialog.component';
+
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 
 describe('ConfirmDialogComponent', () => {

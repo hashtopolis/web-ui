@@ -1,18 +1,8 @@
-import {
-  ChangeDetectorRef,
-  Directive,
-  DoCheck,
-  ElementRef,
-  Injector,
-  Input,
-  OnInit,
-  ViewChild,
-  inject
-} from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, Injector, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { ControlValueAccessor, NgControl, ValidationErrors } from '@angular/forms';
 
 @Directive()
-export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueAccessor {
+export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   @ViewChild('inputField')
   inputField: ElementRef;
 
@@ -59,16 +49,11 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   protected cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
 
-  // Track previous state for change detection
-  private previousTouched = false;
-  private previousInvalid = false;
+  // Diagnostic: hardcoded to isolate whether NG0100 originates here.
+  readonly hasError = false;
+  readonly isTouched = false;
+  readonly errors: ValidationErrors | null = null;
 
-  // Public properties for template binding (instead of getters)
-  hasError = false;
-  isTouched = false;
-  errors: ValidationErrors | null = null;
-
-  // Lazy getter to avoid circular dependency
   get ngControl(): NgControl | null {
     try {
       return this.injector.get(NgControl, null);
@@ -80,10 +65,6 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   ngOnInit(): void {
     if (!this.inputId) {
       this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
-      // console.warn(
-      //   'Input ID not provided. Generated a unique ID:',
-      //   this.inputId
-      // );
     }
   }
 
@@ -96,53 +77,12 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched = () => {
-      fn();
-      // Trigger change detection when the control is touched
-      this.cdr.markForCheck();
-    };
+    this.onTouched = fn;
   }
 
   setDisabledState?(isDisabled: boolean): void {
     this.disabled = isDisabled;
     this.cdr.markForCheck();
-  }
-
-  ngDoCheck(): void {
-    // Check if control state has changed
-    const control = this.ngControl?.control;
-    if (control) {
-      const currentTouched = control.touched;
-      const currentInvalid = control.invalid;
-      const isFormTouched = !!(control.parent?.touched || control.root?.touched);
-      const shouldShowValidation = control.dirty || currentTouched || isFormTouched;
-
-      // Update error state properties for template binding
-      const newHasError = !!(control && control.invalid && shouldShowValidation);
-      const newIsTouched = shouldShowValidation;
-      const newErrors = control.errors || null;
-
-      // Always update the properties
-      const hasChanges =
-        this.hasError !== newHasError ||
-        this.isTouched !== newIsTouched ||
-        currentTouched !== this.previousTouched ||
-        currentInvalid !== this.previousInvalid;
-
-      this.hasError = newHasError;
-      this.isTouched = newIsTouched;
-      this.errors = newErrors;
-
-      // If state changed, trigger change detection
-      if (hasChanges) {
-        this.previousTouched = currentTouched;
-        this.previousInvalid = currentInvalid;
-        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-        setTimeout(() => {
-          this.cdr.detectChanges();
-        }, 0);
-      }
-    }
   }
 
   focus() {
