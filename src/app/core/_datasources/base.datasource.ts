@@ -275,6 +275,7 @@ export abstract class BaseDataSource<
    * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches all fields.
    */
   applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
+    // if filter is applied we want to clear selection otherwise non visible items are selected
     let data = this.filterItems(filterValue, selectedColumn);
     if (this.sortingColumn) data = this.applySorting(data);
     this.setPaginationConfig(this.pageSize, data.length, null, null, 0);
