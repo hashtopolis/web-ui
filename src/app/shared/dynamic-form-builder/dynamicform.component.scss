@@ -16,6 +16,7 @@
   @media (min-width: 768px) {
     &:has(> :nth-child(2)) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
     }
   }
 }
@@ -37,6 +38,10 @@
   &:not(:has(> div + div)) {
     grid-template-columns: 1fr;
   }
+
+  > *:not(.custom-form__section-title) {
+    min-height: var(--form-field-row-height, 76px);
+  }
 }
 
 .custom-form__section-title {
@@ -57,7 +62,10 @@
 .custom-form__checkbox-cell {
   min-width: 0;
   overflow: hidden;
-  align-self: end;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .custom-form__checkbox {
