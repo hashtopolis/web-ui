@@ -352,6 +352,10 @@ table.hashtopolis-table {
 .mat-mdc-paginator {
   color: var(--subtle-foreground);
   font-size: var(--text-sm);
+
+  .mat-mdc-paginator-navigation-last {
+    display: none;
+  }
 }
 
 .row-cracked {
