@@ -102,7 +102,7 @@ table.hashtopolis-table {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    background: transparent;
+    background: var(--muted);
 
     .mat-sort-header-arrow {
       color: var(--primary);
