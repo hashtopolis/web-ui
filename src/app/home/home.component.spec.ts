@@ -293,7 +293,7 @@ describe('HomeComponent (template permissions and view)', () => {
 
     const cracksCard = debugEl.query(By.css('.metric-card:nth-child(4)'));
     const cracksValueSpan = cracksCard.query(By.css('.metric-value'));
-    const noPermissionSpan = cracksCard.query(By.css('.no-permission'));
+    const noPermissionSpan = cracksCard.query(By.css('[data-testid="cracks-no-perm"]'));
     expect(cracksCard).toBeTruthy();
     expect(cracksValueSpan).toBeNull();
     expect(noPermissionSpan).toBeTruthy();
@@ -309,7 +309,7 @@ describe('HomeComponent (template permissions and view)', () => {
 
     const heatmap = debugEl.query(By.directive(HeatmapChartStubComponent));
     const chartContainer = debugEl.query(By.css('.chart-wrapper'));
-    const noPermText = chartContainer.query(By.css('.no-permission'));
+    const noPermText = chartContainer.query(By.css('[data-test-id="heatmap-no-perm"]'));
     expect(heatmap).toBeNull();
     expect(chartContainer).toBeTruthy();
     expect(noPermText).toBeTruthy();
@@ -324,7 +324,8 @@ describe('HomeComponent (template permissions and view)', () => {
     fixture.detectChanges();
 
     const chartContainer = debugEl.query(By.css('.chart-wrapper'));
-    const noPermText = chartContainer.query(By.css('.no-permission'));
+    const noPermText = chartContainer.query(By.css('[data-test-id="heatmap-no-perm"]'));
+    expect(noPermText).toBeTruthy();
     expect(noPermText.nativeElement.textContent).toContain('No permission to view chart data');
   });
 
