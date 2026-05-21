@@ -184,10 +184,15 @@ describe('EditUsersComponent', () => {
     });
   });
 
-  //onSubmit() ─────────────────────────────────────────────────────────────
+  //onSubmit()
 
   describe('onSubmit()', () => {
     describe('when the form is valid', () => {
+      beforeEach(() => {
+        component.updateForm.get('updateData.globalPermissionGroupId')?.setValue(MOCK_USER.globalPermissionGroupId);
+        component.updateForm.get('updateData.isValid')?.setValue(MOCK_USER.isValid);
+      });
+
       it('should call gs.update with the correct endpoint and user ID', () => {
         component.onSubmit();
         expect(mockGlobalService.update).toHaveBeenCalledOnceWith(
