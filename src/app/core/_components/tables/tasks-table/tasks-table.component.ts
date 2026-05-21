@@ -112,13 +112,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     columns.push(
       {
         id: TaskTableCol.ID,
-        dataKey: 'taskId',
+        dataKey: 'taskWrapperId',
         isNumeric: true,
         render: (wrapper: JTaskWrapperDisplay) => (wrapper.taskType === TaskType.TASK ? wrapper.taskId + '' : ''),
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplay) => {
-          return wrapper.taskType === TaskType.TASK ? wrapper.taskId + '' : '';
+          return wrapper.taskWrapperId + '';
         }
       },
       {
@@ -629,6 +629,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private rowActionDelete(wrapper: JTaskWrapperDisplay[]): void {
     const taskWrapperId = wrapper[0].id;
     if (taskWrapperId === undefined) {
+      console.error('TaskWrapperId undefined during delete')
       return;
     }
     this.subscriptions.push(

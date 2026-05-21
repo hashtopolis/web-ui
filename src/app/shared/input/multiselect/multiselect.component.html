@@ -80,7 +80,11 @@
         <ng-content select="[matSuffix]"></ng-content>
       </span>
       @if (hasError && errors && !readonly) {
-        <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required. </mat-hint>
+        <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required.</mat-hint>
+      } @else if (hasError && errors?.['mixedHashTypes']) {
+        <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
+          All selected hashlists must share the same hash type to be combined into a SuperHashlist.
+        </mat-hint>
       }
     </mat-form-field>
   </div>
