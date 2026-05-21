@@ -6,6 +6,8 @@ input-multiselect .custom-chip-grid mat-chip-row button[matchipremove] {
 
 input-multiselect .custom-chip-grid input.mat-mdc-chip-input.mat-mdc-chip-input {
   margin-inline-start: var(--space-xs);
+  align-self: center;
+  min-height: var(--mdc-chip-container-height, 32px);
 }
 
 .highlight-text {

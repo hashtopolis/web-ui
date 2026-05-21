@@ -262,6 +262,23 @@ textarea.mat-mdc-input-element.custom-textarea {
   display: block;
 }
 
+.mat-mdc-form-field.field-stack__field.custom-chip-grid {
+  .mdc-text-field--filled {
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .mat-mdc-form-field-flex,
+  .mat-mdc-form-field-infix {
+    align-items: flex-start;
+  }
+
+  .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
 .mat-mdc-checkbox {
   --mat-checkbox-selected-focus-icon-color: var(--primary);
   --mat-checkbox-selected-hover-icon-color: var(--primary-hover);

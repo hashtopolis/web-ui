@@ -17,17 +17,11 @@
       }
     </label>
 
-    <mat-form-field
-      class="custom-chip-grid field-stack__field"
-      [class.mat-form-field-invalid]="hasError && !readonly"
-      [class.mat-form-field-touched]="isTouched && !readonly"
-    >
+    <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
       <mat-chip-grid
         #chipGridRef
         [required]="isRequired"
         aria-label="Items selection"
-        [class.ng-invalid]="hasError && !readonly"
-        [class.ng-touched]="isTouched && !readonly"
         [disabled]="disabled || readonly"
       >
         @for (item of readonly ? items : selectedItems; track item.id) {
@@ -80,10 +74,13 @@
         <ng-content select="[matSuffix]"></ng-content>
       </span>
       @if (hasError && errors && !readonly) {
-        <mat-hint class="mat-mdc-form-field-error text-destructive"> This field is required.</mat-hint>
-      } @else if (hasError && errors?.['mixedHashTypes']) {
-        <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
-          All selected hashlists must share the same hash type to be combined into a SuperHashlist.
+        <mat-hint class="mat-mdc-form-field-error text-destructive">
+          @if (errors['required']) {
+            <span>This field is required.</span>
+          }
+          @if (errors['mixedHashTypes']) {
+            <span>All selected hashlists must share the same hash type to be combined into a SuperHashlist.</span>
+          }
         </mat-hint>
       }
     </mat-form-field>
