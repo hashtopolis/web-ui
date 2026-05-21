@@ -80,8 +80,10 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = new FormGroup<NewSuperhashlistForm>({
       name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      hashlistIds: new FormControl<number[] | null>(null, [Validators.required,
-      sameHashTypeValidator(() => this.hashlists)])
+      hashlistIds: new FormControl<number[] | null>(null, [
+        Validators.required,
+        sameHashTypeValidator(() => this.hashlists)
+      ])
     });
   }
 
