@@ -487,29 +487,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplay): HTTableIcon {
-    switch (wrapper.status) {
-      case TaskStatus.RUNNING:
-        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
-      case TaskStatus.COMPLETED:
-        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
-      case TaskStatus.IDLE:
-        return { name: 'pause_circle_outline', cls: 'text-inactive', tooltip: 'Idle' };
-      default:
-        return { name: '' };
+    if (wrapper.status === TaskStatus.RUNNING) {
+      return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
     }
+    return { name: '' };
   }
 
   private getTaskStatusLabel(wrapper: JTaskWrapperDisplay): string {
-    switch (wrapper.status) {
-      case TaskStatus.RUNNING:
-        return 'Running';
-      case TaskStatus.COMPLETED:
-        return 'Completed';
-      case TaskStatus.IDLE:
-        return 'Idle';
-      default:
-        return '';
-    }
+    return wrapper.status === TaskStatus.RUNNING ? 'Running' : '';
   }
 
   private renderIsSmallIcon(wrapper: JTaskWrapperDisplay): HTTableIcon {
