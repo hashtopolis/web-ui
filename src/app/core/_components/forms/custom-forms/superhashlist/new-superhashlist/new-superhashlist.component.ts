@@ -18,6 +18,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { sameHashTypeValidator } from '@src/app/core/_validators/same-hash-type.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface NewSuperhashlistForm {
@@ -43,6 +44,8 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
 
   /** Select List of hashlists. */
   selectHashlists: SelectOption<HashlistId>[];
+
+  private hashlists: JHashlist[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);
@@ -77,7 +80,10 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = new FormGroup<NewSuperhashlistForm>({
       name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      hashlistIds: new FormControl<number[] | null>(null, [Validators.required])
+      hashlistIds: new FormControl<number[] | null>(null, [
+        Validators.required,
+        sameHashTypeValidator(() => this.hashlists)
+      ])
     });
   }
 
@@ -94,7 +100,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
         const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+        this.hashlists = hashlists;
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
+        this.form.controls.hashlistIds.updateValueAndValidity({ emitEvent: false });
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

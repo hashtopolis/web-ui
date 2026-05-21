@@ -320,13 +320,14 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     // Proceed with existing logic now that input is validated
     if (sourceType === 'paste') {
-      this.form.patchValue({
-        sourceData: handleEncode(this.form.controls.sourceData.value)
-      });
       this.isCreatingLoading = true;
+      const payload = {
+        ...this.form.getRawValue(),
+        sourceData: handleEncode(this.form.controls.sourceData.value)
+      };
 
       try {
-        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, payload));
         this.alert.showSuccessMessage('New HashList created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
