@@ -117,7 +117,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplay) => {
-          return wrapper.taskType === TaskType.TASK ? wrapper.taskId + '' : '';
+          return wrapper.taskWrapperId + '';
         }
       },
       {
