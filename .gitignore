@@ -47,6 +47,3 @@ git-version.json
 # Config file
 config.json
 .devcontainer/.env
-
-*storybook.log
-storybook-static
