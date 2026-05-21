@@ -276,7 +276,6 @@ export abstract class BaseDataSource<
    */
   applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
     // if filter is applied we want to clear selection otherwise non visible items are selected
-    this.clearSelection();
     let data = this.filterItems(filterValue, selectedColumn);
     if (this.sortingColumn) data = this.applySorting(data);
     this.setPaginationConfig(this.pageSize, data.length, null, null, 0);
