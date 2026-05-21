@@ -22,11 +22,7 @@
     }
   </label>
 
-  <mat-form-field
-    class="field-stack__field"
-    [class.mat-form-field-invalid]="hasError && !readonly"
-    [class.mat-form-field-touched]="isTouched && !readonly"
-  >
+  <mat-form-field class="field-stack__field">
     @if (icon) {
       <mat-icon matPrefix>{{ icon }}</mat-icon>
     }
@@ -40,8 +36,6 @@
       [disabled]="disabled"
       [readonly]="readonly"
       [id]="inputId"
-      [class.ng-invalid]="hasError && !readonly"
-      [class.ng-touched]="isTouched && !readonly"
       (blur)="onTouched()"
       (input)="onValueChange($event)"
     />

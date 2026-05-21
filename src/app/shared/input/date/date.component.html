@@ -10,18 +10,11 @@
     }
   </label>
 
-  <mat-form-field
-    class="form-group field-stack__field"
-    appearance="outline"
-    [class.mat-form-field-invalid]="hasError && !readonly"
-    [class.mat-form-field-touched]="isTouched && !readonly"
-  >
+  <mat-form-field class="form-group field-stack__field" appearance="outline">
     <input
       matInput
       [matDatepicker]="picker"
       [value]="value"
-      [class.ng-invalid]="hasError && !readonly"
-      [class.ng-touched]="isTouched && !readonly"
       (dateChange)="onDateChange($event)"
       (blur)="onTouched()"
       [required]="isRequired"

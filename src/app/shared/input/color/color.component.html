@@ -11,19 +11,13 @@
   </label>
 
   <div class="color-input-container">
-    <mat-form-field
-      class="field-stack__field"
-      [class.mat-form-field-invalid]="hasError && !readonly"
-      [class.mat-form-field-touched]="isTouched && !readonly"
-    >
+    <mat-form-field class="field-stack__field">
       <input
         #selectInput
         matInput
         type="color"
         [id]="inputId"
         [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
-        [class.ng-invalid]="hasError && !readonly"
-        [class.ng-touched]="isTouched && !readonly"
         [class.color-unset]="!value"
         (input)="onValueChange($event)"
         (blur)="onTouched()"

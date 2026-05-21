@@ -1,8 +1,18 @@
-import { ChangeDetectorRef, Directive, ElementRef, Injector, Input, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Directive,
+  DoCheck,
+  ElementRef,
+  Injector,
+  Input,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { ControlValueAccessor, NgControl, ValidationErrors } from '@angular/forms';
 
 @Directive()
-export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
+export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueAccessor {
   @ViewChild('inputField')
   inputField: ElementRef;
 
@@ -49,10 +59,12 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   protected cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
 
-  // Diagnostic: hardcoded to isolate whether NG0100 originates here.
-  readonly hasError = false;
-  readonly isTouched = false;
-  readonly errors: ValidationErrors | null = null;
+  private previousTouched = false;
+  private previousInvalid = false;
+
+  hasError = false;
+  isTouched = false;
+  errors: ValidationErrors | null = null;
 
   get ngControl(): NgControl | null {
     try {
@@ -77,12 +89,45 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+    this.onTouched = () => {
+      fn();
+      this.cdr.markForCheck();
+    };
   }
 
   setDisabledState?(isDisabled: boolean): void {
     this.disabled = isDisabled;
     this.cdr.markForCheck();
+  }
+
+  ngDoCheck(): void {
+    const control = this.ngControl?.control;
+    if (control) {
+      const currentTouched = control.touched;
+      const currentInvalid = control.invalid;
+      const isFormTouched = !!(control.parent?.touched || control.root?.touched);
+      const shouldShowValidation = control.dirty || currentTouched || isFormTouched;
+
+      const newHasError = !!(control && control.invalid && shouldShowValidation);
+      const newIsTouched = shouldShowValidation;
+      const newErrors = control.errors || null;
+
+      const hasChanges =
+        this.hasError !== newHasError ||
+        this.isTouched !== newIsTouched ||
+        currentTouched !== this.previousTouched ||
+        currentInvalid !== this.previousInvalid;
+
+      this.hasError = newHasError;
+      this.isTouched = newIsTouched;
+      this.errors = newErrors;
+
+      if (hasChanges) {
+        this.previousTouched = currentTouched;
+        this.previousInvalid = currentInvalid;
+        setTimeout(() => this.cdr.detectChanges(), 0);
+      }
+    }
   }
 
   focus() {

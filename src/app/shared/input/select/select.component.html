@@ -28,11 +28,7 @@
     }
   </label>
 
-  <mat-form-field
-    class="field-stack__field"
-    [class.mat-form-field-invalid]="hasError && !readonly"
-    [class.mat-form-field-touched]="isTouched && !readonly"
-  >
+  <mat-form-field class="field-stack__field">
     <mat-select
       #inputField
       [value]="value"
@@ -40,8 +36,6 @@
       (openedChange)="onOpenedChange($event)"
       [required]="!isLoading && isRequired"
       [disabled]="disabled || readonly"
-      [class.ng-invalid]="hasError && !readonly"
-      [class.ng-touched]="isTouched && !readonly"
     >
       @if (isBlankOptionDisabled) {
         <mat-option [value]="0">

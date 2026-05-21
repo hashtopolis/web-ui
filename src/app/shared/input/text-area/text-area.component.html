@@ -23,16 +23,10 @@
     }
   </label>
 
-  <mat-form-field
-    class="custom-textarea field-stack__field"
-    [class.mat-form-field-invalid]="hasError && !readonly"
-    [class.mat-form-field-touched]="isTouched && !readonly"
-  >
+  <mat-form-field class="custom-textarea field-stack__field">
     <textarea
       matInput
       [class.is-invalid]="error && !readonly"
-      [class.ng-invalid]="hasError && !readonly"
-      [class.ng-touched]="isTouched && !readonly"
       [id]="inputId"
       [value]="value"
       (input)="onValueChange($event)"

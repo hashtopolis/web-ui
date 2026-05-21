@@ -22,11 +22,7 @@
     }
   </label>
 
-  <mat-form-field
-    class="field-stack__field"
-    [class.mat-form-field-invalid]="hasError && !readonly"
-    [class.mat-form-field-touched]="isTouched && !readonly"
-  >
+  <mat-form-field class="field-stack__field">
     <div [class.is-invalid]="error && !readonly">
       <input
         #inputField
@@ -40,8 +36,6 @@
         (blur)="onTouched()"
         [required]="isRequired"
         [class.is-invalid]="error && !readonly"
-        [class.ng-invalid]="hasError && !readonly"
-        [class.ng-touched]="isTouched && !readonly"
         [disabled]="disabled"
         [readonly]="readonly"
       />
