@@ -620,6 +620,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       index = 0;
       pageAfter = null;
       pageBefore = null;
+    } else if (index === 0) {
+      // jump to the first page
+      pageAfter = null;
+      pageBefore = null;
     } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
