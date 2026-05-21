@@ -455,6 +455,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   emitFilterValue(): void {
     this.filterError = null;
     const value = this.filterQueryFormGroup.controls.textFilter.value ?? '';
+    this.dataSource.clearSelection();
     if (this.filterMode === 'client') {
       this.dataSource.applyClientFilter(value, this.selectedFilterColumn);
     } else {
