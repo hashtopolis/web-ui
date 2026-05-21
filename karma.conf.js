@@ -54,7 +54,13 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessNoKeychain'],
+    customLaunchers: {
+      ChromeHeadlessNoKeychain: {
+        base: 'ChromeHeadless',
+        flags: ['--use-mock-keychain', '--password-store=basic']
+      }
+    },
     singleRun: true,
     restartOnFileChange: true
   })
