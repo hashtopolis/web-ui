@@ -1,4 +1,4 @@
-/* import { of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -233,44 +233,6 @@ describe('EditTasksComponent', () => {
 
       expect(component.chunkview).toBe(0);
     }));
-
-    describe('with edit-task-cAll route', () => {
-      beforeEach(async () => {
-        TestBed.resetTestingModule();
-        await TestBed.configureTestingModule({
-          declarations: [EditTasksComponent],
-          providers: [
-            provideHttpClient(),
-            provideHttpClientTesting(),
-            { provide: AutoTitleService, useValue: titleServiceSpy },
-            { provide: AlertService, useValue: alertServiceSpy },
-            { provide: GlobalService, useValue: globalServiceSpy },
-            { provide: Router, useValue: routerSpy },
-            { provide: ConfirmDialogService, useValue: confirmDialogSpy },
-            { provide: TasksRoleService, useValue: roleServiceSpy },
-            { provide: ConfigService, useValue: configServiceSpy },
-            {
-              provide: ActivatedRoute,
-              useValue: {
-                snapshot: { params: { id: '1' } },
-                data: of({ kind: 'edit-task-cAll' })
-              }
-            }
-          ],
-          schemas: [NO_ERRORS_SCHEMA]
-        }).compileComponents();
-
-        httpMock = TestBed.inject(HttpTestingController);
-      });
-
-      it('should set chunkview to 1 for edit-task-cAll route', fakeAsync(() => {
-        initComponent();
-        respondToTaskRequest(mockTaskResponse());
-        tick();
-
-        expect(component.chunkview).toBe(1);
-      }));
-    });
 
     it('should show forcePipe as "Yes" when task.forcePipe is true', fakeAsync(() => {
       const response = mockResponse({
@@ -576,4 +538,79 @@ describe('EditTasksComponent', () => {
     }));
   });
 });
- */
+
+describe('EditTasksComponent (edit-task-cAll route)', () => {
+  let component: EditTasksComponent;
+  let fixture: ComponentFixture<EditTasksComponent>;
+  let httpMock: HttpTestingController;
+
+  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
+  let alertServiceSpy: jasmine.SpyObj<AlertService>;
+  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  let confirmDialogSpy: jasmine.SpyObj<ConfirmDialogService>;
+  let roleServiceSpy: jasmine.SpyObj<TasksRoleService>;
+  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+
+  beforeEach(async () => {
+    spyOn(console, 'error');
+    spyOn(console, 'warn');
+
+    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
+    alertServiceSpy = jasmine.createSpyObj('AlertService', [
+      'showErrorMessage',
+      'showSuccessMessage',
+      'showInfoMessage'
+    ]);
+    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'update', 'chelper']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
+    routerSpy.navigate.and.returnValue(Promise.resolve(true));
+    routerSpy.navigateByUrl.and.returnValue(Promise.resolve(true));
+    confirmDialogSpy = jasmine.createSpyObj('ConfirmDialogService', ['confirmYesNo']);
+    roleServiceSpy = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
+    roleServiceSpy.hasRole.and.returnValue(false);
+    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
+    configServiceSpy.getEndpoint.and.returnValue(API_ENDPOINT);
+
+    await TestBed.configureTestingModule({
+      declarations: [EditTasksComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AutoTitleService, useValue: titleServiceSpy },
+        { provide: AlertService, useValue: alertServiceSpy },
+        { provide: GlobalService, useValue: globalServiceSpy },
+        { provide: Router, useValue: routerSpy },
+        { provide: ConfirmDialogService, useValue: confirmDialogSpy },
+        { provide: TasksRoleService, useValue: roleServiceSpy },
+        { provide: ConfigService, useValue: configServiceSpy },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { params: { id: '1' } },
+            data: of({ kind: 'edit-task-cAll' })
+          }
+        }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
+
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should set chunkview to 1 for edit-task-cAll route', fakeAsync(() => {
+    fixture = TestBed.createComponent(EditTasksComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
+    req.flush(mockTaskResponse());
+    tick();
+
+    expect(component.chunkview).toBe(1);
+  }));
+});
