@@ -1,7 +1,7 @@
 /**
  * Confirmaation dialog component
  */
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface ConfirmDialogData {
@@ -19,10 +19,8 @@ export interface ConfirmDialogData {
   standalone: false
 })
 export class ConfirmDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
-  ) {}
+  public dialogRef = inject<MatDialogRef<ConfirmDialogComponent>>(MatDialogRef);
+  public data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
   /**
    * Confirm button handler, sends true to afterClose handler

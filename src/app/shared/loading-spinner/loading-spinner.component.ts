@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { LoadingService } from '@services/shared/loading.service';
 import { ThemeService } from '@services/shared/theme.service';
@@ -31,13 +31,13 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class LoadingSpinnerComponent {
+  private theme = inject(ThemeService);
+  public ls = inject(LoadingService);
+
   headerConfig = environment.config.header;
   isLoading = true;
 
-  constructor(
-    private theme: ThemeService,
-    public ls: LoadingService
-  ) {
+  constructor() {
     this.ls.showSpinner.subscribe(this.stateSpinner.bind(this));
   }
 

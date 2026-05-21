@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,7 +15,7 @@ export class PageComponent {
   @Input() actionLink?: string;
   @Input() showAction?: boolean;
 
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   navigate(): void {
     if (this.actionLink) {

@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { IsAuth } from './core/_guards/auth.guard';
-import { AppPreloadingStrategy } from './core/app_preloading_strategy';
-import { ErrorPageComponent } from './layout/error-page/error-page.component';
-import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
+import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
+import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
 
 const appRoutes: Routes = [
   {

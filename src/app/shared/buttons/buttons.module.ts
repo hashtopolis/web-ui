@@ -7,8 +7,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { ButtonSubmitComponent } from './button-submit';
-import { GridButtonsComponent } from './grid-cancel';
+import { ButtonSubmitComponent } from '@src/app/shared/buttons/button-submit';
+import { GridButtonsComponent } from '@src/app/shared/buttons/grid-cancel';
 
 @NgModule({
   imports: [

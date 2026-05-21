@@ -629,7 +629,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private rowActionDelete(wrapper: JTaskWrapperDisplay[]): void {
     const taskWrapperId = wrapper[0].id;
     if (taskWrapperId === undefined) {
-      console.error('TaskWrapperId undefined during delete')
+      console.error('TaskWrapperId undefined during delete');
       return;
     }
     this.subscriptions.push(

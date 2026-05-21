@@ -7,8 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
-import { PageComponent } from './page/page.component';
-import { PageSubTitleComponent } from './page-subtitle/page-subtitle.component';
+import { PageComponent } from '@src/app/shared/page-headers/page/page.component';
+import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 
 @NgModule({
   imports: [FormsModule, CommonModule, FontAwesomeModule, MatCardModule, MatButtonModule, MatIconModule],

@@ -1,6 +1,6 @@
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
-import { Component, DOCUMENT, HostListener, Inject } from '@angular/core';
+import { Component, DOCUMENT, HostListener, inject } from '@angular/core';
 
 @Component({
   selector: 'app-scroll-top',
@@ -9,10 +9,10 @@ import { Component, DOCUMENT, HostListener, Inject } from '@angular/core';
   standalone: false
 })
 export class ScrollYTopComponent {
+  private document = inject<Document>(DOCUMENT);
+
   windowScrolled: boolean;
   faChevronUp = faChevronUp;
-
-  constructor(@Inject(DOCUMENT) private document: Document) {}
 
   @HostListener('window:scroll', [])
   onWindowScroll() {

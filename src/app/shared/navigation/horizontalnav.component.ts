@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,8 +12,7 @@ import { Router } from '@angular/router';
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];
   private unsubscribe$: Subject<void> = new Subject<void>();
-
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   /**
    * Whether a route is currently active (used to drive [checked] on the
