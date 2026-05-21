@@ -70,6 +70,20 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
     if (!this.chart) return;
 
     const currentYear = new Date().getFullYear();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const max = Math.max(...this.data.map((d) => d[1]), 10);
+    const rawStep = max / 5;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const normalized = rawStep / magnitude;
+    const niceStep = normalized <= 2 ? 2 * magnitude : normalized <= 5 ? 5 * magnitude : 10 * magnitude;
+    const step = Math.max(2, niceStep);
+    const pieces = [
+      { gte: 1, lte: step },
+      { gt: step, lte: step * 2 },
+      { gt: step * 2, lte: step * 3 },
+      { gt: step * 3, lte: step * 4 },
+      { gt: step * 4 }
+    ];
 
     const option = {
       darkMode: this.isDarkMode,
@@ -82,12 +96,12 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
         }
       },
       visualMap: {
-        min: 0,
-        max: Math.max(...this.data.map((d) => d[1]), 10),
         type: 'piecewise',
         orient: 'horizontal',
         left: 'center',
-        top: 65
+        top: 65,
+        pieces,
+        outOfRange: { color: 'transparent' }
       },
       calendar: {
         top: 120,
@@ -106,8 +120,8 @@ export class HeatmapChartComponent implements AfterViewInit, OnChanges, OnDestro
           data: this.data,
           label: {
             show: true,
+            color: this.isDarkMode ? '#ffffff' : '#333333',
             formatter: (params: CallbackDataParams) => {
-              const todayStr = new Date().toISOString().slice(0, 10);
               const data = params.data as [string, number];
               return data[0] === todayStr ? 'X' : '';
             }
