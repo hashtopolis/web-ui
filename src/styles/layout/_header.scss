@@ -9,8 +9,8 @@ mat-toolbar.app-header {
   z-index: var(--z-sticky);
   display: flex;
   align-items: stretch;
-  min-height: 64px;
-  height: 64px;
+  min-height: 80px;
+  height: 80px;
   padding: 0;
   background: var(--header);
   -webkit-backdrop-filter: blur(8px);
@@ -43,8 +43,8 @@ body.fixed-width-layout .app-header__inner {
   gap: 10px;
   text-decoration: none;
   color: inherit;
-  width: 44px;
-  height: 44px;
+  width: auto;
+  height: 72px;
   padding: 4px;
   border-radius: var(--radius-md);
   background: var(--brand-backdrop);
@@ -60,8 +60,7 @@ body.fixed-width-layout .app-header__inner {
   display: block;
   width: auto;
   height: auto;
-  max-width: 100%;
-  max-height: 36px;
+  max-height: 64px;
 }
 
 .app-header__brand-name {
