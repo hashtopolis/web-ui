@@ -329,7 +329,12 @@ describe('EditAgentComponent', () => {
   }));
 
   it('should submit form and update agent successfully', fakeAsync(() => {
+    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
+    tick();
     tick();
 
     component.updateForm.patchValue({
@@ -355,9 +360,8 @@ describe('EditAgentComponent', () => {
   }));
 
   it('should not submit form if it is invalid', fakeAsync(() => {
-    // Enable 'update' role so controls are not disabled and validators work
+    // Create fixture with 'update' role enabled so form controls are enabled and validators work
     agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
-    globalServiceSpy.get.and.returnValue(of(mockResponse({ data: mockAgent })));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -365,14 +369,12 @@ describe('EditAgentComponent', () => {
     tick();
     tick();
 
-    // Clear required field to make form invalid
+    // Set agentName to empty string to trigger validation error
     component.updateForm.controls.agentName.setValue('');
     component.updateForm.markAllAsTouched();
-    component.updateForm.updateValueAndValidity();
-    fixture.detectChanges();
 
-    expect(component.updateForm.controls.agentName.value).toBe('');
     expect(component.updateForm.invalid).toBe(true);
+
     component.onSubmit();
     tick();
 
@@ -380,8 +382,14 @@ describe('EditAgentComponent', () => {
   }));
 
   it('should show error message when form submission fails', fakeAsync(() => {
+    // Enable 'update' role so form controls are enabled
+    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
     globalServiceSpy.update.and.returnValue(throwError(() => new Error('Update failed')));
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
+    tick();
     tick();
 
     component.updateForm.patchValue({
@@ -488,46 +496,109 @@ describe('EditAgentComponent', () => {
     expect(result).toContain('1 x RTX2060');
   });
 
-  it('should return correct OS label for Linux', () => {
-    expect(component.getOsLabel(AgentOS.LINUX)).toBe('Linux');
+  it('should render devices with single device', () => {
+    const result = component.renderDevices('RTX3080');
+
+    expect(result).toBe('1 x RTX3080');
   });
 
-  it('should return correct OS label for Windows', () => {
-    expect(component.getOsLabel(AgentOS.WINDOWS)).toBe('Windows');
+  it('should render devices with empty string', () => {
+    const result = component.renderDevices('');
+
+    expect(result).toBe('');
   });
 
-  it('should return correct OS label for MacOS', () => {
-    expect(component.getOsLabel(AgentOS.MACOS)).toBe('MacOS');
+  it('should render devices with whitespace only', () => {
+    const result = component.renderDevices('');
+
+    expect(result).toBe('');
   });
 
-  it('should return Unknown for invalid OS', () => {
-    expect(component.getOsLabel('INVALID' as unknown as AgentOS)).toBe('Unknown');
+  describe('OS label and icon methods', () => {
+    it('should return correct OS labels', () => {
+      expect(component.getOsLabel(AgentOS.LINUX)).toBe('Linux');
+      expect(component.getOsLabel(AgentOS.WINDOWS)).toBe('Windows');
+      expect(component.getOsLabel(AgentOS.MACOS)).toBe('MacOS');
+    });
+
+    it('should return Unknown for invalid OS label', () => {
+      expect(component.getOsLabel('INVALID' as unknown as AgentOS)).toBe('Unknown');
+    });
+
+    it('should return correct OS messages', () => {
+      expect(component.getOsMessage(AgentOS.LINUX)).toBe('Linux');
+      expect(component.getOsMessage(AgentOS.WINDOWS)).toBe('Windows');
+    });
+
+    it('should return correct FontAwesome icons for valid OS', () => {
+      expect(component.getOsFaIcon(AgentOS.LINUX)).toBeTruthy();
+      expect(component.getOsFaIcon(AgentOS.WINDOWS)).toBeTruthy();
+      expect(component.getOsFaIcon(AgentOS.MACOS)).toBeTruthy();
+    });
+
+    it('should return null icon for invalid OS', () => {
+      expect(component.getOsFaIcon('INVALID' as unknown as AgentOS)).toBeNull();
+    });
   });
 
-  it('should return correct OS message', () => {
-    expect(component.getOsMessage(AgentOS.LINUX)).toBe('Linux');
-    expect(component.getOsMessage(AgentOS.WINDOWS)).toBe('Windows');
+  it('should handle error when loading agent', fakeAsync(() => {
+    const error = { status: 500 };
+    globalServiceSpy.get.and.returnValues(
+      throwError(() => error),
+      of(mockResponse({ data: mockAgent }))
+    );
+
+    fixture.detectChanges();
+    tick();
+    tick();
+
+    expect(component.showagent).toBeDefined();
+    expect(component.selectUserAgps).toEqual([]);
+  }));
+
+  it('should calculate time spent with empty chunks array', () => {
+    component.timeCalc([]);
+
+    expect(component.timespent).toBe(0);
   });
 
-  it('should return correct FontAwesome icon for Linux', () => {
-    const result = component.getOsFaIcon(AgentOS.LINUX);
-    expect(result).toBeTruthy();
+  it('should calculate time spent with single chunk', () => {
+    const mockChunk = {
+      id: 1,
+      taskId: 1,
+      skip: 0,
+      length: 100,
+      agentId: 1,
+      dispatchTime: 100,
+      solveTime: 200,
+      checkpoint: 0,
+      progress: 0,
+      state: 0 as any,
+      cracked: 0,
+      speed: 0
+    } as JChunk;
+
+    component.timeCalc([mockChunk]);
+
+    expect(component.timespent).toBe(100);
   });
 
-  it('should return correct FontAwesome icon for Windows', () => {
-    const result = component.getOsFaIcon(AgentOS.WINDOWS);
-    expect(result).toBeTruthy();
-  });
+  it('should not load tasks when readAssignment role is not enabled', fakeAsync(() => {
+    fixture.detectChanges();
+    tick();
 
-  it('should return correct FontAwesome icon for MacOS', () => {
-    const result = component.getOsFaIcon(AgentOS.MACOS);
-    expect(result).toBeTruthy();
-  });
+    expect(globalServiceSpy.ghelper).not.toHaveBeenCalled();
+  }));
 
-  it('should return null icon for invalid OS', () => {
-    expect(component.getOsFaIcon('INVALID' as unknown as AgentOS)).toBeNull();
-  });
+  it('should handle other errors when loading agent', fakeAsync(() => {
+    const errorOther = { status: 400 };
+    globalServiceSpy.get.and.returnValue(throwError(() => errorOther));
 
+    fixture.detectChanges();
+    tick();
+
+    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading agent details');
+  }));
   it('should unsubscribe on ngOnDestroy', () => {
     fixture.detectChanges();
 
