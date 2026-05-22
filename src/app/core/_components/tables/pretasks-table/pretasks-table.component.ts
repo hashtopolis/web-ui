@@ -151,6 +151,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -173,6 +174,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       },
       {
         id: PretasksTableCol.FILES_TOTAL,
+        isNumeric: true,
         dataKey: 'filesTotal',
         isSortable: false,
         icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
@@ -181,6 +183,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       },
       {
         id: PretasksTableCol.FILES_SIZE,
+        isNumeric: true,
         dataKey: 'pretaskFiles',
         isSortable: false,
         render: (pretask: JPretask) => {
@@ -214,6 +217,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       tableColumns.push(
         {
           id: PretasksTableCol.PRIORITY,
+          isNumeric: true,
           dataKey: 'priority',
           editable: (pretask: JPretask) => {
             return {
@@ -227,6 +231,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         },
         {
           id: PretasksTableCol.MAX_AGENTS,
+          isNumeric: true,
           dataKey: 'maxAgents',
           editable: (pretask: JPretask) => {
             return {
@@ -243,12 +248,14 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       tableColumns.push(
         {
           id: PretasksTableCol.PRIORITY,
+          isNumeric: true,
           dataKey: 'priority',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.priority + ''
         },
         {
           id: PretasksTableCol.MAX_AGENTS,
+          isNumeric: true,
           dataKey: 'maxAgents',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.maxAgents + ''
@@ -259,6 +266,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (this.supertTaskId !== 0) {
       tableColumns.push({
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
+        isNumeric: true,
         dataKey: 'keyspaceSize',
         render: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
         isSortable: false,

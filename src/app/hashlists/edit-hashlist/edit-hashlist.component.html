@@ -1,38 +1,35 @@
-<div class="flex flex-col gap-3">
-  @if (!isLoading) {
-    <grid-main>
-      <app-page-title [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'" [subbutton]="false">
-      </app-page-title>
-
+@if (!isLoading) {
+  <app-page [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'">
+    <grid-main [narrow]="true">
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
         <input-text title="ID" formControlName="hashlistId"></input-text>
 
-        <div formGroupName="updateData" class="flex flex-col gap-2">
+        <div formGroupName="updateData" class="flex flex-col gap-3">
           <input-text [isRequired]="true" title="Name" formControlName="name"></input-text>
-          <div>
-            <input-text-area title="Notes" formControlName="notes"></input-text-area>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            @if (roleService.hasRole('groups')) {
-              <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup">
-              </input-select>
-            }
-            <input-check title="Secret Data" formControlName="isSecret"></input-check>
-          </div>
+          <input-text-area title="Notes" formControlName="notes"></input-text-area>
+          @if (roleService.hasRole('groups')) {
+            <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup">
+            </input-select>
+          }
+          <input-check title="Secret Data" formControlName="isSecret"></input-check>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <simulate-form-field label="Hash Type" message="{{ hashtype?.id }} - {{ hashtype?.description }}">
-          </simulate-form-field>
-
-          <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
-          </simulate-form-field>
-
+        <app-form-row [columns]="3">
+          <input-text
+            title="Hash Type"
+            [value]="hashtype?.id + ' - ' + hashtype?.description"
+            [readonly]="true"
+          ></input-text>
+          <input-text
+            title="Using hashcat brain"
+            [value]="editedHashlist?.useBrain ? 'Yes' : 'No'"
+            [readonly]="true"
+          ></input-text>
           <input-text title="Format" formControlName="format"></input-text>
           <input-text title="Hashes" formControlName="hashCount"></input-text>
           <input-text title="Cracked" formControlName="cracked"></input-text>
           <input-text title="Remaining" formControlName="remaining"></input-text>
-        </div>
+        </app-form-row>
 
         <grid-buttons>
           <button-submit [name]="'Update'" [disabled]="!roleService.hasRole('update')"></button-submit>
@@ -40,47 +37,45 @@
       </form>
 
       <!-- If its cracked or partially cracked then show additional actions -->
-      <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
+      <app-page-subtitle subtitle="Actions"></app-page-subtitle>
 
-      <div class="flex gap-1">
-        <grid-buttons>
+      <div class="flex flex-wrap items-center gap-3">
+        <button-submit
+          [name]="'Import pre-cracked hashes'"
+          (click)="importCrackedHashes()"
+          [disabled]="!roleService.hasRole('update')"
+        >
+        </button-submit>
+
+        @if ((editedHashlist?.cracked ?? 0) > 0) {
           <button-submit
-            [name]="'Import pre-cracked hashes'"
-            (click)="importCrackedHashes()"
-            [disabled]="!roleService.hasRole('update')"
+            [name]="'Export hashes for pre-crack'"
+            (click)="exortPreCrackedHashes()"
+            [disabled]="!roleService.hasRole('read')"
           >
           </button-submit>
+        }
 
-          @if ((editedHashlist?.cracked ?? 0) > 0) {
-            <button-submit
-              [name]="'Export hashes for pre-crack'"
-              (click)="exortPreCrackedHashes()"
-              [disabled]="!roleService.hasRole('read')"
-            >
-            </button-submit>
-          }
+        <button-submit [name]="'Show Hashes'" (click)="goToHashes()" [disabled]="!roleService.hasRole('read')">
+        </button-submit>
 
-          <button-submit [name]="'Show Hashes'" (click)="goToHashes()" [disabled]="!roleService.hasRole('read')">
+        @if ((editedHashlist?.cracked ?? 0) > 0) {
+          <button-submit
+            [name]="'Generate Wordlist'"
+            (click)="exportWordlist()"
+            [disabled]="!roleService.hasRole('wordlist')"
+          >
           </button-submit>
+        }
 
-          @if ((editedHashlist?.cracked ?? 0) > 0) {
-            <button-submit
-              [name]="'Generate Wordlist'"
-              (click)="exportWordlist()"
-              [disabled]="!roleService.hasRole('wordlist')"
-            >
-            </button-submit>
-          }
-
-          @if ((editedHashlist?.cracked ?? 0) > 0) {
-            <button-submit
-              [name]="'Export Left Hashes'"
-              (click)="exportLeftHashes()"
-              [disabled]="!roleService.hasRole('wordlist')"
-            >
-            </button-submit>
-          }
-        </grid-buttons>
+        @if ((editedHashlist?.cracked ?? 0) > 0) {
+          <button-submit
+            [name]="'Export Left Hashes'"
+            (click)="exportLeftHashes()"
+            [disabled]="!roleService.hasRole('wordlist')"
+          >
+          </button-submit>
+        }
       </div>
 
       @if ((editedHashlist?.cracked ?? 0) > 0 && roleService.hasRole('tasks')) {
@@ -89,7 +84,7 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <span><b>Report Builder</b></span>
+                <span><strong>Report Builder</strong></span>
               </mat-panel-title>
             </mat-expansion-panel-header>
 
@@ -113,5 +108,5 @@
         <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex"> </app-tasks-table>
       </app-table>
     }
-  }
-</div>
+  </app-page>
+}

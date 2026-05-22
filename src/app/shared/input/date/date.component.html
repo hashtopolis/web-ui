@@ -1,32 +1,45 @@
-<mat-form-field class="form-group" appearance="outline" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-  <mat-label>{{ title }}</mat-label>
-  <input
-    matInput
-    [matDatepicker]="picker"
-    [value]="value"
-    [class.ng-invalid]="hasError"
-    [class.ng-touched]="isTouched"
-    (dateChange)="onDateChange($event)"
-    (blur)="onTouched()"
-    [required]="isRequired"
-    [disabled]="disabled"
-    [id]="inputId"
-    #inputField
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+  <label class="field-stack__label" [attr.for]="inputId">
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      {{ title }}
+    }
+    @if (isRequired && !readonly) {
+      <span class="field-stack__required" aria-hidden="true">*</span>
+    }
+  </label>
+
+  <mat-form-field class="form-group field-stack__field" appearance="outline">
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [value]="value"
+      (dateChange)="onDateChange($event)"
+      (blur)="onTouched()"
+      [required]="isRequired"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [id]="inputId"
+      #inputField
     />
-  @if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
-  }
-  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-datepicker #picker></mat-datepicker>
-  
-  @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
-      @if (errors['required']) {
-        <span>{{ title }} is required</span>
-      }
-      @if (errors['invalidDate']) {
-        <span>Please enter a valid date</span>
-      }
-    </mat-hint>
-  }
-</mat-form-field>
+    @if (hint) {
+      <mat-hint>{{ hint }}</mat-hint>
+    }
+    @if (!readonly) {
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    }
+    <mat-datepicker #picker></mat-datepicker>
+
+    @if (hasError && errors && !readonly) {
+      <mat-hint class="mat-mdc-form-field-error text-destructive">
+        @if (errors['required']) {
+          <span>{{ title }} is required</span>
+        }
+        @if (errors['invalidDate']) {
+          <span>Please enter a valid date</span>
+        }
+      </mat-hint>
+    }
+  </mat-form-field>
+</div>

@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Global Permission Groups"
-    buttontitle="New Global Permission Group"
-    buttonlink="/users/global-permissions-groups/new"
-    [subbutton]="true"
-  ></app-page-title>
-  <app-permissions-table></app-permissions-table>
-</app-table>
+<app-page
+  title="Global Permission Groups"
+  actionTitle="New Global Permission Group"
+  actionLink="/users/global-permissions-groups/new"
+  [showAction]="true"
+>
+  <app-table>
+    <app-permissions-table></app-permissions-table>
+  </app-table>
+</app-page>

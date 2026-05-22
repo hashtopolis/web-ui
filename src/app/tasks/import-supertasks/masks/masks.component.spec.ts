@@ -257,6 +257,7 @@ describe('MasksComponent', () => {
   // ──────────────────────────────────────────────
 
   it('should reset isLoading on chelper error', () => {
+    spyOn(console, 'error');
     globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();
@@ -265,6 +266,7 @@ describe('MasksComponent', () => {
   });
 
   it('should not navigate on chelper error', () => {
+    spyOn(console, 'error');
     globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();

@@ -1,0 +1,138 @@
+@use '../m3-palette' as palette;
+
+:root {
+  @each $tone, $color in palette.$mono {
+    --mono-#{$tone}: #{$color};
+  }
+
+  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: 'Space Grotesk', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --mat-sys-display-large-font: var(--font-heading);
+  --mat-sys-display-medium-font: var(--font-heading);
+  --mat-sys-display-small-font: var(--font-heading);
+  --mat-sys-headline-large-font: var(--font-heading);
+  --mat-sys-headline-medium-font: var(--font-heading);
+  --mat-sys-headline-small-font: var(--font-heading);
+  --mat-sys-title-large-font: var(--font-heading);
+  --mat-sys-title-medium-font: var(--font-body);
+  --mat-sys-title-small-font: var(--font-body);
+  --mat-sys-body-large-font: var(--font-body);
+  --mat-sys-body-medium-font: var(--font-body);
+  --mat-sys-body-small-font: var(--font-body);
+  --mat-sys-label-large-font: var(--font-body);
+  --mat-sys-label-medium-font: var(--font-body);
+  --mat-sys-label-small-font: var(--font-body);
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  --text-2xs: 12px;
+  --text-xs: 13px;
+  --text-sm: 14px;
+  --text-md: 15px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+
+  --chart-height-default: 300px;
+
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --form-gap: var(--space-sm);
+
+  --background: #0f0f0f;
+  --muted: #1c1c1c;
+  --well: #242424;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-hover: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.05);
+  --sidebar: #0a0a0a;
+
+  --foreground: rgba(255, 255, 255, 0.86);
+  --muted-foreground: rgba(255, 255, 255, 0.7);
+  --subtle-foreground: rgba(255, 255, 255, 0.55);
+  --heading-foreground: rgba(255, 255, 255, 0.98);
+
+  --primary: #ffffff;
+  --primary-hover: rgba(255, 255, 255, 0.85);
+  --primary-muted: rgba(255, 255, 255, 0.08);
+  --primary-foreground: #0f0f0f;
+
+  --secondary: rgba(255, 255, 255, 0.7);
+
+  --border: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --border-faint: rgba(255, 255, 255, 0.06);
+
+  --success: #4ade80;
+  --warning: #facc15;
+  --destructive: #f87171;
+  --info: #60a5fa;
+
+  --link: #60a5fa;
+  --link-hover: #93c5fd;
+
+  --success-bg: color-mix(in oklch, var(--success) 22%, transparent);
+  --destructive-bg: color-mix(in oklch, var(--destructive) 14%, transparent);
+  --info-bg: color-mix(in oklch, var(--info) 14%, transparent);
+  --warning-soft: color-mix(in oklch, var(--warning) 65%, white 35%);
+
+  --popover: #1a1a1a;
+  --popover-foreground: var(--foreground);
+
+  --highlight-bg: #96dcf7;
+
+  --status-cracked: #22c55e;
+  --status-no-crack: var(--warning);
+  --status-not-processed: var(--subtle-foreground);
+  --status-error: #ef4444;
+
+  --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
+
+  --surface-faint: rgba(255, 255, 255, 0.03);
+  --surface-soft: rgba(255, 255, 255, 0.06);
+  --surface-soft-hover: rgba(255, 255, 255, 0.1);
+
+  --cell-hover: rgba(255, 255, 255, 0.14);
+
+  --header: var(--muted);
+  --shell-frame-image: none;
+  --ring: color-mix(in oklch, var(--primary) 30%, transparent);
+  --tooltip: var(--well);
+  --tooltip-foreground: var(--foreground);
+  --snackbar: var(--well);
+  --snackbar-foreground: var(--foreground);
+
+  --shadow-sm: none;
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  --gradient-accent: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  --z-content: 1;
+  --z-sticky: 100;
+  --z-overlay: 1000;
+  --z-tooltip: 3000;
+  --z-modal: 5000;
+  --z-snackbar: 7000;
+  --z-loading: 10000;
+
+  --opacity-disabled: 0.5;
+  --opacity-muted: 0.7;
+}

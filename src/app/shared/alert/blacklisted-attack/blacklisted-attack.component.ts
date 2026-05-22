@@ -5,6 +5,7 @@ import { UIConfigService } from '@services/shared/storage.service';
 @Component({
   selector: 'blacklist-attack',
   templateUrl: './blacklisted-attack.component.html',
+  styleUrls: ['./blacklisted-attack.component.scss'],
   standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {

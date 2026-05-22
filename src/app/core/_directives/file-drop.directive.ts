@@ -20,7 +20,7 @@ export class FileDropDirective {
   @Output() private filesChangeEmiter: EventEmitter<File[]> = new EventEmitter();
   @Output() selectedFiles = new EventEmitter<FileList>();
   @Output() private filesInvalidEmiter: EventEmitter<File[]> = new EventEmitter();
-  @HostBinding('style.background') private background: string;
+  @HostBinding('style.background') background: string | undefined;
 
   @HostListener('dragover', ['$event']) public onDragOver(evt: DragEvent) {
     evt.preventDefault();

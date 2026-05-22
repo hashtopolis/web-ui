@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Health Checks"
-    buttontitle="New Health Check"
-    buttonlink="/config/health-checks/new"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <health-checks-table></health-checks-table>
-</app-table>
+<app-page
+  title="Health Checks"
+  actionTitle="New Health Check"
+  actionLink="/config/health-checks/new"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <health-checks-table></health-checks-table>
+  </app-table>
+</app-page>

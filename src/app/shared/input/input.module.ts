@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { InputCheckComponent } from '@src/app/shared/input/check/check.component';
@@ -13,7 +14,7 @@ import { InputTextComponent } from '@src/app/shared/input/text/text.component';
 import { InputTextAreaComponent } from '@src/app/shared/input/text-area/text-area.component';
 
 @NgModule({
-  imports: [CoreFormsModule, CommonModule],
+  imports: [CoreFormsModule, CommonModule, RouterModule],
   exports: [
     InputCheckComponent,
     InputColorComponent,

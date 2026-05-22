@@ -1,0 +1,27 @@
+input-check .checkbox-wrapper mat-checkbox .mdc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+input-check .checkbox-wrapper mat-checkbox mat-icon {
+  font-size: var(--text-lg);
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  color: var(--subtle-foreground);
+  cursor: help;
+}
+
+input-check .checkbox-wrapper.is-invalid {
+  .mdc-checkbox__background {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 2px var(--destructive-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  .mdc-form-field > label,
+  .mdc-label {
+    color: var(--destructive);
+  }
+}

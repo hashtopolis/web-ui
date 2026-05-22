@@ -1,4 +1,5 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -48,7 +49,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    ScrollingModule
+    ScrollingModule,
+    TextFieldModule
   ],
   exports: [
     ReactiveFormsModule,
@@ -74,7 +76,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    ScrollingModule
+    ScrollingModule,
+    TextFieldModule
   ]
 })
 export class CoreFormsModule {}

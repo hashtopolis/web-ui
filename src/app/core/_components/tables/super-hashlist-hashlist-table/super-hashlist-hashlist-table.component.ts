@@ -63,6 +63,7 @@ export class SuperHashlistsHashlistsTableComponent
     const tableColumns: HTTableColumn[] = [
       {
         id: SuperHashlistHashlistTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -78,6 +79,7 @@ export class SuperHashlistsHashlistsTableComponent
       },
       {
         id: SuperHashlistHashlistTableCol.HASH_COUNT,
+        isNumeric: true,
         dataKey: 'hashCount',
         isSortable: true,
         routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
@@ -85,6 +87,7 @@ export class SuperHashlistsHashlistsTableComponent
       },
       {
         id: SuperHashlistHashlistTableCol.CRACKED,
+        isNumeric: true,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),

@@ -21,6 +21,7 @@ import { SelectOption } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'input-select',
   templateUrl: './select.component.html',
+  styleUrls: ['./select.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -35,7 +36,6 @@ export class InputSelectComponent<T extends string | number | boolean = number> 
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
-  @Input() width: string = '';
 
   onChangeValue(value: T) {
     this.value = value;

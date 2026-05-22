@@ -24,48 +24,50 @@
   <mat-menu
     #actionMenu="matMenu"
     [hasBackdrop]="false"
+    [class]="panelClass"
     (mouseenter)="onMenuMouseEnter()"
     (mouseleave)="onMenuMouseLeave($event)"
   >
     @for (section of actionMenuItems; track $index; let last = $last) {
       @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
-          <div class="menu-item-content">
+          <div class="flex items-center">
             <span>
               @if (iconContainsDiscord(item.icon ?? '')) {
-                <div style="display: inline; padding-right: 6px">
+                <div class="inline pr-1.5">
                   <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               @if (iconContainsGithub(item.icon ?? '')) {
-                <div style="display: inline; padding-right: 10px">
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               @if (iconContainsPaperplane(item.icon ?? '')) {
-                <div style="display: inline; padding-right: 10px">
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               @if (iconContainsGlobe(item.icon ?? '')) {
-                <div style="display: inline; padding-right: 10px">
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               @if (iconContainsBook(item.icon ?? '')) {
-                <div style="display: inline; padding-right: 10px">
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               {{ item.label }}
             </span>
             @if (item.showAddButton) {
-              <span class="menu-item-add-btn">
+              <span class="group ml-auto pl-5 cursor-pointer">
                 <fa-icon
                   [icon]="faSquarePlus"
                   matTooltip="{{ item.tooltipAddButton }}"
                   aria-hidden="true"
                   (click)="onAddMenuItemClick(item); $event.stopPropagation()"
+                  class="transition duration-200 group-hover:brightness-125 group-hover:text-primary"
                 ></fa-icon>
               </span>
             }
@@ -98,7 +100,7 @@
       }
     </button>
   </span>
-  <mat-menu #actionMenu="matMenu">
+  <mat-menu #actionMenu="matMenu" [class]="panelClass">
     @for (section of actionMenuItems; track $index; let last = $last) {
       @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">

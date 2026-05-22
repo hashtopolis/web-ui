@@ -1,13 +1,14 @@
-<app-table>
-  <app-page-title
-    [title]="pageTitle"
-    buttontitle="New Hashlist"
-    buttonlink="/hashlists/new-hashlist"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <mat-slide-toggle (change)="toggleIsArchived($event)">
-    Show Archived
-  </mat-slide-toggle>
-  <br/><br/>
-  <app-hashlists-table #table name="hashlistsTable"></app-hashlists-table>
-</app-table>
+<app-page
+  [title]="pageTitle"
+  actionTitle="New Hashlist"
+  actionLink="/hashlists/new-hashlist"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-hashlists-table #table name="hashlistsTable">
+      <div class="table-action-wrapper" extra-actions>
+        <mat-slide-toggle (change)="toggleIsArchived($event)">Show Archived</mat-slide-toggle>
+      </div>
+    </app-hashlists-table>
+  </app-table>
+</app-page>

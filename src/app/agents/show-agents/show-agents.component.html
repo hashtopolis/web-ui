@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Agents Overview"
-    buttontitle="New Agent"
-    buttonlink="/agents/new-agent"
-    [subbutton]="this.agentRoleService.hasRole('create')"
-  ></app-page-title>
-  <agents-table name="agentsTable"></agents-table>
-</app-table>
+<app-page
+  title="Agents Overview"
+  actionTitle="New Agent"
+  actionLink="/agents/new-agent"
+  [showAction]="agentRoleService.hasRole('create')"
+>
+  <app-table>
+    <agents-table name="agentsTable"></agents-table>
+  </app-table>
+</app-page>

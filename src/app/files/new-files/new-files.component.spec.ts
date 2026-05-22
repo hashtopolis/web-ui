@@ -165,7 +165,14 @@ describe('NewFilesComponent', () => {
 
       // Create a mock file
       const file = new File(['dummy content'], 'test.txt', { type: 'text/plain' });
-      component.selectedFiles = { 0: file, length: 1, item: () => file } as FileList;
+      component.selectedFiles = {
+        0: file,
+        length: 1,
+        item: () => file,
+        [Symbol.iterator]: function* () {
+          yield file;
+        }
+      } as FileList;
       component.fileName = file.name;
 
       // Spy on the alert and upload service

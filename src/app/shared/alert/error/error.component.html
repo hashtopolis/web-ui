@@ -1,4 +1,4 @@
-<h2 mat-dialog-title class="h6">Ups! Something went wrong</h2>
+<h2 mat-dialog-title>Ups! Something went wrong</h2>
 <div mat-dialog-content>
   <p>
     <b>Status Code: {{ data.status }}</b>
@@ -8,5 +8,5 @@
   </p>
 </div>
 <div mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Cancel</button>
+  <button-submit type="cancel-dialog" name="Close" (click)="onClose()"></button-submit>
 </div>

@@ -1,27 +1,22 @@
-<grid-main>
+<app-page title="Create SuperTask">
+  <grid-main [narrow]="true">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <input-text title="Name" formControlName="supertaskName" [isRequired]="true"></input-text>
 
-  <app-page-subtitle subtitle="Create SuperTask"></app-page-subtitle>
+      <input-multiselect
+        [isLoading]="isLoading"
+        [placeholder]="'Tasks...'"
+        [items]="selectPretasks"
+        [label]="'Select or search Tasks'"
+        [isRequired]="true"
+        [mergeIdAndName]="true"
+        formControlName="pretasks"
+      ></input-multiselect>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col items-start">
-
-    <input-text title="Name" formControlName="supertaskName" [isRequired]="true"></input-text>
-
-    <input-multiselect
-      [isLoading]="isLoading"
-      [placeholder]="'Tasks...'"
-      [items]="selectPretasks"
-      [label]="'Select or search Tasks'"
-      [isRequired]="true"
-      [mergeIdAndName]="true"
-      formControlName="pretasks"
-      style="flex: 1;"
-    ></input-multiselect>
-
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'" [disabled]="false"></button-submit>
-    </grid-buttons>
-
-  </form>
-
-</grid-main>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'" [disabled]="false"></button-submit>
+      </grid-buttons>
+    </form>
+  </grid-main>
+</app-page>

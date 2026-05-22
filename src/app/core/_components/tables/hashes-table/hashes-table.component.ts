@@ -96,6 +96,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
       },
       {
         id: HashesTableCol.CRACK_POSITION,
+        isNumeric: true,
         dataKey: 'crackPos',
         isSortable: true,
         export: async (hash: JHash) => hash.crackPos + ''

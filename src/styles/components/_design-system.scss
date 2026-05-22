@@ -1,0 +1,387 @@
+@reference './tailwind.css';
+
+.mat-mdc-raised-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  --mat-fab-container-color: var(--primary);
+  --mat-fab-foreground-color: var(--primary-foreground);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+  letter-spacing: 0;
+
+  &:hover {
+    --mat-button-protected-container-color: var(--primary-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--shadow-md),
+      0 0 0 2px var(--primary);
+  }
+}
+
+.mat-mdc-unelevated-button {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+  letter-spacing: 0;
+
+  &:hover {
+    --mat-button-filled-container-color: var(--primary-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--shadow-md),
+      0 0 0 2px var(--primary);
+  }
+}
+
+.mat-mdc-outlined-button {
+  --mat-button-outlined-label-text-color: var(--foreground);
+  background-color: var(--surface-soft);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    background-color: var(--surface-soft-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+}
+
+.mat-mdc-button {
+  --mat-button-text-label-text-color: var(--foreground);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    background-color: var(--surface-soft);
+    --mat-button-text-label-text-color: var(--heading-foreground);
+  }
+}
+
+.mat-mdc-icon-button {
+  color: var(--muted-foreground);
+
+  &:hover {
+    background-color: var(--surface-soft);
+    color: var(--heading-foreground);
+  }
+}
+
+.alpine-shell {
+  padding: 1px;
+  border-radius: var(--radius-lg);
+  background: var(--shell-frame-image);
+
+  > * {
+    border-radius: calc(var(--radius-lg) - 1px);
+    background: var(--card);
+  }
+}
+
+.mat-mdc-card {
+  --mat-card-elevated-container-color: var(--card);
+  --mat-card-elevated-container-shape: 7px;
+  --mat-card-outlined-container-color: var(--card);
+  --mat-card-outlined-outline-color: var(--border);
+  --mat-card-outlined-container-shape: 7px;
+
+  background-color: var(--card);
+  color: var(--foreground);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: none;
+  padding: 20px;
+
+  &.is-dense,
+  &.card-section {
+    padding: 28px;
+  }
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-color: var(--popover);
+  --mat-dialog-subhead-color: var(--heading-foreground);
+  --mat-dialog-supporting-text-color: var(--foreground);
+  --mat-dialog-container-shape: 8px;
+
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--popover), var(--popover)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--shadow-lg);
+}
+
+.mat-mdc-form-field {
+  --mat-form-field-filled-container-color: var(--input);
+  --mat-form-field-filled-container-shape: 3px;
+  --mat-form-field-filled-caret-color: var(--primary);
+  --mat-form-field-filled-focus-active-indicator-color: var(--primary);
+  --mat-form-field-filled-focus-label-text-color: var(--primary);
+  --mat-form-field-filled-label-text-color: var(--muted-foreground);
+  --mat-form-field-filled-input-text-color: var(--heading-foreground);
+
+  --mat-form-field-outlined-outline-color: var(--border);
+  --mat-form-field-outlined-hover-outline-color: var(--border-strong);
+  --mat-form-field-outlined-focus-outline-color: var(--primary);
+  --mat-form-field-outlined-container-shape: 3px;
+  --mat-form-field-outlined-input-text-color: var(--heading-foreground);
+  --mat-form-field-outlined-label-text-color: var(--muted-foreground);
+  --mat-form-field-outlined-focus-label-text-color: var(--primary);
+  --mat-form-field-outlined-caret-color: var(--primary);
+
+  .mat-mdc-text-field-wrapper {
+    border-radius: var(--radius-sm);
+    background-color: var(--input);
+    border: 1px solid var(--border);
+    transition:
+      border-color var(--duration-fast) var(--easing-standard),
+      box-shadow var(--duration-fast) var(--easing-standard);
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    border-color: var(--primary);
+    @apply focus-ring;
+  }
+
+  input,
+  textarea {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--heading-foreground);
+  }
+
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    letter-spacing: 0.02em;
+  }
+}
+
+.mat-mdc-select-panel,
+.mat-mdc-menu-panel,
+.mat-mdc-autocomplete-panel {
+  background-color: var(--card);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: var(--shadow-md);
+}
+
+.mat-mdc-option {
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+
+  &:hover,
+  &.mat-mdc-option-active {
+    background-color: var(--surface-soft);
+    color: var(--heading-foreground);
+  }
+
+  &.mdc-list-item--selected {
+    background-color: var(--primary-muted);
+    color: var(--heading-foreground);
+    font-weight: 500;
+  }
+}
+
+.mat-mdc-select-arrow {
+  color: var(--muted-foreground);
+}
+
+.mat-mdc-table {
+  --mat-table-background-color: var(--card);
+  --mat-table-header-headline-color: var(--subtle-foreground);
+  --mat-table-row-item-label-text-color: var(--foreground);
+  --mat-table-row-item-outline-color: var(--border);
+
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--card), var(--card)), var(--shell-frame-image);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.mat-mdc-header-row {
+  background-color: var(--surface-faint);
+  border-bottom: 1px solid var(--border);
+}
+
+.mat-mdc-header-cell {
+  font-family: var(--font-body);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subtle-foreground);
+}
+
+.mat-mdc-row {
+  border-bottom: 1px solid var(--border);
+
+  &:nth-of-type(even) {
+    background-color: var(--surface-faint);
+  }
+
+  &:hover {
+    background-color: var(--surface-soft);
+  }
+}
+
+.mat-mdc-cell {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--foreground);
+}
+
+.mat-mdc-chip,
+.mat-mdc-standard-chip {
+  --mat-chip-container-shape: 6px;
+  --mat-chip-label-text-color: var(--heading-foreground);
+  --mat-chip-outline-color: var(--border-strong);
+  --mat-chip-elevated-container-color: var(--primary-muted);
+
+  background-color: var(--primary-muted);
+  border-radius: var(--radius-md);
+  color: var(--heading-foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+
+  .mdc-evolution-chip__text-label {
+    padding-inline-end: var(--space-xs);
+  }
+
+  &.mat-mdc-chip-selected {
+    background-color: var(--border-strong);
+    color: var(--heading-foreground);
+  }
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 3px 6px 3px 8px;
+  border-radius: var(--radius-xs);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
+  color: var(--heading-foreground);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 14px;
+}
+
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  --mat-tab-active-indicator-color: var(--primary);
+  --mat-tab-active-label-text-color: var(--heading-foreground);
+  --mat-tab-inactive-label-text-color: var(--muted-foreground);
+  --mat-tab-active-focus-indicator-color: var(--primary);
+  --mat-tab-active-hover-indicator-color: var(--primary);
+  --mat-tab-divider-color: var(--border);
+  --mat-tab-label-text-font: #{var(--font-body)};
+  --mat-tab-label-text-weight: 500;
+}
+
+.mat-mdc-progress-bar {
+  --mat-progress-bar-active-indicator-color: var(--primary);
+  --mat-progress-bar-track-color: var(--border);
+}
+
+.mat-mdc-progress-spinner,
+.mat-mdc-circular-progress {
+  --mat-progress-spinner-active-indicator-color: var(--primary);
+}
+
+.mat-toolbar,
+.mat-mdc-toolbar {
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-button-color: var(--snackbar-foreground);
+  border-radius: var(--radius-md);
+}
+
+.mat-mdc-tooltip {
+  --mat-tooltip-container-shape: 3px;
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+}
+
+.mat-mdc-paginator {
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-color: var(--muted-foreground);
+  background-color: transparent;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+}
+
+.page__header {
+  gap: 6px;
+  margin-bottom: var(--space-xs);
+}

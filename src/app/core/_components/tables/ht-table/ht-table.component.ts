@@ -91,8 +91,8 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
-  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'block' },
   standalone: false
 })
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
@@ -618,6 +618,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
       index = 0;
+      pageAfter = null;
+      pageBefore = null;
+    } else if (index === 0) {
+      // jump to the first page
       pageAfter = null;
       pageBefore = null;
     } else if (event.pageIndex !== 0) {

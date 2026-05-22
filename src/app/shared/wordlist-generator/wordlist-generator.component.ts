@@ -18,6 +18,7 @@ import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
 @Component({
   selector: 'wordlist-generator',
   templateUrl: './wordlist-generator.component.html',
+  styleUrls: ['./wordlist-generator.component.scss'],
   standalone: false
 })
 export class WordlistGeneratorComponent implements OnInit {
@@ -132,7 +133,7 @@ export class WordlistGeneratorComponent implements OnInit {
       };
 
       try {
-        Wordpolis.generateCandidates(names, specialdates, sparetext, options);
+        Wordpolis.generateCandidates(names ?? [], specialdates ?? '', sparetext ?? [], options);
       } catch (error) {
         console.error(ui.submitError, error);
         this.alert.showErrorMessage(ui.submitError);

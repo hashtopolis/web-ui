@@ -1,17 +1,38 @@
-<app-table>
-  @switch (fileType) {
-    @case (FileType.WORDLIST) {
-      <app-page-title title="Wordlist Files" buttontitle="New Wordlist" buttonlink="/files/wordlist/new-wordlist"
-                      [subbutton]="showCreateButton"></app-page-title>
-    }
-    @case (FileType.RULES) {
-      <app-page-title title="Rule Files" buttontitle="New Rule" buttonlink="/files/rules/new-rule"
-                      [subbutton]="showCreateButton"></app-page-title>
-    }
-    @case (FileType.OTHER) {
-      <app-page-title title="Other Files" buttontitle="New File" buttonlink="/files/other/new-other"
-                      [subbutton]="showCreateButton"></app-page-title>
-    }
+@switch (fileType) {
+  @case (FileType.WORDLIST) {
+    <app-page
+      title="Wordlist Files"
+      actionTitle="New Wordlist"
+      actionLink="/files/wordlist/new-wordlist"
+      [showAction]="showCreateButton"
+    >
+      <app-table>
+        <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
+      </app-table>
+    </app-page>
   }
-  <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
-</app-table>
+  @case (FileType.RULES) {
+    <app-page
+      title="Rule Files"
+      actionTitle="New Rule"
+      actionLink="/files/rules/new-rule"
+      [showAction]="showCreateButton"
+    >
+      <app-table>
+        <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
+      </app-table>
+    </app-page>
+  }
+  @case (FileType.OTHER) {
+    <app-page
+      title="Other Files"
+      actionTitle="New File"
+      actionLink="/files/other/new-other"
+      [showAction]="showCreateButton"
+    >
+      <app-table>
+        <app-files-table #table [name]="name" [fileType]="fileType"></app-files-table>
+      </app-table>
+    </app-page>
+  }
+}

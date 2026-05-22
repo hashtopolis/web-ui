@@ -8,9 +8,11 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+
 @Component({
   selector: 'app-server-actions',
-  imports: [MatButton],
+  imports: [MatButton, PageTitleModule],
   templateUrl: './server-actions.component.html',
   styleUrl: './server-actions.component.scss'
 })

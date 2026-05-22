@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } fro
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { AgentTemperatureInformationDialogData } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.model';
 
 @Component({
@@ -17,7 +18,8 @@ import { AgentTemperatureInformationDialogData } from '@src/app/shared/dialog/ag
     MatDialogActions,
     LowerCasePipe,
     MatButtonModule,
-    DragDropModule
+    DragDropModule,
+    ButtonsModule
   ],
   templateUrl: './agent-temperature-information-dialog.component.html'
 })

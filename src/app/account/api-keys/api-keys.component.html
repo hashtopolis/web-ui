@@ -1,9 +1,5 @@
-<app-table>
-  <app-page-title
-    title="API Keys"
-    buttontitle="New API Key"
-    buttonlink="/account/api-keys/new"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-api-tokens-table></app-api-tokens-table>
-</app-table>
+<app-page title="API Keys" actionTitle="New API Key" actionLink="/account/api-keys/new" [showAction]="showCreateButton">
+  <app-table>
+    <app-api-tokens-table></app-api-tokens-table>
+  </app-table>
+</app-page>

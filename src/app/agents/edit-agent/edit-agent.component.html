@@ -1,131 +1,132 @@
 @if (!isLoading) {
-  <grid-main>
-    <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
-    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-      @if (showagent) {
-        <div class="flex flex-wrap items-center gap-2">
-          <simulate-form-field label="Agent ID" message="{{ showagent['id'] }}"></simulate-form-field>
-          <input-text
-            title="Machine Name"
-            formControlName="agentName"
-            icon="computer"
-            [isRequired]="agentRoleService.hasRole('update')"
-          ></input-text>
-          <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
-          <div [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
+  <app-page title="Agent Details">
+    <grid-main>
+      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+        @if (showagent) {
+          <app-form-row>
+            <input-text title="Agent ID" value="{{ showagent['id'] }}" [readonly]="true"></input-text>
+            <input-text
+              title="Machine Name"
+              formControlName="agentName"
+              icon="computer"
+              [isRequired]="agentRoleService.hasRole('update')"
+            ></input-text>
+          </app-form-row>
+
+          <app-form-row>
+            <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
+            <div [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
+              <input-select
+                title="Assignment"
+                formControlName="taskId"
+                [items]="assignTasks"
+                [isBlankOptionDisabled]="assignNew"
+                [blankOptionText]="'Unassign'"
+              ></input-select>
+            </div>
+          </app-form-row>
+
+          <app-form-row>
             <input-select
-              title="Assignment"
-              formControlName="taskId"
-              [items]="assignTasks"
-              [isBlankOptionDisabled]="assignNew"
-              [blankOptionText]="'Unassign'"
+              title="Cracker errors"
+              formControlName="ignoreErrors"
+              [items]="selectIgnorerrors"
             ></input-select>
+            <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
+          </app-form-row>
+
+          <app-form-row align="left">
+            <input-check title="CPU only" formControlName="cpuOnly"></input-check>
+            <input-check title="Trust" formControlName="isTrusted" tooltip="Trust agent with secret data"></input-check>
+            <input-check title="Active" formControlName="isActive"></input-check>
+          </app-form-row>
+        }
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span><strong>Detailed Information</strong></span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            @if (showagent) {
+              <div class="grid grid-cols-3 gap-3 items-start">
+                <input-text
+                  title="Last activity"
+                  [value]="showagent['lastTime'] | uiDate"
+                  [readonly]="true"
+                ></input-text>
+                <input-text title="Last Action" [value]="showagent['lastAct']" [readonly]="true"></input-text>
+                <input-text title="IP" [value]="showagent['lastIp']" [readonly]="true"></input-text>
+                <input-text title="Machine ID" [value]="showagent['uid']" [readonly]="true"></input-text>
+                <input-text title="Access token" [value]="showagent['token']" [readonly]="true"></input-text>
+                <input-text title="O.S." [value]="getOsMessage(showagent['os'])" [readonly]="true"></input-text>
+                @if (showagent['devices']) {
+                  <input-text
+                    title="Graphic cards"
+                    [value]="this.renderDevices(showagent['devices'])"
+                    [readonly]="true"
+                  ></input-text>
+                }
+                @if (agentRoleService.hasRole('readAccessGroup')) {
+                  <input-multiselect
+                    label="Member of access groups"
+                    [items]="selectUserAgps"
+                    [linkTo]="'/users/access-groups/'"
+                    [readonly]="true"
+                  ></input-multiselect>
+                }
+              </div>
+            }
+            @if (timespent) {
+              <input-text title="Time spent cracking" [value]="timespent | sectotime" [readonly]="true"></input-text>
+            }
+          </mat-expansion-panel>
+        </mat-accordion>
+
+        @if (agentRoleService.hasRole('update')) {
+          <grid-buttons>
+            <button-submit [name]="'Update'" [loading]="isUpdatingLoading"></button-submit>
+          </grid-buttons>
+        }
+      </form>
+    </grid-main>
+
+    @if (showagent && agentRoleService.hasRole('readStat')) {
+      <app-table>
+        <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
+        <div>
+          <div>
+            <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
           </div>
-          <input-select
-            title="Cracker errors"
-            formControlName="ignoreErrors"
-            [items]="selectIgnorerrors"
-          ></input-select>
-          <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
-          <input-check title="CPU only" formControlName="cpuOnly"></input-check>
-          <input-check title="Trust" formControlName="isTrusted" tooltip="Trust agent with secret data"></input-check>
-          <input-check title="Active" formControlName="isActive"></input-check>
         </div>
-      }
-      <mat-accordion>
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><b>Detailed Information</b></span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          @if (showagent) {
-            <div class="flex flex-wrap items-center gap-2">
-              <simulate-form-field
-                label="Last activity"
-                message="{{ showagent['lastTime'] | uiDate }}"
-              ></simulate-form-field>
-              <simulate-form-field label="Last Action" message="{{ showagent['lastAct'] }}"></simulate-form-field>
-              <simulate-form-field label="IP" message="{{ showagent['lastIp'] }}"></simulate-form-field>
-              <simulate-form-field label="Machine ID" message="{{ showagent['uid'] }}"></simulate-form-field>
-              <simulate-form-field label="Access token" message="{{ showagent['token'] }}"></simulate-form-field>
-              <simulate-form-field
-                label="O.S."
-                [message]="getOsMessage(showagent['os'])"
-                [faIcon]="getOsFaIcon(showagent['os'])"
-              ></simulate-form-field>
-              @if (showagent['devices']) {
-                <simulate-form-field
-                  label="Graphic cards"
-                  message="{{ this.renderDevices(showagent['devices']) }}"
-                ></simulate-form-field>
-              }
-              @if (agentRoleService.hasRole('readAccessGroup')) {
-                <simulate-form-field-multi
-                  label="Member of access groups"
-                  [items]="selectUserAgps"
-                  routerLink="/users/access-groups/"
-                ></simulate-form-field-multi>
-              }
-            </div>
-          }
-          @if (timespent) {
-            <simulate-form-field
-              label="Time spent cracking"
-              message="{{ timespent | sectotime }}"
-            ></simulate-form-field>
-          }
-        </mat-expansion-panel>
-      </mat-accordion>
-
-      @if (this.agentRoleService.hasRole('update')) {
-        <grid-buttons>
-          <button-submit [name]="'Update'"></button-submit>
-          @if (isUpdatingLoading) {
-            <div>
-              <mat-spinner diameter="24" color="accent"></mat-spinner>
-            </div>
-          }
-        </grid-buttons>
-      }
-    </form>
-  </grid-main>
-
-  @if (showagent && agentRoleService.hasRole('readStat')) {
-    <app-table>
-      <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
-      <div>
+        <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
         <div>
-          <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+          <div>
+            <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+          </div>
         </div>
-      </div>
-      <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
-      <div>
+        <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
         <div>
-          <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+          <div>
+            <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
+          </div>
         </div>
-      </div>
-      <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
-      <div>
-        <div>
-          <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
-        </div>
-      </div>
-    </app-table>
-  }
+      </app-table>
+    }
 
-  <!-- ToDO API Errors table -->
-  @if (agentRoleService.hasRole('readError')) {
-    <app-table>
-      <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
-      <app-agent-error-table [agentId]="this.editedAgentIndex"></app-agent-error-table>
-    </app-table>
-  }
-  <!-- Dispatched Chunks -->
-  @if (agentRoleService.hasRole('readChunk')) {
-    <app-table>
-      <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
-      <app-chunks-table [agentId]="this.editedAgentIndex"></app-chunks-table>
-    </app-table>
-  }
+    <!-- ToDO API Errors table -->
+    @if (agentRoleService.hasRole('readError')) {
+      <app-table>
+        <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
+        <app-agent-error-table [agentId]="editedAgentIndex"></app-agent-error-table>
+      </app-table>
+    }
+    <!-- Dispatched Chunks -->
+    @if (agentRoleService.hasRole('readChunk')) {
+      <app-table>
+        <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
+        <app-chunks-table [agentId]="editedAgentIndex"></app-chunks-table>
+      </app-table>
+    }
+  </app-page>
 }

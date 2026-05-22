@@ -28,6 +28,8 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
 @Component({
   selector: 'app-new-preconfigured-tasks',
   templateUrl: './new-preconfigured-tasks.component.html',
+  styleUrls: ['./new-preconfigured-tasks.component.scss'],
+  host: { class: 'block' },
   standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {

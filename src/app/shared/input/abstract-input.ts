@@ -28,7 +28,14 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   @Input()
   isRequired: boolean;
 
-  value: T;
+  @Input()
+  value: T | null = null;
+
+  @Input()
+  readonly = false;
+
+  @Input()
+  linkTo?: string | unknown[];
 
   @Input()
   inputId: string;
