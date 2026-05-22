@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { DOCUMENT, Inject, Injectable, InjectionToken, Renderer2, RendererFactory2 } from '@angular/core';
 
-const themeSchema = z.enum(['light', 'dark', 'fallout']);
+const themeSchema = z.string().min(1);
 
 export type DetectedTheme = 'dark' | 'light';
 export type ThemeLoader = () => Observable<string | null>;
@@ -49,7 +49,9 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
 })
 export class ThemeService {
   private _theme = new BehaviorSubject<string | null>(null);
-  private readonly supportedThemeClasses = ['light', 'dark', 'fallout', 'light-theme', 'dark-theme', 'fallout-theme'];
+  private readonly supportedThemeClasses = ['light-theme', 'dark-theme', 'fallout-theme'];
+  private readonly customThemeHrefs = new Map<string, string>();
+  private activeThemeClass: string | null = null;
 
   public get current(): string {
     return localStorage.getItem('theme', themeSchema) ?? 'light';
@@ -82,15 +84,40 @@ export class ThemeService {
         this.renderer.removeClass(document.body, className);
       });
 
+      if (this.activeThemeClass) {
+        this.renderer.removeClass(document.body, this.activeThemeClass);
+      }
+
       if (theme) {
         document.body.setAttribute('data-theme', theme);
-        this.renderer.addClass(document.body, `${theme}-theme`);
+        this.activeThemeClass = `${theme}-theme`;
+        this.renderer.addClass(document.body, this.activeThemeClass);
       } else {
         document.body.removeAttribute('data-theme');
+        this.activeThemeClass = null;
+      }
+
+      const customThemeHref = theme ? this.customThemeHrefs.get(theme) : undefined;
+      if (customThemeHref) {
+        this.style.href = customThemeHref;
+      } else {
+        this.style.removeAttribute('href');
       }
 
       saveHandler(theme);
     });
+  }
+
+  setCustomThemes(themes: Array<{ value: string; href?: string }>): void {
+    this.customThemeHrefs.clear();
+
+    for (const theme of themes) {
+      if (theme.href) {
+        this.customThemeHrefs.set(theme.value, theme.href);
+      }
+    }
+
+    this._theme.next(this._theme.getValue());
   }
 
   /**

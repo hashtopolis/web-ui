@@ -6,6 +6,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
+import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-settings.form';
@@ -21,6 +22,7 @@ export class UiSettingsComponent implements OnInit {
   private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private alertService = inject(AlertService);
   private reloadService = inject(ReloadService);
+  private themeCatalog = inject(ThemeCatalogService);
 
   form = new UiSettingsFormGroup();
   util: UISettingsUtilityClass;
@@ -32,10 +34,17 @@ export class UiSettingsComponent implements OnInit {
 
   formats: Setting[] = dateFormats;
   layouts: Setting[] = layouts;
-  themes: Setting[] = themes;
+  themes: RuntimeThemeOption[] = themes.map((theme) => ({
+    ...theme,
+    icon: 'palette',
+    source: 'builtin'
+  }));
 
   ngOnInit(): void {
     this.util = new UISettingsUtilityClass(this.service);
+    this.themeCatalog.getThemes().subscribe((themeOptions) => {
+      this.themes = themeOptions;
+    });
     this.loadSettings();
   }
 

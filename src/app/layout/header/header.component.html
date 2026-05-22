@@ -26,21 +26,15 @@
       }
       <button matIconButton class="app-header__theme-toggle" [matMenuTriggerFor]="themeMenu"
         [attr.aria-label]="'Theme selector'">
-        <mat-icon>{{ currentTheme === 'fallout' ? 'science' : isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        <mat-icon>{{ getCurrentThemeIcon() }}</mat-icon>
       </button>
       <mat-menu #themeMenu="matMenu">
-        <button mat-menu-item (click)="selectTheme('light')">
-          <mat-icon>light_mode</mat-icon>
-          Light Mode
+        @for (themeOption of themeOptions; track themeOption.value) {
+        <button mat-menu-item (click)="selectTheme(themeOption.value)">
+          <mat-icon>{{ themeOption.icon }}</mat-icon>
+          {{ themeOption.description }}
         </button>
-        <button mat-menu-item (click)="selectTheme('dark')">
-          <mat-icon>dark_mode</mat-icon>
-          Dark Mode
-        </button>
-        <button mat-menu-item (click)="selectTheme('fallout')">
-          <mat-icon>science</mat-icon>
-          Rainbow-Fallout Mode
-        </button>
+        }
       </mat-menu>
     </div>
   </div>
