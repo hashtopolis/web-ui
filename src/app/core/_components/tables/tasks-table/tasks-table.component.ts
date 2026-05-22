@@ -218,7 +218,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: TaskTableCol.AGENTS,
-        dataKey: 'agents',
+        dataKey: 'totalAssignedAgents',
         isNumeric: true,
         isSortable: false,
         render: (wrapper: JTaskWrapperDisplay) => {
