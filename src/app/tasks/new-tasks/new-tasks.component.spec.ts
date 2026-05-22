@@ -340,7 +340,7 @@ describe('NewTasksComponent', () => {
         { provide: MatDialog, useValue: dialogSpy },
         { provide: Router, useValue: routerSpy }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
       // Angular 21 made TestBed rethrow application errors by default. Keep v20
       // behavior here — these specs predate the upgrade and rely on errors
       // flowing through Angular's own handling rather than the test runner.

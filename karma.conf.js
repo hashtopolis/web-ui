@@ -1,6 +1,6 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
-process.env.CHROME_BIN = require('puppeteer').executablePath()
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
   config.set({
@@ -63,6 +63,6 @@ module.exports = function (config) {
     },
     singleRun: true,
     restartOnFileChange: true
-  })
-  process.env.TZ = 'Europe/Berlin'
-}
+  });
+  process.env.TZ = 'Europe/Berlin';
+};

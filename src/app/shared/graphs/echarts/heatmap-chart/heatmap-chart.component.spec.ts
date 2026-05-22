@@ -9,8 +9,7 @@ describe('HeatmapChartComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HeatmapChartComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(HeatmapChartComponent);
     component = fixture.componentInstance;
