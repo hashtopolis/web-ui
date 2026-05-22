@@ -1,7 +1,7 @@
 import { themes } from '@constants/settings.config';
-
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
