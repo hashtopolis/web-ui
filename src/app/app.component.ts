@@ -145,7 +145,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    * The classes reflect the chosen layout and theme, allowing dynamic theming of the application.
    *
    * - For layout, it supports 'fixed' and 'full' layouts.
-  * - For themes, it supports built-in themes plus any runtime custom themes.
+   * - For themes, it supports built-in themes plus any runtime custom themes.
    *
    * @remarks
    * This function retrieves layout and theme settings from the `uiSettings` service and sets
