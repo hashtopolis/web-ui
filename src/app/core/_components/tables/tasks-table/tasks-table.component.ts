@@ -107,10 +107,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
-  private renderCurrentSpeed(agent: JTaskWrapperDisplay): SafeHtml {
-    const agentSpeed = agent.currentSpeed;
-    if (agentSpeed) {
-      return this.sanitize(convertCrackingSpeed(agentSpeed));
+  private renderCurrentSpeed(taskWrapperDisplay: JTaskWrapperDisplay): SafeHtml {
+    if (taskWrapperDisplay.currentSpeed) {
+      return this.sanitize(convertCrackingSpeed(taskWrapperDisplay.currentSpeed));
     }
     return '0 H/s';
   }
@@ -155,6 +154,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplay) => this.renderCurrentSpeed(wrapper),
+        isSortable: false,
+        isSearchable: false,
+        export: async (wrapper: JTaskWrapperDisplay) => wrapper.currentSpeed?.toString() ?? ''
+      },
+      {
+        id: TaskTableCol.DISPATCHED_SEARCHED,
+        dataKey: 'currentSpeed',
+        render: (wrapper: JTaskWrapperDisplay) => this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`),
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplay) => wrapper.currentSpeed?.toString() ?? ''
