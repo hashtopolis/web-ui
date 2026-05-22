@@ -354,6 +354,31 @@ describe('EditAgentComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['agents/show-agents']);
   }));
 
+  it('should not submit form if it is invalid', fakeAsync(() => {
+    // Enable 'update' role so controls are not disabled and validators work
+    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+    globalServiceSpy.get.and.returnValue(of(mockResponse({ data: mockAgent })));
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+    tick();
+
+    // Clear required field to make form invalid
+    component.updateForm.controls.agentName.setValue('');
+    component.updateForm.markAllAsTouched();
+    component.updateForm.updateValueAndValidity();
+    fixture.detectChanges();
+
+    expect(component.updateForm.controls.agentName.value).toBe('');
+    expect(component.updateForm.invalid).toBe(true);
+    component.onSubmit();
+    tick();
+
+    expect(globalServiceSpy.update).not.toHaveBeenCalled();
+  }));
+
   it('should show error message when form submission fails', fakeAsync(() => {
     globalServiceSpy.update.and.returnValue(throwError(() => new Error('Update failed')));
     fixture.detectChanges();
