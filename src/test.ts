@@ -14,6 +14,5 @@ class TestModule {}
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(
   [BrowserDynamicTestingModule, TestModule],
-  platformBrowserDynamicTesting(),
-  { rethrowApplicationErrors: false }
+  platformBrowserDynamicTesting()
 );
