@@ -374,7 +374,27 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderActiveAgent(agent: JAgent): string {
-    return (agent.agentSpeed ?? 0) > 0 ? 'Running task' : 'Stopped task';
+    const isReportingProgress = agent.lastAct === 'sendProgress';
+    const hasAssignedTask = !!agent.taskId;
+    const hasRecentActivity = this.hasRecentActivity(agent.lastTime);
+
+    return agent.isActive && hasAssignedTask && isReportingProgress && hasRecentActivity
+      ? 'Running task'
+      : 'Stopped task';
+  }
+
+  // Determine if the last server interaction is recent enough to consider the agent online.
+  private hasRecentActivity(lastTime: number): boolean {
+    if (!lastTime) {
+      return false;
+    }
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const elapsedSeconds = Math.max(0, nowInSeconds - lastTime);
+    const configuredTimeout = this.uiService.getUISettings()?.agenttimeout ?? 0;
+    const timeoutSeconds = configuredTimeout > 0 ? configuredTimeout : 120;
+
+    return elapsedSeconds <= timeoutSeconds;
   }
 
   /**
