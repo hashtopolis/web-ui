@@ -4,9 +4,10 @@ This project supports runtime custom themes from CSS files.
 
 For normal usage, custom theme creation is intentionally low-complexity: add one CSS file and recreate the container.
 
-## 1) Add a CSS file
+## 1) Add theme files
 
 Place a `.css` file in the `custom-themes` folder.
+If needed, place related assets in the same folder (for example logo images).
 
 Examples:
 
@@ -58,13 +59,17 @@ Open:
 - `/assets/themes/custom-themes.json`
 - `/assets/custom-themes/<theme-id>.css`
 
+If your theme uses local assets, also verify:
+
+- `/assets/custom-themes/<asset-file-name>`
+
 If both are available, the theme appears in theme selectors.
 
 ## Notes
 
 - Custom theme ids must match `^[a-z0-9-]+$`.
 - Built-in ids are reserved and ignored in custom manifest: `light`, `dark`, `fallout`.
-- Use absolute URLs in CSS for assets, for example `/assets/img/...`.
+- Use absolute URLs in CSS for assets. For custom-theme local assets, use `/assets/custom-themes/...`.
 - Custom menu icons are currently generated as `style` by default.
 - Do not add JavaScript or TypeScript to create a theme unless you are extending platform behavior.
 

@@ -17,14 +17,14 @@ function update_app_config {
 function sync_custom_themes {
   app_cfg_base="$1"
   source_dir="${HASHTOPOLIS_CUSTOM_THEMES_DIR:-/custom-themes}"
-  target_css_dir="${app_cfg_base}/assets/custom-themes"
+  target_theme_dir="${app_cfg_base}/assets/custom-themes"
   manifest_dir="${app_cfg_base}/assets/themes"
   manifest_file="${manifest_dir}/custom-themes.json"
 
-  mkdir -p "$target_css_dir"
+  mkdir -p "$target_theme_dir"
   mkdir -p "$manifest_dir"
 
-  rm -f "$target_css_dir"/*.css
+  rm -f "$target_theme_dir"/*
 
   echo "[" > "$manifest_file"
 
@@ -33,6 +33,11 @@ function sync_custom_themes {
     echo "Custom theme source directory not found: $source_dir"
     return
   fi
+
+  while IFS= read -r -d '' asset_path; do
+    asset_name="$(basename "$asset_path")"
+    cp "$asset_path" "$target_theme_dir/${asset_name}"
+  done < <(find "$source_dir" -type f ! -iname '*.css' -print0 | sort -z)
 
   first=true
   seen_ids="," 
@@ -53,7 +58,7 @@ function sync_custom_themes {
     fi
     seen_ids="${seen_ids}${theme_id},"
 
-    cp "$css_path" "$target_css_dir/${theme_id}.css"
+    cp "$css_path" "$target_theme_dir/${theme_id}.css"
     theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/\"//g')"
 
     if [ "$first" = true ]; then
@@ -73,7 +78,7 @@ EOF
   done < <(find "$source_dir" -type f -iname '*.css' -print0 | sort -z)
 
   echo "]" >> "$manifest_file"
-  echo "Custom themes synced to $target_css_dir"
+  echo "Custom themes synced to $target_theme_dir"
 }
 
 if [ "$environment" = "development" ]; then
