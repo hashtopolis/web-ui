@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Directive,
+  DoCheck,
   ElementRef,
   Injector,
   Input,
@@ -11,7 +12,7 @@ import {
 import { ControlValueAccessor, NgControl, ValidationErrors } from '@angular/forms';
 
 @Directive()
-export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
+export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueAccessor {
   @ViewChild('inputField')
   inputField: ElementRef;
 
@@ -22,25 +23,12 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   disabled = false;
 
   @Input()
-  readonly = false;
-
-  @Input()
-  linkTo?: string | unknown[];
-
-  @Input()
   error: boolean | string;
 
   @Input()
   isRequired: boolean;
 
-  @Input()
-  set value(v: T | null) {
-    this._value = v as T;
-  }
-  get value(): T {
-    return this._value;
-  }
-  private _value: T;
+  value: T;
 
   @Input()
   inputId: string;
@@ -58,33 +46,32 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   protected cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
 
-  ngControl: NgControl | null = null;
+  // Track previous state for change detection
+  private previousTouched = false;
+  private previousInvalid = false;
 
-  get isTouched(): boolean {
-    const control = this.ngControl?.control;
-    if (!control) {
-      return false;
+  // Public properties for template binding (instead of getters)
+  hasError = false;
+  isTouched = false;
+  errors: ValidationErrors | null = null;
+
+  // Lazy getter to avoid circular dependency
+  get ngControl(): NgControl | null {
+    try {
+      return this.injector.get(NgControl, null);
+    } catch {
+      return null;
     }
-    return control.dirty || control.touched;
-  }
-
-  get hasError(): boolean {
-    const control = this.ngControl?.control;
-    if (!control) {
-      return false;
-    }
-    return control.invalid && this.isTouched;
-  }
-
-  get errors(): ValidationErrors | null {
-    return this.ngControl?.control?.errors ?? null;
   }
 
   ngOnInit(): void {
     if (!this.inputId) {
       this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
+      // console.warn(
+      //   'Input ID not provided. Generated a unique ID:',
+      //   this.inputId
+      // );
     }
-    this.ngControl = this.injector.get(NgControl, null);
   }
 
   writeValue(newValue: T | null): void {
@@ -98,6 +85,7 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   registerOnTouched(fn: () => void): void {
     this.onTouched = () => {
       fn();
+      // Trigger change detection when the control is touched
       this.cdr.markForCheck();
     };
   }
@@ -105,6 +93,43 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   setDisabledState?(isDisabled: boolean): void {
     this.disabled = isDisabled;
     this.cdr.markForCheck();
+  }
+
+  ngDoCheck(): void {
+    // Check if control state has changed
+    const control = this.ngControl?.control;
+    if (control) {
+      const currentTouched = control.touched;
+      const currentInvalid = control.invalid;
+      const isFormTouched = !!(control.parent?.touched || control.root?.touched);
+      const shouldShowValidation = control.dirty || currentTouched || isFormTouched;
+
+      // Update error state properties for template binding
+      const newHasError = !!(control && control.invalid && shouldShowValidation);
+      const newIsTouched = shouldShowValidation;
+      const newErrors = control.errors || null;
+
+      // Always update the properties
+      const hasChanges =
+        this.hasError !== newHasError ||
+        this.isTouched !== newIsTouched ||
+        currentTouched !== this.previousTouched ||
+        currentInvalid !== this.previousInvalid;
+
+      this.hasError = newHasError;
+      this.isTouched = newIsTouched;
+      this.errors = newErrors;
+
+      // If state changed, trigger change detection
+      if (hasChanges) {
+        this.previousTouched = currentTouched;
+        this.previousInvalid = currentInvalid;
+        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
+      }
+    }
   }
 
   focus() {

@@ -344,7 +344,6 @@ describe('NewTasksComponent', () => {
       // Angular 21 made TestBed rethrow application errors by default. Keep v20
       // behavior here — these specs predate the upgrade and rely on errors
       // flowing through Angular's own handling rather than the test runner.
-      rethrowApplicationErrors: false
     }).compileComponents();
   });
 
@@ -913,10 +912,13 @@ describe('NewTasksComponent', () => {
   });
 
   describe('openHelpDialog', () => {
-    it('should open CheatsheetComponent dialog with full width', () => {
+    it('should open CheatsheetComponent dialog with the configured width', () => {
       component['openHelpDialog']();
 
-      expect(dialogSpy.open).toHaveBeenCalledWith(CheatsheetComponent, { width: '100%' });
+      expect(dialogSpy.open).toHaveBeenCalledWith(CheatsheetComponent, {
+        width: '840px',
+        maxWidth: '90vw'
+      });
     });
   });
 

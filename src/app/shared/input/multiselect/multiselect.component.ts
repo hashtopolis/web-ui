@@ -31,7 +31,6 @@ import { SelectOption, extractIds } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'input-multiselect',
   templateUrl: 'multiselect.component.html',
-  styleUrls: ['./multiselect.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
