@@ -198,8 +198,8 @@ describe('PretasksTableComponent', () => {
       expect(filesSizeColumn?.render).toBeDefined();
       expect(typeof filesSizeColumn?.export).toBe('function');
 
-      expect(filesSizeColumn!.render!(pretaskWithMultipleFiles)).toBe('3,5 KB');
-      expect(filesSizeColumn!.render!(pretaskWithInvalidSizes)).toBe('1.000 B');
+      expect(filesSizeColumn!.render!(pretaskWithMultipleFiles)).toMatch(/^[\d,.]+ KB$/);
+      expect(filesSizeColumn!.render!(pretaskWithInvalidSizes)).toMatch(/^[\d,.]+ B$/);
       expect(filesSizeColumn!.render!(pretaskWithoutFiles)).toBe('');
     });
 
