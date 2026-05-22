@@ -2,35 +2,18 @@
 
 import 'zone.js/testing';
 import { NgModule, provideZoneChangeDetection } from '@angular/core';
-import { getTestBed, TestBed } from '@angular/core/testing';
+import { getTestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-@NgModule({
-  providers: [provideZoneChangeDetection()]
-})
-export class ZoneTestingModule {}
+@NgModule({ providers: [provideZoneChangeDetection()] })
+class TestModule {}
 
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(
-  [BrowserDynamicTestingModule, ZoneTestingModule],
+  [BrowserDynamicTestingModule, TestModule],
   platformBrowserDynamicTesting(),
+  { rethrowApplicationErrors: false }
 );
-
-// Patch TestBed.configureTestingModule to restore legacy zone behavior in Angular 21 tests
-const originalConfigureTestingModule = TestBed.configureTestingModule;
-
-TestBed.configureTestingModule = (moduleDef) => {
-  return originalConfigureTestingModule.call(TestBed, {
-    ...moduleDef,
-    rethrowApplicationErrors: false,
-    providers: [
-      ...(moduleDef.providers || []),
-      provideZoneChangeDetection(),
-    ],
-  });
-};
-
-
