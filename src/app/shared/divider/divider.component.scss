@@ -1,0 +1,27 @@
+:host {
+  --app-divider-color: var(--border-faint);
+}
+
+:host([data-variant='default']) {
+  --app-divider-color: var(--border);
+}
+
+:host([data-variant='strong']) {
+  --app-divider-color: var(--border-strong);
+}
+
+:host([data-orientation='horizontal']) {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-top: 1px solid var(--app-divider-color);
+  margin: var(--space-2xs) 0;
+}
+
+:host([data-orientation='vertical']) {
+  display: inline-block;
+  width: 0;
+  align-self: stretch;
+  border-left: 1px solid var(--app-divider-color);
+  margin: 0 var(--space-2xs);
+}

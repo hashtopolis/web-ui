@@ -22,25 +22,26 @@
     <app-page-subtitle [subtitle]="'API Key #' + token.id"></app-page-subtitle>
 
     <div class="flex flex-wrap items-start gap-2">
-      <simulate-form-field label="ID" [message]="token.id + ''"></simulate-form-field>
-      <simulate-form-field
-        label="Status"
+      <input-text title="ID" [value]="token.id + ''" [readonly]="true"></input-text>
+      <input-text
+        title="Status"
+        [value]="status ?? '' | titlecase"
         [icon]="
           status === ApiTokenStatus.ACTIVE ? 'check_circle' : status === ApiTokenStatus.REVOKED ? 'block' : 'schedule'
         "
-        [message]="status ?? '' | titlecase"
-      ></simulate-form-field>
-      <simulate-form-field label="Revoked" [message]="token.isRevoked ? 'Yes' : 'No'"></simulate-form-field>
+        [readonly]="true"
+      ></input-text>
+      <input-text title="Revoked" [value]="token.isRevoked ? 'Yes' : 'No'" [readonly]="true"></input-text>
     </div>
 
     <div class="flex flex-wrap items-start gap-2">
-      <simulate-form-field label="Valid From" [message]="formatTimestamp(token.startValid)"></simulate-form-field>
-      <simulate-form-field label="Expires At" [message]="formatExpiry(token.endValid)"></simulate-form-field>
+      <input-text title="Valid From" [value]="formatTimestamp(token.startValid)" [readonly]="true"></input-text>
+      <input-text title="Expires At" [value]="formatExpiry(token.endValid)" [readonly]="true"></input-text>
     </div>
 
     <div class="flex flex-wrap items-start gap-2">
-      <simulate-form-field label="Creator" [message]="token.user?.name ?? '—'"></simulate-form-field>
-      <simulate-form-field label="User ID" [message]="token.userId + ''"></simulate-form-field>
+      <input-text title="Creator" [value]="token.user?.name ?? '—'" [readonly]="true"></input-text>
+      <input-text title="User ID" [value]="token.userId + ''" [readonly]="true"></input-text>
     </div>
   </grid-main>
 

@@ -13,7 +13,9 @@ import { ASC } from '@src/app/core/_constants/agentsc.config';
  */
 @Component({
   selector: 'app-agent-stat-graph',
-  templateUrl: './agent-stat-graph.component.html'
+  templateUrl: './agent-stat-graph.component.html',
+  styleUrls: ['./agent-stat-graph.component.scss'],
+  host: { class: 'block' }
 })
 export class AgentStatGraphComponent implements OnChanges, OnDestroy {
   /**

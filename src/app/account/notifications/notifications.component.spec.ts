@@ -14,18 +14,19 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
 })
 class MockTableComponent {}
 /*
-  Mock component for app-page-title to avoid dependency on the actual implementation.
+  Mock component for app-page to avoid dependency on the actual implementation.
 */
 @Component({
-  selector: 'app-page-title',
+  selector: 'app-page',
   template: '<ng-content></ng-content>',
   standalone: true
 })
-class MockPageTitleComponent {
+class MockPageComponent {
   @Input() title: string;
-  @Input() buttontitle: string;
-  @Input() buttonlink: string;
-  @Input() subbutton: boolean;
+  @Input() subtitle?: string;
+  @Input() actionTitle?: string;
+  @Input() actionLink?: string;
+  @Input() showAction?: boolean;
 }
 
 @Component({
@@ -47,7 +48,7 @@ describe('NotificationsComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [NotificationsComponent],
-      imports: [MockTableComponent, MockPageTitleComponent, MockNotificationsTableComponent],
+      imports: [MockTableComponent, MockPageComponent, MockNotificationsTableComponent],
       providers: [
         { provide: AutoTitleService, useValue: titleServiceSpy },
         { provide: NotificationsRoleService, useValue: mockRoleService }
@@ -73,13 +74,13 @@ describe('NotificationsComponent', () => {
     expect(tableElement).toBeTruthy();
   });
 
-  it('should include app-page-title component with correct inputs', () => {
-    const pageTitleElement = fixture.debugElement.query(By.directive(MockPageTitleComponent));
-    expect(pageTitleElement).toBeTruthy();
-    const pageTitleComponent = pageTitleElement.componentInstance;
-    expect(pageTitleComponent.title).toBe('Notifications');
-    expect(pageTitleComponent.buttontitle).toBe('New Notification');
-    expect(pageTitleComponent.buttonlink).toBe('/account/notifications/new-notification');
+  it('should include app-page component with correct inputs', () => {
+    const pageElement = fixture.debugElement.query(By.directive(MockPageComponent));
+    expect(pageElement).toBeTruthy();
+    const pageComponent = pageElement.componentInstance;
+    expect(pageComponent.title).toBe('Notifications');
+    expect(pageComponent.actionTitle).toBe('New Notification');
+    expect(pageComponent.actionLink).toBe('/account/notifications/new-notification');
   });
 
   it('should include app-notifications-table component', () => {

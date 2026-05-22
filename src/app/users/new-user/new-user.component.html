@@ -1,46 +1,32 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'Create New User'"></app-page-subtitle>
+<app-page title="Create New User">
+  <grid-main [narrow]="true">
+    <form [formGroup]="newUserForm" (ngSubmit)="onSubmit()">
+      <input-text title="Username" formControlName="username" [isRequired]="true"></input-text>
+      <input-text title="Email" formControlName="email" [isRequired]="true"></input-text>
 
-  <form [formGroup]="newUserForm" (ngSubmit)="onSubmit()">
-    <div class="flex flex-col">
-      <div class="flex flex-wrap items-center gap-2 w-full">
-        <input-text title="Username" formControlName="username" [isRequired]="true"></input-text>
-        <input-text title="Email" formControlName="email" [isRequired]="true"></input-text>
-      </div>
+      <input-select
+        [isLoading]="loadingPermissionGroups"
+        title="Global Permission Group"
+        formControlName="globalPermissionGroupId"
+        [items]="selectGlobalPermissionGroups"
+        [isRequired]="true"
+      ></input-select>
+      <input-check title="Active" formControlName="isValid"></input-check>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <div style="padding-bottom: 16px; width: 100%;">
-          <input-select
-            [isLoading]="loadingPermissionGroups"
-            title="Global Permission Group"
-            formControlName="globalPermissionGroupId"
-            [items]="selectGlobalPermissionGroups"
-            [isRequired]="true"
-          ></input-select>
-          <input-check title="Active" formControlName="isValid"></input-check>
-        </div>
-
-    </div>
-
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit
-        data-testid="submit-button"
-        appLoadingButton
-        [loading]="loading"
-        [name]="loading ? 'Processing...' : 'Create'"
-        [disabled]="false"
-      ></button-submit>
-      @if (loading) {
-        <div style="display: inline-block; margin-left: 10px">
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit
+          data-testid="submit-button"
+          [loading]="loading"
+          [name]="loading ? 'Processing...' : 'Create'"
+          [disabled]="false"
+        ></button-submit>
+      </grid-buttons>
       @if (newUserForm.invalid && newUserForm.touched) {
-        <span class="help-block"
-        >Please complete all required fields!</span>
+        <span class="text-sm text-destructive" data-testid="form-validation-error"
+          >Please complete all required fields!</span
+        >
       }
-  </div>
-  </form>
-</grid-main>
+    </form>
+  </grid-main>
+</app-page>

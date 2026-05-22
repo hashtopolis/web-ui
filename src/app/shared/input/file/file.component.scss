@@ -1,0 +1,20 @@
+@reference '../../../../styles/tailwind.css';
+
+:host {
+  @apply fluid-component;
+}
+
+.file-input__info {
+  font-size: var(--text-md);
+  line-height: 1.4;
+  color: var(--muted-foreground);
+
+  &--empty {
+    color: var(--subtle-foreground);
+    font-style: italic;
+  }
+}
+
+.file-input--invalid .file-input__info {
+  color: var(--destructive);
+}

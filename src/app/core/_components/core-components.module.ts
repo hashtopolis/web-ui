@@ -75,6 +75,7 @@ import { UsersTableComponent } from '@components/tables/users-table/users-table.
 import { VouchersTableComponent } from '@components/tables/vouchers-table/vouchers-table.component';
 
 import { DebounceDirective } from '@src/app/core/_directives/debounce.directive';
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
@@ -159,7 +160,8 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     FontAwesomeModule,
     PipesModule,
     DebounceDirective,
-    LastUpdatedComponent
+    LastUpdatedComponent,
+    ButtonsModule
   ],
   exports: [
     BaseTableComponent,
@@ -217,7 +219,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
   providers: [
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: { duration: 2500, verticalPosition: 'top' }
+      useValue: { duration: 2500, verticalPosition: 'bottom', horizontalPosition: 'end' }
     }
   ]
 })

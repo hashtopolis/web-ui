@@ -59,6 +59,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     return [
       {
         id: SupertasksPretasksTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
@@ -74,6 +75,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       },
       {
         id: SupertasksPretasksTableCol.PRIORITY,
+        isNumeric: true,
         dataKey: 'priority',
         editable: (pretask: JPretask) => {
           return {
@@ -87,6 +89,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       },
       {
         id: SupertasksPretasksTableCol.MAX_AGENTS,
+        isNumeric: true,
         dataKey: 'maxAgents',
         editable: (pretask: JPretask) => {
           return {

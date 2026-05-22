@@ -1,54 +1,64 @@
-<div class="color-input-wrapper">
-  <mat-form-field
-    [class.mat-form-field-invalid]="hasError"
-    [class.mat-form-field-touched]="isTouched"
-  >
-    <mat-label>{{ title }}</mat-label>
-    <input
-      #inputField
-      matInput
-      type="color"
-      [id]="inputId"
-      [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
-      [class.color-unset]="!value"
-      (input)="onValueChange($event)"
-      (blur)="onTouched()"
-      [style.background]="value"
-      [disabled]="disabled"
-    />
-    <span
-      class="color-value"
-      [class.color-value-on-light]="value && isLight(value)"
-      [class.color-value-on-dark]="value && !isLight(value)"
-      >{{ value || 'No color' }}</span
-    >
-  </mat-form-field>
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+  <label class="field-stack__label" [attr.for]="inputId">
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      {{ title }}
+    }
+    @if (isRequired && !readonly) {
+      <span class="field-stack__required" aria-hidden="true">*</span>
+    }
+  </label>
 
-  @if (randomColor) {
-    <button
-      mat-icon-button
-      matTooltip="Randomize Color"
-      type="button"
-      class="random-color-btn"
-      title="Randomize Color"
-      (click)="generateRandomColor()"
-      [disabled]="disabled"
-    >
-      <mat-icon>casino</mat-icon>
-    </button>
-  }
-  <button
-    mat-icon-button
-    matTooltip="Clear Color"
-    type="button"
-    class="clear-color-btn"
-    title="Clear Color"
-    (click)="clearColor()"
-    [disabled]="disabled || !value"
-    [class.clear-color-btn-hidden]="!value"
-  >
-    <mat-icon>close</mat-icon>
-  </button>
+  <div class="color-input-container">
+    <mat-form-field class="field-stack__field">
+      <input
+        #selectInput
+        matInput
+        type="color"
+        [id]="inputId"
+        [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
+        [class.color-unset]="!value"
+        (input)="onValueChange($event)"
+        (blur)="onTouched()"
+        [style.background]="value || null"
+        [disabled]="disabled || readonly"
+      />
+      <span
+        class="color-value"
+        [class.color-value-on-light]="value && isLight(value)"
+        [class.color-value-on-dark]="value && !isLight(value)"
+        >{{ value || 'No color' }}</span
+      >
+      @if (randomColor && !readonly) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          class="random-color-btn"
+          matTooltip="Randomize Color"
+          title="Randomize Color"
+          (click)="generateRandomColor()"
+          [disabled]="disabled"
+        >
+          <mat-icon>casino</mat-icon>
+        </button>
+      }
+      @if (!readonly) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          class="clear-color-btn"
+          matTooltip="Clear Color"
+          title="Clear Color"
+          (click)="clearColor()"
+          [disabled]="disabled || !value"
+          [class.clear-color-btn-hidden]="!value"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
 </div>

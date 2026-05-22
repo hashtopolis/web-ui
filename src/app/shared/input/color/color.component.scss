@@ -1,85 +1,96 @@
-:host {
+@reference '../../../../styles/tailwind.css';
+
+input-color {
+  @apply fluid-component;
   color-scheme: light dark;
+
+  .color-input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+  }
+
+  .color-input-container mat-form-field {
+    flex: 1;
+  }
+
+  input[type='color'] {
+    width: 100%;
+    min-height: 28px;
+    padding: 0;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  input[type='color']::-webkit-color-swatch {
+    border-color: transparent;
+  }
+
+  input[type='color']::-moz-color-swatch {
+    border-color: transparent;
+  }
+
+  input[type='color'].color-unset {
+    &::-webkit-color-swatch-wrapper {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    &::-webkit-color-swatch {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    &::-moz-color-swatch {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+  }
+
+  .color-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    text-shadow: none;
+
+    &.color-value-on-light {
+      color: black;
+    }
+
+    &.color-value-on-dark {
+      color: white;
+    }
+  }
+
+  .random-color-btn,
+  .clear-color-btn {
+    color: var(--subtle-foreground);
+    transition: color var(--duration-fast) var(--easing-standard);
+
+    &:hover:not(:disabled) {
+      color: var(--primary);
+    }
+  }
+
+  // visibility (not display) keeps the box reserved so toggling unset → set
+  // doesn't reflow the row.
+  .clear-color-btn-hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
-:host-context(.dark-theme) {
+.dark-theme input-color {
   color-scheme: dark;
-}
-
-.color-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-:host ::ng-deep .mdc-text-field,
-:host ::ng-deep .mat-mdc-form-field-infix {
-  padding-bottom: 0 !important;
-}
-
-:host ::ng-deep input[type='color'] {
-  min-width: 110px;
-  height: 19px;
-}
-
-:host ::ng-deep input[type='color']::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-:host ::ng-deep input[type='color']::-webkit-color-swatch {
-  border-color: transparent;
-}
-
-:host ::ng-deep input[type='color']::-moz-color-swatch {
-  border-color: transparent;
-}
-
-.random-color-btn,
-.clear-color-btn {
-  flex: 0 0 auto;
-  /* Aligns the icon-button row with the input's outline midline (the form-field's
-     subscript area drags its own midline down). */
-  margin-bottom: 1em;
-}
-
-:host ::ng-deep input[type='color'].color-unset {
-  &::-webkit-color-swatch-wrapper {
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-
-  &::-webkit-color-swatch {
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-
-  &::-moz-color-swatch {
-    background-color: transparent !important;
-    background-image: none !important;
-  }
-}
-
-/* visibility (not display) keeps the box reserved so toggling unset → set
-   doesn't reflow the row. */
-.clear-color-btn-hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.color-value {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 13px;
-  font-weight: 500;
-  pointer-events: none; /* allows clicking through to the color picker */
-
-  &.color-value-on-light {
-    color: black;
-  }
-
-  &.color-value-on-dark {
-    color: white;
-  }
 }

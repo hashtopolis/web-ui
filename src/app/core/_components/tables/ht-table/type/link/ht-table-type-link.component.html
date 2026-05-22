@@ -9,11 +9,13 @@
           (mouseenter)="prefetchVisualGraph(link)"
         >
           <a (click)="onLinkClicked()" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
-            @if (link.label) {
-              {{ link.label }}
-            } @else {
-              {{ $any(element)[tableColumn.dataKey!] }}
-            }
+            <span class="link-label">
+              @if (link.label) {
+                {{ link.label }}
+              } @else {
+                {{ $any(element)[tableColumn.dataKey!] }}
+              }
+            </span>
             @if (link.icon?.faIcon; as faIcon) {
               <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
             }

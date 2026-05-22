@@ -1,0 +1,12 @@
+.fixed-alert {
+  display: flex;
+  align-items: center;
+  padding: 6px var(--space-sm);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--text-md);
+  line-height: 1.4;
+}

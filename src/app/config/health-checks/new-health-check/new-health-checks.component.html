@@ -1,26 +1,24 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'Create Health Check'"></app-page-subtitle>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+<app-page title="Create Health Check">
+  <grid-main [narrow]="true">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-form-row>
+        <input-select title="Attack" formControlName="checkType" [items]="selectAttack"></input-select>
+        <input-select title="Hashtype" formControlName="hashtypeId" [items]="selectHashtypes"></input-select>
+      </app-form-row>
 
-    <div class="flex flex-col">
+      <app-form-row>
+        <input-select title="Binary" formControlName="crackerBinaryType" [items]="selectCrackertype"></input-select>
+        <input-select
+          title="Binary Version"
+          formControlName="crackerBinaryId"
+          [items]="selectCrackerversions"
+        ></input-select>
+      </app-form-row>
 
-      <input-select title="Attack" formControlName="checkType" [items]="selectAttack"></input-select>
-      <input-select title="Hashtype" formControlName="hashtypeId" [items]="selectHashtypes"></input-select>
-
-      <input-select title="Binary" formControlName="crackerBinaryType" [items]="selectCrackertype"></input-select>
-      <input-select title="Binary Version" formControlName="crackerBinaryId" [items]="selectCrackerversions"></input-select>
-
-    </div>
-
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'"></button-submit>
-      @if (isCreatingLoading) {
-        <div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
-
-  </form>
-</grid-main>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
+      </grid-buttons>
+    </form>
+  </grid-main>
+</app-page>

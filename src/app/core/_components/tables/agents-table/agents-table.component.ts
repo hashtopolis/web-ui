@@ -117,6 +117,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.ID,
         dataKey: 'id',
+        isNumeric: true,
         isSortable: true,
         isSearchable: true,
         export: async (agent: JAgent) => agent.id + ''
@@ -132,7 +133,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.STATUS,
         dataKey: 'isActive',
-        icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
@@ -157,6 +157,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.TASK_SPEED,
         dataKey: 'taskId',
+        isNumeric: true,
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
@@ -171,6 +172,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CURRENT_CHUNK,
         dataKey: 'chunkId',
+        isNumeric: true,
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: false,
         export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')

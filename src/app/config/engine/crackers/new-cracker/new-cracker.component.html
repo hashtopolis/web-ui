@@ -1,48 +1,47 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'New Cracker type'"></app-page-subtitle>
+<app-page title="New Cracker type">
+  <grid-main [narrow]="true">
+    <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()">
+      <div class="flex flex-col gap-3">
+        <input-select
+          title="Binary Type Name"
+          formControlName="typeName"
+          data-testid="input-select-binaryTypeName"
+          [isRequired]="true"
+          [items]="[
+            { id: 'Hashcat', name: 'Hashcat' },
+            { id: 'generic', name: 'Generic Cracker' }
+          ]"
+        ></input-select>
 
-  <form [formGroup]="newCrackerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-    <div class="flex flex-col gap-3">
+        <!-- Only crackers with chunking are supported right now:
+        <input-select
+          title="Chunking Available"
+          formControlName="isChunkingAvailable"
+          tooltip="Does the cracker type support chunking?"
+          data-testid="input-select-chunkingAvailable"
+          [isRequired]="true"
+          [items]="[
+            { id: true, name: 'Yes' },
+            { id: false, name: 'No' }
+          ]"
+        ></input-select>
+        -->
+      </div>
 
-      <input-select width="256px"
-                                  title="Binary Type Name"
-                                  formControlName="typeName"
-                                  data-testid="input-select-binaryTypeName"
-                                  [isRequired]="true"
-                                  [items]="[
-                                    { id: 'Hashcat', name: 'Hashcat' },
-                                    { id: 'generic', name: 'Generic Cracker' }
-                                  ]"
-                                  style="width: 256px"
-                    ></input-select>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit
+          data-testid="submit-button-newCracker"
+          [name]="'Create'"
+          [disabled]="!roleService.hasRole('create')"
+        ></button-submit>
+      </grid-buttons>
 
-      <!-- Only crackers with chunking are supported right now: 
-      <input-select width="256px"
-                    title="Chunking Available"
-                    formControlName="isChunkingAvailable"
-                    tooltip="Does the cracker type support chunking?"
-                    data-testid="input-select-chunkingAvailable"
-                    [isRequired]="true"
-                    [items]="[
-        { id: true, name: 'Yes' },
-        { id: false, name: 'No' },
-      ]"
-                    style="width: 256px"
-      ></input-select>
-      -->
-    </div>
-
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit data-testid="submit-button-newCracker" [name]="'Create'"
-                     [disabled]="!roleService.hasRole('create')"
-      ></button-submit>
-    </grid-buttons>
-
-    @if (newCrackerForm.invalid && newCrackerForm.touched) {
-      <span class="help-block"
-      >Please complete all required fields!</span>
-    }
-  </form>
-
-</grid-main>
+      @if (newCrackerForm.invalid && newCrackerForm.touched) {
+        <span class="text-sm text-destructive" data-testid="form-validation-error"
+          >Please complete all required fields!</span
+        >
+      }
+    </form>
+  </grid-main>
+</app-page>

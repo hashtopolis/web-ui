@@ -43,7 +43,7 @@ export class ScreenSizeDetectorComponent implements AfterViewInit {
   ];
 
   @HostListener('window:resize', [])
-  private onResize() {
+  onResize() {
     this.detectScreenSize();
   }
 

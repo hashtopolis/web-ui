@@ -2,26 +2,48 @@
           SECTION TYPOGRAPHY
    ================================== */
 
-.font-small {
-  font-size: 0.875rem;
-  font-weight: 300;
+@reference './tailwind.css';
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-medium text-heading-foreground;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  h4 {
+    @apply text-lg;
+  }
+  h5,
+  h6 {
+    @apply text-base;
+  }
 }
 
-.fw-bold {
-  font-weight: 500 !important;
-}
-
-.text-gray-900 {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-gray-900-rgb), var(--bs-text-opacity)) !important;
-}
-
-.text-success {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-success-rgb), var(--bs-text-opacity)) !important;
-}
-
-.text-warning {
-  --bs-text-opacity: 1;
-  color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
+.flow,
+.page,
+.page__content,
+.tab-slider--body,
+form,
+.form-layout {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
 }

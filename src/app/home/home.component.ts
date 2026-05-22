@@ -1,7 +1,6 @@
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 import { z } from 'zod';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { TaskType } from '@models/task.model';
@@ -26,6 +25,7 @@ import { unixTimestampInPast } from '@src/app/shared/utils/datetime';
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  host: { class: 'block' },
   standalone: false
 })
 @PageTitle(['Dashboard'])
@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private gs = inject(GlobalService);
   protected autoRefreshService = inject(AutoRefreshService);
   private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
-  private breakpointObserver = inject(BreakpointObserver);
   private permissionService = inject(PermissionService);
   private themeService = inject(ThemeService);
 
@@ -41,13 +40,6 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Utility class for UI settings retrieval and updates.
    */
   util: UISettingsUtilityClass;
-
-  /** Flags for responsive design */
-  screenXS = false;
-  screenS = false;
-  screenM = false;
-  screenL = false;
-  screenXL = false;
 
   /** Whether dark mode is enabled */
   isDarkMode = false;
@@ -83,6 +75,11 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   heatmapData: [string, number][] = [];
 
+  /** Fixed legend swatches matching the heatmap's bucket alphas. */
+  readonly legendColors: readonly string[] = [0.18, 0.32, 0.55, 0.85].map(
+    (alpha) => `color-mix(in oklch, var(--primary) ${Math.round(alpha * 100)}%, transparent)`
+  );
+
   private uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription[] = [];
   private pageReloadTimeout: NodeJS.Timeout;
@@ -90,26 +87,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   /** Auto-refresh subscription */
   private autoRefreshSubscription?: Subscription | undefined;
 
-  /**
-   * HomeComponent constructor.
-   * Sets up breakpoint observers for responsive layout and reads initial theme mode.
-   */
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
-
-    // Observe screen size breakpoints for responsive behavior
-    this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge])
-      .subscribe((result) => {
-        const breakpoints = result.breakpoints;
-
-        this.screenXS = breakpoints[Breakpoints.XSmall] || false;
-        this.screenS = breakpoints[Breakpoints.Small] || false;
-        this.screenM = breakpoints[Breakpoints.Medium] || false;
-        this.screenL = breakpoints[Breakpoints.Large] || false;
-        this.screenXL = breakpoints[Breakpoints.XLarge] || false;
-      });
   }
 
   /**

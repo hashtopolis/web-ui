@@ -1,42 +1,35 @@
-<h2 mat-dialog-title class="h6">Hashtype Detector</h2>
+<h2 mat-dialog-title>Hashtype Detector</h2>
 
 <mat-dialog-content>
-  <form>
-    <div class="mb-3">
-      <div>
-        <form class="custom-input-container">
-          <mat-form-field class="flex-grow">
-            <textarea matInput name="hashtypeDetector" #value style="flex: 1"></textarea>
-          </mat-form-field>
-
-          <mat-dialog-actions align="end">
-            <button mat-raised-button color="primary" type="button" (click)="onSearch(value.value)">Search</button>
-          </mat-dialog-actions>
-        </form>
-      </div>
-
-      @if (type) {
-        <mat-table class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
-          @for (column of displayedColumns; track column) {
-            <ng-container [matColumnDef]="column">
-              <mat-header-cell *matHeaderCellDef> {{ column }} </mat-header-cell>
-              <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
-            </ng-container>
-          }
-          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-        </mat-table>
-      }
-
-      @if (type === false) {
-        <div>
-          <p>Error. No hash type found.</p>
-        </div>
-      }
+  <div class="mb-3">
+    <div class="custom-input-container">
+      <mat-form-field class="flex-grow">
+        <textarea matInput name="hashtypeDetector" #value class="flex-1"></textarea>
+      </mat-form-field>
+      <button-submit type="submit" name="Search" (click)="onSearch(value.value)"></button-submit>
     </div>
-  </form>
+
+    @if (type) {
+      <mat-table class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
+        @for (column of displayedColumns; track column) {
+          <ng-container [matColumnDef]="column">
+            <mat-header-cell *matHeaderCellDef> {{ column }} </mat-header-cell>
+            <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
+          </ng-container>
+        }
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+    }
+
+    @if (type === false) {
+      <div>
+        <p>Error. No hash type found.</p>
+      </div>
+    }
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Cancel</button>
+  <button-submit type="cancel-dialog" name="Cancel" (click)="onClose()"></button-submit>
 </mat-dialog-actions>

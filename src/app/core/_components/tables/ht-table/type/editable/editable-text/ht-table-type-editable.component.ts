@@ -78,7 +78,8 @@ export class HTTableTypeEditableComponent implements OnInit {
     this.editMode = false;
   }
 
-  onClose(): void {
+  onClose(event: MouseEvent): void {
+    event.stopPropagation();
     this.editMode = false;
     this.editable.value = this.original;
   }

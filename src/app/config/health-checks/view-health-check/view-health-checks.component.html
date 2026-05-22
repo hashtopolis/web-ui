@@ -1,18 +1,21 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'Health Check'"></app-page-subtitle>
-  <div class="flex flex-wrap items-center gap-2">
-    <simulate-form-field
-      label="Created"
-      message="{{ healthc ? formatUnixTimestamp(healthc.time, this.dateFormat) : '' }}"
-    ></simulate-form-field>
-    <simulate-form-field
-      label="Created"
-      message="{{ healthc.status | HCstatus | lowercase | titlecase }}"
-    ></simulate-form-field>
-  </div>
-</grid-main>
+<app-page title="Health Check">
+  <grid-main>
+    <div class="flex flex-wrap items-center gap-2">
+      <input-text
+        title="Created"
+        [value]="healthc ? formatUnixTimestamp(healthc.time, this.dateFormat) : ''"
+        [readonly]="true"
+      ></input-text>
+      <input-text
+        title="Status"
+        [value]="healthc.status | HCstatus | lowercase | titlecase"
+        [readonly]="true"
+      ></input-text>
+    </div>
+  </grid-main>
 
-<app-table>
-  <app-page-title title="Checked Agents" [subbutton]="false"></app-page-title>
-  <app-health-check-agents-table [healthCheckId]="viewedHealthCIndex"></app-health-check-agents-table>
-</app-table>
+  <app-page-subtitle subtitle="Checked Agents"></app-page-subtitle>
+  <app-table>
+    <app-health-check-agents-table [healthCheckId]="viewedHealthCIndex"></app-health-check-agents-table>
+  </app-table>
+</app-page>

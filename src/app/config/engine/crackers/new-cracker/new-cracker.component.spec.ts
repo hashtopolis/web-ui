@@ -131,8 +131,8 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
 
-    // The help-block span should be visible if the form is invalid and touched
-    const helpBlock = fixture.nativeElement.querySelector('.help-block');
+    // The validation-error span should be visible if the form is invalid and touched
+    const helpBlock = fixture.nativeElement.querySelector('[data-testid="form-validation-error"]');
     expect(helpBlock).toBeTruthy();
     expect(helpBlock.textContent).toContain('Please complete all required fields!');
   });

@@ -1,0 +1,11 @@
+app-tasks-table table.hashtopolis-table {
+  .mat-column-8 {
+    width: 100%;
+  }
+
+  .mat-column-4,
+  .mat-column-5 {
+    width: 1px;
+    white-space: nowrap;
+  }
+}

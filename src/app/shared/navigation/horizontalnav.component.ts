@@ -1,26 +1,26 @@
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { Component, Input, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
+import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
+
+import { Component, Input, OnDestroy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: 'horizontalnav',
-    templateUrl: 'horizontalnav.component.html',
-    standalone: false
+  selector: 'horizontalnav',
+  templateUrl: 'horizontalnav.component.html',
+  standalone: false
 })
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];
   private unsubscribe$: Subject<void> = new Subject<void>();
-
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   /**
-   * Returns the CSS class for a button element based on the current route.
-   * @param routeName The name of the route associated with the button.
-   * @returns The CSS class, including 'select' if the button's route is active.
+   * Whether a route is currently active (used to drive [checked] on the
+   * matching <mat-button-toggle>, which Material then styles via its
+   * --mat-button-toggle-* selection tokens).
    */
-  getButtonClass(routeName: string): string {
-    return this.router.url.includes(routeName) ? 'btn-toogle-select' : '';
+  isActive(routeName: string): boolean {
+    return this.router.url.includes(routeName);
   }
 
   /**

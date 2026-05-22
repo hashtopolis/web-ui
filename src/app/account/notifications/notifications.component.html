@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Notifications"
-    buttontitle="New Notification"
-    buttonlink="/account/notifications/new-notification"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-notifications-table></app-notifications-table>
-</app-table>
+<app-page
+  title="Notifications"
+  actionTitle="New Notification"
+  actionLink="/account/notifications/new-notification"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-notifications-table></app-notifications-table>
+  </app-table>
+</app-page>

@@ -24,6 +24,7 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { DynamicFormComponent } from '@src/app/shared/dynamic-form-builder/dynamicform.component';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
+import { InputModule } from '@src/app/shared/input/input.module';
 import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
@@ -49,6 +50,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FormsModule,
     PipesModule,
     GridModule,
+    InputModule,
     PageTitleModule,
     ReactiveFormsModule,
     HorizontalNavModule,
@@ -59,7 +61,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   providers: [
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' }
+      useValue: { appearance: 'fill', subscriptSizing: 'dynamic', floatLabel: 'always' }
     }
   ]
 })

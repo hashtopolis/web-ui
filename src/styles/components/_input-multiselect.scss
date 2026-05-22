@@ -1,0 +1,24 @@
+input-multiselect .custom-chip-grid mat-chip-row button[matchipremove] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input-multiselect .custom-chip-grid input.mat-mdc-chip-input.mat-mdc-chip-input {
+  margin-inline-start: var(--space-xs);
+  align-self: center;
+  min-height: var(--mdc-chip-container-height, 32px);
+}
+
+.highlight-text {
+  background-color: var(--highlight-bg);
+}
+
+.multiselect-virtual-panel.multiselect-virtual-panel {
+  overflow: hidden;
+  padding: 0;
+
+  cdk-virtual-scroll-viewport {
+    width: 100%;
+  }
+}

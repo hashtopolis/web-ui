@@ -1,101 +1,93 @@
 import { Location } from '@angular/common';
 import { Component, Input, ViewEncapsulation, inject } from '@angular/core';
-import { Router } from '@angular/router';
 
 /**
- * Component for rendering a submit or cancel button.
+ * Variants for `<button-submit>`. Const-object + `(typeof X)[keyof typeof X]`
+ * keeps the runtime values introspectable from templates and tests, while
+ * still narrowing the input type to the allowed literals.
+ */
+export const ButtonSubmitType = {
+  Submit: 'submit',
+  Cancel: 'cancel',
+  CancelDialog: 'cancel-dialog',
+  Delete: 'delete'
+} as const;
+export type ButtonSubmitType = (typeof ButtonSubmitType)[keyof typeof ButtonSubmitType];
+
+/**
+ * Submit / cancel / delete button with design-system M3 variants.
  *
- * This component provides a button element for form submissions or cancel actions with customizable label,
- * disabled state, and a dynamic custom CSS class based on the type (cancel or normal).
+ * Variants:
+ *  - `submit` (default): filled accent button for primary form actions
+ *  - `cancel`: outlined button that navigates back in history (page-level forms)
+ *  - `cancel-dialog`: outlined button with no auto-action — consumer binds
+ *    `(click)="dialogRef.close()"`. Use inside MatDialog content where
+ *    `location.back()` would navigate the underlying page instead of closing.
+ *  - `delete`: outlined danger button for destructive actions
  *
- * @selector button-submit
- *
- * @param name - The label to display on the button.
- * @param disabled - A boolean value that determines whether the button is disabled or not.
- * @param type - The type of the button (cancel or normal).
- *
- * @example
- * ```
- * <!-- Normal button -->
- * <button-submit name="Submit Form" [disabled]="isFormInvalid" type="normal"></button-submit>
- *
- * <!-- Cancel button -->
- * <button-submit name="Cancel" [type]="'cancel'"></button-submit>
- *
- * <!-- Default (normal) button when type is not specified or invalid -->
- * <button-submit name="Default" [disabled]="false"></button-submit>
- * ```
+ * Loading: pass `[loading]="isLoading"` to disable the button and render an
+ * inline spinner next to the label. Replaces the legacy pattern of pairing
+ * `appLoadingButton` with a sibling `<mat-spinner>` block.
  */
 @Component({
   selector: 'button-submit',
   template: `
-    <button
-      mat-raised-button
-      class="separation-button"
-      [ngClass]="getCustomClass()"
-      [type]="getTypeAttribute()"
-      [disabled]="disabled"
-      (click)="type === 'cancel' || type === 'delete' ? handleClick($event) : null"
-    >
-      {{ name }}
-    </button>
+    @if (
+      type === ButtonSubmitType.Cancel || type === ButtonSubmitType.CancelDialog || type === ButtonSubmitType.Delete
+    ) {
+      <button
+        matButton="outlined"
+        class="btn-submit"
+        [class.btn-submit--danger]="type === ButtonSubmitType.Delete"
+        type="button"
+        [disabled]="disabled || loading"
+        (click)="onClick($event)"
+      >
+        <span class="inline-flex items-center gap-2">
+          {{ name }}
+          @if (loading) {
+            <mat-spinner diameter="16"></mat-spinner>
+          }
+        </span>
+      </button>
+    } @else {
+      <button
+        matButton="filled"
+        class="btn-submit btn-submit--primary"
+        type="submit"
+        [disabled]="disabled || loading"
+        (click)="onClick($event)"
+      >
+        <span class="inline-flex items-center gap-2">
+          {{ name }}
+          @if (loading) {
+            <mat-spinner diameter="16"></mat-spinner>
+          }
+        </span>
+      </button>
+    }
   `,
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })
 export class ButtonSubmitComponent {
-  private router = inject(Router);
+  protected readonly ButtonSubmitType = ButtonSubmitType;
+
   private location = inject(Location);
 
-  /**
-   * The label to display on the button.
-   */
   @Input() name: string;
-
-  /**
-   * A boolean value that determines whether the button is disabled or not.
-   */
   @Input() disabled: boolean;
+  @Input() type: ButtonSubmitType = ButtonSubmitType.Submit;
+  @Input() loading = false;
 
-  /**
-   * The type of the button (cancel or normal).
-   */
-  @Input() type: string;
-
-  /**
-   * Get the custom CSS class based on the button type.
-   */
-  getCustomClass(): string {
-    if (this.type === 'cancel' || this.type === 'delete') {
-      return 'mat-raised-button mat-warn mat-button-sm mat-button-shadow';
-    } else {
-      return 'mat-raised-button mat-primary mat-button-sm mat-button-shadow';
-    }
-  }
-
-  /**
-   * Handle the button click based on its type.
-   */
-  handleClick(event: MouseEvent): void {
+  onClick(event: Event): void {
     if (this.disabled) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
     }
-
-    if (this.type === 'cancel') {
+    if (this.type === ButtonSubmitType.Cancel) {
       this.location.back();
-    }
-  }
-
-  /**
-   * Get attribute and inject in button.
-   */
-  getTypeAttribute(): string {
-    if (this.type === 'cancel' || this.type === 'delete') {
-      return 'button';
-    } else {
-      return 'submit';
     }
   }
 }

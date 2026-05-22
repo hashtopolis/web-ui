@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   selector: 'app-page-subtitle',
   templateUrl: './page-subtitle.component.html',
   styleUrls: ['./page-subtitle.component.scss'],
+  host: { class: 'block' },
   standalone: false
 })
 export class PageSubTitleComponent {

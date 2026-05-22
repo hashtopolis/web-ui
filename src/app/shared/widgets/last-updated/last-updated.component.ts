@@ -43,6 +43,7 @@ import { formatDate } from '@src/app/shared/utils/datetime';
   selector: 'last-updated',
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
+  host: { class: 'text-xs text-muted-foreground' },
   imports: [MatProgressSpinner],
   providers: [
     {

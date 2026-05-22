@@ -89,6 +89,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     return [
       {
         id: TasksAgentsTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -129,6 +130,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.TASK_SPEED,
+        isNumeric: true,
         dataKey: 'taskId',
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
@@ -137,6 +139,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.CURRENT_CHUNK,
+        isNumeric: true,
         dataKey: 'chunkId',
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: true,
@@ -159,6 +162,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.CRACKED,
+        isNumeric: true,
         dataKey: 'cracked',
         render: (agent: JAgent) => this.renderCracked(agent),
         isSortable: true,
@@ -166,6 +170,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.BENCHMARK,
+        isNumeric: true,
         dataKey: 'benchmark',
         editable: (agent: JAgent) => {
           return {
@@ -179,6 +184,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.TIME_SPENT,
+        isNumeric: true,
         dataKey: 'timeSpent',
         render: (agent: JAgent) => this.renderTimeSpent(agent),
         isSortable: true,
@@ -186,6 +192,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       },
       {
         id: TasksAgentsTableCol.SEARCHED,
+        isNumeric: true,
         dataKey: 'searched',
         render: (agent: JAgent) => this.renderSearched(agent),
         isSortable: true,

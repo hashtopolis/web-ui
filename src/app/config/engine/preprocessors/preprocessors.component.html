@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Preprocessors"
-    buttontitle="New Preprocessor"
-    buttonlink="/config/engine/preprocessors/new-preprocessor"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-preprocessors-table></app-preprocessors-table>
-</app-table>
+<app-page
+  title="Preprocessors"
+  actionTitle="New Preprocessor"
+  actionLink="/config/engine/preprocessors/new-preprocessor"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-preprocessors-table></app-preprocessors-table>
+  </app-table>
+</app-page>
