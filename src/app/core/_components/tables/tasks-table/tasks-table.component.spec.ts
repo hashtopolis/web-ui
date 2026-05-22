@@ -127,7 +127,7 @@ describe('TasksTableComponent', () => {
   });
 
   describe('getColumns', () => {
-    it('should return columns with ID, TASK_TYPE, NAME, STATUS, IS_SMALL, IS_CPU_TASK, PREPROCESSOR, HASHTYPE, HASHLISTS, CRACKED, AGENTS, PRIORITY, MAX_AGENTS, ACCESS_GROUP', () => {
+    it('should return columns with ID, TASK_TYPE, NAME, STATUS, TASK_SPEED, DISPATCHED_SEARCHED, IS_SMALL, IS_CPU_TASK, PREPROCESSOR, HASHTYPE, HASHLISTS, CRACKED, AGENTS, PRIORITY, MAX_AGENTS, ACCESS_GROUP', () => {
       const columns = component.getColumns();
       const columnIds = columns.map((col) => col.id);
 
@@ -135,6 +135,8 @@ describe('TasksTableComponent', () => {
       expect(columnIds).toContain(TaskTableCol.TASK_TYPE);
       expect(columnIds).toContain(TaskTableCol.NAME);
       expect(columnIds).toContain(TaskTableCol.STATUS);
+      expect(columnIds).toContain(TaskTableCol.TASK_SPEED);
+      expect(columnIds).toContain(TaskTableCol.DISPATCHED_SEARCHED);
       expect(columnIds).toContain(TaskTableCol.IS_SMALL);
       expect(columnIds).toContain(TaskTableCol.IS_CPU_TASK);
       expect(columnIds).toContain(TaskTableCol.PREPROCESSOR);
@@ -245,6 +247,95 @@ describe('TasksTableComponent', () => {
       });
     });
 
+    it('should include TASK_SPEED column with correct properties', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+
+      expect(speedColumn).toBeDefined();
+      expect(speedColumn?.isSortable).toBe(false);
+      expect(speedColumn?.isSearchable).toBe(false);
+      expect(speedColumn?.render).toBeDefined();
+    });
+
+    it('should render TASK_SPEED as formatted string when currentSpeed is set', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: 500 } as JTaskWrapperDisplay;
+
+      const result = speedColumn?.render!(taskWrapper) as string;
+
+      expect(result).toContain('H/s');
+      expect(result).not.toBe('0 H/s');
+    });
+
+    it('should render TASK_SPEED as "0 H/s" when currentSpeed is undefined', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: undefined } as unknown as JTaskWrapperDisplay;
+
+      expect(speedColumn?.render!(taskWrapper)).toBe('0 H/s');
+    });
+
+    it('should render TASK_SPEED as "0 H/s" when currentSpeed is 0', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: 0 } as JTaskWrapperDisplay;
+
+      expect(speedColumn?.render!(taskWrapper)).toBe('0 H/s');
+    });
+
+    it('should render TASK_SPEED with kH/s for speed >= 1000', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: 1000 } as JTaskWrapperDisplay;
+
+      const result = speedColumn?.render!(taskWrapper) as string;
+
+      expect(result).toContain('kH/s');
+    });
+
+    it('should include DISPATCHED_SEARCHED column with correct properties', () => {
+      const columns = component.getColumns();
+      const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
+
+      expect(dispatchedCol).toBeDefined();
+      expect(dispatchedCol?.isSortable).toBe(false);
+      expect(dispatchedCol?.isSearchable).toBe(false);
+      expect(dispatchedCol?.render).toBeDefined();
+    });
+
+    it('should render DISPATCHED_SEARCHED with both values when set', () => {
+      const columns = component.getColumns();
+      const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
+      const taskWrapper = { dispatched: '50', searched: '25' } as JTaskWrapperDisplay;
+
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('50 / 25');
+    });
+
+    it('should render DISPATCHED_SEARCHED with "0" fallback when dispatched is undefined', () => {
+      const columns = component.getColumns();
+      const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
+      const taskWrapper = { dispatched: undefined, searched: '10' } as unknown as JTaskWrapperDisplay;
+
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 10');
+    });
+
+    it('should render DISPATCHED_SEARCHED with "0" fallback when searched is undefined', () => {
+      const columns = component.getColumns();
+      const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
+      const taskWrapper = { dispatched: '30', searched: undefined } as unknown as JTaskWrapperDisplay;
+
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('30 / 0');
+    });
+
+    it('should render DISPATCHED_SEARCHED as "0 / 0" when both are undefined', () => {
+      const columns = component.getColumns();
+      const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
+      const taskWrapper = { dispatched: undefined, searched: undefined } as unknown as JTaskWrapperDisplay;
+
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 0');
+    });
+
     it('should render HASHTYPE column correctly when hashTypeId and description exist', () => {
       const columns = component.getColumns();
       const hashTypeColumn = columns.find((col) => col.id === TaskTableCol.HASHTYPE);
@@ -333,15 +424,15 @@ describe('TasksTableComponent', () => {
       });
     });
 
-    it('should render AGENTS column for TASK type', () => {
+    it('should render AGENTS column for TASK type using totalAssignedAgents', () => {
       const columns = component.getColumns();
       const agentsColumn = columns.find((col) => col.id === TaskTableCol.AGENTS);
       const taskWrapper = {
         taskType: TaskType.TASK,
-        taskMaxAgents: 5
+        totalAssignedAgents: 3
       } as JTaskWrapperDisplay;
 
-      expect(agentsColumn?.render!(taskWrapper)).toBe('5');
+      expect(agentsColumn?.render!(taskWrapper)).toBe('3');
     });
 
     it('should return empty string for AGENTS column for SUPERTASK type', () => {
@@ -349,7 +440,7 @@ describe('TasksTableComponent', () => {
       const agentsColumn = columns.find((col) => col.id === TaskTableCol.AGENTS);
       const taskWrapper = {
         taskType: TaskType.SUPERTASK,
-        taskMaxAgents: 5
+        totalAssignedAgents: 3
       } as JTaskWrapperDisplay;
 
       expect(agentsColumn?.render!(taskWrapper)).toBe('');
