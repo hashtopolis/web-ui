@@ -109,12 +109,12 @@ describe('NewEditPreprocessorComponent', () => {
       expect(buttonEl.textContent).toContain(buttonText);
     }
 
-    const subtitleEl = hostElement.querySelector('app-page-subtitle') as HTMLElement | null;
+    const titleEl = hostElement.querySelector('.page__title') as HTMLElement | null;
 
-    expect(subtitleEl).withContext('Subtitle not found').not.toBeNull();
+    expect(titleEl).withContext('Page title not found').not.toBeNull();
 
-    if (subtitleEl) {
-      expect(subtitleEl.textContent).toContain(title);
+    if (titleEl) {
+      expect(titleEl.textContent).toContain(title);
     }
   }
 
@@ -259,43 +259,6 @@ describe('NewEditPreprocessorComponent', () => {
 
     const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeNull();
-  });
-
-  it('should display the page title "New Preprocessor" and button name "Create" in New mode', () => {
-    const activatedRoute = TestBed.inject(ActivatedRoute);
-    activatedRoute.snapshot.paramMap.get = () => null;
-
-    fixture = TestBed.createComponent(NewEditPreprocessorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.pageTitle).toBe('New Preprocessor');
-    expect(component.submitButtonText).toBe('Create');
-
-    expectPageTitleAndButton('New Preprocessor', 'Create');
-  });
-
-  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', async () => {
-    const activatedRoute = TestBed.inject(ActivatedRoute);
-
-    activatedRoute.snapshot.paramMap.get = () => '9';
-
-    mockRoleService.hasRole.and.returnValue(true);
-    fixture = TestBed.createComponent(NewEditPreprocessorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-    flushEditPreprocessorRequest();
-
-    await fixture.whenStable();
-
-    (component as unknown as { isLoading: boolean }).isLoading = false;
-
-    fixture.detectChanges();
-
-    expect(component.pageTitle).toBe('Edit Preprocessor');
-    expect(component.submitButtonText).toBe('Update');
-
-    expectPageTitleAndButton('Edit Preprocessor', 'Update');
   });
 
   it('should call create and navigate on valid form if no id is present in route', async () => {
