@@ -4,7 +4,7 @@
 import '@src/app/core/_services/storage/local-storage';
 import '@src/app/core/_services/storage/session-storage';
 
-import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
+import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from '@src/app/app.module';
@@ -18,7 +18,7 @@ if (environment.production) {
 registerEChartsModules();
 
 platformBrowserDynamic()
-  .bootstrapModule(AppModule, { applicationProviders: [provideZoneChangeDetection()] })
+  .bootstrapModule(AppModule)
   .then((ref) => {
     // Ensure Angular destroys itself on hot reloads.
     const win = window as Window & { ngRef?: { destroy(): void } };
