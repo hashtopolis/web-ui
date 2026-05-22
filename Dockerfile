@@ -25,7 +25,6 @@ COPY docker-entrypoint.sh /usr/local/bin
 # BUILD Image
 #----BEGIN----
 FROM hashtopolis-web-ui-base AS hashtopolis-web-ui-build
-# Coping the app into the container
 COPY . ./
 
 # npm package - clean install

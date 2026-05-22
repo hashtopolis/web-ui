@@ -23,7 +23,6 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
 import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
 import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
-import { SwitchThemeModule } from '@src/app/shared/switch-theme/switch-theme.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
 import { HexconvertorComponent } from '@src/app/shared/utils/hexconvertor/hexconvertor.component';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
@@ -47,7 +46,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     FilterTextboxModule,
     HorizontalNavModule,
     DynamicFormModule,
-    SwitchThemeModule,
     CoreFormsModule,
     PageTitleModule,
     AlertNavModule,
@@ -73,7 +71,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     CheatsheetComponent,
     FixedAlertComponent,
     PassMatchComponent,
-    SwitchThemeModule,
     DynamicFormModule,
     PageTitleModule,
     AlertNavModule,

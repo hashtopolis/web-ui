@@ -2,8 +2,6 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { Theme } from '@models/config-ui.model';
-
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
@@ -25,6 +23,7 @@ import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-to
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ThemeService } from '@services/shared/theme.service';
+import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -44,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themes = inject(ThemeService);
+  private themeCatalog = inject(ThemeCatalogService);
   private permissionService = inject(PermissionService);
   private easterEggService = inject(EasterEggService);
   private alert = inject(AlertService);
@@ -66,7 +66,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
-  currentTheme: Theme = 'light';
+  currentTheme = 'light';
+  themeOptions: RuntimeThemeOption[] = [];
   private themeSub: Subscription;
 
   // Before showing header check Authentification
@@ -104,8 +105,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
     );
     this.themeSub = this.themes.theme$.subscribe((theme) => {
-      this.currentTheme = (theme ?? this.themes.current) as Theme;
+      this.currentTheme = theme ?? this.themes.current;
       this.isDarkMode = this.currentTheme === 'dark';
+    });
+    this.themeCatalog.getThemes().subscribe((themeOptions) => {
+      this.themeOptions = themeOptions;
     });
     // Listen for Konami code
     this.easterEggService
@@ -141,8 +145,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.easterEggFlag = !this.easterEggFlag;
   }
 
-  selectTheme(theme: Theme) {
+  selectTheme(theme: string) {
     this.uiSettings.updateSettings({ theme });
+  }
+
+  getCurrentThemeIcon(): string {
+    const option = this.themeOptions.find((themeOption) => themeOption.value === this.currentTheme);
+    if (option?.icon) {
+      return option.icon;
+    }
+
+    if (this.currentTheme === 'light') {
+      return 'light_mode';
+    }
+
+    if (this.currentTheme === 'dark') {
+      return 'dark_mode';
+    }
+
+    if (this.currentTheme === 'fallout') {
+      return 'science';
+    }
+
+    return 'palette';
   }
 
   menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {

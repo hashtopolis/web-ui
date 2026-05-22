@@ -47,10 +47,13 @@ describe('uiConfigSchema', () => {
     expect(result.success).toBeFalse();
   });
 
-  it('should fail on invalid theme value', () => {
-    const invalid = { ...defaults, theme: 'blue' };
-    const result = uiConfigSchema.safeParse(invalid);
-    expect(result.success).toBeFalse();
+  it('should allow custom theme values', () => {
+    const custom = { ...defaults, theme: 'my-custom-theme' };
+    const result = uiConfigSchema.safeParse(custom);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      expect(result.data.theme).toBe('my-custom-theme');
+    }
   });
 
   it('should fail on garbled data (string)', () => {
