@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    [title]="'Supertasks'"
-    [buttontitle]="'New Supertask'"
-    [buttonlink]="'/tasks/new-supertasks'"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-supertasks-table></app-supertasks-table>
-</app-table>
+<app-page
+  title="Supertasks"
+  actionTitle="New Supertask"
+  actionLink="/tasks/new-supertasks"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-supertasks-table></app-supertasks-table>
+  </app-table>
+</app-page>

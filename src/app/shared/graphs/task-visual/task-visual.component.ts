@@ -20,7 +20,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
     </canvas>
   `,
   host: {
-    '(window:resize)': 'onWindowResize($event)'
+    '(window:resize)': 'onWindowResize()'
   },
   standalone: false
 })

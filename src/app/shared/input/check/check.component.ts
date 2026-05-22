@@ -19,6 +19,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-check',
   templateUrl: './check.component.html',
+  styleUrls: ['./check.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

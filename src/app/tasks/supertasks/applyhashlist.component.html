@@ -1,46 +1,47 @@
-<grid-main>
-  <app-page-title [title]="'Use Supertask'" ></app-page-title>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div>
+<app-page title="Use Supertask">
+  <grid-main>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div>
+        @if (!isLoading) {
+          <div class="flex flex-col items-start">
+            <input-multiselect
+              [isLoading]="isLoading"
+              [placeholder]="'Hashlists...'"
+              [items]="selectHashlists"
+              [label]="'Select or search Hashlists'"
+              [mergeIdAndName]="true"
+              [multiselectEnabled]="false"
+              formControlName="hashlistId"
+              class="flex-1"
+              [isRequired]="true"
+            ></input-multiselect>
+          </div>
+        } @else {
+          <div class="loading-spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading Hashlists...</span>
+          </div>
+        }
 
-      @if (!isLoading) {
-        <div class="flex flex-col items-start">
-          <input-multiselect
-            [isLoading]="isLoading"
-            [placeholder]="'Hashlists...'"
-            [items]="selectHashlists"
-            [label]="'Select or search Hashlists'"
-            [mergeIdAndName]="true"
-            [multiselectEnabled]="false"
-            formControlName="hashlistId"
-            style="flex: 1;"
+        <div class="flex flex-wrap items-center gap-2">
+          <input-select
+            title="Binary type"
+            formControlName="crackerBinaryId"
+            [items]="selectCrackertype"
             [isRequired]="true"
-          ></input-multiselect>
+          ></input-select>
+          <input-select
+            title="Binary version"
+            formControlName="crackerBinaryTypeId"
+            [items]="selectCrackerversions"
+            [isRequired]="true"
+          ></input-select>
         </div>
-      } @else {
-        <div class="loading-spinner">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Loading Hashlists...</span>
-        </div>
-      }
-
-      <div class="flex flex-wrap items-center gap-2">
-        <input-select title="Binary type" formControlName="crackerBinaryId" [items]="selectCrackertype" [isRequired]="true"></input-select>
-        <input-select title="Binary version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
       </div>
-
-    </div>
-    <grid-buttons>
-      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'"></button-submit>
-      @if (isCreatingLoading) {
-        <div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
-
-  </form>
-</grid-main>
-
-
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
+      </grid-buttons>
+    </form>
+  </grid-main>
+</app-page>

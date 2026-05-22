@@ -32,7 +32,7 @@ export class AlertService {
   }
 
   /**
-   * Shows a toast like message for 10 seconds in the upper left corner using a material snackbar
+   * Shows a toast like message for 10 seconds in the bottom right corner using a material snackbar
    * @param message - message to display
    * @param panelClass - CSS class for the  snackbar component
    * @param timeout - time in milliseconds to show the message
@@ -41,8 +41,7 @@ export class AlertService {
   private showToast(message: string, panelClass: string, timeout: number = 10000): void {
     this.snackBar.open(message, 'Close', {
       duration: timeout,
-      panelClass: panelClass,
-      horizontalPosition: 'start'
+      panelClass: panelClass
     });
   }
 }

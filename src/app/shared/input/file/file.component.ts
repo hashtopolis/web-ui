@@ -17,6 +17,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-file',
   templateUrl: './file.component.html',
+  styleUrls: ['./file.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

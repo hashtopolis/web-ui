@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+:host(.grid-main--narrow) {
+  @media (min-width: 768px) {
+    max-width: calc(50% - var(--space-xs));
+  }
+}

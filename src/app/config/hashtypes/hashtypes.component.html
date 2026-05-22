@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    [title]="'Hashtypes'"
-    [buttontitle]="'New Hashtype'"
-    [buttonlink]="'/config/hashtypes/new'"
-    [subbutton]="hashtypesRoleService.hasRole('create')"
-  ></app-page-title>
-  <app-hashtypes-table></app-hashtypes-table>
-</app-table>
+<app-page
+  title="Hashtypes"
+  actionTitle="New Hashtype"
+  actionLink="/config/hashtypes/new"
+  [showAction]="hashtypesRoleService.hasRole('create')"
+>
+  <app-table>
+    <app-hashtypes-table></app-hashtypes-table>
+  </app-table>
+</app-page>

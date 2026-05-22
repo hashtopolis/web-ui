@@ -80,6 +80,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: SupertasksTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -95,6 +96,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       },
       {
         id: SupertasksTableCol.PRETASKS,
+        isNumeric: true,
         dataKey: 'pretasks',
         isSortable: false,
         render: (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length : ''),
@@ -212,7 +214,8 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
 
   private rowActionEditSubtasks(supertask: JSuperTask): void {
     const dialogRef = this.dialog.open(ModalPretasksComponent, {
-      width: '100%',
+      width: '80vw',
+      maxWidth: '80vw',
       data: {
         supertaskId: supertask.id,
         supertaskName: supertask.supertaskName

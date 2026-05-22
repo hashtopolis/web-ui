@@ -9,6 +9,7 @@ interface ErrorModalData {
 @Component({
   selector: 'app-timeout',
   templateUrl: './error.component.html',
+  styleUrls: ['./error.component.scss'],
   standalone: false
 })
 export class ErrorModalComponent {

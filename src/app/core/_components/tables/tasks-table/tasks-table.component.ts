@@ -113,6 +113,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
+        isNumeric: true,
         render: (wrapper: JTaskWrapperDisplay) => (wrapper.taskType === TaskType.TASK ? wrapper.taskId + '' : ''),
         isSortable: true,
         isSearchable: true,
@@ -171,7 +172,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           if (allHashesCracked) {
             return {
               name: 'check',
-              tooltip: 'All hashes cracked'
+              tooltip: 'All hashes cracked',
+              cls: 'text-ok'
             };
           } else {
             return { name: '' };
@@ -185,6 +187,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.CRACKED,
         dataKey: 'cracked',
+        isNumeric: true,
         routerLink: (wrapper: JTaskWrapperDisplay) => this.renderCrackedLinkFromWrapper(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapperDisplay) => wrapper.cracked + ''
@@ -192,6 +195,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.AGENTS,
         dataKey: 'agents',
+        isNumeric: true,
         isSortable: false,
         render: (wrapper: JTaskWrapperDisplay) => {
           if (wrapper.taskType === TaskType.TASK) {
@@ -225,6 +229,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.IS_SMALL,
         dataKey: 'isSmall',
         parent: '',
+        position: 'right',
         icon: (wrapper: JTaskWrapperDisplay) => this.renderIsSmallIcon(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapperDisplay) =>
@@ -234,6 +239,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.IS_CPU_TASK,
         dataKey: 'isCpuTask',
         parent: '',
+        position: 'right',
         icon: (wrapper: JTaskWrapperDisplay) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapperDisplay) =>
@@ -246,6 +252,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.PRIORITY,
           dataKey: 'taskWrapperPriority',
+          isNumeric: true,
           editable: (wrapper: JTaskWrapperDisplay) => {
             return {
               data: wrapper,
@@ -261,6 +268,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'taskWrapperMaxAgents',
+          isNumeric: true,
           editable: (wrapper: JTaskWrapperDisplay) => {
             return {
               data: wrapper,
@@ -279,6 +287,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.PRIORITY,
           dataKey: 'taskWrapperPriority',
+          isNumeric: true,
           render: (wrapper: JTaskWrapperDisplay) =>
             (wrapper.taskType === TaskType.TASK ? wrapper.taskPriority : wrapper.taskWrapperPriority) + '',
           isSortable: true,
@@ -288,6 +297,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         {
           id: TaskTableCol.MAX_AGENTS,
           dataKey: 'taskWrapperMaxAgents',
+          isNumeric: true,
           render: (wrapper: JTaskWrapperDisplay) =>
             (wrapper.taskType === TaskType.TASK ? wrapper.taskMaxAgents : wrapper.taskWrapperMaxAgents) + '',
           isSortable: false,
@@ -477,13 +487,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplay): HTTableIcon {
-    const status = wrapper.status;
-    if (status === TaskStatus.RUNNING) {
-      return {
-        name: 'radio_button_checked',
-        cls: 'pulsing-progress',
-        tooltip: 'In Progress'
-      };
+    if (wrapper.status === TaskStatus.RUNNING) {
+      return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
     }
     return { name: '' };
   }
@@ -608,7 +613,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionDelete(wrapper: JTaskWrapperDisplay[]): void {
     const taskWrapperId = wrapper[0].id;
-
+    if (taskWrapperId === undefined) {
+      console.error('TaskWrapperId undefined during delete');
+      return;
+    }
     this.subscriptions.push(
       this.gs.delete(SERV.TASKS_WRAPPER, taskWrapperId).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');

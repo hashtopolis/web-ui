@@ -1,3 +1,4 @@
+<h2 mat-dialog-title>Attack Command Help</h2>
 <mat-dialog-content>
   <form>
     <div class="mb-3">
@@ -10,7 +11,8 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <ng-template matExpansionPanelContent>
-              Use <code>#HL#</code> for hash list and assume all files in the current directory. If you have Linux agents, please mind the filename case sensitivity!
+              Use <code>#HL#</code> for hash list and assume all files in the current directory. If you have Linux
+              agents, please mind the filename case sensitivity!
               <br />
               <p>Rules: Format is <code>-r Filename</code></p>
             </ng-template>
@@ -23,7 +25,7 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <ng-template matExpansionPanelContent>
-              <mat-table style="width: 100%" class="mat-elevation-z8" [dataSource]="dataSource1">
+              <mat-table class="mat-elevation-z8 w-full" [dataSource]="dataSource1">
                 <ng-container matColumnDef="value">
                   <mat-header-cell *matHeaderCellDef scope="col">Value</mat-header-cell>
                   <mat-cell *matCellDef="let c">{{ c._id }}</mat-cell>
@@ -45,7 +47,7 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <ng-template matExpansionPanelContent>
-              <mat-table style="width: 100%" class="mat-elevation-z8" [dataSource]="dataSource2">
+              <mat-table class="mat-elevation-z8 w-full" [dataSource]="dataSource2">
                 <ng-container matColumnDef="value">
                   <mat-header-cell *matHeaderCellDef scope="col">Type</mat-header-cell>
                   <mat-cell *matCellDef="let ax">{{ ax._id }}</mat-cell>
@@ -67,7 +69,7 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <ng-template matExpansionPanelContent>
-              <mat-table style="width: 100%" class="mat-elevation-z8" [dataSource]="dataSource3">
+              <mat-table class="mat-elevation-z8 w-full" [dataSource]="dataSource3">
                 <ng-container matColumnDef="value">
                   <mat-header-cell *matHeaderCellDef scope="col">Value</mat-header-cell>
                   <mat-cell *matCellDef="let ch">{{ ch._id }}</mat-cell>
@@ -82,7 +84,6 @@
             </ng-template>
           </mat-expansion-panel>
 
-
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -91,14 +92,14 @@
             </mat-expansion-panel-header>
             <ng-template matExpansionPanelContent>
               <p>
-                Hashcat uses UTF-8. If you are doing an attack using a wordlist, as soon as the format is supported, it should be fine. If you are trying a brute attack, it'll require using the command
+                Hashcat uses UTF-8. If you are doing an attack using a wordlist, as soon as the format is supported, it
+                should be fine. If you are trying a brute attack, it'll require using the command
                 <code>--hex-charset</code>. Example:
               </p>
+              <p>German: --hex-charset -1 c3 -2 8489969c9fa4a9b6bc german.hash ?a?a?a?1?2?a?a</p>
               <p>
-                German: --hex-charset -1 c3 -2 8489969c9fa4a9b6bc german.hash ?a?a?a?1?2?a?a
-              </p>
-              <p>
-                Encoding: It is better practice to encode the custom charsets in the mask. Please note From and To in the example, i.e., <code>--encoding-from=utf-8</code> or <code>--encoding-to=utf-8</code>
+                Encoding: It is better practice to encode the custom charsets in the mask. Please note From and To in
+                the example, i.e., <code>--encoding-from=utf-8</code> or <code>--encoding-to=utf-8</code>
               </p>
             </ng-template>
           </mat-expansion-panel>
@@ -108,5 +109,5 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Cancel</button>
+  <button-submit type="cancel-dialog" name="Close" (click)="onClose()"></button-submit>
 </mat-dialog-actions>

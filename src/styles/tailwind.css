@@ -1,8 +1,177 @@
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@layer theme, base, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 /* Dark mode: match the existing .dark-theme body class */
 @variant dark (&:where(.dark-theme, .dark-theme *));
 
+/* Bridge: expose bare-name design tokens (defined in base/_tokens.scss and
+   overridden in the .light-theme block from designs/alpine-snow/_tokens.scss)
+   as Tailwind v4 theme tokens, so utility classes (bg-primary, text-foreground,
+   border, ring-ring, etc.) resolve through the same vars Material reads via
+   _material.scss. The `inline` keyword keeps var() references unevaluated in
+   generated utilities — flipping .dark-theme / .light-theme re-cascades through. */
+@theme inline {
+  /* Primitives — mono ramp.
+   ⚠️ Must stay synchronized with $mono in _m3-palette.scss. Tailwind v4
+   does not allow @for inside @theme, so this list is hand-maintained;
+   when adding a tone there, mirror it here. */
+  --color-mono-0: var(--mono-0);
+  --color-mono-4: var(--mono-4);
+  --color-mono-6: var(--mono-6);
+  --color-mono-10: var(--mono-10);
+  --color-mono-12: var(--mono-12);
+  --color-mono-17: var(--mono-17);
+  --color-mono-20: var(--mono-20);
+  --color-mono-22: var(--mono-22);
+  --color-mono-24: var(--mono-24);
+  --color-mono-25: var(--mono-25);
+  --color-mono-30: var(--mono-30);
+  --color-mono-35: var(--mono-35);
+  --color-mono-40: var(--mono-40);
+  --color-mono-50: var(--mono-50);
+  --color-mono-60: var(--mono-60);
+  --color-mono-70: var(--mono-70);
+  --color-mono-80: var(--mono-80);
+  --color-mono-87: var(--mono-87);
+  --color-mono-90: var(--mono-90);
+  --color-mono-92: var(--mono-92);
+  --color-mono-94: var(--mono-94);
+  --color-mono-95: var(--mono-95);
+  --color-mono-96: var(--mono-96);
+  --color-mono-98: var(--mono-98);
+  --color-mono-99: var(--mono-99);
+  --color-mono-100: var(--mono-100);
+
+  /* Surfaces */
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-muted: var(--muted);
+  --color-well: var(--well);
+  --color-input: var(--input);
+  --color-sidebar: var(--sidebar);
+  --color-header: var(--header);
+
+  /* Foregrounds */
+  --color-foreground: var(--foreground);
+  --color-heading-foreground: var(--heading-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  /* Brand */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-muted: var(--primary-muted);
+  --color-secondary: var(--secondary);
+
+  /* Borders — `border` (no suffix) gets Tailwind's default utility */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-faint: var(--border-faint);
+
+  /* Semantic */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-info: var(--info);
+  --color-success-bg: var(--success-bg);
+  --color-destructive-bg: var(--destructive-bg);
+  --color-info-bg: var(--info-bg);
+
+  /* Surface tints */
+  --color-surface-faint: var(--surface-faint);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-soft-hover: var(--surface-soft-hover);
+
+  /* Overlays */
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-snackbar: var(--snackbar);
+  --color-snackbar-foreground: var(--snackbar-foreground);
+
+  /* Status legend (link-preview swatches) */
+  --color-status-cracked: var(--status-cracked);
+  --color-status-no-crack: var(--status-no-crack);
+  --color-status-not-processed: var(--status-not-processed);
+  --color-status-error: var(--status-error);
+
+  /* Focus rings */
+  --color-ring: var(--ring);
+  --color-destructive-ring: var(--destructive-ring);
+
+  /* Typography */
+  --font-body: var(--font-body);
+  --font-heading: var(--font-heading);
+
+  /* Font-size scale — exposes --text-* tokens as text-* utilities.
+     Tailwind v4 reads --text-<name> entries to generate `text-<name>` font-size
+     utilities, so `text-md` resolves to var(--text-md). Keep names aligned
+     with the SCSS tokens in base/_tokens.scss. */
+  --text-2xs: var(--text-2xs);
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-md: var(--text-md);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+
+  /* Spacing — exposes --space-* tokens as p-*, m-*, gap-*, w-*, h-* utilities.
+     Tailwind v4 reads --spacing-<name> entries; named utilities (gap-md)
+     coexist with the default numeric scale (gap-4 = 1rem). */
+  --spacing-2xs: var(--space-2xs);
+  --spacing-xs: var(--space-xs);
+  --spacing-sm: var(--space-sm);
+  --spacing-md: var(--space-md);
+  --spacing-lg: var(--space-lg);
+  --spacing-xl: var(--space-xl);
+
+  /* Radius — extend the lone --radius-md previously exposed with the rest of
+     the scale so `rounded-xs|sm|lg|2xl|full` resolve to design tokens. */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
+
+  /* Shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
 /* Content sources for class detection */
 @source "../app/**/*.{html,ts}";
+
+/* Consistent vertical spacing for every form across the app. Sits in the
+   base layer so Tailwind utility classes can override per-form when needed. */
+@layer base {
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--form-gap);
+  }
+}
+
+/* Layout-primitive utility for components that should fill their container
+   and never dictate their own width. Apply on the component host so sizing is owned by parent
+   wrappers (forms, grids, Tailwind width utilities). `min-width: 0` lets
+   the host shrink correctly inside flex/grid containers, where `min-width:
+   auto` would otherwise prevent shrinking below intrinsic content size. */
+@utility fluid-component {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Canonical focus-ring (2px outside the element, using the semantic `--ring`
+   token). State-specific rings (filled-input focus uses `--primary-muted`,
+   invalid uses `--destructive-ring`, etc.) stay inline at their call sites —
+   they're not duplicates of this rule, they're contextual variants with
+   different colors. */
+@utility focus-ring {
+  box-shadow: 0 0 0 2px var(--ring);
+}

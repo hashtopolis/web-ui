@@ -45,6 +45,26 @@ export interface InfoMetadataForm {
 }
 
 /**
+ * Render kinds supported by the dynamic form. Single source of truth for the
+ * `MetadataFormField.type` discriminator — any new render kind should be added
+ * here so every metadata array stays type-checked at compile time.
+ */
+export const FieldType = {
+  Text: 'text',
+  Password: 'password',
+  Email: 'email',
+  Url: 'url',
+  Number: 'number',
+  Textarea: 'textarea',
+  Checkbox: 'checkbox',
+  Select: 'select',
+  AsyncSelect: 'asyncSelect',
+  Hidden: 'hidden'
+} as const;
+
+export type FieldType = (typeof FieldType)[keyof typeof FieldType];
+
+/**
  * Metadata for each field in the form.
  *
  * Properties:
@@ -64,7 +84,7 @@ export interface InfoMetadataForm {
 export interface MetadataFormField {
   name?: string;
   label?: string;
-  type?: string;
+  type?: FieldType;
   placeholder?: string;
   selectOptions?: Option[];
   selectOptions$?: SelectOption<number>[];
@@ -75,6 +95,7 @@ export interface MetadataFormField {
   tooltip?: string | boolean;
   validators?: ValidatorFn[] | boolean;
   isTitle?: boolean;
+  fullWidth?: boolean;
   replacevalue?: string;
   disabled?: boolean;
   defaultValue?: unknown;
@@ -108,7 +129,7 @@ export class MetadataService {
     }
   ];
 
-  authforgot = [
+  authforgot: MetadataFormField[] = [
     {
       name: 'username',
       label: 'User Name',
@@ -153,7 +174,7 @@ export class MetadataService {
     }
   ];
 
-  supertask = [
+  supertask: MetadataFormField[] = [
     {
       name: 'supertaskName',
       label: 'Name',
@@ -237,7 +258,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when editing a wordlist, rule or other file.
-  editfile = [
+  editfile: MetadataFormField[] = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
     {
       name: 'filename',
@@ -255,7 +276,7 @@ export class MetadataService {
     {
       name: 'accessGroupId',
       label: 'Access group',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
       selectSchema: zAccessGroupListResponse,
@@ -285,7 +306,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a new cracker.
-  newcracker = [
+  newcracker: MetadataFormField[] = [
     {
       name: 'typeName',
       label: 'Type',
@@ -344,7 +365,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating/editing an Agent Binary.
-  agentbinary = [
+  agentbinary: MetadataFormField[] = [
     {
       name: 'binaryType',
       label: 'Binary Type',
@@ -422,7 +443,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a cracker Version.
-  newcrackerversion = [
+  newcrackerversion: MetadataFormField[] = [
     {
       name: 'binaryName',
       label: 'Binary Base Name',
@@ -459,7 +480,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when editing a cracker Version.
-  editcrackerversion = [
+  editcrackerversion: MetadataFormField[] = [
     {
       name: 'binaryName',
       label: 'Binary Base Name',
@@ -517,7 +538,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating/editing a Hashtype.
-  preprocessor = [
+  preprocessor: MetadataFormField[] = [
     {
       name: 'name',
       label: 'Name',
@@ -604,7 +625,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a new Hashtype.
-  newhashtype = [
+  newhashtype: MetadataFormField[] = [
     {
       name: 'id',
       label: 'Hashtype',
@@ -642,7 +663,7 @@ export class MetadataService {
   ];
 
   //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
-  edithashtype = [
+  edithashtype: MetadataFormField[] = [
     {
       name: 'id',
       label: 'Hashtype',
@@ -694,7 +715,7 @@ export class MetadataService {
     }
   ];
 
-  serveragent = [
+  serveragent: MetadataFormField[] = [
     { label: 'Activity / Registration', isTitle: true },
     {
       name: 'agenttimeout',
@@ -785,7 +806,7 @@ export class MetadataService {
     }
   ];
 
-  servertaskchunk = [
+  servertaskchunk: MetadataFormField[] = [
     { label: 'Benchmark / Chunk', isTitle: true },
     {
       name: 'chunktime',
@@ -867,7 +888,7 @@ export class MetadataService {
     }
   ];
 
-  serverhch = [
+  serverhch: MetadataFormField[] = [
     { label: 'Import/Display of Hashlist', isTitle: true },
     {
       name: 'maxHashlistSize',
@@ -935,7 +956,8 @@ export class MetadataService {
   //   <fa-icon  style="color:red" [icon]="faExclamationTriangle"></fa-icon> Such change may take a long time depending on the database size
   // </span>
 
-  servernotif = [
+  servernotif: MetadataFormField[] = [
+    { label: 'Sender Settings', isTitle: true },
     {
       name: 'emailSender',
       label: 'Notification Sender Email',
@@ -995,12 +1017,13 @@ export class MetadataService {
     }
   ];
 
-  servergs = [
+  servergs: MetadataFormField[] = [
     {
       name: 'hashcatBrainEnable',
       label: 'Enable Hashcat Brain',
       type: 'checkbox',
-      tooltip: false
+      tooltip: false,
+      fullWidth: true
     },
     {
       name: 'hashcatBrainHost',
@@ -1072,7 +1095,7 @@ export class MetadataService {
   // //
 
   // This variable holds information about the fields required when creating a new health check.
-  newhealthcheck = [
+  newhealthcheck: MetadataFormField[] = [
     {
       name: 'attack',
       label: 'Attack',
@@ -1095,7 +1118,7 @@ export class MetadataService {
     {
       name: 'crackerBinaryType',
       label: 'Binary',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
@@ -1107,7 +1130,7 @@ export class MetadataService {
     {
       name: 'crackerBinaryId',
       label: 'Binary Version',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () =>
         this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
@@ -1138,7 +1161,7 @@ export class MetadataService {
   ];
 
   //This variable holds information about the fields required when creating a new user.
-  newuser = [
+  newuser: MetadataFormField[] = [
     {
       name: 'name',
       label: 'User Name',
@@ -1156,7 +1179,7 @@ export class MetadataService {
     {
       name: 'globalPermissionGroupId',
       label: 'Global Permission Group',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
       selectSchema: zGlobalPermissionGroupListResponse,
@@ -1182,7 +1205,7 @@ export class MetadataService {
   ];
 
   //This variable holds information about the fields required when creating a new global permission group.
-  newglobalpermissionsgp = [
+  newglobalpermissionsgp: MetadataFormField[] = [
     {
       name: 'name',
       label: 'Name',
@@ -1222,7 +1245,7 @@ export class MetadataService {
   ];
 
   // This variable contains information about the fields required when creating or editing an access group.
-  accessgroups = [
+  accessgroups: MetadataFormField[] = [
     {
       name: 'groupName',
       label: 'Name',
@@ -1239,7 +1262,7 @@ export class MetadataService {
 
   uisettingsInfo = [{ title: 'UI Settings', subtitle: false }];
 
-  uisettings = [
+  uisettings: MetadataFormField[] = [
     {
       name: 'localtimefmt',
       label: 'Set the time format',

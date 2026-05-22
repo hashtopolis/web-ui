@@ -32,6 +32,7 @@ export class UISettingsUtilityClass {
     private themeService?: ThemeService
   ) {
     this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
+
     if (this.themeService && this.uiConfig.theme) {
       this.themeService.theme = this.uiConfig.theme;
     }

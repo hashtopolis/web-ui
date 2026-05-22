@@ -1,0 +1,22 @@
+.flow {
+  --flow-gap: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--flow-gap);
+}
+
+.flow--xs {
+  --flow-gap: var(--space-xs);
+}
+.flow--sm {
+  --flow-gap: var(--space-sm);
+}
+.flow--md {
+  --flow-gap: var(--space-md);
+}
+.flow--lg {
+  --flow-gap: var(--space-lg);
+}
+.flow--xl {
+  --flow-gap: var(--space-xl);
+}

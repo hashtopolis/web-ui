@@ -1,10 +1,15 @@
-<mat-form-field
-  class="custom-textarea"
-  [class.mat-form-field-invalid]="hasError"
-  [class.mat-form-field-touched]="isTouched"
->
-  <mat-label
-    >{{ title }}
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+  <label class="field-stack__label" [attr.for]="inputId">
+    @if (linkTo) {
+      <a [routerLink]="linkTo">{{ title }}</a>
+    } @else {
+      <span class="field-stack__label-text">
+        {{ title }}
+      </span>
+    }
+    @if (isRequired && !readonly) {
+      <span class="field-stack__required" aria-hidden="true">*</span>
+    }
     @if (tooltip) {
       <mat-icon
         matTooltip="{{ tooltip }}"
@@ -16,44 +21,50 @@
         info
       </mat-icon>
     }
-  </mat-label>
-  <textarea
-    matInput
-    [class.is-invalid]="error"
-    [class.ng-invalid]="hasError"
-    [class.ng-touched]="isTouched"
-    [id]="inputId"
-    [value]="value"
-    (input)="onValueChange($event)"
-    (blur)="onTouched()"
-    cdkTextareaAutosize
-    [required]="isRequired"
-    [disabled]="disabled"
-    class="custom-textarea"
-  ></textarea>
-  @if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
-  }
-  @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336)">
-      @if (errors['required']) {
-        <span>{{ title }} is required</span>
-      }
-      @if (errors['missingHashlistAlias']) {
-        <span>{{ title }} must include #HL#</span>
-      }
-      @if (errors['attackCommandNeedsAdditionalContent']) {
-        <span>{{ title }} must include #HL# plus additional command options</span>
-      }
-      @if (errors['minlength']) {
-        <span>Minimum length is {{ errors['minlength'].requiredLength }}</span>
-      }
-      @if (errors['maxlength']) {
-        <span>Maximum length is {{ errors['maxlength'].requiredLength }}</span>
-      }
-      @if (errors['pattern']) {
-        <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
-      }
-    </mat-hint>
-  }
-</mat-form-field>
+  </label>
+
+  <mat-form-field class="custom-textarea field-stack__field">
+    <textarea
+      matInput
+      [class.is-invalid]="error && !readonly"
+      [id]="inputId"
+      [value]="value"
+      (input)="onValueChange($event)"
+      (blur)="onTouched()"
+      cdkTextareaAutosize
+      [cdkAutosizeMinRows]="minRows"
+      [cdkAutosizeMaxRows]="maxRows"
+      [style.min-height.lh]="minRows"
+      [required]="isRequired"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      class="custom-textarea"
+    ></textarea>
+    <ng-content select="[matSuffix]"></ng-content>
+    @if (hint) {
+      <mat-hint>{{ hint }}</mat-hint>
+    }
+    @if (hasError && errors && !readonly) {
+      <mat-hint class="mat-mdc-form-field-error text-destructive">
+        @if (errors['required']) {
+          <span>{{ title }} is required</span>
+        }
+        @if (errors['missingHashlistAlias']) {
+          <span>{{ title }} must include #HL#</span>
+        }
+        @if (errors['attackCommandNeedsAdditionalContent']) {
+          <span>{{ title }} must include #HL# plus additional command options</span>
+        }
+        @if (errors['minlength']) {
+          <span>Minimum length is {{ errors['minlength'].requiredLength }}</span>
+        }
+        @if (errors['maxlength']) {
+          <span>Maximum length is {{ errors['maxlength'].requiredLength }}</span>
+        }
+        @if (errors['pattern']) {
+          <span>Please enter a valid {{ title ? title.toLowerCase() : '' }}</span>
+        }
+      </mat-hint>
+    }
+  </mat-form-field>
+</div>

@@ -1,5 +1,13 @@
 @if (tableColumn.editable) {
-  <div class="editable-container">
+  <div
+    class="editable-container"
+    [class.editable-container--idle]="!editMode"
+    (click)="!editMode && onSelect($event)"
+    [attr.role]="!editMode ? 'button' : null"
+    [attr.tabindex]="!editMode ? 0 : null"
+    matTooltip="Click to edit value"
+    [matTooltipDisabled]="editMode"
+  >
     @if (editMode) {
       <mat-form-field>
         <input
@@ -12,34 +20,25 @@
           (blur)="onBlur($event)"
           (focus)="onFocus($event)"
           (keyup.enter)="onEditableInputEnter($event)"
-          />
+        />
         <button
           matSuffix
-          mat-icon-button
-          class="text-ok"
+          matIconButton
+          class="text-success"
           [attr.aria-label]="'Update Value'"
           (click)="onEditableInputSaved($event)"
-          >
+        >
           <mat-icon>check</mat-icon>
         </button>
-        <button
-          matSuffix
-          mat-icon-button
-          color="primary"
-          (click)="onClose()"
-          [attr.aria-label]="'Cancel'"
-          >
+        <button matSuffix matIconButton (click)="onClose($event)" [attr.aria-label]="'Cancel'">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
     } @else {
       <div class="editable-text">
-        <span
-          [innerHtml]="editable.value"
-          (click)="onSelect($event)"
-          matTooltip="Click to edit value"
-        ></span>
+        <span [innerHtml]="editable.value"></span>
       </div>
+      <mat-icon class="editable-pencil" aria-hidden="true">edit</mat-icon>
     }
   </div>
 }

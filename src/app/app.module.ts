@@ -33,7 +33,7 @@ import { HttpResInterceptor } from '@src/app/core/_interceptors/http-res.interce
 import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
 import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
 import { FooterComponent } from '@src/app/layout/footer/footer.component';
-import { HeaderComponent } from '@src/app/layout/header/header.component';
+import { LayoutHeaderModule } from '@src/app/layout/header/header.module';
 import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
 import { ScreenSizeDetectorComponent } from '@src/app/layout/screen-size-detector/screen-size-detector.component';
 import { BreadcrumbComponent } from '@src/app/shared/breadcrumb/breadcrumb.component';
@@ -49,7 +49,6 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     ScrollYTopComponent,
     BreadcrumbComponent,
     ErrorPageComponent,
-    HeaderComponent,
     FooterComponent,
     AppComponent
   ],
@@ -74,6 +73,7 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     MatTooltipModule,
     MatSnackBarModule,
     CoreComponentsModule,
+    LayoutHeaderModule,
     AppRoutingModule, // Main routes for the App
     NgIdleKeepaliveModule.forRoot()
   ],
@@ -100,11 +100,11 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     ConfigService,
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' }
+      useValue: { appearance: 'fill', subscriptSizing: 'dynamic', floatLabel: 'always' }
     },
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: { duration: 2500, verticalPosition: 'top' }
+      useValue: { duration: 2500, verticalPosition: 'top', horizontalPosition: 'end' }
     },
     provideHttpClient(withInterceptorsFromDi())
   ]

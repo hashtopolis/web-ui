@@ -1,0 +1,9 @@
+@reference '../../../../styles/tailwind.css';
+
+:host {
+  @apply fluid-component;
+}
+
+.custom-textarea {
+  width: 100%;
+}

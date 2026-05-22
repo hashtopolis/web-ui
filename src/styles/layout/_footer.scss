@@ -1,22 +1,21 @@
-@use "../base/colors";
-
-footer {
+.app-footer {
   margin-top: 1em;
-  font-size: .9em;
+  font-size: 0.9em;
+}
 
-  .mdc-card {
-    text-align: center;
-    background-color: colors.$primary-900;
-    color: #eee;
-    border-radius: 0;
+.footer-card.mat-mdc-card {
+  --mat-card-elevated-container-color: var(--sidebar);
+  --mat-card-elevated-container-shape: 0;
+  --mat-card-outlined-container-color: var(--sidebar);
+  --mat-card-outlined-container-shape: 0;
+  text-align: center;
 
-    .mat-mdc-card-content {
-      padding-top: 8px;
+  .mat-mdc-card-content {
+    padding-top: var(--space-xs);
 
-      .mat-icon {
-        position: relative;
-        top: 6px;
-      }
+    .mat-icon {
+      position: relative;
+      top: 6px;
     }
   }
 }

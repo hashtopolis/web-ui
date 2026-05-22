@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { ButtonsModule } from '../buttons/buttons.module';
-import { PageTitleModule } from '../page-headers/page-title.module';
-import { CoreFormsModule } from '../forms.module';
-import { GridModule } from '../grid-containers/grid.module';
-import { HashlistReportComponent } from './reports/hashlist-report/hashlist-report.component';
-import { ReportBuilderComponent } from './reports/report-builder/report-builder.component';
-import { InputModule } from '../input/input.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
+import { DividerModule } from '@src/app/shared/divider/divider.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { GridModule } from '@src/app/shared/grid-containers/grid.module';
+import { InputModule } from '@src/app/shared/input/input.module';
+import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+import { HashlistReportComponent } from '@src/app/shared/report-builder/reports/hashlist-report/hashlist-report.component';
+import { ReportBuilderComponent } from '@src/app/shared/report-builder/reports/report-builder/report-builder.component';
 
 @NgModule({
   imports: [
@@ -18,7 +20,8 @@ import { InputModule } from '../input/input.module';
     GridModule,
     InputModule,
     PageTitleModule,
-    ButtonsModule
+    ButtonsModule,
+    DividerModule
   ],
   exports: [HashlistReportComponent],
   declarations: [HashlistReportComponent, ReportBuilderComponent]

@@ -1,9 +1,5 @@
-<app-table>
-  <app-page-title
-    title="Users"
-    buttontitle="New User"
-    buttonlink="/users"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-users-table></app-users-table>
-</app-table>
+<app-page title="Users" actionTitle="New User" actionLink="/users" [showAction]="showCreateButton">
+  <app-table>
+    <app-users-table></app-users-table>
+  </app-table>
+</app-page>

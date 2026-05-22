@@ -1,0 +1,13 @@
+.light-theme {
+  background-image: radial-gradient(ellipse at top, rgba(21, 32, 64, 0.04), transparent 60%);
+
+  .mat-mdc-raised-button,
+  .mat-mdc-fab,
+  .mat-mdc-mini-fab {
+    &:hover {
+      box-shadow:
+        0 0 30px var(--alpine-shadow-glow),
+        0 1px 2px var(--alpine-shadow-glow-rim);
+    }
+  }
+}

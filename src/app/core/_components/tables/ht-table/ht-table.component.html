@@ -2,20 +2,17 @@
   <!-- table actions -->
   <div class="table-actions">
     <!-- Auto-refresh control -->
-    <div
-      class="table-footer-actions"
-      style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px"
-    >
-      @if (supportsAutoRefresh) {
-        <button (click)="dataSource.toggleAutoRefresh(!dataSource.autoRefreshEnabled)" mat-button>
+    @if (supportsAutoRefresh) {
+      <div class="table-action-wrapper">
+        <button (click)="dataSource.toggleAutoRefresh(!dataSource.autoRefreshEnabled)" matButton>
           <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
           {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
         </button>
-      }
-    </div>
+      </div>
+    }
     <!-- refresh -->
     <div class="table-action-wrapper">
-      <button (click)="reload()" mat-button>
+      <button (click)="reload()" matButton>
         <mat-icon>refresh</mat-icon>
         Reload
       </button>
@@ -24,7 +21,7 @@
     @if (isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()) {
       <div class="table-action-wrapper">
         @if (dataSource.loading$ | async) {
-          <button [disabled]="true" mat-button>
+          <button [disabled]="true" matButton>
             <mat-icon>adjust</mat-icon>
             Bulk Actions
           </button>
@@ -44,7 +41,7 @@
     @if (isSelectable && showExport) {
       <div class="table-action-wrapper">
         @if (dataSource.loading$ | async) {
-          <button [disabled]="true" mat-button>
+          <button [disabled]="true" matButton>
             <mat-icon>file_download</mat-icon>
             Export
           </button>
@@ -55,15 +52,18 @@
     }
     <!-- columns -->
     <div class="table-action-wrapper">
-      <button (click)="openColumnSelectionDialog()" mat-button>
+      <button (click)="openColumnSelectionDialog()" matButton>
         <mat-icon>view_week</mat-icon>
         Columns
       </button>
     </div>
+    <!-- Extra actions slot — used by parents to project items (e.g. "Show Archived")
+         inline with the Columns button instead of stacking above the action bar. -->
+    <ng-content select="[extra-actions]"></ng-content>
     <!-- temrature information -->
     @if (hasTemperatureInformation) {
       <div class="table-action-wrapper">
-        <button mat-button (click)="temperatureInformationEmit()">
+        <button matButton (click)="temperatureInformationEmit()">
           <mat-icon>info</mat-icon>
           Temperature Information
         </button>
@@ -72,11 +72,15 @@
     <!-- Filter section BACKEND BEGIN-->
     <div class="table-action-wrapper right-aligned">
       @if (isFilterable) {
-        <div class="filter-container">
+        <div class="filter-container flex items-center gap-2">
           <!-- Column selector dropdown -->
-          <mat-form-field>
-            <mat-label class="filter-input-lable">Filter by column</mat-label>
-            <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+          <mat-form-field subscriptSizing="dynamic" class="w-40 no-label-form-field">
+            <mat-select
+              [(ngModel)]="selectedFilterColumn"
+              (selectionChange)="onFilterColumnChange()"
+              placeholder="Column"
+              aria-label="Filter by column"
+            >
               @for (column of filterableColumns; track column.id) {
                 <mat-option [value]="column">{{ columnLabels[column.id] }}</mat-option>
               }
@@ -85,8 +89,13 @@
 
           <!-- Filter input -->
           <form [formGroup]="filterQueryFormGroup">
-            <div style="display: flex; flex-direction: column; gap: 4px">
-              <mat-form-field style="min-width: 200px" [class.filter-error]="filterError">
+            <div class="flex flex-col gap-1">
+              <mat-form-field
+                subscriptSizing="dynamic"
+                class="filter-text-input w-60 max-w-60 no-label-form-field"
+                [class.filter-error]="filterError"
+              >
+                <mat-icon matPrefix>search</mat-icon>
                 <input
                   matInput
                   appDebounce
@@ -98,12 +107,12 @@
                   [attr.aria-invalid]="filterError ? 'true' : 'false'"
                   [attr.aria-describedby]="filterError ? 'filter-error-message' : null"
                 />
-                <button mat-icon-button matSuffix type="button" (click)="clearSearchBox()">
+                <button matIconButton matSuffix type="button" (click)="clearSearchBox()">
                   <mat-icon>clear</mat-icon>
                 </button>
               </mat-form-field>
               @if (filterError) {
-                <div id="filter-error-message" class="filter-error-message">
+                <div id="filter-error-message" class="text-destructive text-xs mt-0.5 pl-3 block">
                   {{ filterError }}
                 </div>
               }
@@ -145,12 +154,12 @@
         <td
           mat-cell
           *matCellDef="let row"
+          class="pl-4"
           [ngStyle]="{
-            'border-left':
+            'box-shadow':
               (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color)
-                ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color)
-                : '',
-            'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || row.color ? '8px' : '16px'
+                ? 'inset 8px 0 0 ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color)
+                : ''
           }"
         >
           @if (!isCmdTask) {
@@ -199,12 +208,19 @@
             mat-header-cell
             *matHeaderCellDef
             [mat-sort-header]="tableColumn.id + ''"
+            [arrowPosition]="tableColumn.isNumeric ? 'before' : 'after'"
             (click)="onColumnHeaderClick(tableColumn)"
+            [class.cell-numeric]="tableColumn.isNumeric"
           >
             {{ columnLabels[tableColumn.id] }}
           </th>
         } @else {
-          <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
+          <th
+            *matHeaderCellDef
+            [class.text-right]="tableColumn.position === 'right'"
+            [class.cell-numeric]="tableColumn.isNumeric"
+            mat-header-cell
+          >
             {{ columnLabels[tableColumn.id] }}
           </th>
         }
@@ -225,10 +241,16 @@
               : ''
           }"
           [class.text-right]="tableColumn.position === 'right'"
+          [class.cell-numeric]="tableColumn.isNumeric"
         >
-          <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
+          <div
+            class="flex-container"
+            [class.links]="tableColumn.routerLink"
+            [class.icons]="tableColumn.icon"
+            [class.text]="tableColumn.render || tableColumn.async"
+          >
             @if (tableColumn.isCopy) {
-              <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+              <button (click)="copyRowDataEmit(element)" matIconButton color="primary" aria-label="Copy button">
                 <mat-icon>content_copy</mat-icon>
               </button>
             }
@@ -238,7 +260,7 @@
             <span class="icon-actions">
               @if (tableColumn.truncate && tableColumn.truncate(element)) {
                 <button
-                  mat-icon-button
+                  matIconButton
                   color="primary"
                   aria-label="Show full hash"
                   (click)="showFullHashModalEmit(element)"
@@ -295,8 +317,7 @@
 
   <!-- Pagination -->
   @if (isPageable) {
-    <hr />
-    <div class="paginator-footer">
+    <div class="flex justify-between items-center gap-3 mt-1 pt-2 text-subtle-foreground text-xs">
       <last-updated
         [lastUpdated]="dataSource.lastUpdated"
         [nextRefreshTimestamp]="dataSource.autoRefreshService.nextRefreshTimestamp"
@@ -310,6 +331,7 @@
         [pageIndex]="dataSource.index"
         [pageSizeOptions]="paginationSizes"
         [pageSize]="dataSource.pageSize"
+        [showFirstLastButtons]="true"
       ></mat-paginator>
     </div>
   }

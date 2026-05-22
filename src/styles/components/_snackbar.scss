@@ -1,60 +1,48 @@
-@use "../base/colors";
-
-.snackbar-error, .snackbar-success, .snackbar-info {
+.snackbar-error,
+.snackbar-success,
+.snackbar-info {
   .mat-mdc-snack-bar-label {
-    font-size: 12pt !important;
-    font-weight: 500 !important;
+    font-size: var(--text-md);
+    font-weight: 500;
   }
-  .mdc-snackbar__surface{
+
+  .mdc-snackbar__surface {
     margin-top: 0.25rem;
     margin-left: 0;
-    backdrop-filter: blur(10px);
   }
-  .mat-mdc-snack-bar-actions{
-    button{
-      font-size: 10pt !important;
-    }
+
+  --mat-snack-bar-button-color: var(--foreground);
+
+  .mat-mdc-snack-bar-actions button {
+    --mdc-text-button-label-text-color: var(--foreground);
+    font-size: var(--text-sm);
+    border: 1px solid var(--border-strong);
   }
 }
 
 .snackbar-error {
-  .mdc-snackbar__surface{
-    background-color: var(--background-error) !important;
-    color: var(--color-error)!important;
-    border-left: 5px solid var(--color-error);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-error)!important;
-      border: 1px solid var(--color-error);
-    }
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--destructive) 16%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--destructive);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--destructive);
   }
 }
 
-.snackbar-success{
-  .mdc-snackbar__surface{
-    background-color: var(--background-success) !important;
-    color: var(--color-success)!important;
-    border-left: 5px solid var(--color-success);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-success)!important;
-      border: 1px solid var(--color-success);
-    }
+.snackbar-success {
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--success) 22%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--success);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--success);
   }
 }
 
-.snackbar-info{
-  .mdc-snackbar__surface{
-    background-color: var(--background-info) !important;
-    color: var(--color-info)!important;
-    border-left: 5px solid var(--color-info);
-  }
-  .mat-mdc-snack-bar-actions{
-    button{
-      color: var(--color-info)!important;
-      border: 1px solid var(--color-info);
-    }
+.snackbar-info {
+  --mat-snack-bar-container-color: color-mix(in oklch, var(--info) 16%, var(--well));
+  --mat-snack-bar-supporting-text-color: var(--info);
+
+  .mdc-snackbar__surface {
+    border-left: 5px solid var(--info);
   }
 }

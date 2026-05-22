@@ -142,6 +142,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     const tableColumns: HTTableColumn[] = [
       {
         id: FilesTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: this.isSortable,
         isSearchable: true,
@@ -157,6 +158,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: FilesTableCol.SIZE,
+        isNumeric: true,
         dataKey: 'size',
         render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: this.isSortable,
@@ -164,6 +166,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: FilesTableCol.LINE_COUNT,
+        isNumeric: true,
         dataKey: 'lineCount',
         isSortable: this.isSortable,
         render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),

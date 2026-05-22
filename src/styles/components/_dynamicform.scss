@@ -1,0 +1,30 @@
+.custom-form__sections .field-stack__label {
+  width: 100%;
+  min-width: 0;
+}
+
+.custom-form__sections .field-stack__label-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.custom-form__checkbox .mat-mdc-checkbox {
+  display: block;
+  max-width: 100%;
+}
+
+.custom-form__checkbox .mdc-form-field {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.custom-form__checkbox .mdc-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+}

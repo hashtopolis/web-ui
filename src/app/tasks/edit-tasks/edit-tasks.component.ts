@@ -46,6 +46,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
+  styleUrls: ['./edit-tasks.component.scss'],
   providers: [FileSizePipe],
   standalone: false
 })

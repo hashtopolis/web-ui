@@ -1,0 +1,74 @@
+@reference '../../../styles/tailwind.css';
+
+:host {
+  display: block;
+}
+
+.custom-form {
+  width: 100%;
+}
+
+.custom-form__sections {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  @media (min-width: 768px) {
+    &:has(> :nth-child(2)) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+}
+
+.custom-form__section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) 20px;
+  align-items: start;
+  background: var(--card);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+
+  &:not(:has(> div + div)) {
+    grid-template-columns: 1fr;
+  }
+
+  > *:not(.custom-form__section-title) {
+    min-height: var(--form-field-row-height, 76px);
+  }
+}
+
+.custom-form__section-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--heading-foreground);
+  margin: 0 0 var(--space-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  grid-column: 1 / -1;
+}
+
+.custom-form__cell--full {
+  grid-column: 1 / -1;
+}
+
+.custom-form__checkbox-cell {
+  min-width: 0;
+  overflow: hidden;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.custom-form__checkbox {
+  display: block;
+  max-width: 100%;
+}
