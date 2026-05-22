@@ -133,6 +133,7 @@ export interface JTaskWrapperDisplay extends BaseModel {
   hashTypeDescription?: string;
   groupName?: string;
   status?: number;
+  currentSpeed?: number;
 }
 
 export enum TaskStatus {

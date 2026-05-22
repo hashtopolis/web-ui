@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
 import { JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
@@ -29,8 +30,8 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-
 @Component({
   selector: 'app-tasks-table',
   templateUrl: './tasks-table.component.html',
@@ -106,6 +107,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
+  private renderCurrentSpeed(agent: JTaskWrapperDisplay): SafeHtml {
+    const agentSpeed = agent.currentSpeed;
+    if (agentSpeed) {
+      return this.sanitize(convertCrackingSpeed(agentSpeed));
+    }
+    return '0 H/s';
+  }
   getColumns(): HTTableColumn[] {
     const columns: HTTableColumn[] = [];
 
@@ -142,6 +150,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapperDisplay) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapperDisplay) => this.getTaskStatusLabel(wrapper)
+      },
+      {
+        id: TaskTableCol.TASK_SPEED,
+        dataKey: 'currentSpeed',
+        render: (wrapper: JTaskWrapperDisplay) => this.renderCurrentSpeed(wrapper),
+        isSortable: false,
+        isSearchable: false,
+        export: async (wrapper: JTaskWrapperDisplay) => wrapper.currentSpeed?.toString() ?? ''
       },
       {
         id: TaskTableCol.HASHTYPE,
