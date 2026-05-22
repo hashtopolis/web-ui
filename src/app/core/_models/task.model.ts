@@ -136,6 +136,7 @@ export interface JTaskWrapperDisplay extends BaseModel {
   currentSpeed?: number;
   dispatched?: string;
   searched?: string;
+  totalAssignedAgents?: number;
 }
 
 export enum TaskStatus {

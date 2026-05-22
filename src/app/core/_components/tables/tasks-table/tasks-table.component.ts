@@ -215,17 +215,17 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: TaskTableCol.AGENTS,
-        dataKey: 'agents',
+        dataKey: 'totalAssignedAgents',
         isSortable: false,
         render: (wrapper: JTaskWrapperDisplay) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.taskMaxAgents + '';
+            return wrapper.totalAssignedAgents + '';
           } else {
             return '';
           }
         },
         export: async (wrapper: JTaskWrapperDisplay) =>
-          (wrapper.taskType === TaskType.TASK ? wrapper.taskMaxAgents : 0) + ''
+          (wrapper.taskType === TaskType.TASK ? wrapper.totalAssignedAgents : 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
