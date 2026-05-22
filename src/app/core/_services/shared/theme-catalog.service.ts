@@ -23,8 +23,7 @@ interface RuntimeThemeManifestEntry {
 
 const BUILT_IN_THEME_ICONS: Record<string, string> = {
   light: 'light_mode',
-  dark: 'dark_mode',
-  fallout: 'science'
+  dark: 'dark_mode'
 };
 
 @Injectable({

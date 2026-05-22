@@ -2,7 +2,6 @@
 @use './m3-palette' as palette;
 @use './light';
 @use './dark';
-@use './fallout';
 
 html {
   color-scheme: light dark;

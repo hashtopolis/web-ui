@@ -49,7 +49,7 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
 })
 export class ThemeService {
   private _theme = new BehaviorSubject<string | null>(null);
-  private readonly supportedThemeClasses = ['light-theme', 'dark-theme', 'fallout-theme'];
+  private readonly supportedThemeClasses = ['light-theme', 'dark-theme'];
   private readonly customThemeHrefs = new Map<string, string>();
   private activeThemeClass: string | null = null;
 

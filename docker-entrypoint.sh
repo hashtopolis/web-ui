@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 environment=${1:-"production"}
 
 # Check if environment variable HASHTOPOLIS_BACKEND_URL is set
@@ -16,6 +18,7 @@ function update_app_config {
 
 function sync_custom_themes {
   app_cfg_base="$1"
+  built_in_source_dir="${app_cfg_base}/assets/custom-themes"
   source_dir="${HASHTOPOLIS_CUSTOM_THEMES_DIR:-/custom-themes}"
   target_css_dir="${app_cfg_base}/assets/custom-themes"
   manifest_dir="${app_cfg_base}/assets/themes"
@@ -24,45 +27,51 @@ function sync_custom_themes {
   mkdir -p "$target_css_dir"
   mkdir -p "$manifest_dir"
 
-  rm -f "$target_css_dir"/*.css
-
   echo "[" > "$manifest_file"
-
-  if [ ! -d "$source_dir" ]; then
-    echo "]" >> "$manifest_file"
-    echo "Custom theme source directory not found: $source_dir"
-    return
-  fi
 
   first=true
   seen_ids="," 
-  while IFS= read -r -d '' css_path; do
+  theme_source_dirs=("$built_in_source_dir")
 
-    file_name="$(basename "$css_path")"
-    base_name="${file_name%.*}"
-    theme_id="$(echo "$base_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+  if [ "$source_dir" != "$built_in_source_dir" ]; then
+    theme_source_dirs+=("$source_dir")
+  fi
 
-    if [ -z "$theme_id" ]; then
-      echo "Skipping invalid theme file: $file_name"
+  for current_source in "${theme_source_dirs[@]}"; do
+    if [ ! -d "$current_source" ]; then
+      echo "Custom theme source directory not found: $current_source"
       continue
     fi
 
-    if echo "$seen_ids" | grep -q ",$theme_id,"; then
-      echo "Skipping duplicate theme id: $theme_id"
-      continue
-    fi
-    seen_ids="${seen_ids}${theme_id},"
+    while IFS= read -r -d '' css_path; do
 
-    cp "$css_path" "$target_css_dir/${theme_id}.css"
-    theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/\"//g')"
+      file_name="$(basename "$css_path")"
+      base_name="${file_name%.*}"
+      theme_id="$(echo "$base_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
 
-    if [ "$first" = true ]; then
-      first=false
-    else
-      echo "," >> "$manifest_file"
-    fi
+      if [ -z "$theme_id" ]; then
+        echo "Skipping invalid theme file: $file_name"
+        continue
+      fi
 
-    cat >> "$manifest_file" <<EOF
+      if echo "$seen_ids" | grep -q ",$theme_id,"; then
+        echo "Skipping duplicate theme id: $theme_id"
+        continue
+      fi
+      seen_ids="${seen_ids}${theme_id},"
+
+      if [ "$css_path" != "$target_css_dir/${theme_id}.css" ]; then
+        cp "$css_path" "$target_css_dir/${theme_id}.css"
+      fi
+      theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/\"//g')"
+
+      if [ "$first" = true ]; then
+        first=false
+      else
+        echo "," >> "$manifest_file"
+      fi
+
+      cat >> "$manifest_file" <<EOF
   {
     "value": "$theme_id",
     "description": "$theme_label",
@@ -70,7 +79,8 @@ function sync_custom_themes {
     "icon": "style"
   }
 EOF
-  done < <(find "$source_dir" -type f -iname '*.css' -print0 | sort -z)
+    done < <(find "$current_source" -type f -iname '*.css' -print0 | sort -z)
+  done
 
   echo "]" >> "$manifest_file"
   echo "Custom themes synced to $target_css_dir"

@@ -163,10 +163,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return 'dark_mode';
     }
 
-    if (this.currentTheme === 'fallout') {
-      return 'science';
-    }
-
     return 'palette';
   }
 
