@@ -22,8 +22,8 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { AlertService } from '@services/shared/alert.service';
-import { ThemeService } from '@services/shared/theme.service';
 import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
+import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
