@@ -542,6 +542,7 @@ const _uiConfigDefault = {
         TaskTableCol.HASHLISTS,
         TaskTableCol.PRIORITY,
         TaskTableCol.AGENTS,
+        TaskTableCol.TASK_SPEED,
         TaskTableCol.MAX_AGENTS,
         TaskTableCol.DISPATCHED_SEARCHED,
         TaskTableCol.CRACKED
