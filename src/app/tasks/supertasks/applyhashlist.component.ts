@@ -37,6 +37,17 @@ export interface ApplyHashlistForm {
   hashlistId: FormControl<HashlistId | null>;
   crackerBinaryId: FormControl<CrackerBinaryId | null>;
   crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
+  skipCompleted: FormControl<boolean>;
+}
+
+interface SkippedPretask {
+  pretaskId: number;
+  matchingTaskId: number;
+}
+
+interface CreateSupertaskMeta {
+  taskWrapperId: number | null;
+  skippedPretasks?: SkippedPretask[];
 }
 
 /**
@@ -117,7 +128,8 @@ export class ApplyHashlistComponent implements OnInit {
       supertaskTemplateId: new FormControl<number | null>(null),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null),
+      skipCompleted: new FormControl<boolean>(false, { nonNullable: true })
     });
   }
 
@@ -133,7 +145,8 @@ export class ApplyHashlistComponent implements OnInit {
       supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null),
+      skipCompleted: new FormControl<boolean>(false, { nonNullable: true })
     });
 
     //subscribe to changes to handle select cracker binary
@@ -242,6 +255,14 @@ export class ApplyHashlistComponent implements OnInit {
   /**
    * OnSubmit save changes
    */
+  /**
+   * Formats matching task ids for the skip toast, capped so the message stays readable.
+   */
+  private formatTaskIds(skipped: SkippedPretask[], max = 5): string {
+    const ids = skipped.map((entry) => `#${entry.matchingTaskId}`);
+    return ids.length > max ? `${ids.slice(0, max).join(', ')} and ${ids.length - max} more` : ids.join(', ');
+  }
+
   onSubmit() {
     if (this.form.valid) {
       const formValue = this.form.value;
@@ -250,15 +271,40 @@ export class ApplyHashlistComponent implements OnInit {
       const adaptedFormValue = {
         supertaskTemplateId: formValue.supertaskTemplateId,
         hashlistId: formValue.hashlistId,
-        crackerVersionId: formValue.crackerBinaryTypeId
+        crackerVersionId: formValue.crackerBinaryTypeId,
+        skipCompleted: formValue.skipCompleted
       };
       this.gs
-        .chelper(SERV.HELPER, 'createSupertask', adaptedFormValue)
+        .chelper<ResponseWrapper<CreateSupertaskMeta>>(SERV.HELPER, 'createSupertask', adaptedFormValue)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.alert.showSuccessMessage('New Supertask created');
-          this.router.navigate(['tasks/show-tasks']);
-          this.isCreatingLoading = false;
+        .subscribe({
+          next: (response) => {
+            const skipped = response?.meta?.skippedPretasks ?? [];
+            // The server only sends meta.taskWrapperId (as null) when every pretask was skipped;
+            // when a wrapper was created the key is absent, so a strict null check is required.
+            const allSkipped = response?.meta?.taskWrapperId === null;
+            // One toast only: the snackbar shows a single message at a time, so a second call
+            // would replace the first before the user can read it.
+            if (allSkipped) {
+              this.alert.showInfoMessage(
+                `All ${skipped.length} pretask(s) were already completed for this hashlist, no new SuperTask was created. Uncheck "Skip pretasks already completed" to force a re-run.`
+              );
+            } else if (skipped.length) {
+              this.alert.showSuccessMessage(
+                `New SuperTask created. Skipped ${skipped.length} pretask(s) already completed for this hashlist (matching task(s) ${this.formatTaskIds(skipped)}).`
+              );
+            } else {
+              this.alert.showSuccessMessage('New SuperTask created');
+            }
+            this.router.navigate(['tasks/show-tasks']);
+          },
+          error: () => {
+            // The global HTTP interceptor already surfaces the error for this request.
+            this.isCreatingLoading = false;
+          },
+          complete: () => {
+            this.isCreatingLoading = false;
+          }
         });
     } else {
       this.form.markAllAsTouched();
