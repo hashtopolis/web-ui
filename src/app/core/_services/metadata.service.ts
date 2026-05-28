@@ -627,7 +627,7 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating a new Hashtype.
   newhashtype: MetadataFormField[] = [
     {
-      name: 'id',
+      name: 'hashTypeId',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
