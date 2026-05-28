@@ -898,7 +898,7 @@ export class MetadataService {
     },
     {
       name: 'pagingSize',
-      label: 'Hashes size Page in Hash Vieww',
+      label: 'Hashes size Page in Hash View',
       type: 'number',
       tooltip: false
     },
