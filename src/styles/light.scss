@@ -32,6 +32,17 @@
   --link: #2563eb;
   --link-hover: #1d4ed8;
 
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --destructive: #dc2626;
+  --info: #2563eb;
+
+  --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
+
+  --success-bg: color-mix(in oklch, var(--success) 22%, var(--well));
+  --destructive-bg: color-mix(in oklch, var(--destructive) 18%, var(--well));
+  --info-bg: color-mix(in oklch, var(--info) 18%, var(--well));
+
   --popover: #ffffff;
 
   --brand-backdrop: transparent;
