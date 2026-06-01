@@ -50,7 +50,7 @@
 
           <form [formGroup]="updateForm" class="flex flex-col gap-3">
             <div class="flex flex-row flex-wrap items-center gap-2">
-              <input-text title="No. of Chunks" formControlName="chunkSize"></input-text>
+              <input-text title="No. of Chunks" formControlName="totalNumberOfChunks"></input-text>
               <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
               <input-text title="Use static chunking" formControlName="staticChunks" class="w-60"></input-text>
               <input-text title="Skipping keyspace" formControlName="skipKeyspace"></input-text>
@@ -60,7 +60,7 @@
 
             <app-form-row [columns]="2">
               @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
-                <input-text title="Keyspace Searched" [value]="searched" [readonly]="true"></input-text>
+                <input-text title="Keyspace Searched" [value]="searched + '%'" [readonly]="true"></input-text>
               } @else {
                 <input-text title="Keyspace Searched" value="N/A" [readonly]="true"></input-text>
               }
