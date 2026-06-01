@@ -207,6 +207,19 @@ table.hashtopolis-table {
         margin-left: auto;
       }
 
+      // Icon-only cells: keep the empty ht-table-editable from growing and
+      // shoving the icon right, so it stays flush-left under the header.
+      &.icons:not(.text):not(.links) {
+        ht-table-editable {
+          flex: 0 0 auto;
+        }
+
+        .mat-icon {
+          margin-top: 0;
+          margin-left: 0;
+        }
+      }
+
       &.links app-ht-table-link {
         flex: 1 1 auto;
         min-width: 0;
