@@ -173,7 +173,7 @@ export class BaseTableComponent {
     const links: HTTableRouterLink[] = [];
     if (chunk) {
       links.push({
-        routerLink: ['/hashlists', 'hashes', 'tasks', chunk.taskId],
+        routerLink: ['/hashlists', 'hashes', 'chunks', chunk.id],
         label: chunk.cracked.toLocaleString()
       });
     }
