@@ -190,8 +190,19 @@ export class FormConfigComponent implements OnInit, OnDestroy {
 
     if (Object.keys(changedFields).length === 0) return;
 
+    // Currently this form data can get out of sync with the backend implementation.
+    // If some fields are removed and not returned by backend show an error here when trying to update them.
+    // @IMPROVEMENT -> this should be fully typed instead of being dynamic
+    const updatableKeys = Object.keys(changedFields).filter((key) => this.formIds[key] !== undefined);
+    const skippedKeys = Object.keys(changedFields).filter((key) => this.formIds[key] === undefined);
+    if (skippedKeys.length) {
+      this.alert.showErrorMessage(`Cannot save (no matching config on server): ${skippedKeys.join(', ')}`);
+    }
+
+    if (updatableKeys.length === 0) return;
+
     // Prepare all update observables
-    const updateRequests = Object.keys(changedFields).map((key) => {
+    const updateRequests = updatableKeys.map((key) => {
       const id = this.formIds[key];
       const value = changedFields[key];
       return this.gs.update(SERV.CONFIGS, id, { item: key, value: String(value) });
@@ -201,7 +212,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.mySubscription = forkJoin(updateRequests).subscribe({
       next: () => {
         // Mark all fields as updated
-        Object.keys(changedFields).forEach((key) =>
+        updatableKeys.forEach((key) =>
           this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0])
         );
 

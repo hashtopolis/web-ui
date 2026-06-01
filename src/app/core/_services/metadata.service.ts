@@ -856,25 +856,6 @@ export class MetadataService {
       label: 'Display Cracks per Minute for Active Tasks',
       type: 'checkbox',
       tooltip: false
-    },
-    { label: 'Rule splitting', isTitle: true },
-    {
-      name: 'ruleSplitSmallTasks',
-      label: 'Rule Splitting for Tasks: Always Create Small Tasks',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitAlways',
-      label: 'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitDisable',
-      label: 'Disable Automatic Task Splitting for Large Rule Files',
-      type: 'checkbox',
-      tooltip: false
     }
   ];
 
