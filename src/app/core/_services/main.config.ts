@@ -65,7 +65,7 @@ export class SERV {
   public static CONFIGS = { URL: '/ui/configs', RESOURCE: 'Configs' };
   public static CRACKERS = { URL: '/ui/crackers', RESOURCE: 'Crackers' };
   public static CRACKERS_TYPES = { URL: '/ui/crackertypes', RESOURCE: 'CrackerTypes' };
-  public static HASHTYPES = { URL: '/ui/hashtypes', RESOURCE: 'HashTypes' };
+  public static HASHTYPES = { URL: '/ui/hashtypes', RESOURCE: 'hashtype' };
   public static HEALTH_CHECKS = { URL: '/ui/healthchecks', RESOURCE: 'HealthCheck' };
   public static HEALTH_CHECKS_AGENTS = { URL: '/ui/healthcheckagents', RESOURCE: 'HealthCheckAgents' };
   public static LOGS = { URL: '/ui/logentries', RESOURCE: 'LogEntries' };

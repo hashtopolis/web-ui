@@ -556,7 +556,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Write us an email',
             icon: 'faPaperplane',
-            routerLink: ['mailto:contact@hashtoplis.org'],
+            routerLink: ['mailto:contact@hashtopolis.org'],
             external: true
           },
           {
