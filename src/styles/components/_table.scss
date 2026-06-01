@@ -158,11 +158,6 @@ table.hashtopolis-table {
         display: block;
       }
 
-      .mat-icon {
-        margin-top: -2px;
-        margin-left: 3px;
-      }
-
       a,
       a.link {
         display: inline;
@@ -216,7 +211,7 @@ table.hashtopolis-table {
         flex: 0 1 auto;
       }
 
-      ht-table-editable {
+      ht-table-editable:has(.editable-container) {
         display: block;
         flex: 1 1 auto;
         min-width: 0;
