@@ -208,7 +208,7 @@
             mat-header-cell
             *matHeaderCellDef
             [mat-sort-header]="tableColumn.id + ''"
-            [arrowPosition]="tableColumn.isNumeric ? 'before' : 'after'"
+            arrowPosition="before"
             (click)="onColumnHeaderClick(tableColumn)"
             [class.cell-numeric]="tableColumn.isNumeric"
           >
