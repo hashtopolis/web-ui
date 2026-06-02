@@ -262,6 +262,10 @@ textarea.mat-mdc-input-element.custom-textarea {
   display: block;
 }
 
+.field-stack.is-invalid .mat-mdc-form-field-subscript-wrapper {
+  display: block;
+}
+
 .mat-mdc-form-field.field-stack__field.custom-chip-grid {
   .mdc-text-field--filled {
     height: auto;
