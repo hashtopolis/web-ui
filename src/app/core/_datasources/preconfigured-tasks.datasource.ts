@@ -54,6 +54,9 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     try {
       if (this._superTaskId === 0) {
         let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
+        if (this.uiService.getUISettings()?.hideImportMasks === '1') {
+          params = params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
+        }
         params = this.applyFilterWithPaginationReset(params, activeFilter, query);
         const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);

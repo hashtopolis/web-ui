@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { UiSettings } from '@models/config-ui.schema';
 import { JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
@@ -71,14 +72,15 @@ const MOCK_SUPERTASK_NO_PRETASKS: JSuperTask = {
 describe('PreTasksDataSource', () => {
   let dataSource: PreTasksDataSource;
   let gsSpy: jasmine.SpyObj<GlobalService>;
+  let uiServiceSpy: jasmine.SpyObj<UIConfigService>;
   let deserializeSpy: jasmine.Spy;
 
   beforeEach(() => {
     gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getAll']);
 
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
+    uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
+    uiServiceSpy.getUISettings.and.returnValue(null);
     const autoRefreshSpy = jasmine.createSpyObj(
       'AutoRefreshService',
       ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
@@ -211,6 +213,31 @@ describe('PreTasksDataSource', () => {
       );
     });
 
+    it('should add isMaskImport=false filter when hideImportMasks is "1"', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: '1' } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      expect((params as RequestParams).filter).toContain(
+        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      );
+    });
+
+    it('should NOT add isMaskImport filter when hideImportMasks is "0"', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: '0' } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+    });
+
+    it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
+      uiServiceSpy.getUISettings.and.returnValue(null);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+    });
+
     it('should set loading to false after a successful response', async () => {
       await dataSource.loadAll();
       expect(dataSource['loadingSubject'].getValue()).toBeFalse();
@@ -273,6 +300,14 @@ describe('PreTasksDataSource', () => {
     it('should set loading to false after response', async () => {
       await dataSource.loadAll();
       expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+    });
+
+    it('should NOT add isMaskImport filter even when hideImportMasks is "1"', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: '1' } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
     });
   });
 

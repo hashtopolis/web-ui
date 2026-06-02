@@ -28,6 +28,7 @@ function makeUiSettings(overrides: Partial<UiSettings> = {}): UiSettings {
     hashcatBrainEnable: 0,
     hashlistAlias: '#HL#',
     blacklistChars: '',
+    hideImportMasks: '1',
     _timestamp: Date.now(),
     _expiresin: 72 * 60 * 60 * 1000,
     ...overrides
