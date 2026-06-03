@@ -76,16 +76,11 @@ table.hashtopolis-table.mat-mdc-table {
   overflow: visible;
 }
 
-/* Horizontal-scroll container around each table (see ht-table.component.html).
-   On zoom-in / narrow widths the table keeps its columns at content width and the
-   container scrolls horizontally, instead of cramming columns into 2–3 wrapped
-   lines or overflowing the page. Row-action menus render in a CDK overlay above
-   this element, so they are not clipped by overflow-x. */
+// Wrapper around each table (see ht-table.component.html). overflow:visible so
+// wide tables overflow like master instead of scrolling in a clipped container.
 .ht-table-scroll {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 // Inside dialogs the card sits on --popover instead of the page --background,
@@ -108,8 +103,6 @@ table.hashtopolis-table {
   // the overflowing part finally gets a matching background.
   background: linear-gradient(var(--card), var(--card)), var(--background);
   width: 100%;
-  /* Below the content width the wrapper scrolls rather than squeezing columns. */
-  min-width: max-content;
 
   .mat-mdc-row,
   .mat-mdc-cell,
