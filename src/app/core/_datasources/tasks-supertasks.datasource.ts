@@ -21,6 +21,9 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   loadAll(): void {
     this.loading = true;
 
+    // fetch all subtasks of task as this is a client sorted table
+    this.pageSize = this.maxResults;
+
     const params = new RequestParamBuilder()
       .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
