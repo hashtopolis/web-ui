@@ -4,7 +4,8 @@ import { By } from '@angular/platform-browser';
 
 import { InputColorComponent } from '@src/app/shared/input/color/color.component';
 
-const HEX_PATTERN = /^#[0-9a-f]{6}$/i;
+// Values are stored/emitted as bare hex (the backend format); the `#` is only added for display.
+const BARE_HEX_PATTERN = /^[0-9a-f]{6}$/i;
 
 describe('InputColorComponent', () => {
   let component: InputColorComponent;
@@ -51,27 +52,27 @@ describe('InputColorComponent', () => {
   });
 
   describe('generateRandomColor', () => {
-    it('emits a 7-character hex via onChange', () => {
+    it('emits a bare 6-character hex via onChange', () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
 
       component.generateRandomColor();
 
-      expect(component.value).toMatch(HEX_PATTERN);
+      expect(component.value).toMatch(BARE_HEX_PATTERN);
       expect(onChange).toHaveBeenCalledWith(component.value);
     });
   });
 
   describe('onValueChange', () => {
-    it('reads value from the input element and emits via onChange', () => {
+    it('reads the native picker value and stores it as bare hex via onChange', () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
       const event = { target: { value: '#123456' } } as unknown as Event;
 
       component.onValueChange(event);
 
-      expect(component.value).toBe('#123456');
-      expect(onChange).toHaveBeenCalledWith('#123456');
+      expect(component.value).toBe('123456');
+      expect(onChange).toHaveBeenCalledWith('123456');
     });
   });
 
@@ -82,7 +83,7 @@ describe('InputColorComponent', () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
 
-      expect(component.value).toMatch(HEX_PATTERN);
+      expect(component.value).toMatch(BARE_HEX_PATTERN);
       expect(onChange).not.toHaveBeenCalled();
     });
 
@@ -96,12 +97,12 @@ describe('InputColorComponent', () => {
       expect(onChange).not.toHaveBeenCalled();
     });
 
-    it('uses a literal hex string verbatim as the default', () => {
+    it('uses a literal hex string as the default, stored bare', () => {
       component.defaultColor = '#3366FF';
       component.writeValue(null);
       component.registerOnChange(jasmine.createSpy('onChange'));
 
-      expect(component.value).toBe('#3366FF');
+      expect(component.value).toBe('3366FF');
     });
   });
 
@@ -118,6 +119,15 @@ describe('InputColorComponent', () => {
       fixture.detectChanges();
 
       expect(nativeInput().value).toBe('#3366ff');
+    });
+
+    it('normalizes a bare 6-char hex value to #rrggbb for the native input and swatch (regression: bare hex rendered black)', () => {
+      component.writeValue('ff0000');
+      fixture.detectChanges();
+
+      expect(nativeInput().value).toBe('#ff0000');
+      expect(nativeInput().classList).not.toContain('color-unset');
+      expect(swatchText().textContent?.trim()).toBe('#ff0000');
     });
 
     it('marks the input with .color-unset when value is null', () => {

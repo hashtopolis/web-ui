@@ -43,13 +43,25 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   @Input() defaultColor?: DefaultColorMode;
   @Input() randomColor = true;
 
+  /**
+   * Hashtopolis stores task colors as bare 6-char hex (e.g. `ff0000`), but
+   * `<input type="color">`, CSS `background`, and `isColorLight()` all need a
+   * 7-char `#rrggbb`. Expose a normalized `#`-prefixed form for display while
+   * keeping the stored/emitted value bare. Returns '' for empty/malformed input
+   * so the `.color-unset` fallback kicks in instead of rendering black.
+   */
+  get nativeColor(): string {
+    const hex = (this.value ?? '').trim().replace(/^#/, '');
+    return /^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex}` : '';
+  }
+
   override registerOnChange(fn: (value: string) => void): void {
     super.registerOnChange(fn);
     this.applyDefault();
   }
 
   generateRandomColor() {
-    this.setValue(randomColor());
+    this.setValue(this.stripHash(randomColor()));
   }
 
   clearColor() {
@@ -57,7 +69,13 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   }
 
   onValueChange(event: Event): void {
-    this.setValue((event.target as HTMLInputElement).value);
+    // The native picker always emits a `#rrggbb`; store it bare to match the backend format.
+    this.setValue(this.stripHash((event.target as HTMLInputElement).value));
+  }
+
+  /** Drop a leading `#` so values are stored/emitted as bare hex. */
+  private stripHash(value: string): string {
+    return (value ?? '').replace(/^#/, '');
   }
 
   private setValue(next: string): void {
@@ -68,7 +86,7 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   private applyDefault(): void {
     if (this.value || this.defaultColor === undefined) return;
     const resolved = this.resolveDefault(this.defaultColor);
-    if (resolved) this.value = resolved;
+    if (resolved) this.value = this.stripHash(resolved);
   }
 
   private resolveDefault(mode: DefaultColorMode): string {
