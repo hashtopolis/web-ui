@@ -724,7 +724,7 @@ export class MetadataService {
       tooltip: false
     },
     {
-      name: 'benchtime',
+      name: 'chunktimeout',
       label: 'Inactivity Timeout for Issued Chunks',
       type: 'number',
       tooltip: false
