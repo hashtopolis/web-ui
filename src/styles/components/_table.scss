@@ -76,13 +76,6 @@ table.hashtopolis-table.mat-mdc-table {
   overflow: visible;
 }
 
-// Wrapper around each table (see ht-table.component.html). overflow:visible so
-// wide tables overflow like master instead of scrolling in a clipped container.
-.ht-table-scroll {
-  width: 100%;
-  overflow: visible;
-}
-
 // Inside dialogs the card sits on --popover instead of the page --background,
 // so flatten --card over --popover there to keep the table colour matching
 // the card frame (e.g. the supertask subtask window).
