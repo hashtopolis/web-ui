@@ -65,7 +65,6 @@ export class InputColorComponent extends AbstractInputComponent<string> {
     this.setValue(this.stripHash((event.target as HTMLInputElement).value));
   }
 
-  /** Drop a leading `#` so values are stored/emitted as bare hex. */
   private stripHash(value: string): string {
     return (value ?? '').replace(/^#/, '');
   }

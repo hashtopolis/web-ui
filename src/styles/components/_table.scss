@@ -76,24 +76,12 @@ table.hashtopolis-table.mat-mdc-table {
   overflow: visible;
 }
 
-// Inside dialogs the card sits on --popover instead of the page --background,
-// so flatten --card over --popover there to keep the table colour matching
-// the card frame (e.g. the supertask subtask window).
 .mat-mdc-dialog-container table.hashtopolis-table {
   background: linear-gradient(var(--card), var(--card)), var(--popover);
 }
 
 table.hashtopolis-table {
   overflow: visible;
-  // Carry the card surface on the table itself so the columns that overflow
-  // the card (it uses overflow:visible, so wide tables scroll at the page
-  // level) still sit on a background instead of the bare page surface.
-  // We FLATTEN --card over the opaque page background rather than using
-  // --card directly: in dark themes --card is translucent, so painting it on
-  // the table (already inside the card) would double the overlay and make the
-  // rows lighter than the card frame. The flattened result is opaque and
-  // equals the card's rendered colour, so the in-card look is unchanged while
-  // the overflowing part finally gets a matching background.
   background: linear-gradient(var(--card), var(--card)), var(--background);
   width: 100%;
 
@@ -286,8 +274,6 @@ table.hashtopolis-table {
         display: none;
       }
       .editable-input {
-        // Fill the form field so the input adapts to its column width (e.g. the wide
-        // benchmark column) instead of being clipped to a fixed 56px.
         width: 100%;
         min-width: 56px;
         margin: 0;

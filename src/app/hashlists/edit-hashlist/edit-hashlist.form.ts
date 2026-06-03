@@ -10,7 +10,6 @@ export interface EditHashlistForm {
   accessGroupId: FormControl<AccessGroupId | null>;
   useBrain: FormControl<boolean | null>;
   format: FormControl<string | null>;
-  // Display-only counts: hold locale-formatted strings (e.g. "1,234,567"), never submitted.
   hashCount: FormControl<string | null>;
   cracked: FormControl<string | null>;
   remaining: FormControl<string | null>;

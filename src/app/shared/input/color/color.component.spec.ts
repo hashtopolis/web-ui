@@ -4,7 +4,6 @@ import { By } from '@angular/platform-browser';
 
 import { InputColorComponent } from '@src/app/shared/input/color/color.component';
 
-// Values are stored/emitted as bare hex (the backend format); the `#` is only added for display.
 const BARE_HEX_PATTERN = /^[0-9a-f]{6}$/i;
 
 describe('InputColorComponent', () => {

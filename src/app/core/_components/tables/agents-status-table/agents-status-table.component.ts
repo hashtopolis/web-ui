@@ -387,7 +387,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       : { name: 'pause_circle', cls: 'text-inactive', tooltip: 'Stopped task' };
   }
 
-  // An agent is "running a task" when it is active, has an assigned task, is reporting progress and was recently seen.
   private isRunningTask(agent: JAgent): boolean {
     const isReportingProgress = agent.lastAct === 'sendProgress';
     const hasAssignedTask = !!agent.taskId;
