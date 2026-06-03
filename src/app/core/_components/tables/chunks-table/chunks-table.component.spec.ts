@@ -295,11 +295,11 @@ describe('ChunksTableComponent', () => {
     it('should render CRACKED column routerLink with correct path and label', (done) => {
       const columns = component.getColumns();
       const crackedColumn = columns.find((col) => col.id === ChunksTableCol.CRACKED);
-      const chunk = { taskId: 5, cracked: 100 } as JChunk;
+      const chunk = { id: 9, taskId: 5, cracked: 100 } as JChunk;
 
       crackedColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 5]);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
         expect(links[0].label).toBe('100');
         done();
       });
