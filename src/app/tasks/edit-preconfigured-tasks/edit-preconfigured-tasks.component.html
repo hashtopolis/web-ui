@@ -17,9 +17,10 @@
         <app-form-row formGroupName="updateData" [columns]="3">
           <input-number title="Priority" formControlName="priority"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
-          <input-number title="Measure is in seconds time." formControlName="chunkTime"></input-number>
+          <input-number title="Chunk time" tooltip="Measured in seconds" formControlName="chunkTime"></input-number>
           <input-select
-            title="The task will work only with CPU agents assigned"
+            title="CPU only"
+            tooltip="The task will work only with CPU agents assigned"
             formControlName="isCpuTask"
             [items]="selectYesno"
           ></input-select>
