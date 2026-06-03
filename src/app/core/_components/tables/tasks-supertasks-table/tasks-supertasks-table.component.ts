@@ -86,10 +86,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
-        // Sort by the dispatched percentage (the leading value shown in "dispatched% / searched%").
+        // Combined "dispatched% / searched%" display — intentionally not sortable, since a single
+        // sort key can't meaningfully order two distinct percentages shown together.
         dataKey: 'dispatched',
         render: (task: JTask) => this.renderDispatchedSearched(task),
-        isSortable: true
+        isSortable: false
       },
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
