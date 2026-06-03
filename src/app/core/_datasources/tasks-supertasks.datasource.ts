@@ -21,6 +21,10 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   loadAll(): void {
     this.loading = true;
 
+    // Client-side table (filterMode="client", not pageable): load every subtask in one page so the
+    // in-browser sort/filter operate on the full set rather than just the first server page.
+    this.pageSize = this.maxResults;
+
     const params = new RequestParamBuilder()
       .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
