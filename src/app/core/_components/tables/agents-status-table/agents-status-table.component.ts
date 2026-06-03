@@ -381,13 +381,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.isRunningTask(agent) ? 'Running task' : 'Stopped task';
   }
 
-  /**
-   * Render the agent task state as an icon (mirrors the task table's status icons)
-   * instead of plain text: a pulsing dot while running, a muted pause symbol when stopped.
-   * @param agent - agent instance to check state for
-   * @return icon descriptor consumed by the ht-table `icon` column hook
-   * @private
-   */
   private renderActiveAgentIcon(agent: JAgent): HTTableIcon {
     return this.isRunningTask(agent)
       ? { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'Running task' }

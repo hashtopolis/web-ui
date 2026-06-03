@@ -66,10 +66,6 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  // Sibling inputs carry a label (line-height 1.2 + 6px margin) above their field box;
-  // a checkbox has no such label, so offset it down by that label height to line the
-  // checkbox row up with the input field box instead of floating high or sinking to the
-  // cell bottom.
   padding-top: calc(var(--text-md) * 1.2 + 6px);
 }
 
