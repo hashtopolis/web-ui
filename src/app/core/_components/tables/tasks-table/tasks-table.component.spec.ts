@@ -997,7 +997,17 @@ describe('TasksTableComponent', () => {
       expect(icon.tooltip).toBe('In Progress');
     });
 
-    it('should return empty icon for non-RUNNING status', () => {
+    it('should return check icon for COMPLETED status', () => {
+      const wrapper = { status: TaskStatus.COMPLETED } as JTaskWrapperDisplay;
+
+      const icon = component.renderStatusIcons(wrapper);
+
+      expect(icon.name).toBe('check_circle');
+      expect(icon.cls).toBe('text-ok');
+      expect(icon.tooltip).toBe('Completed');
+    });
+
+    it('should return empty icon for IDLE status', () => {
       const wrapper = { status: TaskStatus.IDLE } as JTaskWrapperDisplay;
 
       const icon = component.renderStatusIcons(wrapper);
