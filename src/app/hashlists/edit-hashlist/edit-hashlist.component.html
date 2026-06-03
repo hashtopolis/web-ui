@@ -1,5 +1,5 @@
 @if (!isLoading) {
-  <app-page [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit HashList'">
+  <app-page [title]="type === 3 ? 'Edit SuperHashlist' : 'Edit Hashlist'">
     <grid-main [narrow]="true">
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
         <input-text title="ID" formControlName="hashlistId"></input-text>

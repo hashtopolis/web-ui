@@ -1,0 +1,17 @@
+app-hashtypes-table table.hashtopolis-table {
+  // Description is the only free-text column — let it absorb the slack width so the
+  // table stops stretching the boolean columns wide and stranding their icons.
+  .mat-column-1 {
+    width: 100%;
+    min-width: 12rem;
+  }
+
+  // Salted / Slow Hash are icon-only booleans. Collapse them to content width (the same
+  // width:1px trick tasks-table uses for .mat-column-4/5) so the check icon sits directly
+  // under its header label instead of floating at the left of an over-wide column.
+  .mat-column-2,
+  .mat-column-3 {
+    width: 1px;
+    white-space: nowrap;
+  }
+}

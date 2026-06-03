@@ -43,13 +43,18 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   @Input() defaultColor?: DefaultColorMode;
   @Input() randomColor = true;
 
+  get nativeColor(): string {
+    const hex = (this.value ?? '').trim().replace(/^#/, '');
+    return /^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex}` : '';
+  }
+
   override registerOnChange(fn: (value: string) => void): void {
     super.registerOnChange(fn);
     this.applyDefault();
   }
 
   generateRandomColor() {
-    this.setValue(randomColor());
+    this.setValue(this.stripHash(randomColor()));
   }
 
   clearColor() {
@@ -57,7 +62,11 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   }
 
   onValueChange(event: Event): void {
-    this.setValue((event.target as HTMLInputElement).value);
+    this.setValue(this.stripHash((event.target as HTMLInputElement).value));
+  }
+
+  private stripHash(value: string): string {
+    return (value ?? '').replace(/^#/, '');
   }
 
   private setValue(next: string): void {
@@ -68,7 +77,7 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   private applyDefault(): void {
     if (this.value || this.defaultColor === undefined) return;
     const resolved = this.resolveDefault(this.defaultColor);
-    if (resolved) this.value = resolved;
+    if (resolved) this.value = this.stripHash(resolved);
   }
 
   private resolveDefault(mode: DefaultColorMode): string {
