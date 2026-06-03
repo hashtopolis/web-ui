@@ -809,6 +809,12 @@ export class MetadataService {
   servertaskchunk: MetadataFormField[] = [
     { label: 'Benchmark / Chunk', isTitle: true },
     {
+      name: 'benchtime',
+      label: 'Time in Seconds an Agent Should Benchmark a Task',
+      type: 'number',
+      tooltip: false
+    },
+    {
       name: 'chunktime',
       label: 'Expected Chunk Duration',
       type: 'number',
