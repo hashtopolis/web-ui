@@ -1,6 +1,29 @@
 app-tasks-table table.hashtopolis-table {
-  .mat-column-8 {
+  // The task name is the primary identifier, so let it absorb the slack width.
+  // Previously the hashlist column (col 8) took width:100% and, in full-width layout,
+  // expanded hugely while cramming/wrapping name, hash type and dispatched/searched.
+  .mat-column-2 {
     width: 100%;
+    min-width: 12rem;
+  }
+
+  // Cap the hashlist column and truncate long names with an ellipsis instead of
+  // letting it grow and squeeze the neighbouring columns.
+  .mat-column-8 {
+    max-width: 16rem;
+
+    .flex-container {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // Keep these on a single line so their headers/values stop wrapping to 2–3 rows.
+  .mat-column-7,
+  .mat-column-9 {
+    white-space: nowrap;
   }
 
   .mat-column-4,
