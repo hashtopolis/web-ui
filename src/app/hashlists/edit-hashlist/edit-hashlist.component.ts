@@ -170,9 +170,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
           accessGroupId: hashlist.accessGroupId,
           useBrain: hashlist.useBrain,
           format: this.format.transform(hashlist.format, 'formats'),
-          hashCount: hashlist.hashCount,
-          cracked: hashlist.cracked,
-          remaining: hashlist.hashCount - hashlist.cracked,
+          hashCount: hashlist.hashCount.toLocaleString(),
+          cracked: hashlist.cracked.toLocaleString(),
+          remaining: (hashlist.hashCount - hashlist.cracked).toLocaleString(),
           updateData: {
             name: hashlist.name,
             notes: hashlist.notes,
