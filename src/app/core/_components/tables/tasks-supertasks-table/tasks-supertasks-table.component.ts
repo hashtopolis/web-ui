@@ -86,26 +86,22 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
-        // Combined "dispatched% / searched%" display — intentionally not sortable, since a single
-        // sort key can't meaningfully order two distinct percentages shown together.
         dataKey: 'dispatched',
         render: (task: JTask) => this.renderDispatchedSearched(task),
         isSortable: false
       },
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
-        // The cracked count lives on the nested chunkData computed in the datasource's loadAll().
         dataKey: 'chunkData.cracked',
         routerLink: (task: JTask) => this.renderCrackedLinkFromTask(task),
-        isSortable: true
+        isSortable: false
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        // dataKey must match the field rendered by renderAgents() so client-side sorting reads the same value.
         dataKey: 'totalAssignedAgents',
         isNumeric: true,
         render: (task: JTask) => this.renderAgents(task),
-        isSortable: true,
+        isSortable: false,
         export: async (task: JTask) => this.getNumAgents(task) + ''
       },
       {

@@ -251,8 +251,8 @@ export abstract class BaseDataSource<
     const isAscending = this.sortingColumn.direction === 'asc';
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
-      const aValue = this.resolveSortValue(a, sortKey);
-      const bValue = this.resolveSortValue(b, sortKey);
+      const aValue = (a as DynamicModel)[sortKey];
+      const bValue = (b as DynamicModel)[sortKey];
       if (aValue == null || bValue == null) return 0;
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         const cmp = aValue.localeCompare(bValue);
@@ -264,28 +264,6 @@ export abstract class BaseDataSource<
       }
       return 0;
     });
-  }
-
-  /**
-   * Resolves the comparable value for a sort key on a row.
-   *
-   * Supports dot-path keys (e.g. 'chunkData.cracked') so nested values can be sorted, and
-   * coerces fully-numeric strings to numbers so percentages/counts stored as strings sort
-   * numerically rather than lexically ('100' before '20'). Non-numeric strings are returned
-   * unchanged so locale-aware string sorting is preserved.
-   *
-   * @param row - The row to read the value from.
-   * @param key - The column dataKey; may be a dot-separated nested path.
-   * @returns The resolved value, with numeric strings coerced to numbers.
-   */
-  private resolveSortValue(row: T, key: string): unknown {
-    const raw = key.includes('.')
-      ? key.split('.').reduce<unknown>((acc, part) => (acc == null ? acc : (acc as DynamicModel)[part]), row)
-      : (row as DynamicModel)[key];
-    if (typeof raw === 'string' && raw.trim() !== '' && !Number.isNaN(Number(raw))) {
-      return Number(raw);
-    }
-    return raw;
   }
 
   /**

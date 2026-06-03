@@ -14,11 +14,6 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 class TestBaseDataSource extends BaseDataSource<BaseModel> {
   public reload = jasmine.createSpy('reload');
-
-  /** Surfaces the protected client-side sorter so it can be unit-tested directly. */
-  public runApplySorting(data: BaseModel[]): BaseModel[] {
-    return this.applySorting(data);
-  }
 }
 
 describe('BaseDataSource Pagination', () => {
@@ -93,51 +88,4 @@ describe('BaseDataSource Pagination', () => {
     // Verify reload was NOT called because totalItems is not > 0
     expect(dataSource.reload).not.toHaveBeenCalled();
   }));
-});
-
-describe('BaseDataSource client-side sort (applySorting)', () => {
-  let dataSource: TestBaseDataSource;
-
-  beforeEach(() => {
-    const mockUIConfigService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    mockUIConfigService.getUISettings.and.returnValue({});
-
-    const mockLocalStorageService = {
-      getItem: jasmine.createSpy('getItem').and.returnValue(null)
-    };
-    const mockCdr = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-
-    const mockInjector = jasmine.createSpyObj('Injector', ['get']);
-    mockInjector.get.withArgs(ChangeDetectorRef).and.returnValue(mockCdr);
-    mockInjector.get.withArgs(UIConfigService).and.returnValue(mockUIConfigService);
-    mockInjector.get.withArgs(GlobalService).and.returnValue({});
-    mockInjector.get.withArgs(AutoRefreshService).and.returnValue({});
-    mockInjector.get.withArgs(HttpCacheService).and.returnValue({});
-    mockInjector.get.withArgs(LocalStorageService).and.returnValue(mockLocalStorageService);
-    mockInjector.get.withArgs(PermissionService).and.returnValue({});
-
-    dataSource = new TestBaseDataSource(mockInjector);
-  });
-
-  /** Builds test rows, assigning sequential ids so assertions can check the resulting order. */
-  function rows(...items: Array<Record<string, unknown>>): BaseModel[] {
-    return items.map((item, i) => ({ id: i + 1, type: 'test', ...item })) as unknown as BaseModel[];
-  }
-
-  it('resolves a dot-path dataKey to sort by a nested value', () => {
-    const data = rows({ chunkData: { cracked: 50 } }, { chunkData: { cracked: 5 } }, { chunkData: { cracked: 12 } });
-
-    dataSource.sortingColumn = { dataKey: 'chunkData.cracked', direction: 'asc', isSortable: true };
-    expect(dataSource.runApplySorting(data).map((r) => r.id)).toEqual([2, 3, 1]);
-
-    dataSource.sortingColumn = { dataKey: 'chunkData.cracked', direction: 'desc', isSortable: true };
-    expect(dataSource.runApplySorting(data).map((r) => r.id)).toEqual([1, 3, 2]);
-  });
-
-  it('sorts numeric strings numerically rather than lexically', () => {
-    const data = rows({ dispatched: '100' }, { dispatched: '20' }, { dispatched: '9' });
-
-    dataSource.sortingColumn = { dataKey: 'dispatched', direction: 'asc', isSortable: true };
-    expect(dataSource.runApplySorting(data).map((r) => r.id)).toEqual([3, 2, 1]);
-  });
 });
