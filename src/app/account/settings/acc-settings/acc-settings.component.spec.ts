@@ -1,6 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of } from 'rxjs';
-import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -98,7 +97,6 @@ describe('AccountSettingsComponent', () => {
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
-    spyOn(uiDatePipe.prototype, 'transform').and.returnValue('07/04/2025 12:00:00');
 
     await TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
