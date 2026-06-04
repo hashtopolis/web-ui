@@ -1087,6 +1087,13 @@ export class MetadataService {
       type: 'select',
       selectOptions: serverlog,
       tooltip: false
+    },
+    {
+      name: 'hideImportMasks',
+      label: 'Hide Preconfigured Tasks Created by Mask Importer',
+      type: 'checkbox',
+      tooltip: false,
+      fullWidth: true
     }
   ];
 
