@@ -753,6 +753,12 @@ export class MetadataService {
       type: 'checkbox',
       tooltip: false
     },
+    {
+      name: 'allowDeregister',
+      label: 'Allow Clients to Deregister Themselves Automatically from the Server',
+      type: 'checkbox',
+      tooltip: false
+    },
     { label: 'Graphical Feedback', isTitle: true },
     {
       name: 'agentStatLimit',
