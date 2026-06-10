@@ -93,12 +93,12 @@ describe('AccountSettingsComponent', () => {
     otp4: userResponse.attributes.otp4
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
       imports: [
         CommonModule,

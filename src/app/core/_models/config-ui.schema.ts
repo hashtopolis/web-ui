@@ -18,7 +18,8 @@ export const uisCacheNames = [
   'agentUtilThreshold2',
   'statustimer',
   'agenttimeout',
-  'maxSessionLength'
+  'maxSessionLength',
+  'hideImportMasks'
 ] as const;
 
 export type UisCacheName = (typeof uisCacheNames)[number];
@@ -64,6 +65,7 @@ export const uisSettingsSchema = z.preprocess(
     agenttimeout: z.coerce.number().default(0),
     maxSessionLength: z.coerce.number().default(0),
     hashcatBrainEnable: z.coerce.number().default(0),
+    hideImportMasks: z.coerce.number().default(1),
     // String (already strings from API)
     hashlistAlias: z.coerce.string().default('#HL#'),
     blacklistChars: z.coerce.string().default(''),
