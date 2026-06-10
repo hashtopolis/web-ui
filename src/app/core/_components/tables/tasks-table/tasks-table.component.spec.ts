@@ -944,6 +944,20 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith();
     });
 
+    it('should filter the ID column by taskId while it sorts by taskWrapperId', () => {
+      component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
+      component.mockDataSource.loadAll.calls.reset();
+
+      component.filter('123');
+
+      expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
+        value: '123',
+        field: 'taskId',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
     it('should pass parent from selectedFilterColumn to filter', () => {
       component.selectedFilterColumn = {
         dataKey: 'name',
@@ -980,6 +994,21 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
         value: '',
         field: 'name',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
+    it('should set the filter query to taskId for the ID column', () => {
+      component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
+      component.mockDataSource.setFilterQuery.calls.reset();
+      spyOn(component, 'filter');
+
+      component.handleBackendSqlFilter('123');
+
+      expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
+        value: '123',
+        field: 'taskId',
         operator: jasmine.anything(),
         parent: undefined
       });
