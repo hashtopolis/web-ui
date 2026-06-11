@@ -170,6 +170,7 @@ export class FormComponent implements OnInit, OnDestroy {
         this.formValues = this.responseSchema
           ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
           : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
+        this.applyDynamicTitle();
         this.isloaded = true; // Data is loaded and ready for form rendering
       },
       error: (err: unknown) => {
@@ -193,6 +194,21 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     this.unsubscribeService.add(editSubscription);
+  }
+
+  /**
+   * In edit mode, when the metadata declares `titlePrefix`/`titleField`, build
+   * the page title as "<Entity> <Name>" from the loaded entity (e.g.
+   * "Wordlist rockyou.txt"). Falls back to just the prefix when the name is blank.
+   */
+  private applyDynamicTitle(): void {
+    const { titlePrefix, titleField } = this.globalMetadata;
+    if (!titlePrefix || !titleField) {
+      return;
+    }
+    const name = this.formValues[titleField];
+    this.title = name !== undefined && name !== null && name !== '' ? `${titlePrefix} ${name}` : titlePrefix;
+    this.titleService.set([this.title]);
   }
 
   /**

@@ -45,7 +45,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   addAgentsForm: FormGroup<AddAgentsForm>; // Form group for adding agents to group
   addUsersForm: FormGroup<AddUserForm>; // Form group for adding users to group
 
-  editName: string; // Name of the access group being edited
+  editName = ''; // Name of the access group being edited
   editedAccessGroupIndex: number; // Index of the access group being edited
 
   isAgentsLoading: boolean = true; // Show a spinner while loading agents for multiselect

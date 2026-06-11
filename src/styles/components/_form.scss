@@ -85,6 +85,21 @@ app-form-row {
     }
   }
 
+  &__label-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary);
+
+    mat-icon {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    &:hover mat-icon {
+      color: var(--primary-hover, var(--primary));
+    }
+  }
+
   &__required {
     color: var(--primary);
     margin-left: 2px;

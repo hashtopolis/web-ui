@@ -1,4 +1,4 @@
-<app-page title="Health Check">
+<app-page [title]="healthc ? 'Health Check ' + healthc.id : 'Health Check'">
   <grid-main>
     <div class="flex flex-wrap items-center gap-2">
       <input-text

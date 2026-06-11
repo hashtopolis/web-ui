@@ -1,4 +1,4 @@
-<app-page title="Supertask Details">
+<app-page [title]="'Supertask ' + editName">
   <grid-main [narrow]="true">
     <form [formGroup]="viewForm">
       <app-form-row>

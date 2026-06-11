@@ -1,95 +1,47 @@
 @if (!isLoading) {
-  <app-page title="Edit Task">
-    <grid-main [narrow]="true">
-      <form [formGroup]="updateForm">
-        <input-text title="ID" formControlName="taskId"></input-text>
-
-        <app-form-row formGroupName="updateData" [columns]="1">
-          <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
-          <input-color title="Color" formControlName="color"></input-color>
-        </app-form-row>
-
-        <div formGroupName="updateData" class="flex flex-col gap-3">
-          <input-text-area
-            title="Attack command"
-            formControlName="attackCmd"
-            [isRequired]="!isReadOnly"
-          ></input-text-area>
-          <input-text-area title="Notes" formControlName="notes"></input-text-area>
-        </div>
-
-        <div formGroupName="updateData" class="flex flex-col gap-3">
-          <app-form-row [columns]="4">
-            <input-number title="Priority" formControlName="priority"></input-number>
-            <input-number title="Status timer" formControlName="statusTimer"></input-number>
-            <input-number title="Max agents" formControlName="maxAgents"></input-number>
-            <input-number title="Chunk size" formControlName="chunkTime"></input-number>
-          </app-form-row>
-          <app-form-row align="left">
-            <input-check title="CPU only" formControlName="isCpuTask"></input-check>
-            <input-check title="Small task" formControlName="isSmall"></input-check>
-          </app-form-row>
-        </div>
-
-        @if (roleService.hasRole('edit')) {
-          <grid-buttons>
-            <button-submit name="Purge" type="delete" (click)="purgeTask()"></button-submit>
-            <button-submit name="Update" (click)="onSubmit()" [loading]="isUpdatingLoading"></button-submit>
-          </grid-buttons>
-        }
-      </form>
-
-      <!-- Task Information -->
-      <mat-accordion class="block mt-md">
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><strong>Task Information</strong></span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-
+  <app-page [title]="pageTitle">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-6">
+        <grid-main>
           <form [formGroup]="updateForm" class="flex flex-col gap-3">
-            <div class="flex flex-row flex-wrap items-center gap-2">
-              <input-text title="No. of Chunks" formControlName="totalNumberOfChunks"></input-text>
-              <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
-              <input-text title="Use static chunking" formControlName="staticChunks" class="w-60"></input-text>
-              <input-text title="Skipping keyspace" formControlName="skipKeyspace"></input-text>
-              <input-text title="Keyspace size" formControlName="keyspace"></input-text>
-              <input-text title="Keyspace dispatched" formControlName="keyspaceProgress"></input-text>
+            <input-text title="ID" formControlName="taskId"></input-text>
+
+            <div formGroupName="updateData" class="flex flex-col gap-3">
+              <input-color title="Color" formControlName="color"></input-color>
+              <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
+              <input-text-area
+                title="Attack command"
+                formControlName="attackCmd"
+                [isRequired]="!isReadOnly"
+              ></input-text-area>
+              <input-text-area title="Notes" formControlName="notes"></input-text-area>
+
+              <app-form-row [columns]="4">
+                <input-number title="Priority" formControlName="priority"></input-number>
+                <input-number title="Status timer" formControlName="statusTimer"></input-number>
+                <input-number title="Max agents" formControlName="maxAgents"></input-number>
+                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+              </app-form-row>
+              <app-form-row align="left">
+                <input-check title="CPU only" formControlName="isCpuTask"></input-check>
+                <input-check title="Small task" formControlName="isSmall"></input-check>
+              </app-form-row>
             </div>
 
-            <app-form-row [columns]="2">
-              @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
-                <input-text title="Keyspace Searched" [value]="searched + '%'" [readonly]="true"></input-text>
-              } @else {
-                <input-text title="Keyspace Searched" value="N/A" [readonly]="true"></input-text>
-              }
-
-              @if (roleService.hasRole('editTaskChunks')) {
-                @if (ctimespent) {
-                  <input-text title="Time spent" [value]="ctimespent | sectotime" [readonly]="true"></input-text>
-                } @else {
-                  <input-text title="Time spent" value="---" [readonly]="true"></input-text>
-                }
-              }
-            </app-form-row>
-
-            @if (roleService.hasRole('editTaskChunks')) {
-              <app-form-row [columns]="2">
-                @if (estimatedTime !== 0) {
-                  <input-text title="E.T." [value]="estimatedTime | sectotime" [readonly]="true"></input-text>
-                } @else {
-                  <input-text title="E.T." value="---" [readonly]="true"></input-text>
-                }
-
-                @if (currenspeed !== 0) {
-                  <input-text title="Speed" value="{{ currenspeed | hashRate }}" [readonly]="true"></input-text>
-                } @else {
-                  <input-text title="Speed" value="---" [readonly]="true"></input-text>
-                }
-              </app-form-row>
+            @if (roleService.hasRole('edit')) {
+              <grid-buttons>
+                <button-submit name="Purge" type="delete" (click)="purgeTask()"></button-submit>
+                <button-submit name="Update" (click)="onSubmit()" [loading]="isUpdatingLoading"></button-submit>
+              </grid-buttons>
             }
+          </form>
+        </grid-main>
+      </div>
 
+      <!-- Task Information -->
+      <div class="col-span-12 md:col-span-6">
+        <grid-main>
+          <div [formGroup]="updateForm" class="flex flex-col gap-3">
             <app-form-row [columns]="2">
               @if (roleService.hasRole('editTaskInfoHashlist')) {
                 @if (hashlistinform) {
@@ -123,17 +75,57 @@
                 }
               }
             </app-form-row>
-          </form>
-        </mat-expansion-panel>
 
-        @if (roleService.hasRole('editTaskFiles')) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <span><strong>Files</strong></span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
+            <app-form-row [columns]="2">
+              <input-text title="Keyspace size" formControlName="keyspace"></input-text>
+              <input-text title="Keyspace dispatched" formControlName="keyspaceProgress"></input-text>
+            </app-form-row>
 
+            <app-form-row [columns]="2">
+              @if (roleService.hasRole('editTaskChunks')) {
+                @if (currenspeed !== 0) {
+                  <input-text title="Speed" value="{{ currenspeed | hashRate }}" [readonly]="true"></input-text>
+                } @else {
+                  <input-text title="Speed" value="---" [readonly]="true"></input-text>
+                }
+              }
+
+              @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
+                <input-text title="Keyspace Searched" [value]="searched + '%'" [readonly]="true"></input-text>
+              } @else {
+                <input-text title="Keyspace Searched" value="N/A" [readonly]="true"></input-text>
+              }
+            </app-form-row>
+
+            @if (roleService.hasRole('editTaskChunks')) {
+              <app-form-row [columns]="2">
+                @if (ctimespent) {
+                  <input-text title="Time spent" [value]="ctimespent | sectotime" [readonly]="true"></input-text>
+                } @else {
+                  <input-text title="Time spent" value="---" [readonly]="true"></input-text>
+                }
+
+                @if (estimatedTime !== 0) {
+                  <input-text title="E.T." [value]="estimatedTime | sectotime" [readonly]="true"></input-text>
+                } @else {
+                  <input-text title="E.T." value="---" [readonly]="true"></input-text>
+                }
+              </app-form-row>
+            }
+
+            <app-form-row [columns]="2">
+              <input-text title="No. of Chunks" formControlName="totalNumberOfChunks"></input-text>
+              <input-text title="Skipping keyspace" formControlName="skipKeyspace"></input-text>
+            </app-form-row>
+
+            <app-form-row [columns]="2">
+              <input-text title="Use static chunking" formControlName="staticChunks"></input-text>
+              <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
+            </app-form-row>
+          </div>
+
+          @if (roleService.hasRole('editTaskFiles')) {
+            <app-page-subtitle subtitle="Files" class="block mt-md"></app-page-subtitle>
             <app-files-table
               #table
               name="filesTable"
@@ -147,10 +139,10 @@
               [editType]="0"
             >
             </app-files-table>
-          </mat-expansion-panel>
-        }
-      </mat-accordion>
-    </grid-main>
+          }
+        </grid-main>
+      </div>
+    </div>
 
     <!-- Graph Visual  -->
     @if (tkeyspace > 0) {
