@@ -143,7 +143,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
         isSmall: new FormControl({ value: '', disabled: this.isReadOnly }),
         statusTimer: new FormControl({ value: '', disabled: this.isReadOnly }),
-        useNewBench: new FormControl({ value: '', disabled: this.isReadOnly })
+        useNewBench: new FormControl({ value: '', disabled: true })
       })
     });
   }
@@ -175,7 +175,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
         isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required]),
         statusTimer: new FormControl({ value: pretask.statusTimer, disabled: this.isReadOnly }),
-        useNewBench: new FormControl({ value: pretask.useNewBench, disabled: this.isReadOnly })
+        useNewBench: new FormControl({ value: pretask.useNewBench, disabled: true })
       })
     });
   }

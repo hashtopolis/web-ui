@@ -25,18 +25,26 @@
                   formControlName="chunkTime"
                 ></input-number>
                 <input-select
-                  title="Benchmark Type"
-                  formControlName="useNewBench"
-                  [items]="selectBenchmarktype"
-                ></input-select>
-                <input-select
                   title="CPU only"
                   tooltip="The task will work only with CPU agents assigned"
                   formControlName="isCpuTask"
                   [items]="selectYesno"
                 ></input-select>
                 <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
-                <input-text title="Status timer" formControlName="statusTimer"></input-text>
+                <input-number
+                  title="Status timer"
+                  tooltip="Measured in seconds"
+                  formControlName="statusTimer"
+                ></input-number>
+              </app-form-row>
+
+              <app-form-row [columns]="2">
+                <input-select
+                  title="Benchmark Type"
+                  formControlName="useNewBench"
+                  [items]="selectBenchmarktype"
+                  [readonly]="true"
+                ></input-select>
               </app-form-row>
             </div>
 
