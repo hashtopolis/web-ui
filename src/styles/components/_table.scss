@@ -107,9 +107,32 @@ table.hashtopolis-table {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     background: var(--muted);
+    white-space: nowrap;
 
     .mat-sort-header-arrow {
       color: var(--primary);
+    }
+
+    // The sort arrow leads the label (arrowPosition "before"), which Material
+    // implements as flex-direction: row-reverse — so flex-start/flex-end are
+    // mirrored. flex-end packs the label to the left edge like non-sortable
+    // headers; numeric columns pack right (flex-start) so the label stays
+    // flush with their right-aligned values.
+    .mat-sort-header-container {
+      justify-content: flex-end;
+    }
+
+    &.cell-numeric .mat-sort-header-container {
+      justify-content: flex-start;
+    }
+
+    // The arrow box is always rendered (transparent until sorted), which would
+    // permanently indent left-aligned labels by 18px. Collapse it while the
+    // column is unsorted so labels keep lining up with the cell text below.
+    .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+      width: 0;
+      margin: 0;
+      opacity: 0;
     }
 
     // Checkbox labels in header cells should share the header's text color.
@@ -394,11 +417,33 @@ table.hashtopolis-table {
   font-variant-numeric: tabular-nums;
 }
 
-.mat-mdc-cell.cell-numeric .flex-container {
+// Scoped under table.hashtopolis-table so these beat the nested base rules
+// above (flex-start container, growing ht-table-editable) on specificity.
+table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: flex-end;
 
   app-ht-table-link {
     flex: 0 0 auto;
+  }
+
+  // Keep the (usually empty) editable host from absorbing the free space and
+  // pushing the value away from the right edge.
+  ht-table-editable {
+    flex: 0 0 auto;
+  }
+
+  // Status icons trail the value in the DOM (and render as an empty 24px box
+  // when there is no icon). Lead them visually instead so the value stays
+  // flush right with the header label either way.
+  > .mat-icon {
+    order: -1;
+    margin-right: var(--space-2xs);
+  }
+
+  // Same for the hover pencil of editable cells.
+  .editable-container .editable-pencil {
+    order: -1;
+    margin-left: 0;
   }
 
   a.link {
@@ -413,10 +458,6 @@ table.hashtopolis-table {
       margin-left: 0;
     }
   }
-}
-
-.mat-mdc-header-cell.cell-numeric .mat-sort-header-container {
-  justify-content: flex-end;
 }
 
 .icon-actions {
