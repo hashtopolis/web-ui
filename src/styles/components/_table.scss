@@ -415,6 +415,22 @@ table.hashtopolis-table {
 .mat-mdc-header-cell.cell-numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  // Shrink to fit: the table is 100% wide and auto layout spreads the surplus
+  // over every column, inflating narrow ones (a two-digit ID column ends up
+  // ~100px). width: 1% keeps numeric columns at their content width so the
+  // surplus flows to the text columns instead.
+  width: 1%;
+}
+
+.mat-mdc-cell.cell-numeric {
+  // A squeezed column wraps at min-content; numeric values must stay on one line.
+  white-space: nowrap;
+}
+
+// Same shrink-to-fit for the fixed-content select-checkbox and row-action columns.
+table.hashtopolis-table .mat-column-100,
+table.hashtopolis-table .mat-column-200 {
+  width: 1%;
 }
 
 // Scoped under table.hashtopolis-table so these beat the nested base rules
