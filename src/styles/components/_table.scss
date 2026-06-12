@@ -427,17 +427,13 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   }
 
   ht-table-editable {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
+    min-width: 0;
   }
 
   > .mat-icon {
     order: -1;
     margin-right: var(--space-2xs);
-  }
-
-  .editable-container .editable-pencil {
-    order: -1;
-    margin-left: 0;
   }
 
   a.link {
