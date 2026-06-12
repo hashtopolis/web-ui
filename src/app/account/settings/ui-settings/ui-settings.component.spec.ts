@@ -1,3 +1,5 @@
+import { of } from 'rxjs';
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +10,7 @@ import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
+import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
@@ -23,6 +26,12 @@ describe('UiSettingsComponent', () => {
   let alertService: AlertService;
   let mockReloadService: jasmine.SpyObj<ReloadService>;
   let mockLocalStorageService: jasmine.SpyObj<LocalStorageService<UIConfig>>;
+  let mockThemeCatalogService: jasmine.SpyObj<ThemeCatalogService>;
+
+  const mockThemes: RuntimeThemeOption[] = [
+    { value: 'light', description: 'Light Mode', icon: 'light_mode', source: 'builtin' },
+    { value: 'dark', description: 'Dark Mode', icon: 'dark_mode', source: 'builtin' }
+  ];
 
   const mockModifiedUIConfig = {
     layout: 'full',
@@ -36,6 +45,8 @@ describe('UiSettingsComponent', () => {
     mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
     mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
     mockLocalStorageService.getItem.and.returnValue(uiConfigDefault);
+    mockThemeCatalogService = jasmine.createSpyObj('ThemeCatalogService', ['getThemes']);
+    mockThemeCatalogService.getThemes.and.returnValue(of(mockThemes));
 
     await TestBed.configureTestingModule({
       declarations: [UiSettingsComponent],
@@ -52,7 +63,8 @@ describe('UiSettingsComponent', () => {
       ],
       providers: [
         { provide: ReloadService, useValue: mockReloadService },
-        { provide: LocalStorageService, useValue: mockLocalStorageService }
+        { provide: LocalStorageService, useValue: mockLocalStorageService },
+        { provide: ThemeCatalogService, useValue: mockThemeCatalogService }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(UiSettingsComponent);

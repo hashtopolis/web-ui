@@ -107,9 +107,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadData();
 
     const themeSubscription = this.themeService.theme$.subscribe((theme) => {
-      const resolvedTheme = (theme ?? this.themeService.current ?? 'light') as UIConfig['theme'];
-      this.currentTheme = resolvedTheme;
-      this.isDarkMode = resolvedTheme === 'dark';
+      this.currentTheme = theme ?? this.themeService.current;
+      this.isDarkMode = this.currentTheme === 'dark';
     });
     this.subscriptions.push(themeSubscription);
 
@@ -121,6 +120,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.autoRefreshService.startAutoRefresh({ immediate: false });
     }
   }
+
   /**
    * Angular lifecycle hook: unsubscribes all subscriptions and clears any active timeout.
    */

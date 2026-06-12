@@ -1,44 +1,64 @@
 @if (isAuthenticated) {
-<mat-toolbar class="app-header mat-elevation-z0">
-  <div class="app-header__inner">
-    <a class="app-header__brand" routerLink="/">
-      <img class="app-header__logo"
-        [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
-        [alt]="headerConfig.brand.name" [width]="headerConfig.brand.width" [height]="headerConfig.brand.height" />
-      <span class="app-header__brand-name">{{ headerConfig.brand.name }}</span>
-    </a>
+  <mat-toolbar class="app-header mat-elevation-z0">
+    <div class="app-header__inner">
+      <a class="app-header__brand" routerLink="/">
+        <img
+          class="app-header__logo"
+          [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
+          [alt]="headerConfig.brand.name"
+          [width]="headerConfig.brand.width"
+          [height]="headerConfig.brand.height"
+        />
+        <span class="app-header__brand-name">{{ headerConfig.brand.name }}</span>
+      </a>
 
-    <nav class="app-header__nav">
-      @for (menuItem of mainMenu; track menuItem.label) {
-      @if (menuItem.display) {
-      <action-menu [label]="menuItem.label ?? ''" [icon]="menuItem.icon ?? ''" [actionMenuItems]="menuItem.actions"
-        [enableHoverClose]="true" [openOnMouseEnter]="true" panelClass="app-header-menu-panel"
-        (menuItemClicked)="menuItemClicked($event)"></action-menu>
-      }
-      }
-    </nav>
-
-    <div class="app-header__user">
-      @for (menuItem of userMenu; track menuItem.label) {
-      @if (menuItem.display) {
-      <action-menu [label]="menuItem.label ?? ''" [icon]="menuItem.icon ?? ''" [actionMenuItems]="menuItem.actions"
-        [enableHoverClose]="true" [openOnMouseEnter]="true" panelClass="app-header-menu-panel"
-        (menuItemClicked)="menuItemClicked($event)"></action-menu>
-      }
-      }
-      <button matIconButton class="app-header__theme-toggle" [matMenuTriggerFor]="themeMenu"
-        [attr.aria-label]="'Theme selector'">
-        <mat-icon>{{ getCurrentThemeIcon() }}</mat-icon>
-      </button>
-      <mat-menu #themeMenu="matMenu">
-        @for (themeOption of themeOptions; track themeOption.value) {
-        <button mat-menu-item (click)="selectTheme(themeOption.value)">
-          <mat-icon>{{ themeOption.icon }}</mat-icon>
-          {{ themeOption.description }}
-        </button>
+      <nav class="app-header__nav">
+        @for (menuItem of mainMenu; track menuItem.label) {
+          @if (menuItem.display) {
+            <action-menu
+              [label]="menuItem.label ?? ''"
+              [icon]="menuItem.icon ?? ''"
+              [actionMenuItems]="menuItem.actions"
+              [enableHoverClose]="true"
+              [openOnMouseEnter]="true"
+              panelClass="app-header-menu-panel"
+              (menuItemClicked)="menuItemClicked($event)"
+            ></action-menu>
+          }
         }
-      </mat-menu>
+      </nav>
+
+      <div class="app-header__user">
+        @for (menuItem of userMenu; track menuItem.label) {
+          @if (menuItem.display) {
+            <action-menu
+              [label]="menuItem.label ?? ''"
+              [icon]="menuItem.icon ?? ''"
+              [actionMenuItems]="menuItem.actions"
+              [enableHoverClose]="true"
+              [openOnMouseEnter]="true"
+              panelClass="app-header-menu-panel"
+              (menuItemClicked)="menuItemClicked($event)"
+            ></action-menu>
+          }
+        }
+        <button
+          matIconButton
+          class="app-header__theme-toggle"
+          [matMenuTriggerFor]="themeMenu"
+          aria-label="Theme selector"
+        >
+          <mat-icon>{{ getCurrentThemeIcon() }}</mat-icon>
+        </button>
+        <mat-menu #themeMenu="matMenu">
+          @for (themeOption of themeOptions; track themeOption.value) {
+            <button mat-menu-item (click)="selectTheme(themeOption.value)">
+              <mat-icon>{{ themeOption.icon }}</mat-icon>
+              {{ themeOption.description }}
+            </button>
+          }
+        </mat-menu>
+      </div>
     </div>
-  </div>
-</mat-toolbar>
+  </mat-toolbar>
 }

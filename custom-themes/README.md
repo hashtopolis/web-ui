@@ -25,7 +25,6 @@ These ids are built-in and cannot be overridden by custom files:
 
 - `light`
 - `dark`
-- `fallout`
 
 ## Need help generating a theme?
 

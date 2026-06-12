@@ -20,18 +20,18 @@
         </div>
         <div class="flex-1 min-h-0"></div>
         @if (canReadAgents) {
-        <div class="metric-value" [class.refreshflash]="refreshFlash">
-          @if (loading) {
-          <ng-container *ngTemplateOutlet="spinner"></ng-container>
-          } @else {
-          {{ activeAgents.toLocaleString() }}
-          <span class="text-subtle-foreground font-normal">/</span>
-          {{ totalAgents.toLocaleString() }}
-          }
-        </div>
-        <div class="metric-suffix">Active / Total Agents</div>
+          <div class="metric-value" [class.refreshflash]="refreshFlash">
+            @if (loading) {
+              <ng-container *ngTemplateOutlet="spinner"></ng-container>
+            } @else {
+              {{ activeAgents.toLocaleString() }}
+              <span class="text-subtle-foreground font-normal">/</span>
+              {{ totalAgents.toLocaleString() }}
+            }
+          </div>
+          <div class="metric-suffix">Active / Total Agents</div>
         } @else {
-        <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm' }"></ng-container>
+          <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'agents-no-perm' }"></ng-container>
         }
       </mat-card-content>
     </mat-card>
@@ -46,18 +46,18 @@
         </div>
         <div class="flex-1 min-h-0"></div>
         @if (canReadTasks) {
-        <div class="metric-value" [class.refreshflash]="refreshFlash">
-          @if (loading) {
-          <ng-container *ngTemplateOutlet="spinner"></ng-container>
-          } @else {
-          {{ completedTasks.toLocaleString() }}
-          <span class="text-subtle-foreground font-normal">/</span>
-          {{ totalTasks.toLocaleString() }}
-          }
-        </div>
-        <div class="metric-suffix">Completed / Total Tasks</div>
+          <div class="metric-value" [class.refreshflash]="refreshFlash">
+            @if (loading) {
+              <ng-container *ngTemplateOutlet="spinner"></ng-container>
+            } @else {
+              {{ completedTasks.toLocaleString() }}
+              <span class="text-subtle-foreground font-normal">/</span>
+              {{ totalTasks.toLocaleString() }}
+            }
+          </div>
+          <div class="metric-suffix">Completed / Total Tasks</div>
         } @else {
-        <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm' }"></ng-container>
+          <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'tasks-no-perm' }"></ng-container>
         }
       </mat-card-content>
     </mat-card>
@@ -72,18 +72,18 @@
         </div>
         <div class="flex-1 min-h-0"></div>
         @if (canReadTasks) {
-        <div class="metric-value" [class.refreshflash]="refreshFlash">
-          @if (loading) {
-          <ng-container *ngTemplateOutlet="spinner"></ng-container>
-          } @else {
-          {{ completedSupertasks.toLocaleString() }}
-          <span class="text-subtle-foreground font-normal">/</span>
-          {{ totalSupertasks.toLocaleString() }}
-          }
-        </div>
-        <div class="metric-suffix">Completed / Total Supertasks</div>
+          <div class="metric-value" [class.refreshflash]="refreshFlash">
+            @if (loading) {
+              <ng-container *ngTemplateOutlet="spinner"></ng-container>
+            } @else {
+              {{ completedSupertasks.toLocaleString() }}
+              <span class="text-subtle-foreground font-normal">/</span>
+              {{ totalSupertasks.toLocaleString() }}
+            }
+          </div>
+          <div class="metric-suffix">Completed / Total Supertasks</div>
         } @else {
-        <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm' }"></ng-container>
+          <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'supertasks-no-perm' }"></ng-container>
         }
       </mat-card-content>
     </mat-card>
@@ -98,16 +98,16 @@
         </div>
         <div class="flex-1 min-h-0"></div>
         @if (canReadCracks) {
-        <div class="metric-value" [class.refreshflash]="refreshFlash">
-          @if (loading) {
-          <ng-container *ngTemplateOutlet="spinner"></ng-container>
-          } @else {
-          {{ totalCracks.toLocaleString() }}
-          }
-        </div>
-        <div class="metric-suffix">Last 7 days</div>
+          <div class="metric-value" [class.refreshflash]="refreshFlash">
+            @if (loading) {
+              <ng-container *ngTemplateOutlet="spinner"></ng-container>
+            } @else {
+              {{ totalCracks.toLocaleString() }}
+            }
+          </div>
+          <div class="metric-suffix">Last 7 days</div>
         } @else {
-        <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm' }"></ng-container>
+          <ng-container *ngTemplateOutlet="noPermission; context: { testid: 'cracks-no-perm' }"></ng-container>
         }
       </mat-card-content>
     </mat-card>
@@ -121,59 +121,76 @@
           <span class="text-xs text-muted-foreground">last 12 months</span>
         </div>
         @if (canReadCracks && heatmapData.length) {
-        <div class="inline-flex items-center gap-1.5 shrink-0">
-          <span class="heatmap-legend__label">Less</span>
-          @for (color of legendColors; track $index) {
-          <span class="inline-block w-2.5 h-2.5 rounded-sm" [style.background]="color"></span>
-          }
-          <span class="heatmap-legend__label">More</span>
-        </div>
+          <div class="inline-flex items-center gap-1.5 shrink-0">
+            <span class="heatmap-legend__label">Less</span>
+            @for (color of legendColors; track $index) {
+              <span class="inline-block w-2.5 h-2.5 rounded-sm" [style.background]="color"></span>
+            }
+            <span class="heatmap-legend__label">More</span>
+          </div>
         }
         @if (canReadCracks) {
-        <div class="chart-controls flex items-center gap-xs text-subtle-foreground shrink-0">
-          @if (!autoRefreshService.refreshPage) {
-          <button matIconButton (click)="setAutoRefresh(true)" data-testid="enable-auto-reload"
-            aria-label="Enable auto reload">
-            <mat-icon>autorenew</mat-icon>
-          </button>
-          }
-          @if (autoRefreshService.refreshPage) {
-          <button matIconButton (click)="setAutoRefresh(false)" data-testid="pause-auto-reload"
-            aria-label="Pause auto reload">
-            <mat-icon>pause_circle_outline</mat-icon>
-          </button>
-          }
-        </div>
+          <div class="chart-controls flex items-center gap-xs text-subtle-foreground shrink-0">
+            @if (!autoRefreshService.refreshPage) {
+              <button
+                matIconButton
+                (click)="setAutoRefresh(true)"
+                data-testid="enable-auto-reload"
+                aria-label="Enable auto reload"
+              >
+                <mat-icon>autorenew</mat-icon>
+              </button>
+            }
+            @if (autoRefreshService.refreshPage) {
+              <button
+                matIconButton
+                (click)="setAutoRefresh(false)"
+                data-testid="pause-auto-reload"
+                aria-label="Pause auto reload"
+              >
+                <mat-icon>pause_circle_outline</mat-icon>
+              </button>
+            }
+          </div>
         }
       </header>
       <div class="chart-wrapper">
         @if (canReadCracks) {
-        @if (loading) {
-        <ng-container *ngTemplateOutlet="spinner"></ng-container>
+          @if (loading) {
+            <ng-container *ngTemplateOutlet="spinner"></ng-container>
+          } @else {
+            @if (heatmapData.length) {
+              <app-heatmap-chart
+                [class.refreshflash]="refreshFlash"
+                [data]="heatmapData"
+                [isDarkMode]="isDarkMode"
+                [showLegend]="false"
+              >
+              </app-heatmap-chart>
+            } @else {
+              <div class="heatmap-no-permission text-sm font-medium text-subtle-foreground italic">
+                No data to display
+              </div>
+            }
+          }
         } @else {
-        @if (heatmapData.length) {
-        <app-heatmap-chart [class.refreshflash]="refreshFlash" [data]="heatmapData" [isDarkMode]="isDarkMode"
-          [showLegend]="false">
-        </app-heatmap-chart>
-        } @else {
-        <div class="heatmap-no-permission text-sm font-medium text-subtle-foreground italic">
-          No data to display
-        </div>
-        }
-        }
-        } @else {
-        <div class="heatmap-no-permission text-sm font-medium text-subtle-foreground italic"
-          data-test-id="heatmap-no-perm">
-          No permission to view chart data
-        </div>
+          <div
+            class="heatmap-no-permission text-sm font-medium text-subtle-foreground italic"
+            data-test-id="heatmap-no-perm"
+          >
+            No permission to view chart data
+          </div>
         }
       </div>
       @if (canReadCracks) {
-      <footer class="activity-card__footer">
-        <last-updated [lastUpdated]="lastUpdated" [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
-          [refreshing]="refreshing">
-        </last-updated>
-      </footer>
+        <footer class="activity-card__footer">
+          <last-updated
+            [lastUpdated]="lastUpdated"
+            [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
+            [refreshing]="refreshing"
+          >
+          </last-updated>
+        </footer>
       }
     </mat-card-content>
   </mat-card>

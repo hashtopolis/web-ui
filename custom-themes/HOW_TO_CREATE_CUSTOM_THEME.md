@@ -63,7 +63,7 @@ If both are available, the theme appears in theme selectors.
 ## Notes
 
 - Custom theme ids must match `^[a-z0-9-]+$`.
-- Built-in ids are reserved and ignored in custom manifest: `light`, `dark`, `fallout`.
+- Built-in ids are reserved and ignored in custom manifest: `light`, `dark`.
 - Use absolute URLs in CSS for assets, for example `/assets/img/...`.
 - Custom menu icons are currently generated as `style` by default.
 - Do not add JavaScript or TypeScript to create a theme unless you are extending platform behavior.
