@@ -62,10 +62,11 @@
 .custom-form__checkbox-cell {
   min-width: 0;
   overflow: hidden;
-  align-self: stretch;
+  align-self: start;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  padding-top: calc(var(--text-md) * 1.2 + 6px);
 }
 
 .custom-form__checkbox {

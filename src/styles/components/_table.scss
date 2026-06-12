@@ -76,9 +76,13 @@ table.hashtopolis-table.mat-mdc-table {
   overflow: visible;
 }
 
+.mat-mdc-dialog-container table.hashtopolis-table {
+  background: linear-gradient(var(--card), var(--card)), var(--popover);
+}
+
 table.hashtopolis-table {
   overflow: visible;
-  background: transparent;
+  background: linear-gradient(var(--card), var(--card)), var(--background);
   width: 100%;
 
   .mat-mdc-row,
@@ -207,6 +211,19 @@ table.hashtopolis-table {
         margin-left: auto;
       }
 
+      // Icon-only cells: keep the empty ht-table-editable from growing and
+      // shoving the icon right, so it stays flush-left under the header.
+      &.icons:not(.text):not(.links) {
+        ht-table-editable {
+          flex: 0 0 auto;
+        }
+
+        .mat-icon {
+          margin-top: 0;
+          margin-left: 0;
+        }
+      }
+
       &.links app-ht-table-link {
         flex: 1 1 auto;
         min-width: 0;
@@ -238,7 +255,7 @@ table.hashtopolis-table {
       .mat-mdc-form-field {
         margin: 0;
         padding: 0;
-        max-width: 160px;
+        width: 100%;
         line-height: 1;
       }
       .mat-mdc-text-field-wrapper {
@@ -257,7 +274,8 @@ table.hashtopolis-table {
         display: none;
       }
       .editable-input {
-        width: 56px;
+        width: 100%;
+        min-width: 56px;
         margin: 0;
         text-align: right;
         font-variant-numeric: tabular-nums;

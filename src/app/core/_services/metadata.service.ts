@@ -627,7 +627,7 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating a new Hashtype.
   newhashtype: MetadataFormField[] = [
     {
-      name: 'id',
+      name: 'hashTypeId',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
@@ -724,7 +724,7 @@ export class MetadataService {
       tooltip: false
     },
     {
-      name: 'benchtime',
+      name: 'chunktimeout',
       label: 'Inactivity Timeout for Issued Chunks',
       type: 'number',
       tooltip: false
@@ -743,13 +743,19 @@ export class MetadataService {
     },
     {
       name: 'hideIpInfo',
-      label: 'Agent IP Information Privacy',
+      label: 'Hide Agent IP Information',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'voucherDeletion',
-      label: 'Register Multiple Agents Using Voucher(s)',
+      label: 'Allow multiple usage of Voucher for Agent Registration',
+      type: 'checkbox',
+      tooltip: false
+    },
+    {
+      name: 'allowDeregister',
+      label: 'Allow Clients to Deregister Themselves Automatically from the Server',
       type: 'checkbox',
       tooltip: false
     },
@@ -809,8 +815,14 @@ export class MetadataService {
   servertaskchunk: MetadataFormField[] = [
     { label: 'Benchmark / Chunk', isTitle: true },
     {
+      name: 'benchtime',
+      label: 'Time in Seconds an Agent Should Benchmark a Task',
+      type: 'number',
+      tooltip: false
+    },
+    {
       name: 'chunktime',
-      label: 'Expected Chunk Duration',
+      label: 'Targeted chunk duration',
       type: 'number',
       tooltip: false
     },
@@ -822,13 +834,13 @@ export class MetadataService {
     },
     {
       name: 'defaultBenchmark',
-      label: 'Default Speed Benchmark Process',
+      label: 'Use speed benchmarking estimation',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'disableTrimming',
-      label: 'Disable Chunk Trimming and Revert to Full Chunk Processing',
+      label: 'Disable chunk trimming and redo whole chunk on error',
       type: 'checkbox',
       tooltip: false
     },
@@ -847,32 +859,13 @@ export class MetadataService {
     },
     {
       name: 'priority0Start',
-      label: 'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
+      label: 'Automatic Assignment of Tasks with Priority 0',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'showTaskPerformance',
       label: 'Display Cracks per Minute for Active Tasks',
-      type: 'checkbox',
-      tooltip: false
-    },
-    { label: 'Rule splitting', isTitle: true },
-    {
-      name: 'ruleSplitSmallTasks',
-      label: 'Rule Splitting for Tasks: Always Create Small Tasks',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitAlways',
-      label: 'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitDisable',
-      label: 'Disable Automatic Task Splitting for Large Rule Files',
       type: 'checkbox',
       tooltip: false
     }
@@ -898,7 +891,7 @@ export class MetadataService {
     },
     {
       name: 'pagingSize',
-      label: 'Hashes size Page in Hash Vieww',
+      label: 'Hashes size Page in Hash View',
       type: 'number',
       tooltip: false
     },
@@ -1087,6 +1080,13 @@ export class MetadataService {
       type: 'select',
       selectOptions: serverlog,
       tooltip: false
+    },
+    {
+      name: 'hideImportMasks',
+      label: 'Hide Preconfigured Tasks Created by Mask Importer',
+      type: 'checkbox',
+      tooltip: false,
+      fullWidth: true
     }
   ];
 

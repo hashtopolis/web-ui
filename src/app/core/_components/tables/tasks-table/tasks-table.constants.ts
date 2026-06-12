@@ -13,7 +13,8 @@ export enum TaskTableCol {
   AGENTS,
   PRIORITY,
   MAX_AGENTS,
-  ACCESS_GROUP
+  ACCESS_GROUP,
+  TASK_SPEED
 }
 
 export const TaskTableColumnLabel = {
@@ -21,6 +22,7 @@ export const TaskTableColumnLabel = {
   [TaskTableCol.TASK_TYPE]: 'Task type',
   [TaskTableCol.NAME]: 'Name',
   [TaskTableCol.STATUS]: 'Status',
+  [TaskTableCol.TASK_SPEED]: 'Speed',
   [TaskTableCol.IS_SMALL]: 'Small Task',
   [TaskTableCol.IS_CPU_TASK]: 'CPU Task',
   [TaskTableCol.PREPROCESSOR]: 'Preprocessor',

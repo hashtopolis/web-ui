@@ -86,21 +86,22 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
-        dataKey: 'clientSignature',
+        dataKey: 'dispatched',
         render: (task: JTask) => this.renderDispatchedSearched(task),
-        isSortable: true
+        isSortable: false
       },
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
-        dataKey: 'cracked',
+        dataKey: 'chunkData.cracked',
         routerLink: (task: JTask) => this.renderCrackedLinkFromTask(task),
-        isSortable: true
+        isSortable: false
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        dataKey: 'agents',
+        dataKey: 'totalAssignedAgents',
+        isNumeric: true,
         render: (task: JTask) => this.renderAgents(task),
-        isSortable: true,
+        isSortable: false,
         export: async (task: JTask) => this.getNumAgents(task) + ''
       },
       {

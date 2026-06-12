@@ -17,18 +17,18 @@
         matInput
         type="color"
         [id]="inputId"
-        [value]="value || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
+        [value]="nativeColor || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
         [class.color-unset]="!value"
         (input)="onValueChange($event)"
         (blur)="onTouched()"
-        [style.background]="value || null"
+        [style.background]="nativeColor || null"
         [disabled]="disabled || readonly"
       />
       <span
         class="color-value"
-        [class.color-value-on-light]="value && isLight(value)"
-        [class.color-value-on-dark]="value && !isLight(value)"
-        >{{ value || 'No color' }}</span
+        [class.color-value-on-light]="value && isLight(nativeColor)"
+        [class.color-value-on-dark]="value && !isLight(nativeColor)"
+        >{{ nativeColor || value || 'No color' }}</span
       >
       @if (randomColor && !readonly) {
         <button

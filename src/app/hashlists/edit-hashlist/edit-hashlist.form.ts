@@ -10,9 +10,9 @@ export interface EditHashlistForm {
   accessGroupId: FormControl<AccessGroupId | null>;
   useBrain: FormControl<boolean | null>;
   format: FormControl<string | null>;
-  hashCount: FormControl<number | null>;
-  cracked: FormControl<number | null>;
-  remaining: FormControl<number | null>;
+  hashCount: FormControl<string | null>;
+  cracked: FormControl<string | null>;
+  remaining: FormControl<string | null>;
   updateData: FormGroup<{
     name: FormControl<string | null>;
     notes: FormControl<string | null>;
@@ -30,9 +30,9 @@ export const getEditHashlistForm = (): FormGroup<EditHashlistForm> => {
     accessGroupId: new FormControl<number | null>({ value: null, disabled: true }),
     useBrain: new FormControl<boolean | null>({ value: null, disabled: true }),
     format: new FormControl<string | null>({ value: null, disabled: true }),
-    hashCount: new FormControl<number | null>({ value: null, disabled: true }),
-    cracked: new FormControl<number | null>({ value: null, disabled: true }),
-    remaining: new FormControl<number | null>({ value: null, disabled: true }),
+    hashCount: new FormControl<string | null>({ value: null, disabled: true }),
+    cracked: new FormControl<string | null>({ value: null, disabled: true }),
+    remaining: new FormControl<string | null>({ value: null, disabled: true }),
     updateData: new FormGroup({
       name: new FormControl<string | null>(null, [Validators.required]),
       notes: new FormControl<string | null>(null),

@@ -106,10 +106,10 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render cracked link from chunk', (done) => {
-    const mockChunk = { taskId: 1, cracked: 100 } as JChunk;
+    const mockChunk = { id: 1, taskId: 2, cracked: 100 } as JChunk;
     component.renderCrackedLinkFromChunk(mockChunk).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 1]);
       expect(links[0].label).toBe('100');
       done();
     });

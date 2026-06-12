@@ -305,6 +305,38 @@ describe('FormConfigComponent', () => {
     expect(alertService.showSuccessMessage).toHaveBeenCalledWith('Saved General Settings');
   });
 
+  it('should surface an error (not an undefined id) for changed fields with no backend id', () => {
+    component.title = 'Task/Chunk Settings';
+    // `ruleSplitAlways` is intentionally absent from both formValues and formIds,
+    // mirroring a metadata field the backend never returns. Without the guard its
+    // "changed" control (0 !== undefined) would PATCH /ui/configs/undefined.
+    component.formValues = {
+      chunktime: 700 as unknown as string | boolean
+    } as unknown as typeof component.formValues;
+    component.formIds = {
+      chunktime: 3
+    };
+
+    globalService.update.and.returnValue(of({} as object));
+
+    component.onFormSubmit({ chunktime: 800, ruleSplitAlways: 0 });
+
+    // The field with an id still saves...
+    expect(globalService.update).toHaveBeenCalledTimes(1);
+    expect(globalService.update).toHaveBeenCalledWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
+    // ...the one without an id is never PATCHed with an undefined id...
+    expect(globalService.update).not.toHaveBeenCalledWith(
+      SERV.CONFIGS,
+      undefined as unknown as number,
+      jasmine.objectContaining({ item: 'ruleSplitAlways' })
+    );
+    // ...and the user is told it could not be saved.
+    expect(alertService.showErrorMessage).toHaveBeenCalledWith(
+      'Cannot save (no matching config on server): ruleSplitAlways'
+    );
+    expect(alertService.showSuccessMessage).toHaveBeenCalledWith('Saved Task/Chunk Settings');
+  });
+
   it('should do nothing when form values have not changed', () => {
     component.formValues = {
       serverLogLevel: 20 as unknown as string | boolean,

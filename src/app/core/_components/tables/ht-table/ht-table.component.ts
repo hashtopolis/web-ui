@@ -246,6 +246,15 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     this.initFilterableColumns();
     this.onFilterColumnChange();
   }
+
+  /** ngStyle for the left colour bar; backend colours are bare hex, so re-add the `#` for CSS. */
+  colorBarStyle(row: T): Record<string, string> {
+    const r = row as unknown as { color?: string; tasks?: { color?: string }[] };
+    const raw = r.tasks?.length ? r.tasks[0].color : r.color;
+    if (!raw) return {};
+    return { 'box-shadow': `inset 8px 0 0 #${String(raw).replace(/^#/, '')}` };
+  }
+
   /**
    * Builds the list of columns available in the filter column selector from tableColumns
    * that have both a dataKey and isSearchable set. Defaults the active filter column to

@@ -29,22 +29,15 @@
   border-color: var(--border-faint);
 }
 
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-text-field--filled {
+.field-stack.is-invalid .mat-mdc-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled),
+mat-form-field.mat-form-field-invalid .mdc-text-field--filled:not(.mdc-text-field--disabled) {
   border-color: var(--destructive);
 }
 
-mat-form-field.mat-form-field-invalid.mat-form-field-touched.mat-focused .mdc-text-field--filled {
+.field-stack.is-invalid .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--focused,
+mat-form-field.mat-form-field-invalid .mdc-text-field--filled.mdc-text-field--focused {
+  border-color: var(--destructive);
   box-shadow: 0 0 0 2px var(--destructive-ring);
-}
-
-mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label {
-  color: var(--destructive);
-}
-
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mat-mdc-form-field-required-marker,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label--required::after {
-  color: var(--destructive);
 }
 
 .form-layout {

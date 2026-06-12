@@ -29,7 +29,7 @@
       <mat-step label="Generate Voucher" state="voucher">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <br /><br />
-          <div class="field-stack">
+          <div class="field-stack max-w-112">
             <label class="field-stack__label" for="voucher-input">Create a new Voucher</label>
             <mat-form-field class="field-stack__field">
               <input id="voucher-input" matInput type="text" formControlName="voucher" />
@@ -43,13 +43,21 @@
               >
                 <mat-icon>refresh</mat-icon>
               </button>
-              <button mat-icon-button matSuffix [disabled]="!isValid()" type="submit" data-testid="add-voucher-button">
-                <mat-icon>add</mat-icon>
-              </button>
             </mat-form-field>
           </div>
+          <div class="flex gap-sm justify-start mt-sm">
+            <button
+              matButton="filled"
+              class="btn-submit btn-submit--primary"
+              type="submit"
+              [disabled]="!isValid()"
+              data-testid="add-voucher-button"
+            >
+              Create Voucher
+            </button>
+          </div>
         </form>
-        <app-vouchers-table #table></app-vouchers-table>
+        <app-vouchers-table #table class="block mt-md"></app-vouchers-table>
         <div class="highlight-box">
           @if (!allowMultiVoucher) {
             <p>

@@ -39,6 +39,7 @@
   --success-bg: color-mix(in oklch, var(--success) 22%, var(--well));
   --destructive-bg: color-mix(in oklch, var(--destructive) 18%, var(--well));
   --info-bg: color-mix(in oklch, var(--info) 18%, var(--well));
+  --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
 
   --header: rgba(15, 15, 15, 0.6);
 

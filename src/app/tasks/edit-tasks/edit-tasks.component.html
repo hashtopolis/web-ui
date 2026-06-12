@@ -50,7 +50,7 @@
 
           <form [formGroup]="updateForm" class="flex flex-col gap-3">
             <div class="flex flex-row flex-wrap items-center gap-2">
-              <input-text title="No. of Chunks" formControlName="chunkSize"></input-text>
+              <input-text title="No. of Chunks" formControlName="totalNumberOfChunks"></input-text>
               <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
               <input-text title="Use static chunking" formControlName="staticChunks" class="w-60"></input-text>
               <input-text title="Skipping keyspace" formControlName="skipKeyspace"></input-text>
@@ -60,7 +60,7 @@
 
             <app-form-row [columns]="2">
               @if (tkeyspace > 0 || (tusepreprocessor && cprogress > 0)) {
-                <input-text title="Keyspace Searched" [value]="searched" [readonly]="true"></input-text>
+                <input-text title="Keyspace Searched" [value]="searched + '%'" [readonly]="true"></input-text>
               } @else {
                 <input-text title="Keyspace Searched" value="N/A" [readonly]="true"></input-text>
               }
@@ -199,42 +199,46 @@
 
         @if (roleService.hasRole('editTaskAssignAgents')) {
           <form [formGroup]="createForm">
-            <input-multiselect
-              [isLoading]="isLoadingAgents"
-              [placeholder]="'Select agents to assign...'"
-              [items]="selectAgents"
-              [label]="'Select or search Agent'"
-              [isRequired]="false"
-              formControlName="agentId"
-              [multiselectEnabled]="false"
-              [mergeIdAndName]="true"
-            >
+            <div class="max-w-112">
+              <input-multiselect
+                [isLoading]="isLoadingAgents"
+                [placeholder]="'Select agents to assign...'"
+                [items]="selectAgents"
+                [label]="'Select or search Agent'"
+                [isRequired]="false"
+                formControlName="agentId"
+                [multiselectEnabled]="false"
+                [mergeIdAndName]="true"
+              >
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  matTooltip="Reload agents"
+                  (click)="reloadAgentAssignment()"
+                >
+                  <mat-icon>autorenew</mat-icon>
+                </button>
+              </input-multiselect>
+            </div>
+            <div class="flex gap-sm justify-start mt-sm">
               <button
-                mat-icon-button
-                matSuffix
+                matButton="filled"
+                class="btn-submit btn-submit--primary"
                 type="button"
-                matTooltip="Assign Agent"
                 (click)="assignAgent()"
                 [disabled]="!createForm.controls.agentId.value"
               >
-                <mat-icon>add</mat-icon>
+                Assign Agent
               </button>
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
-                matTooltip="Reload agents"
-                (click)="reloadAgentAssignment()"
-              >
-                <mat-icon>autorenew</mat-icon>
-              </button>
-            </input-multiselect>
+            </div>
           </form>
         }
 
         <tasks-agents-table
           #assignedAgentsTable
           name="assignedAgentsTable"
+          class="block mt-md"
           datatype="agents-assign"
           [taskId]="editedTaskIndex"
           [assignAgents]="true"

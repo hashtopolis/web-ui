@@ -204,7 +204,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'accessGroupId',
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: false,
-        isSearchable: true,
         export: async (agent: JAgent) => agent.accessGroup ?? ''
       }
     ];

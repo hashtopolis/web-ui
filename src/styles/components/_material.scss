@@ -262,6 +262,10 @@ textarea.mat-mdc-input-element.custom-textarea {
   display: block;
 }
 
+.field-stack.is-invalid .mat-mdc-form-field-subscript-wrapper {
+  display: block;
+}
+
 .mat-mdc-form-field.field-stack__field.custom-chip-grid {
   .mdc-text-field--filled {
     height: auto;
@@ -432,6 +436,17 @@ textarea.mat-mdc-input-element.custom-textarea {
   .mat-mdc-menu-item .mdc-list-item__primary-text,
   .mat-mdc-menu-item {
     font-size: var(--text-md);
+  }
+
+  .mat-mdc-menu-item {
+    transition: background-color var(--duration-fast) var(--easing-standard);
+
+    &:hover:not([disabled]),
+    &.cdk-keyboard-focused:not([disabled]) {
+      background: var(--surface-soft-hover);
+      --mat-menu-item-label-text-color: var(--heading-foreground);
+      --mat-menu-item-icon-color: var(--heading-foreground);
+    }
   }
 }
 

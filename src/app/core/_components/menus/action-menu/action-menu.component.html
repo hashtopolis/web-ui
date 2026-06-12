@@ -3,12 +3,11 @@
     <button
       mat-button
       #menuTrigger="matMenuTrigger"
-      #menuTriggerButton
       [ngClass]="cls"
       [matMenuTriggerFor]="actionMenu"
       (click)="navigateToFirst($event)"
       (mouseenter)="onMouseEnter()"
-      (mouseleave)="onMouseLeave($event)"
+      (mouseleave)="onMouseLeave()"
       (focus)="preventFocus($event)"
       [disabled]="disabled"
       [class.active]="isActive"
@@ -21,13 +20,7 @@
       }
     </button>
   </span>
-  <mat-menu
-    #actionMenu="matMenu"
-    [hasBackdrop]="false"
-    [class]="panelClass"
-    (mouseenter)="onMenuMouseEnter()"
-    (mouseleave)="onMenuMouseLeave($event)"
-  >
+  <mat-menu #actionMenu="matMenu" [hasBackdrop]="false" [class]="panelClass">
     @for (section of actionMenuItems; track $index; let last = $last) {
       @for (item of section; track item.label) {
         <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">

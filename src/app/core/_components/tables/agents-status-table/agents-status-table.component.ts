@@ -15,7 +15,11 @@ import {
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { ASC } from '@src/app/core/_constants/agentsc.config';
@@ -112,7 +116,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: false,
-        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        icon: (agent: JAgent) => this.renderActiveAgentIcon(agent),
         export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
@@ -155,7 +159,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           }
         },
         customCellColor: {
-          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.AVG_VALUE),
+          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
           treshold2: this.getUtil2(),
           type: ASC.GPU_UTIL,
@@ -374,7 +378,35 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderActiveAgent(agent: JAgent): string {
-    return (agent.agentSpeed ?? 0) > 0 ? 'Running task' : 'Stopped task';
+    return this.isRunningTask(agent) ? 'Running task' : 'Stopped task';
+  }
+
+  private renderActiveAgentIcon(agent: JAgent): HTTableIcon {
+    return this.isRunningTask(agent)
+      ? { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'Running task' }
+      : { name: 'pause_circle', cls: 'text-inactive', tooltip: 'Stopped task' };
+  }
+
+  private isRunningTask(agent: JAgent): boolean {
+    const isReportingProgress = agent.lastAct === 'sendProgress';
+    const hasAssignedTask = !!agent.taskId;
+    const hasRecentActivity = this.hasRecentActivity(agent.lastTime);
+
+    return agent.isActive && hasAssignedTask && isReportingProgress && hasRecentActivity;
+  }
+
+  // Determine if the last server interaction is recent enough to consider the agent online.
+  private hasRecentActivity(lastTime: number): boolean {
+    if (!lastTime) {
+      return false;
+    }
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const elapsedSeconds = Math.max(0, nowInSeconds - lastTime);
+    const configuredTimeout = this.uiService.getUISettings()?.agenttimeout ?? 0;
+    const timeoutSeconds = configuredTimeout > 0 ? configuredTimeout : 120;
+
+    return elapsedSeconds <= timeoutSeconds;
   }
 
   /**

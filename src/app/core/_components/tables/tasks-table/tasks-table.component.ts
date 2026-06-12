@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
 import { JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
@@ -29,8 +30,8 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-
 @Component({
   selector: 'app-tasks-table',
   templateUrl: './tasks-table.component.html',
@@ -106,6 +107,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
+  private renderCurrentSpeed(taskWrapperDisplay: JTaskWrapperDisplay): SafeHtml {
+    if (taskWrapperDisplay.currentSpeed) {
+      return this.sanitize(convertCrackingSpeed(taskWrapperDisplay.currentSpeed));
+    }
+    return '0 H/s';
+  }
   getColumns(): HTTableColumn[] {
     const columns: HTTableColumn[] = [];
 
@@ -143,6 +150,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapperDisplay) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapperDisplay) => this.getTaskStatusLabel(wrapper)
+      },
+      {
+        id: TaskTableCol.TASK_SPEED,
+        dataKey: 'currentSpeed',
+        render: (wrapper: JTaskWrapperDisplay) => this.renderCurrentSpeed(wrapper),
+        isSortable: false,
+        isSearchable: false,
+        export: async (wrapper: JTaskWrapperDisplay) => wrapper.currentSpeed?.toString() ?? ''
+      },
+      {
+        id: TaskTableCol.DISPATCHED_SEARCHED,
+        dataKey: 'currentSpeed',
+        render: (wrapper: JTaskWrapperDisplay) =>
+          this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`),
+        isSortable: false,
+        isSearchable: false,
+        export: async (wrapper: JTaskWrapperDisplay) => wrapper.currentSpeed?.toString() ?? ''
       },
       {
         id: TaskTableCol.HASHTYPE,
@@ -194,18 +218,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       },
       {
         id: TaskTableCol.AGENTS,
-        dataKey: 'agents',
+        dataKey: 'totalAssignedAgents',
         isNumeric: true,
         isSortable: false,
         render: (wrapper: JTaskWrapperDisplay) => {
           if (wrapper.taskType === TaskType.TASK) {
-            return wrapper.taskMaxAgents + '';
+            return wrapper.totalAssignedAgents + '';
           } else {
             return '';
           }
         },
         export: async (wrapper: JTaskWrapperDisplay) =>
-          (wrapper.taskType === TaskType.TASK ? wrapper.taskMaxAgents : 0) + ''
+          (wrapper.taskType === TaskType.TASK ? wrapper.totalAssignedAgents : 0) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
@@ -487,14 +511,25 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplay): HTTableIcon {
-    if (wrapper.status === TaskStatus.RUNNING) {
-      return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+    switch (wrapper.status) {
+      case TaskStatus.RUNNING:
+        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.COMPLETED:
+        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
+      default:
+        return { name: '' };
     }
-    return { name: '' };
   }
 
   private getTaskStatusLabel(wrapper: JTaskWrapperDisplay): string {
-    return wrapper.status === TaskStatus.RUNNING ? 'Running' : '';
+    switch (wrapper.status) {
+      case TaskStatus.RUNNING:
+        return 'Running';
+      case TaskStatus.COMPLETED:
+        return 'Completed';
+      default:
+        return '';
+    }
   }
 
   private renderIsSmallIcon(wrapper: JTaskWrapperDisplay): HTTableIcon {
