@@ -113,11 +113,6 @@ table.hashtopolis-table {
       color: var(--primary);
     }
 
-    // The sort arrow leads the label (arrowPosition "before"), which Material
-    // implements as flex-direction: row-reverse — so flex-start/flex-end are
-    // mirrored. flex-end packs the label to the left edge like non-sortable
-    // headers; numeric columns pack right (flex-start) so the label stays
-    // flush with their right-aligned values.
     .mat-sort-header-container {
       justify-content: flex-end;
     }
@@ -126,9 +121,6 @@ table.hashtopolis-table {
       justify-content: flex-start;
     }
 
-    // The arrow box is always rendered (transparent until sorted), which would
-    // permanently indent left-aligned labels by 18px. Collapse it while the
-    // column is unsorted so labels keep lining up with the cell text below.
     .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
       width: 0;
       margin: 0;
@@ -415,26 +407,18 @@ table.hashtopolis-table {
 .mat-mdc-header-cell.cell-numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;
-  // Shrink to fit: the table is 100% wide and auto layout spreads the surplus
-  // over every column, inflating narrow ones (a two-digit ID column ends up
-  // ~100px). width: 1% keeps numeric columns at their content width so the
-  // surplus flows to the text columns instead.
   width: 1%;
 }
 
 .mat-mdc-cell.cell-numeric {
-  // A squeezed column wraps at min-content; numeric values must stay on one line.
   white-space: nowrap;
 }
 
-// Same shrink-to-fit for the fixed-content select-checkbox and row-action columns.
 table.hashtopolis-table .mat-column-100,
 table.hashtopolis-table .mat-column-200 {
   width: 1%;
 }
 
-// Scoped under table.hashtopolis-table so these beat the nested base rules
-// above (flex-start container, growing ht-table-editable) on specificity.
 table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: flex-end;
 
@@ -442,21 +426,15 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
     flex: 0 0 auto;
   }
 
-  // Keep the (usually empty) editable host from absorbing the free space and
-  // pushing the value away from the right edge.
   ht-table-editable {
     flex: 0 0 auto;
   }
 
-  // Status icons trail the value in the DOM (and render as an empty 24px box
-  // when there is no icon). Lead them visually instead so the value stays
-  // flush right with the header label either way.
   > .mat-icon {
     order: -1;
     margin-right: var(--space-2xs);
   }
 
-  // Same for the hover pencil of editable cells.
   .editable-container .editable-pencil {
     order: -1;
     margin-left: 0;

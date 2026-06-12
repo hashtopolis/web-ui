@@ -238,9 +238,6 @@
             [class.links]="tableColumn.routerLink"
             [class.icons]="tableColumn.icon"
             [class.text]="tableColumn.render || tableColumn.async"
-            matTooltip
-            matTooltipPosition="above"
-            appOverflowTooltip
           >
             @if (tableColumn.isCopy) {
               <button (click)="copyRowDataEmit(element)" matIconButton color="primary" aria-label="Copy button">
