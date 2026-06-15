@@ -70,7 +70,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   editedAgentIndex: number;
   showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
 
-  /** Page heading: "Agent <machine name>". */
   pageTitle = 'Agent';
 
   // Calculations

@@ -56,7 +56,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   taskWrapperId: number;
   originalValue: JTask;
 
-  /** Page heading: "Task <name>". */
   pageTitle = 'Task';
 
   updateForm: FormGroup;

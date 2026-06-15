@@ -49,7 +49,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   // Edit Options
   editedPretaskIndex: number;
 
-  /** Name of the loaded pretask, used for the page title. */
   pretaskName = '';
 
   /** Read-only mode based on roles */
