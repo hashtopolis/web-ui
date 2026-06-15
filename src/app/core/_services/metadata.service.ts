@@ -42,9 +42,13 @@ export interface InfoMetadataForm {
   delsubmitok?: string;
   delsubmitokredirect?: string;
   delsubmitcancel?: string;
-  /** In edit mode, build the page title as `${titlePrefix} ${formValues[titleField]}`. */
+  /**
+   * In edit mode, build the page title as `${titlePrefix} ${formValues[titleField]}`.
+   * `titleField` may list several fields (e.g. `['filename', 'version']`), whose
+   * values are joined with spaces — yielding titles like "Agent Binary foo.bin 1.0".
+   */
   titlePrefix?: string;
-  titleField?: string;
+  titleField?: string | string[];
 }
 
 /**
@@ -250,7 +254,7 @@ export class MetadataService {
   editotherInfo = [
     {
       title: 'Edit Other File',
-      titlePrefix: 'Other',
+      titlePrefix: 'Other File',
       titleField: 'filename',
       customform: false,
       subtitle: false,
@@ -364,6 +368,8 @@ export class MetadataService {
   editagentbinaryInfo = [
     {
       title: 'Edit Agent Binary',
+      titlePrefix: 'Agent Binary',
+      titleField: ['filename', 'version'],
       customform: false,
       subtitle: false,
       submitok: 'Agent Binary saved!',
@@ -442,8 +448,7 @@ export class MetadataService {
   editcrackerversionInfo = [
     {
       title: 'Edit Binary Version',
-      titlePrefix: 'Binary Version',
-      titleField: 'version',
+      titleField: ['binaryName', 'version'],
       customform: false,
       subtitle: false,
       submitok: 'Cracker saved!',

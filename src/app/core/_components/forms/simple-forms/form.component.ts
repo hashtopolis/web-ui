@@ -197,18 +197,25 @@ export class FormComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * In edit mode, when the metadata declares `titlePrefix`/`titleField`, build
-   * the page title as "<Entity> <Name>" from the loaded entity (e.g.
-   * "Wordlist rockyou.txt"). Falls back to just the prefix when the name is blank.
+   * In edit mode, when the metadata declares `titleField`, build the page title
+   * from the loaded entity. `titleField` may name several fields, whose values
+   * are joined with spaces (e.g. "hashcat 6.2.6"). An optional `titlePrefix` is
+   * prepended as a static entity word (e.g. "Wordlist rockyou.txt"). Keeps the
+   * static title when neither prefix nor field yields anything.
    */
   private applyDynamicTitle(): void {
     const { titlePrefix, titleField } = this.globalMetadata;
-    if (!titlePrefix || !titleField) {
+    if (!titleField) {
       return;
     }
-    const name = this.formValues[titleField];
-    this.title = name !== undefined && name !== null && name !== '' ? `${titlePrefix} ${name}` : titlePrefix;
-    this.titleService.set([this.title]);
+    const fields = Array.isArray(titleField) ? titleField : [titleField];
+    const parts = [titlePrefix, ...fields.map((field) => this.formValues[field])].filter(
+      (value) => value !== undefined && value !== null && value !== ''
+    );
+    if (parts.length) {
+      this.title = parts.join(' ');
+      this.titleService.set([this.title]);
+    }
   }
 
   /**

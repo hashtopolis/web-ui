@@ -94,7 +94,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
         export: async (cracker: JCrackerBinaryType) =>
-          cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
+          cracker.crackerVersions.map((bin: JCrackerBinary) => `${bin.binaryName} ${bin.version}`).join(', ')
       }
     ];
   }
@@ -221,7 +221,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     if (cracker) {
       cracker.crackerVersions.forEach((entry) => {
         links.push({
-          label: entry.version,
+          label: `${entry.binaryName} ${entry.version}`,
           routerLink: ['/config', 'engine', 'crackers', entry.id, 'edit']
         });
       });
