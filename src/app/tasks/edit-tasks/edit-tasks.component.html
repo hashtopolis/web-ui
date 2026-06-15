@@ -4,10 +4,14 @@
       <div class="col-span-12 md:col-span-6">
         <grid-main>
           <form [formGroup]="updateForm" class="flex flex-col gap-3">
-            <input-text title="ID" formControlName="taskId"></input-text>
+            <app-form-row [columns]="2">
+              <input-text title="ID" formControlName="taskId"></input-text>
+              <ng-container formGroupName="updateData">
+                <input-color title="Color" formControlName="color"></input-color>
+              </ng-container>
+            </app-form-row>
 
             <div formGroupName="updateData" class="flex flex-col gap-3">
-              <input-color title="Color" formControlName="color"></input-color>
               <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
               <input-text-area
                 title="Attack command"

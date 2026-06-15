@@ -128,6 +128,13 @@ app-form-row {
       min-height: auto;
     }
   }
+
+  // Row-aligned textareas fold the row padding into line-height (see
+  // _material.scss), so the infix must not add its own vertical padding.
+  &--row-aligned &__field.mat-mdc-form-field .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 input-check,

@@ -63,6 +63,13 @@ textarea.mat-mdc-input-element.custom-textarea {
   padding: 0;
   box-sizing: border-box;
 }
+// Row-aligned variant: each line occupies one text-field row, so the field
+// grows in whole-row steps. Infix padding is zeroed (_form.scss), so the line
+// height carries the row height minus the ~2px form-field chrome — a single
+// line then matches a plain input.
+.field-stack--row-aligned textarea.mat-mdc-input-element.custom-textarea {
+  line-height: calc(var(--input-row-height) - 2px);
+}
 .mat-mdc-form-field:has(textarea.custom-textarea) .mat-mdc-form-field-infix {
   display: flex;
   align-items: stretch;
