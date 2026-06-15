@@ -54,9 +54,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     try {
       if (this._superTaskId === 0) {
         let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
-        if (this.uiService.getUISettings()?.hideImportMasks === 1) {
-          params = params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
-        }
+        params = this.applyMaskImportFilter(params);
         params = this.applyFilterWithPaginationReset(params, activeFilter, query);
         const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);
@@ -73,6 +71,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
           // If reverseQuery (NOTIN) is requested then NOTIN empty set === all pretasks.
           if (this._reverseQuery) {
             let paramsAll: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
+            paramsAll = this.applyMaskImportFilter(paramsAll);
             paramsAll = this.applyFilterWithPaginationReset(paramsAll, activeFilter, query);
             const pretasks = await this.loadPretasks(paramsAll.create());
             this.setData(pretasks);
@@ -87,6 +86,18 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     } finally {
       this.loading = false;
     }
+  }
+
+  /**
+   * Exclude mask-importer pretasks (isMaskImport=true) when the hideImportMasks UI setting is on.
+   * @param params
+   * @private
+   */
+  private applyMaskImportFilter(params: IParamBuilder): IParamBuilder {
+    if (this.uiService.getUISettings()?.hideImportMasks === 1) {
+      return params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
+    }
+    return params;
   }
 
   /**
@@ -155,6 +166,9 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         .addInitial(this)
         .addInclude('pretaskFiles')
         .addFilter({ field: 'pretaskId', operator: filterOperator, value: pretaskIds });
+      if (this._reverseQuery) {
+        paramsBuilder = this.applyMaskImportFilter(paramsBuilder);
+      }
       paramsBuilder = this.applyFilterWithPaginationReset(paramsBuilder, activeFilter, query);
       const paramsPretaskFiles = paramsBuilder.create();
       const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
