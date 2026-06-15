@@ -34,8 +34,6 @@ export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;
   @Input() inputType: 'text' | 'password' | 'email' | 'url' = 'text';
   @Input() icon: string;
-  /** When true and `linkTo` is set, the label keeps plain text and shows a clickable link icon next to it. */
-  @Input() linkIcon = false;
   @Input() minLength?: number;
   @Input() maxLength?: number;
   @Input() showPasswordToggle: boolean = false;

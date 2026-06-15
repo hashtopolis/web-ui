@@ -88,6 +88,7 @@ app-form-row {
   &__label-link {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     color: var(--primary);
 
     mat-icon {
