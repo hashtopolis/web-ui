@@ -88,7 +88,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey ?? '',
+        field: this.filterField(selectedColumn),
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -100,12 +100,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   handleBackendSqlFilter(event: string) {
     const filterQuery: Filter = {
       value: event,
-      field: this.selectedFilterColumn.dataKey ?? '',
+      field: this.filterField(this.selectedFilterColumn),
       operator: FilterType.ICONTAINS,
       parent: this.selectedFilterColumn.parent
     };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
+  }
+  /** The ID column displays taskId, so filter on it; sorting stays on taskWrapperId. */
+  private filterField(column: HTTableColumn): string {
+    return column.id === TaskTableCol.ID ? 'taskId' : (column.dataKey ?? '');
   }
   private renderCurrentSpeed(taskWrapperDisplay: JTaskWrapperDisplay): SafeHtml {
     if (taskWrapperDisplay.currentSpeed) {
