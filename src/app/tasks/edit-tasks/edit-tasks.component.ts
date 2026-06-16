@@ -23,9 +23,10 @@ import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { SpeedStat } from '@models/speed-stat.model';
-import { JTask } from '@models/task.model';
+import { JTask, JTaskWith } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { setParameter } from '@services/buildparams';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -42,6 +43,11 @@ import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+/** Task plus the aggregates edit-tasks reads (requested via the builder in loadTask). */
+type EditedTask = JTaskWith<
+  'searched' | 'timeSpent' | 'currentSpeed' | 'estimatedTime' | 'cprogress' | 'totalNumberOfChunks'
+>;
 
 @Component({
   selector: 'app-edit-tasks',
@@ -255,17 +261,31 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async loadTask(): Promise<JTask> {
-    const includes = ['hashlist', 'crackerBinary', 'crackerBinaryType', 'assignedAgents'];
+  private async loadTask(): Promise<EditedTask> {
+    // Single source: the same params drive the HTTP request (via setParameter) and the deserialized result
+    // type. The requested aggregates are what makes `task.searched`/`timeSpent`/etc. readable below.
+    const params = new RequestParamBuilder()
+      .addInclude('hashlist')
+      .addInclude('crackerBinary')
+      .addInclude('crackerBinaryType')
+      .addInclude('assignedAgents')
+      .addAggregate({
+        field: 'task',
+        values: ['searched', 'timeSpent', 'currentSpeed', 'estimatedTime', 'cprogress', 'totalNumberOfChunks'] as const
+      })
+      .create();
 
     const base = this.cs.getEndpoint() + SERV.TASKS.URL;
     const url = `${base}/${this.editedTaskIndex}`;
 
-    const params: { [k: string]: string } = { include: includes.join(',') };
-
     try {
-      const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      return this.serializer.deserialize(response, zTaskResponse);
+      const response = await firstValueFrom<ResponseWrapper>(
+        this.http.get<ResponseWrapper>(url, { params: setParameter(params) })
+      );
+      // Cast: task relationship includes aren't schema-typed yet (see JTaskIncludes TODO in task.model.ts),
+      // so the deserializer resolves them to worse types (null/never) than JTask's hand-typed relationships,
+      // which are authoritative. The shapes don't structurally overlap, hence `as unknown`.
+      return this.serializer.deserialize(response, zTaskResponse, params) as unknown as EditedTask;
     } catch (err: unknown) {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
@@ -273,7 +293,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        return this.serializer.deserialize(responseFallback, zTaskResponse);
+        // Fallback omits aggregates (no params sent) — the `?? ` guards in ngOnInit cover their runtime absence.
+        return this.serializer.deserialize(responseFallback, zTaskResponse, params) as unknown as EditedTask;
       }
       throw err;
     }

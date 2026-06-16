@@ -16,7 +16,9 @@ import { z } from 'zod';
 
 import { Injectable, inject } from '@angular/core';
 
+import { AggregatesOfSchema } from '@models/aggregate-registry';
 import { JsonApiPayload, RelationshipKeysOfSchema } from '@models/json-api.types';
+import { RequestParams, TypedRequestParams } from '@models/request-params.model';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -24,15 +26,6 @@ import { environment } from '@src/environments/environment';
 
 interface IncludeOptions<K extends string> extends TDeserializeOptions {
   include: readonly K[];
-}
-
-interface AggregateOptions<A extends string> extends TDeserializeOptions {
-  aggregate: readonly A[];
-}
-
-interface IncludeAndAggregateOptions<K extends string, A extends string> extends TDeserializeOptions {
-  include: readonly K[];
-  aggregate: readonly A[];
 }
 
 /** Class for serializing/deserializing objects to and from JSON:API format
@@ -83,52 +76,39 @@ export class JsonAPISerializer {
    *
    * @param body  Response body received by an API call
    * @param schema  Zod envelope schema to validate the raw JSON:API body
-   * @param options  Optional deserializer options; `include` and `aggregate` are type-only
+   * @param optionsOrParams  Either `{ include: [...] as const }`, or the `RequestParams` produced by
+   *   `RequestParamBuilder.create()` (single source of truth for both includes and aggregates).
    *
-   * Aggregate keys are not derivable from the schema, so when requesting aggregates name the entity's
-   * aggregate union explicitly, e.g.
-   *   `deserialize<typeof zTaskResponse, never, JTaskAggregates>(body, schema, { aggregate: ['dispatched'] })`
-   * By default (no `aggregate`) every aggregate field is absent from the result type; the requested subset
-   * is added back as present.
+   * Aggregate fields are ALWAYS omitted from the result type unless requested. The full aggregate set is
+   * derived automatically from the schema (`AggregatesOfSchema`), so passing the builder's params re-adds
+   * exactly the aggregates that were `.addAggregate(...)`-ed — reading an un-requested aggregate is a
+   * compile error.
    */
-  deserialize<
-    TSchema extends z.ZodTypeAny,
-    K extends RelationshipKeysOfSchema<TSchema>,
-    AAll extends string,
-    A extends AAll = AAll
-  >(
+  deserialize<TSchema extends z.ZodTypeAny, Inc extends string, Agg extends string>(
     body: TJsonApiBody,
     schema: TSchema,
-    options: IncludeAndAggregateOptions<K, A>
-  ): JsonApiPayload<z.infer<TSchema>, K, AAll, A>;
-  deserialize<TSchema extends z.ZodTypeAny, AAll extends string, A extends AAll = AAll>(
-    body: TJsonApiBody,
-    schema: TSchema,
-    options: AggregateOptions<A>
-  ): JsonApiPayload<z.infer<TSchema>, never, AAll, A>;
+    params: TypedRequestParams<Inc, Agg>
+  ): JsonApiPayload<z.infer<TSchema>, Inc & RelationshipKeysOfSchema<TSchema>, AggregatesOfSchema<TSchema>, Agg>;
   deserialize<TSchema extends z.ZodTypeAny, K extends RelationshipKeysOfSchema<TSchema>>(
     body: TJsonApiBody,
     schema: TSchema,
     options: IncludeOptions<K>
-  ): JsonApiPayload<z.infer<TSchema>, K>;
+  ): JsonApiPayload<z.infer<TSchema>, K, AggregatesOfSchema<TSchema>, never>;
   deserialize<TSchema extends z.ZodTypeAny>(
     body: TJsonApiBody,
     schema: TSchema,
     options?: TDeserializeOptions
-  ): JsonApiPayload<z.infer<TSchema>>;
+  ): JsonApiPayload<z.infer<TSchema>, never, AggregatesOfSchema<TSchema>, never>;
   deserialize<T = unknown>(body: TJsonApiBody, options?: TDeserializeOptions): T;
   deserialize<T>(
     body: TJsonApiBody,
     schemaOrOptions?: z.ZodTypeAny | TDeserializeOptions,
-    options?:
-      | TDeserializeOptions
-      | IncludeOptions<string>
-      | AggregateOptions<string>
-      | IncludeAndAggregateOptions<string, string>
+    options?: TDeserializeOptions | IncludeOptions<string> | RequestParams
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
       this.validateBody(body, schemaOrOptions);
-      return this.formatter.deserialize(body, options) as T;
+      // `options` may be a RequestParams (single-source path); jsona ignores unknown keys at runtime.
+      return this.formatter.deserialize(body, options as TDeserializeOptions | undefined) as T;
     }
     return this.formatter.deserialize(body, schemaOrOptions) as T;
   }

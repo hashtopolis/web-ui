@@ -4,14 +4,17 @@ import { EMPTY, catchError, finalize } from 'rxjs';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
+import { JTaskWith } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
+/** Subtask row: a task plus the `dispatched`/`searched` aggregates the supertask table renders. */
+type Subtask = JTaskWith<'dispatched' | 'searched'>;
+
+export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {
@@ -27,6 +30,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
     const params = new RequestParamBuilder()
       .addInitial(this)
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
+      .addAggregate({ field: 'task', values: ['dispatched', 'searched'] as const })
       .create();
 
     const subtasks$ = this.service.getAll(SERV.TASKS, params);
@@ -38,7 +42,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const subtasks: JTask[] = this.serializer.deserialize(response, zTaskListResponse);
+          const subtasks: Subtask[] = this.serializer.deserialize(response, zTaskListResponse, params);
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
@@ -71,7 +75,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
     );
   }
 
-  getData(): JTask[] {
+  getData(): Subtask[] {
     return this.getOriginalData();
   }
 

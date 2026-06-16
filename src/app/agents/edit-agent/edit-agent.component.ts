@@ -40,6 +40,9 @@ import {
 } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+/** Agent with the includes loaded for the edit view plus the requested crackingTime aggregate. */
+type ShownAgent = JAgentWith<'agentStats' | 'accessGroups' | 'assignments' | 'crackingTime'>;
+
 @Component({
   selector: 'app-edit-agent',
   templateUrl: './edit-agent.component.html',
@@ -68,7 +71,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   // Edit Index
   editedAgentIndex: number;
-  showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+  showagent: ShownAgent;
 
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
@@ -178,11 +181,15 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      const agent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'> = this.serializer.deserialize(
-        response,
-        zAgentResponse,
-        { include: ['agentStats', 'accessGroups', 'assignments'] as const }
-      );
+      // Result type mirrors the (hardcoded) deserialize includes plus the requested crackingTime aggregate.
+      const typingParams = new RequestParamBuilder()
+        .addInclude('agentStats')
+        .addInclude('accessGroups')
+        .addInclude('assignments')
+        .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
+        .create();
+      const agent: ShownAgent =
+        this.serializer.deserialize(response, zAgentResponse, typingParams);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -207,7 +214,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         // Degraded fallback: no includes loaded due to server error
         const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
-        this.showagent = agent as JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+        this.showagent = agent as ShownAgent;
         this.selectUserAgps = [];
         return;
       }

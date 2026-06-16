@@ -65,3 +65,19 @@ interface IRequestParams {
 }
 
 export type RequestParams = IRequestParams;
+
+declare const TYPED_PARAMS_BRAND: unique symbol;
+
+/**
+ * `RequestParams` branded (at the type level only) with the include relationships and aggregate fields that
+ * were requested via the builder. Lets `deserialize(body, schema, params)` derive the result type from the
+ * exact same params object that was sent — the single source of truth.
+ *
+ * `Inc` is the union of requested include keys; `Agg` is the union of requested aggregate field names (across
+ * all entities — the deserializer intersects it with the target entity's aggregate set, so cross-entity names
+ * are filtered out). The brand is a phantom (never present at runtime), so a `TypedRequestParams` is
+ * structurally a plain `RequestParams` and is accepted anywhere one is.
+ */
+export type TypedRequestParams<Inc extends string = never, Agg extends string = never> = RequestParams & {
+  readonly [TYPED_PARAMS_BRAND]?: { inc: Inc; agg: Agg };
+};

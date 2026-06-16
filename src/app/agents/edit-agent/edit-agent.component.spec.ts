@@ -254,7 +254,8 @@ describe('EditAgentComponent', () => {
       SERV.AGENTS,
       1,
       {
-        include: ['agentStats', 'accessGroups']
+        include: ['agentStats', 'accessGroups'],
+        aggregate: [{ field: 'agent', values: ['crackingTime'] }]
       }
     ]);
     expect(component.showagent).toBeDefined();

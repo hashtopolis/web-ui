@@ -1,7 +1,7 @@
 import { TJsonApiLinks } from 'jsona/lib/JsonaTypes';
 import { z } from 'zod';
 
-import type { Thin, With } from '@models/base.model';
+import type { Thin } from '@models/base.model';
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -54,17 +54,19 @@ type RequireKeys<T, K extends string> = [K] extends [never] ? T : Omit<T, K & ke
 
 /**
  * Apply the aggregate axis: omit ALL aggregate keys by default, then re-add only the requested subset.
- * Reuses the generic `Thin`/`With` conditional-field machinery. Aggregate (attribute) keys and relationship
- * include keys are disjoint, so this composes with `RequireKeys` without either stripping the other's keys.
+ * Aggregate (attribute) keys and relationship include keys are disjoint, so this composes with `RequireKeys`
+ * without either stripping the other's keys.
  * - AggAll never → entity declares no aggregates → no-op.
  * - AggReq never → none requested → drop all aggregate keys (`Thin`).
- * - otherwise    → drop all, pick the requested subset back (`With`).
+ * - otherwise    → drop all, re-add the requested subset. The server always populates a requested aggregate
+ *   (verified against hashtopolis-server), so the Zod schema's optional `| undefined` is stripped here — a
+ *   requested aggregate is present. Any declared `null` (e.g. agent `crackingTime`) is preserved.
  */
 type ApplyAggregates<T, AggAll extends string, AggReq extends string> = [AggAll] extends [never]
   ? T
   : [AggReq] extends [never]
     ? Thin<T, AggAll & keyof T>
-    : With<T, AggAll & keyof T, AggReq & AggAll & keyof T>;
+    : Omit<T, AggAll & keyof T> & { [K in AggReq & AggAll & keyof T]-?: Exclude<T[K], undefined> };
 
 // ── Flatten types ────────────────────────────────────────────────
 

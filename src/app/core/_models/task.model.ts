@@ -38,7 +38,6 @@ export interface TaskAttributes extends BaseModel {
  */
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
-  activeAgents?: number | undefined;
   totalAssignedAgents?: number | undefined;
   chunkTime: number;
   statusTimer: number;
@@ -64,39 +63,37 @@ export interface JTask extends BaseModel, TaskAttributes {
   forcePipe: boolean;
   preprocessorId: PreprocessorId;
   preprocessorCommand: string;
-  dispatched?: string | undefined;
-  searched?: string | undefined;
+  // Aggregate fields (dispatched, searched, status, estimatedTime, timeSpent, currentSpeed, cprogress,
+  // totalNumberOfChunks, activeAgents) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
-  totalNumberOfChunks: number;
-  status?: number | undefined;
-  timeSpent?: number | undefined;
-  currentSpeed?: number | undefined;
-  estimatedTime?: number | undefined;
-  cprogress?: number | undefined;
   isrunning?: boolean;
   isCompleted?: boolean;
   activeSubtasks?: number;
   subtasks?: JTask[];
 }
 
-/** Keys for aggregate fields on JTask (populated only when requested via `aggregate[task]=`). */
-export type JTaskAggregates =
-  | 'activeAgents'
-  | 'dispatched'
-  | 'searched'
-  | 'status'
-  | 'estimatedTime'
-  | 'timeSpent'
-  | 'currentSpeed'
-  | 'cprogress'
-  | 'totalNumberOfChunks';
+/**
+ * Aggregate fields on a task — NOT on the base `JTask`; present in the result type only when requested via
+ * `aggregate[task]=`. This interface is the source of their types.
+ */
+export interface JTaskAggregateFields {
+  activeAgents: number;
+  dispatched: string;
+  searched: string;
+  status: number;
+  estimatedTime: number;
+  timeSpent: number;
+  currentSpeed: number;
+  cprogress: number;
+  totalNumberOfChunks: number;
+}
 
-/** All on-demand conditional fields on JTask. Only aggregates are enumerated today; add a JTaskIncludes union to this union when relationship includes are typed. */
-export type JTaskConditional = JTaskAggregates;
+/** Aggregate field keys on JTask. */
+export type JTaskAggregates = keyof JTaskAggregateFields;
 
-/** Task with only the chosen subset of on-demand fields present (e.g. `JTaskWith<'dispatched' | 'searched'>`). */
-export type JTaskWith<K extends JTaskConditional> = With<JTask, JTaskConditional, K>;
+/** Task with only the chosen subset of aggregate fields present (e.g. `JTaskWith<'dispatched' | 'searched'>`). */
+export type JTaskWith<K extends JTaskAggregates> = JTask & Pick<JTaskAggregateFields, K>;
 
 /**
  * Interface definition for a task wrapper (wrapper object for cracking tasks and supertasks)

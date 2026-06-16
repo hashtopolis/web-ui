@@ -1,4 +1,4 @@
-import { BaseModel, With } from '@models/base.model';
+import { BaseModel } from '@models/base.model';
 import { JFile } from '@models/file.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 
@@ -20,15 +20,19 @@ export interface JPretask extends BaseModel {
   statusTimer: number;
   taskName: string;
   useNewBench: boolean;
-  // Aggregate field (populated only when requested via aggregate[..]=)
-  auxiliaryKeyspace?: number | undefined;
+  // Aggregate field `auxiliaryKeyspace` is intentionally NOT here — see JPretaskAggregates / JPretaskWith below.
 }
 
-/** Keys for aggregate fields on JPretask (populated only when requested via `aggregate[..]=`). */
-export type JPretaskAggregates = 'auxiliaryKeyspace';
+/**
+ * Aggregate fields on a pretask — NOT on the base `JPretask`; present in the result type only when requested
+ * via `aggregate[..]=`. This interface is the source of their types.
+ */
+export interface JPretaskAggregateFields {
+  auxiliaryKeyspace: number;
+}
 
-/** All on-demand conditional fields on JPretask (aggregates only today). */
-export type JPretaskConditional = JPretaskAggregates;
+/** Aggregate field keys on JPretask. */
+export type JPretaskAggregates = keyof JPretaskAggregateFields;
 
-/** Pretask with only the chosen subset of on-demand fields present. */
-export type JPretaskWith<K extends JPretaskConditional> = With<JPretask, JPretaskConditional, K>;
+/** Pretask with only the chosen subset of aggregate fields present. */
+export type JPretaskWith<K extends JPretaskAggregates> = JPretask & Pick<JPretaskAggregateFields, K>;
