@@ -1,6 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
-import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
+import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -10,9 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentWith, ThinJAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { AccessGroupId, TaskId, UserId } from '@models/id.types';
-import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -187,8 +185,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         .addInclude('assignments')
         .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
         .create();
-      const agent: ShownAgent =
-        this.serializer.deserialize(response, zAgentResponse, typingParams);
+      const agent: ShownAgent = this.serializer.deserialize(response, zAgentResponse, typingParams);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {

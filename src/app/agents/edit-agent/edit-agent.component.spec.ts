@@ -38,7 +38,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
   standalone: false
 })
 export class MockAgentStatsComponent {
-  @Input() agent: any;
+  @Input() agent: unknown;
 }
 
 @Component({
@@ -47,7 +47,7 @@ export class MockAgentStatsComponent {
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
-  @Input() agent: any;
+  @Input() agent: unknown;
 }
 
 @Component({
@@ -56,7 +56,7 @@ export class MockAgentEnvironmentComponent {
   standalone: false
 })
 export class MockChunksTableComponent {
-  @Input() chunks: any[];
+  @Input() chunks: unknown[];
 }
 
 @Component({
@@ -65,8 +65,8 @@ export class MockChunksTableComponent {
   standalone: false
 })
 export class MockAgentStatGraphComponent {
-  @Input() statType: any;
-  @Input() agentStats: any[];
+  @Input() statType: unknown;
+  @Input() agentStats: unknown[];
 }
 
 @Component({

@@ -2,7 +2,7 @@
  * Type-level registry that tells the JSON:API deserializer which attributes of a given resource are
  * on-demand "aggregate" fields.
  * Using this registry we can create a type with only the fields included that are actually requested with aggregate param.
- * 
+ *
  */
 import { z } from 'zod';
 

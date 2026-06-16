@@ -109,7 +109,10 @@ export class RequestParamBuilder<Inc extends string = never, Agg extends string 
    * @param aggregate new aggregate fieldset value (`field` = entity, `values` = aggregate field names)
    * @returns object instance widened with the requested aggregate field names
    */
-  addAggregate<V extends string>(aggregate: { field: string; values: readonly V[] }): RequestParamBuilder<Inc, Agg | V> {
+  addAggregate<V extends string>(aggregate: {
+    field: string;
+    values: readonly V[];
+  }): RequestParamBuilder<Inc, Agg | V> {
     const stored: Aggregate = { field: aggregate.field, values: [...aggregate.values] };
     this.params.aggregate = this.addToArray<Aggregate>(this.params.aggregate, stored);
     return this as unknown as RequestParamBuilder<Inc, Agg | V>;
