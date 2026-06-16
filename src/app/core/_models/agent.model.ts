@@ -50,6 +50,8 @@ export interface JAgent extends BaseModel {
   assignmentId?: number;
   agentSpeed?: number;
   chunkData?: ChunkData;
+  // Aggregate field (populated only when requested via aggregate[..]=); flat, distinct from chunkData.timeSpent
+  crackingTime?: number | undefined;
   // Include-dependent relationships (require ?include= in API request)
   user: JUser;
   agentStats: JAgentStat[];
@@ -62,8 +64,17 @@ export interface JAgent extends BaseModel {
   assignments: JAgentAssignment[];
 }
 
-/** Agent without include-dependent relationship fields. */
-export type ThinJAgent = Thin<JAgent, JAgentIncludes>;
+/** Keys for aggregate fields on JAgent (populated only when requested via `aggregate[..]=`). */
+export type JAgentAggregates = 'crackingTime';
 
-/** Agent with only specific include-dependent fields present. */
-export type JAgentWith<K extends JAgentIncludes> = With<JAgent, JAgentIncludes, K>;
+/** All on-demand conditional fields on JAgent: relationship includes plus aggregate fields. */
+export type JAgentConditional = JAgentIncludes | JAgentAggregates;
+
+/** Agent without any on-demand (include or aggregate) fields — the default response shape. */
+export type ThinJAgent = Thin<JAgent, JAgentConditional>;
+
+/**
+ * Agent with only the chosen subset of on-demand fields present. `K` may freely mix include and
+ * aggregate keys, e.g. `JAgentWith<'task' | 'crackingTime'>`.
+ */
+export type JAgentWith<K extends JAgentConditional> = With<JAgent, JAgentConditional, K>;

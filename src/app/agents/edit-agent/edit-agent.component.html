@@ -75,10 +75,14 @@
                     [readonly]="true"
                   ></input-multiselect>
                 }
+                @if (showagent['crackingTime']) {
+                  <input-text
+                    title="Time spent cracking"
+                    [value]="showagent['crackingTime'] | sectotime"
+                    [readonly]="true"
+                  ></input-text>
+                }
               </div>
-            }
-            @if (timespent) {
-              <input-text title="Time spent cracking" [value]="timespent | sectotime" [readonly]="true"></input-text>
             }
           </mat-expansion-panel>
         </mat-accordion>

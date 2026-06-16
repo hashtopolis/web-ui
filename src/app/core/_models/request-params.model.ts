@@ -34,6 +34,16 @@ export interface Filter {
 }
 
 /**
+ * Interface definition for an aggregate fieldset request
+ * @prop field   Entity the aggregate values belong to (e.g. 'task', 'pretask')
+ * @prop values  Aggregate field names to compute for that entity (e.g. ['searched', 'dispatched'])
+ */
+export interface Aggregate {
+  field: string;
+  values: string[];
+}
+
+/**
  * Interface definition for request params
  */
 interface IRequestParams {
@@ -46,6 +56,8 @@ interface IRequestParams {
   include?: Array<string>;
   // Array of Filter objects that have to be performed
   filter?: Array<Filter>;
+  // Array of aggregate fieldsets to request, emitted as aggregate[<field>]=<values> query params
+  aggregate?: Array<Aggregate>;
   //array of attributes to sort on where '-' implies descending order on ex. [id, -name]
   sort?: Array<string>;
   //Parameter for count endpoints to also include the count without filters

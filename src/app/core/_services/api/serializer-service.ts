@@ -26,6 +26,15 @@ interface IncludeOptions<K extends string> extends TDeserializeOptions {
   include: readonly K[];
 }
 
+interface AggregateOptions<A extends string> extends TDeserializeOptions {
+  aggregate: readonly A[];
+}
+
+interface IncludeAndAggregateOptions<K extends string, A extends string> extends TDeserializeOptions {
+  include: readonly K[];
+  aggregate: readonly A[];
+}
+
 /** Class for serializing/deserializing objects to and from JSON:API format
  * @class JsonAPISerializer
  * */
@@ -74,8 +83,29 @@ export class JsonAPISerializer {
    *
    * @param body  Response body received by an API call
    * @param schema  Zod envelope schema to validate the raw JSON:API body
-   * @param options  Optional deserializer options; `include` is type-only
+   * @param options  Optional deserializer options; `include` and `aggregate` are type-only
+   *
+   * Aggregate keys are not derivable from the schema, so when requesting aggregates name the entity's
+   * aggregate union explicitly, e.g.
+   *   `deserialize<typeof zTaskResponse, never, JTaskAggregates>(body, schema, { aggregate: ['dispatched'] })`
+   * By default (no `aggregate`) every aggregate field is absent from the result type; the requested subset
+   * is added back as present.
    */
+  deserialize<
+    TSchema extends z.ZodTypeAny,
+    K extends RelationshipKeysOfSchema<TSchema>,
+    AAll extends string,
+    A extends AAll = AAll
+  >(
+    body: TJsonApiBody,
+    schema: TSchema,
+    options: IncludeAndAggregateOptions<K, A>
+  ): JsonApiPayload<z.infer<TSchema>, K, AAll, A>;
+  deserialize<TSchema extends z.ZodTypeAny, AAll extends string, A extends AAll = AAll>(
+    body: TJsonApiBody,
+    schema: TSchema,
+    options: AggregateOptions<A>
+  ): JsonApiPayload<z.infer<TSchema>, never, AAll, A>;
   deserialize<TSchema extends z.ZodTypeAny, K extends RelationshipKeysOfSchema<TSchema>>(
     body: TJsonApiBody,
     schema: TSchema,
@@ -90,7 +120,11 @@ export class JsonAPISerializer {
   deserialize<T>(
     body: TJsonApiBody,
     schemaOrOptions?: z.ZodTypeAny | TDeserializeOptions,
-    options?: TDeserializeOptions | IncludeOptions<string>
+    options?:
+      | TDeserializeOptions
+      | IncludeOptions<string>
+      | AggregateOptions<string>
+      | IncludeAndAggregateOptions<string, string>
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
       this.validateBody(body, schemaOrOptions);

@@ -129,3 +129,43 @@ describe('RequestParamBuilder – default sort serialization', () => {
     });
   });
 });
+
+describe('RequestParamBuilder – aggregate fieldsets', () => {
+  it('addAggregate maps onto params.aggregate in create()', () => {
+    const params = new RequestParamBuilder()
+      .addAggregate({ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] })
+      .create();
+    expect(params.aggregate).toEqual([{ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] }]);
+  });
+
+  it('setParameter emits aggregate[<field>]=<comma-joined values>', () => {
+    const params = new RequestParamBuilder()
+      .addAggregate({ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] })
+      .create();
+    const httpParams = setParameter(params);
+    expect(httpParams.get('aggregate[task]')).toBe('activeAgents,searched,dispatched,status');
+  });
+
+  it('empty values still emit the aggregate key (backend default fieldset)', () => {
+    const params = new RequestParamBuilder().addAggregate({ field: 'task', values: [] }).create();
+    const httpParams = setParameter(params);
+    expect(httpParams.has('aggregate[task]')).toBe(true);
+    expect(httpParams.get('aggregate[task]')).toBe('');
+  });
+
+  it('multiple aggregate fieldsets emit one param each', () => {
+    const params = new RequestParamBuilder()
+      .addAggregate({ field: 'task', values: ['searched'] })
+      .addAggregate({ field: 'pretask', values: [] })
+      .create();
+    const httpParams = setParameter(params);
+    expect(httpParams.get('aggregate[task]')).toBe('searched');
+    expect(httpParams.has('aggregate[pretask]')).toBe(true);
+  });
+
+  it('no addAggregate leaves params.aggregate undefined and emits nothing', () => {
+    const params = new RequestParamBuilder().create();
+    expect(params.aggregate).toBeUndefined();
+    expect(setParameter(params).has('aggregate[task]')).toBe(false);
+  });
+});

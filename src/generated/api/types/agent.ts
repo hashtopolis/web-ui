@@ -48,6 +48,7 @@ export type AgentResponse = {
       userId: number | null;
       cpuOnly: boolean;
       clientSignature: string;
+      crackingTime?: number;
     };
   };
   relationships?: {
@@ -287,6 +288,7 @@ export type AgentListResponse = {
       userId: number | null;
       cpuOnly: boolean;
       clientSignature: string;
+      crackingTime?: number;
     };
   }>;
   relationships?: {

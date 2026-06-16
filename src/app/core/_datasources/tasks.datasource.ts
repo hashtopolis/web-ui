@@ -33,11 +33,14 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
 
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addFilter({
-      field: 'taskWrapperIsArchived',
-      operator: FilterType.EQUAL,
-      value: this._isArchived
-    });
+    const params = new RequestParamBuilder()
+      .addInitial(this)
+      .addAggregate({ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] })
+      .addFilter({
+        field: 'taskWrapperIsArchived',
+        operator: FilterType.EQUAL,
+        value: this._isArchived
+      });
     if (query) {
       params.addFilter(query);
     }

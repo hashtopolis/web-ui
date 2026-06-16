@@ -70,10 +70,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   editedAgentIndex: number;
   showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
 
-  // Calculations
-  timespent = 0;
-  getchunks: JChunk[] = [];
-
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
   protected readonly faLinux = faLinux;
@@ -121,10 +117,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       await this.loadAgent();
       this.loadSelectTasks();
       this.loadSelectUsers();
-
-      if (this.agentRoleService.hasRole('readChunk')) {
-        this.assignChunksInit(this.editedAgentIndex);
-      }
 
       this.initForm();
     } catch (error) {
@@ -181,7 +173,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom<ResponseWrapper>(
         this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-          include: includes
+          include: includes,
+          aggregate: [{ field: 'agent', values: ['crackingTime'] }]
         })
       );
 
@@ -286,49 +279,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         taskId: null
       });
     }
-  }
-
-  /**
-   * Calculates the total time spent based on an array of chunks.
-   * @param chunks - An array of chunks containing solveTime and dispatchTime properties.
-   */
-  timeCalc(chunks: JChunk[]): void {
-    const tspent = chunks.map((chunk) => Math.max(chunk.solveTime, chunk.dispatchTime) - chunk.dispatchTime);
-    this.timespent = tspent.reduce((a, i) => a + i, 0);
-  }
-
-  /**
-   * Initializes the assignment chunks for the specified agent ID.
-   * @param  agentID - The ID of the agent.
-   */
-  assignChunksInit(agentID: number): void {
-    const chunkRequestParams = new RequestParamBuilder()
-      .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agentID })
-      .create();
-
-    const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
-
-      const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse);
-
-        this.getchunks = chunks.map((chunk) => {
-          const matchedTask = tasks.find((task) => task.id === chunk.taskId);
-          if (matchedTask) {
-            chunk.taskName = matchedTask.taskName;
-          }
-          return chunk;
-        });
-
-        if (this.getchunks.length) {
-          this.timeCalc(this.getchunks);
-        }
-      });
-
-      this.unsubscribeService.add(tasksSub$);
-    });
-
-    this.unsubscribeService.add(chunksSub$);
   }
 
   /**
