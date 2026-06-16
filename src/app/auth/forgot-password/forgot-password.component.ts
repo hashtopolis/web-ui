@@ -10,6 +10,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
@@ -71,7 +72,7 @@ export class ForgotPasswordComponent implements OnDestroy, AfterViewInit {
   buildForm(): void {
     this.forgotForm = new FormGroup<ForgotPasswordForm>({
       username: new FormControl<string | null>('', [Validators.required]),
-      email: new FormControl<string | null>('', [Validators.required, Validators.email])
+      email: new FormControl<string | null>('', [Validators.required, emailValidator])
     });
   }
 
