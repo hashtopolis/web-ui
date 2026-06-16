@@ -127,20 +127,21 @@ export interface JTaskWrapperDisplay extends BaseModel {
   accessGroupId?: number;
   taskWrapperName?: string;
   displayName?: string;
-  taskWrapperIsArchived?: number;
+  taskWrapperIsArchived?: boolean;
   cracked?: number;
-  taskId?: number;
-  taskName?: string;
-  attackCmd?: string;
-  chunkTime?: number;
-  statusTimer?: number;
-  keyspace?: number;
-  keyspaceProgress?: number;
-  taskPriority?: number;
-  taskMaxAgents?: number;
-  isSmall?: number;
-  isCpuTask?: number;
-  taskIsArchived?: number;
+  // Task-derived columns: `null` for supertask wrappers (the view LEFT JOINs Task on taskType=0).
+  taskId?: number | null;
+  taskName?: string | null;
+  attackCmd?: string | null;
+  chunkTime?: number | null;
+  statusTimer?: number | null;
+  keyspace?: number | null;
+  keyspaceProgress?: number | null;
+  taskPriority?: number | null;
+  taskMaxAgents?: number | null;
+  isSmall?: boolean;
+  isCpuTask?: boolean;
+  taskIsArchived?: boolean;
   taskUsePreprocessor?: number;
   hashlistName?: string;
   hashCount?: number;
@@ -159,8 +160,9 @@ export interface JTaskWrapperDisplay extends BaseModel {
 }
 
 /**
- * Keys for aggregate fields on JTaskWrapperDisplay (populated only when requested via `aggregate[task]=`).
- * Note: JTaskWrapperDisplay is deserialized untyped, so only the hand-model `With`/`Thin` axis governs it.
+ * Keys for aggregate fields on JTaskWrapperDisplay (populated only when requested via
+ * `aggregate[taskwrapperdisplay]=`). The fields stay on the base interface so the `With`/`Thin`
+ * axis (which `Pick`s from JTaskWrapperDisplay itself) can gate them.
  */
 export type JTaskWrapperDisplayAggregates =
   | 'status'
@@ -171,8 +173,6 @@ export type JTaskWrapperDisplayAggregates =
   | 'estimatedTime'
   | 'timeSpent'
   | 'currentSpeed';
-
-/** All on-demand conditional fields on JTaskWrapperDisplay (aggregates only; it is deserialized untyped). */
 export type JTaskWrapperDisplayConditional = JTaskWrapperDisplayAggregates;
 
 /** Task wrapper display with only the chosen subset of on-demand fields present. */
@@ -180,6 +180,10 @@ export type JTaskWrapperDisplayWith<K extends JTaskWrapperDisplayConditional> = 
   JTaskWrapperDisplay,
   JTaskWrapperDisplayConditional,
   K
+>;
+
+export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
+  'totalAssignedAgents' | 'searched' | 'dispatched' | 'status' | 'currentSpeed'
 >;
 
 export enum TaskStatus {
