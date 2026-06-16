@@ -34,5 +34,5 @@ export interface JNotification extends BaseModel {
   notification: NotificationEvent;
   receiver: string;
   userId: UserId;
-  objectId?: number | null;
+  objectId?: number | null | undefined;
 }

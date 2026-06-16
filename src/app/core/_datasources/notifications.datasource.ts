@@ -41,10 +41,10 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const notifications = this.serializer.deserialize(
+          const notifications: JNotification[] = this.serializer.deserialize(
             response,
             zNotificationSettingListResponse
-          ) as JNotification[];
+          );
 
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
