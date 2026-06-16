@@ -11,7 +11,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-/** Subtask row: a task plus the `dispatched`/`searched` aggregates the supertask table renders. */
 type Subtask = JTaskWith<'dispatched' | 'searched'>;
 
 export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {

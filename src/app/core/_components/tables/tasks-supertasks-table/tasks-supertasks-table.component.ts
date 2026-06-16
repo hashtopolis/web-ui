@@ -23,7 +23,6 @@ import {
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
 
-/** Subtask row: a task plus the `dispatched`/`searched` aggregates the supertask table renders. */
 type Subtask = JTaskWith<'dispatched' | 'searched'>;
 
 @Component({

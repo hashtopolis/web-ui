@@ -45,7 +45,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
       if (this._taskId) {
         const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
         try {
-          const taskParams = new RequestParamBuilder().addAggregate({ field: 'task', values: [] }).create();
+          const taskParams = new RequestParamBuilder().create();
           const response = await firstValueFrom<ResponseWrapper>(
             this.service.get(SERV.TASKS, this._taskId, taskParams, httpOptions).pipe(
               catchError((error) => {

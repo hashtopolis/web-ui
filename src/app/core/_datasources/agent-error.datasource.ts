@@ -32,8 +32,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
     const activeFilter = query || this._currentFilter;
     let agentParams = new RequestParamBuilder()
       .addInitial(this)
-      .addInclude('task')
-      .addAggregate({ field: 'task', values: [] });
+      .addInclude('task');
     if (this._agentId) {
       agentParams.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }

@@ -50,8 +50,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
-      .addInclude('user')
-      .addAggregate({ field: 'task', values: [] });
+      .addInclude('user');
     const agentParams = this.agentStatsRequired ? baseAgentParams.addInclude('agentStats') : baseAgentParams;
 
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);

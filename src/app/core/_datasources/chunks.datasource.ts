@@ -34,8 +34,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     let params = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('task')
-      .addInclude('agent')
-      .addAggregate({ field: 'task', values: [] });
+      .addInclude('agent');
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
