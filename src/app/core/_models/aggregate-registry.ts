@@ -1,8 +1,8 @@
 /**
  * Type-level registry that tells the JSON:API deserializer which attributes of a given resource are
- * on-demand "aggregate" fields. Aggregate fields are model-declared (the generated Zod schema has no marker
- * distinguishing an aggregate attribute from any other optional attribute), so this map is the single source
- * the serializer consults to omit aggregates by default and only re-add the ones that were requested.
+ * on-demand "aggregate" fields.
+ * Using this registry we can create a type with only the fields included that are actually requested with aggregate param.
+ * 
  */
 import { z } from 'zod';
 

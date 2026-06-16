@@ -65,6 +65,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   preprocessorCommand: string;
   // Aggregate fields (dispatched, searched, status, estimatedTime, timeSpent, currentSpeed, cprogress,
   // totalNumberOfChunks, activeAgents) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
+  // the aggregate fields have to be explicitely requested
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
   isrunning?: boolean;

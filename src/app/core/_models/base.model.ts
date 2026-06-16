@@ -19,12 +19,12 @@ export type DynamicModel = BaseModel & Record<string, unknown>;
 
 /**
  * Shape of `T` with all on-demand conditional fields removed — the default response shape.
- * Generic over the conditional axis: works for `?include=` relationships and `aggregate[..]=` fields alike.
+ * works for `?include=` relationships and `aggregate[..]=` fields alike.
  */
 export type Thin<T, Conditional extends keyof T> = Omit<T, Conditional>;
 
 /**
  * Shape of `T` with only a chosen subset `K` of on-demand conditional fields present.
- * Generic over the conditional axis: works for `?include=` relationships and `aggregate[..]=` fields alike.
+ * works for `?include=` relationships and `aggregate[..]=` fields alike.
  */
 export type With<T, Conditional extends keyof T, K extends Conditional> = Omit<T, Conditional> & Pick<T, K>;

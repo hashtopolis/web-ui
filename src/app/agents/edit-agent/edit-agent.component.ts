@@ -181,7 +181,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         })
       );
 
-      // Result type mirrors the (hardcoded) deserialize includes plus the requested crackingTime aggregate.
       const typingParams = new RequestParamBuilder()
         .addInclude('agentStats')
         .addInclude('accessGroups')

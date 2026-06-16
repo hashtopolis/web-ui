@@ -262,8 +262,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private async loadTask(): Promise<EditedTask> {
-    // Single source: the same params drive the HTTP request (via setParameter) and the deserialized result
-    // type. The requested aggregates are what makes `task.searched`/`timeSpent`/etc. readable below.
     const params = new RequestParamBuilder()
       .addInclude('hashlist')
       .addInclude('crackerBinary')

@@ -64,7 +64,7 @@ export interface JAgent extends BaseModel {
 }
 
 /**
- * Aggregate fields on an agent — NOT on the base `JAgent`; present in the result type only when requested
+ * Aggregate fields which have to be explicitely requested
  * via `aggregate[..]=`. This interface is the source of their types.
  */
 export interface JAgentAggregateFields {
@@ -75,7 +75,7 @@ export interface JAgentAggregateFields {
 /** Aggregate field keys on JAgent. */
 export type JAgentAggregates = keyof JAgentAggregateFields;
 
-/** All on-demand conditional fields on JAgent: relationship includes plus aggregate fields. */
+/** All on-demand conditional fields on JAgent: both the include fields (relationships as well as the aggregate fields)*/
 export type JAgentConditional = JAgentIncludes | JAgentAggregates;
 
 /** Agent without any on-demand (include or aggregate) fields — the default response shape. */
