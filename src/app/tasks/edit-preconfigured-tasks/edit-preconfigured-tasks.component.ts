@@ -20,8 +20,8 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { yesNo } from '@src/app/core/_constants/general.config';
+import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**

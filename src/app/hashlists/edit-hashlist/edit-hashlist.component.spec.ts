@@ -1,7 +1,7 @@
 import { of } from 'rxjs';
 
-import { provideLocationMocks } from '@angular/common/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideLocationMocks } from '@angular/common/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -23,10 +23,10 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
-import { InputTextComponent } from '@src/app/shared/input/text/text.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
+import { InputTextComponent } from '@src/app/shared/input/text/text.component';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 import { mockResponse } from '@src/app/testing/mock-response';
 
