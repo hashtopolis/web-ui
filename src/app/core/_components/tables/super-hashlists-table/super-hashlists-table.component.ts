@@ -60,7 +60,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -107,14 +107,14 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: false,
-        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
+        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription ?? ''
       },
       {
         id: SuperHashlistsTableCol.HASHLISTS,
         dataKey: 'hashlists',
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
-        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
+        export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription ?? ''
       }
     ];
   }
@@ -164,7 +164,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType.description}) ...`,
+          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType?.description}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note: This action cannot be undone.`,
           warn: true,
@@ -213,7 +213,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
     if (superHashlist.hashCount === superHashlist.cracked) {
       return {
-        name: 'check_circle',
+        name: 'check',
         tooltip: 'Cracked',
         cls: 'text-ok'
       };

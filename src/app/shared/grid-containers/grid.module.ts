@@ -7,27 +7,14 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 
 import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { FormRowComponent } from '@src/app/shared/grid-containers/form-row/form-row.component';
 import { GridAutoColComponent } from '@src/app/shared/grid-containers/grid-autocol';
 import { GridFormInputComponent } from '@src/app/shared/grid-containers/grid-formgroup';
 import { GridMainComponent } from '@src/app/shared/grid-containers/grid-main';
-import { SimulateFormFieldComponent } from '@src/app/shared/grid-containers/simulate-form-field/simulate-form-field.component';
-import { SimulateFormFieldMultiComponent } from '@src/app/shared/grid-containers/simulate-form-field-multi/simulate-form-field-multi.component';
 
 @NgModule({
   imports: [RouterModule, CoreFormsModule, FontAwesomeModule, CommonModule, FormsModule, MatCardModule],
-  exports: [
-    SimulateFormFieldMultiComponent,
-    SimulateFormFieldComponent,
-    GridFormInputComponent,
-    GridAutoColComponent,
-    GridMainComponent
-  ],
-  declarations: [
-    SimulateFormFieldMultiComponent,
-    SimulateFormFieldComponent,
-    GridFormInputComponent,
-    GridAutoColComponent,
-    GridMainComponent
-  ]
+  exports: [GridFormInputComponent, GridAutoColComponent, GridMainComponent, FormRowComponent],
+  declarations: [GridFormInputComponent, GridAutoColComponent, GridMainComponent, FormRowComponent]
 })
 export class GridModule {}

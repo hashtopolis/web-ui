@@ -16,7 +16,7 @@ import {
   inject
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatInput } from '@angular/material/input';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -48,13 +48,13 @@ export class InputMultiSelectComponent
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
-  @Input() set items(value: SelectOption[]) {
+  @Input() set items(value: SelectOption<number>[]) {
     // Keep an immutable copy to avoid mutating parent inputs
     this._items = value ? [...value] : [];
     this.availableItems = [...this._items];
     this.itemsSubject.next(this.availableItems);
   }
-  get items(): SelectOption[] {
+  get items(): SelectOption<number>[] {
     return this._items;
   }
   @Input() multiselectEnabled = true;
@@ -63,22 +63,23 @@ export class InputMultiSelectComponent
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
   @ViewChild(CdkVirtualScrollViewport) virtualViewport: CdkVirtualScrollViewport;
+  @ViewChild(MatAutocomplete) autocomplete: MatAutocomplete;
 
   private searchInputSubject = new Subject<string>();
-  private itemsSubject = new Subject<SelectOption[]>();
+  private itemsSubject = new Subject<SelectOption<number>[]>();
   private destroy$ = new Subject<void>();
-  private _items: SelectOption[] = [];
-  private availableItems: SelectOption[] = [];
+  private _items: SelectOption<number>[] = [];
+  private availableItems: SelectOption<number>[] = [];
 
   readonly itemSize = 48;
-  filteredItems: SelectOption[] = [];
+  filteredItems: SelectOption<number>[] = [];
   searchTerm = '';
 
   // Visual chips
-  selectedItems: SelectOption[] = [];
+  selectedItems: SelectOption<number>[] = [];
 
   // Validation model (dummy, never displayed)
-  chipGridValidation: SelectOption[] = [];
+  chipGridValidation: SelectOption<number>[] = [];
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
@@ -133,6 +134,7 @@ export class InputMultiSelectComponent
   onPanelOpened(): void {
     setTimeout(() => {
       this.virtualViewport?.checkViewportSize();
+      this.clearAutocompleteSelectionFlags();
       this.cdr.markForCheck();
     });
   }
@@ -146,24 +148,19 @@ export class InputMultiSelectComponent
     return Math.min(this.filteredItems.length, 5) * this.itemSize;
   }
 
-  public addChip(item: SelectOption): void {
+  public addChip(item: SelectOption<number>): void {
     if (!this.selectedItems.find((i) => i.id === item.id)) {
       // Update visual array
       if (this.multiselectEnabled) {
         this.selectedItems.push(item);
       } else {
-        // In single-select mode, restore the previously selected item to available
-        if (this.selectedItems.length > 0) {
-          this.availableItems = [...this.availableItems, this.selectedItems[0]];
-        }
         this.selectedItems = [item];
       }
 
       // Update validation array
       this.chipGridValidation = [...this.selectedItems];
 
-      // Remove item from available list
-      this.availableItems = this.availableItems.filter((i) => i.id !== item.id);
+      this.updateAvailableItems();
       this.itemsSubject.next(this.availableItems);
 
       // Update filtered items
@@ -175,14 +172,13 @@ export class InputMultiSelectComponent
     }
   }
 
-  public remove(item: SelectOption): void {
+  public remove(item: SelectOption<number>): void {
     const index = this.selectedItems.findIndex((i) => i.id === item.id);
     if (index >= 0) {
       this.selectedItems.splice(index, 1);
       this.chipGridValidation = [...this.selectedItems];
 
-      // Put back to available items
-      this.availableItems = [...this.availableItems, item];
+      this.updateAvailableItems();
       this.searchInputSubject.next(this.searchTerm);
       this.itemsSubject.next(this.availableItems);
 
@@ -191,12 +187,28 @@ export class InputMultiSelectComponent
     }
   }
 
+  /**
+   * Available Items is always all items without the selected ones
+   */
+  private updateAvailableItems(): void {
+    const selectedIds = new Set(this.selectedItems.map((s) => s.id));
+    this.availableItems = this._items.filter((item) => !selectedIds.has(item.id));
+  }
+
+  /**
+   * Reset every MatOption's internal `selected` flag due to virtual scroll reusing options that
+   * might already be selected from previous ones
+   */
+  private clearAutocompleteSelectionFlags(): void {
+    this.autocomplete?.options?.forEach((opt) => opt.deselect());
+  }
+
   // When typing a separator key (ENTER, COMMA)
   onInputChipAdd(event: MatChipInputEvent) {
     const value = event.value?.trim();
     if (!value) return;
 
-    this.addChip({ id: value, name: value });
+    this.addChip({ id: Number(value), name: value });
     event.chipInput.clear();
     this.searchTerm = '';
     if (this.selectInput) {
@@ -209,7 +221,7 @@ export class InputMultiSelectComponent
   }
 
   // When selecting from autocomplete
-  onAutocompleteSelect(selected: SelectOption) {
+  onAutocompleteSelect(selected: SelectOption<number>) {
     this.addChip(selected);
     this.searchTerm = '';
     this.searchInputSubject.next(this.searchTerm);
@@ -220,6 +232,7 @@ export class InputMultiSelectComponent
         // ignore
       }
     }
+    this.clearAutocompleteSelectionFlags();
     this.cdr.markForCheck();
   }
 
@@ -235,14 +248,14 @@ export class InputMultiSelectComponent
    * @param value - The new value of the input.
    * @returns {void}
    */
-  onChangeValue(value: SelectOption | SelectOption[]): void {
+  onChangeValue(value: SelectOption<number> | SelectOption<number>[]): void {
     if (!this.multiselectEnabled) {
       if (Array.isArray(value)) {
         this.value = extractIds(value, 'id')[0];
       } else if (value) {
         this.value = extractIds([value], 'id')[0]; // wrap in array
       } else {
-        this.value = null; // or handle empty case
+        this.value = [] as number[]; // handle empty case
       }
     } else {
       if (Array.isArray(value)) {
@@ -274,14 +287,14 @@ export class InputMultiSelectComponent
    * Filters the items based on the provided search value.
    *
    * @param {string} value - The search value to filter the items.
-   * @returns {SelectOption[]} - The filtered array of items.
+   * @returns {SelectOption<number>[]} - The filtered array of items.
    */
-  private _filter(value: string | SelectOption): SelectOption[] {
+  private _filter(value: string | SelectOption<number>): SelectOption<number>[] {
     // If a SelectOption is passed by accident, convert to string
     const searchString = typeof value === 'string' ? value : (value.name ?? '');
     const filterValue = searchString.toLowerCase();
 
-    const results: SelectOption[] = [];
+    const results: SelectOption<number>[] = [];
     for (const item of this.availableItems) {
       const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       if (nameToSearch.includes(filterValue)) {
@@ -299,18 +312,13 @@ export class InputMultiSelectComponent
    */
   public selected(event: MatAutocompleteSelectedEvent): void {
     if (!this.multiselectEnabled) {
-      // For single-select, put back the previous one (if any) then clear selection
-      if (this.selectedItems.length > 0) {
-        this.availableItems = [...this.availableItems, this.selectedItems[0]];
-      }
       this.selectedItems = [];
     }
 
-    // Remove selected option from available list
-    this.availableItems = this.availableItems.filter((i) => i.id !== event.option.value.id);
-
     this.searchTerm = ''; // Reset the search term
     this.selectedItems.push(event.option.value);
+
+    this.updateAvailableItems();
 
     // Update the filteredItems observable
     this.searchInputSubject.next(this.searchTerm);
@@ -332,9 +340,9 @@ export class InputMultiSelectComponent
   /**
    * Gets the unselected items from the available items list.
    *
-   * @returns {SelectOption[]} - The array of unselected items.
+   * @returns {SelectOption<number>[]} - The array of unselected items.
    */
-  private getUnselectedItems(): SelectOption[] {
+  private getUnselectedItems(): SelectOption<number>[] {
     return this.availableItems.filter((item) => !this.selectedItems.find((s) => s.id === item.id));
   }
 
@@ -348,14 +356,14 @@ export class InputMultiSelectComponent
       this.itemsSubject.next(this.availableItems);
       this.searchTerm = '';
       this.searchInputSubject.next(this.searchTerm);
-      this.value = this.multiselectEnabled ? [] : null;
+      this.value = this.multiselectEnabled ? [] : ([] as number[]);
     } else {
-      // Convert number/number[] to SelectOption/SelectOption[]
+      // Convert number/number[] to SelectOption/SelectOption<number>[]
       const ids = Array.isArray(newValue) ? newValue : [newValue];
 
       this.selectedItems = ids
         .map((id) => this._items.find((item) => Number(item.id) === Number(id)))
-        .filter((item): item is SelectOption => item !== undefined);
+        .filter((item): item is SelectOption<number> => item !== undefined);
       this.chipGridValidation = [...this.selectedItems];
 
       // Remove selected items from available

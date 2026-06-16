@@ -5,13 +5,13 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
 
-const ITEMS: SelectOption[] = [
-  { id: '1', name: 'Alpha' },
-  { id: '2', name: 'Beta' },
-  { id: '3', name: 'Gamma' },
-  { id: '4', name: 'Delta' },
-  { id: '5', name: 'Epsilon' },
-  { id: '6', name: 'Zeta' }
+const ITEMS: SelectOption<number>[] = [
+  { id: 1, name: 'Alpha' },
+  { id: 2, name: 'Beta' },
+  { id: 3, name: 'Gamma' },
+  { id: 4, name: 'Delta' },
+  { id: 5, name: 'Epsilon' },
+  { id: 6, name: 'Zeta' }
 ];
 
 describe('InputMultiSelectComponent', () => {
@@ -41,7 +41,7 @@ describe('InputMultiSelectComponent', () => {
     });
 
     it('should replace filteredItems when items are replaced', () => {
-      component.items = [{ id: '10', name: 'New' }];
+      component.items = [{ id: 10, name: 'New' }];
       expect(component.filteredItems.length).toBe(1);
       expect(component.filteredItems[0].name).toBe('New');
     });
@@ -51,7 +51,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter items by name (case-insensitive)', () => {
       component.onSearchInputChange({ target: { value: 'alpha' } } as unknown as Event);
       expect(component.filteredItems.length).toBe(1);
-      expect(component.filteredItems[0].id).toBe('1');
+      expect(component.filteredItems[0].id).toBe(1);
     });
 
     it('should return all items when search is cleared', () => {
@@ -68,7 +68,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter by id when mergeIdAndName is true', () => {
       component.mergeIdAndName = true;
       component.onSearchInputChange({ target: { value: '2' } } as unknown as Event);
-      expect(component.filteredItems.some((i) => i.id === '2')).toBeTrue();
+      expect(component.filteredItems.some((i) => i.id === 2)).toBeTrue();
     });
   });
 
@@ -104,6 +104,12 @@ describe('InputMultiSelectComponent', () => {
       component.remove(ITEMS[0]);
       expect(component.filteredItems.find((i) => i.id === ITEMS[0].id)).toBeTruthy();
     });
+
+    it('should restore item at its original position, not at the end', () => {
+      // beforeEach selected ITEMS[0] — removing it should restore it at the front
+      component.remove(ITEMS[0]);
+      expect(component.filteredItems.map((i) => i.id)).toEqual(ITEMS.map((i) => i.id));
+    });
   });
 
   describe('single-select mode', () => {
@@ -123,13 +129,20 @@ describe('InputMultiSelectComponent', () => {
       component.addChip(ITEMS[1]);
       expect(component.filteredItems.find((i) => i.id === ITEMS[0].id)).toBeTruthy();
     });
+
+    it('should preserve original ordering when swapping selection', () => {
+      component.addChip(ITEMS[0]);
+      component.addChip(ITEMS[3]);
+      const expected = ITEMS.filter((i) => i.id !== ITEMS[3].id).map((i) => i.id);
+      expect(component.filteredItems.map((i) => i.id)).toEqual(expected);
+    });
   });
 
   describe('writeValue', () => {
     it('should pre-select item by numeric id', () => {
       component.writeValue(1);
       expect(component.selectedItems.length).toBe(1);
-      expect(component.selectedItems[0].id).toBe('1');
+      expect(component.selectedItems[0].id).toBe(1);
     });
 
     it('should pre-select multiple items by id array', () => {

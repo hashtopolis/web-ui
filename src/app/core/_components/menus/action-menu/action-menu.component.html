@@ -1,69 +1,67 @@
 @if (openOnMouseEnter) {
-  <button
-    mat-button
-    #menuTrigger="matMenuTrigger"
-    #menuTriggerButton
-    [ngClass]="cls"
-    [matMenuTriggerFor]="actionMenu"
-    (click)="navigateToFirst($event)"
-    (mouseenter)="onMouseEnter()"
-    (mouseleave)="onMouseLeave($event)"
-    (focus)="preventFocus($event)"
-    [disabled]="disabled"
-    [class.active]="isActive"
+  <span [matTooltip]="disabledTooltip" [matTooltipDisabled]="!disabled || !disabledTooltip">
+    <button
+      mat-button
+      #menuTrigger="matMenuTrigger"
+      [ngClass]="cls"
+      [matMenuTriggerFor]="actionMenu"
+      (click)="navigateToFirst($event)"
+      (mouseenter)="onMouseEnter()"
+      (mouseleave)="onMouseLeave()"
+      (focus)="preventFocus($event)"
+      [disabled]="disabled"
+      [class.active]="isActive"
     >
-    @if (icon) {
-      <mat-icon>{{ icon }}</mat-icon>
-    }
-    @if (label) {
-      {{ label }}
-    }
-  </button>
-  <mat-menu
-    #actionMenu="matMenu"
-    [hasBackdrop]="false"
-    (mouseenter)="onMenuMouseEnter()"
-    (mouseleave)="onMenuMouseLeave($event)"
-    >
-    @for (section of actionMenuItems; track section; let last = $last) {
-      @for (item of section; track item) {
-        <button
-          mat-menu-item
-          (click)="onMenuItemClick(item)"
-          [class.text-critical]="item.red"
-          >
-          <div class="menu-item-content">
+      @if (icon) {
+        <mat-icon>{{ icon }}</mat-icon>
+      }
+      @if (label) {
+        {{ label }}
+      }
+    </button>
+  </span>
+  <mat-menu #actionMenu="matMenu" [hasBackdrop]="false" [class]="panelClass">
+    @for (section of actionMenuItems; track $index; let last = $last) {
+      @for (item of section; track item.label) {
+        <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
+          <div class="flex items-center">
             <span>
-              @if (iconContainsDiscord(item.icon)) {
-                <div style="display: inline; padding-right: 6px">
+              @if (iconContainsDiscord(item.icon ?? '')) {
+                <div class="inline pr-1.5">
                   <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsGithub(item.icon)) {
-                <div style="display: inline; padding-right: 10px">
+              @if (iconContainsGithub(item.icon ?? '')) {
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsPaperplane(item.icon)) {
-                <div style="display: inline; padding-right: 10px">
+              @if (iconContainsPaperplane(item.icon ?? '')) {
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsGlobe(item.icon)) {
-                <div style="display: inline; padding-right: 10px">
+              @if (iconContainsGlobe(item.icon ?? '')) {
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
-              @if (iconContainsBook(item.icon)) {
-                <div style="display: inline; padding-right: 10px">
+              @if (iconContainsBook(item.icon ?? '')) {
+                <div class="inline pr-2.5">
                   <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
                 </div>
               }
               {{ item.label }}
             </span>
             @if (item.showAddButton) {
-              <span class="menu-item-add-btn">
-                <fa-icon [icon]="faSquarePlus" matTooltip="{{item.tooltipAddButton}}" aria-hidden="true" (click)="onAddMenuItemClick(item); $event.stopPropagation();"></fa-icon>
+              <span class="group ml-auto pl-5 cursor-pointer">
+                <fa-icon
+                  [icon]="faSquarePlus"
+                  matTooltip="{{ item.tooltipAddButton }}"
+                  aria-hidden="true"
+                  (click)="onAddMenuItemClick(item); $event.stopPropagation()"
+                  class="transition duration-200 group-hover:brightness-125 group-hover:text-primary"
+                ></fa-icon>
               </span>
             }
           </div>
@@ -77,30 +75,28 @@
 }
 
 @if (!openOnMouseEnter) {
-  <button
-    mat-button
-    [ngClass]="cls"
-    [matMenuTriggerFor]="actionMenu"
-    #menuTrigger="matMenuTrigger"
-    (click)="$event.stopPropagation()"
-    [disabled]="disabled"
-    [class.active]="isActive"
+  <span [matTooltip]="disabledTooltip" [matTooltipDisabled]="!disabled || !disabledTooltip">
+    <button
+      mat-button
+      [ngClass]="cls"
+      [matMenuTriggerFor]="actionMenu"
+      #menuTrigger="matMenuTrigger"
+      (click)="$event.stopPropagation()"
+      [disabled]="disabled"
+      [class.active]="isActive"
     >
-    @if (icon) {
-      <mat-icon>{{ icon }}</mat-icon>
-    }
-    @if (label) {
-      {{ label }}
-    }
-  </button>
-  <mat-menu #actionMenu="matMenu">
-    @for (section of actionMenuItems; track section; let last = $last) {
-      @for (item of section; track item) {
-        <button
-          mat-menu-item
-          (click)="onMenuItemClick(item)"
-          [class.text-critical]="item.red"
-          >
+      @if (icon) {
+        <mat-icon>{{ icon }}</mat-icon>
+      }
+      @if (label) {
+        {{ label }}
+      }
+    </button>
+  </span>
+  <mat-menu #actionMenu="matMenu" [class]="panelClass">
+    @for (section of actionMenuItems; track $index; let last = $last) {
+      @for (item of section; track item.label) {
+        <button mat-menu-item (click)="onMenuItemClick(item)" [class.text-critical]="item.red">
           @if (item.icon) {
             <mat-icon [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
           }

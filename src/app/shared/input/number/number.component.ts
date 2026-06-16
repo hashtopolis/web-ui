@@ -31,6 +31,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-number',
   templateUrl: './number.component.html',
+  styleUrls: ['./number.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -47,7 +48,7 @@ export class InputNumberComponent extends AbstractInputComponent<number> {
   onValueChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const numValue = target.value ? parseFloat(target.value) : null;
-    this.value = numValue;
+    this.value = numValue as number;
     this.onChange(this.value);
   }
 }

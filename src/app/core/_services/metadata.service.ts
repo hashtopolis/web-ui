@@ -1,7 +1,11 @@
-import { Observable, of } from 'rxjs';
+import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
+import { Observable } from 'rxjs';
+import { z } from 'zod';
 
 import { Injectable, inject } from '@angular/core';
 import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
+
+import { ResponseWrapper } from '@models/response.model';
 
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -9,9 +13,10 @@ import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.se
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
-import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { Option, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
+import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Metadata information for the form page.
@@ -40,6 +45,26 @@ export interface InfoMetadataForm {
 }
 
 /**
+ * Render kinds supported by the dynamic form. Single source of truth for the
+ * `MetadataFormField.type` discriminator — any new render kind should be added
+ * here so every metadata array stays type-checked at compile time.
+ */
+export const FieldType = {
+  Text: 'text',
+  Password: 'password',
+  Email: 'email',
+  Url: 'url',
+  Number: 'number',
+  Textarea: 'textarea',
+  Checkbox: 'checkbox',
+  Select: 'select',
+  AsyncSelect: 'asyncSelect',
+  Hidden: 'hidden'
+} as const;
+
+export type FieldType = (typeof FieldType)[keyof typeof FieldType];
+
+/**
  * Metadata for each field in the form.
  *
  * Properties:
@@ -49,7 +74,7 @@ export interface InfoMetadataForm {
  * - placeholder: Placeholder text for the input
  * - selectOptions: Select options if the type is 'select'
  * - selectOptions$: Select options observable if type is 'select' and used with selectEndpoint$
- * - selectEndpoint$: API endpoint route, usually a constant like SERV
+ * - selectEndpoint$: Function returning an observable for fetching select options
  * - fieldMapping: Object with the dropdown options mapping, e.g., { id: '_id', name: 'groupName' }
  * - requiredasterisk: Indicates if the field is required (shows asterisk)
  * - tooltip: Tooltip information as string or more complex type
@@ -59,17 +84,21 @@ export interface InfoMetadataForm {
 export interface MetadataFormField {
   name?: string;
   label?: string;
-  type?: string;
+  type?: FieldType;
   placeholder?: string;
-  selectOptions?: (Setting | Option)[];
-  selectOptions$?: Observable<{ label: string; value: number }[]>;
-  selectEndpoint$?: SERV;
-  fieldMapping?: Record<string, string> | FieldMapping;
+  selectOptions?: Option[];
+  selectOptions$?: SelectOption<number>[];
+  selectEndpoint$?: () => Observable<ResponseWrapper>;
+  selectSchema?: z.ZodTypeAny;
+  fieldMapping?: FieldMapping;
   requiredasterisk?: boolean;
   tooltip?: string | boolean;
   validators?: ValidatorFn[] | boolean;
   isTitle?: boolean;
+  fullWidth?: boolean;
   replacevalue?: string;
+  disabled?: boolean;
+  defaultValue?: unknown;
 }
 
 @Injectable({
@@ -100,7 +129,7 @@ export class MetadataService {
     }
   ];
 
-  authforgot = [
+  authforgot: MetadataFormField[] = [
     {
       name: 'username',
       label: 'User Name',
@@ -145,7 +174,7 @@ export class MetadataService {
     }
   ];
 
-  supertask = [
+  supertask: MetadataFormField[] = [
     {
       name: 'supertaskName',
       label: 'Name',
@@ -229,7 +258,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when editing a wordlist, rule or other file.
-  editfile = [
+  editfile: MetadataFormField[] = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
     {
       name: 'filename',
@@ -247,10 +276,11 @@ export class MetadataService {
     {
       name: 'accessGroupId',
       label: 'Access group',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS),
-      selectOptions$: of([]),
+      selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
+      selectSchema: zAccessGroupListResponse,
+      selectOptions$: [],
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
@@ -276,7 +306,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a new cracker.
-  newcracker = [
+  newcracker: MetadataFormField[] = [
     {
       name: 'typeName',
       label: 'Type',
@@ -288,7 +318,8 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    },
+    }
+    /* Only crackers with chunking are supported right now
     {
       name: 'isChunkingAvailable',
       label: 'Chunking Available',
@@ -300,7 +331,7 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
-    }
+    }*/
   ];
 
   // //
@@ -334,7 +365,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating/editing an Agent Binary.
-  agentbinary = [
+  agentbinary: MetadataFormField[] = [
     {
       name: 'binaryType',
       label: 'Binary Type',
@@ -412,7 +443,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a cracker Version.
-  newcrackerversion = [
+  newcrackerversion: MetadataFormField[] = [
     {
       name: 'binaryName',
       label: 'Binary Base Name',
@@ -449,7 +480,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when editing a cracker Version.
-  editcrackerversion = [
+  editcrackerversion: MetadataFormField[] = [
     {
       name: 'binaryName',
       label: 'Binary Base Name',
@@ -507,7 +538,7 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating/editing a Hashtype.
-  preprocessor = [
+  preprocessor: MetadataFormField[] = [
     {
       name: 'name',
       label: 'Name',
@@ -594,9 +625,9 @@ export class MetadataService {
   ];
 
   //This variable defines the fields and properties required when creating a new Hashtype.
-  newhashtype = [
+  newhashtype: MetadataFormField[] = [
     {
-      name: 'id',
+      name: 'hashTypeId',
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
@@ -632,7 +663,7 @@ export class MetadataService {
   ];
 
   //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
-  edithashtype = [
+  edithashtype: MetadataFormField[] = [
     {
       name: 'id',
       label: 'Hashtype',
@@ -684,7 +715,7 @@ export class MetadataService {
     }
   ];
 
-  serveragent = [
+  serveragent: MetadataFormField[] = [
     { label: 'Activity / Registration', isTitle: true },
     {
       name: 'agenttimeout',
@@ -693,7 +724,7 @@ export class MetadataService {
       tooltip: false
     },
     {
-      name: 'benchtime',
+      name: 'chunktimeout',
       label: 'Inactivity Timeout for Issued Chunks',
       type: 'number',
       tooltip: false
@@ -712,13 +743,19 @@ export class MetadataService {
     },
     {
       name: 'hideIpInfo',
-      label: 'Agent IP Information Privacy',
+      label: 'Hide Agent IP Information',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'voucherDeletion',
-      label: 'Register Multiple Agents Using Voucher(s)',
+      label: 'Allow multiple usage of Voucher for Agent Registration',
+      type: 'checkbox',
+      tooltip: false
+    },
+    {
+      name: 'allowDeregister',
+      label: 'Allow Clients to Deregister Themselves Automatically from the Server',
       type: 'checkbox',
       tooltip: false
     },
@@ -734,8 +771,8 @@ export class MetadataService {
       label: 'Straight Lines or bezier curves for Agent Data Graphs',
       type: 'select',
       selectOptions: [
-        { label: 'Straight lines', value: '0' },
-        { label: 'Bezier curves', value: '1' }
+        { label: 'Straight lines', value: 0 },
+        { label: 'Bezier curves', value: 1 }
       ],
       tooltip: false
     },
@@ -775,11 +812,17 @@ export class MetadataService {
     }
   ];
 
-  servertaskchunk = [
+  servertaskchunk: MetadataFormField[] = [
     { label: 'Benchmark / Chunk', isTitle: true },
     {
+      name: 'benchtime',
+      label: 'Time in Seconds an Agent Should Benchmark a Task',
+      type: 'number',
+      tooltip: false
+    },
+    {
       name: 'chunktime',
-      label: 'Expected Chunk Duration',
+      label: 'Targeted chunk duration',
       type: 'number',
       tooltip: false
     },
@@ -791,13 +834,13 @@ export class MetadataService {
     },
     {
       name: 'defaultBenchmark',
-      label: 'Default Speed Benchmark Process',
+      label: 'Use speed benchmarking estimation',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'disableTrimming',
-      label: 'Disable Chunk Trimming and Revert to Full Chunk Processing',
+      label: 'Disable chunk trimming and redo whole chunk on error',
       type: 'checkbox',
       tooltip: false
     },
@@ -816,32 +859,13 @@ export class MetadataService {
     },
     {
       name: 'priority0Start',
-      label: 'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
+      label: 'Automatic Assignment of Tasks with Priority 0',
       type: 'checkbox',
       tooltip: false
     },
     {
       name: 'showTaskPerformance',
       label: 'Display Cracks per Minute for Active Tasks',
-      type: 'checkbox',
-      tooltip: false
-    },
-    { label: 'Rule splitting', isTitle: true },
-    {
-      name: 'ruleSplitSmallTasks',
-      label: 'Rule Splitting for Tasks: Always Create Small Tasks',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitAlways',
-      label: 'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
-      type: 'checkbox',
-      tooltip: false
-    },
-    {
-      name: 'ruleSplitDisable',
-      label: 'Disable Automatic Task Splitting for Large Rule Files',
       type: 'checkbox',
       tooltip: false
     }
@@ -857,7 +881,7 @@ export class MetadataService {
     }
   ];
 
-  serverhch = [
+  serverhch: MetadataFormField[] = [
     { label: 'Import/Display of Hashlist', isTitle: true },
     {
       name: 'maxHashlistSize',
@@ -867,7 +891,7 @@ export class MetadataService {
     },
     {
       name: 'pagingSize',
-      label: 'Hashes size Page in Hash Vieww',
+      label: 'Hashes size Page in Hash View',
       type: 'number',
       tooltip: false
     },
@@ -925,7 +949,8 @@ export class MetadataService {
   //   <fa-icon  style="color:red" [icon]="faExclamationTriangle"></fa-icon> Such change may take a long time depending on the database size
   // </span>
 
-  servernotif = [
+  servernotif: MetadataFormField[] = [
+    { label: 'Sender Settings', isTitle: true },
     {
       name: 'emailSender',
       label: 'Notification Sender Email',
@@ -985,12 +1010,13 @@ export class MetadataService {
     }
   ];
 
-  servergs = [
+  servergs: MetadataFormField[] = [
     {
       name: 'hashcatBrainEnable',
       label: 'Enable Hashcat Brain',
       type: 'checkbox',
-      tooltip: false
+      tooltip: false,
+      fullWidth: true
     },
     {
       name: 'hashcatBrainHost',
@@ -1054,6 +1080,13 @@ export class MetadataService {
       type: 'select',
       selectOptions: serverlog,
       tooltip: false
+    },
+    {
+      name: 'hideImportMasks',
+      label: 'Hide Preconfigured Tasks Created by Mask Importer',
+      type: 'checkbox',
+      tooltip: false,
+      fullWidth: true
     }
   ];
 
@@ -1062,7 +1095,7 @@ export class MetadataService {
   // //
 
   // This variable holds information about the fields required when creating a new health check.
-  newhealthcheck = [
+  newhealthcheck: MetadataFormField[] = [
     {
       name: 'attack',
       label: 'Attack',
@@ -1085,22 +1118,24 @@ export class MetadataService {
     {
       name: 'crackerBinaryType',
       label: 'Binary',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectOptions$: of([]),
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
     },
     {
       name: 'crackerBinaryId',
       label: 'Binary Version',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectOptions$: of([]),
+        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
     }
@@ -1126,7 +1161,7 @@ export class MetadataService {
   ];
 
   //This variable holds information about the fields required when creating a new user.
-  newuser = [
+  newuser: MetadataFormField[] = [
     {
       name: 'name',
       label: 'User Name',
@@ -1144,10 +1179,11 @@ export class MetadataService {
     {
       name: 'globalPermissionGroupId',
       label: 'Global Permission Group',
-      type: 'selectd',
+      type: 'asyncSelect',
       requiredasterisk: true,
       selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
-      selectOptions$: of([]),
+      selectSchema: zGlobalPermissionGroupListResponse,
+      selectOptions$: [],
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
     }
@@ -1169,7 +1205,7 @@ export class MetadataService {
   ];
 
   //This variable holds information about the fields required when creating a new global permission group.
-  newglobalpermissionsgp = [
+  newglobalpermissionsgp: MetadataFormField[] = [
     {
       name: 'name',
       label: 'Name',
@@ -1209,7 +1245,7 @@ export class MetadataService {
   ];
 
   // This variable contains information about the fields required when creating or editing an access group.
-  accessgroups = [
+  accessgroups: MetadataFormField[] = [
     {
       name: 'groupName',
       label: 'Name',
@@ -1226,12 +1262,12 @@ export class MetadataService {
 
   uisettingsInfo = [{ title: 'UI Settings', subtitle: false }];
 
-  uisettings = [
+  uisettings: MetadataFormField[] = [
     {
       name: 'localtimefmt',
       label: 'Set the time format',
       type: 'select',
-      selectOptions: dateFormats
+      selectOptions: dateFormats.map((f) => ({ label: f.description, value: f.value }))
     },
     {
       name: 'autorefresh',

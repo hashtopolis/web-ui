@@ -8,18 +8,19 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import {
   AfterViewInit,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
   OnInit,
   Output,
   Renderer2,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -39,30 +40,21 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
  * - opening on hover or click (`openOnMouseEnter`)
  * - optional hover-to-close behavior with a short grace period (`enableHoverClose`)
  * - routing, external links, and custom menu item click events
- *
- * The component uses a global `mousemove` listener while the menu is open to detect
- * pointer exits and applies a short deferred close to avoid flicker when moving
- * between trigger and menu.
  */
 export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
-  /** Delay in milliseconds to prevent hover flickering */
-  static readonly hoverDelayMs = 30;
+  /** Grace period (ms) before a hover-close fires, long enough to cross the gap
+   *  between trigger and panel. */
+  static readonly hoverCloseDelayMs = 150;
 
   private subscriptions: Subscription[] = [];
 
-  /** Handle to remove the global mousemove listener */
-  private globalMouseMoveListener: (() => void) | null = null;
-
   /** Handle for the deferred hover-close timeout */
   hoverTimeout: ReturnType<typeof setTimeout> | null = null;
-  menuPanelId: string | undefined;
 
-  // track last known mouse coords for deferred checks
-  private lastMouseX = 0;
-  private lastMouseY = 0;
+  /** Cleanup handles for the overlay-panel hover listeners. */
+  private panelListeners: (() => void)[] = [];
 
   @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
-  @ViewChild('menuTriggerButton', { read: ElementRef }) triggerButton!: ElementRef<HTMLButtonElement>;
 
   currentUrl: string[] = [];
   isActive = false;
@@ -72,8 +64,10 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() icon: string = '';
   @Input() label: string = '';
   @Input() disabled = false;
+  @Input() disabledTooltip = '';
   @Input() cls = '';
-  @Input() data: unknown;
+  @Input() panelClass = '';
+  @Input() data: BaseModel | undefined;
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
   @Input() openOnMouseEnter = false;
@@ -84,7 +78,9 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Input() enableHoverClose = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel | undefined>> = new EventEmitter<
+    ActionMenuEvent<BaseModel | undefined>
+  >();
 
   faDiscord = faDiscord;
   faGithub = faGithub;
@@ -99,19 +95,46 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   hoveringButton = false;
   hoveringMenu = false;
 
-  private static openMenuTrigger: MatMenuTrigger | null = null;
+  /**
+   * Maximum viewport width (px) below which we treat the layout as "mobile"
+   * regardless of pointer type. Aligns with the dashboard's `<= sm` breakpoint.
+   */
+  private static readonly mobileBreakpointPx = 768;
 
   /**
-   * Create the ActionMenuComponent.
-   * @param router Router instance for internal navigation
-   * @param storage Local storage utility used for reading UI settings
-   * @param renderer Renderer2 for attaching global event listeners safely
+   * True when the layout is desktop-like: a fine-pointer device with hover
+   * capability AND a viewport wider than the mobile breakpoint. On mobile
+   * (touch-only OR narrow viewport) a tap fires mouseenter + click + mouseleave
+   * in rapid succession, which caused the menu to open, navigate to the first
+   * item, and close again in the same gesture. Hover-intent + first-item
+   * navigation logic is gated behind this getter so mobile falls back to
+   * standard mat-menu-trigger tap-to-toggle behavior.
+   *
+   * Read as a getter so viewport-resize transitions (e.g. devtools toggle)
+   * pick up the new state on the next interaction.
    */
-  constructor(
-    private router: Router,
-    private storage: LocalStorageService<UIConfig>,
-    private renderer: Renderer2
-  ) {
+  private get isDesktopLayout(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+    const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const wideViewport = window.matchMedia(`(min-width: ${ActionMenuComponent.mobileBreakpointPx + 1}px)`).matches;
+    return fineHover && wideViewport;
+  }
+
+  /**
+   * @deprecated kept for backwards-compatibility with callers reading the field
+   * as `supportsHover`. Reads from `isDesktopLayout` so behavior stays consistent.
+   */
+  private get supportsHover(): boolean {
+    return this.isDesktopLayout;
+  }
+
+  private static openMenuTrigger: MatMenuTrigger | null = null;
+
+  private router = inject(Router);
+  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private renderer = inject(Renderer2);
+
+  constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     this.faIconColor = this.isDarkMode ? 'white' : 'black';
@@ -136,65 +159,58 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  /**
-   * Angular lifecycle hook: called after view init. Captures the menu panel id
-   * and subscribes to menu open/close events to manage the global mouse listener.
-   */
   ngAfterViewInit(): void {
-    this.menuPanelId = this.trigger.menu?.panelId;
+    this.subscriptions.push(
+      this.trigger.menuOpened.subscribe(() => {
+        this.attachPanelHoverListeners();
+      })
+    );
 
     this.subscriptions.push(
       this.trigger.menuClosed.subscribe(() => {
         if (ActionMenuComponent.openMenuTrigger === this.trigger) {
           ActionMenuComponent.openMenuTrigger = null;
         }
-        this.removeGlobalMouseListener();
-      })
-    );
-
-    this.subscriptions.push(
-      this.trigger.menuOpened.subscribe(() => {
-        // Slight delay to ensure the menu DOM is initialized before checking pointer
-        setTimeout(() => {
-          this.addGlobalMouseListener();
-        }, ActionMenuComponent.hoverDelayMs);
+        this.detachPanelHoverListeners();
+        this.hoveringMenu = false;
       })
     );
   }
 
   /**
-   * Add a single global mousemove listener to track pointer position while menu is open.
-   * The listener updates last known coordinates and delegates to `checkPointerOutside`.
+   * Bind mouseenter/mouseleave to the rendered overlay. Targets the
+   * `.cdk-overlay-pane` wrapper, not the panel itself — Material sets
+   * `pointer-events: none` on the panel during its enter animation, so attaching
+   * to the pane (which stays interactive) detects hover even mid-animation.
    */
-  addGlobalMouseListener() {
-    if (this.globalMouseMoveListener) return;
+  private attachPanelHoverListeners(): void {
+    if (!this.supportsHover) return;
+    this.detachPanelHoverListeners();
 
-    this.globalMouseMoveListener = this.renderer.listen('document', 'mousemove', (event: MouseEvent) => {
-      // always keep last coords up to date
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
-      this.checkPointerOutside(event);
-    });
+    const panelId = this.trigger.menu?.panelId;
+    const panel = panelId ? document.getElementById(panelId) : null;
+    const target = panel?.closest('.cdk-overlay-pane') ?? panel;
+    if (!target) return;
+
+    this.panelListeners.push(
+      this.renderer.listen(target, 'mouseenter', () => this.onMenuMouseEnter()),
+      this.renderer.listen(target, 'mouseleave', () => this.onMenuMouseLeave())
+    );
   }
 
-  /**
-   * Remove the global mousemove listener if present.
-   */
-  removeGlobalMouseListener() {
-    if (this.globalMouseMoveListener) {
-      this.globalMouseMoveListener();
-      this.globalMouseMoveListener = null;
+  private detachPanelHoverListeners(): void {
+    for (const unlisten of this.panelListeners) {
+      unlisten();
     }
+    this.panelListeners = [];
   }
 
-  /**
-   * Angular lifecycle hook: unsubscribe and clean up global listener.
-   */
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-    this.removeGlobalMouseListener();
+    this.detachPanelHoverListeners();
+    this.clearHoverTimeout();
   }
 
   /**
@@ -206,13 +222,16 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
     for (const section of this.actionMenuItems) {
       if (this.isActive) break;
       for (const item of section) {
-        if (item.routerLink) {
-          const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (partial.every((value, index) => value === item.routerLink[index])) {
-            this.isActive = true;
-            break;
+        for (const link of [item.routerLink, item.routerLinkAdd, ...(item.activeRoutes ?? [])]) {
+          if (link?.length) {
+            const partial = this.currentUrl.slice(0, link.length);
+            if (partial.every((value, index) => value === link[index])) {
+              this.isActive = true;
+              break;
+            }
           }
         }
+        if (this.isActive) break;
       }
     }
   }
@@ -265,6 +284,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse entered the trigger button: open menu (when configured) and clear any pending close.
    */
   onMouseEnter(): void {
+    if (!this.supportsHover) return;
     this.hoveringButton = true;
     this.clearHoverTimeout();
 
@@ -278,14 +298,9 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Mouse left the trigger button: record coordinates and start deferred close.
-   */
-  onMouseLeave(event: MouseEvent): void {
+  onMouseLeave(): void {
+    if (!this.supportsHover) return;
     this.hoveringButton = false;
-    // capture last coords immediately so timeout checks current pointer
-    this.lastMouseX = event.clientX;
-    this.lastMouseY = event.clientY;
     this.startHoverTimeout();
   }
 
@@ -293,24 +308,18 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Mouse entered the menu panel: cancel any pending close.
    */
   onMenuMouseEnter(): void {
+    if (!this.supportsHover) return;
     this.hoveringMenu = true;
     this.clearHoverTimeout();
   }
 
-  /**
-   * Mouse left the menu panel: record coordinates and start deferred close.
-   */
-  onMenuMouseLeave(event: MouseEvent): void {
+  onMenuMouseLeave(): void {
+    if (!this.supportsHover) return;
     this.hoveringMenu = false;
-    this.lastMouseX = event.clientX;
-    this.lastMouseY = event.clientY;
     this.startHoverTimeout();
   }
 
-  /**
-   * Start a single deferred timeout to check pointer position after a short grace period.
-   * If the pointer is still outside the trigger and menu, close the menu.
-   */
+  /** Close after a grace period, but only if the pointer left both the trigger and the panel. */
   startHoverTimeout() {
     if (!this.openOnMouseEnter || !this.enableHoverClose) return;
 
@@ -318,15 +327,11 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearHoverTimeout();
 
     this.hoverTimeout = setTimeout(() => {
-      try {
-        if (this.isPointerOutsideAt(this.lastMouseX, this.lastMouseY)) {
-          this.closeMenuIfOpen();
-        }
-      } finally {
-        // ensure we clear the stored timeout handle
-        this.hoverTimeout = null;
+      this.hoverTimeout = null;
+      if (!this.hoveringButton && !this.hoveringMenu) {
+        this.closeMenuIfOpen();
       }
-    }, ActionMenuComponent.hoverDelayMs);
+    }, ActionMenuComponent.hoverCloseDelayMs);
   }
 
   /**
@@ -350,8 +355,14 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Programmatically navigate to the first menu item (used when trigger is clicked).
+   *
+   * On touch devices this shortcut is disabled — a tap is indistinguishable from
+   * the "open the menu" intent, so we let mat-menu-trigger's default click
+   * toggle take over. Running the shortcut on touch caused the menu to open and
+   * then close immediately when NavigationEnd fired.
    */
   navigateToFirst(event: MouseEvent): void {
+    if (!this.supportsHover) return;
     event.stopPropagation();
     const firstItem = this.actionMenuItems[0]?.[0];
     if (!firstItem) return;
@@ -363,39 +374,6 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(firstItem.routerLink).then(() => {
         this.closeMenuIfOpen();
       });
-    }
-  }
-
-  /**
-   * Determine whether a given screen coordinate is outside the trigger button and menu panel.
-   * Returns `true` when pointer is outside both.
-   */
-  isPointerOutsideAt(x: number, y: number): boolean {
-    const hoveredElement = document.elementFromPoint(x, y);
-
-    const insideTrigger = this.triggerButton?.nativeElement.contains(hoveredElement);
-    const insideMenu = hoveredElement?.closest(`#${this.menuPanelId ?? ''}`);
-
-    return !(insideTrigger || insideMenu);
-  }
-
-  /**
-   * Called by the global mousemove handler to decide whether to schedule a deferred close
-   * or cancel one when the pointer returns inside.
-   */
-  checkPointerOutside(event: MouseEvent) {
-    if (!this.openOnMouseEnter || !this.enableHoverClose) return;
-
-    // update last coords (already done in global listener, but keep safe)
-    this.lastMouseX = event.clientX;
-    this.lastMouseY = event.clientY;
-
-    if (this.isPointerOutsideAt(this.lastMouseX, this.lastMouseY)) {
-      // schedule closure after grace period
-      this.startHoverTimeout();
-    } else {
-      // pointer is inside — cancel any pending close
-      this.clearHoverTimeout();
     }
   }
 

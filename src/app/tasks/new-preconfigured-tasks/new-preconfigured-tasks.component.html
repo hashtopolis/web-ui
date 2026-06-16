@@ -1,58 +1,77 @@
-<div class="grid grid-cols-12">
-  <div class="col-span-12 md:col-span-6">
-    <grid-main>
-      <div>
-        @if (whichView === 'create') {
-          <app-page-subtitle [subtitle]="'New Preconfigured Tasks'"></app-page-subtitle>
-        }
-        @if (whichView === 'edit' || whichView === 'task') {
-          <div>
-            <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From {{whichView === 'edit' ? 'Pretask' : 'Task'}} ID {{editedIndex}})</small></h2>
-            <br>
-            </div>
-          }
-        </div>
+<app-page
+  title="New Preconfigured Tasks"
+  [subtitle]="
+    whichView === 'edit'
+      ? 'Copied from Pretask ID ' + editedIndex
+      : whichView === 'task'
+        ? 'Copied from Task ID ' + editedIndex
+        : ''
+  "
+>
+  <div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12 md:col-span-6">
+      <grid-main>
         <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-          <div>
+          <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+          <input-color title="Color" formControlName="color"></input-color>
 
-            <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-            <input-color title="Color" formControlName="color"></input-color>
+          <input-text-area title="Command line" formControlName="attackCmd" [isRequired]="true"></input-text-area>
+          <blacklist-attack [value]="createForm.controls.attackCmd.value"></blacklist-attack>
 
-          </div>
-          <div>
-            <input-text-area title="Command line" formControlName="attackCmd" [isRequired]="true"></input-text-area>
-            <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
-          </div>
           <mat-accordion>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <span><b>Advanced Settings</b></span>
+                  <span><strong>Advanced Settings</strong></span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <div class="flex flex-wrap items-center gap-2">
-
-                <input-number title="Chunk size" formControlName="chunkTime" tooltip="Measure is in seconds time"></input-number>
-                <input-number title="Status timer" formControlName="statusTimer" tooltip="Measure is in seconds time"></input-number>
-                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype" tooltip="Only applies to Hashcat. If binary type generic is selected this benchmark option will be ignored"></input-select>
-                <input-select title="Binary type" formControlName="crackerBinaryTypeId" [items]="selectCrackertype" tooltip="The task will run using the binary type selected."></input-select>
-                <input-check title="CPU only" formControlName="isCpuTask" tooltip="The task will work only with CPU agents assigned"></input-check>
-                <input-check title="Small task" formControlName="isSmall" tooltip="Only one agent gets assigned to it"></input-check>
-
+              <div class="form-layout">
+                <app-form-row>
+                  <input-number
+                    title="Chunk size"
+                    formControlName="chunkTime"
+                    tooltip="Measure is in seconds time"
+                  ></input-number>
+                  <input-number
+                    title="Status timer"
+                    formControlName="statusTimer"
+                    tooltip="Measure is in seconds time"
+                  ></input-number>
+                </app-form-row>
+                <app-form-row>
+                  <input-select
+                    title="Binary type"
+                    formControlName="crackerBinaryTypeId"
+                    [items]="selectCrackertype"
+                    tooltip="The task will run using the binary type selected."
+                  ></input-select>
+                  <input-select
+                    title="Benchmark Type"
+                    formControlName="useNewBench"
+                    [items]="selectBenchmarktype"
+                    tooltip="Only applies to Hashcat. If binary type generic is selected this benchmark option will be ignored"
+                  ></input-select>
+                </app-form-row>
+                <app-form-row align="left">
+                  <input-check
+                    title="CPU only"
+                    formControlName="isCpuTask"
+                    tooltip="The task will work only with CPU agents assigned"
+                  ></input-check>
+                  <input-check
+                    title="Small task"
+                    formControlName="isSmall"
+                    tooltip="Only one agent gets assigned to it"
+                  ></input-check>
+                </app-form-row>
               </div>
             </mat-expansion-panel>
           </mat-accordion>
 
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
-            @if (isCreatingLoading) {
-              <div>
-                <mat-spinner diameter="24" color="accent"></mat-spinner>
-              </div>
-            }
+            <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
           </grid-buttons>
-
         </form>
       </grid-main>
     </div>
@@ -60,24 +79,37 @@
       <mat-accordion multi>
         <mat-expansion-panel>
           <mat-expansion-panel-header>
-            <span><b>Wordlists</b></span>
+            <span><strong>Wordlists</strong></span>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="0"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+          ></app-files-attack-table>
         </mat-expansion-panel>
 
         <mat-expansion-panel>
           <mat-expansion-panel-header>
-            <span><b>Rules</b></span>
+            <span><strong>Rules</strong></span>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="1"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+          ></app-files-attack-table>
         </mat-expansion-panel>
 
         <mat-expansion-panel>
           <mat-expansion-panel-header>
-            <span><b>Other</b></span>
+            <span><strong>Other</strong></span>
           </mat-expansion-panel-header>
-          <app-files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></app-files-attack-table>
+          <app-files-attack-table
+            [fileType]="2"
+            [formData]="getFormData()"
+            (updateFormEvent)="onUpdateForm($event)"
+          ></app-files-attack-table>
         </mat-expansion-panel>
       </mat-accordion>
     </div>
   </div>
+</app-page>

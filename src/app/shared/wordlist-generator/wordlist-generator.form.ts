@@ -31,19 +31,19 @@ export class GenerateWordListFormGroup extends FormGroup<GenerateWordListForm> {
   constructor() {
     super(
       {
-        names: new FormArray<FormControl<string>>([new FormControl('')]),
-        specialdates: new FormControl(''),
-        sparetext: new FormArray<FormControl<string>>([new FormControl('')]),
-        useSpecCharacters: new FormControl(false),
-        usePermutations: new FormControl(false),
-        isCapitalize: new FormControl(false),
-        isAlternated: new FormControl(false),
-        isUppercase: new FormControl(false),
-        isLowercase: new FormControl(false),
-        isSimilarVowels: new FormControl(false),
-        isSimilarConsonant: new FormControl(false),
-        isSimilarSpecialChars: new FormControl(false),
-        filename: new FormControl('wordlist.txt', [Validators.required])
+        names: new FormArray<FormControl<string>>([new FormControl<string>('', { nonNullable: true })]),
+        specialdates: new FormControl<string>('', { nonNullable: true }),
+        sparetext: new FormArray<FormControl<string>>([new FormControl<string>('', { nonNullable: true })]),
+        useSpecCharacters: new FormControl<boolean>(false, { nonNullable: true }),
+        usePermutations: new FormControl<boolean>(false, { nonNullable: true }),
+        isCapitalize: new FormControl<boolean>(false, { nonNullable: true }),
+        isAlternated: new FormControl<boolean>(false, { nonNullable: true }),
+        isUppercase: new FormControl<boolean>(false, { nonNullable: true }),
+        isLowercase: new FormControl<boolean>(false, { nonNullable: true }),
+        isSimilarVowels: new FormControl<boolean>(false, { nonNullable: true }),
+        isSimilarConsonant: new FormControl<boolean>(false, { nonNullable: true }),
+        isSimilarSpecialChars: new FormControl<boolean>(false, { nonNullable: true }),
+        filename: new FormControl<string>('wordlist.txt', { nonNullable: true, validators: [Validators.required] })
       },
       {
         validators: atLeastOneFieldRequiredValidator(['names', 'specialdates', 'sparetext'])
@@ -59,7 +59,7 @@ export class GenerateWordListFormGroup extends FormGroup<GenerateWordListForm> {
   addControlToArray(controlName: keyof GenerateWordListForm): void {
     const control = this.get(controlName);
     if (control instanceof FormArray) {
-      control.push(new FormControl(''));
+      control.push(new FormControl<string>('', { nonNullable: true }));
     } else {
       throw new Error(`${controlName} is not a FormArray`);
     }

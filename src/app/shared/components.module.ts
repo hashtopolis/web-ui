@@ -3,12 +3,12 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
-import { AlertComponent } from '@src/app/shared/alert/alert.component';
 import { AlertNavModule } from '@src/app/shared/alert/alert.module';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { FixedAlertComponent } from '@src/app/shared/alert/fixed-alert/fixed-alert.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
+import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
 import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
@@ -20,7 +20,6 @@ import { ActiveSpinnerComponent } from '@src/app/shared/loading-spinner/loading-
 import { LoadingSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner.component';
 import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
-import { PaginationModule } from '@src/app/shared/pagination/pagination.module';
 import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
 import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
 import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
@@ -40,8 +39,7 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     PassStrenghtComponent,
     CheatsheetComponent,
     FixedAlertComponent,
-    PassMatchComponent,
-    AlertComponent
+    PassMatchComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -50,7 +48,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     HorizontalNavModule,
     DynamicFormModule,
     SwitchThemeModule,
-    PaginationModule,
     CoreFormsModule,
     PageTitleModule,
     AlertNavModule,
@@ -60,7 +57,8 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     GraphsModule,
     TableModule,
     InputModule,
-    GridModule
+    GridModule,
+    DividerModule
   ],
   exports: [
     WordlistGeneratorComponent,
@@ -77,9 +75,7 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     PassMatchComponent,
     SwitchThemeModule,
     DynamicFormModule,
-    PaginationModule,
     PageTitleModule,
-    AlertComponent,
     AlertNavModule,
     ButtonsModule,
     ReportsModule,
@@ -87,7 +83,8 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     CommonModule,
     InputModule,
     TableModule,
-    GridModule
+    GridModule,
+    DividerModule
   ]
 })
 export class ComponentsModule {}

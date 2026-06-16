@@ -10,7 +10,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
  */
 export interface NewCrackerForm {
   typeName: FormControl<string>;
-  isChunkingAvailable: FormControl<boolean>;
+  // Only crackers with chunking are supported right now: isChunkingAvailable: FormControl<boolean | null>;
 }
 
 /**
@@ -19,7 +19,7 @@ export interface NewCrackerForm {
  */
 export const getNewCrackerForm = () => {
   return new FormGroup<NewCrackerForm>({
-    typeName: new FormControl('Hashcat', [Validators.required]),
-    isChunkingAvailable: new FormControl(undefined, [Validators.required])
+    typeName: new FormControl<string>('Hashcat', { nonNullable: true, validators: [Validators.required] })
+    // Only crackers with chunking are supported right now: isChunkingAvailable: new FormControl<boolean | null>(null, [Validators.required])
   });
 };

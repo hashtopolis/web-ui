@@ -1,11 +1,14 @@
 import { Buffer } from 'buffer';
 
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+
+import { AuthData } from '@models/auth-user.model';
+import { Permission } from '@models/global-permission-group.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
@@ -19,11 +22,11 @@ describe('AuthService', () => {
   beforeEach(() => {
     // Create a working mock storage that actually stores/retrieves data
     const storageMock = {
-      _store: {} as Record<string, any>,
-      getItem(key: string) {
+      _store: {} as Record<string, AuthData>,
+      getItem(key: string): AuthData | null {
         return this._store[key] || null;
       },
-      setItem(key: string, value: any) {
+      setItem(key: string, value: AuthData) {
         this._store[key] = value;
       },
       removeItem(key: string) {
@@ -75,5 +78,90 @@ describe('AuthService', () => {
     expect(userReq.request.method).toBe('GET');
 
     userReq.flush({ id: 1, name: 'Demo User' });
+  });
+});
+
+describe('AuthService.autoLogin', () => {
+  let service: AuthService;
+  let permSubject: Subject<Permission>;
+
+  beforeEach(() => {
+    permSubject = new Subject<Permission>();
+
+    const storageMock = {
+      _store: {
+        userData: {
+          _token: 'dummy-token',
+          _expires: new Date(Date.now() + 3_600_000),
+          userId: 1,
+          canonicalUsername: 'testuser'
+        }
+      } as Record<string, unknown>,
+      getItem(key: string) {
+        return this._store[key] ?? null;
+      },
+      setItem(key: string, value: unknown) {
+        this._store[key] = value;
+      },
+      removeItem(key: string) {
+        delete this._store[key];
+      }
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        AuthService,
+        { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
+        { provide: LocalStorageService, useValue: storageMock },
+        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
+        {
+          provide: PermissionService,
+          useValue: {
+            loadPermissions: () => permSubject.asObservable(),
+            clearPermissionCache: () => {}
+          }
+        }
+      ]
+    });
+
+    service = TestBed.inject(AuthService);
+  });
+
+  it('does not complete until loadPermissions() emits', () => {
+    // `provideAppInitializer` waits for completion (`subscribe({ complete: resolve })`),
+    // so the initializer contract is: autoLogin() must complete only after permissions
+    // are populated.
+    let completed = false;
+    service.autoLogin().subscribe({ complete: () => (completed = true) });
+
+    expect(completed).toBe(false);
+
+    permSubject.next({});
+
+    expect(completed).toBe(true);
+  });
+
+  it('still completes even if loadPermissions() only emits (never completes)', () => {
+    // Guards against the bug where loadPermissions()'s cache-hit branch returns a
+    // BehaviorSubject that emits but never completes — autoLogin's `take(1)` must
+    // still yield a completing observable.
+    let completed = false;
+    service.autoLogin().subscribe({ complete: () => (completed = true) });
+
+    permSubject.next({}); // emit without completing
+
+    expect(completed).toBe(true);
+  });
+
+  it('completes synchronously when no userData is present', () => {
+    const storage = TestBed.inject(LocalStorageService) as unknown as { _store: Record<string, unknown> };
+    storage._store = {};
+
+    let completed = false;
+    service.autoLogin().subscribe({ complete: () => (completed = true) });
+
+    expect(completed).toBe(true);
   });
 });

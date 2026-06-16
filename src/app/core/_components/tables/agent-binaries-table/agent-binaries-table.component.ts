@@ -62,7 +62,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -84,6 +84,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     return [
       {
         id: AgentBinariesTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,

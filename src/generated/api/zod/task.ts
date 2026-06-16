@@ -97,7 +97,8 @@ export const zTaskResponse = z.object({
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
+      cprogress: z.int().optional(),
+      totalNumberOfChunks: z.number().optional().default(0)
     })
   }),
   relationships: z
@@ -200,7 +201,7 @@ export const zTaskResponse = z.object({
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
-            isChunkingAvailable: z.boolean()
+            isChunkingAvailable: z.boolean().nullable()
           })
         }),
         z.object({
@@ -310,7 +311,8 @@ export const zTaskPostPatchResponse = z.object({
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
-      cprogress: z.int().optional()
+      cprogress: z.int().optional(),
+      totalNumberOfChunks: z.number().optional().default(0)
     })
   })
 });
@@ -364,7 +366,8 @@ export const zTaskListResponse = z.object({
         estimatedTime: z.int().optional(),
         timeSpent: z.int().optional(),
         currentSpeed: z.int().optional(),
-        cprogress: z.int().optional()
+        cprogress: z.int().optional(),
+        totalNumberOfChunks: z.number().optional().default(0)
       })
     })
   ),
@@ -468,7 +471,7 @@ export const zTaskListResponse = z.object({
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
-            isChunkingAvailable: z.boolean()
+            isChunkingAvailable: z.boolean().nullable()
           })
         }),
         z.object({

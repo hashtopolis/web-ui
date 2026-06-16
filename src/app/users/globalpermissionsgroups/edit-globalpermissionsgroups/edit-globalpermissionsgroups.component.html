@@ -1,31 +1,36 @@
-<grid-main>
-  <app-page-title [title]="'Global Permission Group'"></app-page-title>
-  <app-page-subtitle [subtitle]="'Authorization Matrix'"></app-page-subtitle>
-  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-    <mat-form-field>
-      <mat-label>Update Global Permission Name</mat-label>
-      <input matInput type="text" formControlName="name" required />
-      @if (updateForm.get('name')?.hasError('required') && updateForm.get('name')?.touched) {
-        <mat-error>This field is required</mat-error>
-      }
-      <button mat-icon-button matSuffix>
-        @if (!processing) {
-          <mat-icon>save</mat-icon>
-        }
-        @if (processing) {
-          <mat-spinner diameter="20" color="accent"></mat-spinner>
-        }
-      </button>
-    </mat-form-field>
-  </form>
-</grid-main>
-<app-table>
-  <access-permission-groups-user-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-user-table>
-</app-table>
-@if (editedGPG?.userMembers) {
+<app-page title="Global Permission Group">
+  <grid-main>
+    <app-page-subtitle [subtitle]="'Authorization Matrix'"></app-page-subtitle>
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+      <div class="field-stack">
+        <label class="field-stack__label" for="globalpermission-name-input">Update Global Permission Name</label>
+        <mat-form-field class="field-stack__field">
+          <input id="globalpermission-name-input" matInput type="text" formControlName="name" required />
+          @if (updateForm.controls.name.hasError('required') && updateForm.controls.name.touched) {
+            <mat-error>This field is required</mat-error>
+          }
+          <button mat-icon-button matSuffix>
+            @if (!processing) {
+              <mat-icon>save</mat-icon>
+            }
+            @if (processing) {
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+            }
+          </button>
+        </mat-form-field>
+      </div>
+      <fixed-alert
+        message="Some permissions depend on others, enabling one may automatically enable additional permissions. Review all changes carefully before saving."
+      ></fixed-alert>
+    </form>
+  </grid-main>
   <app-table>
-    <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
-    <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
+    <access-permission-groups-user-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-user-table>
   </app-table>
-}
-
+  @if (editedGPG?.userMembers) {
+    <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
+    <app-table>
+      <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
+    </app-table>
+  }
+</app-page>

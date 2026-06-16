@@ -67,11 +67,11 @@ describe('UiSettingsComponent', () => {
 
   it('should initialize form with default values', () => {
     expect(component.form).toBeDefined();
-    expect(component.form.get('timefmt')).toBeDefined();
-    expect(component.form.get('layout')).toBeDefined();
-    expect(component.form.get('theme')).toBeDefined();
-    expect(component.form.get('refreshPage')).toBeDefined();
-    expect(component.form.get('refreshInterval')).toBeDefined();
+    expect(component.form.controls.timefmt).toBeDefined();
+    expect(component.form.controls.layout).toBeDefined();
+    expect(component.form.controls.theme).toBeDefined();
+    expect(component.form.controls.refreshPage).toBeDefined();
+    expect(component.form.controls.refreshInterval).toBeDefined();
   });
 
   it('should call updateForm and patch form values', () => {
@@ -81,17 +81,17 @@ describe('UiSettingsComponent', () => {
 
     component.loadSettings();
 
-    expect(component.form.get('timefmt').value).toBe('dd/MM/yyyy h:mm:ss');
-    expect(component.form.get('layout').value).toBe('fixed');
-    expect(component.form.get('theme').value).toBe('dark');
+    expect(component.form.controls.timefmt.value).toBe('dd/MM/yyyy h:mm:ss');
+    expect(component.form.controls.layout.value).toBe('fixed');
+    expect(component.form.controls.theme.value).toBe('dark');
   });
 
   it('should show info message on submit, if values have changed', () => {
-    component.form.get('timefmt').patchValue(mockModifiedUIConfig.timefmt);
-    component.form.get('layout').patchValue(mockModifiedUIConfig.layout);
-    component.form.get('theme').patchValue(mockModifiedUIConfig.theme);
-    component.form.get('refreshPage').patchValue(mockModifiedUIConfig.refreshPage);
-    component.form.get('refreshInterval').patchValue(mockModifiedUIConfig.refreshInterval);
+    component.form.controls.timefmt.patchValue(mockModifiedUIConfig.timefmt);
+    component.form.controls.layout.patchValue(mockModifiedUIConfig.layout);
+    component.form.controls.theme.patchValue(mockModifiedUIConfig.theme);
+    component.form.controls.refreshPage.patchValue(mockModifiedUIConfig.refreshPage);
+    component.form.controls.refreshInterval.patchValue(mockModifiedUIConfig.refreshInterval);
 
     spyOn(alertService, 'showInfoMessage');
 

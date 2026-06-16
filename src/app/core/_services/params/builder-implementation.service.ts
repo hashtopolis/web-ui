@@ -1,3 +1,5 @@
+import { BaseModel } from '@models/base.model';
+
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
@@ -21,7 +23,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * Sets page size, page after and sorting from datasource
    * @param dataSource the datasource to get the values from
    */
-  addInitial<T>(dataSource: BaseDataSource<T>) {
+  addInitial<T extends BaseModel>(dataSource: BaseDataSource<T>) {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
@@ -53,7 +55,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageBefore
    * @returns object instance
    */
-  setPageBefore(pageBefore: number): IParamBuilder {
+  setPageBefore(pageBefore: number | string | undefined): IParamBuilder {
     this.params.pageBefore = pageBefore;
     return this;
   }
@@ -63,7 +65,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageAfter
    * @returns object instance
    */
-  setPageAfter(pageAfter: number): IParamBuilder {
+  setPageAfter(pageAfter: number | string | undefined): IParamBuilder {
     this.params.pageAfter = pageAfter;
     return this;
   }

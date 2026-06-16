@@ -1,34 +1,47 @@
-<grid-main>
-  <app-page-title [title]="'Supertask Details'"></app-page-title>
-  <form [formGroup]="viewForm">
-    <div class="flex flex-wrap items-center gap-2">
-      <input-text title="ID" formControlName="supertaskId" ></input-text>
-      <input-text title="Name" formControlName="supertaskName" ></input-text>
-    </div>
-    <div class="flex">
-      @if (roleService.hasRole("delete")) {
-        <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
-      }
-      @if (roleService.hasRole("editSupertaskApplyHashlist")) {
-        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']">
-        </button-submit>
-      }
-    </div>
-  </form>
+<app-page title="Supertask Details">
+  <grid-main [narrow]="true">
+    <form [formGroup]="viewForm">
+      <app-form-row>
+        <input-text title="ID" formControlName="supertaskId"></input-text>
+      </app-form-row>
+      <app-form-row>
+        <input-text title="Name" formControlName="supertaskName"></input-text>
+      </app-form-row>
+      <grid-buttons>
+        @if (roleService.hasRole('delete')) {
+          <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
+        }
+        @if (roleService.hasRole('editSupertaskApplyHashlist')) {
+          <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/', editedSTIndex, 'applyhashlist']">
+          </button-submit>
+        }
+      </grid-buttons>
+    </form>
+  </grid-main>
 
-</grid-main>
+  @if (roleService.hasRole('editSupertaskPreTasks')) {
+    <!--Table Pretasks-->
+    <app-table>
+      <app-page-subtitle subtitle="Preconfigured tasks part of this supertask"></app-page-subtitle>
+      <app-pretasks-table
+        #superTasksPretasksTable
+        name="superTasksPretasksEditTable"
+        [supertTaskId]="editedSTIndex"
+        [unassignOption]="true"
+        (pretasksChanged)="onPretaskChanged()"
+      ></app-pretasks-table>
+    </app-table>
 
-@if(roleService.hasRole("editSupertaskPreTasks")) {
-  <!--Table Pretasks-->
-  <app-table>
-    <app-page-title [title]="'Preconfigured tasks part of this supertask'"></app-page-title>
-    <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
-                        [unassignOption]=true (pretasksChanged)="onPretaskChanged()"></app-pretasks-table>
-  </app-table>
-
-  <app-table>
-    <app-page-title [title]="'Preconfigured tasks not part of this supertask'"></app-page-title>
-    <app-pretasks-table #superTasksPretaskNotContainedTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [reverseQuery]=true
-                        (pretasksChanged)="onPretaskChanged()" (pretaskAdd)="onPretaskAdd($event)"></app-pretasks-table>
-  </app-table>
-}
+    <app-table>
+      <app-page-subtitle subtitle="Preconfigured tasks not part of this supertask"></app-page-subtitle>
+      <app-pretasks-table
+        #superTasksPretaskNotContainedTable
+        name="superTasksPretasksEditTable"
+        [supertTaskId]="editedSTIndex"
+        [reverseQuery]="true"
+        (pretasksChanged)="onPretaskChanged()"
+        (pretaskAdd)="onPretaskAdd($event)"
+      ></app-pretasks-table>
+    </app-table>
+  }
+</app-page>

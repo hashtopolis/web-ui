@@ -1,9 +1,11 @@
 import { zHashlistListResponse } from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JHashlist } from '@models/hashlist.model';
+import { HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -14,6 +16,15 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { sameHashTypeValidator } from '@src/app/core/_validators/same-hash-type.validator';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+interface NewSuperhashlistForm {
+  name: FormControl<string>;
+  hashlistIds: FormControl<number[] | null>;
+}
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -29,18 +40,18 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   /** Form group for the new SuperHashlist. */
-  form: FormGroup;
+  form: FormGroup<NewSuperhashlistForm>;
 
   /** Select List of hashlists. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectHashlists: any;
+  selectHashlists: SelectOption<HashlistId>[];
+
+  private hashlists: JHashlist[] = [];
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private alert = inject(AlertService);
   private globalService = inject(GlobalService);
-  private formBuilder = inject(FormBuilder);
   private router = inject(Router);
 
   constructor() {
@@ -67,9 +78,12 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.form = this.formBuilder.group({
-      name: ['', Validators.required],
-      hashlistIds: [null, Validators.required]
+    this.form = new FormGroup<NewSuperhashlistForm>({
+      name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      hashlistIds: new FormControl<number[] | null>(null, [
+        Validators.required,
+        sameHashTypeValidator(() => this.hashlists)
+      ])
     });
   }
 
@@ -85,7 +99,10 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+        const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+        this.hashlists = hashlists;
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
+        this.form.controls.hashlistIds.updateValueAndValidity({ emitEvent: false });
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

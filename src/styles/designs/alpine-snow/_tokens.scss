@@ -1,0 +1,89 @@
+$inter-stack:
+  'Inter',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  sans-serif;
+
+$grotesk-stack:
+  'Space Grotesk',
+  'Inter',
+  system-ui,
+  -apple-system,
+  sans-serif;
+
+.light-theme {
+  color-scheme: light;
+
+  --font-body: #{$inter-stack};
+  --font-heading: #{$grotesk-stack};
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  --background: #fbfcfd;
+  --muted: #f3f5f9;
+  --well: #e9edf4;
+  --card: rgba(255, 255, 255, 0.92);
+  --card-hover: rgba(255, 255, 255, 0.98);
+  --input: #f5f7fb;
+  --sidebar: rgba(255, 255, 255, 0.6);
+
+  --foreground: #1f2c54;
+  --muted-foreground: #475a8a;
+  --subtle-foreground: #8a99b9;
+  --heading-foreground: #152040;
+
+  --primary: #152040;
+  --primary-hover: #1f2c54;
+  --primary-muted: rgba(21, 32, 64, 0.08);
+  --primary-foreground: #ffffff;
+
+  --secondary: #475a8a;
+
+  --border: rgba(21, 32, 64, 0.08);
+  --border-strong: rgba(21, 32, 64, 0.18);
+  --border-faint: rgba(21, 32, 64, 0.06);
+
+  --surface-faint: rgba(21, 32, 64, 0.02);
+  --surface-soft: rgba(21, 32, 64, 0.04);
+  --surface-soft-hover: rgba(21, 32, 64, 0.08);
+
+  --header: rgba(255, 255, 255, 0.6);
+  --shell-frame-image: linear-gradient(to bottom, rgba(21, 32, 64, 0.1), rgba(21, 32, 64, 0.02));
+  --ring: rgba(21, 32, 64, 0.2);
+  --tooltip: var(--primary);
+  --tooltip-foreground: var(--primary-foreground);
+  --snackbar: var(--primary);
+  --snackbar-foreground: var(--primary-foreground);
+
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --destructive: #dc2626;
+  --info: #2563eb;
+
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
+
+  --popover: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 0 30px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
+
+  --alpine-shadow-glow: rgba(15, 23, 42, 0.18);
+  --alpine-shadow-glow-rim: rgba(15, 23, 42, 0.08);
+
+  --gradient-accent: linear-gradient(to right, #152040, #475a8a);
+
+  --mat-sys-display-large-tracking: -0.027em;
+  --mat-sys-display-medium-tracking: -0.025em;
+  --mat-sys-display-small-tracking: -0.022em;
+  --mat-sys-headline-large-tracking: -0.018em;
+  --mat-sys-headline-medium-tracking: -0.016em;
+  --mat-sys-headline-small-tracking: -0.014em;
+}

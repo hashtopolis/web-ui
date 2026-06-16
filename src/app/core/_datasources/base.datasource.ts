@@ -6,6 +6,7 @@ import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { BaseModel, DynamicModel } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
@@ -33,13 +34,16 @@ import { environment } from '@src/environments/environment';
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
 @Injectable()
-export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
+export abstract class BaseDataSource<
+  T extends BaseModel,
+  P extends MatPaginator = MatPaginator
+> implements DataSource<T> {
   public pageSize = 25;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: SortingColumn;
-  public pageAfter = undefined;
-  public pageBefore = undefined;
+  public pageAfter: number | string | null | undefined = undefined;
+  public pageBefore: number | string | null | undefined = undefined;
   public index = 0;
   /**
    * Selection model for row selection in the table.
@@ -155,7 +159,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param _collectionViewer - The collection viewer to connect.
    * @returns Observable of the data source.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_collectionViewer: CollectionViewer): Observable<T[]> {
     return this.dataSubject.asObservable();
   }
@@ -187,7 +190,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();
@@ -230,7 +232,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
       if (!selectedColumn || selectedColumn.dataKey === 'all') {
         return JSON.stringify(item).toLowerCase().includes(value);
       }
-      const fieldValue = (item as Record<string, unknown>)[selectedColumn.dataKey];
+      if (!selectedColumn.dataKey) return false;
+      const fieldValue = (item as DynamicModel)[selectedColumn.dataKey];
       return fieldValue != null && String(fieldValue).toLowerCase().includes(value);
     });
   }
@@ -248,8 +251,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const isAscending = this.sortingColumn.direction === 'asc';
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sortKey];
-      const bValue = (b as Record<string, unknown>)[sortKey];
+      const aValue = (a as DynamicModel)[sortKey];
+      const bValue = (b as DynamicModel)[sortKey];
       if (aValue == null || bValue == null) return 0;
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         const cmp = aValue.localeCompare(bValue);
@@ -272,6 +275,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param selectedColumn - The column to filter on. Null or dataKey 'all' searches all fields.
    */
   applyClientFilter(filterValue: string, selectedColumn: HTTableColumn | null): void {
+    // if filter is applied we want to clear selection otherwise non visible items are selected
     let data = this.filterItems(filterValue, selectedColumn);
     if (this.sortingColumn) data = this.applySorting(data);
     this.setPaginationConfig(this.pageSize, data.length, null, null, 0);
@@ -311,7 +315,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const numSelected = this.selection.selected ? this.selection.selected.length : 0;
     const numRows = this.dataSubject && this.dataSubject.value ? this.dataSubject.value.length : 0;
 
-    return !!(numSelected > 0 && numSelected === numRows);
+    return numSelected > 0 && numSelected === numRows;
   }
 
   // Checks if a row is selected.
@@ -334,7 +338,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @returns True if the selection is in an indeterminate state; otherwise, false.
    */
   indeterminate() {
-    return !!(this.selection.hasValue() && !this.isAllSelected());
+    return this.selection.hasValue() && !this.isAllSelected();
   }
 
   /**
@@ -348,6 +352,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
 
   /**
    * Sets the pagination configuration for the data source, including page size, current page, and total items.
+   * Auto-corrects the pagination state if a deletion causes the current page to become out of bounds.
    *
    * @param pageSize - The number of items to display per page.
    * @param totalItems - The total number of items in the data source.
@@ -357,20 +362,54 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setPaginationConfig(
     pageSize: number,
-    totalItems: number,
-    pageAfter: number | string | null,
-    pageBefore: number | string | null,
+    totalItems: number | undefined,
+    pageAfter: number | string | null | undefined,
+    pageBefore: number | string | null | undefined,
     index: number
   ): void {
     // Capture the cursors that were actually used to load this page before overwriting with the
     // next/prev page cursors returned by the API. Auto-refresh uses these to reload the same page.
     this._refreshPageAfter = this.pageAfter;
     this._refreshPageBefore = this.pageBefore;
+
     this.pageSize = pageSize;
-    this.totalItems = totalItems;
+    this.totalItems = totalItems ?? this.totalItems;
+
+    // Calculate the maximum valid page index (0-based)
+    const maxPageIndex = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
+
+    // Detect if the current page became out of bounds (e.g. last item on the page was deleted)
+    if (index > maxPageIndex) {
+      // Because this relies on cursor-based pagination (pageAfter/pageBefore),
+      // we don't have the exact cursor for the newly calculated maxPageIndex.
+      // The safest fallback is to clear cursors and go back to the first page.
+      this.index = 0;
+      this.pageAfter = undefined;
+      this.pageBefore = undefined;
+
+      if (this.paginator) {
+        this.paginator.length = this.totalItems;
+        this.paginator.pageIndex = this.index;
+      }
+
+      // If items still exist in the database, fetch the corrected page data
+      if (this.totalItems > 0) {
+        // Wrapped in setTimeout to prevent Angular ExpressionChangedAfterItHasBeenChecked errors
+        setTimeout(() => this.reload());
+      }
+      return;
+    }
+
+    // Normal state
     this.pageAfter = pageAfter;
     this.pageBefore = pageBefore;
     this.index = index;
+
+    // Sync state to the MatPaginator so the UI correctly reflects the numbers
+    if (this.paginator) {
+      this.paginator.length = this.totalItems;
+      this.paginator.pageIndex = this.index;
+    }
   }
 
   /**
@@ -516,7 +555,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     });
   }
 
-  applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+  applyFilterWithPaginationReset<B extends IParamBuilder>(
+    params: B,
+    activeFilter: Filter | null | undefined,
+    query?: Filter
+  ): B {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)
       if (query && query.value) {

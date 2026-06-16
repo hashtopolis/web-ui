@@ -1,0 +1,44 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.login-card {
+  width: 400px;
+  margin-bottom: var(--space-md);
+}
+
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: 20px 0;
+
+  a {
+    text-align: center;
+  }
+  img {
+    display: block;
+    margin: auto;
+  }
+}
+
+.card-login-field {
+  width: 100%;
+  margin-bottom: var(--space-md);
+}
+
+.forgot-password-link {
+  margin-top: var(--space-md);
+  text-align: center;
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+}

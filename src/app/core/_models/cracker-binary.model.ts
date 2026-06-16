@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { BaseModel } from '@models/base.model';
+import { CrackerBinaryTypeId } from '@models/id.types';
 
 /**
  * Interface definition for cracker binary
@@ -12,7 +13,7 @@ import { BaseModel } from '@models/base.model';
  */
 export interface JCrackerBinary extends BaseModel {
   binaryName: string;
-  crackerBinaryTypeId: number;
+  crackerBinaryTypeId: CrackerBinaryTypeId;
   downloadUrl: string;
   version: string;
 }
@@ -23,7 +24,7 @@ export interface JCrackerBinary extends BaseModel {
  */
 export interface JCrackerBinaryType extends BaseModel {
   crackerVersions: JCrackerBinary[];
-  isChunkingAvailable: boolean;
+  //Only crackers with chunking are supported right now: isChunkingAvailable: boolean;
   typeName: string;
 }
 

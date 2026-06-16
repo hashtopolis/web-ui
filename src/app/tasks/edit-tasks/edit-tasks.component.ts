@@ -15,10 +15,11 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
+import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { SpeedStat } from '@models/speed-stat.model';
@@ -45,6 +46,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
+  styleUrls: ['./edit-tasks.component.scss'],
   providers: [FileSizePipe],
   standalone: false
 })
@@ -55,7 +57,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
 
   updateForm: FormGroup;
-  createForm: FormGroup; // Assign Agent
+  createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 
@@ -66,8 +68,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   tusepreprocessor: number;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
-  availAgents: JAgent[] = [];
-  selectAgents: SelectOption[] = [];
+  availAgents: ThinJAgent[] = [];
+  selectAgents: SelectOption<AgentId>[] = [];
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
@@ -123,23 +125,23 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       const task = await this.loadTask();
 
       this.originalValue = task;
-      this.searched = task.searched;
-      this.color = task.color;
+      this.searched = task.searched ?? '';
+      this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
-      this.ctimespent = task.timeSpent;
-      this.currenspeed = task.currentSpeed;
-      this.estimatedTime = task.estimatedTime;
-      this.cprogress = task.cprogress;
+      this.ctimespent = task.timeSpent ?? 0;
+      this.currenspeed = task.currentSpeed ?? 0;
+      this.estimatedTime = task.estimatedTime ?? 0;
+      this.cprogress = task.cprogress ?? 0;
 
       if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-        this.assingAgentInit(task.assignedAgents.map((entry) => entry.id));
+        this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
       }
 
       if (this.roleService.hasRole('editTaskSpeed')) {
-        this.getTaskSpeeds(task.assignedAgents.length);
+        this.getTaskSpeeds((task.assignedAgents ?? []).length);
       }
 
       if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
@@ -159,6 +161,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         keyspaceProgress: task.keyspaceProgress,
         crackerBinaryId: task.crackerBinaryId,
         chunkSize: task.chunkSize,
+        totalNumberOfChunks: task.totalNumberOfChunks,
         updateData: {
           taskName: task.taskName,
           attackCmd: task.attackCmd,
@@ -226,6 +229,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       keyspaceProgress: new FormControl({ value: '', disabled: true }),
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
+      totalNumberOfChunks: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
         taskName: new FormControl(
           { value: '', disabled: this.isReadOnly },
@@ -246,7 +250,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       })
     });
 
-    this.createForm = new FormGroup({
+    this.createForm = new FormGroup<{ agentId: FormControl<number | null> }>({
       agentId: new FormControl<number | null>(null)
     });
   }
@@ -357,7 +361,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
 
     this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
-      const agents: JAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
+      const agents: ThinJAgent[] = this.serializer.deserialize(responseAgents, zAgentListResponse);
       this.availAgents = agents;
       this.selectAgents = transformSelectOptions(this.availAgents, AGENT_MAPPING);
       this.isLoadingAgents = false;

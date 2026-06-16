@@ -130,7 +130,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -151,6 +151,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -173,14 +174,16 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       },
       {
         id: PretasksTableCol.FILES_TOTAL,
+        isNumeric: true,
         dataKey: 'filesTotal',
         isSortable: false,
         icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
-        render: (pretask: JPretask) => pretask.pretaskFiles?.length,
-        export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
+        render: (pretask: JPretask) => pretask.pretaskFiles?.length ?? 0,
+        export: async (pretask: JPretask) => (pretask.pretaskFiles?.length ?? 0).toString()
       },
       {
         id: PretasksTableCol.FILES_SIZE,
+        isNumeric: true,
         dataKey: 'pretaskFiles',
         isSortable: false,
         render: (pretask: JPretask) => {
@@ -205,7 +208,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
               return sum;
             }
           }, 0);
-          return formatFileSize(totalFileSize, 'short');
+          return formatFileSize(totalFileSize ?? 0, 'short');
         }
       }
     ];
@@ -214,6 +217,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       tableColumns.push(
         {
           id: PretasksTableCol.PRIORITY,
+          isNumeric: true,
           dataKey: 'priority',
           editable: (pretask: JPretask) => {
             return {
@@ -227,6 +231,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         },
         {
           id: PretasksTableCol.MAX_AGENTS,
+          isNumeric: true,
           dataKey: 'maxAgents',
           editable: (pretask: JPretask) => {
             return {
@@ -243,12 +248,14 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       tableColumns.push(
         {
           id: PretasksTableCol.PRIORITY,
+          isNumeric: true,
           dataKey: 'priority',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.priority + ''
         },
         {
           id: PretasksTableCol.MAX_AGENTS,
+          isNumeric: true,
           dataKey: 'maxAgents',
           isSortable: true,
           export: async (pretask: JPretask) => pretask.maxAgents + ''
@@ -259,6 +266,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (this.supertTaskId !== 0) {
       tableColumns.push({
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
+        isNumeric: true,
         dataKey: 'keyspaceSize',
         render: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
         isSortable: false,
@@ -451,7 +459,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
-    const keyspace = calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
+    const keyspace = calculateKeyspace(pretask.pretaskFiles ?? [], 'lineCount', pretask.attackCmd, false);
     if (keyspace === null) {
       return '';
     } else {
@@ -600,7 +608,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   private rowActionEdit(pretask: JPretask): void {
     this.renderPretaskLink(pretask)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

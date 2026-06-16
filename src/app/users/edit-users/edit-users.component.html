@@ -1,58 +1,54 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
-  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-    <div class="flex flex-col">
-
-      <div class="flex flex-wrap items-center gap-2">
+<app-page title="User Profile">
+  <grid-main [narrow]="true">
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+      <app-form-row>
         <input-text title="ID" formControlName="id"></input-text>
         <input-text title="Name" formControlName="name"></input-text>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
+      </app-form-row>
+      <app-form-row>
         <input-text title="Registered" formControlName="registered"></input-text>
         <input-text title="Last login" formControlName="lastLogin"></input-text>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
+      </app-form-row>
+      <app-form-row>
         <input-text title="Email" formControlName="email"></input-text>
-        <simulate-form-field-multi label="Member of access groups" [items]="selectUserAgps"
-                                   routerLink="/users/access-groups/"></simulate-form-field-multi>
+        <input-multiselect
+          label="Member of access groups"
+          [items]="selectUserAgps"
+          [linkTo]="'/users/access-groups/'"
+          [readonly]="true"
+        ></input-multiselect>
+      </app-form-row>
+
+      <div formGroupName="updateData" class="flex flex-col gap-3">
+        @if (permissionRoleService.hasRole('read')) {
+          <input-select
+            title="Global Permission Group"
+            formControlName="globalPermissionGroupId"
+            [items]="selectGlobalPermissionGroups"
+          ></input-select>
+        }
+
+        <app-form-row>
+          <div [formGroup]="updatePassForm">
+            <input-text title="Password" formControlName="password" inputType="password"></input-text>
+          </div>
+          <input-check title="Active" formControlName="isValid"></input-check>
+        </app-form-row>
       </div>
 
-    </div>
-    <div formGroupName="updateData" class="flex flex-col items-start">
-
-      @if (permissionRoleService.hasRole('read')) {
-        <div class="flex flex-wrap items-center gap-2">
-          <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId"
-                        [items]="selectGlobalPermissionGroups"></input-select>
-        </div>
-      }
-
-      <div class="flex flex-wrap items-center gap-2">
-        <form [formGroup]="updatePassForm" (ngSubmit)="onSubmit()">
-          <input-text title="Password" formControlName="password" inputType="password"></input-text>
-          <!-- <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght> -->
-        </form>
-        <input-check title="Active" formControlName="isValid"></input-check>
-      </div>
-
-    </div>
-
-    <grid-buttons>
-      <button-submit name="Delete" (click)="onDelete()" [disabled]="!userRoleService.hasRole('delete')"
-                     type="delete"></button-submit>
-      <button-submit [name]="'Update'" [disabled]="!userRoleService.hasRole('update')"></button-submit>
-      @if (isUpdatingLoading) {
-        <div>
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      }
-    </grid-buttons>
-
-  </form>
-</grid-main>
-
-
-
-
-
-
+      <grid-buttons>
+        <button-submit
+          name="Delete"
+          (click)="onDelete()"
+          [disabled]="!userRoleService.hasRole('delete')"
+          type="delete"
+        ></button-submit>
+        <button-submit
+          [name]="'Update'"
+          [disabled]="!userRoleService.hasRole('update')"
+          [loading]="isUpdatingLoading"
+        ></button-submit>
+      </grid-buttons>
+    </form>
+  </grid-main>
+</app-page>

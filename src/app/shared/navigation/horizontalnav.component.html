@@ -5,21 +5,19 @@
     </div>
     @if (menuItems.length > 0) {
       <div class="flex flex-wrap justify-start mb-2 md:mb-0">
-        <div class="flex ms-3">
+        <div class="flex">
           <mat-button-toggle-group
-            appearance="legacy"
-            name="fontStyle"
-            aria-label="Font Style"
-            hideSingleSelectionIndicator=true
-            >
-            @for (item of menuItems; track item) {
+            name="horizontalnav"
+            aria-label="Section navigation"
+            hideSingleSelectionIndicator="true"
+          >
+            @for (item of menuItems; track item.routeName) {
               <mat-button-toggle
-                [ngClass]="getButtonClass(item.routeName)"
+                [checked]="isActive(item.routeName)"
                 (click)="navigateTo(item.routeName)"
                 (keydown)="handleKeyDown($event, item.routeName)"
                 tabindex="0"
-                style="cursor: pointer;"
-                >
+              >
                 {{ item.label }}
               </mat-button-toggle>
             }

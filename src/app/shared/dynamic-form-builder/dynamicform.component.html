@@ -1,161 +1,142 @@
-<grid-main>
-  <!-- Show own content only for server actions -->
-  @if (isServerAction) {
-    <app-server-actions></app-server-actions>
-  }
+@if (showPageWrapper) {
+  <app-page [title]="title">
+    <ng-container *ngTemplateOutlet="formBody"></ng-container>
+  </app-page>
+} @else {
+  <ng-container *ngTemplateOutlet="formBody"></ng-container>
+}
 
-  <app-page-title [title]="title"></app-page-title>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
-    <div>
-    <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
-      @for (field of formMetadata; track field.name) {
-        <div>
-          @if (field.type !== 'hidden') {
-            <div>
-              @if (field.isTitle) {
-                <h3>{{ field.label }}</h3>
-              } @else {
-                @if (field.type !== 'checkbox') {
-                  <div>
-                    <mat-form-field class="matfield-full-width">
-                      <mat-label>
-                        {{ field.label }}
-                        @if (field.tooltip) {
-                          <mat-icon
-                            matTooltip="{{ field.tooltip }}"
-                            matTooltipPosition="below"
-                            matTooltipClass="tooltip-custom-style"
-                            container="body"
-                            aria-hidden="true"
-                          >
-                            info
-                          </mat-icon>
-                        }
-                      </mat-label>
-                      @switch (field.type) {
-                        @case ('number') {
-                          <input
-                            matInput
-                            type="number"
-                            [formControlName]="field.name"
-                          />
-                        }
-                        @case ('text') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                          />
-                        }
-                        @case ('password') {
-                          <input
-                            matInput
-                            type="password"
-                            [formControlName]="field.name"
-                          />
-                        }
-                        @case ('textarea') {
-                          <textarea
-                            matInput
-                            [formControlName]="field.name"
-                          ></textarea>
-                        }
-                        @case ('email') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                          />
-                        }
-                        @case ('url') {
-                          <input
-                            matInput
-                            [type]="field.type"
-                            [formControlName]="field.name"
-                          />
-                        }
-                        @case ('select') {
-                          <mat-select [formControlName]="field.name">
-                            @for (option of (Array.isArray(field.selectOptions) ? field.selectOptions : []); track option.value) {
-                              <mat-option
-                                [value]="option.value"
-                              >
-                                {{ option.label }}
-                              </mat-option>
-                            }
+<ng-template #formBody>
+  <grid-main [narrow]="!isServerAction && sections.length < 2">
+    @if (!showPageWrapper && title) {
+      <app-page-subtitle [subtitle]="title"></app-page-subtitle>
+    }
+    <!-- Show own content only for server actions -->
+    @if (isServerAction) {
+      <app-server-actions></app-server-actions>
+    }
 
-                          </mat-select>
-                        }
-                        @case ('selectd') {
-                          <mat-select [formControlName]="field.name">
-                            @for (option of (Array.isArray(field.selectOptions$) ? field.selectOptions$ : []); track option.id) {
-                              <mat-option
-                                [value]="option.id"
-                              >
-                                {{ option.name }}
-                              </mat-option>
-                            }
-
-                          </mat-select>
-                          @if (isLoadingSelect) {
-                            <mat-spinner diameter="16"></mat-spinner>
-                          }
-                        }
-                      }
-                      @if (form.get(field.name).hasError('required')) {
-                        <mat-error>
-                          {{ field.label }} is required
-                        </mat-error>
-                      }
-                      @if (form.get(field.name).hasError('invalidUrl')) {
-                        <mat-error>
-                          Invalid URL format
-                        </mat-error>
-                      }
-
-                    </mat-form-field>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
+      <div class="custom-form__sections">
+        @for (section of sections; track section[0]?.label || section[0]?.name) {
+          <div class="custom-form__section">
+            @for (field of section; track field.name || field.label) {
+              @if (field.type !== 'hidden') {
+                @if (field.isTitle) {
+                  <h3 class="custom-form__section-title">{{ field.label }}</h3>
+                } @else if (field.type === 'checkbox') {
+                  <div class="custom-form__checkbox-cell" [class.custom-form__cell--full]="field.fullWidth">
+                    <input-check
+                      class="custom-form__checkbox"
+                      [title]="field.label!"
+                      [tooltip]="asString(field.tooltip)!"
+                      [inputId]="'dynform-' + field.name"
+                      [formControlName]="field.name!"
+                    ></input-check>
                   </div>
-                }
-                @if (field.type === 'checkbox') {
-                  <div>
-                    <mat-checkbox [formControlName]="field.name">{{
-                      field.label
-                    }}</mat-checkbox>
+                } @else {
+                  <div [class.custom-form__cell--full]="field.fullWidth">
+                    @switch (field.type) {
+                      @case ('number') {
+                        <input-number
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-number>
+                      }
+                      @case ('text') {
+                        <input-text
+                          inputType="text"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('password') {
+                        <input-text
+                          inputType="password"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('email') {
+                        <input-text
+                          inputType="email"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('url') {
+                        <input-text
+                          inputType="url"
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text>
+                      }
+                      @case ('textarea') {
+                        <input-text-area
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [formControlName]="field.name!"
+                        ></input-text-area>
+                      }
+                      @case ('select') {
+                        <input-select
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [items]="toSelectItems(field)"
+                          [formControlName]="field.name!"
+                        ></input-select>
+                      }
+                      @case ('asyncSelect') {
+                        <input-select
+                          [title]="field.label!"
+                          [tooltip]="asString(field.tooltip)!"
+                          [isRequired]="isRequired(field)"
+                          [inputId]="'dynform-' + field.name"
+                          [items]="toSelectItems(field)"
+                          [isLoading]="isLoadingSelect"
+                          [formControlName]="field.name!"
+                        ></input-select>
+                      }
+                    }
                   </div>
                 }
               }
-            </div>
-          }
-        </div>
-      }
+            }
+          </div>
+        }
+      </div>
+
       <grid-buttons>
         @if (isCreateMode) {
-          <button-submit
-            name="Cancel"
-            [disabled]="false"
-            type="cancel"
-          ></button-submit>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         }
         @if (!isCreateMode && showDeleteButton) {
-          <button-submit
-            name="Delete"
-            [disabled]="false"
-            type="delete"
-            (click)="onDelete()"
-          >Delete</button-submit>
+          <button-submit name="Delete" [disabled]="false" type="delete" (click)="onDelete()">Delete</button-submit>
         }
         <!-- If the Server Actions component is displayed, the button must not be displayed.-->
         @if (!isServerAction) {
-          <button-submit
-            [name]="buttonText"
-            [disabled]="false"
-          ></button-submit>
-        }
-        @if (isSubmitting) {
-          <mat-spinner diameter="24"></mat-spinner>
+          <button-submit [name]="buttonText" [disabled]="false" [loading]="isSubmitting"></button-submit>
         }
       </grid-buttons>
-    </div>
-    <!-- </grid-autocol> -->
-  </form>
-</grid-main>
+    </form>
+  </grid-main>
+</ng-template>

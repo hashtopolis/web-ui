@@ -58,7 +58,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -79,28 +79,33 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
     return [
       {
         id: ChunksTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSearchable: true,
         isSortable: true
       },
       {
         id: ChunksTableCol.START,
+        isNumeric: true,
         dataKey: 'skip',
         isSortable: true
       },
       {
         id: ChunksTableCol.LENGTH,
+        isNumeric: true,
         dataKey: 'length',
         isSortable: true
       },
       {
         id: ChunksTableCol.CHECKPOINT,
+        isNumeric: true,
         dataKey: 'checkpoint',
         render: (chunk: JChunk) => this.renderCheckpoint(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.PROGRESS,
+        isNumeric: true,
         dataKey: 'progress',
         render: (chunk: JChunk) => this.renderProgress(chunk),
         isSortable: true
@@ -143,6 +148,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
       },
       {
         id: ChunksTableCol.CRACKED,
+        isNumeric: true,
         dataKey: 'cracked',
         routerLink: (chunk: JChunk) => this.renderCrackedLinkFromChunk(chunk),
         isSortable: true

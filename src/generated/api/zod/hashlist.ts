@@ -169,7 +169,7 @@ export const zHashlistResponse = z.object({
             salt: z.string(),
             plaintext: z.string(),
             timeCracked: z.number(),
-            chunkId: z.int(),
+            chunkId: z.int().nullable(),
             isCracked: z.boolean(),
             crackPos: z.number()
           })
@@ -347,7 +347,7 @@ export const zHashlistSingleResponse = z.object({
             salt: z.string(),
             plaintext: z.string(),
             timeCracked: z.number(),
-            chunkId: z.int(),
+            chunkId: z.int().nullable(),
             isCracked: z.boolean(),
             crackPos: z.number()
           })
@@ -567,7 +567,7 @@ export const zHashlistListResponse = z.object({
             salt: z.string(),
             plaintext: z.string(),
             timeCracked: z.number(),
-            chunkId: z.int(),
+            chunkId: z.int().nullable(),
             isCracked: z.boolean(),
             crackPos: z.number()
           })

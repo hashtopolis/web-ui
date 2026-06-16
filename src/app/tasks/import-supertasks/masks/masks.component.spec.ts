@@ -14,8 +14,10 @@ import { MasksComponent } from '@src/app/tasks/import-supertasks/masks/masks.com
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
   data: [{ id: '1', type: 'CrackerTypes', attributes: { typeName: 'hashcat' } }],
-  included: []
-};
+  included: [],
+  links: { self: '', next: null, prev: null },
+  meta: { page: { total_elements: 1 } }
+} as unknown as import('@models/response.model').ResponseWrapper;
 
 describe('MasksComponent', () => {
   let component: MasksComponent;
@@ -255,6 +257,7 @@ describe('MasksComponent', () => {
   // ──────────────────────────────────────────────
 
   it('should reset isLoading on chelper error', () => {
+    spyOn(console, 'error');
     globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();
@@ -263,6 +266,7 @@ describe('MasksComponent', () => {
   });
 
   it('should not navigate on chelper error', () => {
+    spyOn(console, 'error');
     globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();

@@ -5,59 +5,84 @@
     }
   </div>
 } @else {
-  <mat-form-field class="custom-chip-grid" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-    <mat-label>{{label}}</mat-label>
-    <mat-chip-grid
-      #chipGridRef
-      [required]="isRequired"
-      aria-label="Items selection"
-      [class.ng-invalid]="hasError"
-      [class.ng-touched]="isTouched"
-      >
-      @for (item of selectedItems; track item) {
-        <mat-chip-row (removed)="remove(item)">
-          <div matTooltip="{{ item.name }}">
-            {{ item.id }}
-            <span>{{ item.name?.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
-          </div>
-          <button matChipRemove [attr.aria-label]="'remove ' + item">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
+  <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+    <label class="field-stack__label">
+      @if (linkTo) {
+        <a [routerLink]="linkTo">{{ label }}</a>
+      } @else {
+        {{ label }}
       }
-    </mat-chip-grid>
-    <input
-      matInput
-      #selectInput
-      [matChipInputFor]="chipGridRef"
-      [matAutocomplete]="auto"
-      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-      (matChipInputTokenEnd)="onInputChipAdd($event)"
-      (input)="onSearchInputChange($event)"
-      (blur)="onTouched()"
-      [value]="searchTerm"
-      placeholder="{{ placeholder }}"
-      />
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      (optionSelected)="onAutocompleteSelect($event.option.value)"
-      (opened)="onPanelOpened()"
-      class="multiselect-virtual-panel">
-      <cdk-virtual-scroll-viewport
-        [itemSize]="itemSize"
-        [style.height.px]="viewportHeight"
-        [minBufferPx]="viewportHeight"
-        [maxBufferPx]="viewportHeight * 2">
-        <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
-          <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
-        </mat-option>
-      </cdk-virtual-scroll-viewport>
-    </mat-autocomplete>
-    @if (hasError && errors) {
-      <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">
-        This field is required.
-      </mat-hint>
-    }
-  </mat-form-field>
-}
+      @if (isRequired && !readonly) {
+        <span class="field-stack__required" aria-hidden="true">*</span>
+      }
+    </label>
 
+    <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
+      <mat-chip-grid
+        #chipGridRef
+        [required]="isRequired"
+        aria-label="Items selection"
+        [disabled]="disabled || readonly"
+      >
+        @for (item of readonly ? items : selectedItems; track item.id) {
+          <mat-chip-row [removable]="!readonly" (removed)="remove(item)">
+            <div matTooltip="{{ item.name }}">
+              {{ item.id }}
+              <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
+            </div>
+            @if (!readonly) {
+              <button matChipRemove [attr.aria-label]="'remove ' + item">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      @if (!readonly) {
+        <input
+          matInput
+          #selectInput
+          [matChipInputFor]="chipGridRef"
+          [matAutocomplete]="auto"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="onInputChipAdd($event)"
+          (input)="onSearchInputChange($event)"
+          (blur)="onTouched()"
+          [value]="searchTerm"
+          placeholder="{{ placeholder }}"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onAutocompleteSelect($event.option.value)"
+          (opened)="onPanelOpened()"
+          class="multiselect-virtual-panel"
+        >
+          <cdk-virtual-scroll-viewport
+            [itemSize]="itemSize"
+            [style.height.px]="viewportHeight"
+            [minBufferPx]="viewportHeight"
+            [maxBufferPx]="viewportHeight * 2"
+          >
+            <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
+              <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
+            </mat-option>
+          </cdk-virtual-scroll-viewport>
+        </mat-autocomplete>
+      }
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+      <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">
+        <ng-content select="[matSuffix]"></ng-content>
+      </span>
+      @if (hasError && errors && !readonly) {
+        <mat-hint class="mat-mdc-form-field-error text-destructive">
+          @if (errors['required']) {
+            <span>This field is required.</span>
+          }
+          @if (errors['mixedHashTypes']) {
+            <span>All selected hashlists must share the same hash type to be combined into a SuperHashlist.</span>
+          }
+        </mat-hint>
+      }
+    </mat-form-field>
+  </div>
+}

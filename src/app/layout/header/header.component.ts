@@ -2,7 +2,7 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { AuthUser } from '@models/auth-user.model';
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -19,7 +19,9 @@ import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlis
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
+import { AlertService } from '@services/shared/alert.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -42,6 +44,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private themes = inject(ThemeService);
   private permissionService = inject(PermissionService);
   private easterEggService = inject(EasterEggService);
+  private alert = inject(AlertService);
   private tasksRoleService = inject(TasksRoleService);
   private pretasksRoleService = inject(PreconfiguredTasksRoleService);
   private supertaksRoleService = inject(SupertasksRoleService);
@@ -55,6 +58,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private preprocessorRoleService = inject(PreprocessorRoleService);
   private configRoleWrapper = inject(ConfigRoleWrapperService);
   private userRoleWrapperService = inject(UserRoleWrapperService);
+  private apiTokensRoleService = inject(ApiTokensRoleService);
 
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
@@ -68,6 +72,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
+  userMenu: MainMenuItem[] = [];
   private destroy$ = new Subject<void>();
 
   constructor() {
@@ -83,7 +88,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.user.subscribe((user: AuthUser) => {
+      this.authService.user.subscribe((user) => {
         if (user) {
           this.username = user.canonicalUsername;
         }
@@ -124,9 +129,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private activateSecretFeature(): void {
     // Add your secret feature here
     if (this.easterEggFlag) {
-      alert('Blue eyes activated! #️⃣2️⃣💅');
+      this.alert.showInfoMessage('Blue eyes activated! #️⃣2️⃣💅');
     } else {
-      alert('Red eyes activated! #️⃣2️⃣😻');
+      this.alert.showInfoMessage('Red eyes activated! #️⃣2️⃣😻');
     }
     // Example: Enable a hidden feature, change theme, etc.
     this.easterEggFlag = !this.easterEggFlag;
@@ -137,7 +142,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.uiSettings.updateSettings({ theme: newTheme });
   }
 
-  menuItemClicked(event: ActionMenuEvent<unknown>): void {
+  menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
     }
@@ -151,10 +156,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.getFilesMenu(),
       this.getBinariesMenu(),
       this.getConfigMenu(),
-      this.getUsersMenu(),
-      this.getHelpMenu(),
-      this.getAdminMenu()
+      this.getUsersMenu()
     ];
+    this.userMenu = [this.getHelpMenu(), this.getAdminMenu()];
   }
 
   /**
@@ -214,7 +218,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['tasks', 'preconfigured-tasks'],
         showAddButton: this.pretasksRoleService.hasRole('create'),
         routerLinkAdd: ['tasks', 'new-preconfigured-tasks'],
-        tooltipAddButton: 'New Preconfigured Task'
+        tooltipAddButton: 'New Preconfigured Task',
+        activeRoutes: [['tasks']]
       });
     }
 
@@ -231,7 +236,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.supertaksRoleService.hasRole('createSupertaskBuilder')) {
       taskActions.push({
         label: HeaderMenuLabel.IMPORT_SUPERTASK,
-        routerLink: ['tasks', 'import-supertasks', 'masks']
+        routerLink: ['tasks', 'import-supertasks', 'masks'],
+        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
       });
     }
 
@@ -271,7 +277,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: ['hashlists', 'hashlist'],
         showAddButton: this.hashListRoleService.hasRole('create'),
         routerLinkAdd: ['hashlists', 'new-hashlist'],
-        tooltipAddButton: 'New Hashlist'
+        tooltipAddButton: 'New Hashlist',
+        activeRoutes: [['hashlists']]
       });
     }
 
@@ -326,7 +333,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
           routerLink: ['files', 'wordlist'],
           showAddButton: canCreateFiles,
           routerLinkAdd: ['files', 'wordlist', 'new-wordlist'],
-          tooltipAddButton: 'New Wordlist'
+          tooltipAddButton: 'New Wordlist',
+          activeRoutes: [['files']]
         },
         {
           label: HeaderMenuLabel.RULES,
@@ -379,6 +387,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
+    if (this.apiTokensRoleService.hasRole(ApiTokensRole.READ)) {
+      actions.push({
+        label: 'API Keys',
+        routerLink: ['account', 'api-keys']
+      });
+    }
+
     const logoutActions = [
       {
         label: 'Logout',
@@ -405,7 +420,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.userRoleWrapperService.hasUserRole('read')) {
       actions.push({
         label: HeaderMenuLabel.ALL_USERS,
-        routerLink: ['users', 'all-users']
+        routerLink: ['users', 'all-users'],
+        activeRoutes: [['users']]
       });
     }
     if (this.userRoleWrapperService.hasPermissionRole('read')) {
@@ -438,7 +454,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.configRoleWrapper.hasSettingsRole('read')) {
       actions.push({
         label: HeaderMenuLabel.SETTINGS,
-        routerLink: ['config', 'agent']
+        routerLink: ['config', 'agent'],
+        activeRoutes: [
+          ['config', 'task-chunk'],
+          ['config', 'hch'],
+          ['config', 'notifications'],
+          ['config', 'general-settings'],
+          ['config', 'server-actions']
+        ]
       });
     }
     if (this.configRoleWrapper.hasHashTypesRole('read')) {
@@ -533,7 +556,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Write us an email',
             icon: 'faPaperplane',
-            routerLink: ['mailto:contact@hashtoplis.org'],
+            routerLink: ['mailto:contact@hashtopolis.org'],
             external: true
           },
           {

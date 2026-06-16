@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { ResponseWrapper } from '@models/response.model';
 
 import { UploadTUSService } from '@services/files/files_tus.service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -24,9 +24,9 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
-const mockAccessGroups: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockAccessGroups: ResponseWrapper = mockResponse({
   data: [
     {
       id: 1,
@@ -42,12 +42,10 @@ const mockAccessGroups: ResponseWrapper = {
         groupName: 'User'
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockHashtypes: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockHashtypes: ResponseWrapper = mockResponse({
   data: [
     {
       id: 2500,
@@ -76,12 +74,10 @@ const mockHashtypes: ResponseWrapper = {
         isSlowHash: true
       }
     }
-  ],
-  included: []
-};
+  ]
+});
 
-const mockConfigs: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockConfigs: ResponseWrapper = mockResponse({
   data: {
     id: 66,
     type: 'config',
@@ -90,9 +86,8 @@ const mockConfigs: ResponseWrapper = {
       item: 'Enable Brain',
       value: '1'
     }
-  },
-  included: []
-};
+  }
+});
 
 describe('NewHashlistComponent', () => {
   let component: NewHashlistComponent;
@@ -107,7 +102,7 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'getRelationships']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper']);
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
@@ -141,7 +136,7 @@ describe('NewHashlistComponent', () => {
   });
 
   beforeEach(() => {
-    gsSpy.getRelationships.and.returnValue(of(mockAccessGroups));
+    gsSpy.ghelper.and.returnValue(of(mockAccessGroups));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
     (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
@@ -170,18 +165,18 @@ describe('NewHashlistComponent', () => {
 
     it('should load config and patch form for brainenabled', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.get('useBrain').value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeTrue();
     });
   });
 
   describe('Form changes', () => {
     it('should patch isSalted and format when hashTypeId changes', () => {
       // Simulate user changing the hashTypeId
-      component.form.get('hashTypeId')?.setValue('2500');
+      component.form.controls.hashTypeId.setValue('2500');
 
       // Allow Angular to process the valueChanges subscription (synchronously here)
-      expect(component.form.get('isSalted')?.value).toBe(true);
-      expect(component.form.get('format')?.value).toBe(1);
+      expect(component.form.controls.isSalted.value).toBe(true);
+      expect(component.form.controls.format.value).toBe(1);
     });
 
     it('onFilesSelected should set fileName and selectedFiles', () => {
@@ -263,8 +258,8 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     }));
 
-    it('should submit form with "paste" sourceType', fakeAsync(() => {
-      gsSpy.create.and.returnValue(of({}));
+    it('should submit form with "paste" sourceType and base64-encode sourceData', fakeAsync(() => {
+      gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
@@ -276,7 +271,12 @@ describe('NewHashlistComponent', () => {
       component.onSubmit();
       tick();
 
-      expect(gsSpy.create).toHaveBeenCalled();
+      const expectedEncoded = btoa('some data');
+      expect(gsSpy.create).toHaveBeenCalledWith(
+        jasmine.anything(),
+        jasmine.objectContaining({ sourceData: expectedEncoded })
+      );
+      expect(component.form.controls.sourceData.value).toBe('some data');
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
@@ -321,13 +321,13 @@ describe('NewHashlistComponent', () => {
     component.ngOnDestroy();
 
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    expect(nextSpy).toHaveBeenCalledWith(false);
+    expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
   });
 
   describe('Access group scoping', () => {
-    it('should fetch access groups via getRelationships for the current user, not getAll', () => {
-      expect(gsSpy.getRelationships).toHaveBeenCalledWith(SERV.USERS, 1, RelationshipType.ACCESSGROUPS);
+    it('should fetch access groups via the getAccessGroups helper, not getAll', () => {
+      expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
     });
   });

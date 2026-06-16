@@ -8,10 +8,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
+import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RelationshipType, SERV } from '@services/main.config';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -48,7 +49,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   type: number | undefined; // Hashlist or SuperHashlist (format)
 
   // Lists of Selected inputs
-  selectAccessgroup: Array<SelectOption> = [];
+  selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
 
   private httpNoInterceptors: HttpClient;
 
@@ -79,36 +80,38 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
-    this.editedHashlistIndex = +this.route.snapshot.params['id'];
+    this.route.params.subscribe(async (params) => {
+      this.editedHashlistIndex = +params['id'];
+      this.isLoading = true;
 
-    try {
-      await this.loadHashlist();
+      try {
+        await this.loadHashlist();
 
-      await this.loadData();
+        await this.loadData();
 
-      this.isLoading = false;
-    } catch (e: unknown) {
-      const status = e instanceof HttpErrorResponse ? e.status : undefined;
+        this.isLoading = false;
+      } catch (e: unknown) {
+        const status = e instanceof HttpErrorResponse ? e.status : undefined;
 
-      if (status === 403) {
-        this.router.navigateByUrl('/forbidden');
-        return;
+        if (status === 403) {
+          this.router.navigateByUrl('/forbidden');
+          return;
+        }
+
+        if (status === 404) {
+          this.router.navigateByUrl('/not-found');
+          return;
+        }
+
+        // For other errors (500 etc.) show a friendly message instead of redirecting
+        // so the user knows the server failed. Keep the loading flag disabled.
+
+        console.error('Error loading hashlist:', e);
+        const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
+        this.alert.showErrorMessage(msg);
+        this.isLoading = false;
       }
-
-      if (status === 404) {
-        this.router.navigateByUrl('/not-found');
-        return;
-      }
-
-      // For other errors (500 etc.) show a friendly message instead of redirecting
-      // so the user knows the server failed. Keep the loading flag disabled.
-
-      console.error('Error loading hashlist:', e);
-      const msg = status ? `Error loading hashlist (server returned ${status}).` : 'Error loading hashlist.';
-      this.alert.showErrorMessage(msg);
-      this.isLoading = false;
-      return;
-    }
+    });
   }
 
   /**
@@ -132,16 +135,16 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
       this.editedHashlist = hashlist;
       this.type = hashlist.format;
-      this.hashtype = hashlist.hashType;
+      this.hashtype = hashlist.hashType ?? undefined;
 
       this.updateForm.setValue({
         hashlistId: hashlist.id,
         accessGroupId: hashlist.accessGroupId,
         useBrain: hashlist.useBrain,
         format: this.format.transform(hashlist.format, 'formats'),
-        hashCount: hashlist.hashCount,
-        cracked: hashlist.cracked,
-        remaining: hashlist.hashCount - hashlist.cracked,
+        hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
+        cracked: (hashlist.cracked ?? 0).toLocaleString(),
+        remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
         updateData: {
           name: hashlist.name,
           notes: hashlist.notes,
@@ -160,16 +163,16 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
         this.editedHashlist = hashlist;
         this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
+        this.hashtype = hashlist.hashType ?? undefined;
 
         this.updateForm.setValue({
           hashlistId: hashlist.id,
           accessGroupId: hashlist.accessGroupId,
           useBrain: hashlist.useBrain,
           format: this.format.transform(hashlist.format, 'formats'),
-          hashCount: hashlist.hashCount,
-          cracked: hashlist.cracked,
-          remaining: hashlist.hashCount - hashlist.cracked,
+          hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
+          cracked: (hashlist.cracked ?? 0).toLocaleString(),
+          remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
           updateData: {
             name: hashlist.name,
             notes: hashlist.notes,
@@ -190,9 +193,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     if (!this.roleService.hasRole('groups')) {
       return;
     }
-    const response = await firstValueFrom<ResponseWrapper>(
-      this.gs.getRelationships(SERV.USERS, this.gs.userId, RelationshipType.ACCESSGROUPS)
-    );
+    const response = await firstValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 

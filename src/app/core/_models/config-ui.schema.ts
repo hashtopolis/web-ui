@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
@@ -18,7 +18,8 @@ export const uisCacheNames = [
   'agentUtilThreshold2',
   'statustimer',
   'agenttimeout',
-  'maxSessionLength'
+  'maxSessionLength',
+  'hideImportMasks'
 ] as const;
 
 export type UisCacheName = (typeof uisCacheNames)[number];
@@ -33,7 +34,7 @@ const migrateUisFormat = (val: unknown): unknown => {
     const obj: Record<string, unknown> = {};
     for (const entry of val) {
       if (entry && typeof entry === 'object' && 'name' in entry && 'value' in entry) {
-        obj[(entry as { name: string }).name] = (entry as { value: unknown }).value;
+        obj[String(entry.name)] = entry.value;
       }
     }
     return obj;
@@ -64,6 +65,7 @@ export const uisSettingsSchema = z.preprocess(
     agenttimeout: z.coerce.number().default(0),
     maxSessionLength: z.coerce.number().default(0),
     hashcatBrainEnable: z.coerce.number().default(0),
+    hideImportMasks: z.coerce.number().default(1),
     // String (already strings from API)
     hashlistAlias: z.coerce.string().default('#HL#'),
     blacklistChars: z.coerce.string().default(''),
@@ -95,6 +97,11 @@ export const sortingSchema = z.object({
  * @TODO -> The numeric field conversion exists for the moment to not break first introduction of this schema.
  * Maybe remove if we want to migrate certain user data, otherwise just change to number and let the local storage data be reset.
  * - Numeric fields use coercion to tolerate string representations in stored data.
+ *
+ * NOTE: If you add a *required* field here, also add it to every entry in
+ * `uiConfigDefault.tableSettings` (config-ui.model.ts). Otherwise the defaults themselves
+ * fail `tableEntrySchema`, the per-entry repair below cannot heal stored data, and the whole
+ * `ui-config` ends up wiped by `LocalStorageService`'s self-heal.
  */
 export const tableConfigSchema = z.object({
   columns: z.array(z.coerce.number()),
@@ -107,18 +114,41 @@ export const tableConfigSchema = z.object({
 });
 
 /**
- * Zod schema for the full tableSettings record.
- * Compile-time table name typing is handled by the `TableSettingsKey` union in config-ui.model.ts.
- * The runtime schema intentionally stays permissive (z.record) to tolerate stale/extra keys in localStorage.
+ * @TODO -> can probably be refactored so that we only have the new tableConfigSchema?
+ * Shape of a single tableSettings entry: either a legacy column-id array or a full TableConfig.
  */
-export const tableSettingsSchema = z.record(z.string(), z.union([z.array(z.coerce.number()), tableConfigSchema]));
+const tableEntrySchema = z.union([z.array(z.coerce.number()), tableConfigSchema]);
+
+/**
+ * Full tableSettings record.
+ *
+ * The preprocess seeds defaults for missing keys and overlays only stored entries that pass
+ * `tableEntrySchema`. Invalid entries with a matching default stay defaulted; invalid entries
+ * without a default are dropped. Non-object inputs fall through so the outer record rejects
+ * them, triggering `LocalStorageService`'s self-heal for fully-corrupt data.
+ */
+export const tableSettingsSchema = z.preprocess(
+  (val) => {
+    if (!val || typeof val !== 'object' || Array.isArray(val)) {
+      return val;
+    }
+    const result: Record<string, unknown> = { ...uiConfigDefault.tableSettings };
+    for (const [k, v] of Object.entries(val)) {
+      if (tableEntrySchema.safeParse(v).success) {
+        result[k] = v;
+      }
+    }
+    return result;
+  },
+  z.record(z.string(), tableEntrySchema)
+);
 
 /**
  * Zod schema for the top-level UIConfig.
  * Each field has a default so that when we add new entries the existing data is not replaced but each
  * missing field (due to adding a new value) automatically is set to the default provided.
  */
-export const uiConfigSchema: z.ZodType<UIConfig> = z.object({
+export const uiConfigSchema = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
   theme: z.enum(['light', 'dark']).default(uiConfigDefault.theme),
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),

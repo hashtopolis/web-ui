@@ -34,7 +34,7 @@ export interface JGlobalPermissionGroup extends BaseModel {
  * @prop update `boolean` indicating whether the user can update this resource.
  * @prop delete `boolean` indicating whether the user can delete this resource.
  */
-export interface UserPermissions {
+export interface UserPermissions extends BaseModel {
   name: string;
   key: string;
   create: boolean;

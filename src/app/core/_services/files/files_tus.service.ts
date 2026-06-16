@@ -10,6 +10,7 @@ import { AuthData } from '@models/auth-user.model';
 import { AuthService } from '@services/access/auth.service';
 import { ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -56,7 +57,8 @@ export class UploadTUSService {
     private cs: ConfigService,
     private gs: GlobalService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alert: AlertService
   ) {}
 
   /**
@@ -65,7 +67,7 @@ export class UploadTUSService {
    * @returns The current authentication token, or an empty string if no token is available.
    */
   private getCurrentToken(): string {
-    return this.authService.token && true ? this.authService.token : '';
+    return this.authService.token ?? '';
   }
 
   /**
@@ -83,8 +85,8 @@ export class UploadTUSService {
     file: File,
     filename: string,
     serviceConfig: ServiceConfig,
-    form = null,
-    redirect = null
+    form: Record<string, unknown> | null = null,
+    redirect: string[] | null = null
   ): Observable<number> {
     return new Observable<number>((observer) => {
       // Get the current authentication token dynamically
@@ -96,7 +98,7 @@ export class UploadTUSService {
         chunkSize = Infinity;
       }
       if (!tus.isSupported) {
-        alert('This browser does not support uploads. Please use a modern browser instead.');
+        this.alert.showErrorMessage('This browser does not support uploads. Please use a modern browser instead.');
       }
       const upload = new tus.Upload(file, {
         endpoint: this.cs.getEndpoint() + this.endpoint,
@@ -173,19 +175,19 @@ export class UploadTUSService {
       });
     });
 
-    async function checkPreviousuploads(upload) {
+    async function checkPreviousuploads(upload: tus.Upload) {
       // Look for previous uploads of the same file
       const previousUploads = await upload.findPreviousUploads();
 
       // Only consider recent uploads within the last 3 hours
       const limitUpload = Date.now() - 3 * 60 * 60 * 1000;
       const recentUploads = previousUploads
-        .map((pu) => {
-          pu.creationTime = new Date(pu.creationTime);
-          return pu;
-        })
-        .filter((pu) => pu.creationTime.getTime() > limitUpload)
-        .sort((a, b) => b.creationTime - a.creationTime);
+        .map((pu: tus.PreviousUpload) => ({
+          ...pu,
+          creationDate: new Date(pu.creationTime)
+        }))
+        .filter((pu) => pu.creationDate.getTime() > limitUpload)
+        .sort((a, b) => b.creationDate.getTime() - a.creationDate.getTime());
 
       // If we have a recent previous upload, attempt to resume from it
       if (recentUploads.length > 0) {

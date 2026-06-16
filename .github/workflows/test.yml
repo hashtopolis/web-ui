@@ -3,6 +3,8 @@ name: Angular CI
 on:
   pull_request:
     branches: ['master'] # trigger build on PR to master
+  push:
+    branches: ['master'] # trigger build push to master
 
 jobs:
   code-check:
@@ -66,6 +68,12 @@ jobs:
 
       - name: Run tests with Karma using ChromeHeadless
         run: npm run test:ci
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/hashtopolis/
 
       - name: Build the project
         run: npm run build --if-present

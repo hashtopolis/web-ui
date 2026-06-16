@@ -1,5 +1,6 @@
 import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
@@ -19,6 +20,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-date',
   templateUrl: './date.component.html',
+  styleUrls: ['./date.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -29,8 +31,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   standalone: false
 })
 export class InputDateComponent extends AbstractInputComponent<Date | null> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onDateChange(event: any): void {
+  onDateChange(event: MatDatepickerInputEvent<Date>): void {
     this.value = event.value || null;
     this.onChange(this.value);
   }

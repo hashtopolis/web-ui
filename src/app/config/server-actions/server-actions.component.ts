@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 
 import { JHelper, RebuildChunkCacheMeta, RescanGlobalFilesMeta } from '@models/helper.model';
@@ -8,18 +8,18 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
+
 @Component({
   selector: 'app-server-actions',
-  imports: [MatButton],
+  imports: [MatButton, PageTitleModule],
   templateUrl: './server-actions.component.html',
   styleUrl: './server-actions.component.scss'
 })
 export class ServerActionsComponent {
-  constructor(
-    private unsubscribeService: UnsubscribeService,
-    private gs: GlobalService,
-    private alert: AlertService
-  ) {}
+  private unsubscribeService = inject(UnsubscribeService);
+  private gs = inject(GlobalService);
+  private alert = inject(AlertService);
 
   /**
    * Initiates the process to rebuild the chunk cache on the server.
@@ -27,8 +27,8 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rebuildChunkCache(): void {
-    const sub$ = this.gs.chelper(SERV.HELPER, 'rebuildChunkCache').subscribe((res: JHelper) => {
-      const meta = res?.meta as RebuildChunkCacheMeta;
+    const sub$ = this.gs.chelper<JHelper<RebuildChunkCacheMeta>>(SERV.HELPER, 'rebuildChunkCache').subscribe((res) => {
+      const meta = res?.meta;
 
       if (meta && String(meta.Rebuild).toLowerCase() === 'success') {
         const correctedChunks = meta.correctedChunks;
@@ -51,8 +51,8 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rescanGlobalFiles(): void {
-    const sub$ = this.gs.chelper(SERV.HELPER, 'rescanGlobalFiles').subscribe((res: JHelper) => {
-      const meta = res?.meta as RescanGlobalFilesMeta;
+    const sub$ = this.gs.chelper<JHelper<RescanGlobalFilesMeta>>(SERV.HELPER, 'rescanGlobalFiles').subscribe((res) => {
+      const meta = res?.meta;
 
       if (meta && String(meta.Rescan).toLowerCase() === 'success') {
         this.alert.showSuccessMessage(`File scan was successful, no actions required!`);

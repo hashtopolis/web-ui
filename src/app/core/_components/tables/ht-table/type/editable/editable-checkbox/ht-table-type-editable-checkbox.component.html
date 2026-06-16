@@ -1,12 +1,16 @@
 @if (tableColumn.checkbox) {
   <div class="editable-container">
     @if (checkbox.value !== 'undefined') {
-      <mat-checkbox
-        class="editable-checkbox"
-        [ngModel]="parseCheckboxValue(checkbox.value)"
-        (change)="onEditableInputSaved($event.checked)"
-        matTooltip="Click to edit value"
-      ></mat-checkbox>
+      <!-- Tooltip is on wrapper because when checkbox is disabled -> no tooltip is shown but here we want the tooltip to always show -->
+      <span [matTooltip]="checkbox.tooltip || 'Click to edit value'">
+        <mat-checkbox
+          class="editable-checkbox"
+          [ngModel]="parseCheckboxValue(checkbox.value)"
+          [indeterminate]="!!checkbox.indeterminate"
+          (change)="onEditableInputSaved($event.checked)"
+          [disabled]="!!checkbox.disabled"
+        ></mat-checkbox>
+      </span>
     }
   </div>
 }

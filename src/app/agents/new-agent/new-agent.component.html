@@ -1,73 +1,81 @@
-<app-table>
-  <app-page-title title="New Agent" [subbutton]="false"></app-page-title>
-  <mat-stepper #stepper>
-    <mat-step label="Download Agent Binary" state="download">
-      <app-agent-binaries-table
-
-        [isSelectable]="false"
-      ></app-agent-binaries-table>
-      <div class="highlight-box">
-        <p>
-          <strong>Download the agent binary</strong> and execute it on the
-          client server. You can download an agent binary by clicking on the
-          action menu (...) in the agent binaries table above.
-        </p>
-      </div>
-      <div>
-        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
-      </div>
-    </mat-step>
-    <mat-step label="Register the agent" state="register">
-      <button mat-flat-button (click)="copyAgentURL()">
-        <mat-icon>content_copy</mat-icon>
-        {{ agentURL }}
-      </button>
-      <div class="highlight-box">
-        <p><strong>Register the agent</strong> using the above URL</p>
-      </div>
-      <div>
-        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
-        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
-      </div>
-    </mat-step>
-    <mat-step label="Generate Voucher" state="voucher">
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <br /><br />
-        <mat-form-field>
-          <mat-label>Create a new Voucher</mat-label>
-          <input matInput type="text" formControlName="voucher" />
-          <button
-            type="button"
-            mat-icon-button
-            matSuffix
-            (click)="updateVoucher()"
-            [attr.aria-label]="'Generate new Voucher'"
-            data-testid="generate-voucher-button"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
-          <button mat-icon-button matSuffix [disabled]="!isValid()" type="submit" data-testid='add-voucher-button'>
-            <mat-icon>add</mat-icon>
-          </button>
-        </mat-form-field>
-      </form>
-      <app-vouchers-table #table></app-vouchers-table>
-      <div class="highlight-box">
-        <p *ngIf="!allowMultiVoucher; else multipleVouchersMessage">
-          <strong>Generate a voucher</strong> to register the agent. Note that once the voucher
-          is used it will be automatically deleted.
-        </p>
-        <ng-template #multipleVouchersMessage>
+<app-page title="New Agent">
+  <app-table>
+    <mat-stepper #stepper>
+      <mat-step label="Download Agent Binary" state="download">
+        <app-agent-binaries-table [isSelectable]="false"></app-agent-binaries-table>
+        <div class="highlight-box">
           <p>
-            <strong>Generate vouchers</strong> to register agents. Vouchers remain available when the
-            "Register Multiple Agents Using Voucher(s)" option is enabled.
+            <strong>Download the agent binary</strong> and execute it on the client server. You can download an agent
+            binary by clicking on the action menu (...) in the agent binaries table above.
           </p>
-        </ng-template>
-      </div>
-      <div>
-        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
-        <button-submit mat-button (click)="done()" name="Finish" data-testid="finish-button"></button-submit>
-      </div>
-    </mat-step>
-  </mat-stepper>
-</app-table>
+        </div>
+        <div class="flex gap-sm justify-start">
+          <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
+        </div>
+      </mat-step>
+      <mat-step label="Register the agent" state="register">
+        <button mat-flat-button (click)="copyAgentURL()">
+          <mat-icon>content_copy</mat-icon>
+          {{ agentURL }}
+        </button>
+        <div class="highlight-box">
+          <p><strong>Register the agent</strong> using the above URL</p>
+        </div>
+        <div class="flex gap-sm justify-start">
+          <button-submit mat-button (click)="stepper.previous()" name="Back" type="cancel-dialog"></button-submit>
+          <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
+        </div>
+      </mat-step>
+      <mat-step label="Generate Voucher" state="voucher">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <br /><br />
+          <div class="field-stack max-w-112">
+            <label class="field-stack__label" for="voucher-input">Create a new Voucher</label>
+            <mat-form-field class="field-stack__field">
+              <input id="voucher-input" matInput type="text" formControlName="voucher" />
+              <button
+                type="button"
+                mat-icon-button
+                matSuffix
+                (click)="updateVoucher()"
+                [attr.aria-label]="'Generate new Voucher'"
+                data-testid="generate-voucher-button"
+              >
+                <mat-icon>refresh</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          <div class="flex gap-sm justify-start mt-sm">
+            <button
+              matButton="filled"
+              class="btn-submit btn-submit--primary"
+              type="submit"
+              [disabled]="!isValid()"
+              data-testid="add-voucher-button"
+            >
+              Create Voucher
+            </button>
+          </div>
+        </form>
+        <app-vouchers-table #table class="block mt-md"></app-vouchers-table>
+        <div class="highlight-box">
+          @if (!allowMultiVoucher) {
+            <p>
+              <strong>Generate a voucher</strong> to register the agent. Note that once the voucher is used it will be
+              automatically deleted.
+            </p>
+          } @else {
+            <p>
+              <strong>Generate vouchers</strong> to register agents. Vouchers remain available when the "Register
+              Multiple Agents Using Voucher(s)" option is enabled.
+            </p>
+          }
+        </div>
+        <div class="flex gap-sm justify-start">
+          <button-submit mat-button (click)="stepper.previous()" name="Back" type="cancel-dialog"></button-submit>
+          <button-submit mat-button (click)="done()" name="Finish" data-testid="finish-button"></button-submit>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </app-table>
+</app-page>

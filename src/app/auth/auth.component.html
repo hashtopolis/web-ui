@@ -3,78 +3,46 @@
     <div class="login-logo-container">
       <a routerLink="/"
         ><img
-          [src]="
-            isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
-          "
-        [alt]="headerConfig.brand.name"
-        [width]="90"
-        [height]="90"
-        alt="Hashtopolis"
+          [src]="isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo"
+          [alt]="headerConfig.brand.name"
+          [width]="90"
+          [height]="90"
+          alt="Hashtopolis"
       /></a>
     </div>
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <input-text
+          class="card-login-field"
+          title="Username"
+          icon="account_circle"
+          formControlName="username"
+          [isRequired]="true"
+        ></input-text>
 
-        <mat-form-field appearance="outline" class="card-login-field">
-          <mat-label>Username</mat-label>
-          <mat-icon matPrefix>account_circle</mat-icon>
-          <input
-            matInput
-            type="text"
-            placeholder="User Name"
-            formControlName="username"
-            aria-describedby="username-error"
-            />
-          @if (loginForm.controls['username'].errors?.required) {
-            <mat-error>Username is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="card-login-field">
-          <mat-label>Password</mat-label>
-          <mat-icon matPrefix>lock</mat-icon>
-          <input
-            matInput
-            type="{{ isVisible ? 'password' : 'text' }}"
-            placeholder="Password"
-            formControlName="password"
-            (keydown.enter)="$event.preventDefault(); onSubmit()"
-            aria-describedby="password-error"
-            />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="isVisible = !isVisible"
-            [attr.aria-label]="'Hide password'"
-            [attr.aria-pressed]="isVisible"
-            >
-            <mat-icon>{{
-              isVisible ? 'visibility_off' : 'visibility'
-            }}</mat-icon>
-          </button>
-          @if (loginForm.controls['password'].errors?.required) {
-            <mat-error>Password is required</mat-error>
-          }
-        </mat-form-field>
+        <input-text
+          class="card-login-field"
+          title="Password"
+          icon="lock"
+          formControlName="password"
+          [isRequired]="true"
+          [showPasswordToggle]="true"
+          [passwordIsVisible]="!isVisible"
+          (ShowPasswordEmit)="isVisible = !$event"
+        ></input-text>
 
         <grid-buttons>
-          <button-submit [name]="'Login'" data-testid="submit-button"></button-submit>
-          @if (isLoading) {
-            <div>
-              <mat-spinner diameter="24" color="accent"></mat-spinner>
-            </div>
-          }
+          <button-submit [name]="'Login'" [loading]="isLoading" data-testid="submit-button"></button-submit>
         </grid-buttons>
 
         <div class="forgot-password-link">
           <a routerLink="forgot">Forgot your password?</a>
         </div>
-
       </form>
     </mat-card-content>
   </mat-card>
 
-  <fixed-alert message="This is a private closed system. If you need access, you need to contact an admin."></fixed-alert>
-
+  <fixed-alert
+    message="This is a private closed system. If you need access, you need to contact an admin."
+  ></fixed-alert>
 </div>

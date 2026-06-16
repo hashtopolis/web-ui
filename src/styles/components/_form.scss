@@ -1,438 +1,57 @@
-@use "../base/colors";
+@reference './tailwind.css';
 
-/* ==================================
-            SECTION FORM
-   ================================== */
-
-/*
-  01- Highlight validation in red
-*/
-
-/* Material Form Field error styling - paint outline, label, and asterisk red */
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__leading,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__trailing {
-  border-color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-text-field--filled {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-/* Notch piece: only color top/bottom borders; keep left/right transparent
-   (Angular Material uses a transparent border-left + clip-path on the notch
-   for smooth label animation — coloring it red causes a visible vertical line) */
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-notched-outline__notch {
-  border-top-color: var(--mdc-theme-error, #f44336) !important;
-  border-bottom-color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-text-field--filled:hover:not(.mdc-text-field--disabled):not(.mdc-text-field--focused) {
+  border-color: var(--border-strong);
 }
 
-mat-form-field.mat-form-field-invalid.mat-form-field-touched mat-label {
-  color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--focused {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-muted);
 }
 
-/* Make the required asterisk red when there's an error */
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mat-mdc-form-field-required-marker,
-mat-form-field.mat-form-field-invalid.mat-form-field-touched .mdc-floating-label--required::after {
-  color: var(--mdc-theme-error, #f44336) !important;
+.mat-mdc-form-field .mdc-line-ripple {
+  display: none;
 }
 
-.requiredak:before {
-  content:" *";
-  color: red;
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+  display: none;
 }
 
-.form-input-custom {
-  padding-bottom:10px;
-  padding-right:10px;
-  width: auto;
+.mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--disabled {
+  border-color: var(--border-faint);
 }
 
-select, input {
-  max-width: 500px !important;
+.field-stack.is-invalid .mat-mdc-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled),
+mat-form-field.mat-form-field-invalid .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  border-color: var(--destructive);
 }
 
-/*
-  01- End
-*/
-
-
-/*
-  02- File Zone Area
-*/
-.filedrop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  font-weight: 200;
-  height: 300px;
-  width: 420px;
-  border: 2px dashed #8c9199;
-  border-radius: 5px;
-  background: white;
-  margin: 0 0;
+.field-stack.is-invalid .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--focused,
+mat-form-field.mat-form-field-invalid .mdc-text-field--filled.mdc-text-field--focused {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 2px var(--destructive-ring);
 }
 
-.filedrop.active{
-  border: 2px solid #fff;
-}
-
-.filedrop.hovering {
-  border: 2px solid rgb(62, 63, 66);
-  color: #dadada !important;
-}
-
-.filedrop .file-label {
-  font-size: 1.2em;
-}
-
-.filedrop header {
-  font-size: 25px;
-  font-weight: 500;
-}
-
-.filedrop span {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.filedrop p {
-  font-size: 12px;
-  font-weight: 500;
-  color:rgb(143, 138, 138);
-  margin: 10px 0;
-}
-
-.filedrop button {
-  padding: 10px 25px;
-  font-size: 15px;
-  font-weight: 350;
-  border: none;
-  outline: none;
-  border-radius: 5px;
-  background: #4681f4;
-  color:#fff;
-  cursor: pointer;
-}
-
-.filedrop.hovering button {
-  padding: 10px 25px;
-  font-size: 15px;
-  font-weight: 350;
-  border: none;
-  outline: none;
-  border-radius: 5px;
-  background: #969595;
-  color:#fff;
-}
-
-.filedrop .icon {
-  font-size: 45px;
-  font-weight: 500;
-  margin: 50px 0;
-}
-
-progress::-webkit-progress-value {
-  transition: width 0.1s ease;
-}
-
-/*
-  02- End
-*/
-
-/*
-  03- Custom filter box
-*/
-.filterboxglass{
-  border:none;
-  background:#e7eaed;
-  padding:7px;
-  // width:80%;
-  border-radius:9px;
-  color:black;
-}
-
-#filterbox{
-  border:none;
-  background:#f3f5f7;
-  padding:7px;
-  width:80%;
-  border-radius: 0 9px 9px 0;
-  color:black;
-}
-
-/*
-  03- End
-*/
-
-/*
-  04- Password input field style and eye hidden/show
-*/
-
-.input-icon-container{
-  display: flex;
-  flex-direction: row;
-  border: 1px solid #d4d5db;
-  border-radius: 10px;
-  background : #fff;
-  align-items : center;
-  overflow: hidden;
-}
-
-.input-icon-container input {
-  outline: none;
-  border: none;
-  color: inherit;
-  flex : auto 1 1;
-  width : 100%;
-  background: transparent none;
-}
-
-.input-icon-container .fa{
-  padding : 10px;
-}
-
-/*
-  04- End
-*/
-
-/*
-  05- Password Strength
-*/
-      .password-strength-container {
-        margin-top: 8px;
-      }
-
-      .strength-bars {
-        display: flex;
-        gap: 4px;
-        margin-bottom: 4px;
-      }
-
-      .strength-bar {
-        height: 6px;
-        flex: 1;
-        border-radius: 3px;
-        transition: background-color 0.3s ease;
-      }
-
-      .strength-label {
-        font-size: 12px;
-        font-weight: 500;
-        text-align: center;
-        transition: color 0.3s ease;
-      }
-/*
-  05- End
-*/
-
-/*
-  06- Login Form
-*/
-
-.login-container {
+.form-layout {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  gap: var(--space-sm);
 }
 
-.login-card {
-  width: 400px;
-  margin-bottom: 16px;
-}
-
-.login-logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  a {
-    text-align: center;
-  }
-  img {
-    display: block;
-    margin: auto;
-  }
-}
-
-.forgot-password-link {
-  text-align: right;
-}
-
-.card-login-field {
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.forgot-password-link {
-  margin-top: 16px;
-  text-align: center;
-
-  a {
-    color: colors.$hyperlink-color;
-    text-decoration: none;
-  }
-}
-
-.mat-card-alert {
-  background-color: colors.$alert-color;
-  margin-top: 16px;
-}
-
-/*
-  06- End
-*/
-
-/*
-  07- Horizontal Menu Select
-*/
-.btn-toggle-select {
-  color: colors.$btn-text-color;
-  background-color: colors.$btn-bg-color;
-  border-color: colors.$btn-border-color;
-}
-
-/*
-  07- End
-*/
-
-/*
-  08- Mat Autocomplete
-*/
-
-.custom-chip-grid {
-  width: 100%;
-  min-width: 300px;
-  max-width: 600px;
-}
-
-.custom-chip-grid mat-chip-row button[matchipremove] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.highlight-text {
-  background-color: colors.$search-text-highlight-color;
-}
-
-// Virtual-scroll autocomplete panel: let the cdkVirtualScrollViewport handle
-// scrolling instead of the mat-autocomplete overlay panel itself.
-.multiselect-virtual-panel {
-  overflow: hidden !important;
-  padding: 0 !important;
-
-  cdk-virtual-scroll-viewport {
+form,
+.form-layout,
+app-form-row {
+  mat-form-field {
     width: 100%;
   }
-}
-
-/*
-  08- End
-*/
-
-/*
-  09- Shared/Input
-*/
-
-.custom-input-container {
-  display: flex;
-  align-items: center; /* Align items vertically */
-}
-
-.custom-hashlist-container {
-  display: flex;
-  align-items: center;
-  max-width: 600px;
-  input-multiselect {
-    flex: 1;
-    min-width: 0;
-  }
-  .mat-form-field {
-    max-width: 100% !important;
-  }
-  > button {
-    margin-left: -40px;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-.custom-agent-container {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  max-width: 520px; /* Keep the controls compact, up to the + icon */
-  width: fit-content;
-
-  input-multiselect {
-    flex: 0 0 320px; /* Reserve room for the buttons without stretching */
-    max-width: 320px;
-    min-width: 240px; /* Keep it usable on narrow screens */
-  }
-
-  .custom-chip-grid {
-    width: 320px;
-    max-width: 320px;
-    min-width: 240px;
-  }
-
-  button[mat-icon-button] {
-    margin-bottom: 1.25em; /* Offset the mat-form-field subscript wrapper so buttons sit level with the input */
-  }
-}
-
-.color-picker-field {
-  flex: 1; /* Allow the mat-form-field to grow and take available space */
-  margin-right: 16px; /* Adjust the margin between the field and the button */
-}
-
-.custom-textarea {
-  width: 100%;
-  min-width: 300px; /* Set your desired minimum width */
-  max-width: 600px; /* Set your desired maximum width */
-}
-
-.custom-input-multiselect {
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-}
-
-.flex-grow {
-  flex-grow: 1;
-  width: 100%;
-  margin-right: 8px;
-}
-.filter-input-lable {
-  margin-bottom: 15px;
-  display: block;
-}
-
-$custom-form-min-width: 150px;
-$custom-form-max-width: 500px;
-
-$mat-input-font-size: 14px; // Adjust the font size as needed
-$mat-form-field-max-width: 300px; // Adjust the maximum width as needed
-
-.custom-form {
-  min-width: $custom-form-min-width;
-  max-width: $custom-form-max-width;
-  width: 100%;
-}
-
-.matfield-full-width {
-  width: 100%;
-}
-
-.mat-input-element {
-  font-size: $mat-input-font-size !important;
-}
-
-.mat-form-field {
-  max-width: $mat-form-field-max-width !important;
 }
 
 .mat-select-value-text {
@@ -441,21 +60,116 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
   white-space: nowrap;
 }
 
-
-:root {
-  --form-field-gap: 5px;
-}
-
-/* Global rule for custom controls and material form fields */
-input-select,
-input-text,
-input-check,
-mat-form-field,
-.form-field {
+.field-stack {
   display: block;
-  margin-bottom: var(--form-field-gap);
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+
+    mat-icon {
+      font-size: var(--text-lg);
+      width: 16px;
+      height: 16px;
+      line-height: 1;
+      vertical-align: middle;
+      color: var(--subtle-foreground);
+      cursor: help;
+    }
+  }
+
+  &__required {
+    color: var(--primary);
+    margin-left: 2px;
+  }
+
+  &.is-invalid &__label {
+    color: var(--destructive);
+  }
+
+  &__field.mat-mdc-form-field {
+    width: 100%;
+
+    .mdc-floating-label,
+    .mat-mdc-floating-label {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      padding-top: 0;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding-top: var(--space-sm);
+      padding-bottom: var(--space-sm);
+      min-height: auto;
+    }
+  }
 }
 
-/*
-  09 - End
-*/
+input-check,
+mat-form-field {
+  display: block;
+}
+
+.input--readonly {
+  .field-stack__required {
+    display: none;
+  }
+
+  .mat-mdc-form-field .mdc-text-field--filled,
+  .mat-mdc-form-field .mdc-text-field--filled.mdc-text-field--disabled {
+    background-color: var(--well);
+    border-color: var(--border-faint);
+    box-shadow: none;
+  }
+
+  .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-form-field-input-control,
+  .mat-mdc-form-field .mdc-text-field--disabled .mat-mdc-input-element,
+  .mat-mdc-select-disabled .mat-mdc-select-value,
+  .mat-mdc-chip-set-disabled .mat-mdc-chip {
+    color: var(--foreground);
+    opacity: 1;
+  }
+
+  .mat-mdc-chip-set-disabled .mat-mdc-chip {
+    cursor: default;
+  }
+
+  mat-checkbox.mat-mdc-checkbox-disabled {
+    opacity: 1;
+    cursor: default;
+
+    .mdc-label {
+      color: var(--foreground);
+    }
+  }
+
+  .field-stack__label a {
+    color: var(--primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}

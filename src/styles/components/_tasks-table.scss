@@ -1,0 +1,28 @@
+app-tasks-table table.hashtopolis-table {
+  .mat-column-2 {
+    width: 100%;
+    min-width: 12rem;
+  }
+
+  .mat-column-8 {
+    max-width: 16rem;
+
+    .flex-container {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .mat-column-7,
+  .mat-column-9 {
+    white-space: nowrap;
+  }
+
+  .mat-column-4,
+  .mat-column-5 {
+    width: 1px;
+    white-space: nowrap;
+  }
+}

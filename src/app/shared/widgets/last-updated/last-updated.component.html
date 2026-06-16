@@ -3,7 +3,7 @@
     Last updated: {{ lastUpdatedDisplay }}
     <!-- Only render the right side if refreshing or nextRefreshTimestamp exists -->
     @if (refreshing || nextRefreshTimestamp) {
-      <span class="next-refresh">
+      <span class="inline-block min-w-32 text-left">
         @if (refreshing) {
           <mat-spinner diameter="12" strokeWidth="2"></mat-spinner>
         } @else {

@@ -10,7 +10,7 @@ import { AlertService } from '@services/shared/alert.service';
   providedIn: 'root'
 })
 export class PermissionGuard {
-  constructor(private alert: AlertService) {}
+  private alert = inject(AlertService);
 
   /**
    * Convert role and domain names into a human-readable format
@@ -24,7 +24,8 @@ export class PermissionGuard {
       .trim()
       .toLowerCase();
 
-    return `${action} ${domain}s`;
+    const plural = /s$/i.test(domain) ? domain : `${domain}s`;
+    return `${action} ${plural}`;
   }
 
   /**

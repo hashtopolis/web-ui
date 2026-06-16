@@ -14,8 +14,8 @@ import { FieldMapping } from '@src/app/core/_constants/select.config';
  * @prop id ID of option
  * @prop name Name of option
  */
-export interface SelectOption {
-  id: string;
+export interface SelectOption<T extends string | number | boolean = string> {
+  id: T;
   name: string;
 }
 
@@ -29,45 +29,36 @@ export interface SelectOption {
  * ```
  * @public
  */
-export function extractIds(dataArray: any[], idKey: string): number[] {
+export function extractIds<TId extends number = number, T extends object = object>(
+  dataArray: T[],
+  idKey: keyof T & string
+): TId[] {
   return dataArray
-    .map((item) => {
-      let id = null;
-      if (Object.prototype.hasOwnProperty.call(item, idKey)) {
-        id = item[idKey];
-      }
-      return id;
-    })
-    .filter((id) => id !== null) as number[];
+    .map((item): unknown => (Object.prototype.hasOwnProperty.call(item, idKey) ? item[idKey] : null))
+    .filter((id): id is TId => typeof id === 'number');
 }
 
 /**
  * Transforms API response options based on a field mapping configuration.
+ *
+ * The generic overload validates at compile time that the field mapping's
+ * values are actual keys of the source type `T`.
  *
  * @param apiOptions - The options received from an API response.
  * @param fieldMapping - The field configuration that contains the mapping between form fields and API fields.
  *
  * @returns An array of transformed select options to be used in the form.
  */
-export function transformSelectOptions(apiOptions: object[], fieldMapping: FieldMapping) {
-  if (apiOptions) {
-    return apiOptions.map((apiOption) => {
-      const transformedOption: SelectOption = { id: undefined, name: undefined };
-      for (const formField of Object.keys(fieldMapping)) {
-        const apiField = fieldMapping[formField];
+export function transformSelectOptions<TId extends number = number, T extends object = object>(
+  apiOptions: T[],
+  fieldMapping: FieldMapping<Extract<keyof T, string>>
+): SelectOption<TId>[] {
+  if (!apiOptions) return [];
 
-        if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-          transformedOption[formField] = apiOption[apiField];
-        } else {
-          // Handle the case where the API field doesn't exist in the response
-          transformedOption[formField] = null; // or set a default value
-        }
-      }
-
-      return transformedOption;
-    });
-  }
-  return [];
+  return apiOptions.map((apiOption) => ({
+    id: (apiOption[fieldMapping.id as keyof T] ?? 0) as TId,
+    name: String(apiOption[fieldMapping.name as keyof T] ?? '')
+  }));
 }
 
 /**
@@ -83,13 +74,13 @@ export function transformSelectOptions(apiOptions: object[], fieldMapping: Field
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
  */
-function hslToRgb(h, s, l) {
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   let r, g, b;
 
   if (s == 0) {
     r = g = b = l; // achromatic
   } else {
-    function hue2rgb(p, q, t) {
+    function hue2rgb(p: number, q: number, t: number) {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -108,14 +99,35 @@ function hslToRgb(h, s, l) {
   return [r * 255, g * 255, b * 255];
 }
 
-function componentToHex(c) {
+function componentToHex(c: number): string {
   const hex = Math.floor(c).toString(16);
   return hex.length == 1 ? '0' + hex : hex;
 }
 
-export function randomColor() {
+export function randomColor(): string {
   const rgb = hslToRgb(Math.random(), 0.6, Math.random() * 0.4 + 0.4);
   return `#${componentToHex(rgb[0])}${componentToHex(rgb[1])}${componentToHex(rgb[2])}`;
+}
+
+/**
+ * Returns true when black text reads better than white on `hex`.
+ * Uses the W3C AERT YIQ brightness formula (https://www.w3.org/TR/AERT/#color-contrast).
+ *
+ * @param hex - A 7-character hex color string (e.g. "#FF0000"). Empty or
+ *   malformed input returns false.
+ */
+export function isColorLight(hex: string | null | undefined): boolean {
+  if (!hex || hex.length < 7) {
+    return false;
+  }
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return false;
+  }
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128;
 }
 
 /**
@@ -133,7 +145,7 @@ export function randomColor() {
  * const result = compareVersions({ version: '1.2.3' }, { version: '1.2.4' });
  * console.log(result); // Output: -1
  */
-export function compareVersions(a, b): number {
+export function compareVersions(a: { version: string }, b: { version: string }): number {
   // Split the version strings into arrays of integers
   const versionA = a.version.split('.').map(Number);
   const versionB = b.version.split('.').map(Number);

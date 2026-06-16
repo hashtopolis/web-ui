@@ -1,0 +1,51 @@
+@if (loading) {
+  <grid-main>
+    <div class="loading-spinner">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Loading API key…</span>
+    </div>
+  </grid-main>
+} @else if (notFound) {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'API key not found'"></app-page-subtitle>
+    <p class="help-block">The requested API key could not be loaded. It may have been deleted.</p>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-main>
+} @else if (loadError || !token) {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'Could not load API key'"></app-page-subtitle>
+    <p class="help-block">Something went wrong while loading this API key. Please try again later.</p>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-main>
+} @else {
+  <grid-main>
+    <app-page-subtitle [subtitle]="'API Key #' + token.id"></app-page-subtitle>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <input-text title="ID" [value]="token.id + ''" [readonly]="true"></input-text>
+      <input-text
+        title="Status"
+        [value]="status ?? '' | titlecase"
+        [icon]="
+          status === ApiTokenStatus.ACTIVE ? 'check_circle' : status === ApiTokenStatus.REVOKED ? 'block' : 'schedule'
+        "
+        [readonly]="true"
+      ></input-text>
+      <input-text title="Revoked" [value]="token.isRevoked ? 'Yes' : 'No'" [readonly]="true"></input-text>
+    </div>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <input-text title="Valid From" [value]="formatTimestamp(token.startValid)" [readonly]="true"></input-text>
+      <input-text title="Expires At" [value]="formatExpiry(token.endValid)" [readonly]="true"></input-text>
+    </div>
+
+    <div class="flex flex-wrap items-start gap-2">
+      <input-text title="Creator" [value]="token.user?.name ?? '—'" [readonly]="true"></input-text>
+      <input-text title="User ID" [value]="token.userId + ''" [readonly]="true"></input-text>
+    </div>
+  </grid-main>
+
+  <grid-buttons>
+    <button mat-stroked-button type="button" (click)="goBack()">Back to API Keys</button>
+  </grid-buttons>
+}

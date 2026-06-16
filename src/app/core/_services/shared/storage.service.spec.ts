@@ -10,6 +10,8 @@ import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 import { GlobalService } from '@services/main.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { mockResponse } from '@src/app/testing/mock-response';
+
 /** Helper to create a minimal valid UiSettings object for tests. */
 function makeUiSettings(overrides: Partial<UiSettings> = {}): UiSettings {
   return {
@@ -26,6 +28,7 @@ function makeUiSettings(overrides: Partial<UiSettings> = {}): UiSettings {
     hashcatBrainEnable: 0,
     hashlistAlias: '#HL#',
     blacklistChars: '',
+    hideImportMasks: 1,
     _timestamp: Date.now(),
     _expiresin: 72 * 60 * 60 * 1000,
     ...overrides
@@ -37,7 +40,7 @@ describe('UIConfigService', () => {
 
   beforeEach(() => {
     const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    globalServiceSpy.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+    globalServiceSpy.getAll.and.returnValue(of(mockResponse()));
 
     TestBed.configureTestingModule({
       providers: [UIConfigService, { provide: GlobalService, useValue: globalServiceSpy }]

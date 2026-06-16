@@ -2,7 +2,9 @@ import {
   zCrackerBinaryListResponse,
   zCrackerBinaryTypeListResponse,
   zHashlistListResponse,
-  zPreprocessorListResponse
+  zPreTaskResponse,
+  zPreprocessorListResponse,
+  zTaskResponse
 } from '@generated/api/zod';
 import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
 
@@ -15,6 +17,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
+import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -42,10 +45,6 @@ import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/n
 import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 import { environment } from '@src/environments/environment';
 
-type FileId = number;
-
-type HashListId = number;
-
 type CopyData = Pick<
   JTask,
   | 'skipKeyspace'
@@ -57,7 +56,7 @@ type CopyData = Pick<
   | 'preprocessorCommand'
 > & {
   files: FileId[];
-  hashlistId: HashListId | null;
+  hashlistId: HashlistId | null;
 };
 
 /**
@@ -66,7 +65,9 @@ type CopyData = Pick<
 @Component({
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
+  styleUrls: ['./new-tasks.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
+  host: { class: 'block' },
   standalone: false
 })
 export class NewTasksComponent implements OnInit {
@@ -80,12 +81,12 @@ export class NewTasksComponent implements OnInit {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: SelectOption[];
+  selectHashlists: SelectOption<HashlistId>[];
   selectStaticChunking = staticChunking;
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: SelectOption[];
-  selectCrackerversions: SelectOption[];
-  selectPreprocessor: SelectOption[];
+  selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
+  selectCrackerversions: SelectOption<CrackerBinaryId>[];
+  selectPreprocessor: SelectOption<PreprocessorId>[];
 
   // Copy Task or PreTask configuration
   copyMode = false;
@@ -163,7 +164,9 @@ export class NewTasksComponent implements OnInit {
     this.form.controls.crackerBinaryTypeId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newTypeId) => {
-        this.handleChangeBinary(newTypeId);
+        if (newTypeId !== null) {
+          this.handleChangeBinary(newTypeId);
+        }
       });
 
     this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
@@ -354,7 +357,7 @@ export class NewTasksComponent implements OnInit {
     if (!this.copyMode) return;
 
     const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
-    const includedResources: (keyof JTask | keyof JPretask)[] = isTask
+    const includedResources: string[] = isTask
       ? ['hashlist', 'speeds', 'crackerBinary', 'crackerBinaryType', 'files']
       : ['pretaskFiles'];
 
@@ -364,10 +367,8 @@ export class NewTasksComponent implements OnInit {
 
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.get(endpoint, this.editedIndex, requestParams));
-      const task = new JsonAPISerializer().deserialize<JTask | JPretask>({
-        data: response.data,
-        included: response.included
-      });
+      const schema = isTask ? zTaskResponse : zPreTaskResponse;
+      const task: JTask | JPretask = new JsonAPISerializer().deserialize(response, schema);
 
       const copyData = this.extractCopyData(task, isTask);
       this.copyFiles = copyData.files;
@@ -379,7 +380,7 @@ export class NewTasksComponent implements OnInit {
         maxAgents: task.maxAgents,
         chunkTime: task.chunkTime,
         priority: task.priority,
-        color: task.color,
+        color: task.color ?? '',
         isCpuTask: task.isCpuTask,
         crackerBinaryTypeId: task.crackerBinaryTypeId,
         isSmall: task.isSmall,
@@ -432,7 +433,10 @@ export class NewTasksComponent implements OnInit {
 
   // Modal Information
   protected openHelpDialog(): void {
-    this.dialog.open(CheatsheetComponent, { width: '100%' });
+    this.dialog.open(CheatsheetComponent, {
+      width: '840px',
+      maxWidth: '90vw'
+    });
   }
 
   /**

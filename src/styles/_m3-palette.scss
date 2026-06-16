@@ -1,0 +1,67 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+$mono: (
+  0: #000000,
+  4: #0a0a0a,
+  6: #101010,
+  10: #1a1a1a,
+  12: #1f1f1f,
+  17: #2a2a2a,
+  20: #303030,
+  22: #353535,
+  24: #3a3a3a,
+  25: #3d3d3d,
+  30: #4a4a4a,
+  35: #555555,
+  40: #606060,
+  50: #787878,
+  60: #929292,
+  70: #adadad,
+  80: #c8c8c8,
+  87: #d8d8d8,
+  90: #e2e2e2,
+  92: #e8e8e8,
+  94: #eeeeee,
+  95: #f0f0f0,
+  96: #f2f2f2,
+  98: #f8f8f8,
+  99: #fbfbfb,
+  100: #ffffff
+);
+
+$_palettes: (
+  primary: $mono,
+  secondary: $mono,
+  tertiary: $mono,
+  neutral: $mono,
+  neutral-variant: $mono,
+  error: (
+    0: #000000,
+    10: #410004,
+    20: #68000a,
+    25: #7d000f,
+    30: #930013,
+    35: #a80619,
+    40: #b91a24,
+    50: #dd3739,
+    60: #ff5451,
+    70: #ff8982,
+    80: #ffb3ad,
+    90: #ffdad7,
+    95: #ffedeb,
+    98: #fff8f7,
+    99: #fffbff,
+    100: #ffffff
+  )
+);
+
+$_rest: (
+  secondary: map.get($_palettes, secondary),
+  neutral: map.get($_palettes, neutral),
+  neutral-variant: map.get($_palettes, neutral-variant),
+  error: map.get($_palettes, error)
+);
+
+$primary-palette: map.merge(map.get($_palettes, primary), $_rest);
+$tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);

@@ -25,11 +25,22 @@ export type ConfigResponse = {
   data: {
     id: number;
     type: 'config';
-    attributes: {
-      configSectionId: number;
-      item: string;
-      value: string;
-    };
+    attributes:
+      | {
+          configSectionId: number;
+          item: 'serverLogLevel';
+          value: '0' | '10' | '20' | '30' | '40' | '50';
+        }
+      | {
+          configSectionId: number;
+          item: 'notificationsProxyType';
+          value: 'HTTP' | 'HTTPS' | 'SOCKS4' | 'SOCKS5';
+        }
+      | {
+          configSectionId: number;
+          item: string;
+          value: string;
+        };
   };
   relationships?: {
     configSection: {
@@ -60,11 +71,22 @@ export type ConfigPostPatchResponse = {
   data: {
     id: number;
     type: 'config';
-    attributes: {
-      configSectionId: number;
-      item: string;
-      value: string;
-    };
+    attributes:
+      | {
+          configSectionId: number;
+          item: 'serverLogLevel';
+          value: '0' | '10' | '20' | '30' | '40' | '50';
+        }
+      | {
+          configSectionId: number;
+          item: 'notificationsProxyType';
+          value: 'HTTP' | 'HTTPS' | 'SOCKS4' | 'SOCKS5';
+        }
+      | {
+          configSectionId: number;
+          item: string;
+          value: string;
+        };
   };
 };
 
@@ -83,11 +105,22 @@ export type ConfigListResponse = {
   data: Array<{
     id: number;
     type: 'config';
-    attributes: {
-      configSectionId: number;
-      item: string;
-      value: string;
-    };
+    attributes:
+      | {
+          configSectionId: number;
+          item: 'serverLogLevel';
+          value: '0' | '10' | '20' | '30' | '40' | '50';
+        }
+      | {
+          configSectionId: number;
+          item: 'notificationsProxyType';
+          value: 'HTTP' | 'HTTPS' | 'SOCKS4' | 'SOCKS5';
+        }
+      | {
+          configSectionId: number;
+          item: string;
+          value: string;
+        };
   }>;
   relationships?: {
     configSection: {

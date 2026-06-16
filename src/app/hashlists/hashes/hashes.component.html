@@ -1,7 +1,6 @@
 <grid-main>
-
   @if (whichView === 'chunks' || whichView === 'tasks' || whichView === 'hashlists') {
-    <h2 class="h5 mb-4">
+    <h2 class="text-lg font-medium text-heading-foreground mb-4">
       Hashes of
       @switch (whichView) {
         @case ('chunks') {
@@ -23,5 +22,3 @@
 <app-table>
   <hashes-table [id]="editedIndex" [dataType]="whichView" [filterParam]="filterParam"></hashes-table>
 </app-table>
-
-

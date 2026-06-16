@@ -74,10 +74,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
         hashlistAlias: 'Display hashlist aliases',
         blacklistChars: 'Characters to exclude from attacks',
         priority0Start: 'Start time for priority level 0 tasks',
-        showTaskPerformance: 'Display task performance metrics',
-        ruleSplitSmallTasks: 'Split small tasks with rules',
-        ruleSplitAlways: 'Always split tasks with rules',
-        ruleSplitDisable: 'Disable automatic rule splitting'
+        showTaskPerformance: 'Display task performance metrics'
       },
       hch: {
         maxHashlistSize: 'Maximum size limit for hashlist import',
@@ -137,10 +134,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
         hashlistAlias: 'When enabled, display human-readable aliases for hashlists if configured',
         blacklistChars: 'Characters to exclude from rule-based attacks to improve performance',
         priority0Start: 'Scheduled start time for high-priority tasks (format: HH:MM)',
-        showTaskPerformance: 'When enabled, display detailed performance metrics for running tasks',
-        ruleSplitSmallTasks: 'Automatically split small tasks when rules are applied',
-        ruleSplitAlways: 'Always split tasks when rules are applied',
-        ruleSplitDisable: 'Disable automatic task splitting when rules are applied'
+        showTaskPerformance: 'When enabled, display detailed performance metrics for running tasks'
       },
       hch: {
         maxHashlistSize: 'Maximum file size in MB allowed when importing a hashlist',
@@ -218,13 +212,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
         priority0Start:
           'Scheduled time (format HH:MM in 24-hour format) at which highest-priority tasks automatically start. Allows scheduling intensive tasks during off-peak hours.',
         showTaskPerformance:
-          'When enabled, displays detailed performance graphs and metrics for running tasks showing speed, progress, and estimated completion time.',
-        ruleSplitSmallTasks:
-          'Automatically splits small tasks when rules are applied to improve performance through parallelization across multiple agents.',
-        ruleSplitAlways:
-          'Always splits tasks when rules are applied, regardless of task size. Ensures maximum parallelization but may increase overhead.',
-        ruleSplitDisable:
-          'Completely disables automatic task splitting when rules are applied. Tasks remain as single units assigned to single agents.'
+          'When enabled, displays detailed performance graphs and metrics for running tasks showing speed, progress, and estimated completion time.'
       },
       hch: {
         maxHashlistSize:

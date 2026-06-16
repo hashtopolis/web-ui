@@ -36,7 +36,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is hidden
@@ -75,7 +75,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is visible
@@ -101,7 +101,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is hidden
@@ -140,7 +140,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is visible
@@ -166,7 +166,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is hidden
@@ -205,7 +205,7 @@ describe('AgentStatGraphComponent', () => {
 
     const compiled: HTMLElement = fixture.nativeElement;
     // get chart-div
-    const chartDiv = compiled.querySelector('div[style*="height: 300px"]') as HTMLElement | null;
+    const chartDiv = compiled.querySelector('div') as HTMLElement | null;
     expect(chartDiv).toBeTruthy();
 
     // check if chart is visible

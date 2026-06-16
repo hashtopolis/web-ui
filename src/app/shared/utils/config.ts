@@ -1,4 +1,11 @@
-import { Sorting, TableSettingsKey, UIConfig, UIConfigKeys, uiConfigDefault } from '@models/config-ui.model';
+import {
+  Sorting,
+  TableConfig,
+  TableSettingsKey,
+  UIConfig,
+  UIConfigKeys,
+  uiConfigDefault
+} from '@models/config-ui.model';
 import { uiConfigSchema } from '@models/config-ui.schema';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -25,6 +32,7 @@ export class UISettingsUtilityClass {
     private themeService?: ThemeService
   ) {
     this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
+
     if (this.themeService && this.uiConfig.theme) {
       this.themeService.theme = this.uiConfig.theme;
     }
@@ -46,8 +54,8 @@ export class UISettingsUtilityClass {
     settings: {
       page?: number;
       index?: number;
-      start?: number | string;
-      before?: number | string;
+      start?: number | string | undefined;
+      before?: number | string | undefined;
       totalItems?: number;
       columns?: number[];
       order?: Sorting | Sorting[];
@@ -57,33 +65,36 @@ export class UISettingsUtilityClass {
     try {
       const existingTableSettings = this.uiConfig.tableSettings[key];
 
-      if (existingTableSettings) {
+      if (existingTableSettings && !Array.isArray(existingTableSettings)) {
         // Update the settings based on the provided parameters
         if (settings.page !== undefined) {
-          existingTableSettings['page'] = settings.page;
+          existingTableSettings.page = settings.page;
         }
-        existingTableSettings['start'] = settings.start;
-        existingTableSettings['before'] = settings.before;
+        existingTableSettings.start = settings.start;
+        existingTableSettings.before = settings.before;
         if (settings.index !== undefined) {
-          existingTableSettings['index'] = settings.index;
+          existingTableSettings.index = settings.index;
         }
         if (settings.columns !== undefined) {
           // Save columns
-          existingTableSettings['columns'] = settings.columns;
+          existingTableSettings.columns = settings.columns;
           // Check if the value saved in order is visible; if not, remove it
-          if (existingTableSettings['order'] !== undefined) {
-            const orderValue: number = existingTableSettings['order']['id'];
-            const numericColumns: number[] = existingTableSettings['columns'].map(Number);
+          if (existingTableSettings.order !== undefined) {
+            const order = Array.isArray(existingTableSettings.order)
+              ? existingTableSettings.order[0]
+              : existingTableSettings.order;
+            const orderValue: number = order?.id ?? -1;
+            const numericColumns: number[] = existingTableSettings.columns.map(Number);
             if (!numericColumns.includes(orderValue)) {
-              existingTableSettings['order'] = undefined;
+              existingTableSettings.order = undefined;
             }
           }
         }
         if (settings.order !== undefined) {
-          existingTableSettings['order'] = settings.order;
+          existingTableSettings.order = settings.order;
         }
         if (settings.search !== undefined) {
-          existingTableSettings['search'] = settings.search;
+          existingTableSettings.search = settings.search;
         }
 
         this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
@@ -94,6 +105,17 @@ export class UISettingsUtilityClass {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  /**
+   * Retrieves the full TableConfig for a specific key from the UI configuration.
+   *
+   * @param key - The key for the table settings.
+   * @returns The TableConfig for the key, or null if the entry is a legacy number array.
+   */
+  getTableConfig(key: TableSettingsKey): TableConfig | null {
+    const setting = this.uiConfig.tableSettings[key];
+    return setting && !Array.isArray(setting) ? setting : null;
   }
 
   /**
@@ -109,7 +131,7 @@ export class UISettingsUtilityClass {
       if (Array.isArray(tableConfig)) {
         // If it's an array (number[]), return it
         return tableConfig;
-      } else if ('columns' in tableConfig) {
+      } else if (tableConfig && 'columns' in tableConfig) {
         // If it's a TableConfig, extract and return the columns property
         return tableConfig.columns;
       } else {
@@ -144,13 +166,13 @@ export class UISettingsUtilityClass {
    * @returns The number of settings that were successfully changed.
    */
   updateSettings(settings: Partial<UIConfig>): number {
-    const keys = Object.keys(settings);
+    const keys = Object.keys(settings) as UIConfigKeys[];
     let changedValues = 0;
     let themeChanged = false;
 
     for (const key of keys) {
       if (key in this.uiConfig && this.uiConfig[key] !== settings[key]) {
-        this.uiConfig[key] = settings[key];
+        Object.assign(this.uiConfig, { [key]: settings[key] });
         changedValues += 1;
         if (key === 'theme') {
           themeChanged = true;

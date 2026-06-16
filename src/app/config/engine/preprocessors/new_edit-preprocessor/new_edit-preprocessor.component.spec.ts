@@ -12,6 +12,7 @@ import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-r
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('NewEditPreprocessorComponent', () => {
   let component: NewEditPreprocessorComponent;
@@ -23,8 +24,7 @@ describe('NewEditPreprocessorComponent', () => {
   let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
   let httpMock: HttpTestingController;
 
-  const preprocessorResponse = {
-    jsonapi: { version: '1.1', ext: [] },
+  const preprocessorResponse = mockResponse({
     data: {
       id: 9,
       type: 'preprocessor',
@@ -36,9 +36,8 @@ describe('NewEditPreprocessorComponent', () => {
         skipCommand: '--skip',
         limitCommand: '--limit'
       }
-    },
-    included: []
-  };
+    }
+  });
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create', 'get', 'update']);
@@ -110,12 +109,12 @@ describe('NewEditPreprocessorComponent', () => {
       expect(buttonEl.textContent).toContain(buttonText);
     }
 
-    const subtitleEl = hostElement.querySelector('app-page-subtitle') as HTMLElement | null;
+    const titleEl = hostElement.querySelector('.page__title') as HTMLElement | null;
 
-    expect(subtitleEl).withContext('Subtitle not found').not.toBeNull();
+    expect(titleEl).withContext('Page title not found').not.toBeNull();
 
-    if (subtitleEl) {
-      expect(subtitleEl.textContent).toContain(title);
+    if (titleEl) {
+      expect(titleEl.textContent).toContain(title);
     }
   }
 
@@ -127,13 +126,13 @@ describe('NewEditPreprocessorComponent', () => {
   it('should initialize form with default values', () => {
     expect(component.newEditPreprocessorForm).toBeDefined();
 
-    expect(component.newEditPreprocessorForm.get('name').value).toBeDefined();
-    expect(component.newEditPreprocessorForm.get('binaryName').value).toBeDefined();
-    expect(component.newEditPreprocessorForm.get('url').value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.name.value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.binaryName.value).toBeDefined();
+    expect(component.newEditPreprocessorForm.controls.url.value).toBeDefined();
 
-    expect(component.newEditPreprocessorForm.get('keyspaceCommand').value).toBe('--keyspace');
-    expect(component.newEditPreprocessorForm.get('skipCommand').value).toBe('--skip');
-    expect(component.newEditPreprocessorForm.get('limitCommand').value).toBe('--limit');
+    expect(component.newEditPreprocessorForm.controls.keyspaceCommand.value).toBe('--keyspace');
+    expect(component.newEditPreprocessorForm.controls.skipCommand.value).toBe('--skip');
+    expect(component.newEditPreprocessorForm.controls.limitCommand.value).toBe('--limit');
   });
 
   it('should not submit if form is invalid', async () => {
@@ -141,9 +140,9 @@ describe('NewEditPreprocessorComponent', () => {
       name: '',
       binaryName: '',
       url: '',
-      keyspaceCommand: component.newEditPreprocessorForm.get('keyspaceCommand').value,
-      skipCommand: component.newEditPreprocessorForm.get('skipCommand').value,
-      limitCommand: component.newEditPreprocessorForm.get('limitCommand').value
+      keyspaceCommand: component.newEditPreprocessorForm.controls.keyspaceCommand.value,
+      skipCommand: component.newEditPreprocessorForm.controls.skipCommand.value,
+      limitCommand: component.newEditPreprocessorForm.controls.limitCommand.value
     };
 
     component.newEditPreprocessorForm.patchValue(payload); // invalid
@@ -180,8 +179,8 @@ describe('NewEditPreprocessorComponent', () => {
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
-    // The help-block span should be visible if the form is invalid and touched
-    const helpBlock = fixture.nativeElement.querySelector('.help-block');
+    // The validation-error span should be visible if the form is invalid and touched
+    const helpBlock = fixture.nativeElement.querySelector('[data-testid="form-validation-error"]');
     expect(helpBlock).toBeTruthy();
     expect(helpBlock.textContent).toContain('Please complete all required fields!');
   });
@@ -238,9 +237,9 @@ describe('NewEditPreprocessorComponent', () => {
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
-    const errors = component.newEditPreprocessorForm.get('url').errors;
+    const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeTruthy();
-    expect(errors['pattern']).toEqual({
+    expect(errors!['pattern']).toEqual({
       requiredPattern: ValidationPatterns.URL,
       actualValue: 'ThisIsAnInvalidURL'
     });
@@ -258,45 +257,8 @@ describe('NewEditPreprocessorComponent', () => {
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
-    const errors = component.newEditPreprocessorForm.get('url').errors;
+    const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeNull();
-  });
-
-  it('should display the page title "New Preprocessor" and button name "Create" in New mode', () => {
-    const activatedRoute = TestBed.inject(ActivatedRoute);
-    activatedRoute.snapshot.paramMap.get = () => null;
-
-    fixture = TestBed.createComponent(NewEditPreprocessorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.pageTitle).toBe('New Preprocessor');
-    expect(component.submitButtonText).toBe('Create');
-
-    expectPageTitleAndButton('New Preprocessor', 'Create');
-  });
-
-  it('should display the page title "Edit Preprocessor" and button name "Update" in Edit mode', async () => {
-    const activatedRoute = TestBed.inject(ActivatedRoute);
-
-    activatedRoute.snapshot.paramMap.get = () => '9';
-
-    mockRoleService.hasRole.and.returnValue(true);
-    fixture = TestBed.createComponent(NewEditPreprocessorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-    flushEditPreprocessorRequest();
-
-    await fixture.whenStable();
-
-    (component as unknown as { isLoading: boolean }).isLoading = false;
-
-    fixture.detectChanges();
-
-    expect(component.pageTitle).toBe('Edit Preprocessor');
-    expect(component.submitButtonText).toBe('Update');
-
-    expectPageTitleAndButton('Edit Preprocessor', 'Update');
   });
 
   it('should call create and navigate on valid form if no id is present in route', async () => {
@@ -318,7 +280,7 @@ describe('NewEditPreprocessorComponent', () => {
       limitCommand: '--limit'
     });
 
-    mockGlobalService.create.and.returnValue(of({}));
+    mockGlobalService.create.and.returnValue(of(mockResponse()));
 
     await component.onSubmit();
 

@@ -15,7 +15,11 @@ import {
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { ASC } from '@src/app/core/_constants/agentsc.config';
@@ -74,7 +78,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -112,13 +116,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: false,
-        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        icon: (agent: JAgent) => this.renderActiveAgentIcon(agent),
         export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive'),
         isSortable: true
@@ -134,9 +137,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: false,
-        isSearchable: true,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        export: async (agent: JAgent) => agent.taskName
+        export: async (agent: JAgent) => agent.taskName ?? ''
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
@@ -157,7 +159,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           }
         },
         customCellColor: {
-          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.AVG_VALUE),
+          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
           treshold2: this.getUtil2(),
           type: ASC.GPU_UTIL,
@@ -354,7 +356,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgent): void {
+  private rowActionDelete(agent: JAgent[]): void {
     this.subscriptions.push(
       this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted agent!');
@@ -365,7 +367,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
+      this.router.navigate(links[0].routerLink ?? []).then(() => {});
     });
   }
 
@@ -376,7 +378,35 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderActiveAgent(agent: JAgent): string {
-    return agent.agentSpeed > 0 ? 'Running task' : 'Stopped task';
+    return this.isRunningTask(agent) ? 'Running task' : 'Stopped task';
+  }
+
+  private renderActiveAgentIcon(agent: JAgent): HTTableIcon {
+    return this.isRunningTask(agent)
+      ? { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'Running task' }
+      : { name: 'pause_circle', cls: 'text-inactive', tooltip: 'Stopped task' };
+  }
+
+  private isRunningTask(agent: JAgent): boolean {
+    const isReportingProgress = agent.lastAct === 'sendProgress';
+    const hasAssignedTask = !!agent.taskId;
+    const hasRecentActivity = this.hasRecentActivity(agent.lastTime);
+
+    return agent.isActive && hasAssignedTask && isReportingProgress && hasRecentActivity;
+  }
+
+  // Determine if the last server interaction is recent enough to consider the agent online.
+  private hasRecentActivity(lastTime: number): boolean {
+    if (!lastTime) {
+      return false;
+    }
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const elapsedSeconds = Math.max(0, nowInSeconds - lastTime);
+    const configuredTimeout = this.uiService.getUISettings()?.agenttimeout ?? 0;
+    const timeoutSeconds = configuredTimeout > 0 ? configuredTimeout : 120;
+
+    return elapsedSeconds <= timeoutSeconds;
   }
 
   /**
@@ -450,7 +480,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const stat = agent.agentStats.filter((u) => u.statType == statType);
+    const stat = (agent.agentStats ?? []).filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:

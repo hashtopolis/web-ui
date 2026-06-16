@@ -12,6 +12,40 @@ export interface ServiceConfig {
   RESOURCE: string;
 }
 
+export const HELPER_ENDPOINTS = [
+  // GET helpers (ghelper)
+  'currentUser',
+  'getUserPermission',
+  'getBestTasksAgent',
+  'getCracksOfTask',
+  'getCracksPerDay',
+  'getAccessGroups',
+  // POST helpers (chelper)
+  'changeOwnPassword',
+  'importFile',
+  'importCrackedHashes',
+  'exportLeftHashes',
+  'exportCrackedHashes',
+  'exportWordlist',
+  'setUserPassword',
+  'createSupertask',
+  'createSuperHashlist',
+  'maskSupertaskBuilder',
+  'bulkSupertaskBuilder',
+  'purgeTask',
+  'abortChunk',
+  'resetChunk',
+  'rebuildChunkCache',
+  'rescanGlobalFiles',
+  'resetUserPassword'
+] as const;
+
+export type HelperEndpoint = (typeof HELPER_ENDPOINTS)[number];
+
+export function isHelperEndpoint(value: string): value is HelperEndpoint {
+  return (HELPER_ENDPOINTS as readonly string[]).includes(value);
+}
+
 export class SERV {
   // HELPER
   public static HELPER = { URL: '/helper', RESOURCE: 'Helper' };
@@ -31,7 +65,7 @@ export class SERV {
   public static CONFIGS = { URL: '/ui/configs', RESOURCE: 'Configs' };
   public static CRACKERS = { URL: '/ui/crackers', RESOURCE: 'Crackers' };
   public static CRACKERS_TYPES = { URL: '/ui/crackertypes', RESOURCE: 'CrackerTypes' };
-  public static HASHTYPES = { URL: '/ui/hashtypes', RESOURCE: 'HashTypes' };
+  public static HASHTYPES = { URL: '/ui/hashtypes', RESOURCE: 'hashtype' };
   public static HEALTH_CHECKS = { URL: '/ui/healthchecks', RESOURCE: 'HealthCheck' };
   public static HEALTH_CHECKS_AGENTS = { URL: '/ui/healthcheckagents', RESOURCE: 'HealthCheckAgents' };
   public static LOGS = { URL: '/ui/logentries', RESOURCE: 'LogEntries' };
@@ -57,6 +91,8 @@ export class SERV {
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };
   public static FORGOT = { URL: '/helper/resetUserPassword', RESOURCE: 'resetUserPassword' };
+  // API TOKENS
+  public static API_TOKENS = { URL: '/ui/apiTokens', RESOURCE: 'apiToken' };
   // PROJECTS
   public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }

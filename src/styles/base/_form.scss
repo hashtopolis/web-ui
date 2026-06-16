@@ -1,35 +1,9 @@
-@use "colors";
-
 .form-field {
   label {
     font-weight: 600;
     margin-bottom: 4px;
     display: inline-block;
-    color: colors.$primary-700;
-  }
-
-  &.xs-field {
-    width: 10%;
-  }
-
-  &.s-field {
-    width: 25%;
-  }
-
-  &.m-field {
-    width: 40%;
-  }
-
-  &.l-field {
-    width: 60%;
-  }
-
-  &.xl-field {
-    width: 100%;
-  }
-
-  .mat-form-field-infix {
-    height: 16px;
+    color: var(--heading-foreground);
   }
 
   .mat-mdc-form-field {
@@ -37,46 +11,6 @@
   }
 
   .mat-icon {
-    color: colors.$primary-100;
-  }
-}
-
-.xsmall {
-  .form-field {
-    &.xs-field {
-      width: 100%;
-    }
-
-    &.s-field {
-      width: 100%;
-    }
-
-    &.m-field {
-      width: 100%;
-    }
-
-    &.l-field {
-      width: 100%;
-    }
-  }
-}
-
-.small {
-  .form-field {
-    &.xs-field {
-      width: 30%;
-    }
-
-    &.s-field {
-      width: 50%;
-    }
-
-    &.m-field {
-      width: 75%;
-    }
-
-    &.l-field {
-      width: 100%;
-    }
+    color: var(--subtle-foreground);
   }
 }

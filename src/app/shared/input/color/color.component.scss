@@ -1,32 +1,96 @@
+@reference '../../../../styles/tailwind.css';
 
+input-color {
+  @apply fluid-component;
+  color-scheme: light dark;
 
-.color-input-container {
-  position: relative;
-  display: inline-block;
-}
-
-.color-value {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
-  font-size: 12px;
-  pointer-events: none; /* allows clicking through to the color picker */
-}
-
-/* Optional: Adjust text color based on background brightness for better visibility */
-:host ::ng-deep input[type="color"][value^="#f"],
-:host ::ng-deep input[type="color"][value^="#e"],
-:host ::ng-deep input[type="color"][value^="#d"],
-:host ::ng-deep input[type="color"][value^="#c"],
-:host ::ng-deep input[type="color"][value^="#b"],
-:host ::ng-deep input[type="color"][value^="#a"],
-:host ::ng-deep input[type="color"][value^="#0f"],
-:host ::ng-deep input[type="color"][value^="#ff"] {
-  & + .color-value {
-    color: black;
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  .color-input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
   }
+
+  .color-input-container mat-form-field {
+    flex: 1;
+  }
+
+  input[type='color'] {
+    width: 100%;
+    min-height: 28px;
+    padding: 0;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  input[type='color']::-webkit-color-swatch {
+    border-color: transparent;
+  }
+
+  input[type='color']::-moz-color-swatch {
+    border-color: transparent;
+  }
+
+  input[type='color'].color-unset {
+    &::-webkit-color-swatch-wrapper {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    &::-webkit-color-swatch {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    &::-moz-color-swatch {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+  }
+
+  .color-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    text-shadow: none;
+
+    &.color-value-on-light {
+      color: black;
+    }
+
+    &.color-value-on-dark {
+      color: white;
+    }
+  }
+
+  .random-color-btn,
+  .clear-color-btn {
+    color: var(--subtle-foreground);
+    transition: color var(--duration-fast) var(--easing-standard);
+
+    &:hover:not(:disabled) {
+      color: var(--primary);
+    }
+  }
+
+  // visibility (not display) keeps the box reserved so toggling unset → set
+  // doesn't reflow the row.
+  .clear-color-btn-hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.dark-theme input-color {
+  color-scheme: dark;
 }

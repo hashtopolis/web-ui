@@ -43,7 +43,7 @@ export class ScreenSizeDetectorComponent implements AfterViewInit {
   ];
 
   @HostListener('window:resize', [])
-  private onResize() {
+  onResize() {
     this.detectScreenSize();
   }
 
@@ -59,6 +59,8 @@ export class ScreenSizeDetectorComponent implements AfterViewInit {
       return isVisible;
     });
 
-    this.resizeSvc.onResize(currentSize.id);
+    if (currentSize) {
+      this.resizeSvc.onResize(currentSize.id);
+    }
   }
 }

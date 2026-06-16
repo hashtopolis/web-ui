@@ -1,7 +1,16 @@
-<mat-form-field [ngStyle]="{width: width}" [class.mat-form-field-invalid]="hasError" [class.mat-form-field-touched]="isTouched">
-  <mat-label>
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+  <label class="field-stack__label" [attr.for]="inputId">
     @if (!isLoading) {
-      {{ title }}
+      @if (linkTo) {
+        <a [routerLink]="linkTo">{{ title }}</a>
+      } @else {
+        <span class="field-stack__label-text">
+          {{ title }}
+        </span>
+      }
+      @if (isRequired && !readonly) {
+        <span class="field-stack__required" aria-hidden="true">*</span>
+      }
       @if (tooltip) {
         <mat-icon
           matTooltip="{{ tooltip }}"
@@ -9,7 +18,7 @@
           matTooltipClass="tooltip-custom-style"
           container="body"
           aria-hidden="true"
-          >
+        >
           info
         </mat-icon>
       }
@@ -17,36 +26,35 @@
       <mat-spinner diameter="16" class="spinner-inline" color="primary"></mat-spinner>
       <span>Loading...</span>
     }
-  </mat-label>
+  </label>
 
-  <mat-select
-    #inputField
-    [value]="value"
-    (selectionChange)="onChangeValue($event.value)"
-    (openedChange)="onOpenedChange($event)"
-    [required]="!isLoading && isRequired"
-    [disabled]="disabled"
-    [class.ng-invalid]="hasError"
-    [class.ng-touched]="isTouched"
+  <mat-form-field class="field-stack__field">
+    <mat-select
+      #inputField
+      [value]="value"
+      (selectionChange)="onChangeValue($event.value)"
+      (openedChange)="onOpenedChange($event)"
+      [required]="!isLoading && isRequired"
+      [disabled]="disabled || readonly"
     >
-    @if (isBlankOptionDisabled) {
-      <mat-option [value]="0">
-        {{ blankOptionText || 'Disabled' }}
-      </mat-option>
+      @if (isBlankOptionDisabled) {
+        <mat-option [value]="0">
+          {{ blankOptionText || 'Disabled' }}
+        </mat-option>
+      }
+
+      @for (item of items; track item.id) {
+        <mat-option [value]="item.id">
+          {{ item.name }}
+        </mat-option>
+      }
+    </mat-select>
+
+    @if (hint) {
+      <mat-hint>{{ hint }}</mat-hint>
     }
-
-    @for (item of items; track item) {
-      <mat-option [value]="item.id">
-        {{ item.name }}
-      </mat-option>
+    @if (hasError && errors && !readonly) {
+      <mat-hint class="mat-mdc-form-field-error text-destructive">{{ title }} is required</mat-hint>
     }
-  </mat-select>
-
-  @if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
-  }
-  @if (hasError && errors) {
-    <mat-hint class="mat-mdc-form-field-error" style="color: var(--mat-form-field-error-text-color, #f44336);">{{ title }} is required</mat-hint>
-  }
-
-</mat-form-field>
+  </mat-form-field>
+</div>

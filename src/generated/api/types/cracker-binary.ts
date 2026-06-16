@@ -73,7 +73,7 @@ export type CrackerBinaryResponse = {
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
-          isChunkingAvailable: boolean;
+          isChunkingAvailable: boolean | null;
         };
       }
     | {
@@ -175,7 +175,7 @@ export type CrackerBinaryListResponse = {
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
-          isChunkingAvailable: boolean;
+          isChunkingAvailable: boolean | null;
         };
       }
     | {

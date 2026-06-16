@@ -1,5 +1,5 @@
 import { zVoucherListResponse } from '@generated/api/zod';
-import { catchError, finalize, of } from 'rxjs';
+import { EMPTY, catchError, finalize } from 'rxjs';
 
 import { Filter } from '@models/request-params.model';
 
@@ -21,7 +21,7 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
     this.subscriptions.push(
       vouchers$
         .pipe(
-          catchError(() => of([])),
+          catchError(() => EMPTY),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
@@ -30,8 +30,8 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(vouchers);

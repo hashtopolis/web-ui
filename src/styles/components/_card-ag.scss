@@ -1,0 +1,54 @@
+.card-container-ag {
+  width: 25%;
+}
+
+.card-ag {
+  background-color: var(--card);
+  border: 1px solid var(--border-faint);
+  height: 190px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.card-ag-rack {
+  background-color: var(--card);
+  border: 1px solid var(--border-faint);
+  height: 220px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.card-header-ag {
+  background-color: var(--muted);
+  font-size: 14pt;
+  color: var(--heading-foreground);
+  padding: 5px;
+  width: 100%;
+}
+
+.card-body-left-ag {
+  margin-top: -5px;
+}
+
+.card-body-right-ag {
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.card-body-top-right {
+  margin-left: 5px;
+  position: relative;
+}
+
+.card-body-content-ag {
+  width: 100px;
+}
+
+.gray-light-ico:hover {
+  color: var(--subtle-foreground);
+  cursor: pointer;
+}
+
+.highlight {
+  background-color: var(--well);
+}

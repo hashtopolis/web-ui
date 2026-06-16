@@ -1,10 +1,8 @@
-import { zHashListResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
+import { z } from 'zod';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
-import { JHash } from '@models/hash.model';
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
@@ -16,18 +14,18 @@ import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
+import { unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  host: { class: 'block' },
   standalone: false
 })
 @PageTitle(['Dashboard'])
@@ -35,7 +33,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private gs = inject(GlobalService);
   protected autoRefreshService = inject(AutoRefreshService);
   private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
-  private breakpointObserver = inject(BreakpointObserver);
   private permissionService = inject(PermissionService);
   private themeService = inject(ThemeService);
 
@@ -43,13 +40,6 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Utility class for UI settings retrieval and updates.
    */
   util: UISettingsUtilityClass;
-
-  /** Flags for responsive design */
-  screenXS = false;
-  screenS = false;
-  screenM = false;
-  screenL = false;
-  screenXL = false;
 
   /** Whether dark mode is enabled */
   isDarkMode = false;
@@ -85,33 +75,21 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   heatmapData: [string, number][] = [];
 
+  /** Fixed legend swatches matching the heatmap's bucket alphas. */
+  readonly legendColors: readonly string[] = [0.18, 0.32, 0.55, 0.85].map(
+    (alpha) => `color-mix(in oklch, var(--primary) ${Math.round(alpha * 100)}%, transparent)`
+  );
+
   private uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription[] = [];
   private pageReloadTimeout: NodeJS.Timeout;
 
   /** Auto-refresh subscription */
-  private autoRefreshSubscription?: Subscription;
+  private autoRefreshSubscription?: Subscription | undefined;
 
-  /**
-   * HomeComponent constructor.
-   * Sets up breakpoint observers for responsive layout and reads initial theme mode.
-   */
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
-
-    // Observe screen size breakpoints for responsive behavior
-    this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge])
-      .subscribe((result) => {
-        const breakpoints = result.breakpoints;
-
-        this.screenXS = breakpoints[Breakpoints.XSmall] || false;
-        this.screenS = breakpoints[Breakpoints.Small] || false;
-        this.screenM = breakpoints[Breakpoints.Medium] || false;
-        this.screenL = breakpoints[Breakpoints.Large] || false;
-        this.screenXL = breakpoints[Breakpoints.XLarge] || false;
-      });
   }
 
   /**
@@ -238,8 +216,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.AGENTS_COUNT, params).pipe(
       map((response: ResponseWrapper) => {
-        this.totalAgents = response.meta.total_count;
-        this.activeAgents = response.meta.count;
+        this.totalAgents = response.meta.total_count ?? 0;
+        this.activeAgents = response.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch agents:', err);
@@ -269,14 +247,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
-        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total tasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
-        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed tasks:', err);
           return of(undefined);
@@ -295,22 +273,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       .create();
 
     const paramsCompletedSupertasks = new RequestParamBuilder()
-      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
-      .addInclude('tasks')
       .create();
 
     return forkJoin([
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch total supertasks:', err);
           return of(undefined);
         })
       ),
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count)),
+        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count ?? 0)),
         catchError((err) => {
           console.error('Failed to fetch completed supertasks:', err);
           return of(undefined);
@@ -331,7 +307,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return this.gs.getAll(SERV.HASHES_COUNT, params).pipe(
       map((res: ResponseWrapper) => {
-        this.totalCracks = res.meta.count;
+        this.totalCracks = res.meta.count ?? 0;
       }),
       catchError((err) => {
         console.error('Failed to fetch cracks count:', err);
@@ -342,29 +318,38 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Loads cracked hashes and prepares heatmap data as date/count pairs.
-   * Updates the lastUpdated timestamp.
+   * Calls getCracksPerDay, validates the JSON:API response with Zod and builds
+   * heatmap data for every day from January 1st of the current year up to today,
+   * filling days with no cracks with a count of 0.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private updateHeatmapData$(): Observable<void> {
-    const params = new RequestParamBuilder()
-      .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: 1 })
-      .create();
+    const cracksPerDaySchema = z.object({
+      meta: z.record(z.string(), z.number())
+    });
 
-    return this.gs.getAll(SERV.HASHES, params).pipe(
+    return this.gs.ghelper(SERV.HELPER, 'getCracksPerDay').pipe(
       map((res: ResponseWrapper) => {
-        const hashes: JHash[] = new JsonAPISerializer().deserialize(res, zHashListResponse);
+        const parsed = cracksPerDaySchema.parse(res);
+        const rawData = parsed.meta;
 
-        const formattedDates: string[] = hashes.map((h) => formatUnixTimestamp(h.timeCracked, 'yyyy-MM-dd'));
-        const dateCounts = this.countOccurrences(formattedDates);
+        const today = new Date();
+        const year = today.getFullYear();
+        const allDays: [string, number][] = [];
+        const cursor = new Date(year, 0, 1);
 
-        this.heatmapData = Object.entries(dateCounts).map(([date, count]) => [date, count]);
+        while (cursor <= today) {
+          const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+          allDays.push([dateStr, rawData[dateStr] ?? 0]);
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        this.heatmapData = allDays;
       }),
       catchError((err) => {
-        console.error('Failed to fetch hash heatmap data:', err);
+        console.error('Failed to fetch heatmap data:', err);
         return of(undefined);
-      }),
-      map(() => undefined)
+      })
     );
   }
 
@@ -377,18 +362,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.refreshFlash = false;
     }, 500); // duration of the flash in ms
-  }
-
-  /**
-   * Counts occurrences of each string in the given array.
-   *
-   * @param arr Array of strings (e.g., dates)
-   * @returns Object with keys as strings and values as their counts
-   */
-  private countOccurrences(arr: string[]): { [key: string]: number } {
-    return arr.reduce((counts, item) => {
-      counts[item] = (counts[item] || 0) + 1;
-      return counts;
-    }, {});
   }
 }

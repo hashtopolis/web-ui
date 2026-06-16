@@ -1,0 +1,30 @@
+.scrolltop.mat-mdc-icon-button {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted-foreground);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-normal) var(--easing-standard),
+    border-color var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard),
+    background-color var(--duration-fast) var(--easing-standard);
+
+  &--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--card-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}

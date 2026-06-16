@@ -1,0 +1,23 @@
+.password-strength-container {
+  margin-top: var(--space-xs);
+}
+
+.strength-bars {
+  display: flex;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-2xs);
+}
+
+.strength-bar {
+  height: 6px;
+  flex: 1;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-slow) var(--easing-standard);
+}
+
+.strength-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: center;
+  transition: color var(--duration-slow) var(--easing-standard);
+}

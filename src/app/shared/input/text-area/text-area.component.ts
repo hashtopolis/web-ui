@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -20,6 +20,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-text-area',
   templateUrl: './text-area.component.html',
+  styleUrls: ['./text-area.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -30,6 +31,9 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
   standalone: false
 })
 export class InputTextAreaComponent extends AbstractInputComponent<string> {
+  @Input() minRows = 3;
+  @Input() maxRows = 12;
+
   onValueChange(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     this.value = target.value;

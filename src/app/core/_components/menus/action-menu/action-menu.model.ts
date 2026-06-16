@@ -14,4 +14,5 @@ export interface ActionMenuItem {
   showAddButton?: boolean;
   routerLinkAdd?: string[];
   tooltipAddButton?: string;
+  activeRoutes?: string[][];
 }

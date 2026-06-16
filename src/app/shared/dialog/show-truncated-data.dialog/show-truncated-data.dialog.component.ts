@@ -1,12 +1,12 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { AgentTemperatureInformationDialogData } from '../agent-temperature-information-dialog/agent-temperature-information-dialog.model';
-import { JHash } from '@src/app/core/_models/hash.model';
+
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 
 @Component({
   selector: 'app-show-truncated-data.dialog',
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, ButtonsModule],
   templateUrl: './show-truncated-data.dialog.component.html',
   styleUrl: './show-truncated-data.dialog.component.scss'
 })

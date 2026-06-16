@@ -19,19 +19,18 @@ import { AccessGroupsAgentsTableComponent } from '@components/tables/access-grou
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { mockResponse } from '@src/app/testing/mock-response';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
-const mockAccessGroupResponse: ResponseWrapper = {
-  jsonapi: { version: '1.1', ext: [] },
+const mockAccessGroupResponse: ResponseWrapper = mockResponse({
   data: {
     id: 1,
     type: 'accessGroup',
     attributes: {
       groupName: 'Test Group'
     }
-  } as never,
-  included: []
-};
+  } as never
+});
 
 /**
  * Focused tests for the deserialization bug in EditGroupsComponent.loadSelectUsers().
@@ -94,13 +93,17 @@ describe('EditGroupsComponent deserialization', () => {
     serializer = new JsonAPISerializer();
   });
 
-  it('should throw when user data is deserialized with zAccessGroupListResponse (the bug)', () => {
-    // This is the current (buggy) code path:
-    //   const users: JAccessGroup[] = serializer.deserialize(response, zAccessGroupListResponse);
-    // It should throw because user-shaped data does not match access group schema.
+  it('logs an error when user data is deserialized with zAccessGroupListResponse (the bug)', () => {
+    // Validation against the wrong schema no longer throws — it reports the mismatch
+    // via console.error (and an alert in dev mode) so the UI stays responsive even when
+    // backend payloads drift from the expected shape.
+    const consoleSpy = spyOn(console, 'error');
+
     expect(() => {
       serializer.deserialize(userListBody, zAccessGroupListResponse);
-    }).toThrow();
+    }).not.toThrow();
+
+    expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
   });
 
   it('should correctly deserialize user data with zUserListResponse (the fix)', () => {
@@ -133,7 +136,7 @@ describe('EditGroupsComponent', () => {
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     mockGlobalService.get.and.returnValue(of(mockAccessGroupResponse));
-    mockGlobalService.getAll.and.returnValue(of({ jsonapi: { version: '1.1', ext: [] }, data: [], included: [] }));
+    mockGlobalService.getAll.and.returnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [EditGroupsComponent],

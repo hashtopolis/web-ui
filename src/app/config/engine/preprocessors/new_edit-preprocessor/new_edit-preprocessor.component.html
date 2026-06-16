@@ -1,76 +1,51 @@
 @if (!isLoading) {
-  <grid-main>
-    <app-page-subtitle [subtitle]="pageTitle"></app-page-subtitle>
+  <app-page [title]="pageTitle">
+    <grid-main [narrow]="true">
+      <form [formGroup]="newEditPreprocessorForm" (ngSubmit)="onSubmit()">
+        <div class="flex flex-col gap-3">
+          <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
 
-    <form
-      [formGroup]="newEditPreprocessorForm"
-      (ngSubmit)="onSubmit()"
-      class="flex flex-col gap-4"
-    >
-      <div class="flex flex-col gap-3">
-        <input-text
-          width="500px"
-          title="Name"
-          formControlName="name"
-          [isRequired]="true"
-        ></input-text>
+          <input-text title="Binary Basename" formControlName="binaryName" [isRequired]="true"></input-text>
 
-        <input-text
-          width="500px"
-          title="Binary Basename"
-          formControlName="binaryName"
-          [isRequired]="true"
-        ></input-text>
+          <input-text
+            inputType="url"
+            title="Download URL"
+            [pattern]="urlPattern"
+            formControlName="url"
+            [isRequired]="true"
+            tooltip="Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z"
+          ></input-text>
+        </div>
 
-        <input-text
-          inputType="url"
-          width="500px"
-          title="Download URL"
-          [pattern]="urlPattern"
-          formControlName="url"
-          [isRequired]="true"
-          tooltip="Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z"
-        ></input-text>
-      </div>
+        <app-page-subtitle subtitle="Commands (set to empty if not available)"></app-page-subtitle>
 
-      <h4>Commands (set to empty if not available)</h4>
+        <div class="flex flex-col gap-3">
+          <input-text title="Keyspace Command" formControlName="keyspaceCommand"></input-text>
 
-      <div class="flex flex-col gap-3">
-        <input-text
-          width="500px"
-          title="Keyspace Command"
-          formControlName="keyspaceCommand"
-        ></input-text>
+          <input-text title="Skip Command" formControlName="skipCommand" data-testid="input_skipCommand"></input-text>
 
-        <input-text
-          width="500px"
-          title="Skip Command"
-          formControlName="skipCommand"
-          data-testid="input_skipCommand"
-        ></input-text>
+          <input-text
+            title="Limit Command"
+            formControlName="limitCommand"
+            data-testid="input_limitCommand"
+          ></input-text>
+        </div>
 
-        <input-text
-          width="500px"
-          title="Limit Command"
-          formControlName="limitCommand"
-          data-testid="input_limitCommand"
-        ></input-text>
-      </div>
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit
+            data-testid="submit-button-newPreprocessor"
+            [name]="submitButtonText"
+            [disabled]="false"
+          ></button-submit>
+        </grid-buttons>
 
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit
-          data-testid="submit-button-newPreprocessor"
-          [name]="submitButtonText"
-          [disabled]="false"
-        ></button-submit>
-      </grid-buttons>
-
-      @if (newEditPreprocessorForm.invalid && newEditPreprocessorForm.touched) {
-        <span class="help-block">
-          Please complete all required fields!
-        </span>
-      }
-    </form>
-  </grid-main>
+        @if (newEditPreprocessorForm.invalid && newEditPreprocessorForm.touched) {
+          <span class="text-sm text-destructive" data-testid="form-validation-error">
+            Please complete all required fields!
+          </span>
+        }
+      </form>
+    </grid-main>
+  </app-page>
 }

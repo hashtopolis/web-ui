@@ -70,7 +70,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey,
+        field: selectedColumn.dataKey ?? '',
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -98,6 +98,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
+        isNumeric: true,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -113,6 +114,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       },
       {
         id: HashlistsTableCol.HASH_COUNT,
+        isNumeric: true,
         dataKey: 'hashCount',
         isSortable: true,
         routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
@@ -120,6 +122,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       },
       {
         id: HashlistsTableCol.CRACKED,
+        isNumeric: true,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         routerLink: (hashlist: JHashlist) => this.renderCrackedHashesLink(hashlist),
@@ -130,8 +133,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
       }
     ];
 
@@ -142,7 +145,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         isSearchable: true,
         isSortable: false,
         render: (hashlist: JHashlist) => this.sanitize(hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription),
-        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription ?? ''
       });
     }
 
@@ -257,7 +260,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
     if (hashlist.hashCount === hashlist.cracked) {
       return {
-        name: 'check_circle',
+        name: 'check',
         tooltip: 'Cracked',
         cls: 'text-ok'
       };
@@ -322,7 +325,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {});
+        this.router.navigate(links[0].routerLink ?? []).then(() => {});
       })
       .unsubscribe();
   }

@@ -1,9 +1,10 @@
-<app-table>
-  <app-page-title
-    title="Superhashlists"
-    buttontitle="New Superhashlist"
-    buttonlink="/hashlists/new-superhashlist"
-    [subbutton]="showCreateButton"
-  ></app-page-title>
-  <app-super-hashlists-table></app-super-hashlists-table>
-</app-table>
+<app-page
+  title="Superhashlists"
+  actionTitle="New Superhashlist"
+  actionLink="/hashlists/new-superhashlist"
+  [showAction]="showCreateButton"
+>
+  <app-table>
+    <app-super-hashlists-table></app-super-hashlists-table>
+  </app-table>
+</app-page>

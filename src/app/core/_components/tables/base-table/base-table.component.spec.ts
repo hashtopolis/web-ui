@@ -13,7 +13,7 @@ import { BaseModel } from '@src/app/core/_models/base.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
-import { JTask, JTaskWrapper, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
+import { JTask, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
@@ -46,7 +46,7 @@ describe('BaseTableComponent', () => {
   let fixture: ComponentFixture<TestTableComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockConfigService: jasmine.SpyObj<ConfigService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
   beforeEach(() => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['foo']);
@@ -83,7 +83,7 @@ describe('BaseTableComponent', () => {
   });
 
   it('should not render status icon for undefined model', () => {
-    const activeModel = undefined as JAgent;
+    const activeModel: JAgent = undefined!;
     const icon = component.renderStatusIcon(activeModel);
     expect(icon.name).toBe('');
   });
@@ -106,10 +106,10 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render cracked link from chunk', (done) => {
-    const mockChunk = { taskId: 1, cracked: 100 } as JChunk;
+    const mockChunk = { id: 1, taskId: 2, cracked: 100 } as JChunk;
     component.renderCrackedLinkFromChunk(mockChunk).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 1]);
       expect(links[0].label).toBe('100');
       done();
     });
@@ -168,7 +168,7 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
       expect(links[0].label).toBe('Test Hashlist');
-      expect(links[0].icon.tooltip).toBe('Secret hashlist');
+      expect(links[0].icon!.tooltip).toBe('Secret hashlist');
       done();
     });
   });
@@ -200,7 +200,7 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
       expect(links[0].label).toBe('Test Agent');
-      expect(links[0].icon.tooltip).toBe('Trusted Agent');
+      expect(links[0].icon!.tooltip).toBe('Trusted Agent');
       done();
     });
   });

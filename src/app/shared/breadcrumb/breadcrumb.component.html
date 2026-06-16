@@ -1,16 +1,23 @@
-
-@for (c of breadcrumbs; track c) {
+@for (c of breadcrumbs; track c.url) {
   <div>
-    @if (c.label?.length > 0) {
+    @if (c.label && c.label.length > 0) {
       <div>
-        <a routerLink="/" class="btn-outline-gray-600"><fa-icon [icon]="faHomeAlt" aria-hidden="true"></fa-icon></a>
-        @for (breadcrumb of breadcrumbs; track breadcrumb; let last = $last) {
+        <a routerLink="/" class="text-muted-foreground hover:text-primary transition-colors no-underline"
+          ><fa-icon [icon]="faHomeAlt" aria-hidden="true"></fa-icon
+        ></a>
+        @for (breadcrumb of breadcrumbs; track breadcrumb.url; let last = $last) {
           <span>
             <small>
-              <a [routerLink]="breadcrumb.url" class="btn-outline-gray-600" style="text-decoration: none">{{ breadcrumb.label }}</a>
+              <a
+                [routerLink]="breadcrumb.url"
+                class="text-muted-foreground hover:text-primary transition-colors no-underline"
+                >{{ breadcrumb.label }}</a
+              >
             </small>
             @if (!last) {
-              <span><small> {{ deliminator }} </small></span>
+              <span
+                ><small> {{ deliminator }} </small></span
+              >
             }
           </span>
         }
@@ -18,8 +25,3 @@
     }
   </div>
 }
-
-
-
-
-

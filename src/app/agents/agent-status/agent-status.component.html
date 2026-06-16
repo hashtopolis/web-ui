@@ -1,5 +1,6 @@
-<app-table>
-  <app-page-title [title]="pageTitle"></app-page-title>
-  <div class="flex flex-wrap justify-between items-center gap-4 py-4"></div>
-  <app-agents-status-table></app-agents-status-table>
-</app-table>
+<app-page [title]="pageTitle">
+  <app-table>
+    <div class="flex flex-wrap justify-between items-center gap-4 py-4"></div>
+    <app-agents-status-table></app-agents-status-table>
+  </app-table>
+</app-page>

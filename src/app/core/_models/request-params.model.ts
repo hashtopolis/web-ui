@@ -30,7 +30,7 @@ export interface Filter {
   field: string;
   operator: FilterType;
   value: string | number | number[] | boolean | string[];
-  parent?: string;
+  parent?: string | undefined;
 }
 
 /**
@@ -49,8 +49,8 @@ export interface Aggregate {
 interface IRequestParams {
   page?: {
     size?: number;
-    after?: number;
-    before?: number;
+    after?: number | string;
+    before?: number | string;
   };
   //array of object names to include ex. [files, speeds]
   include?: Array<string>;

@@ -1,4 +1,4 @@
-import { uiConfigDefault } from '@models/config-ui.model';
+import { TableConfig, uiConfigDefault } from '@models/config-ui.model';
 import { sortingSchema, uiConfigSchema, uisSettingsSchema } from '@models/config-ui.schema';
 
 describe('uiConfigSchema', () => {
@@ -70,8 +70,8 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(withExtra);
     expect(result.success).toBeTrue();
     if (result.success) {
-      expect(result.data['unknownFeatureFlag']).toBeUndefined();
-      expect(result.data['beta']).toBeUndefined();
+      expect('unknownFeatureFlag' in result.data).toBeFalse();
+      expect('beta' in result.data).toBeFalse();
     }
   });
 
@@ -96,14 +96,95 @@ describe('uiConfigSchema', () => {
     }
   });
 
-  it('should fail on invalid tableSettings entry', () => {
+  it('should backfill missing tableSettings keys from uiConfigDefault while preserving stored entries', () => {
+    const customColumns = [9, 8, 7];
     const config = {
       ...defaults,
       tableSettings: {
-        brokenTable: { columns: 'not-an-array', page: 'bad' }
+        usersTable: {
+          columns: customColumns,
+          page: 25,
+          search: '',
+          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+        }
       }
     };
 
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      // stored entry wins
+      expect((result.data.tableSettings['usersTable'] as TableConfig).columns).toEqual(customColumns);
+      // missing default keys are filled
+      expect(result.data.tableSettings['notificationsTable']).toBeDefined();
+      expect(result.data.tableSettings['apiTokensTable']).toBeDefined();
+    }
+  });
+
+  it('should replace an invalid tableSettings entry with the default and not fail', () => {
+    const config = {
+      ...defaults,
+      tableSettings: {
+        usersTable: { columns: 'not-an-array', page: 'bad' }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      const expected = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
+      const repaired = result.data.tableSettings['usersTable'] as TableConfig;
+      expect(repaired.columns).toEqual([...expected.columns]);
+      expect(result.data.theme).toBe(defaults.theme);
+      expect(result.data.layout).toBe(defaults.layout);
+    }
+  });
+
+  it('should drop stale keys whose shape is invalid and which have no default', () => {
+    const config = {
+      ...defaults,
+      tableSettings: {
+        legacyDeadTable: { columns: 'nope', page: 'bad' }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      expect(result.data.tableSettings['legacyDeadTable']).toBeUndefined();
+    }
+  });
+
+  it('should preserve valid entries when sibling entries are repaired', () => {
+    const customColumns = [4, 2, 0];
+    const config = {
+      ...defaults,
+      tableSettings: {
+        usersTable: { columns: 'not-an-array', page: 'bad' },
+        agentsTable: {
+          columns: customColumns,
+          page: 25,
+          search: '',
+          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+        }
+      }
+    };
+
+    const result = uiConfigSchema.safeParse(config);
+    expect(result.success).toBeTrue();
+    if (result.success) {
+      // bad entry repaired from default
+      const repaired = result.data.tableSettings['usersTable'] as TableConfig;
+      const usersDefault = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
+      expect(repaired.columns).toEqual([...usersDefault.columns]);
+      // sibling custom entry kept
+      const kept = result.data.tableSettings['agentsTable'] as TableConfig;
+      expect(kept.columns).toEqual(customColumns);
+    }
+  });
+
+  it('should still fail when tableSettings itself is non-object garbage', () => {
+    const config = { ...defaults, tableSettings: 'string' };
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeFalse();
   });
@@ -138,9 +219,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['myTable'];
-      expect(table['before']).toBe(5);
-      expect(table['index']).toBe(3);
+      const table = result.data.tableSettings['myTable'] as TableConfig;
+      expect(table.before).toBe(5);
+      expect(table.index).toBe(3);
     }
   });
 
@@ -160,9 +241,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const order = result.data.tableSettings['tasksTable']['order'];
-      expect(order).toBeDefined();
-      expect(order['parent']).toBe('task');
+      const table = result.data.tableSettings['tasksTable'] as TableConfig;
+      expect(table.order).toBeDefined();
+      expect((table.order as { parent?: string }).parent).toBe('task');
     }
   });
 
@@ -186,9 +267,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['tasksTable'];
-      expect(table['start']).toBe(cursor);
-      expect(table['before']).toBe(cursor);
+      const table = result.data.tableSettings['tasksTable'] as TableConfig;
+      expect(table.start).toBe(cursor);
+      expect(table.before).toBe(cursor);
     }
   });
 
@@ -208,9 +289,9 @@ describe('uiConfigSchema', () => {
     const result = uiConfigSchema.safeParse(config);
     expect(result.success).toBeTrue();
     if (result.success) {
-      const table = result.data.tableSettings['testTable'];
-      expect(table['columns']).toEqual([1, 2, 3]);
-      expect(table['page']).toBe(25);
+      const table = result.data.tableSettings['testTable'] as TableConfig;
+      expect(table.columns).toEqual([1, 2, 3]);
+      expect(table.page).toBe(25);
     }
   });
 
@@ -452,8 +533,8 @@ describe('sortingSchema – sort parameter round-trip', () => {
     const result = sortingSchema.safeParse(withExtra);
     expect(result.success).toBeTrue();
     if (result.success) {
-      expect(result.data['render']).toBeUndefined();
-      expect(result.data['routerLink']).toBeUndefined();
+      expect((result.data as Record<string, unknown>)['render']).toBeUndefined();
+      expect((result.data as Record<string, unknown>)['routerLink']).toBeUndefined();
       expect(result.data.parent).toBe('task');
     }
   });

@@ -20,6 +20,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 @Component({
   selector: 'input-text',
   templateUrl: './text.component.html',
+  styleUrls: ['./text.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -33,7 +34,6 @@ export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;
   @Input() inputType: 'text' | 'password' | 'email' | 'url' = 'text';
   @Input() icon: string;
-  @Input() width: string = '';
   @Input() minLength?: number;
   @Input() maxLength?: number;
   @Input() showPasswordToggle: boolean = false;

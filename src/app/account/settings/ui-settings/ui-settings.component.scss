@@ -1,0 +1,23 @@
+.form-field {
+  display: block;
+
+  label {
+    font-weight: 600;
+    margin-bottom: var(--space-2xs);
+    display: inline-block;
+    color: var(--heading-foreground);
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-icon {
+    color: var(--subtle-foreground);
+  }
+
+  select,
+  input {
+    max-width: 500px;
+  }
+}

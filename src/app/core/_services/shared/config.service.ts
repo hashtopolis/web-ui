@@ -29,11 +29,11 @@ export class ConfigService {
    *
    * @returns An observable of the parsed JSON config (prod) or `null` (dev).
    */
-  private getConfigOnce(): Observable<AppConfig> {
+  private getConfigOnce(): Observable<AppConfig | null> {
     if (!environment.production) {
       return of(null);
     }
-    return this.http.get(this.configUrl);
+    return this.http.get<AppConfig>(this.configUrl);
   }
 
   /**

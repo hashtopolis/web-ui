@@ -1,85 +1,118 @@
-<h2 class="h6" mat-dialog-title>{{ ui.dialogTitle }}</h2>
+<h2 mat-dialog-title>{{ ui.dialogTitle }}</h2>
 
 <grid-main>
   <div class="content">
     <form (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="flex flex-col gap-4">
-        <div class="flex gap-5">
+        <div class="flex gap-3">
           <!-- Names FormArray -->
           <div formArrayName="names">
-            <div class="flex">
-              <mat-form-field>
-                <mat-label>{{ ui.names.inputLabel }} 1</mat-label>
-                <input [formControl]="getFormControl(names.controls[0])" [placeholder]="ui.names.inputPlaceholder"
-                  matInput />
-                <mat-icon [matTooltip]="ui.names.hint" color="primary" matSuffix>help</mat-icon>
-              </mat-form-field>
-              <button (click)="addControl('names')" color="primary" mat-icon-button type="button">
-                <mat-icon>add</mat-icon>
-              </button>
+            <div class="field-stack">
+              <label class="field-stack__label" for="wordlist-names-0">{{ ui.names.inputLabel }} 1</label>
+              <div class="flex items-center gap-3">
+                <mat-form-field class="field-stack__field flex-1 min-w-0">
+                  <input
+                    id="wordlist-names-0"
+                    [formControl]="getFormControl(names.controls[0])"
+                    [placeholder]="ui.names.inputPlaceholder"
+                    matInput
+                  />
+                  <mat-icon [matTooltip]="ui.names.hint" color="primary" matSuffix>help</mat-icon>
+                </mat-form-field>
+                <button (click)="addControl('names')" color="primary" mat-icon-button type="button">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
             </div>
             @for (control of names.controls.slice(1); track control; let i = $index) {
-              <div>
-                <mat-form-field>
-                  <mat-label>{{ ui.names.inputLabel }} {{ i + 2 }}</mat-label>
-                  <input [formControl]="getFormControl(control)" [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
-                    matInput />
-                </mat-form-field>
-                @if (names.controls.length > 1) {
-                  <button (click)="removeItem('names', i + 1 )" color="warn" mat-icon-button
-                    type="button">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
+              <div class="field-stack">
+                <label class="field-stack__label" [attr.for]="'wordlist-names-' + (i + 1)">
+                  {{ ui.names.inputLabel }} {{ i + 2 }}
+                </label>
+                <div class="flex items-center gap-3">
+                  <mat-form-field class="field-stack__field flex-1 min-w-0">
+                    <input
+                      [id]="'wordlist-names-' + (i + 1)"
+                      [formControl]="getFormControl(control)"
+                      [placeholder]="ui.names.inputPlaceholder + ' ' + (i + 2)"
+                      matInput
+                    />
+                  </mat-form-field>
+                  @if (names.controls.length > 1) {
+                    <button (click)="removeItem('names', i + 1)" color="warn" mat-icon-button type="button">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
               </div>
             }
           </div>
 
           <!-- Special Attributes FormArray -->
           <div formArrayName="sparetext">
-            <div class="flex">
-              <mat-form-field>
-                <mat-label>{{ ui.sparetext.inputLabel }} 1</mat-label>
-                <input [formControl]="getFormControl(sparetext.controls[0])" [placeholder]="ui.sparetext.inputPlaceholder"
-                  matInput />
-                <mat-icon [matTooltip]="ui.sparetext.hint" color="primary" matSuffix>help</mat-icon>
-              </mat-form-field>
-              <button (click)="addControl('sparetext')" color="primary" mat-icon-button type="button">
-                <mat-icon>add</mat-icon>
-              </button>
+            <div class="field-stack">
+              <label class="field-stack__label" for="wordlist-sparetext-0">{{ ui.sparetext.inputLabel }} 1</label>
+              <div class="flex items-center gap-3">
+                <mat-form-field class="field-stack__field flex-1 min-w-0">
+                  <input
+                    id="wordlist-sparetext-0"
+                    [formControl]="getFormControl(sparetext.controls[0])"
+                    [placeholder]="ui.sparetext.inputPlaceholder"
+                    matInput
+                  />
+                  <mat-icon [matTooltip]="ui.sparetext.hint" color="primary" matSuffix>help</mat-icon>
+                </mat-form-field>
+                <button (click)="addControl('sparetext')" color="primary" mat-icon-button type="button">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
             </div>
             @for (control of sparetext.controls.slice(1); track control; let i = $index) {
-              <div>
-                <mat-form-field>
-                  <mat-label>{{ ui.sparetext.inputLabel }} {{ i + 2 }}</mat-label>
-                  <input [formControl]="getFormControl(control)" [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
-                    matInput />
-                </mat-form-field>
-                @if (sparetext.controls.length > 1) {
-                  <button (click)="removeItem('sparetext', i + 1)" color="warn" mat-icon-button
-                    type="button">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
+              <div class="field-stack">
+                <label class="field-stack__label" [attr.for]="'wordlist-sparetext-' + (i + 1)">
+                  {{ ui.sparetext.inputLabel }} {{ i + 2 }}
+                </label>
+                <div class="flex items-center gap-3">
+                  <mat-form-field class="field-stack__field flex-1 min-w-0">
+                    <input
+                      [id]="'wordlist-sparetext-' + (i + 1)"
+                      [formControl]="getFormControl(control)"
+                      [placeholder]="ui.sparetext.inputPlaceholder + ' ' + (i + 2)"
+                      matInput
+                    />
+                  </mat-form-field>
+                  @if (sparetext.controls.length > 1) {
+                    <button (click)="removeItem('sparetext', i + 1)" color="warn" mat-icon-button type="button">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
               </div>
             }
           </div>
 
           <!-- Special Date -->
           <div>
-            <mat-form-field>
-              <mat-label>{{ ui.specialDate.inputLabel }}</mat-label>
-              <input [formControlName]="ui.specialDate.formControlName" [matDatepicker]="datepicker" [name]="ui.specialDate.inputName"
-                [placeholder]="ui.specialDate.inputPlaceholder" matInput />
-              <mat-icon [matTooltip]="ui.specialDate.hint" color="primary" matSuffix>help</mat-icon>
-              <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
-              <mat-datepicker #datepicker></mat-datepicker>
-
-            </mat-form-field>
+            <div class="field-stack">
+              <label class="field-stack__label" for="wordlist-special-date">{{ ui.specialDate.inputLabel }}</label>
+              <mat-form-field class="field-stack__field">
+                <input
+                  id="wordlist-special-date"
+                  [formControlName]="ui.specialDate.formControlName"
+                  [matDatepicker]="datepicker"
+                  [name]="ui.specialDate.inputName"
+                  [placeholder]="ui.specialDate.inputPlaceholder"
+                  matInput
+                />
+                <mat-icon [matTooltip]="ui.specialDate.hint" color="primary" matSuffix>help</mat-icon>
+                <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #datepicker></mat-datepicker>
+              </mat-form-field>
+            </div>
           </div>
         </div>
         <div class="w-full">
-          @if (submitted && form.errors?.atLeastOneRequired) {
+          @if (submitted && form.errors?.['atLeastOneRequired']) {
             <mat-error>
               {{ ui.formError }}
             </mat-error>
@@ -90,19 +123,29 @@
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <span><b>{{ ui.additionalOptions.title }}</b></span>
+                <span
+                  ><b>{{ ui.additionalOptions.title }}</b></span
+                >
               </mat-panel-title>
             </mat-expansion-panel-header>
 
             <div class="flex flex-col gap-2">
-              <mat-form-field style="width: 200px;">
-                <mat-label>{{ ui.additionalOptions.fileName.inputLabel }}</mat-label>
-                <input [formControlName]="ui.additionalOptions.fileName.formControlName" [name]="ui.additionalOptions.fileName.inputName"
-                  [placeholder]="ui.additionalOptions.fileName.inputPlaceholder"
-                  matInput />
-                <mat-icon [matTooltip]="ui.additionalOptions.fileName.hint" color="primary" matSuffix>help</mat-icon>
-                <mat-error>{{ ui.additionalOptions.fileName.inputLabel }} is required</mat-error>
-              </mat-form-field>
+              <div class="field-stack field-stack--narrow">
+                <label class="field-stack__label" for="wordlist-filename">
+                  {{ ui.additionalOptions.fileName.inputLabel }}
+                </label>
+                <mat-form-field class="field-stack__field">
+                  <input
+                    id="wordlist-filename"
+                    [formControlName]="ui.additionalOptions.fileName.formControlName"
+                    [name]="ui.additionalOptions.fileName.inputName"
+                    [placeholder]="ui.additionalOptions.fileName.inputPlaceholder"
+                    matInput
+                  />
+                  <mat-icon [matTooltip]="ui.additionalOptions.fileName.hint" color="primary" matSuffix>help</mat-icon>
+                  <mat-error>{{ ui.additionalOptions.fileName.inputLabel }} is required</mat-error>
+                </mat-form-field>
+              </div>
 
               <div>
                 @for (checkbox of ui.additionalOptions.checkboxes; track checkbox) {
@@ -114,12 +157,10 @@
             </div>
           </mat-expansion-panel>
         </mat-accordion>
-        <div>
-          <button color="primary" mat-raised-button type="submit">
-            {{ ui.generateButtonLabel }}
-          </button>
-        </div>
       </div>
+      <grid-buttons>
+        <button-submit [name]="ui.generateButtonLabel"></button-submit>
+      </grid-buttons>
     </form>
   </div>
 </grid-main>

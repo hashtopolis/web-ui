@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
 
@@ -30,6 +29,7 @@ export type DataType =
   | 'users'
   | 'notifications'
   | 'agent-binaries'
+  | 'apiTokens'
   | 'health-checks'
   | 'health-check-agents'
   | 'logs'
@@ -51,10 +51,10 @@ export interface HTTableIcon {
 }
 
 export interface HTTableRouterLink {
-  label?: string | number;
-  routerLink: Array<string | number>;
-  tooltip?: string;
-  icon?: { faIcon: IconDefinition; tooltip?: string };
+  label?: string | number | undefined;
+  routerLink: Array<string | number> | null;
+  tooltip?: string | undefined;
+  icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
   visualGraph?: {
     enabled: boolean;
     taskId: number;
@@ -68,11 +68,19 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+  disabled?: boolean;
+  // Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled.
+  tooltip?: string;
+  // indeterminate if checkbox is half filled (instead of full check) so we know that only some and not all entries are checked
+  indeterminate?: boolean;
 }
 
+/** Column type for checkbox toggle events in attack file tables. */
+export type CheckboxColumnType = 'CMD' | 'CMD_PREPRO';
+
 export interface CheckboxChangeEvent {
-  row: any;
-  columnType: string;
+  row: BaseModel;
+  columnType: CheckboxColumnType;
   checked: boolean;
 }
 
@@ -80,39 +88,48 @@ export interface CheckboxFiles {
   [key: string]: boolean;
 }
 
-export type HTTableColumnType = 'dafeult | link | editable';
+export type HTTableColumnType = 'default' | 'link' | 'editable';
 
 export interface HTTableColumn {
   type?: HTTableColumnType;
   id: number;
   dataKey?: string;
   position?: 'right' | 'left';
+  /**
+   * Marks the column as numeric — right-aligns the cell and applies
+   * tabular-nums so digits stack with consistent place-value alignment.
+   * Use for counts, sizes, speeds, IDs, priorities, etc.
+   */
+  isNumeric?: boolean;
   isSortable?: boolean;
   isSearchable?: boolean;
-  render?: (data: any) => SafeHtml;
-  async?: (data: any) => Promise<SafeHtml>;
-  export?: (data: any) => Promise<string>;
-  truncate?: (data: any) => boolean;
-  editable?: (data: any) => HTTableEditable<any>;
-  checkbox?: (data: any) => HTTableEditable<any>;
+  render?(data: BaseModel): SafeHtml;
+  async?(data: BaseModel): Promise<SafeHtml>;
+  export?(data: BaseModel): Promise<string>;
+  truncate?(data: BaseModel): boolean;
+  editable?(data: BaseModel): HTTableEditable<BaseModel>;
+  checkbox?(data: BaseModel): HTTableEditable<BaseModel>;
   customCellColor?: customCellColorInput;
-  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
-  icon?: (data: BaseModel) => HTTableIcon;
+  routerLink?(data: BaseModel): Observable<HTTableRouterLink[]>;
+  icon?(data: BaseModel): HTTableIcon;
   isCopy?: boolean;
   parent?: string; //parent is to build relation sort query in format "task.taskName"
 }
+
+/** Stringified column enum value used as mat-table column identifier */
+export type ColumnDefId = string;
 
 /** Column def for selectable checkbox */
 export const COL_SELECT = 100;
 /** Column def for row action */
 export const COL_ROW_ACTION = 200;
 export interface customCellColorInput {
-  value: (data: any) => number;
+  value(data: BaseModel): number;
   treshold1: number;
   treshold2: number;
   type: number;
-  isActive: (data: any) => boolean;
-  lastTime: (data: any) => number;
+  isActive(data: BaseModel): boolean;
+  lastTime(data: BaseModel): number;
 }
 
 export interface SortingColumn {
@@ -120,5 +137,5 @@ export interface SortingColumn {
   dataKey: string;
   direction: SortDirection | string;
   isSortable: boolean;
-  parent?: string; // Parent is in order to build sort queries for relationships
+  parent?: string | undefined; // Parent is in order to build sort queries for relationships
 }

@@ -1,37 +1,56 @@
 @if (isAuthenticated) {
-  <mat-toolbar class="hashtopolis-toolbar">
-    <div class="logo-container">
-      <a routerLink="/"
-      ><img
-        [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
-        [alt]="headerConfig.brand.name"
-        [width]="headerConfig.brand.width"
-        [height]="headerConfig.brand.height"
-        alt="Hashtopolis"
-      /></a>
+  <mat-toolbar class="app-header mat-elevation-z0">
+    <div class="app-header__inner">
+      <a class="app-header__brand" routerLink="/">
+        <img
+          class="app-header__logo"
+          [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
+          [alt]="headerConfig.brand.name"
+          [width]="headerConfig.brand.width"
+          [height]="headerConfig.brand.height"
+        />
+        <span class="app-header__brand-name">{{ headerConfig.brand.name }}</span>
+      </a>
+
+      <nav class="app-header__nav">
+        @for (menuItem of mainMenu; track menuItem.label) {
+          @if (menuItem.display) {
+            <action-menu
+              [label]="menuItem.label ?? ''"
+              [icon]="menuItem.icon ?? ''"
+              [actionMenuItems]="menuItem.actions"
+              [enableHoverClose]="true"
+              [openOnMouseEnter]="true"
+              panelClass="app-header-menu-panel"
+              (menuItemClicked)="menuItemClicked($event)"
+            ></action-menu>
+          }
+        }
+      </nav>
+
+      <div class="app-header__user">
+        @for (menuItem of userMenu; track menuItem.label) {
+          @if (menuItem.display) {
+            <action-menu
+              [label]="menuItem.label ?? ''"
+              [icon]="menuItem.icon ?? ''"
+              [actionMenuItems]="menuItem.actions"
+              [enableHoverClose]="true"
+              [openOnMouseEnter]="true"
+              panelClass="app-header-menu-panel"
+              (menuItemClicked)="menuItemClicked($event)"
+            ></action-menu>
+          }
+        }
+        <button
+          matIconButton
+          class="app-header__theme-toggle"
+          (click)="toggleTheme()"
+          [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+        >
+          <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
     </div>
-    {{ this.headerConfig.brand.name }}
-    <span class="menu-spacer"></span>
-    @for (menuItem of mainMenu; track menuItem) {
-      @if (menuItem.display) {
-        <action-menu
-          [label]="menuItem.label"
-          [icon]="menuItem.icon"
-          [actionMenuItems]="menuItem.actions"
-          [enableHoverClose]="true"
-          [openOnMouseEnter]="true"
-          (menuItemClicked)="menuItemClicked($event)"
-        ></action-menu>
-      }
-    }
-    <button
-      mat-icon-button
-      (click)="toggleTheme()"
-      [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-    >
-      <mat-icon>
-        {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
-      </mat-icon>
-    </button>
   </mat-toolbar>
 }

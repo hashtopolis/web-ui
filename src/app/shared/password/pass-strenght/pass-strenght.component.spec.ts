@@ -22,7 +22,6 @@ describe('PassStrenghtComponent', () => {
   it('should have default strength values when no password is provided', () => {
     expect(component.strength.score).toBe(0);
     expect(component.strength.label).toBe('Enter password');
-    expect(component.strength.color).toBe('#666666');
   });
 
   it('should evaluate a weak password correctly', () => {
@@ -30,7 +29,6 @@ describe('PassStrenghtComponent', () => {
     component.ngOnChanges();
     expect(component.strength.score).toBe(1);
     expect(component.strength.label).toBe('Weak');
-    expect(component.strength.color).toBe('#ff4444');
   });
 
   it('should evaluate a fair password correctly', () => {
@@ -38,7 +36,6 @@ describe('PassStrenghtComponent', () => {
     component.ngOnChanges();
     expect(component.strength.score).toBe(2);
     expect(component.strength.label).toBe('Fair');
-    expect(component.strength.color).toBe('#ff8800');
   });
 
   it('should evaluate a good password correctly', () => {
@@ -46,7 +43,6 @@ describe('PassStrenghtComponent', () => {
     component.ngOnChanges();
     expect(component.strength.score).toBe(3);
     expect(component.strength.label).toBe('Good');
-    expect(component.strength.color).toBe('#ffbb00');
   });
 
   it('should evaluate an excellent password correctly', () => {
@@ -54,7 +50,6 @@ describe('PassStrenghtComponent', () => {
     component.ngOnChanges();
     expect(component.strength.score).toBe(4);
     expect(component.strength.label).toBe('Excellent');
-    expect(component.strength.color).toBe('#00cc44');
   });
 
   it('should update strength when password changes', () => {

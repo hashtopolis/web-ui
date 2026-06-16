@@ -14,6 +14,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'app-ui-settings',
   templateUrl: './ui-settings.component.html',
+  styleUrls: ['./ui-settings.component.scss'],
   standalone: false
 })
 export class UiSettingsComponent implements OnInit {

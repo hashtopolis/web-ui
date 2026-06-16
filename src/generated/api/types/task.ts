@@ -176,7 +176,7 @@ export type TaskResponse = {
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
-          isChunkingAvailable: boolean;
+          isChunkingAvailable: boolean | null;
         };
       }
     | {
@@ -416,7 +416,7 @@ export type TaskListResponse = {
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
-          isChunkingAvailable: boolean;
+          isChunkingAvailable: boolean | null;
         };
       }
     | {

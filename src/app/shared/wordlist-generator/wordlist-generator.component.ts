@@ -18,6 +18,7 @@ import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
 @Component({
   selector: 'wordlist-generator',
   templateUrl: './wordlist-generator.component.html',
+  styleUrls: ['./wordlist-generator.component.scss'],
   standalone: false
 })
 export class WordlistGeneratorComponent implements OnInit {
@@ -52,16 +53,16 @@ export class WordlistGeneratorComponent implements OnInit {
    * Getter for the 'names' FormArray.
    * @returns {FormArray} The FormArray containing name controls.
    */
-  get names(): FormArray {
-    return this.form.get('names') as FormArray;
+  get names(): FormArray<FormControl<string>> {
+    return this.form.controls.names;
   }
 
   /**
    * Getter for the 'sparetext' FormArray.
    * @returns {FormArray} The FormArray containing attribute controls.
    */
-  get sparetext(): FormArray {
-    return this.form.get('sparetext') as FormArray;
+  get sparetext(): FormArray<FormControl<string>> {
+    return this.form.controls.sparetext;
   }
 
   /**
@@ -119,20 +120,20 @@ export class WordlistGeneratorComponent implements OnInit {
       } = formData;
 
       const options = {
-        useSpecialchars: useSpecCharacters,
-        usePermutations: usePermutations,
-        isCapitalize: isCapitalize,
-        isAlternated: isAlternated,
-        isUppercase: isUppercase,
-        isLowercase: isLowercase,
-        isSimilarVowels: isSimilarVowels,
-        isSimilarConsonant: isSimilarConsonant,
-        isSimilarSpecialchars: isSimilarSpecialChars,
-        filename: filename
+        useSpecialchars: useSpecCharacters ?? false,
+        usePermutations: usePermutations ?? false,
+        isCapitalize: isCapitalize ?? false,
+        isAlternated: isAlternated ?? false,
+        isUppercase: isUppercase ?? false,
+        isLowercase: isLowercase ?? false,
+        isSimilarVowels: isSimilarVowels ?? false,
+        isSimilarConsonant: isSimilarConsonant ?? false,
+        isSimilarSpecialchars: isSimilarSpecialChars ?? false,
+        filename: filename ?? ''
       };
 
       try {
-        Wordpolis.generateCandidates(names, specialdates, sparetext, options);
+        Wordpolis.generateCandidates(names ?? [], specialdates ?? '', sparetext ?? [], options);
       } catch (error) {
         console.error(ui.submitError, error);
         this.alert.showErrorMessage(ui.submitError);

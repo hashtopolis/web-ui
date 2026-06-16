@@ -22,6 +22,15 @@ import { Component, Input } from '@angular/core';
       </div>
     </div>
   `,
+  styles: [
+    `
+      .form-input-custom {
+        padding-bottom: 10px;
+        padding-right: 10px;
+        width: auto;
+      }
+    `
+  ],
   standalone: false
 })
 export class GridFormInputComponent {
