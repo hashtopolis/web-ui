@@ -1,4 +1,4 @@
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -88,7 +88,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (input && input.length > 0) {
       this.dataSource.loadAll({
         value: input,
-        field: selectedColumn.dataKey ?? '',
+        field: this.filterField(selectedColumn),
         operator: FilterType.ICONTAINS,
         parent: selectedColumn.parent
       });
@@ -100,12 +100,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   handleBackendSqlFilter(event: string) {
     const filterQuery: Filter = {
       value: event,
-      field: this.selectedFilterColumn.dataKey ?? '',
+      field: this.filterField(this.selectedFilterColumn),
       operator: FilterType.ICONTAINS,
       parent: this.selectedFilterColumn.parent
     };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
+  }
+  /** The ID column displays taskId, so filter on it; sorting stays on taskWrapperId. */
+  private filterField(column: HTTableColumn): string {
+    return column.id === TaskTableCol.ID ? 'taskId' : (column.dataKey ?? '');
   }
   private renderCurrentSpeed(taskWrapperDisplay: JTaskWrapperDisplay): SafeHtml {
     if (taskWrapperDisplay.currentSpeed) {
@@ -612,14 +616,29 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private bulkActionArchive(wrappers: JTaskWrapperDisplay[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
     const tasks: { id: number }[] = [];
+    const supertaskWrappers: { id: number }[] = [];
     for (const wrapper of wrappers) {
       if (wrapper.taskType === TaskType.TASK && wrapper.taskId !== undefined) {
         tasks.push({ id: wrapper.taskId });
+      } else if (wrapper.taskType === TaskType.SUPERTASK && wrapper.taskWrapperId !== undefined) {
+        supertaskWrappers.push({ id: wrapper.taskWrapperId });
       }
     }
 
+    const requests = [];
+    if (tasks.length > 0) {
+      requests.push(this.gs.bulkUpdate(SERV.TASKS, tasks, { isArchived: isArchived }));
+    }
+    if (supertaskWrappers.length > 0) {
+      requests.push(this.gs.bulkUpdate(SERV.TASKS_WRAPPER, supertaskWrappers, { isArchived: isArchived }));
+    }
+
+    if (requests.length === 0) {
+      return;
+    }
+
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.TASKS, tasks, { isArchived: isArchived }).subscribe(() => {
+      forkJoin(requests).subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} tasks!`);
         this.reload();
       })
@@ -675,12 +694,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private rowActionArchive(wrapper: JTaskWrapperDisplay): void {
     if (wrapper.taskType === TaskType.TASK && wrapper.taskId) {
       this.updateIsArchived(wrapper.taskId, true);
+    } else if (wrapper.taskType === TaskType.SUPERTASK && wrapper.taskWrapperId) {
+      this.updateTaskWrapperIsArchived(wrapper.taskWrapperId, true);
     }
   }
 
   private rowActionUnarchive(wrapper: JTaskWrapperDisplay): void {
     if (wrapper.taskType === TaskType.TASK && wrapper.taskId) {
       this.updateIsArchived(wrapper.taskId, false);
+    } else if (wrapper.taskType === TaskType.SUPERTASK && wrapper.taskWrapperId) {
+      this.updateTaskWrapperIsArchived(wrapper.taskWrapperId, false);
     }
   }
 
@@ -689,6 +712,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
+        this.reload();
+      })
+    );
+  }
+
+  private updateTaskWrapperIsArchived(taskWrapperId: number, isArchived: boolean): void {
+    const strArchived = isArchived ? 'archived' : 'unarchived';
+    this.subscriptions.push(
+      this.gs.update(SERV.TASKS_WRAPPER, taskWrapperId, { isArchived: isArchived }).subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully ${strArchived} supertask!`);
         this.reload();
       })
     );

@@ -107,9 +107,24 @@ table.hashtopolis-table {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     background: var(--muted);
+    white-space: nowrap;
 
     .mat-sort-header-arrow {
       color: var(--primary);
+    }
+
+    .mat-sort-header-container {
+      justify-content: flex-end;
+    }
+
+    &.cell-numeric .mat-sort-header-container {
+      justify-content: flex-start;
+    }
+
+    .mat-sort-header-container:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+      width: 0;
+      margin: 0;
+      opacity: 0;
     }
 
     // Checkbox labels in header cells should share the header's text color.
@@ -392,13 +407,33 @@ table.hashtopolis-table {
 .mat-mdc-header-cell.cell-numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  width: 1%;
 }
 
-.mat-mdc-cell.cell-numeric .flex-container {
+.mat-mdc-cell.cell-numeric {
+  white-space: nowrap;
+}
+
+table.hashtopolis-table .mat-column-100,
+table.hashtopolis-table .mat-column-200 {
+  width: 1%;
+}
+
+table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: flex-end;
 
   app-ht-table-link {
     flex: 0 0 auto;
+  }
+
+  ht-table-editable {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  > .mat-icon {
+    order: -1;
+    margin-right: var(--space-2xs);
   }
 
   a.link {
@@ -413,10 +448,6 @@ table.hashtopolis-table {
       margin-left: 0;
     }
   }
-}
-
-.mat-mdc-header-cell.cell-numeric .mat-sort-header-container {
-  justify-content: flex-end;
 }
 
 .icon-actions {

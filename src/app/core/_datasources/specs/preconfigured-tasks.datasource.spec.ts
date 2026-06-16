@@ -326,6 +326,31 @@ describe('PreTasksDataSource', () => {
         jasmine.objectContaining({ field: 'pretaskId', operator: FilterType.NOTIN, value: [MOCK_PRETASK.id] })
       );
     });
+
+    it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      expect((params as RequestParams).filter).toContain(
+        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      );
+    });
+
+    it('should NOT add isMaskImport filter when hideImportMasks is 0', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 0 } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+    });
+
+    it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
+      uiServiceSpy.getUISettings.and.returnValue(null);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+    });
   });
 
   // loadAll() — supertask mode, NO pretasks assigned, reverseQuery=false
@@ -381,6 +406,15 @@ describe('PreTasksDataSource', () => {
       await dataSource.loadAll();
       expect(dataSource.getOriginalData().length).toBe(1);
       expect(dataSource.getOriginalData()[0].taskName).toBe(MOCK_PRETASK.taskName);
+    });
+
+    it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
+      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      expect((params as RequestParams).filter).toContain(
+        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      );
     });
   });
 
