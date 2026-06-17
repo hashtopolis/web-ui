@@ -116,34 +116,6 @@ export class MetadataService {
   // AUTH SECTION      //
   // // // // // // // //
 
-  // //
-  // Forgot Password
-  // //
-  authforgotInfo = [
-    {
-      title: 'Forgot Password',
-      customform: false,
-      subtitle: false,
-      submitok: 'Requesting..',
-      submitokredirect: '/auth'
-    }
-  ];
-
-  authforgot: MetadataFormField[] = [
-    {
-      name: 'username',
-      label: 'User Name',
-      type: 'text',
-      validators: [Validators.required]
-    },
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      validators: [Validators.required]
-    }
-  ];
-
   // // // // // // // //
   // ACCOUNT SECTION   //
   // // // // // // // //
@@ -1293,9 +1265,7 @@ export class MetadataService {
    * @returns An array of form metadata.editnotifInfo
    */
   getFormMetadata(formName: string): MetadataFormField[] {
-    if (formName === 'authforgot') {
-      return this.authforgot;
-    } else if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
+    if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
       return this.editfile;
     } else if (formName === 'uisettings') {
       return this.uisettings;
@@ -1340,9 +1310,7 @@ export class MetadataService {
    * @returns An array of info metadata.
    */
   getInfoMetadata(formName: string): InfoMetadataForm[] {
-    if (formName === 'authforgotInfo') {
-      return this.authforgotInfo;
-    } else if (formName === 'editwordlistInfo') {
+    if (formName === 'editwordlistInfo') {
       return this.editwordlistInfo;
     } else if (formName === 'editruleInfo') {
       return this.editruleInfo;
