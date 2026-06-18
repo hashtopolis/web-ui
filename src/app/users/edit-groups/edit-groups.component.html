@@ -1,4 +1,4 @@
-<app-page title="Edit Access Group">
+<app-page [title]="'Access Group ' + editName">
   <grid-main [narrow]="true">
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <input-text title="Name" formControlName="groupName" [isRequired]="true"></input-text>

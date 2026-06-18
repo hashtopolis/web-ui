@@ -12,8 +12,10 @@
     <div class="col-span-12 md:col-span-6">
       <grid-main>
         <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-          <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-          <input-color title="Color" formControlName="color"></input-color>
+          <app-form-row>
+            <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+            <input-color title="Color" formControlName="color"></input-color>
+          </app-form-row>
 
           <input-text-area title="Command line" formControlName="attackCmd" [isRequired]="true"></input-text-area>
           <blacklist-attack [value]="createForm.controls.attackCmd.value"></blacklist-attack>

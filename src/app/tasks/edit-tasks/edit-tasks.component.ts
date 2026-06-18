@@ -56,6 +56,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   taskWrapperId: number;
   originalValue: JTask;
 
+  pageTitle = 'Task';
+
   updateForm: FormGroup;
   createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
   /** On form update show a spinner loading */
@@ -125,6 +127,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       const task = await this.loadTask();
 
       this.originalValue = task;
+      this.pageTitle = 'Task ' + (task.taskName ?? '');
       this.searched = task.searched ?? '';
       this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;

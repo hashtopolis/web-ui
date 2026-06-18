@@ -115,6 +115,8 @@ export class NewEditPreprocessorComponent implements OnInit {
 
     const preprocessor = new JsonAPISerializer().deserialize(response, zPreprocessorResponse);
 
+    this.pageTitle = 'Preprocessor ' + (preprocessor.name ?? '');
+
     this.newEditPreprocessorForm.patchValue({
       name: preprocessor.name,
       binaryName: preprocessor.binaryName,

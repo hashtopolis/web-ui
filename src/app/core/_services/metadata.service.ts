@@ -42,6 +42,13 @@ export interface InfoMetadataForm {
   delsubmitok?: string;
   delsubmitokredirect?: string;
   delsubmitcancel?: string;
+  /**
+   * In edit mode, build the page title as `${titlePrefix} ${formValues[titleField]}`.
+   * `titleField` may list several fields (e.g. `['filename', 'version']`), whose
+   * values are joined with spaces — yielding titles like "Agent Binary foo.bin 1.0".
+   */
+  titlePrefix?: string;
+  titleField?: string | string[];
 }
 
 /**
@@ -179,6 +186,8 @@ export class MetadataService {
   editwordlistInfo = [
     {
       title: 'Edit Wordlist File',
+      titlePrefix: 'Wordlist',
+      titleField: 'filename',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
@@ -197,6 +206,8 @@ export class MetadataService {
   editruleInfo = [
     {
       title: 'Edit Rule File',
+      titlePrefix: 'Rule',
+      titleField: 'filename',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
@@ -215,6 +226,8 @@ export class MetadataService {
   editotherInfo = [
     {
       title: 'Edit Other File',
+      titlePrefix: 'Other File',
+      titleField: 'filename',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
@@ -233,23 +246,25 @@ export class MetadataService {
   editfile: MetadataFormField[] = [
     { name: 'id', label: 'ID', type: 'number', disabled: true },
     {
-      name: 'filename',
-      label: 'Name',
-      type: 'text',
-      requiredasterisk: true,
-      validators: [Validators.required]
-    },
-    {
       name: 'fileType',
       label: 'File Type',
       type: 'select',
       selectOptions: fileFormat
     },
     {
+      name: 'filename',
+      label: 'Name',
+      type: 'text',
+      requiredasterisk: true,
+      fullWidth: true,
+      validators: [Validators.required]
+    },
+    {
       name: 'accessGroupId',
       label: 'Access group',
       type: 'asyncSelect',
       requiredasterisk: true,
+      fullWidth: true,
       selectEndpoint$: () => this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.ACCESSGROUPS),
       selectSchema: zAccessGroupListResponse,
       selectOptions$: [],
@@ -325,6 +340,8 @@ export class MetadataService {
   editagentbinaryInfo = [
     {
       title: 'Edit Agent Binary',
+      titlePrefix: 'Agent Binary',
+      titleField: ['filename', 'version'],
       customform: false,
       subtitle: false,
       submitok: 'Agent Binary saved!',
@@ -403,6 +420,7 @@ export class MetadataService {
   editcrackerversionInfo = [
     {
       title: 'Edit Binary Version',
+      titleField: ['binaryName', 'version'],
       customform: false,
       subtitle: false,
       submitok: 'Cracker saved!',
@@ -466,6 +484,7 @@ export class MetadataService {
       label: 'Binary Version',
       type: 'text',
       requiredasterisk: true,
+      fullWidth: true,
       tooltip: false,
       validators: [Validators.required]
     },
@@ -585,6 +604,8 @@ export class MetadataService {
   edithashtypeInfo = [
     {
       title: 'Edit Hashtype',
+      titlePrefix: 'Hashtype',
+      titleField: 'description',
       customform: false,
       subtitle: false,
       submitok: 'Hashtype saved!',
@@ -641,6 +662,7 @@ export class MetadataService {
       label: 'Hashtype',
       type: 'number',
       requiredasterisk: true,
+      fullWidth: true,
       tooltip: 'ie. Hashcat -m',
       validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator],
       disabled: true
@@ -650,6 +672,7 @@ export class MetadataService {
       label: 'Description',
       type: 'text',
       requiredasterisk: true,
+      fullWidth: true,
       tooltip: false,
       validators: [Validators.required, Validators.minLength(1)]
     },

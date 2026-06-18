@@ -7,8 +7,10 @@
             <mat-card-content>
               <h2 class="text-sm font-medium text-muted-foreground uppercase tracking-wide">Task Configuration</h2>
               <div class="form-layout">
-                <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
-                <input-color title="Color" formControlName="color"></input-color>
+                <app-form-row>
+                  <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
+                  <input-color title="Color" formControlName="color"></input-color>
+                </app-form-row>
 
                 @if (!isLoading) {
                   <input-multiselect

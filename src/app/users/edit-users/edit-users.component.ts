@@ -56,7 +56,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
 
   // Edit Configuration
   editedUserIndex: number;
-  editedUserName: string;
+  editedUserName = '';
 
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);

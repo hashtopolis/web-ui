@@ -1,4 +1,4 @@
-<app-page title="Global Permission Group">
+<app-page [title]="'Global Permission Group ' + (editedGPG?.name ?? '')">
   <grid-main>
     <app-page-subtitle [subtitle]="'Authorization Matrix'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">

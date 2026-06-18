@@ -1,72 +1,94 @@
 @if (!isLoading) {
-  <app-page title="Agent Details">
-    <grid-main>
-      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-        @if (showagent) {
-          <app-form-row>
-            <input-text title="Agent ID" value="{{ showagent['id'] }}" [readonly]="true"></input-text>
-            <input-text
-              title="Machine Name"
-              formControlName="agentName"
-              icon="computer"
-              [isRequired]="agentRoleService.hasRole('update')"
-            ></input-text>
-          </app-form-row>
-
-          <app-form-row>
-            <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
-            <div [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
-              <input-select
-                title="Assignment"
-                formControlName="taskId"
-                [items]="assignTasks"
-                [isBlankOptionDisabled]="assignNew"
-                [blankOptionText]="'Unassign'"
-              ></input-select>
-            </div>
-          </app-form-row>
-
-          <app-form-row>
-            <input-select
-              title="Cracker errors"
-              formControlName="ignoreErrors"
-              [items]="selectIgnorerrors"
-            ></input-select>
-            <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
-          </app-form-row>
-
-          <app-form-row align="left">
-            <input-check title="CPU only" formControlName="cpuOnly"></input-check>
-            <input-check title="Trust" formControlName="isTrusted" tooltip="Trust agent with secret data"></input-check>
-            <input-check title="Active" formControlName="isActive"></input-check>
-          </app-form-row>
-        }
-        <mat-accordion>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <span><strong>Detailed Information</strong></span>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
+  <app-page [title]="pageTitle">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-6">
+        <grid-main class="h-full">
+          <form [formGroup]="updateForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-3">
             @if (showagent) {
-              <div class="grid grid-cols-3 gap-3 items-start">
+              <app-form-row [columns]="2">
+                <input-text title="ID" value="{{ showagent['id'] }}" [readonly]="true"></input-text>
+                <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
+              </app-form-row>
+
+              <input-text
+                title="Name"
+                formControlName="agentName"
+                icon="computer"
+                [isRequired]="agentRoleService.hasRole('update')"
+              ></input-text>
+
+              <div [formGroup]="updateAssignForm">
+                <input-select
+                  title="Assignment"
+                  formControlName="taskId"
+                  [items]="assignTasks"
+                  [isBlankOptionDisabled]="assignNew"
+                  [blankOptionText]="'Unassign'"
+                ></input-select>
+              </div>
+
+              <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
+
+              <input-select
+                title="Cracker errors"
+                formControlName="ignoreErrors"
+                [items]="selectIgnorerrors"
+              ></input-select>
+
+              <app-form-row align="left">
+                <input-check title="CPU only" formControlName="cpuOnly"></input-check>
+                <input-check
+                  title="Trust"
+                  formControlName="isTrusted"
+                  tooltip="Trust agent with secret data"
+                ></input-check>
+                <input-check title="Active" formControlName="isActive"></input-check>
+              </app-form-row>
+            }
+
+            @if (agentRoleService.hasRole('update')) {
+              <grid-buttons>
+                <button-submit [name]="'Update'" [loading]="isUpdatingLoading"></button-submit>
+              </grid-buttons>
+            }
+          </form>
+        </grid-main>
+      </div>
+
+      <div class="col-span-12 md:col-span-6">
+        <grid-main class="h-full">
+          @if (showagent) {
+            <div class="flex flex-col gap-3">
+              @if (showagent['devices']) {
+                <input-text-area
+                  title="Graphic cards"
+                  [value]="renderDevices(showagent['devices'])"
+                  [minRows]="1"
+                  [rowAligned]="true"
+                  [readonly]="true"
+                ></input-text-area>
+              }
+
+              <app-form-row [columns]="2">
+                <input-text title="Machine ID" [value]="showagent['uid']" [readonly]="true"></input-text>
+                <input-text title="O.S." [value]="getOsMessage(showagent['os'])" [readonly]="true"></input-text>
+              </app-form-row>
+
+              <app-form-row [columns]="2">
                 <input-text
                   title="Last activity"
                   [value]="showagent['lastTime'] | uiDate"
                   [readonly]="true"
                 ></input-text>
                 <input-text title="Last Action" [value]="showagent['lastAct']" [readonly]="true"></input-text>
-                <input-text title="IP" [value]="showagent['lastIp']" [readonly]="true"></input-text>
-                <input-text title="Machine ID" [value]="showagent['uid']" [readonly]="true"></input-text>
+              </app-form-row>
+
+              <app-form-row [columns]="2">
                 <input-text title="Access token" [value]="showagent['token']" [readonly]="true"></input-text>
-                <input-text title="O.S." [value]="getOsMessage(showagent['os'])" [readonly]="true"></input-text>
-                @if (showagent['devices']) {
-                  <input-text
-                    title="Graphic cards"
-                    [value]="this.renderDevices(showagent['devices'])"
-                    [readonly]="true"
-                  ></input-text>
-                }
+                <input-text title="IP" [value]="showagent['lastIp']" [readonly]="true"></input-text>
+              </app-form-row>
+
+              <app-form-row [columns]="2">
                 @if (agentRoleService.hasRole('readAccessGroup')) {
                   <input-multiselect
                     label="Member of access groups"
@@ -75,21 +97,19 @@
                     [readonly]="true"
                   ></input-multiselect>
                 }
-              </div>
-            }
-            @if (timespent) {
-              <input-text title="Time spent cracking" [value]="timespent | sectotime" [readonly]="true"></input-text>
-            }
-          </mat-expansion-panel>
-        </mat-accordion>
-
-        @if (agentRoleService.hasRole('update')) {
-          <grid-buttons>
-            <button-submit [name]="'Update'" [loading]="isUpdatingLoading"></button-submit>
-          </grid-buttons>
-        }
-      </form>
-    </grid-main>
+                @if (timespent) {
+                  <input-text
+                    title="Time spent cracking"
+                    [value]="timespent | sectotime"
+                    [readonly]="true"
+                  ></input-text>
+                }
+              </app-form-row>
+            </div>
+          }
+        </grid-main>
+      </div>
+    </div>
 
     @if (showagent && agentRoleService.hasRole('readStat')) {
       <app-table>

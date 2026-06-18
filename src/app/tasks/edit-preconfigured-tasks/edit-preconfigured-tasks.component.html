@@ -1,52 +1,65 @@
 @if (!isLoading) {
-  <app-page title="Edit Preconfigured Tasks">
-    <grid-main [narrow]="true">
-      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-        <input-text title="ID" formControlName="pretaskId"></input-text>
+  <app-page [title]="'Preconfigured Task ' + pretaskName">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-6">
+        <grid-main>
+          <form [formGroup]="updateForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-3">
+            <app-form-row [columns]="2">
+              <input-text title="ID" formControlName="pretaskId"></input-text>
+              <ng-container formGroupName="updateData">
+                <input-color title="Color" formControlName="color"></input-color>
+              </ng-container>
+            </app-form-row>
 
-        <div formGroupName="updateData" class="flex flex-col gap-3">
-          <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
-          <input-color title="Color" formControlName="color"></input-color>
-          <input-text-area
-            title="Attack command"
-            formControlName="attackCmd"
-            [isRequired]="!isReadOnly"
-          ></input-text-area>
-        </div>
+            <div formGroupName="updateData" class="flex flex-col gap-3">
+              <input-text title="Name" formControlName="taskName" [isRequired]="!isReadOnly"></input-text>
+              <input-text-area
+                title="Attack command"
+                formControlName="attackCmd"
+                [isRequired]="!isReadOnly"
+              ></input-text-area>
 
-        <app-form-row formGroupName="updateData" [columns]="3">
-          <input-number title="Priority" formControlName="priority"></input-number>
-          <input-number title="Max agents" formControlName="maxAgents"></input-number>
-          <input-number title="Chunk time" tooltip="Measured in seconds" formControlName="chunkTime"></input-number>
-          <input-select
-            title="CPU only"
-            tooltip="The task will work only with CPU agents assigned"
-            formControlName="isCpuTask"
-            [items]="selectYesno"
-          ></input-select>
-          <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
-        </app-form-row>
+              <app-form-row [columns]="2">
+                <input-number title="Priority" formControlName="priority"></input-number>
+                <input-number title="Max agents" formControlName="maxAgents"></input-number>
+                <input-number
+                  title="Chunk time"
+                  tooltip="Measured in seconds"
+                  formControlName="chunkTime"
+                ></input-number>
+                <input-select
+                  title="Benchmark Type"
+                  formControlName="useNewBench"
+                  [items]="selectBenchmarktype"
+                  [readonly]="true"
+                ></input-select>
+                <input-select
+                  title="CPU only"
+                  tooltip="The task will work only with CPU agents assigned"
+                  formControlName="isCpuTask"
+                  [items]="selectYesno"
+                ></input-select>
+                <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
+                <input-number
+                  title="Status timer"
+                  tooltip="Measured in seconds"
+                  formControlName="statusTimer"
+                ></input-number>
+              </app-form-row>
+            </div>
 
-        <app-form-row>
-          <input-text title="Benchmark Type" formControlName="useNewBench"></input-text>
-          <input-text title="Status timer" formControlName="statusTimer"></input-text>
-        </app-form-row>
+            @if (roleService.hasRole('edit')) {
+              <grid-buttons>
+                <button-submit [name]="'Update'" [loading]="isUpdatingLoading"></button-submit>
+              </grid-buttons>
+            }
+          </form>
+        </grid-main>
+      </div>
 
-        @if (roleService.hasRole('edit')) {
-          <grid-buttons>
-            <button-submit [name]="'Update'" [loading]="isUpdatingLoading"></button-submit>
-          </grid-buttons>
-        }
-      </form>
-
-      <mat-accordion>
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <span><strong>Files</strong></span>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-
+      <div class="col-span-12 md:col-span-6">
+        <grid-main>
+          <app-page-subtitle subtitle="Files"></app-page-subtitle>
           <app-files-table
             #table
             name="filesTableInPreTasks"
@@ -60,8 +73,8 @@
             [editIndex]="editedPretaskIndex"
             [editType]="1"
           ></app-files-table>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </grid-main>
+        </grid-main>
+      </div>
+    </div>
   </app-page>
 }

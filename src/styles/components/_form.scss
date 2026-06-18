@@ -85,6 +85,22 @@ app-form-row {
     }
   }
 
+  &__label-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--primary);
+
+    mat-icon {
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    &:hover mat-icon {
+      color: var(--primary-hover, var(--primary));
+    }
+  }
+
   &__required {
     color: var(--primary);
     margin-left: 2px;
@@ -111,6 +127,13 @@ app-form-row {
       padding-bottom: var(--space-sm);
       min-height: auto;
     }
+  }
+
+  // Row-aligned textareas fold the row padding into line-height (see
+  // _material.scss), so the infix must not add its own vertical padding.
+  &--row-aligned &__field.mat-mdc-form-field .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 

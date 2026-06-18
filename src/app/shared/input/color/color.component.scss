@@ -14,9 +14,17 @@ input-color {
     flex: 1;
   }
 
+  // Swatch height drives the field box, so drop the infix's own padding.
+  .field-stack__field.mat-mdc-form-field .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   input[type='color'] {
     width: 100%;
-    min-height: 28px;
+    // Match a text-field row, minus the ~2px form-field chrome (as _material.scss:71).
+    min-height: calc(var(--input-row-height) - 2px);
+    box-sizing: border-box;
     padding: 0;
     background: none;
     border: 1px solid var(--border);
