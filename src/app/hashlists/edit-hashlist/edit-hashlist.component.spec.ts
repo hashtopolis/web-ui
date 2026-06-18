@@ -457,15 +457,20 @@ describe('EditHashlistComponent', () => {
       tick();
       fixture.detectChanges();
 
-      const linkedFields = fixture.debugElement
-        .queryAll(By.directive(InputTextComponent))
-        .map((de) => de.componentInstance as InputTextComponent)
-        .filter((input) => ['Hashes', 'Cracked', 'Remaining'].includes(input.title));
+      const linkByTitle = new Map(
+        fixture.debugElement
+          .queryAll(By.directive(InputTextComponent))
+          .map((de) => de.componentInstance as InputTextComponent)
+          .filter((input) => ['Hashes', 'Cracked', 'Remaining'].includes(input.title))
+          .map((input) => [input.title, input.linkTo])
+      );
 
-      expect(linkedFields.map((input) => input.title)).toEqual(['Hashes', 'Cracked', 'Remaining']);
-      for (const input of linkedFields) {
-        expect(input.linkTo).toEqual(['/hashlists', 'hashes', 'hashlists', 42]);
-      }
+      expect([...linkByTitle.keys()]).toEqual(['Hashes', 'Cracked', 'Remaining']);
+      // Hashes links to the unfiltered list; Cracked/Remaining pack the filter into
+      // the :id segment (split on '?' in hashes.component.ts) for cracked/uncracked views.
+      expect(linkByTitle.get('Hashes')).toEqual(['/hashlists', 'hashes', 'hashlists', 42]);
+      expect(linkByTitle.get('Cracked')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?cracked']);
+      expect(linkByTitle.get('Remaining')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?uncracked']);
     }));
   });
 
