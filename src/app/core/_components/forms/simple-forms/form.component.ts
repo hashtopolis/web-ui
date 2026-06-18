@@ -42,7 +42,7 @@ export class FormComponent implements OnInit, OnDestroy {
 
   responseSchema: FormRouteData['responseSchema'];
 
-  showDeleteButton: boolean;
+  showDeleteButton: boolean = true;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
