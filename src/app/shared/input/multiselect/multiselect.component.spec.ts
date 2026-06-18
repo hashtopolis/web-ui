@@ -1,6 +1,11 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
@@ -181,5 +186,44 @@ describe('InputMultiSelectComponent', () => {
       expect(component.filteredItems.length).toBeGreaterThan(5);
       expect(component.viewportHeight).toBe(5 * component.itemSize);
     });
+  });
+});
+
+// Read-only display path: the suite above stubs Material via NO_ERRORS_SCHEMA, so the real
+// mat-form-field/mat-chip-grid never instantiate. These mount the actual modules so
+// MatFormField.ngAfterViewInit runs and reads chipGrid.focused -> _chipInput.focused.
+describe('InputMultiSelectComponent (readonly)', () => {
+  let component: InputMultiSelectComponent;
+  let fixture: ComponentFixture<InputMultiSelectComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [InputMultiSelectComponent],
+      imports: [
+        NoopAnimationsModule,
+        MatFormFieldModule,
+        MatChipsModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatAutocompleteModule
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(InputMultiSelectComponent);
+    component = fixture.componentInstance;
+    component.items = [...ITEMS];
+    component.readonly = true;
+  });
+
+  // Regression: a read-only mat-chip-grid still needs a registered matChipInput, otherwise
+  // MatFormField focus-state read dereferences an undefined _chipInput and throws.
+  it('should render without throwing when readonly', () => {
+    expect(() => fixture.detectChanges()).not.toThrow();
+  });
+
+  it('should display the provided items as chips when readonly', () => {
+    fixture.detectChanges();
+    const chips = fixture.nativeElement.querySelectorAll('mat-chip-row');
+    expect(chips.length).toBe(ITEMS.length);
   });
 });

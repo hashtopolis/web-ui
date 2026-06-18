@@ -30,11 +30,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    let agentParams = new RequestParamBuilder().addInitial(this).addInclude('task').addAggregate({
-      field: 'task',
-      values: []
-    });
-
+    let agentParams = new RequestParamBuilder().addInitial(this).addInclude('task');
     if (this._agentId) {
       agentParams.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }

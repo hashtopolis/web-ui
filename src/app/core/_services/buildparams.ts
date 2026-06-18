@@ -39,11 +39,11 @@ export function setParameter(params: RequestParams): HttpParams {
     });
   }
 
-  // Handle aggregate array
+  // Handle aggregate fieldsets, emitted as aggregate[<field>]=<value1,value2>
   const aggregate = params.aggregate;
   if (Array.isArray(aggregate) && aggregate.length > 0) {
-    aggregate.forEach((aggregate) => {
-      httpParams = httpParams.set(`aggregate[${aggregate.field}]`, aggregate.values.join(','));
+    aggregate.forEach((a) => {
+      httpParams = httpParams.set(`aggregate[${a.field}]`, a.values.join(','));
     });
   }
 

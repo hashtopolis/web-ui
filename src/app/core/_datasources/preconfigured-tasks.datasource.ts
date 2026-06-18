@@ -93,9 +93,9 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @param params
    * @private
    */
-  private applyMaskImportFilter(params: IParamBuilder): IParamBuilder {
+  private applyMaskImportFilter<B extends IParamBuilder>(params: B): B {
     if (this.uiService.getUISettings()?.hideImportMasks === 1) {
-      return params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
+      params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
     }
     return params;
   }

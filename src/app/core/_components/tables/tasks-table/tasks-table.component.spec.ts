@@ -1217,8 +1217,8 @@ describe('TasksTableComponent', () => {
   });
 
   describe('renderBoolIcon', () => {
-    it('should return check icon for TASK with isSmall=1', () => {
-      const wrapper = { taskType: TaskType.TASK, isSmall: 1 } as JTaskWrapperDisplay;
+    it('should return check icon for TASK with isSmall=true', () => {
+      const wrapper = { taskType: TaskType.TASK, isSmall: true } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {
@@ -1230,8 +1230,8 @@ describe('TasksTableComponent', () => {
       expect(icon.cls).toBe('text-ok');
     });
 
-    it('should return empty icon for TASK with isSmall=0', () => {
-      const wrapper = { taskType: TaskType.TASK, isSmall: 0 } as JTaskWrapperDisplay;
+    it('should return empty icon for TASK with isSmall=false', () => {
+      const wrapper = { taskType: TaskType.TASK, isSmall: false } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {
@@ -1242,8 +1242,8 @@ describe('TasksTableComponent', () => {
       expect(icon.name).toBe('');
     });
 
-    it('should return check icon for SUPERTASK with isSmall=1', () => {
-      const wrapper = { taskType: TaskType.SUPERTASK, isSmall: 1 } as JTaskWrapperDisplay;
+    it('should return check icon for SUPERTASK with isSmall=true', () => {
+      const wrapper = { taskType: TaskType.SUPERTASK, isSmall: true } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {

@@ -14,8 +14,6 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JChunk } from '@models/chunk.model';
-
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AgentRoleService } from '@services/roles/agents/agent-role.service';
@@ -40,7 +38,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
   standalone: false
 })
 export class MockAgentStatsComponent {
-  @Input() agent: any;
+  @Input() agent: unknown;
 }
 
 @Component({
@@ -49,7 +47,7 @@ export class MockAgentStatsComponent {
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
-  @Input() agent: any;
+  @Input() agent: unknown;
 }
 
 @Component({
@@ -58,7 +56,7 @@ export class MockAgentEnvironmentComponent {
   standalone: false
 })
 export class MockChunksTableComponent {
-  @Input() chunks: any[];
+  @Input() chunks: unknown[];
 }
 
 @Component({
@@ -67,8 +65,8 @@ export class MockChunksTableComponent {
   standalone: false
 })
 export class MockAgentStatGraphComponent {
-  @Input() statType: any;
-  @Input() agentStats: any[];
+  @Input() statType: unknown;
+  @Input() agentStats: unknown[];
 }
 
 @Component({
@@ -256,7 +254,8 @@ describe('EditAgentComponent', () => {
       SERV.AGENTS,
       1,
       {
-        include: ['agentStats', 'accessGroups']
+        include: ['agentStats', 'accessGroups'],
+        aggregate: [{ field: 'agent', values: ['crackingTime'] }]
       }
     ]);
     expect(component.showagent).toBeDefined();
@@ -433,62 +432,6 @@ describe('EditAgentComponent', () => {
     expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 10);
   }));
 
-  it('should calculate time spent from chunks', () => {
-    const mockChunks = [
-      {
-        id: 1,
-        taskId: 1,
-        skip: 0,
-        length: 100,
-        agentId: 1,
-        dispatchTime: 100,
-        solveTime: 200,
-        checkpoint: 0,
-        progress: 0,
-        state: 0 as any,
-        cracked: 0,
-        speed: 0
-      },
-      {
-        id: 2,
-        taskId: 1,
-        skip: 100,
-        length: 100,
-        agentId: 1,
-        dispatchTime: 200,
-        solveTime: 350,
-        checkpoint: 0,
-        progress: 0,
-        state: 0 as any,
-        cracked: 0,
-        speed: 0
-      },
-      {
-        id: 3,
-        taskId: 1,
-        skip: 200,
-        length: 100,
-        agentId: 1,
-        dispatchTime: 300,
-        solveTime: 400,
-        checkpoint: 0,
-        progress: 0,
-        state: 0 as any,
-        cracked: 0,
-        speed: 0
-      }
-    ] as JChunk[];
-
-    component.timeCalc(mockChunks);
-
-    // Formula: max(solveTime, dispatchTime) - dispatchTime for each chunk
-    // Chunk 1: max(200, 100) - 100 = 100
-    // Chunk 2: max(350, 200) - 200 = 150
-    // Chunk 3: max(400, 300) - 300 = 100
-    // Total: 350
-    expect(component.timespent).toBe(350);
-  });
-
   it('should render devices with count', () => {
     const result = component.renderDevices('RTX3080\nRTX3080\nRTX2060\nRTX3080');
 
@@ -555,33 +498,6 @@ describe('EditAgentComponent', () => {
     expect(component.showagent).toBeDefined();
     expect(component.selectUserAgps).toEqual([]);
   }));
-
-  it('should calculate time spent with empty chunks array', () => {
-    component.timeCalc([]);
-
-    expect(component.timespent).toBe(0);
-  });
-
-  it('should calculate time spent with single chunk', () => {
-    const mockChunk = {
-      id: 1,
-      taskId: 1,
-      skip: 0,
-      length: 100,
-      agentId: 1,
-      dispatchTime: 100,
-      solveTime: 200,
-      checkpoint: 0,
-      progress: 0,
-      state: 0 as any,
-      cracked: 0,
-      speed: 0
-    } as JChunk;
-
-    component.timeCalc([mockChunk]);
-
-    expect(component.timespent).toBe(100);
-  });
 
   it('should not load tasks when readAssignment role is not enabled', fakeAsync(() => {
     fixture.detectChanges();

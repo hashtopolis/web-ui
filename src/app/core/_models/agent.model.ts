@@ -2,7 +2,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
-import { BaseModel, Thin, With } from '@models/base.model';
+import { BaseModel, Thin } from '@models/base.model';
 import { ChunkData, JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
@@ -50,6 +50,7 @@ export interface JAgent extends BaseModel {
   assignmentId?: number;
   agentSpeed?: number;
   chunkData?: ChunkData;
+  // Aggregate field `crackingTime` is intentionally NOT here — see JAgentAggregates / JAgentWith below.
   // Include-dependent relationships (require ?include= in API request)
   user: JUser;
   agentStats: JAgentStat[];
@@ -62,8 +63,29 @@ export interface JAgent extends BaseModel {
   assignments: JAgentAssignment[];
 }
 
-/** Agent without include-dependent relationship fields. */
+/**
+ * Aggregate fields which have to be explicitely requested
+ * via `aggregate[..]=`. This interface is the source of their types.
+ */
+export interface JAgentAggregateFields {
+  // `null` when the agent has no chunks with both SOLVE_TIME and DISPATCH_TIME set (server: SUM(..) - SUM(..)).
+  crackingTime: number | null;
+}
+
+/** Aggregate field keys on JAgent. */
+export type JAgentAggregates = keyof JAgentAggregateFields;
+
+/** All on-demand conditional fields on JAgent: both the include fields (relationships as well as the aggregate fields)*/
+export type JAgentConditional = JAgentIncludes | JAgentAggregates;
+
+/** Agent without any on-demand (include or aggregate) fields — the default response shape. */
 export type ThinJAgent = Thin<JAgent, JAgentIncludes>;
 
-/** Agent with only specific include-dependent fields present. */
-export type JAgentWith<K extends JAgentIncludes> = With<JAgent, JAgentIncludes, K>;
+/**
+ * Agent with only the chosen subset of on-demand fields present. `K` may freely mix include and aggregate
+ * keys, e.g. `JAgentWith<'task' | 'crackingTime'>` — includes are picked from `JAgent`, aggregates from
+ * `JAgentAggregateFields`.
+ */
+export type JAgentWith<K extends JAgentConditional> = Omit<JAgent, JAgentIncludes> &
+  Pick<JAgent, K & JAgentIncludes> &
+  Pick<JAgentAggregateFields, K & JAgentAggregates>;

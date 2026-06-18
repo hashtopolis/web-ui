@@ -97,10 +97,10 @@
                     [readonly]="true"
                   ></input-multiselect>
                 }
-                @if (timespent) {
+                @if (showagent.crackingTime) {
                   <input-text
                     title="Time spent cracking"
-                    [value]="timespent | sectotime"
+                    [value]="showagent.crackingTime | sectotime"
                     [readonly]="true"
                   ></input-text>
                 }

@@ -1,6 +1,8 @@
 import { TJsonApiLinks } from 'jsona/lib/JsonaTypes';
 import { z } from 'zod';
 
+import type { Thin } from '@models/base.model';
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 /**
@@ -50,6 +52,22 @@ type RelationshipMap<Rels, IncUnion> = {
 /** Make specified keys required (no-op when K is never). */
 type RequireKeys<T, K extends string> = [K] extends [never] ? T : Omit<T, K & keyof T> & Required<Pick<T, K & keyof T>>;
 
+/**
+ * Apply the aggregate axis: omit ALL aggregate keys by default, then re-add only the requested subset.
+ * Aggregate (attribute) keys and relationship include keys are disjoint, so this composes with `RequireKeys`
+ * without either stripping the other's keys.
+ * - AggAll never → entity declares no aggregates → no-op.
+ * - AggReq never → none requested → drop all aggregate keys (`Thin`).
+ * - otherwise    → drop all, re-add the requested subset. The server always populates a requested aggregate
+ *   (verified against hashtopolis-server), so the Zod schema's optional `| undefined` is stripped here — a
+ *   requested aggregate is present. Any declared `null` (e.g. agent `crackingTime`) is preserved.
+ */
+type ApplyAggregates<T, AggAll extends string, AggReq extends string> = [AggAll] extends [never]
+  ? T
+  : [AggReq] extends [never]
+    ? Thin<T, AggAll & keyof T>
+    : Omit<T, AggAll & keyof T> & { [K in AggReq & AggAll & keyof T]-?: Exclude<T[K], undefined> };
+
 // ── Flatten types ────────────────────────────────────────────────
 
 /**
@@ -58,30 +76,39 @@ type RequireKeys<T, K extends string> = [K] extends [never] ? T : Omit<T, K & ke
  *
  * { id, type, attributes: { name } } → { id, type, name }
  */
-type FlattenItem<D> = D extends { attributes?: infer A }
-  ? Omit<D, 'attributes' | 'relationships'> & Required<NonNullable<A>> & JsonaRuntimeProps
+type FlattenItem<D, AggAll extends string = never, AggReq extends string = never> = D extends { attributes?: infer A }
+  ? Omit<D, 'attributes' | 'relationships'> &
+      ApplyAggregates<Required<NonNullable<A>>, AggAll, AggReq> &
+      JsonaRuntimeProps
   : D & JsonaRuntimeProps;
 
 /** Flatten data item + attach resolved relationship properties. */
-type FlattenItemWithRels<D, Rels, IncUnion> = D extends { attributes?: infer A }
+type FlattenItemWithRels<D, Rels, IncUnion, AggAll extends string = never, AggReq extends string = never> = D extends {
+  attributes?: infer A;
+}
   ? Omit<D, 'attributes' | 'relationships'> &
-      Required<NonNullable<A>> &
+      ApplyAggregates<Required<NonNullable<A>>, AggAll, AggReq> &
       RelationshipMap<Rels, IncUnion> &
       JsonaRuntimeProps
   : D & JsonaRuntimeProps;
 
 // ── Main types ───────────────────────────────────────────────────
 
-type JsonApiPayloadInner<T, IncKeys extends string = never> = [IncKeys] extends [never]
+type JsonApiPayloadInner<
+  T,
+  IncKeys extends string = never,
+  AggAll extends string = never,
+  AggReq extends string = never
+> = [IncKeys] extends [never]
   ? T extends { data: (infer D)[] }
-    ? FlattenItem<D>[]
+    ? FlattenItem<D, AggAll, AggReq>[]
     : T extends { data: infer D }
-      ? FlattenItem<D>
+      ? FlattenItem<D, AggAll, AggReq>
       : T
   : T extends { data: (infer D)[] }
-    ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>>, IncKeys>[]
+    ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>[]
     : T extends { data: infer D }
-      ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>>, IncKeys>
+      ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>
       : T;
 
 /**
@@ -94,18 +121,32 @@ type JsonApiPayloadInner<T, IncKeys extends string = never> = [IncKeys] extends 
  * Pass IncKeys to make specific relationship properties required
  * (reflecting that those relationships were requested via `include`).
  */
-export type JsonApiPayload<T, IncKeys extends string = never> = JsonApiPayloadInner<NormalizeEnvelope<T>, IncKeys>;
+export type JsonApiPayload<
+  T,
+  IncKeys extends string = never,
+  AggAll extends string = never,
+  AggReq extends string = never
+> = JsonApiPayloadInner<NormalizeEnvelope<T>, IncKeys, AggAll, AggReq>;
 
 /**
  * Shorthand: extract JsonApiPayload directly from a Zod envelope schema.
  */
-export type JsonApiPayloadOf<TSchema extends z.ZodTypeAny, IncKeys extends string = never> = JsonApiPayload<
-  z.infer<TSchema>,
-  IncKeys
->;
+export type JsonApiPayloadOf<
+  TSchema extends z.ZodTypeAny,
+  IncKeys extends string = never,
+  AggAll extends string = never,
+  AggReq extends string = never
+> = JsonApiPayload<z.infer<TSchema>, IncKeys, AggAll, AggReq>;
 
 /** Valid relationship key names from an envelope type. */
 export type RelationshipKeysOf<T> = keyof ExtractRelationships<T> & string;
 
 /** Valid relationship key names from a Zod envelope schema. */
 export type RelationshipKeysOfSchema<TSchema extends z.ZodTypeAny> = RelationshipKeysOf<z.infer<TSchema>>;
+
+/**
+ * Aggregate key names are model-declared (the JSON:API schema has no marker to derive them from, unlike
+ * relationships). This is the explicit contract type used to thread an entity's aggregate union into
+ * `JsonApiPayload` / `deserialize` — there is deliberately no schema-derived counterpart.
+ */
+export type AggregateKeysOf<AggAll extends string> = AggAll;

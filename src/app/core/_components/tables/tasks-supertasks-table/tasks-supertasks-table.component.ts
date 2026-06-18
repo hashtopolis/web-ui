@@ -3,7 +3,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JTask } from '@models/task.model';
+import { JTask, JTaskWith } from '@models/task.model';
 
 import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
@@ -22,6 +22,8 @@ import {
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
+
+type Subtask = JTaskWith<'dispatched' | 'searched'>;
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -87,7 +89,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'dispatched',
-        render: (task: JTask) => this.renderDispatchedSearched(task),
+        render: (task: Subtask) => this.renderDispatchedSearched(task),
         isSortable: false
       },
       {
@@ -272,7 +274,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     );
   }
 
-  private getDispatchedSearchedString(task: JTask): string {
+  private getDispatchedSearchedString(task: Subtask): string {
     if (task.keyspace > 0) {
       return `${task.dispatched}% / ${task.searched}%`;
     }
@@ -288,7 +290,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     return this.sanitize(`${numAgents}`);
   }
 
-  private renderDispatchedSearched(task: JTask): SafeHtml {
+  private renderDispatchedSearched(task: Subtask): SafeHtml {
     const html = this.getDispatchedSearchedString(task);
     return this.sanitize(html);
   }

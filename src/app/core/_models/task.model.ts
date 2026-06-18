@@ -1,6 +1,6 @@
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
-import { BaseModel } from '@models/base.model';
+import { BaseModel, With } from '@models/base.model';
 import { ChunkData } from '@models/chunk.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { JFile } from '@models/file.model';
@@ -38,7 +38,6 @@ export interface TaskAttributes extends BaseModel {
  */
 export interface JTask extends BaseModel, TaskAttributes {
   attackCmd: string;
-  activeAgents?: number | undefined;
   totalAssignedAgents?: number | undefined;
   chunkTime: number;
   statusTimer: number;
@@ -64,21 +63,38 @@ export interface JTask extends BaseModel, TaskAttributes {
   forcePipe: boolean;
   preprocessorId: PreprocessorId;
   preprocessorCommand: string;
-  dispatched?: string | undefined;
-  searched?: string | undefined;
+  // Aggregate fields (dispatched, searched, status, estimatedTime, timeSpent, currentSpeed, cprogress,
+  // totalNumberOfChunks, activeAgents) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
+  // the aggregate fields have to be explicitely requested
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
-  totalNumberOfChunks: number;
-  status?: number | undefined;
-  timeSpent?: number | undefined;
-  currentSpeed?: number | undefined;
-  estimatedTime?: number | undefined;
-  cprogress?: number | undefined;
   isrunning?: boolean;
   isCompleted?: boolean;
   activeSubtasks?: number;
   subtasks?: JTask[];
 }
+
+/**
+ * Aggregate fields on a task — NOT on the base `JTask`; present in the result type only when requested via
+ * `aggregate[task]=`. This interface is the source of their types.
+ */
+export interface JTaskAggregateFields {
+  activeAgents: number;
+  dispatched: string;
+  searched: string;
+  status: number;
+  estimatedTime: number;
+  timeSpent: number;
+  currentSpeed: number;
+  cprogress: number;
+  totalNumberOfChunks: number;
+}
+
+/** Aggregate field keys on JTask. */
+export type JTaskAggregates = keyof JTaskAggregateFields;
+
+/** Task with only the chosen subset of aggregate fields present (e.g. `JTaskWith<'dispatched' | 'searched'>`). */
+export type JTaskWith<K extends JTaskAggregates> = JTask & Pick<JTaskAggregateFields, K>;
 
 /**
  * Interface definition for a task wrapper (wrapper object for cracking tasks and supertasks)
@@ -111,20 +127,21 @@ export interface JTaskWrapperDisplay extends BaseModel {
   accessGroupId?: number;
   taskWrapperName?: string;
   displayName?: string;
-  taskWrapperIsArchived?: number;
+  taskWrapperIsArchived?: boolean;
   cracked?: number;
-  taskId?: number;
-  taskName?: string;
-  attackCmd?: string;
-  chunkTime?: number;
-  statusTimer?: number;
-  keyspace?: number;
-  keyspaceProgress?: number;
-  taskPriority?: number;
-  taskMaxAgents?: number;
-  isSmall?: number;
-  isCpuTask?: number;
-  taskIsArchived?: number;
+  // Task-derived columns: `null` for supertask wrappers (the view LEFT JOINs Task on taskType=0).
+  taskId?: number | null;
+  taskName?: string | null;
+  attackCmd?: string | null;
+  chunkTime?: number | null;
+  statusTimer?: number | null;
+  keyspace?: number | null;
+  keyspaceProgress?: number | null;
+  taskPriority?: number | null;
+  taskMaxAgents?: number | null;
+  isSmall?: boolean;
+  isCpuTask?: boolean;
+  taskIsArchived?: boolean;
   taskUsePreprocessor?: number;
   hashlistName?: string;
   hashCount?: number;
@@ -137,7 +154,37 @@ export interface JTaskWrapperDisplay extends BaseModel {
   dispatched?: string;
   searched?: string;
   totalAssignedAgents?: number;
+  cprogress?: number | undefined;
+  estimatedTime?: number | undefined;
+  timeSpent?: number | undefined;
 }
+
+/**
+ * Keys for aggregate fields on JTaskWrapperDisplay (populated only when requested via
+ * `aggregate[taskwrapperdisplay]=`). The fields stay on the base interface so the `With`/`Thin`
+ * axis (which `Pick`s from JTaskWrapperDisplay itself) can gate them.
+ */
+export type JTaskWrapperDisplayAggregates =
+  | 'status'
+  | 'totalAssignedAgents'
+  | 'dispatched'
+  | 'searched'
+  | 'cprogress'
+  | 'estimatedTime'
+  | 'timeSpent'
+  | 'currentSpeed';
+export type JTaskWrapperDisplayConditional = JTaskWrapperDisplayAggregates;
+
+/** Task wrapper display with only the chosen subset of on-demand fields present. */
+export type JTaskWrapperDisplayWith<K extends JTaskWrapperDisplayConditional> = With<
+  JTaskWrapperDisplay,
+  JTaskWrapperDisplayConditional,
+  K
+>;
+
+export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
+  'totalAssignedAgents' | 'searched' | 'dispatched' | 'status' | 'currentSpeed'
+>;
 
 export enum TaskStatus {
   RUNNING = 1,
