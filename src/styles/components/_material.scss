@@ -59,16 +59,25 @@
 
 textarea.mat-mdc-input-element.custom-textarea {
   resize: none;
+  // Material's container-text token re-applies 16px to textareas; pin it back to
+  // the input size so a textarea reads identically to a plain input alongside it.
+  font-size: var(--text-md);
   line-height: 1.5;
   padding: 0;
   box-sizing: border-box;
 }
-// Row-aligned variant: each line occupies one text-field row, so the field
-// grows in whole-row steps. Infix padding is zeroed (_form.scss), so the line
-// height carries the row height minus the ~2px form-field chrome — a single
-// line then matches a plain input.
+// Row-aligned variant: each line occupies one full input-row, so a multi-line
+// field stacks to the same height as that many single-line inputs (5 GPU rows
+// == three left-column fields, bottom-aligned). Infix padding is zeroed
+// (_form.scss) and the 1px border is drawn as an inset shadow so it adds no
+// box height — keeping each line exactly --input-row-height and a single line
+// identical to a plain input.
 .field-stack--row-aligned textarea.mat-mdc-input-element.custom-textarea {
-  line-height: calc(var(--input-row-height) - 2px);
+  line-height: var(--input-row-height);
+}
+.field-stack--row-aligned.input--readonly .mat-mdc-form-field .mdc-text-field--filled {
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--border-faint);
 }
 .mat-mdc-form-field:has(textarea.custom-textarea) .mat-mdc-form-field-infix {
   display: flex;
