@@ -1,5 +1,6 @@
 import { zHashListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
+import { z } from 'zod';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -9,6 +10,8 @@ import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+
+const crackedFilterSchema = z.enum(['cracked', 'uncracked']);
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
@@ -55,8 +58,13 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       } else if (this._dataType === 'hashlists') {
         params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._id });
 
-        if (this._filterparam) {
-          params.addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true });
+        const crackedFilter = crackedFilterSchema.safeParse(this._filterparam);
+        if (crackedFilter.success) {
+          params.addFilter({
+            field: 'isCracked',
+            operator: FilterType.EQUAL,
+            value: crackedFilter.data === 'cracked'
+          });
         }
       }
 

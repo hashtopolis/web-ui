@@ -38,7 +38,7 @@
               <input-text
                 title="Cracked"
                 formControlName="cracked"
-                [linkTo]="['/hashlists', 'hashes', 'hashlists', editedHashlistIndex]"
+                [linkTo]="['/hashlists', 'hashes', 'hashlists', editedHashlistIndex + '?cracked']"
                 [readonly]="true"
               ></input-text>
             </app-form-row>
@@ -47,7 +47,7 @@
               <input-text
                 title="Remaining"
                 formControlName="remaining"
-                [linkTo]="['/hashlists', 'hashes', 'hashlists', editedHashlistIndex]"
+                [linkTo]="['/hashlists', 'hashes', 'hashlists', editedHashlistIndex + '?uncracked']"
                 [readonly]="true"
               ></input-text>
             </app-form-row>
