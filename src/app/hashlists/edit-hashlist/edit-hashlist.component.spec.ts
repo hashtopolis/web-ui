@@ -1,11 +1,13 @@
 import { of } from 'rxjs';
 
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideLocationMocks } from '@angular/common/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
@@ -24,6 +26,7 @@ import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-has
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
+import { InputTextComponent } from '@src/app/shared/input/text/text.component';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 import { mockResponse } from '@src/app/testing/mock-response';
 
@@ -128,7 +131,9 @@ describe('EditHashlistComponent', () => {
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
     unsubSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl', 'createUrlTree', 'serializeUrl'], {
+      events: of()
+    });
     configSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
     unsavedChangesSpy = jasmine.createSpyObj('UnsavedChangesService', ['setUnsavedChanges']);
     roleServiceSpy = jasmine.createSpyObj('HashListRoleService', ['hasRole']);
@@ -160,7 +165,8 @@ describe('EditHashlistComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: { params: of({ id: '1' }) }
-        }
+        },
+        provideLocationMocks()
       ]
     }).compileComponents();
 
@@ -438,15 +444,34 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('goToHashes', () => {
-    it('should navigate to hashes page', () => {
+    it('should link the Hashes, Cracked and Remaining fields to the hashes page', fakeAsync(() => {
+      // Suppress the role-gated tasks table and report-builder panel so the form
+      // renders without their extra data requests; the link fields are not gated.
+      roleServiceSpy.hasRole.and.returnValue(false);
+      // RouterLink computes an href via the mocked Router; give serializeUrl a
+      // string so MockLocationStrategy doesn't choke while rendering the anchors.
+      routerSpy.serializeUrl.and.returnValue('/');
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
+      tick();
+      fixture.detectChanges();
 
-      component.goToHashes();
+      const linkByTitle = new Map(
+        fixture.debugElement
+          .queryAll(By.directive(InputTextComponent))
+          .map((de) => de.componentInstance as InputTextComponent)
+          .filter((input) => ['Hashes', 'Cracked', 'Remaining'].includes(input.title))
+          .map((input) => [input.title, input.linkTo])
+      );
 
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists', 'hashes', 'hashlists', 42]);
-    });
+      expect([...linkByTitle.keys()]).toEqual(['Hashes', 'Cracked', 'Remaining']);
+      // Hashes links to the unfiltered list; Cracked/Remaining pack the filter into
+      // the :id segment (split on '?' in hashes.component.ts) for cracked/uncracked views.
+      expect(linkByTitle.get('Hashes')).toEqual(['/hashlists', 'hashes', 'hashlists', 42]);
+      expect(linkByTitle.get('Cracked')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?cracked']);
+      expect(linkByTitle.get('Remaining')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?uncracked']);
+    }));
   });
 
   describe('canDeactivate', () => {

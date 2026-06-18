@@ -44,10 +44,8 @@ export interface AccChangePasswordForm {
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
-  static readonly PWD_MAX = 12;
 
   pwdMin = AccountSettingsComponent.PWD_MIN;
-  pwdMax = AccountSettingsComponent.PWD_MAX;
 
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
@@ -128,15 +126,10 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.changepasswordFormGroup = new FormGroup<AccChangePasswordForm>(
       {
         oldPassword: new FormControl('', Validators.required),
-        newPassword: new FormControl('', [
-          Validators.required,
-          Validators.minLength(AccountSettingsComponent.PWD_MIN),
-          Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-        ]),
+        newPassword: new FormControl('', [Validators.required, Validators.minLength(AccountSettingsComponent.PWD_MIN)]),
         confirmNewPassword: new FormControl('', [
           Validators.required,
-          Validators.minLength(AccountSettingsComponent.PWD_MIN),
-          Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+          Validators.minLength(AccountSettingsComponent.PWD_MIN)
         ])
       },
       { validators: passwordMatchValidator() }

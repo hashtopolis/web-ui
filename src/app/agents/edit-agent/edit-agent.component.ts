@@ -71,6 +71,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   editedAgentIndex: number;
   showagent: ShownAgent;
 
+  pageTitle = 'Agent';
+
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
   protected readonly faLinux = faLinux;
@@ -263,6 +265,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.pageTitle = 'Agent ' + (this.showagent.agentName ?? '');
+
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
       userId: this.showagent.userId ?? null,
@@ -339,9 +343,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Render devices using count by device type
+  // Render devices using count by device type, one entry per line.
+  // Accepts either real newlines or HTML <br> as the incoming separator.
   renderDevices(devices: string): string {
-    const deviceList = devices.split('\n').filter((d) => !!d.trim());
+    const deviceList = devices
+      .replace(/<br\s*\/?>/gi, '\n')
+      .split('\n')
+      .map((d) => d.trim())
+      .filter((d) => !!d);
     const deviceCountMap: Record<string, number> = {};
 
     deviceList.forEach((device) => {
@@ -350,7 +359,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
-      .join('<br>');
+      .join('\n');
   }
 
   getOsLabel(os: AgentOS): string {

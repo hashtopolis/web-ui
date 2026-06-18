@@ -35,7 +35,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
     const activeFilter = query || this._currentFilter;
 
-    let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent').addFilter({
+    let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('agent').addFilter({
       field: 'taskId',
       operator: FilterType.EQUAL,
       value: this._taskId

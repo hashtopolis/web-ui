@@ -21,6 +21,7 @@ import { ConfigService } from '@services/shared/config.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { yesNo } from '@src/app/core/_constants/general.config';
+import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**
@@ -43,9 +44,12 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectYesno = yesNo;
+  selectBenchmarktype = benchmarkType;
 
   // Edit Options
   editedPretaskIndex: number;
+
+  pretaskName = '';
 
   /** Read-only mode based on roles */
   isReadOnly = false;
@@ -122,8 +126,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.updateForm = new FormGroup({
       pretaskId: new FormControl({ value: '', disabled: true }),
-      statusTimer: new FormControl({ value: '', disabled: true }),
-      useNewBench: new FormControl({ value: '', disabled: true }),
       updateData: new FormGroup({
         taskName: new FormControl(
           { value: '', disabled: this.isReadOnly },
@@ -138,7 +140,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         priority: new FormControl({ value: '', disabled: this.isReadOnly }),
         maxAgents: new FormControl({ value: '', disabled: this.isReadOnly }),
         isCpuTask: new FormControl({ value: '', disabled: this.isReadOnly }),
-        isSmall: new FormControl({ value: '', disabled: this.isReadOnly })
+        isSmall: new FormControl({ value: '', disabled: this.isReadOnly }),
+        statusTimer: new FormControl({ value: '', disabled: this.isReadOnly }),
+        useNewBench: new FormControl({ value: '', disabled: true })
       })
     });
   }
@@ -150,17 +154,11 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
+    this.pretaskName = pretask.taskName ?? '';
+
     this.updateForm = new FormGroup({
       pretaskId: new FormControl({
         value: pretask.id,
-        disabled: true
-      }),
-      statusTimer: new FormControl({
-        value: pretask.statusTimer,
-        disabled: true
-      }),
-      useNewBench: new FormControl({
-        value: pretask.useNewBench,
         disabled: true
       }),
       updateData: new FormGroup({
@@ -174,7 +172,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         priority: new FormControl(pretask.priority),
         maxAgents: new FormControl(pretask.maxAgents),
         isCpuTask: new FormControl(pretask.isCpuTask, this.isReadOnly ? [] : [Validators.required]),
-        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required])
+        isSmall: new FormControl(pretask.isSmall, this.isReadOnly ? [] : [Validators.required]),
+        statusTimer: new FormControl({ value: pretask.statusTimer, disabled: this.isReadOnly }),
+        useNewBench: new FormControl({ value: pretask.useNewBench, disabled: true })
       })
     });
   }

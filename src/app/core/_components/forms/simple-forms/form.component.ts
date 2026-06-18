@@ -42,7 +42,7 @@ export class FormComponent implements OnInit, OnDestroy {
 
   responseSchema: FormRouteData['responseSchema'];
 
-  showDeleteButton: boolean;
+  showDeleteButton: boolean = true;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
@@ -170,6 +170,7 @@ export class FormComponent implements OnInit, OnDestroy {
         this.formValues = this.responseSchema
           ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
           : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
+        this.applyDynamicTitle();
         this.isloaded = true; // Data is loaded and ready for form rendering
       },
       error: (err: unknown) => {
@@ -193,6 +194,28 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     this.unsubscribeService.add(editSubscription);
+  }
+
+  /**
+   * In edit mode, when the metadata declares `titleField`, build the page title
+   * from the loaded entity. `titleField` may name several fields, whose values
+   * are joined with spaces (e.g. "hashcat 6.2.6"). An optional `titlePrefix` is
+   * prepended as a static entity word (e.g. "Wordlist rockyou.txt"). Keeps the
+   * static title when neither prefix nor field yields anything.
+   */
+  private applyDynamicTitle(): void {
+    const { titlePrefix, titleField } = this.globalMetadata;
+    if (!titleField) {
+      return;
+    }
+    const fields = Array.isArray(titleField) ? titleField : [titleField];
+    const parts = [titlePrefix, ...fields.map((field) => this.formValues[field])].filter(
+      (value) => value !== undefined && value !== null && value !== ''
+    );
+    if (parts.length) {
+      this.title = parts.join(' ');
+      this.titleService.set([this.title]);
+    }
   }
 
   /**

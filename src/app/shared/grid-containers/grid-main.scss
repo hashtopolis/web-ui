@@ -2,6 +2,12 @@
   display: block;
 }
 
+/* When the host is told to fill its container (e.g. `h-full` in an equal-height
+   grid row), stretch the inner card so its border matches the row height. */
+:host(.h-full) .grid-main {
+  height: 100%;
+}
+
 :host(.grid-main--narrow) {
   @media (min-width: 768px) {
     max-width: calc(50% - var(--space-xs));

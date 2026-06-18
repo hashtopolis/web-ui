@@ -281,17 +281,9 @@ describe('AccountSettingsComponent', () => {
       expect(newPasswordControl.hasError('minlength')).toBeFalse();
       expect(confirmPasswordControl.hasError('minlength')).toBeFalse();
 
-      // Too long
-      newPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
-      confirmPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
-      component.changepasswordFormGroup.updateValueAndValidity();
-
-      expect(newPasswordControl.hasError('maxlength')).toBeTrue();
-      expect(confirmPasswordControl.hasError('maxlength')).toBeTrue();
-
-      // Exactly max
-      newPasswordControl.patchValue('Password12!#');
-      confirmPasswordControl.patchValue('Password12!#');
+      // Long passwords are allowed: there is no maximum length limit
+      newPasswordControl.patchValue('VeryNiceLongPasswordWithoutAnyLengthLimitForHashtopolis');
+      confirmPasswordControl.patchValue('VeryNiceLongPasswordWithoutAnyLengthLimitForHashtopolis');
       component.changepasswordFormGroup.updateValueAndValidity();
 
       expect(newPasswordControl.hasError('maxlength')).toBeFalse();

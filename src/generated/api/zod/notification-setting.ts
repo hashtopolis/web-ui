@@ -83,7 +83,7 @@ export const zNotificationSettingResponse = z.object({
     type: z.literal('notificationSetting'),
     attributes: z.object({
       action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int(),
+      objectId: z.int().nullish(),
       notification: z.union([
         z.literal('taskComplete'),
         z.literal('agentError'),
@@ -159,7 +159,7 @@ export const zNotificationSettingPostPatchResponse = z.object({
     type: z.literal('notificationSetting'),
     attributes: z.object({
       action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int(),
+      objectId: z.int().nullish(),
       notification: z.union([
         z.literal('taskComplete'),
         z.literal('agentError'),
@@ -206,7 +206,7 @@ export const zNotificationSettingListResponse = z.object({
       type: z.literal('notificationSetting'),
       attributes: z.object({
         action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-        objectId: z.int(),
+        objectId: z.int().nullish(),
         notification: z.union([
           z.literal('taskComplete'),
           z.literal('agentError'),

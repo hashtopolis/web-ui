@@ -20970,7 +20970,7 @@
               "type": { "type": "string", "const": "notificationSetting" },
               "attributes": {
                 "type": "object",
-                "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
+                "required": ["action", "notification", "userId", "receiver", "isActive"],
                 "properties": {
                   "action": {
                     "oneOf": [
@@ -20979,7 +20979,7 @@
                       { "const": "deleteNotification", "title": "Delete notification", "type": "string" }
                     ]
                   },
-                  "objectId": { "type": "integer" },
+                  "objectId": { "type": ["integer", "null"] },
                   "notification": {
                     "oneOf": [
                       { "const": "taskComplete", "title": "Task completed", "type": "string" },
@@ -21108,7 +21108,7 @@
               "type": { "type": "string", "const": "notificationSetting" },
               "attributes": {
                 "type": "object",
-                "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
+                "required": ["action", "notification", "userId", "receiver", "isActive"],
                 "properties": {
                   "action": {
                     "oneOf": [
@@ -21117,7 +21117,7 @@
                       { "const": "deleteNotification", "title": "Delete notification", "type": "string" }
                     ]
                   },
-                  "objectId": { "type": "integer" },
+                  "objectId": { "type": ["integer", "null"] },
                   "notification": {
                     "oneOf": [
                       { "const": "taskComplete", "title": "Task completed", "type": "string" },
@@ -21191,7 +21191,7 @@
                 "type": { "type": "string", "const": "notificationSetting" },
                 "attributes": {
                   "type": "object",
-                  "required": ["action", "objectId", "notification", "userId", "receiver", "isActive"],
+                  "required": ["action", "notification", "userId", "receiver", "isActive"],
                   "properties": {
                     "action": {
                       "oneOf": [
@@ -21200,7 +21200,7 @@
                         { "const": "deleteNotification", "title": "Delete notification", "type": "string" }
                       ]
                     },
-                    "objectId": { "type": "integer" },
+                    "objectId": { "type": ["integer", "null"] },
                     "notification": {
                       "oneOf": [
                         { "const": "taskComplete", "title": "Task completed", "type": "string" },

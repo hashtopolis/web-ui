@@ -1,4 +1,4 @@
-<app-page title="User Profile">
+<app-page [title]="'User ' + editedUserName">
   <grid-main [narrow]="true">
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <app-form-row>
