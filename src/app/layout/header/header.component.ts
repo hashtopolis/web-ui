@@ -241,21 +241,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Require TaskWrapper.READ permission for menu to display
-
-    // const canReadChunks = this.permissionService.hasPermissionSync(Perm.Chunk.READ);
-
-    // if (!canReadChunks) {
-    //   return { display: false, label: HeaderMenuLabel.TASKS, actions: [] };
-    // }
-
-    // Require Chunk.READ permission for chunk activity menu item to display
-    // if (canReadChunks) {
-    taskActions.push({
-      label: HeaderMenuLabel.CHUNK_ACTIVITY,
-      routerLink: ['tasks', 'chunks']
-    });
-    // }
+    if (this.tasksRoleService.hasRole('read')) {
+      taskActions.push({
+        label: HeaderMenuLabel.CHUNK_ACTIVITY,
+        routerLink: ['tasks', 'chunks']
+      });
+    }
 
     return {
       display: taskActions.length > 0,
