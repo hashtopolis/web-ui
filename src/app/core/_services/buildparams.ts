@@ -39,6 +39,14 @@ export function setParameter(params: RequestParams): HttpParams {
     });
   }
 
+  // Handle aggregate array
+  const aggregate = params.aggregate;
+  if (Array.isArray(aggregate) && aggregate.length > 0) {
+    aggregate.forEach((aggregate) => {
+      httpParams = httpParams.set(`aggregate[${aggregate.field}]`, aggregate.values.join(','));
+    });
+  }
+
   // Handle ordering parameter
   const sort = params.sort;
   if (Array.isArray(sort) && sort.length > 0) {

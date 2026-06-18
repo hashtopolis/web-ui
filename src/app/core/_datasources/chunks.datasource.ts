@@ -31,7 +31,11 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    let params = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent');
+    let params = new RequestParamBuilder().addInitial(this).addInclude('agent').addInclude('task').addAggregate({
+      field: 'task',
+      values: []
+    });
+
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
