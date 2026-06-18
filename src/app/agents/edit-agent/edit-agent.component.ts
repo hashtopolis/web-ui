@@ -1,6 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
-import { zAgentResponse, zChunkListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
+import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -10,9 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentWith, ThinJAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
 import { AccessGroupId, TaskId, UserId } from '@models/id.types';
-import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -39,6 +37,9 @@ import {
   TASKS_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+
+/** Agent with the includes loaded for the edit view plus the requested crackingTime aggregate. */
+type ShownAgent = JAgentWith<'agentStats' | 'accessGroups' | 'assignments' | 'crackingTime'>;
 
 @Component({
   selector: 'app-edit-agent',
@@ -68,11 +69,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   // Edit Index
   editedAgentIndex: number;
-  showagent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+  showagent: ShownAgent;
 
-  // Calculations
-  timespent = 0;
-  getchunks: JChunk[] = [];
+  pageTitle = 'Agent';
 
   currentAssignment: JAgentAssignment | null = null;
   public ASC = ASC;
@@ -121,10 +120,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       await this.loadAgent();
       this.loadSelectTasks();
       this.loadSelectUsers();
-
-      if (this.agentRoleService.hasRole('readChunk')) {
-        this.assignChunksInit(this.editedAgentIndex);
-      }
 
       this.initForm();
     } catch (error) {
@@ -181,15 +176,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom<ResponseWrapper>(
         this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-          include: includes
+          include: includes,
+          aggregate: [{ field: 'agent', values: ['crackingTime'] }]
         })
       );
 
-      const agent: JAgentWith<'agentStats' | 'accessGroups' | 'assignments'> = this.serializer.deserialize(
-        response,
-        zAgentResponse,
-        { include: ['agentStats', 'accessGroups', 'assignments'] as const }
-      );
+      const typingParams = new RequestParamBuilder()
+        .addInclude('agentStats')
+        .addInclude('accessGroups')
+        .addInclude('assignments')
+        .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
+        .create();
+      const agent: ShownAgent = this.serializer.deserialize(response, zAgentResponse, typingParams);
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -214,7 +212,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         // Degraded fallback: no includes loaded due to server error
         const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
-        this.showagent = agent as JAgentWith<'agentStats' | 'accessGroups' | 'assignments'>;
+        this.showagent = agent as ShownAgent;
         this.selectUserAgps = [];
         return;
       }
@@ -267,6 +265,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.pageTitle = 'Agent ' + (this.showagent.agentName ?? '');
+
     this.updateForm.setValue({
       isActive: this.showagent.isActive,
       userId: this.showagent.userId ?? null,
@@ -286,49 +286,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         taskId: null
       });
     }
-  }
-
-  /**
-   * Calculates the total time spent based on an array of chunks.
-   * @param chunks - An array of chunks containing solveTime and dispatchTime properties.
-   */
-  timeCalc(chunks: JChunk[]): void {
-    const tspent = chunks.map((chunk) => Math.max(chunk.solveTime, chunk.dispatchTime) - chunk.dispatchTime);
-    this.timespent = tspent.reduce((a, i) => a + i, 0);
-  }
-
-  /**
-   * Initializes the assignment chunks for the specified agent ID.
-   * @param  agentID - The ID of the agent.
-   */
-  assignChunksInit(agentID: number): void {
-    const chunkRequestParams = new RequestParamBuilder()
-      .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agentID })
-      .create();
-
-    const chunksSub$ = this.gs.getAll(SERV.CHUNKS, chunkRequestParams).subscribe((response: ResponseWrapper) => {
-      const chunks: JChunk[] = this.serializer.deserialize(response, zChunkListResponse);
-
-      const tasksSub$ = this.gs.getAll(SERV.TASKS).subscribe((tasksResponse: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(tasksResponse, zTaskListResponse);
-
-        this.getchunks = chunks.map((chunk) => {
-          const matchedTask = tasks.find((task) => task.id === chunk.taskId);
-          if (matchedTask) {
-            chunk.taskName = matchedTask.taskName;
-          }
-          return chunk;
-        });
-
-        if (this.getchunks.length) {
-          this.timeCalc(this.getchunks);
-        }
-      });
-
-      this.unsubscribeService.add(tasksSub$);
-    });
-
-    this.unsubscribeService.add(chunksSub$);
   }
 
   /**
@@ -386,9 +343,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Render devices using count by device type
+  // Render devices using count by device type, one entry per line.
+  // Accepts either real newlines or HTML <br> as the incoming separator.
   renderDevices(devices: string): string {
-    const deviceList = devices.split('\n').filter((d) => !!d.trim());
+    const deviceList = devices
+      .replace(/<br\s*\/?>/gi, '\n')
+      .split('\n')
+      .map((d) => d.trim())
+      .filter((d) => !!d);
     const deviceCountMap: Record<string, number> = {};
 
     deviceList.forEach((device) => {
@@ -397,7 +359,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
-      .join('<br>');
+      .join('\n');
   }
 
   getOsLabel(os: AgentOS): string {

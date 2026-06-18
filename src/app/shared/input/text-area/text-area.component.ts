@@ -33,6 +33,8 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 export class InputTextAreaComponent extends AbstractInputComponent<string> {
   @Input() minRows = 3;
   @Input() maxRows = 12;
+  /** Snap each line to one input-row height so the field grows in whole rows. */
+  @Input() rowAligned = false;
 
   onValueChange(event: Event): void {
     const target = event.target as HTMLTextAreaElement;

@@ -49,7 +49,8 @@ export const zAgentResponse = z.object({
       lastIp: z.string(),
       userId: z.int().nullable(),
       cpuOnly: z.boolean(),
-      clientSignature: z.string()
+      clientSignature: z.string(),
+      crackingTime: z.int().optional()
     })
   }),
   relationships: z
@@ -335,7 +336,8 @@ export const zAgentListResponse = z.object({
         lastIp: z.string(),
         userId: z.int().nullable(),
         cpuOnly: z.boolean(),
-        clientSignature: z.string()
+        clientSignature: z.string(),
+        crackingTime: z.int().optional()
       })
     })
   ),

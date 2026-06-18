@@ -3,13 +3,17 @@ import { BaseModel } from '@models/base.model';
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { Aggregate, Filter, type TypedRequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
 
 /**
- * Builder class fpr request parameters, implements the IParamBuilder interface
+ * Builder for request parameters. Generic over the requested include relationships (`Inc`) and aggregate field
+ * names (`Agg`) so that `create()` yields a `TypedRequestParams<Inc, Agg>` and `deserialize(body, schema, params)`
+ * can derive the result type from the exact request — making it a compile error to read an aggregate that was
+ * not `.addAggregate(...)`-ed. Implements the (non-generic) `IParamBuilder`; code typed against that interface
+ * keeps working but degrades to the default (empty) type params, which is the safe "no aggregates" shape.
  */
-export class RequestParamBuilder implements IParamBuilder {
+export class RequestParamBuilder<Inc extends string = never, Agg extends string = never> implements IParamBuilder {
   private params: RequestParamsIntermediate;
 
   /**
@@ -23,7 +27,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * Sets page size, page after and sorting from datasource
    * @param dataSource the datasource to get the values from
    */
-  addInitial<T extends BaseModel>(dataSource: BaseDataSource<T>) {
+  addInitial<T extends BaseModel>(dataSource: BaseDataSource<T>): this {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
@@ -45,7 +49,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageSize
    * @returns object instance
    */
-  setPageSize(pageSize: number): IParamBuilder {
+  setPageSize(pageSize: number): this {
     this.params.pageSize = pageSize;
     return this;
   }
@@ -55,7 +59,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageBefore
    * @returns object instance
    */
-  setPageBefore(pageBefore: number | string | undefined): IParamBuilder {
+  setPageBefore(pageBefore: number | string | undefined): this {
     this.params.pageBefore = pageBefore;
     return this;
   }
@@ -65,7 +69,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param pageAfter
    * @returns object instance
    */
-  setPageAfter(pageAfter: number | string | undefined): IParamBuilder {
+  setPageAfter(pageAfter: number | string | undefined): this {
     this.params.pageAfter = pageAfter;
     return this;
   }
@@ -73,11 +77,11 @@ export class RequestParamBuilder implements IParamBuilder {
   /**
    * Adds a new value to the includes array
    * @param include new include value
-   * @returns object instance
+   * @returns object instance widened with the new include key
    */
-  addInclude(include: string): IParamBuilder {
+  addInclude<I extends string>(include: I): RequestParamBuilder<Inc | I, Agg> {
     this.params.includes = this.addToArray<string>(this.params.includes, include);
-    return this;
+    return this as unknown as RequestParamBuilder<Inc | I, Agg>;
   }
 
   /**
@@ -85,7 +89,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param filter new filter value
    * @returns object instance
    */
-  addFilter(filter: Filter): IParamBuilder {
+  addFilter(filter: Filter): this {
     this.params.filters = this.addToArray<Filter>(this.params.filters, filter);
     return this;
   }
@@ -95,9 +99,23 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param includeTotal include_total setting
    * @returns object instance
    */
-  addIncludeTotal(includeTotal: boolean): IParamBuilder {
+  addIncludeTotal(includeTotal: boolean): this {
     this.params.includeTotal = includeTotal;
     return this;
+  }
+
+  /**
+   * Adds a new aggregate fieldset to the aggregate array
+   * @param aggregate new aggregate fieldset value (`field` = entity, `values` = aggregate field names)
+   * @returns object instance widened with the requested aggregate field names
+   */
+  addAggregate<V extends string>(aggregate: {
+    field: string;
+    values: readonly V[];
+  }): RequestParamBuilder<Inc, Agg | V> {
+    const stored: Aggregate = { field: aggregate.field, values: [...aggregate.values] };
+    this.params.aggregate = this.addToArray<Aggregate>(this.params.aggregate, stored);
+    return this as unknown as RequestParamBuilder<Inc, Agg | V>;
   }
 
   /**
@@ -105,7 +123,7 @@ export class RequestParamBuilder implements IParamBuilder {
    * @param sortingColumn column to get sort values from
    * @returns object instance
    */
-  addSorting(sortingColumn: SortingColumn): IParamBuilder {
+  addSorting(sortingColumn: SortingColumn): this {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
       const direction = sortingColumn.direction === 'asc' ? '' : '-';
       const parent = sortingColumn.parent ? `${sortingColumn.parent}.` : '';
@@ -119,10 +137,10 @@ export class RequestParamBuilder implements IParamBuilder {
 
   /**
    * Creates a RequestParam object from the internal intermediate object
-   * @returns new RequestParam object
+   * @returns new RequestParam object branded with the requested include/aggregate keys
    */
-  create(): RequestParams {
-    const requestParams: RequestParams = {};
+  create(): TypedRequestParams<Inc, Agg> {
+    const requestParams: TypedRequestParams<Inc, Agg> = {};
     if (this.params.pageSize || this.params.pageBefore || this.params.pageAfter) {
       requestParams.page = {};
       if (this.params.pageSize !== undefined) requestParams.page.size = this.params.pageSize;
@@ -133,6 +151,7 @@ export class RequestParamBuilder implements IParamBuilder {
     if (this.params.sortOrder) requestParams.sort = this.params.sortOrder;
     if (this.params.filters) requestParams.filter = this.params.filters;
     if (this.params.includeTotal !== undefined) requestParams.include_total = this.params.includeTotal;
+    if (this.params.aggregate) requestParams.aggregate = this.params.aggregate;
     return requestParams;
   }
 

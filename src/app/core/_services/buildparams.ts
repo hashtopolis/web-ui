@@ -39,6 +39,14 @@ export function setParameter(params: RequestParams): HttpParams {
     });
   }
 
+  // Handle aggregate fieldsets, emitted as aggregate[<field>]=<value1,value2>
+  const aggregate = params.aggregate;
+  if (Array.isArray(aggregate) && aggregate.length > 0) {
+    aggregate.forEach((a) => {
+      httpParams = httpParams.set(`aggregate[${a.field}]`, a.values.join(','));
+    });
+  }
+
   // Handle ordering parameter
   const sort = params.sort;
   if (Array.isArray(sort) && sort.length > 0) {

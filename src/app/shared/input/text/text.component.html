@@ -1,7 +1,10 @@
 <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
   <label class="field-stack__label" [attr.for]="inputId">
     @if (linkTo) {
-      <a [routerLink]="linkTo">{{ title }}</a>
+      <a [routerLink]="linkTo" class="field-stack__label-link" [attr.aria-label]="'Open ' + title">
+        {{ title }}
+        <mat-icon aria-hidden="true">open_in_new</mat-icon>
+      </a>
     } @else {
       <span class="field-stack__label-text">
         {{ title }}

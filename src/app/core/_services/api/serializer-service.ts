@@ -16,7 +16,9 @@ import { z } from 'zod';
 
 import { Injectable, inject } from '@angular/core';
 
+import { AggregatesOfSchema } from '@models/aggregate-registry';
 import { JsonApiPayload, RelationshipKeysOfSchema } from '@models/json-api.types';
+import { RequestParams, TypedRequestParams } from '@models/request-params.model';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -74,27 +76,39 @@ export class JsonAPISerializer {
    *
    * @param body  Response body received by an API call
    * @param schema  Zod envelope schema to validate the raw JSON:API body
-   * @param options  Optional deserializer options; `include` is type-only
+   * @param optionsOrParams  Either `{ include: [...] as const }`, or the `RequestParams` produced by
+   *   `RequestParamBuilder.create()` (single source of truth for both includes and aggregates).
+   *
+   * Aggregate fields are ALWAYS omitted from the result type unless requested. The full aggregate set is
+   * derived automatically from the schema (`AggregatesOfSchema`), so passing the builder's params re-adds
+   * exactly the aggregates that were `.addAggregate(...)`-ed — reading an un-requested aggregate is a
+   * compile error.
    */
+  deserialize<TSchema extends z.ZodTypeAny, Inc extends string, Agg extends string>(
+    body: TJsonApiBody,
+    schema: TSchema,
+    params: TypedRequestParams<Inc, Agg>
+  ): JsonApiPayload<z.infer<TSchema>, Inc & RelationshipKeysOfSchema<TSchema>, AggregatesOfSchema<TSchema>, Agg>;
   deserialize<TSchema extends z.ZodTypeAny, K extends RelationshipKeysOfSchema<TSchema>>(
     body: TJsonApiBody,
     schema: TSchema,
     options: IncludeOptions<K>
-  ): JsonApiPayload<z.infer<TSchema>, K>;
+  ): JsonApiPayload<z.infer<TSchema>, K, AggregatesOfSchema<TSchema>, never>;
   deserialize<TSchema extends z.ZodTypeAny>(
     body: TJsonApiBody,
     schema: TSchema,
     options?: TDeserializeOptions
-  ): JsonApiPayload<z.infer<TSchema>>;
+  ): JsonApiPayload<z.infer<TSchema>, never, AggregatesOfSchema<TSchema>, never>;
   deserialize<T = unknown>(body: TJsonApiBody, options?: TDeserializeOptions): T;
   deserialize<T>(
     body: TJsonApiBody,
     schemaOrOptions?: z.ZodTypeAny | TDeserializeOptions,
-    options?: TDeserializeOptions | IncludeOptions<string>
+    options?: TDeserializeOptions | IncludeOptions<string> | RequestParams
   ): T {
     if (schemaOrOptions instanceof z.ZodType) {
       this.validateBody(body, schemaOrOptions);
-      return this.formatter.deserialize(body, options) as T;
+      // `options` may be a RequestParams (single-source path); jsona ignores unknown keys at runtime.
+      return this.formatter.deserialize(body, options as TDeserializeOptions | undefined) as T;
     }
     return this.formatter.deserialize(body, schemaOrOptions) as T;
   }

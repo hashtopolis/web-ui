@@ -75,7 +75,7 @@ export type NotificationSettingResponse = {
     type: 'notificationSetting';
     attributes: {
       action: 'createNotification' | 'setActive' | 'deleteNotification';
-      objectId: number;
+      objectId?: number | null;
       notification:
         | 'taskComplete'
         | 'agentError'
@@ -142,7 +142,7 @@ export type NotificationSettingPostPatchResponse = {
     type: 'notificationSetting';
     attributes: {
       action: 'createNotification' | 'setActive' | 'deleteNotification';
-      objectId: number;
+      objectId?: number | null;
       notification:
         | 'taskComplete'
         | 'agentError'
@@ -185,7 +185,7 @@ export type NotificationSettingListResponse = {
     type: 'notificationSetting';
     attributes: {
       action: 'createNotification' | 'setActive' | 'deleteNotification';
-      objectId: number;
+      objectId?: number | null;
       notification:
         | 'taskComplete'
         | 'agentError'

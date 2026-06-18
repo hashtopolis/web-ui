@@ -11,7 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { By } from '@angular/platform-browser';
 
 import { AuthService } from '@services/access/auth.service';
-import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
@@ -26,13 +25,11 @@ describe('AuthComponent', () => {
 
   // Mocks
   let mockAuthService: jasmine.SpyObj<AuthService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
   let mockUnsubscribeService: jasmine.SpyObj<UnsubscribeService>;
   let mockConfigService: jasmine.SpyObj<ConfigService>;
 
   beforeEach(async () => {
     mockAuthService = jasmine.createSpyObj('AuthService', ['logIn']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showErrorMessage']);
     mockUnsubscribeService = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     mockConfigService = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
 
@@ -52,7 +49,6 @@ describe('AuthComponent', () => {
       declarations: [AuthComponent],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
-        { provide: AlertService, useValue: mockAlertService },
         { provide: UnsubscribeService, useValue: mockUnsubscribeService },
         { provide: ConfigService, useValue: mockConfigService }
       ]
@@ -94,7 +90,7 @@ describe('AuthComponent', () => {
     expect(mockUnsubscribeService.add).toHaveBeenCalled();
   }));
 
-  it('should show error message when login fails on submit button click', fakeAsync(() => {
+  it('should stop loading when login fails on submit button click', fakeAsync(() => {
     const errorResponse = throwError(() => new Error('Login failed')).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(errorResponse);
 
@@ -111,7 +107,7 @@ describe('AuthComponent', () => {
     expect(component.isLoading).toBeFalse();
   }));
 
-  it('should show default error message when login fails without specific error message', fakeAsync(() => {
+  it('should stop loading when login fails without a specific error message', fakeAsync(() => {
     const errorResponse = throwError(() => ({})).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(errorResponse);
 

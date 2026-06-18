@@ -68,6 +68,9 @@
             </mat-option>
           </cdk-virtual-scroll-viewport>
         </mat-autocomplete>
+      } @else {
+        <!-- mat-chip-grid requires a registered matChipInput; without it form-field focus-state read crashes -->
+        <input [matChipInputFor]="chipGridRef" hidden aria-hidden="true" tabindex="-1" />
       }
       <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
       <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">

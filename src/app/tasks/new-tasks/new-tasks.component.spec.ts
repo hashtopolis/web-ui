@@ -148,15 +148,7 @@ const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   keyspace: 0,
   keyspaceProgress: 0,
   taskWrapperId: 1,
-  isArchived: false,
-  dispatched: '',
-  searched: '',
-  status: 0,
-  timeSpent: 0,
-  currentSpeed: 0,
-  estimatedTime: 0,
-  cprogress: 0,
-  totalNumberOfChunks: 0
+  isArchived: false
 };
 
 const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {

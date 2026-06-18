@@ -1,4 +1,9 @@
-<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+<div
+  class="field-stack"
+  [class.is-invalid]="hasError && isTouched && !readonly"
+  [class.input--readonly]="readonly"
+  [class.field-stack--row-aligned]="rowAligned"
+>
   <label class="field-stack__label" [attr.for]="inputId">
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>

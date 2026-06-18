@@ -5,7 +5,6 @@ import { FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
 
 import { AuthService } from '@services/access/auth.service';
-import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
@@ -28,14 +27,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private unsubscribeService = inject(UnsubscribeService);
   private configService = inject(ConfigService);
   private authService = inject(AuthService);
-  private alertService = inject(AlertService);
   private themeService = inject(ThemeService);
   private host = inject(ElementRef);
 
   /** Form group for the new SuperHashlist. */
   loginForm: FormGroup<LoginForm>;
-
-  errorRes: string | null;
 
   public isVisible = true;
   headerConfig: HeaderConfig;
@@ -118,10 +114,10 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
       next: () => {
         this.loginForm.reset();
       },
-      error: (error: string) => {
+      error: () => {
+        // The global HTTP response interceptor already surfaces the error to the
+        // user (modal dialog), so we only need to stop the loading spinner here.
         this.isLoading = false;
-        const errorMessage = error || 'An error occurred. Please try again later.';
-        this.handleError(errorMessage);
       },
       complete: () => {
         this.isLoading = false; // Hide spinner after attempting to log in
@@ -129,15 +125,5 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.unsubscribeService.add(authSubscription$);
-  }
-
-  /**
-   * Show and log specified error message
-   * @param errorMessage Message to log/display
-   * @private
-   */
-  private handleError(errorMessage: string): void {
-    this.errorRes = errorMessage;
-    this.alertService.showErrorMessage(errorMessage);
   }
 }

@@ -58,7 +58,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  editName: string;
+  editName = '';
 
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
   @ViewChild('superTasksPretaskNotContainedTable') superTasksPretasksNotContainedTable: PretasksTableComponent;

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { JTaskWrapperDisplay, TaskStatus, TaskType } from '@models/task.model';
 
 import { ExportService } from '@services/export/export.service';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -695,6 +696,36 @@ describe('TasksTableComponent', () => {
       expect(updateIsArchivedSpy).toHaveBeenCalledWith(123, false);
     });
 
+    it('should call updateTaskWrapperIsArchived for ARCHIVE action on SUPERTASK', () => {
+      const event = {
+        menuItem: { label: 'Archive', action: RowActionMenuAction.ARCHIVE },
+        data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
+      };
+      const updateTaskWrapperIsArchivedSpy = spyOn(
+        component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
+        'updateTaskWrapperIsArchived'
+      );
+
+      component.rowActionClicked(event);
+
+      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith(456, true);
+    });
+
+    it('should call updateTaskWrapperIsArchived for UNARCHIVE action on SUPERTASK', () => {
+      const event = {
+        menuItem: { label: 'Unarchive', action: RowActionMenuAction.UNARCHIVE },
+        data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
+      };
+      const updateTaskWrapperIsArchivedSpy = spyOn(
+        component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
+        'updateTaskWrapperIsArchived'
+      );
+
+      component.rowActionClicked(event);
+
+      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith(456, false);
+    });
+
     it('should open delete dialog for DELETE action', () => {
       const event = {
         menuItem: { label: 'Delete', action: RowActionMenuAction.DELETE },
@@ -856,6 +887,27 @@ describe('TasksTableComponent', () => {
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived tasks!');
     });
 
+    it('should call gs.bulkUpdate for TASKS_WRAPPER when archiving a SUPERTASK', () => {
+      mockDialog.open.and.returnValue({
+        afterClosed: () =>
+          of({
+            action: BulkActionMenuAction.ARCHIVE,
+            data: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }]
+          })
+      } as unknown as ReturnType<typeof mockDialog.open>);
+
+      component.openDialog({
+        rows: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }] as JTaskWrapperDisplay[],
+        title: 'Archive',
+        action: BulkActionMenuAction.ARCHIVE
+      });
+
+      expect(mockGlobalService.bulkUpdate).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, jasmine.any(Array), {
+        isArchived: true
+      });
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived tasks!');
+    });
+
     it('should call bulkActionDelete for bulk DELETE action', () => {
       mockDialog.open.and.returnValue({
         afterClosed: () =>
@@ -887,6 +939,40 @@ describe('TasksTableComponent', () => {
       });
 
       expect(mockGlobalService.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateTaskWrapperIsArchived', () => {
+    it('should call gs.update with TASKS_WRAPPER endpoint when archiving', () => {
+      (
+        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+      ).updateTaskWrapperIsArchived(456, true);
+
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: true });
+    });
+
+    it('should call gs.update with TASKS_WRAPPER endpoint when unarchiving', () => {
+      (
+        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+      ).updateTaskWrapperIsArchived(456, false);
+
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: false });
+    });
+
+    it('should show "Successfully archived supertask!" on archive success', () => {
+      (
+        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+      ).updateTaskWrapperIsArchived(456, true);
+
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived supertask!');
+    });
+
+    it('should show "Successfully unarchived supertask!" on unarchive success', () => {
+      (
+        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+      ).updateTaskWrapperIsArchived(456, false);
+
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully unarchived supertask!');
     });
   });
 
@@ -944,6 +1030,20 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith();
     });
 
+    it('should filter the ID column by taskId while it sorts by taskWrapperId', () => {
+      component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
+      component.mockDataSource.loadAll.calls.reset();
+
+      component.filter('123');
+
+      expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
+        value: '123',
+        field: 'taskId',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
     it('should pass parent from selectedFilterColumn to filter', () => {
       component.selectedFilterColumn = {
         dataKey: 'name',
@@ -980,6 +1080,21 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
         value: '',
         field: 'name',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
+    it('should set the filter query to taskId for the ID column', () => {
+      component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
+      component.mockDataSource.setFilterQuery.calls.reset();
+      spyOn(component, 'filter');
+
+      component.handleBackendSqlFilter('123');
+
+      expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
+        value: '123',
+        field: 'taskId',
         operator: jasmine.anything(),
         parent: undefined
       });
@@ -1102,8 +1217,8 @@ describe('TasksTableComponent', () => {
   });
 
   describe('renderBoolIcon', () => {
-    it('should return check icon for TASK with isSmall=1', () => {
-      const wrapper = { taskType: TaskType.TASK, isSmall: 1 } as JTaskWrapperDisplay;
+    it('should return check icon for TASK with isSmall=true', () => {
+      const wrapper = { taskType: TaskType.TASK, isSmall: true } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {
@@ -1115,8 +1230,8 @@ describe('TasksTableComponent', () => {
       expect(icon.cls).toBe('text-ok');
     });
 
-    it('should return empty icon for TASK with isSmall=0', () => {
-      const wrapper = { taskType: TaskType.TASK, isSmall: 0 } as JTaskWrapperDisplay;
+    it('should return empty icon for TASK with isSmall=false', () => {
+      const wrapper = { taskType: TaskType.TASK, isSmall: false } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {
@@ -1127,8 +1242,8 @@ describe('TasksTableComponent', () => {
       expect(icon.name).toBe('');
     });
 
-    it('should return check icon for SUPERTASK with isSmall=1', () => {
-      const wrapper = { taskType: TaskType.SUPERTASK, isSmall: 1 } as JTaskWrapperDisplay;
+    it('should return check icon for SUPERTASK with isSmall=true', () => {
+      const wrapper = { taskType: TaskType.SUPERTASK, isSmall: true } as JTaskWrapperDisplay;
 
       const icon = (
         component as unknown as {

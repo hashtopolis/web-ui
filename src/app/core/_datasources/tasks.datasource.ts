@@ -1,18 +1,17 @@
+import { zTaskWrapperDisplayListResponse } from '@generated/api/zod';
 import { EMPTY, catchError } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapperDisplay } from '@models/task.model';
+import { JTaskWrapperDisplayOverview } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-
-export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
+export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview> {
   private _isArchived = false;
   private _hashlistID = 0;
   private filterQuery: Filter;
@@ -33,11 +32,17 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
 
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addFilter({
-      field: 'taskWrapperIsArchived',
-      operator: FilterType.EQUAL,
-      value: this._isArchived
-    });
+    const params = new RequestParamBuilder()
+      .addInitial(this)
+      .addAggregate({
+        field: 'taskwrapperdisplay',
+        values: ['totalAssignedAgents', 'searched', 'dispatched', 'status', 'currentSpeed'] as const
+      })
+      .addFilter({
+        field: 'taskWrapperIsArchived',
+        operator: FilterType.EQUAL,
+        value: this._isArchived
+      });
     if (query) {
       params.addFilter(query);
     }
@@ -50,7 +55,8 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
       });
     }
 
-    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER_DISPLAYS, params.create());
+    const requestParams = params.create();
+    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER_DISPLAYS, requestParams);
 
     this.subscriptions.push(
       wrappers$
@@ -62,9 +68,8 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplay> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          // Use JsonAPISerializer without Zod
-          const taskWrappers = new JsonAPISerializer()
-            .deserialize<JTaskWrapperDisplay[]>(response)
+          const taskWrappers: JTaskWrapperDisplayOverview[] = this.serializer
+            .deserialize(response, zTaskWrapperDisplayListResponse, requestParams)
             .map((w) => ({ ...w, taskWrapperId: w.taskWrapperId ?? w.id }));
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
