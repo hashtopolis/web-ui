@@ -1,6 +1,6 @@
 import { themes } from '@constants/settings.config';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
@@ -11,6 +11,7 @@ export interface RuntimeThemeOption {
   icon: string;
   href?: string;
   source: 'builtin' | 'custom';
+  isDark: boolean;
 }
 
 interface RuntimeThemeManifestEntry {
@@ -18,6 +19,7 @@ interface RuntimeThemeManifestEntry {
   description?: string;
   href?: string;
   icon?: string;
+  isDark?: boolean;
 }
 
 const BUILT_IN_THEME_ICONS: Record<string, string> = {
@@ -34,14 +36,21 @@ export class ThemeCatalogService {
   private readonly builtInThemes: RuntimeThemeOption[] = themes.map((theme) => ({
     ...theme,
     icon: BUILT_IN_THEME_ICONS[theme.value] ?? 'palette',
-    source: 'builtin'
+    source: 'builtin',
+    isDark: theme.value === 'dark'
   }));
 
+  private themes$?: Observable<RuntimeThemeOption[]>;
+
   getThemes(): Observable<RuntimeThemeOption[]> {
-    return this.http.get<RuntimeThemeManifestEntry[]>('/assets/themes/custom-themes.json').pipe(
-      map((entries) => this.mergeThemes(Array.isArray(entries) ? entries : [])),
-      catchError(() => of(this.builtInThemes))
-    );
+    if (!this.themes$) {
+      this.themes$ = this.http.get<RuntimeThemeManifestEntry[]>('/assets/themes/custom-themes.json').pipe(
+        map((entries) => this.mergeThemes(Array.isArray(entries) ? entries : [])),
+        catchError(() => of(this.builtInThemes)),
+        shareReplay(1)
+      );
+    }
+    return this.themes$;
   }
 
   private mergeThemes(entries: RuntimeThemeManifestEntry[]): RuntimeThemeOption[] {
@@ -63,7 +72,8 @@ export class ThemeCatalogService {
         description: description || value,
         href,
         icon: entry.icon?.trim() || 'style',
-        source: 'custom'
+        source: 'custom',
+        isDark: entry.isDark === true
       });
     }
 

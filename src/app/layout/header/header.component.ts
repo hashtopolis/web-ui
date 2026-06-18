@@ -106,7 +106,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
     this.themeSub = this.themes.theme$.subscribe((theme) => {
       this.currentTheme = theme ?? this.themes.current;
-      this.isDarkMode = this.currentTheme === 'dark';
+      this.isDarkMode = this.themes.isDark(this.currentTheme);
     });
     this.themeCatalog.getThemes().subscribe((themeOptions) => {
       this.themeOptions = themeOptions;

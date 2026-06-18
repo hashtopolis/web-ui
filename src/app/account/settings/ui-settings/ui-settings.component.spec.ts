@@ -29,8 +29,8 @@ describe('UiSettingsComponent', () => {
   let mockThemeCatalogService: jasmine.SpyObj<ThemeCatalogService>;
 
   const mockThemes: RuntimeThemeOption[] = [
-    { value: 'light', description: 'Light Mode', icon: 'light_mode', source: 'builtin' },
-    { value: 'dark', description: 'Dark Mode', icon: 'dark_mode', source: 'builtin' }
+    { value: 'light', description: 'Light Mode', icon: 'light_mode', source: 'builtin', isDark: false },
+    { value: 'dark', description: 'Dark Mode', icon: 'dark_mode', source: 'builtin', isDark: true }
   ];
 
   const mockModifiedUIConfig = {

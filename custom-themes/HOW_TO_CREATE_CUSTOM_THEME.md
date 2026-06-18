@@ -66,6 +66,7 @@ If both are available, the theme appears in theme selectors.
 - Built-in ids are reserved and ignored in custom manifest: `light`, `dark`.
 - Use absolute URLs in CSS for assets, for example `/assets/img/...`.
 - Custom menu icons are currently generated as `style` by default.
+- Declare `color-scheme: dark` for a dark theme so the app picks dark-mode logos, icon colors, and charts.
 - Do not add JavaScript or TypeScript to create a theme unless you are extending platform behavior.
 
 ## LLM Prompt Template

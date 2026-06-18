@@ -18,10 +18,10 @@ import { environment } from '@src/environments/environment';
             <div class="dot dot4"></div>
           </div>
         </div>
-        @if (currentTheme() !== 'dark') {
+        @if (!isDark()) {
           <img class="logoImage" [src]="this.headerConfig.brand.logo" alt="" />
         }
-        @if (currentTheme() === 'dark') {
+        @if (isDark()) {
           <img class="logoImage" [src]="this.headerConfig.brand.logored" alt="" />
         }
       </div>
@@ -41,8 +41,8 @@ export class LoadingSpinnerComponent {
     this.ls.showSpinner.subscribe(this.stateSpinner.bind(this));
   }
 
-  public currentTheme(): string {
-    return this.theme.current;
+  public isDark(): boolean {
+    return this.theme.isDark();
   }
 
   stateSpinner = (state: boolean): void => {

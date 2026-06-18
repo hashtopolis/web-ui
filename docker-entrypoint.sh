@@ -63,7 +63,15 @@ function sync_custom_themes {
       if [ "$css_path" != "$target_css_dir/${theme_id}.css" ]; then
         cp "$css_path" "$target_css_dir/${theme_id}.css"
       fi
-      theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/\"//g')"
+      theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/[\\"]//g')"
+
+      # Mark the theme dark when its CSS declares a dark color-scheme, so the app
+      # can pick dark-mode assets (logo, icon colors, charts) for it.
+      if grep -Eiq 'color-scheme[[:space:]]*:[^;]*dark' "$css_path"; then
+        is_dark=true
+      else
+        is_dark=false
+      fi
 
       if [ "$first" = true ]; then
         first=false
@@ -76,7 +84,8 @@ function sync_custom_themes {
     "value": "$theme_id",
     "description": "$theme_label",
     "href": "/assets/custom-themes/${theme_id}.css",
-    "icon": "style"
+    "icon": "style",
+    "isDark": $is_dark
   }
 EOF
     done < <(find "$current_source" -type f -iname '*.css' -print0 | sort -z)

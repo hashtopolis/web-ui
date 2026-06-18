@@ -37,7 +37,8 @@ export class UiSettingsComponent implements OnInit {
   themes: RuntimeThemeOption[] = themes.map((theme) => ({
     ...theme,
     icon: 'palette',
-    source: 'builtin'
+    source: 'builtin',
+    isDark: theme.value === 'dark'
   }));
 
   ngOnInit(): void {

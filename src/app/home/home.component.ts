@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.currentTheme = this.uiSettings.getSetting('theme') ?? 'light';
-    this.isDarkMode = this.currentTheme === 'dark';
+    this.isDarkMode = this.themeService.isDark(this.currentTheme);
   }
 
   /**
@@ -108,7 +108,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const themeSubscription = this.themeService.theme$.subscribe((theme) => {
       this.currentTheme = theme ?? this.themeService.current;
-      this.isDarkMode = this.currentTheme === 'dark';
+      this.isDarkMode = this.themeService.isDark(this.currentTheme);
     });
     this.subscriptions.push(themeSubscription);
 
