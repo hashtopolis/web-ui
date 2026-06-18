@@ -28,6 +28,12 @@
                   formControlName="chunkTime"
                 ></input-number>
                 <input-select
+                  title="Benchmark Type"
+                  formControlName="useNewBench"
+                  [items]="selectBenchmarktype"
+                  [readonly]="true"
+                ></input-select>
+                <input-select
                   title="CPU only"
                   tooltip="The task will work only with CPU agents assigned"
                   formControlName="isCpuTask"
@@ -39,15 +45,6 @@
                   tooltip="Measured in seconds"
                   formControlName="statusTimer"
                 ></input-number>
-              </app-form-row>
-
-              <app-form-row [columns]="2">
-                <input-select
-                  title="Benchmark Type"
-                  formControlName="useNewBench"
-                  [items]="selectBenchmarktype"
-                  [readonly]="true"
-                ></input-select>
               </app-form-row>
             </div>
 

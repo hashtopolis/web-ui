@@ -50,10 +50,7 @@
                 [linkTo]="['/hashlists', 'hashes', 'hashlists', editedHashlistIndex + '?uncracked']"
                 [readonly]="true"
               ></input-text>
-            </app-form-row>
-
-            <app-form-row align="left">
-              <div formGroupName="updateData">
+              <div formGroupName="updateData" class="self-end">
                 <input-check title="Secret Data" formControlName="isSecret"></input-check>
               </div>
             </app-form-row>
@@ -70,7 +67,7 @@
         <grid-main>
           <app-page-subtitle subtitle="Actions"></app-page-subtitle>
 
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-col items-start gap-3">
             <button-submit
               [name]="'Import pre-cracked hashes'"
               (click)="importCrackedHashes()"
