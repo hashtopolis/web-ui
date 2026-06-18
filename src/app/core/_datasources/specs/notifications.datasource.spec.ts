@@ -245,3 +245,42 @@ describe('NotificationsDataSource', () => {
     });
   });
 });
+
+// Schema-level regression for bug #2224: notifications not tied to an object (e.g. a global
+// agentError/logError) carry no objectId. The list-response schema must accept a null or absent
+// objectId, otherwise the serializer's validateBody() logs a large ZodError to the console.
+describe('zNotificationSettingListResponse objectId nullability', () => {
+  const bodyWith = (attrs: Record<string, unknown>) => ({
+    jsonapi: { version: '1.1' },
+    data: [
+      {
+        id: 1,
+        type: 'notificationSetting',
+        attributes: {
+          action: 'createNotification',
+          notification: 'agentError',
+          userId: 1,
+          receiver: 'user@example.org',
+          isActive: true,
+          ...attrs
+        }
+      }
+    ]
+  });
+
+  it('accepts a numeric objectId', () => {
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 42 })).success).toBeTrue();
+  });
+
+  it('accepts a null objectId (notification not tied to an object)', () => {
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: null })).success).toBeTrue();
+  });
+
+  it('accepts an absent objectId', () => {
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({})).success).toBeTrue();
+  });
+
+  it('still rejects a non-integer objectId', () => {
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 'not-a-number' })).success).toBeFalse();
+  });
+});
