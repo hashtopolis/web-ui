@@ -104,4 +104,3 @@ function humanizeResourceName(operation: string): string {
 }
 
 export const PERMISSION_DENIED_TOOLTIP = 'You can only grant permissions you hold yourself.';
-export const PERMISSION_NOT_APPLICABLE_TOOLTIP = 'This action does not exist for this resource.';

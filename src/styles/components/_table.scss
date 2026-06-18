@@ -252,6 +252,13 @@ table.hashtopolis-table {
         display: block;
         flex: 1 1 auto;
         min-width: 0;
+
+        // A column without an `editable` callback renders nothing here. Don't let
+        // the empty host keep its flex-grow and push sibling content (e.g. a
+        // checkbox column's checkbox) off-axis from its header label.
+        &:empty {
+          flex: 0 0 auto;
+        }
       }
     }
 
