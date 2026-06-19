@@ -103,6 +103,30 @@ describe('NewUserComponent', () => {
     expect(mockGlobalService.create).not.toHaveBeenCalled();
   });
 
+  it('should mark username as invalid with a minlength error when shorter than 2 characters', () => {
+    const username = component.newUserForm.controls.username;
+    username.setValue('a');
+    expect(username.invalid).toBeTrue();
+    expect(username.errors?.['minlength']).toBeTruthy();
+  });
+
+  it('should accept a username of at least 2 characters', () => {
+    const username = component.newUserForm.controls.username;
+    username.setValue('ab');
+    expect(username.errors?.['minlength']).toBeFalsy();
+  });
+
+  it('should not submit if username is too short', async () => {
+    component.newUserForm.patchValue({
+      username: 'a',
+      email: 'test@example.com',
+      globalPermissionGroupId: 1,
+      isValid: true
+    });
+    await component.onSubmit();
+    expect(mockGlobalService.create).not.toHaveBeenCalled();
+  });
+
   it('should call create and navigate on valid form', async () => {
     component.newUserForm.patchValue({
       username: 'testuser',
