@@ -8,6 +8,11 @@
   overflow: visible;
 }
 
+// Action links (onClick, no href) need an explicit pointer cursor.
+a.link[role='button'] {
+  cursor: pointer;
+}
+
 a.link:has(fa-icon) {
   display: inline-flex;
   align-items: center;
