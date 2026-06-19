@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -255,6 +255,34 @@ describe('NewHashlistComponent', () => {
       ]);
 
       expect(component.uploadProgress).toBe(100);
+      expect(component.isCreatingLoading).toBe(false);
+    }));
+
+    it('should surface the backend error message when the upload/creation fails', fakeAsync(() => {
+      const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      component.selectedFiles = dataTransfer.files;
+
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '2500',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'upload'
+      });
+
+      uploadSpy.uploadFile.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'The hashlist contains too many lines.' } }))
+      );
+
+      component.onSubmit();
+      tick();
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
+        'Failed to create hashlist: The hashlist contains too many lines.'
+      );
+      expect(component.uploadProgress).toBe(0);
       expect(component.isCreatingLoading).toBe(false);
     }));
 

@@ -224,13 +224,45 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
       .pipe(takeUntil(this.fileUnsubscribe))
-      .subscribe((progress) => {
-        this.uploadProgress = progress;
-        this.changeDetectorRef.detectChanges();
-        if (this.uploadProgress === 100) {
+      .subscribe({
+        next: (progress) => {
+          this.uploadProgress = progress;
+          this.changeDetectorRef.detectChanges();
+          if (this.uploadProgress === 100) {
+            this.isCreatingLoading = false;
+          }
+        },
+        error: (error) => {
+          this.uploadProgress = 0;
           this.isCreatingLoading = false;
+          this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+          this.changeDetectorRef.detectChanges();
         }
       });
+  }
+
+  /**
+   * Builds an error message from a failed upload/creation, surfacing the
+   * backend message (e.g. too many hashlist lines) when available.
+   */
+  private buildUploadErrorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+      return `Failed to create hashlist: ${error}`;
+    }
+
+    if (error && typeof error === 'object') {
+      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
+      const backendMessage = errorObject.error?.title || errorObject.error?.message;
+      if (backendMessage) {
+        return `Failed to create hashlist: ${backendMessage}`;
+      }
+
+      if (errorObject.message) {
+        return `Failed to create hashlist: ${errorObject.message}`;
+      }
+    }
+
+    return 'Failed to create hashlist.';
   }
 
   /**
