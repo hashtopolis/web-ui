@@ -6,7 +6,8 @@
         <span
           class="link-wrapper"
           [class.has-graph-preview]="!!link.visualGraph?.enabled"
-          (mouseenter)="prefetchVisualGraph(link)"
+          (mouseenter)="showPreview(link, $event)"
+          (mouseleave)="hidePreview()"
         >
           <a (click)="onLinkClicked()" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
             <span class="link-label">
@@ -20,60 +21,13 @@
               <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
             }
           </a>
-
-          @if (link.visualGraph?.enabled) {
-            <div class="graph-preview" role="tooltip" aria-label="Task visual graph preview">
-              <div class="graph-preview-title">Task visual graph</div>
-
-              @if (getVisualGraphPreview(link); as previewImage) {
-                <img
-                  [src]="previewImage"
-                  alt="Task progress image"
-                  (error)="onVisualGraphImageError(link)"
-                  class="graph-preview-image"
-                />
-
-                <div class="overall-progress">
-                  <div class="overall-progress-label">
-                    Overall hashlist progress: {{ link.visualGraph!.overallProgress }}%
-                    <span class="overall-progress-meta">({{ link.visualGraph!.overallProgressLabel }})</span>
-                  </div>
-                  <div class="overall-progress-track">
-                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph!.overallProgress"></div>
-                  </div>
-                </div>
-
-                <div class="graph-preview-legend">
-                  <div class="legend-item">
-                    <span class="legend-color not-processed"></span>
-                    <span>Chunk not processed yet</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color cracked"></span>
-                    <span>Cracked passwords in chunk</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color no-crack"></span>
-                    <span>No passwords in chunk</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color error"></span>
-                    <span>Chunk error</span>
-                  </div>
-                </div>
-              } @else if (hasVisualGraphLoadError(link)) {
-                <div class="graph-preview-status">Preview unavailable</div>
-              } @else {
-                <div class="graph-preview-status">Loading graph...</div>
-              }
-            </div>
-          }
         </span>
       } @else {
         <span
           class="link-wrapper"
           [class.has-graph-preview]="!!link.visualGraph?.enabled"
-          (mouseenter)="prefetchVisualGraph(link)"
+          (mouseenter)="showPreview(link, $event)"
+          (mouseleave)="hidePreview()"
         >
           <div [matTooltip]="link.tooltip ?? ''">
             <span>
@@ -87,57 +41,59 @@
               }
             </span>
           </div>
-
-          @if (link.visualGraph?.enabled) {
-            <div class="graph-preview" role="tooltip" aria-label="Task visual graph preview">
-              <div class="graph-preview-title">Task visual graph</div>
-
-              @if (getVisualGraphPreview(link); as previewImage) {
-                <img
-                  [src]="previewImage"
-                  alt="Task progress image"
-                  (error)="onVisualGraphImageError(link)"
-                  class="graph-preview-image"
-                />
-
-                <div class="overall-progress">
-                  <div class="overall-progress-label">
-                    Overall hashlist progress: {{ link.visualGraph!.overallProgress }}%
-                    <span class="overall-progress-meta">({{ link.visualGraph!.overallProgressLabel }})</span>
-                  </div>
-                  <div class="overall-progress-track">
-                    <div class="overall-progress-fill" [style.width.%]="link.visualGraph!.overallProgress"></div>
-                  </div>
-                </div>
-
-                <div class="graph-preview-legend">
-                  <div class="legend-item">
-                    <span class="legend-color not-processed"></span>
-                    <span>Chunk not processed yet</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color cracked"></span>
-                    <span>Cracked passwords in chunk</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color no-crack"></span>
-                    <span>No passwords in chunk</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-color error"></span>
-                    <span>Chunk error</span>
-                  </div>
-                </div>
-              } @else if (hasVisualGraphLoadError(link)) {
-                <div class="graph-preview-status">Preview unavailable</div>
-              } @else {
-                <div class="graph-preview-status">Loading graph...</div>
-              }
-            </div>
-          }
         </span>
       }
       <!-- If no routerLink, render as plain text <span> -->
     }
   }
 }
+
+<!-- Hover preview, rendered into a CDK overlay (showPreview) so it is never clipped
+     by the table's horizontal-scroll container. -->
+<ng-template #graphPreviewTpl let-link>
+  <div class="graph-preview" role="tooltip" aria-label="Task visual graph preview">
+    <div class="graph-preview-title">Task visual graph</div>
+
+    @if (getVisualGraphPreview(link); as previewImage) {
+      <img
+        [src]="previewImage"
+        alt="Task progress image"
+        (error)="onVisualGraphImageError(link)"
+        class="graph-preview-image"
+      />
+
+      <div class="overall-progress">
+        <div class="overall-progress-label">
+          Overall hashlist progress: {{ link.visualGraph!.overallProgress }}%
+          <span class="overall-progress-meta">({{ link.visualGraph!.overallProgressLabel }})</span>
+        </div>
+        <div class="overall-progress-track">
+          <div class="overall-progress-fill" [style.width.%]="link.visualGraph!.overallProgress"></div>
+        </div>
+      </div>
+
+      <div class="graph-preview-legend">
+        <div class="legend-item">
+          <span class="legend-color not-processed"></span>
+          <span>Chunk not processed yet</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color cracked"></span>
+          <span>Cracked passwords in chunk</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color no-crack"></span>
+          <span>No passwords in chunk</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color error"></span>
+          <span>Chunk error</span>
+        </div>
+      </div>
+    } @else if (hasVisualGraphLoadError(link)) {
+      <div class="graph-preview-status">Preview unavailable</div>
+    } @else {
+      <div class="graph-preview-status">Loading graph...</div>
+    }
+  </div>
+</ng-template>
