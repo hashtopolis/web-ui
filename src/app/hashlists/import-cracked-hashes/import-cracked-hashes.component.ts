@@ -59,7 +59,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   serverFiles: ServerImportFile[] = [];
   serverFileOptions: SelectOption[] = [];
   isLoadingServerFiles = false;
-  hasLoadedServerFiles = false;
   hashesAreRequired = false;
 
   private fileUnsubscribe = new Subject<void>();
@@ -98,7 +97,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
       this.hashesAreRequired = false;
       this.resetHashesValidator();
-      if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+      // Reload every time 'import' is selected so newly placed server files
+      // appear without a re-login; the loading flag guards against overlap.
+      if (sourceType === 'import' && !this.isLoadingServerFiles) {
         void this.loadServerFiles();
       }
 
@@ -250,7 +251,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
-      this.hasLoadedServerFiles = true;
     } catch (error) {
       console.error('Error fetching server import files:', error);
       this.alert.showErrorMessage('Could not load files from server import directory.');
@@ -315,7 +315,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       const files = response.meta || [];
       this.serverFiles = files;
       this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
-      this.hasLoadedServerFiles = true;
       return files.some((file) => file.file === filename);
     } catch {
       return false;

@@ -79,7 +79,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   serverFiles: ServerImportFile[] = [];
   serverFileOptions: SelectOption[] = [];
   isLoadingServerFiles = false;
-  hasLoadedServerFiles = false;
 
   saltSubscription = new Subscription();
 
@@ -125,7 +124,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     this.saltSubscription.add(
       this.form.controls.sourceType.valueChanges.subscribe((sourceType: string) => {
-        if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+        // Reload every time 'import' is selected so newly placed server files
+        // appear without a re-login; the loading flag guards against overlap.
+        if (sourceType === 'import' && !this.isLoadingServerFiles) {
           void this.loadServerFiles();
         }
 
@@ -251,7 +252,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
-      this.hasLoadedServerFiles = true;
     } catch (error) {
       console.error('Error fetching server import files:', error);
       this.alert.showErrorMessage('Could not load files from server import directory.');
