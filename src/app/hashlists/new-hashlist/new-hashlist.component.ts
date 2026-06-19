@@ -241,28 +241,14 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Builds an error message from a failed upload/creation, surfacing the
-   * backend message (e.g. too many hashlist lines) when available.
-   */
+  /** Show the backend reason (e.g. "too many lines") when the create fails. */
   private buildUploadErrorMessage(error: unknown): string {
-    if (typeof error === 'string') {
-      return `Failed to create hashlist: ${error}`;
-    }
+    const e = (typeof error === 'object' ? error : null) as
+      | { error?: { title?: string; message?: string }; message?: string }
+      | null;
+    const detail = typeof error === 'string' ? error : e?.error?.title || e?.error?.message || e?.message;
 
-    if (error && typeof error === 'object') {
-      const errorObject = error as { error?: { title?: string; message?: string }; message?: string };
-      const backendMessage = errorObject.error?.title || errorObject.error?.message;
-      if (backendMessage) {
-        return `Failed to create hashlist: ${backendMessage}`;
-      }
-
-      if (errorObject.message) {
-        return `Failed to create hashlist: ${errorObject.message}`;
-      }
-    }
-
-    return 'Failed to create hashlist.';
+    return detail ? `Failed to create hashlist: ${detail}` : 'Failed to create hashlist.';
   }
 
   /**

@@ -258,7 +258,7 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     }));
 
-    it('should surface the backend error message when the upload/creation fails', fakeAsync(() => {
+    it('should show the backend error message when the upload/creation fails', fakeAsync(() => {
       const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
