@@ -55,7 +55,7 @@ export interface HTTableRouterLink {
   routerLink: Array<string | number> | null;
   tooltip?: string | undefined;
   icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
-  // Click handler for cells that trigger an action (e.g. open a dialog) instead of navigating. Used when routerLink is null.
+  // click handler for cells that trigger an action
   onClick?: () => void;
   visualGraph?: {
     enabled: boolean;
