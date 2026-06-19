@@ -568,3 +568,12 @@ table.hashtopolis-table {
 .ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-table-sticky-border-elem-right {
   box-shadow: -3px 0 3px -3px var(--table-freeze-shadow);
 }
+
+// Retina sub-pixel seam: the sticky trailing column's right edge can land a fraction of a device
+// pixel short of the scroll container's edge, exposing a ~1px sliver of the scrolled column to its
+// right. Nudge the column 1px past the edge (the container clips the overshoot) so it always covers
+// the seam. `!important` overrides CDK's inline `right: 0` on the sticky-end cell.
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky-border-elem-right,
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-header-cell.mat-mdc-table-sticky-border-elem-right {
+  right: -1px !important;
+}
