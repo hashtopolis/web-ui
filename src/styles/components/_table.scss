@@ -548,3 +548,23 @@ table.hashtopolis-table .mat-mdc-row.row-cracked .mat-mdc-cell.mat-mdc-table-sti
 .mat-mdc-dialog-container table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky {
   background: linear-gradient(var(--card), var(--card)), var(--popover);
 }
+
+// Faint shadow cast from the frozen columns onto the scrollable region so the freeze boundary
+// reads as a soft edge. Material tags the boundary cells (last leading / first trailing frozen
+// column) with these `...-sticky-border-elem-{left,right}` classes. The negative blur spread
+// keeps the shadow on the vertical edge only, so the scroll container's overflow-y:hidden never
+// clips it into a smear. Gated on `--overflow` so no stray divider shows when the table fits.
+// A near-black shadow vanishes on the dark surface, so the colour is themed locally here rather
+// than reusing the vertical-drop --shadow-* tokens.
+table.hashtopolis-table {
+  --table-freeze-shadow: rgba(0, 0, 0, 0.45);
+}
+.light-theme table.hashtopolis-table {
+  --table-freeze-shadow: rgba(15, 15, 30, 0.16);
+}
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-table-sticky-border-elem-left {
+  box-shadow: 3px 0 3px -3px var(--table-freeze-shadow);
+}
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-table-sticky-border-elem-right {
+  box-shadow: -3px 0 3px -3px var(--table-freeze-shadow);
+}
