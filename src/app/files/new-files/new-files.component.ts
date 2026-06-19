@@ -293,8 +293,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     });
     this.updateValidatorsBySourceType(type);
 
-    // Reload every time the import tab is shown so files placed on the server
-    // since the view was first opened appear without requiring a re-login.
     if (view === 'tab3') {
       void this.loadServerFiles();
     }

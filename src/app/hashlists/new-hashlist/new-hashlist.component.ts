@@ -124,8 +124,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     this.saltSubscription.add(
       this.form.controls.sourceType.valueChanges.subscribe((sourceType: string) => {
-        // Reload every time 'import' is selected so newly placed server files
-        // appear without a re-login; the loading flag guards against overlap.
         if (sourceType === 'import' && !this.isLoadingServerFiles) {
           void this.loadServerFiles();
         }
