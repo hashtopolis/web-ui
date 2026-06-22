@@ -203,12 +203,16 @@ describe('ImportCrackedHashesComponent', () => {
       expect(loadSpy).toHaveBeenCalled();
     }));
 
-    it('should NOT call loadServerFiles when sourceType is import but files already loaded', fakeAsync(() => {
-      component.hasLoadedServerFiles = true;
+    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', fakeAsync(() => {
+      gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
       const loadSpy = spyOn(component, 'loadServerFiles').and.returnValue(Promise.resolve());
       component.form.controls.sourceType.setValue('import');
       tick();
-      expect(loadSpy).not.toHaveBeenCalled();
+      component.form.controls.sourceType.setValue('paste');
+      tick();
+      component.form.controls.sourceType.setValue('import');
+      tick();
+      expect(loadSpy).toHaveBeenCalledTimes(2);
     }));
 
     it('should NOT call loadServerFiles when sourceType is import but files already loading', fakeAsync(() => {
@@ -257,7 +261,6 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
       expect(component.serverFiles.length).toBe(2);
       expect(component.serverFileOptions.length).toBe(2);
-      expect(component.hasLoadedServerFiles).toBeTrue();
       expect(component.isLoadingServerFiles).toBeFalse();
     }));
 
@@ -268,7 +271,6 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
       expect(component.serverFiles.length).toBe(0);
       expect(component.serverFileOptions.length).toBe(0);
-      expect(component.hasLoadedServerFiles).toBeTrue();
       expect(component.isLoadingServerFiles).toBeFalse();
     }));
 
@@ -445,10 +447,6 @@ describe('ImportCrackedHashesComponent', () => {
 
     it('should have isLoadingServerFiles as false', () => {
       expect(component.isLoadingServerFiles).toBeFalse();
-    });
-
-    it('should have hasLoadedServerFiles as false', () => {
-      expect(component.hasLoadedServerFiles).toBeFalse();
     });
 
     it('should have hashesAreRequired as false initially', () => {

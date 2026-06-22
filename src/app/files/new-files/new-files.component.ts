@@ -293,8 +293,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     });
     this.updateValidatorsBySourceType(type);
 
-    // Load server import directory files only when switching to tab3
-    if (view === 'tab3' && this.serverFiles.length === 0) {
+    if (view === 'tab3') {
       void this.loadServerFiles();
     }
   }
