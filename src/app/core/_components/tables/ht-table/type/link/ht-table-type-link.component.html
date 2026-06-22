@@ -1,6 +1,6 @@
 @if (tableColumn.routerLink) {
   @for (link of tableColumn.routerLink(element) | async; track trackByFn($index, link)) {
-    @if (link.label || link.routerLink) {
+    @if (link.label || link.routerLink || link.onClick) {
       <!-- If routerLink is set, render as link <a> -->
       @if (link.routerLink) {
         <span
@@ -58,6 +58,29 @@
               }
             </div>
           }
+        </span>
+      } @else if (link.onClick) {
+        <!-- action handler instead of router link -->
+        <span class="link-wrapper">
+          <a
+            class="link"
+            role="button"
+            tabindex="0"
+            [title]="link.tooltip ?? ''"
+            (click)="onActionClicked(link)"
+            (keydown.enter)="onActionClicked(link)"
+          >
+            <span class="link-label">
+              @if (link.label) {
+                {{ link.label }}
+              } @else {
+                {{ $any(element)[tableColumn.dataKey!] }}
+              }
+            </span>
+            @if (link.icon?.faIcon; as faIcon) {
+              <fa-icon [icon]="faIcon" [title]="link.icon?.tooltip ?? ''"></fa-icon>
+            }
+          </a>
         </span>
       } @else {
         <span

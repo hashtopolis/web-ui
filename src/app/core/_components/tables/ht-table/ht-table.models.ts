@@ -55,6 +55,8 @@ export interface HTTableRouterLink {
   routerLink: Array<string | number> | null;
   tooltip?: string | undefined;
   icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
+  // click handler for cells that trigger an action
+  onClick?: () => void;
   visualGraph?: {
     enabled: boolean;
     taskId: number;

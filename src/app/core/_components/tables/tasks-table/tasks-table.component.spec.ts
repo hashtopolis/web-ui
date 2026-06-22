@@ -233,17 +233,31 @@ describe('TasksTableComponent', () => {
       });
     });
 
-    it('should render NAME column routerLink with null link for SUPERTASK', (done) => {
+    it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', (done) => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
+        id: 42,
         taskType: TaskType.SUPERTASK,
         displayName: 'Test Supertask'
       } as JTaskWrapperDisplay;
 
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(undefined)
+      } as unknown as ReturnType<typeof mockDialog.open>);
+
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Supertask');
         expect(links[0].routerLink).toBeNull();
+        expect(links[0].onClick).toBeDefined();
+
+        links[0].onClick!();
+        expect(mockDialog.open).toHaveBeenCalledWith(
+          jasmine.anything(),
+          jasmine.objectContaining({
+            data: { supertaskId: 42, supertaskName: 'Test Supertask' }
+          })
+        );
         done();
       });
     });

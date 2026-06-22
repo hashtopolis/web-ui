@@ -851,12 +851,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         }
       ]);
     } else {
-      // Supertask: No link
+      // Supertask: clicking the name opens the subtasks dialog (same path as the row action).
       return of([
         {
           label: wrapper.displayName ?? '',
           routerLink: null,
-          tooltip: ''
+          tooltip: 'Show subtasks',
+          onClick: () => this.rowActionEditSubtasks(wrapper)
         }
       ]);
     }

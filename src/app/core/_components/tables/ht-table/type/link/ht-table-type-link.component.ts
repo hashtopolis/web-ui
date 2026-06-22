@@ -39,6 +39,11 @@ export class HTTableTypeLinkComponent implements OnDestroy {
     this.linkClicked.emit();
   }
 
+  onActionClicked(link: HTTableRouterLink) {
+    link.onClick?.();
+    this.linkClicked.emit();
+  }
+
   ngOnDestroy(): void {
     for (const objectUrl of this.objectUrls) {
       URL.revokeObjectURL(objectUrl);
