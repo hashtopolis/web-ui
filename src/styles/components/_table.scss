@@ -83,7 +83,8 @@ table.hashtopolis-table.mat-mdc-table {
 table.hashtopolis-table {
   overflow: visible;
   background: linear-gradient(var(--card), var(--card)), var(--background);
-  width: 100%;
+  width: auto;
+  min-width: 0;
 
   .mat-mdc-row,
   .mat-mdc-cell,
@@ -419,6 +420,26 @@ table.hashtopolis-table .mat-column-200 {
   width: 1%;
 }
 
+// Row-action column holds only the 3-dot menu: keep the column and its button tight
+// to the icon instead of the default mat-button min-width + cell padding.
+table.hashtopolis-table .mat-column-200.mat-mdc-cell,
+table.hashtopolis-table .mat-column-200.mat-mdc-header-cell {
+  padding-left: var(--space-2xs);
+  padding-right: var(--space-2xs);
+}
+.row-action.mat-mdc-button {
+  min-width: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  // mat-button treats the icon as a leading icon (margin-left:-4px, margin-right:8px) which,
+  // with no text label, pushes it off-centre. Zero the margins so it centres in the button.
+  .mat-icon {
+    margin: 0;
+  }
+}
+
 table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: flex-end;
 
@@ -468,4 +489,91 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+// ---- Frozen (sticky) columns ----
+// Horizontal-scroll container: wide tables scroll instead of cramming, while the
+// leading (ID/Name) and trailing (row-action) columns stay frozen. Row-action menus
+// and the task-name preview are CDK overlays, so they are not clipped here. The native
+// scrollbar is hidden; a synthetic bar (.ht-table-xscroll) below spans only the middle
+// scrollable region, so the scrollbar never runs under the frozen columns.
+.ht-table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.ht-table-scroll::-webkit-scrollbar {
+  height: 0;
+}
+
+// Synthetic horizontal scrollbar. The component sets its left/right margins to the frozen
+// column widths so the track sits only under the scrollable columns, and sizes the inner
+// rail so its scroll range matches the table's.
+.ht-table-xscroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.ht-table-xscroll__rail {
+  height: 1px;
+}
+
+// Material marks sticky cells with `mat-mdc-table-sticky` (position:sticky). They must be
+// opaque so scrolled cells don't bleed through, AND render the SAME colour as the non-sticky
+// cells beside them, or a seam shows at the freeze boundary. A normal cell shows the --card
+// tint layered over a per-row base colour (--background for default rows, the stripe colour
+// for even rows), so each sticky state replicates that same `gradient(--card) over <base>`
+// layering rather than painting a single flat colour. Hover swaps in the translucent
+// --card-hover on both sides. Order = default, hover, even, cracked (later wins on tie) to
+// mirror the non-sticky row precedence.
+table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky {
+  background: linear-gradient(var(--card), var(--card)), var(--background);
+}
+table.hashtopolis-table .mat-mdc-row:hover .mat-mdc-cell.mat-mdc-table-sticky {
+  background: var(--card-hover);
+}
+table.hashtopolis-table .mat-mdc-row:nth-of-type(even) .mat-mdc-cell.mat-mdc-table-sticky {
+  background: linear-gradient(var(--card), var(--card)), color-mix(in oklab, var(--muted), var(--background));
+}
+// Hovering an even row drops the --card wash on normal cells (the stripe colour wins over the
+// hover tint), so the sticky cells drop it too and show the bare stripe colour.
+table.hashtopolis-table .mat-mdc-row:nth-of-type(even):hover .mat-mdc-cell.mat-mdc-table-sticky {
+  background: color-mix(in oklab, var(--muted), var(--background));
+}
+// `.mat-mdc-row.row-cracked` (not just `.row-cracked`) so this outranks the even-row sticky
+// rule, whose nth-of-type pseudo would otherwise win and de-tint cracked even rows.
+table.hashtopolis-table .mat-mdc-row.row-cracked .mat-mdc-cell.mat-mdc-table-sticky {
+  background: linear-gradient(var(--card), var(--card)), var(--success-bg);
+}
+.mat-mdc-dialog-container table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky {
+  background: linear-gradient(var(--card), var(--card)), var(--popover);
+}
+
+// Faint shadow cast from the frozen columns onto the scrollable region so the freeze boundary
+// reads as a soft edge. Material tags the boundary cells (last leading / first trailing frozen
+// column) with these `...-sticky-border-elem-{left,right}` classes. The negative blur spread
+// keeps the shadow on the vertical edge only, so the scroll container's overflow-y:hidden never
+// clips it into a smear. Gated on `--overflow` so no stray divider shows when the table fits.
+// A near-black shadow vanishes on the dark surface, so the colour is themed locally here rather
+// than reusing the vertical-drop --shadow-* tokens.
+table.hashtopolis-table {
+  --table-freeze-shadow: rgba(0, 0, 0, 0.45);
+}
+.light-theme table.hashtopolis-table {
+  --table-freeze-shadow: rgba(15, 15, 30, 0.16);
+}
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-table-sticky-border-elem-left {
+  box-shadow: 3px 0 3px -3px var(--table-freeze-shadow);
+}
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-table-sticky-border-elem-right {
+  box-shadow: -3px 0 3px -3px var(--table-freeze-shadow);
+}
+
+// Retina sub-pixel seam: the sticky trailing column's right edge can land a fraction of a device
+// pixel short of the scroll container's edge, exposing a ~1px sliver of the scrolled column to its
+// right. Nudge the column 1px past the edge (the container clips the overshoot) so it always covers
+// the seam. `!important` overrides CDK's inline `right: 0` on the sticky-end cell.
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky-border-elem-right,
+.ht-table-scroll--overflow table.hashtopolis-table .mat-mdc-header-cell.mat-mdc-table-sticky-border-elem-right {
+  right: -1px !important;
 }

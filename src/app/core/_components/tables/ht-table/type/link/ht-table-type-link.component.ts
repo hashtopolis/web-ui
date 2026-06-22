@@ -1,3 +1,5 @@
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
 import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -7,6 +9,9 @@ import {
   Input,
   OnDestroy,
   Output,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
   inject
 } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
@@ -28,12 +33,18 @@ export class HTTableTypeLinkComponent implements OnDestroy {
 
   @Output() linkClicked = new EventEmitter();
 
+  /** Template rendered into a CDK overlay so the hover preview escapes the table's scroll container. */
+  @ViewChild('graphPreviewTpl', { static: true }) graphPreviewTpl: TemplateRef<unknown>;
+
   private previewImageCache = new Map<number, SafeUrl>();
   private pendingPreviewLoads = new Set<number>();
   private previewLoadErrors = new Set<number>();
   private objectUrls: string[] = [];
+  private overlayRef?: OverlayRef | undefined;
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private overlay = inject(Overlay);
+  private vcr = inject(ViewContainerRef);
 
   onLinkClicked() {
     this.linkClicked.emit();
@@ -45,10 +56,45 @@ export class HTTableTypeLinkComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.closePreview();
     for (const objectUrl of this.objectUrls) {
       URL.revokeObjectURL(objectUrl);
     }
     this.objectUrls = [];
+  }
+
+  /** Hover-in: prefetch the image and open the preview overlay anchored to the hovered link. */
+  showPreview(link: HTTableRouterLink, event: MouseEvent): void {
+    this.prefetchVisualGraph(link);
+    if (!link.visualGraph?.enabled) {
+      return;
+    }
+    this.closePreview();
+    const origin = event.currentTarget as HTMLElement;
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(origin)
+      .withPositions([
+        { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -8 },
+        { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 8 }
+      ])
+      .withPush(true);
+    this.overlayRef = this.overlay.create({
+      positionStrategy,
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      panelClass: 'graph-preview-overlay'
+    });
+    this.overlayRef.attach(new TemplatePortal(this.graphPreviewTpl, this.vcr, { $implicit: link }));
+  }
+
+  /** Hover-out: tear down the preview overlay. */
+  hidePreview(): void {
+    this.closePreview();
+  }
+
+  private closePreview(): void {
+    this.overlayRef?.dispose();
+    this.overlayRef = undefined;
   }
 
   prefetchVisualGraph(link: HTTableRouterLink): void {

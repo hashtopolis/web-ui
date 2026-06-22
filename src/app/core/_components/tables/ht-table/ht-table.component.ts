@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -107,6 +108,12 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
+  /** Whether a row-action column will be rendered -> if present will be sticky if inner part is scrollable*/
+  private colRowActionPresent = false;
+
+  /** Stringified ids of the leading data columns to freeze (sticky-start). */
+  private leadingStickyIds = new Set<ColumnDefId>();
+
   /** Flag to indicate if data is being loaded */
   loading = true;
 
@@ -193,6 +200,11 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Flag to color a table row */
   @Input() rowClass: ((row: T) => string) | undefined;
 
+  /**
+   * Number of leading sticky columns, after that the content will be scrollable (apart from the last column which might be sticky again if row menu action)
+   */
+  @Input() stickyLeadingColumns = 2;
+
   @Output() rowActionClicked = new EventEmitter<ActionMenuEvent<T>>();
 
   @Output() bulkActionClicked = new EventEmitter<ActionMenuEvent<T[]>>();
@@ -220,6 +232,21 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   private subscriptions: Subscription = new Subscription();
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
+
+  /** Horizontal-scroll container holding the table (native scrollbar hidden). */
+  @ViewChild('tableScroll') tableScroll?: ElementRef<HTMLElement>;
+
+  /** Synthetic scrollbar that drives {@link tableScroll}, spanning only the scrollable columns. */
+  @ViewChild('tableXScroll') tableXScroll?: ElementRef<HTMLElement>;
+
+  /** Inner rail of the synthetic scrollbar; its width sets the scroll range. */
+  @ViewChild('tableXScrollRail') tableXScrollRail?: ElementRef<HTMLElement>;
+
+  /** True when the table is wider than its container (drives the synthetic scrollbar's visibility). */
+  hasHorizontalOverflow = false;
+
+  /** Re-measures the synthetic scrollbar when the table or its container resize. */
+  private tableResizeObserver?: ResizeObserver;
   filterQueryFormGroup = new FormGroup({
     textFilter: new FormControl('')
   });
@@ -332,12 +359,81 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, null, null, 0);
     });
     this.subscriptions.add(sortSubscription);
+    this.setupHorizontalScroll();
   }
 
   /** Cleanup on component destruction */
   ngOnDestroy(): void {
     // Unsubscribe from all subscriptions
     this.subscriptions.unsubscribe();
+    this.tableResizeObserver?.disconnect();
+  }
+
+  /**
+   * Connect synthetic scrollbar with the actual native one.
+   * Needed as table layout is hard to have only scrollbar for the scrollable inner part
+   */
+  private setupHorizontalScroll(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    if (!scroll || !this.stickyLeadingEnabled || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    this.tableResizeObserver = new ResizeObserver(() => this.updateHorizontalScroll());
+    this.tableResizeObserver.observe(scroll);
+    const table = scroll.querySelector('table');
+    if (table) {
+      this.tableResizeObserver.observe(table);
+    }
+    this.updateHorizontalScroll();
+  }
+
+  /**
+   * Recomputes whether the table overflows and, if so, positions the synthetic scrollbar to
+   * span only the columns between the frozen left and right groups, sizing its rail so its
+   * scroll range matches the table's (scrollLeft then maps 1:1 between the two).
+   */
+  private updateHorizontalScroll(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    const bar = this.tableXScroll?.nativeElement;
+    const rail = this.tableXScrollRail?.nativeElement;
+    if (!scroll) {
+      return;
+    }
+    const overflow = scroll.scrollWidth - scroll.clientWidth > 1;
+    if (overflow !== this.hasHorizontalOverflow) {
+      this.hasHorizontalOverflow = overflow;
+      this.cd.markForCheck();
+    }
+    if (!overflow || !bar || !rail) {
+      return;
+    }
+    const containerRect = scroll.getBoundingClientRect();
+    const leftEdge = scroll.querySelector<HTMLElement>('.mat-mdc-table-sticky-border-elem-left');
+    const rightEdge = scroll.querySelector<HTMLElement>('.mat-mdc-table-sticky-border-elem-right');
+    const leftWidth = leftEdge ? leftEdge.getBoundingClientRect().right - containerRect.left : 0;
+    const rightWidth = rightEdge ? containerRect.right - rightEdge.getBoundingClientRect().left : 0;
+    bar.style.marginLeft = `${leftWidth}px`;
+    bar.style.marginRight = `${rightWidth}px`;
+    rail.style.width = `${scroll.scrollWidth - leftWidth - rightWidth}px`;
+    bar.scrollLeft = scroll.scrollLeft;
+  }
+
+  /** Sync: table scrolled (trackpad/keyboard) moves the synthetic bar. */
+  onTableScroll(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    const bar = this.tableXScroll?.nativeElement;
+    if (scroll && bar && Math.abs(bar.scrollLeft - scroll.scrollLeft) > 0.5) {
+      bar.scrollLeft = scroll.scrollLeft;
+    }
+  }
+
+  /** Sync: dragging the synthetic bar scrolls the table. */
+  onXScroll(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    const bar = this.tableXScroll?.nativeElement;
+    if (scroll && bar && Math.abs(scroll.scrollLeft - bar.scrollLeft) > 0.5) {
+      scroll.scrollLeft = bar.scrollLeft;
+    }
   }
 
   onLinkClicked() {
@@ -438,24 +534,49 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     } as ActionMenuEvent<T[]>);
   }
 
+  /** True when leading-column freezing is active (drives the select column's [sticky]). */
+  get stickyLeadingEnabled(): boolean {
+    return this.stickyLeadingColumns > 0;
+  }
+
+  /** True when the right-side row-action column should be frozen ([stickyEnd]). */
+  get stickyTrailingEnabled(): boolean {
+    return this.stickyLeadingColumns > 0 && this.colRowActionPresent;
+  }
+
+  /** Whether the given data column is part of the frozen leading group. */
+  isLeadingSticky(tableColumn: HTTableColumn): boolean {
+    return this.leadingStickyIds.has(tableColumn.id + '');
+  }
+
   /**
-   * Sets the displayed columns based on user selection.
+   * Sets the displayed columns based on user selection, and recomputes which
+   * leading data columns are frozen (the first {@link stickyLeadingColumns} in
+   * display order, counting data columns only).
    *
    * @param columnNames - The list of column names to display.
    */
   setDisplayedColumns(columnNames: number[]): void {
     this.displayedColumns = [];
+    this.leadingStickyIds.clear();
     if (this.isSelectable) {
       // Add checkbox if enabled
       this.displayedColumns.push(COL_SELECT + '');
     }
+    let dataAdded = 0;
     for (const num of columnNames) {
       if (this.tableColumns.some((col) => col.id === num)) {
-        this.displayedColumns.push(num + '');
+        const id = num + '';
+        this.displayedColumns.push(id);
+        if (dataAdded < this.stickyLeadingColumns) {
+          this.leadingStickyIds.add(id);
+        }
+        dataAdded++;
       }
     }
 
-    if (this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu()) {
+    this.colRowActionPresent = this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu();
+    if (this.colRowActionPresent) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
     }
