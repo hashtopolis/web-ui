@@ -207,6 +207,23 @@ describe('NewFilesComponent', () => {
     });
   });
 
+  cases.forEach(({ kind, expectedRedirect }) => {
+    it(`should navigate to the files list after a successful server import for kind="${kind}"`, async () => {
+      setup(kind);
+
+      // Select a server file to import
+      component.selectedServerFiles.add('rockyou.txt');
+
+      const alert = TestBed.inject(AlertService) as unknown as MockAlertService;
+      const router = TestBed.inject(Router) as unknown as MockRouter;
+
+      await component['onSubmitServerImport']();
+
+      expect(alert.showSuccessMessage).toHaveBeenCalledWith('Server files imported successfully!');
+      expect(router.navigate).toHaveBeenCalledWith(['/files', expectedRedirect]);
+    });
+  });
+
   it('should unsubscribe on destroy', () => {
     const comp = setup('wordlist-new');
     const unsubscribe = fixture.debugElement.injector.get(UnsubscribeService) as unknown as MockUnsubscribeService;

@@ -406,9 +406,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       await Promise.all(requests);
 
       this.alert.showSuccessMessage('Server files imported successfully!');
-      // Reload server files
-      await this.loadServerFiles();
       this.selectedServerFiles.clear();
+      void this.router.navigate(['/files', this.redirect]);
     } catch (error) {
       console.error('Error importing server files:', error);
       this.alert.showErrorMessage('Could not import selected files.');
