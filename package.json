@@ -7,8 +7,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "node git-version.js && node scripts/sync-custom-themes.mjs && ng serve --host 0.0.0.0 --poll 500 && node git-version.js",
-    "themes:sync": "node scripts/sync-custom-themes.mjs",
+    "start": "node git-version.js && ng serve --host 0.0.0.0 --poll 500 && node git-version.js",
     "build": "node git-version.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --karma-config=karma.conf.js --include=src/app --code-coverage",

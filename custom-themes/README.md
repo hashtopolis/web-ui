@@ -11,34 +11,35 @@ This folder ships two example themes — `rainbow.css` and `fallout.css`.
 ## Enabling custom themes (opt-in)
 
 No custom theme is loaded by default. The built-in `light` and `dark` themes are
-always available; everything in this folder is opt-in. To enable it, mount this
-folder into the container at `/custom-themes` by uncommenting the volume line in
-`docker-compose.yml` (or `.devcontainer/docker-compose.yml`):
+always available; everything in this folder is opt-in.
+
+`HASHTOPOLIS_CUSTOM_THEMES_DIR` is the on/off switch: it names the folder the
+container scans for `.css` files on startup. When it is unset, no custom themes
+are loaded and the app uses the built-in `light`/`dark` themes only.
+
+To enable themes with Docker Compose, set the variable to the container path the
+entrypoint should scan and mount your `.css` folder to that same path by
+uncommenting both lines in `docker-compose.yml` (or `.devcontainer/docker-compose.yml`):
 
 ```yaml
+    environment:
+      - HASHTOPOLIS_CUSTOM_THEMES_DIR=/custom-themes
     volumes:
-      - ${HASHTOPOLIS_CUSTOM_THEMES_DIR:-./custom-themes}:/custom-themes:ro
-```
-
-Set `HASHTOPOLIS_CUSTOM_THEMES_DIR` to load themes from any host folder instead of
-the bundled `./custom-themes`, without editing the compose file:
-
-```bash
-HASHTOPOLIS_CUSTOM_THEMES_DIR=/srv/my-themes docker compose up -d
+      - ./custom-themes:/custom-themes:ro
 ```
 
 ### Baking themes into the image (no runtime mount)
 
 When building your own production image, pass the `CUSTOM_THEMES_DIR` build arg to
-copy a folder of `.css` files into the image; they are registered on startup just
-like a mounted folder:
+copy a folder of `.css` files into the image (the default bakes nothing):
 
 ```bash
 docker build --target hashtopolis-web-ui-prod \
   --build-arg CUSTOM_THEMES_DIR=custom-themes -t hashtopolis/web-ui .
 ```
 
-A runtime `/custom-themes` mount, if present, takes precedence over baked themes.
+Baked themes are still opt-in at runtime: set
+`HASHTOPOLIS_CUSTOM_THEMES_DIR=/custom-themes` to enable them.
 
 ## Naming
 
@@ -47,7 +48,8 @@ A runtime `/custom-themes` mount, if present, takes precedence over baked themes
 
 ## Runtime behavior
 
-- When mounted, `docker-entrypoint.sh` scans this folder on container startup.
+- When `HASHTOPOLIS_CUSTOM_THEMES_DIR` is set, `docker-entrypoint.sh` scans that
+  folder on container startup (otherwise no custom themes are loaded).
 - Valid CSS files are copied to `/assets/custom-themes/`.
 - A manifest is generated at `/assets/themes/custom-themes.json`.
 - The frontend reads the manifest and adds the themes to the selectors.
