@@ -4,14 +4,11 @@ import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
 
-import { UIConfig } from '@models/config-ui.model';
-
 import { AuthService } from '@services/access/auth.service';
 import { ConfigService } from '@services/shared/config.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { ThemeService } from '@services/shared/theme.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
 
@@ -28,15 +25,14 @@ export interface LoginForm {
 })
 export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
   private unsubscribeService = inject(UnsubscribeService);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private configService = inject(ConfigService);
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private host = inject(ElementRef);
 
   /** Form group for the new SuperHashlist. */
   loginForm: FormGroup<LoginForm>;
 
-  protected uiSettings: UISettingsUtilityClass;
   public isVisible = true;
   headerConfig: HeaderConfig;
   isDarkMode = false;
@@ -46,8 +42,6 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor() {
     this.headerConfig = environment.config.header;
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
-    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     this.buildForm();
   }
 
@@ -55,6 +49,11 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
    * Lifecycle hook called after component initialization.
    */
   ngOnInit(): void {
+    this.unsubscribeService.add(
+      this.themeService.isDarkMode$.subscribe((isDark) => {
+        this.isDarkMode = isDark;
+      })
+    );
     this.setupConfig();
     this.configService.getEndpoint();
   }

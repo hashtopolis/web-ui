@@ -150,7 +150,7 @@ export const tableSettingsSchema = z.preprocess(
  */
 export const uiConfigSchema = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
-  theme: z.enum(['light', 'dark']).default(uiConfigDefault.theme),
+  theme: z.string().min(1).default(uiConfigDefault.theme),
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),
   timefmt: z.string().default(uiConfigDefault.timefmt),
   refreshPage: z.boolean().default(uiConfigDefault.refreshPage),

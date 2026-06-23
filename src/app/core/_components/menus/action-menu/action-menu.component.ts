@@ -3,7 +3,6 @@ import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 import {
   AfterViewInit,
@@ -21,11 +20,10 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { BaseModel } from '@models/base.model';
-import { UIConfig } from '@models/config-ui.model';
+
+import { ThemeService } from '@services/shared/theme.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
   selector: 'action-menu',
@@ -58,8 +56,6 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentUrl: string[] = [];
   isActive = false;
-
-  protected uiSettings: UISettingsUtilityClass;
 
   @Input() icon: string = '';
   @Input() label: string = '';
@@ -131,20 +127,21 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private static openMenuTrigger: MatMenuTrigger | null = null;
 
   private router = inject(Router);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private themeService = inject(ThemeService);
   private renderer = inject(Renderer2);
-
-  constructor() {
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
-    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
-    this.faIconColor = this.isDarkMode ? 'white' : 'black';
-  }
 
   /**
    * Angular lifecycle hook: subscribes to router events to update active state
    * and close the menu when navigation occurs.
    */
   ngOnInit(): void {
+    this.subscriptions.push(
+      this.themeService.isDarkMode$.subscribe((isDark) => {
+        this.isDarkMode = isDark;
+        this.faIconColor = isDark ? 'white' : 'black';
+      })
+    );
+
     this.subscriptions.push(
       this.router.events.subscribe((event) => {
         if (event instanceof NavigationEnd) {

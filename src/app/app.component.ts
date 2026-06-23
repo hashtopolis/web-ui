@@ -17,6 +17,7 @@ import { ReloadService } from '@services/reload.service';
 import { BreakpointService } from '@services/shared/breakpoint.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { ThemeService } from '@services/shared/theme.service';
 import '@services/storage/local-storage';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -41,6 +42,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   private idle = inject(Idle);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themeService = inject(ThemeService);
+  private themeCatalog = inject(ThemeCatalogService);
   screen = inject(BreakpointService);
   private elementRef = inject(ElementRef);
   private platformId = inject(PLATFORM_ID);
@@ -120,6 +122,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.themeCatalog.getThemes().subscribe((themes) => {
+      this.themeService.setCustomThemes(themes);
+    });
+
     this.authService.isLogged.subscribe((status) => {
       this.isLogged = status;
       if (status) {
@@ -139,7 +145,7 @@ export class AppComponent implements OnInit, AfterViewInit {
    * The classes reflect the chosen layout and theme, allowing dynamic theming of the application.
    *
    * - For layout, it supports 'fixed' and 'full' layouts.
-   * - For themes, it supports 'light' and 'dark' themes.
+   * - For themes, it supports built-in themes plus any runtime custom themes.
    *
    * @remarks
    * This function retrieves layout and theme settings from the `uiSettings` service and sets
@@ -156,10 +162,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
 
       const theme = this.uiSettings.getSetting('theme');
-      if (theme === 'light') {
-        classes.push('light-theme');
-      } else if (theme === 'dark') {
-        classes.push('dark-theme');
+      if (theme) {
+        classes.push(`${theme}-theme`);
       }
     }
     if (classes) {

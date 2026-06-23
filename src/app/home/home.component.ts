@@ -43,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /** Whether dark mode is enabled */
   isDarkMode = false;
+  currentTheme: UIConfig['theme'] = 'light';
 
   /** Dashboard statistics counters */
   activeAgents = 0;
@@ -89,7 +90,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
-    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
+    this.currentTheme = this.uiSettings.getSetting('theme') ?? 'light';
+    this.isDarkMode = this.themeService.isDark(this.currentTheme);
   }
 
   /**
@@ -105,7 +107,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadData();
 
     const themeSubscription = this.themeService.theme$.subscribe((theme) => {
-      this.isDarkMode = (theme ?? this.themeService.current) === 'dark';
+      this.currentTheme = theme ?? this.themeService.current;
+      this.isDarkMode = this.themeService.isDark(this.currentTheme);
     });
     this.subscriptions.push(themeSubscription);
 
