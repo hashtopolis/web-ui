@@ -46,6 +46,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
   const priority = environment.config.tasks.priority;
   const maxAgents = environment.config.tasks.maxAgents;
   const chunkSize = environment.config.tasks.chunkSize;
+  const useSpeedBenchmark = uiService.getUISettings()?.defaultBenchmark !== 0;
   return new FormGroup<NewTaskForm>({
     taskName: new FormControl<string>('', {
       nonNullable: true,
@@ -76,7 +77,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     preprocessorId: new FormControl<number>(0, { nonNullable: true }),
     preprocessorCommand: new FormControl<string>('', { nonNullable: true }),
     isSmall: new FormControl<boolean>(false, { nonNullable: true }),
-    useNewBench: new FormControl<boolean>(true, { nonNullable: true }),
+    useNewBench: new FormControl<boolean>(useSpeedBenchmark, { nonNullable: true }),
     files: new FormControl<number[]>([], { nonNullable: true })
   });
 };
