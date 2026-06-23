@@ -84,7 +84,7 @@ table.hashtopolis-table {
   overflow: visible;
   background: linear-gradient(var(--card), var(--card)), var(--background);
   width: auto;
-  min-width: 0;
+  min-width: 100%;
 
   .mat-mdc-row,
   .mat-mdc-cell,
