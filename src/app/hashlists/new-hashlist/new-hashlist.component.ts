@@ -266,8 +266,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
+      // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
+      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
       const response = await firstValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));

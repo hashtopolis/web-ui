@@ -1,6 +1,7 @@
 import { zHashlistResponse } from '@generated/api/zod';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
@@ -245,8 +246,10 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   async loadServerFiles(): Promise<void> {
     this.isLoadingServerFiles = true;
     try {
+      // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
+      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
       const response = await firstValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
@@ -330,21 +333,25 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     overwrite: number;
   }): void {
     this.isCreatingLoading = true;
-    const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe({
-      next: (response: ResponseWrapper) => {
-        this.alert.showSuccessMessage(
-          `Processed pre-cracked hashes: ${response.meta.totalLines} total lines, ${response.meta.newCracked} new cracked hashes, ${response.meta.alreadyCracked} were already cracked, ${response.meta.invalid} invalid lines, ${response.meta.notFound} not matching entries (0s)!`
-        );
-        const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
-        this.router.navigate([path]);
-      },
-      error: () => {
-        this.alert.showErrorMessage('Failed to import cracked hashes.');
-      },
-      complete: () => {
-        this.isCreatingLoading = false;
-      }
-    });
+    // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
+    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const createSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'importCrackedHashes', payload, 'POST', httpOptions)
+      .subscribe({
+        next: (response: ResponseWrapper) => {
+          this.alert.showSuccessMessage(
+            `Processed pre-cracked hashes: ${response.meta.totalLines} total lines, ${response.meta.newCracked} new cracked hashes, ${response.meta.alreadyCracked} were already cracked, ${response.meta.invalid} invalid lines, ${response.meta.notFound} not matching entries (0s)!`
+          );
+          const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
+          this.router.navigate([path]);
+        },
+        error: () => {
+          this.alert.showErrorMessage('Failed to import cracked hashes.');
+        },
+        complete: () => {
+          this.isCreatingLoading = false;
+        }
+      });
     this.unsubscribeService.add(createSubscription$);
   }
 

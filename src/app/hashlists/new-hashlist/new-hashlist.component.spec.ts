@@ -335,6 +335,17 @@ describe('NewHashlistComponent', () => {
       expect(routerSpy.navigate).not.toHaveBeenCalled();
       expect(component.isCreatingLoading).toBe(false);
     }));
+
+    it('should skip the global error dialog when loading server import files', fakeAsync(() => {
+      component.loadServerFiles();
+      tick();
+
+      // loadServerFiles shows its own toast on failure, so it tells the interceptor to skip the modal.
+      const call = gsSpy.chelper.calls.mostRecent();
+      expect(call.args[1]).toBe('importFile');
+      const httpOptions = call.args[4];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+    }));
   });
 
   it('should NOT submit if sourceType is upload and no file selected', () => {
