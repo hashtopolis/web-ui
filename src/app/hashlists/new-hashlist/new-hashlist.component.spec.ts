@@ -102,7 +102,7 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper', 'chelper']);
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
@@ -137,6 +137,7 @@ describe('NewHashlistComponent', () => {
 
   beforeEach(() => {
     gsSpy.ghelper.and.returnValue(of(mockAccessGroups));
+    gsSpy.chelper.and.returnValue(of({ meta: [] }));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
     (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
@@ -302,11 +303,37 @@ describe('NewHashlistComponent', () => {
       const expectedEncoded = btoa('some data');
       expect(gsSpy.create).toHaveBeenCalledWith(
         jasmine.anything(),
-        jasmine.objectContaining({ sourceData: expectedEncoded })
+        jasmine.objectContaining({ sourceData: expectedEncoded }),
+        jasmine.anything()
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
+    }));
+
+    it('should surface the backend error and skip the global dialog when "import" creation fails', fakeAsync(() => {
+      gsSpy.create.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'Hashlist has too many lines!' } }))
+      );
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '0',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'import',
+        sourceData: 'valid-1-line.txt'
+      });
+
+      component.onSubmit();
+      tick();
+
+      // The component handles the error itself, so it tells the interceptor to skip the modal.
+      const httpOptions = gsSpy.create.calls.mostRecent().args[2];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to create hashlist: Hashlist has too many lines!');
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.isCreatingLoading).toBe(false);
     }));
   });
 
