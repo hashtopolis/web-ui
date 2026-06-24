@@ -4,6 +4,7 @@
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
 
+import { HttpHeaders } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -223,13 +224,32 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
       .pipe(takeUntil(this.fileUnsubscribe))
-      .subscribe((progress) => {
-        this.uploadProgress = progress;
-        this.changeDetectorRef.detectChanges();
-        if (this.uploadProgress === 100) {
+      .subscribe({
+        next: (progress) => {
+          this.uploadProgress = progress;
+          this.changeDetectorRef.detectChanges();
+          if (this.uploadProgress === 100) {
+            this.isCreatingLoading = false;
+          }
+        },
+        error: (error) => {
+          this.uploadProgress = 0;
           this.isCreatingLoading = false;
+          this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+          this.changeDetectorRef.detectChanges();
         }
       });
+  }
+
+  /** Show the backend reason (e.g. "too many lines") when the create fails. */
+  private buildUploadErrorMessage(error: unknown): string {
+    const e = (typeof error === 'object' ? error : null) as {
+      error?: { title?: string; message?: string };
+      message?: string;
+    } | null;
+    const detail = typeof error === 'string' ? error : e?.error?.title || e?.error?.message || e?.message;
+
+    return detail ? `Failed to create hashlist: ${detail}` : 'Failed to create hashlist.';
   }
 
   /**
@@ -245,8 +265,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
+      // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
+      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
       const response = await firstValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
@@ -317,32 +339,23 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     }
 
     // Proceed with existing logic now that input is validated
-    if (sourceType === 'paste') {
-      this.isCreatingLoading = true;
-      const payload = {
-        ...this.form.getRawValue(),
-        sourceData: handleEncode(this.form.controls.sourceData.value)
-      };
+    if (sourceType === 'paste' || sourceType === 'import' || sourceType === 'url') {
+      const payload =
+        sourceType === 'paste'
+          ? { ...this.form.getRawValue(), sourceData: handleEncode(this.form.controls.sourceData.value) }
+          : this.form.getRawValue();
 
-      try {
-        await firstValueFrom(this.gs.create(SERV.HASHLISTS, payload));
-        this.alert.showSuccessMessage('New HashList created');
-        this.router.navigate(['/hashlists/hashlist']);
-      } catch (error) {
-        console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
-      } finally {
-        this.isCreatingLoading = false;
-      }
-    } else if (sourceType === 'import' || sourceType === 'url') {
+      // Handle the error here so we can surface the backend reason; skip the global error dialog to avoid double messaging.
+      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+
       this.isCreatingLoading = true;
       try {
-        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, payload, httpOptions));
         this.alert.showSuccessMessage('New HashList created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
         console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
+        this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
       } finally {
         this.isCreatingLoading = false;
       }
