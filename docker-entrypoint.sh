@@ -17,21 +17,23 @@ function update_app_config {
 }
 
 function sync_custom_themes {
-  # Custom themes are opt-in. When HASHTOPOLIS_CUSTOM_THEMES_DIR is unset, do
-  # nothing: no manifest is written and the frontend falls back to the built-in
-  # light/dark themes when it 404s on the (absent) manifest.
-  if [ -z "$HASHTOPOLIS_CUSTOM_THEMES_DIR" ]; then
-    return
-  fi
-
   app_cfg_base="$1"
   source_dir="$HASHTOPOLIS_CUSTOM_THEMES_DIR"
   target_css_dir="${app_cfg_base}/assets/custom-themes"
   manifest_dir="${app_cfg_base}/assets/themes"
   manifest_file="${manifest_dir}/custom-themes.json"
 
-  mkdir -p "$target_css_dir"
   mkdir -p "$manifest_dir"
+
+  # Custom themes are opt-in. When HASHTOPOLIS_CUSTOM_THEMES_DIR is unset, write
+  # an empty manifest so the frontend gets a valid (empty) response instead of a
+  # 404 and uses the built-in light/dark themes only.
+  if [ -z "$source_dir" ]; then
+    echo "[]" > "$manifest_file"
+    return
+  fi
+
+  mkdir -p "$target_css_dir"
 
   if [ ! -d "$source_dir" ]; then
     echo "Custom theme source directory not found: $source_dir"
