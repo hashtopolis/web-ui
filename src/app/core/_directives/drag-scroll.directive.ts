@@ -80,6 +80,9 @@ export class DragScrollDirective implements OnInit, OnDestroy {
       this.el.classList.add('app-drag-scroll-dragging');
     }
     event.preventDefault();
+    // Drop any text the press selected before/while it crossed the drag threshold; the
+    // `user-select: none` from the dragging class then stops further selection.
+    window.getSelection()?.removeAllRanges();
     this.el.scrollLeft = this.startScrollLeft - dx;
   };
 

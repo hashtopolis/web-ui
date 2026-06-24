@@ -521,7 +521,7 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
 .app-drag-scroll-dragging,
 .app-drag-scroll-dragging * {
   cursor: grabbing !important;
-  user-select: none;
+  user-select: none !important;
 }
 
 // Synthetic scrollbar flanked by jump-to-start/end chevrons. The component insets the row (via
