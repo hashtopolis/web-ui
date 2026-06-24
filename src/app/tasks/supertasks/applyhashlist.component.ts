@@ -30,6 +30,17 @@ export interface ApplyHashlistForm {
   hashlistId: FormControl<HashlistId | null>;
   crackerBinaryId: FormControl<CrackerBinaryId | null>;
   crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
+  skipCompleted: FormControl<boolean>;
+}
+
+interface SkippedPretask {
+  pretaskId: number;
+  matchingTaskId: number;
+}
+
+interface CreateSupertaskMeta {
+  taskWrapperId: number | null;
+  skippedPretasks?: SkippedPretask[];
 }
 
 /**
@@ -119,7 +130,8 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       supertaskTemplateId: new FormControl<number | null>(null),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null),
+      skipCompleted: new FormControl<boolean>(false, { nonNullable: true })
     });
   }
 
@@ -135,7 +147,8 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null),
+      skipCompleted: new FormControl<boolean>(false, { nonNullable: true })
     });
 
     //subscribe to changes to handle select cracker binary
@@ -252,13 +265,30 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       const adaptedFormValue = {
         supertaskTemplateId: formValue.supertaskTemplateId,
         hashlistId: formValue.hashlistId,
-        crackerVersionId: formValue.crackerBinaryTypeId
+        crackerVersionId: formValue.crackerBinaryTypeId,
+        skipCompleted: formValue.skipCompleted
       };
-      const onSubmitSubscription$ = this.gs.chelper(SERV.HELPER, 'createSupertask', adaptedFormValue).subscribe(() => {
-        this.alert.showSuccessMessage('New SuperTask created');
-        this.router.navigate(['tasks/show-tasks']);
-        this.isCreatingLoading = false;
-      });
+      const onSubmitSubscription$ = this.gs
+        .chelper<ResponseWrapper<CreateSupertaskMeta>>(SERV.HELPER, 'createSupertask', adaptedFormValue)
+        .subscribe({
+          next: (response) => {
+            const skipped = response?.meta?.skippedPretasks ?? [];
+            const allSkipped = response?.meta?.taskWrapperId == null;
+            if (skipped.length) {
+              this.alert.showInfoMessage(`Skipped ${skipped.length} pretask(s) already completed for this hashlist.`);
+            }
+            this.alert.showSuccessMessage(
+              allSkipped ? 'All pretasks already completed - no new SuperTask created.' : 'New SuperTask created'
+            );
+            this.router.navigate(['tasks/show-tasks']);
+          },
+          error: () => {
+            this.isCreatingLoading = false;
+          },
+          complete: () => {
+            this.isCreatingLoading = false;
+          }
+        });
       this.unsubscribeService.add(onSubmitSubscription$);
     } else {
       this.form.markAllAsTouched();
