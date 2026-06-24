@@ -355,6 +355,32 @@ describe('NewTasksComponent', () => {
     });
   });
 
+  describe('Benchmark default from settings (useNewBench)', () => {
+    it('should default useNewBench to true (Speed Test) when defaultBenchmark is 1', async () => {
+      uiServiceMock.getUISettings.and.returnValue({ defaultBenchmark: 1 } as unknown as UiSettings);
+
+      await initComponent(fixture);
+
+      expect(component.form.controls.useNewBench.value).toBe(true);
+    });
+
+    it('should default useNewBench to false (Runtime Benchmark) when defaultBenchmark is 0', async () => {
+      uiServiceMock.getUISettings.and.returnValue({ defaultBenchmark: 0 } as unknown as UiSettings);
+
+      await initComponent(fixture);
+
+      expect(component.form.controls.useNewBench.value).toBe(false);
+    });
+
+    it('should fall back to true (Speed Test) when defaultBenchmark is absent', async () => {
+      uiServiceMock.getUISettings.and.returnValue({} as unknown as UiSettings);
+
+      await initComponent(fixture);
+
+      expect(component.form.controls.useNewBench.value).toBe(true);
+    });
+  });
+
   describe('onSubmit', () => {
     it('should have an invalid form by default after init', async () => {
       await initComponent(fixture);

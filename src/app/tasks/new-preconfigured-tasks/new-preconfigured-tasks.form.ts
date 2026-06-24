@@ -28,6 +28,7 @@ export interface NewPretaskForm {
  * Get an empty instance of NewPretaskForm
  */
 export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPretaskForm> {
+  const useSpeedBenchmark = uiService.getUISettings()?.defaultBenchmark !== 0;
   return new FormGroup<NewPretaskForm>({
     taskName: new FormControl('', {
       nonNullable: true,
@@ -45,7 +46,7 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
     isCpuTask: new FormControl(false, { nonNullable: true }),
     crackerBinaryTypeId: new FormControl(1, { nonNullable: true }),
     isSmall: new FormControl(false, { nonNullable: true }),
-    useNewBench: new FormControl(true, { nonNullable: true }),
+    useNewBench: new FormControl(useSpeedBenchmark, { nonNullable: true }),
     isMaskImport: new FormControl(false, { nonNullable: true }),
     files: new FormControl([], { nonNullable: true })
   });
