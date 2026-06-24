@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: Config = {
     }
   },
   footer: {
-    copyright: 's3in!c Hashtopolis: 1.0.0-rc1',
+    copyright: 's3in!c Hashtopolis: 1.0.0-rc2',
     footer_link_one: {
       link: 'https://github.com/hashtopolis',
       name: 'Github'
