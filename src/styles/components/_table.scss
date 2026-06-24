@@ -512,6 +512,17 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
 .ht-table-scroll::-webkit-scrollbar {
   height: 0;
 }
+// Drag-to-scroll affordance (appDragScroll): `grab` over the scrollable area (interactive
+// elements keep their own cursor), `grabbing` everywhere while a drag is in progress. The
+// directive toggles `.app-drag-scroll-dragging` on the host during a drag.
+.ht-table-scroll--overflow {
+  cursor: grab;
+}
+.app-drag-scroll-dragging,
+.app-drag-scroll-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
 
 // Synthetic scrollbar flanked by jump-to-start/end chevrons. The component insets the row (via
 // the JS-set --ht-frozen-* vars) so the scrollbar sits only under the scrollable columns, and
