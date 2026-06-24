@@ -9,8 +9,9 @@
 # Node
 /node_modules
 
-# Generated custom-theme assets (synced at container startup by docker-entrypoint.sh)
-/src/assets/themes/
+# Generated custom-theme CSS (synced at container startup by docker-entrypoint.sh).
+# The themes manifest ships a default empty list and is overwritten at startup
+# only when custom themes are opted in, so it is tracked rather than ignored.
 /src/assets/custom-themes/
 npm-debug.log
 yarn-error.log

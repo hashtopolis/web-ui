@@ -512,17 +512,79 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
 .ht-table-scroll::-webkit-scrollbar {
   height: 0;
 }
+// Drag-to-scroll affordance (appDragScroll): `grab` over the scrollable area (interactive
+// elements keep their own cursor), `grabbing` everywhere while a drag is in progress. The
+// directive toggles `.app-drag-scroll-dragging` on the host during a drag.
+.ht-table-scroll--overflow {
+  cursor: grab;
+}
+.app-drag-scroll-dragging,
+.app-drag-scroll-dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
 
-// Synthetic horizontal scrollbar. The component sets its left/right margins to the frozen
-// column widths so the track sits only under the scrollable columns, and sizes the inner
-// rail so its scroll range matches the table's.
+// Synthetic scrollbar flanked by jump-to-start/end chevrons. The component insets the row (via
+// the JS-set --ht-frozen-* vars) so the scrollbar sits only under the scrollable columns, and
+// sizes the inner rail so its scroll range matches the table's.
+.ht-table-xscroll-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: var(--ht-frozen-left, 0);
+  margin-right: var(--ht-frozen-right, 0);
+}
 .ht-table-xscroll {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
 }
 .ht-table-xscroll__rail {
   height: 1px;
+}
+
+// Header chevrons mirror the scrollbar's, pushed to the scrollable region's two edges.
+.ht-table-chevrons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ht-table-chevrons--header {
+  margin-left: var(--ht-frozen-left, 0);
+  margin-right: var(--ht-frozen-right, 0);
+  margin-bottom: 2px;
+}
+
+// Tiny jump-to-start / jump-to-end chevron buttons; usable even when the OS hides the scrollbar.
+.ht-table-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.ht-table-chevron:hover:not(:disabled) {
+  background: var(--card-hover);
+  color: var(--foreground);
+}
+.ht-table-chevron:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ht-table-chevron mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
 }
 
 // Material marks sticky cells with `mat-mdc-table-sticky` (position:sticky). They must be
