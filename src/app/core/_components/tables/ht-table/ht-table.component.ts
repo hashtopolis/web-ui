@@ -100,6 +100,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /** Stringified column enum IDs for mat-table binding, built by {@link setDisplayedColumns}. */
   displayedColumns: ColumnDefId[] = [];
@@ -245,6 +246,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** True when the table is wider than its container (drives the synthetic scrollbar's visibility). */
   hasHorizontalOverflow = false;
 
+  /** Disable the jump-to-start / jump-to-end chevrons once that edge is reached. */
+  atScrollStart = true;
+  atScrollEnd = false;
+
   /** Re-measures the synthetic scrollbar when the table or its container resize. */
   private tableResizeObserver?: ResizeObserver;
   filterQueryFormGroup = new FormGroup({
@@ -384,6 +389,11 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     if (table) {
       this.tableResizeObserver.observe(table);
     }
+    // Observe the bar so the rail is re-sized once it becomes visible on overflow.
+    const bar = this.tableXScroll?.nativeElement;
+    if (bar) {
+      this.tableResizeObserver.observe(bar);
+    }
     this.updateHorizontalScroll();
   }
 
@@ -404,6 +414,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       this.hasHorizontalOverflow = overflow;
       this.cd.markForCheck();
     }
+    this.updateScrollEdges();
     if (!overflow || !bar || !rail) {
       return;
     }
@@ -412,19 +423,50 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     const rightEdge = scroll.querySelector<HTMLElement>('.mat-mdc-table-sticky-border-elem-right');
     const leftWidth = leftEdge ? leftEdge.getBoundingClientRect().right - containerRect.left : 0;
     const rightWidth = rightEdge ? containerRect.right - rightEdge.getBoundingClientRect().left : 0;
-    bar.style.marginLeft = `${leftWidth}px`;
-    bar.style.marginRight = `${rightWidth}px`;
-    rail.style.width = `${scroll.scrollWidth - leftWidth - rightWidth}px`;
+    // Inset both chevron rows and the synthetic bar so they span only the scrollable columns.
+    this.host.nativeElement.style.setProperty('--ht-frozen-left', `${leftWidth}px`);
+    this.host.nativeElement.style.setProperty('--ht-frozen-right', `${rightWidth}px`);
+    // Size the rail so the bar's scroll range equals the table's; scrollLeft then maps 1:1
+    // no matter how much width the flanking chevrons take from the bar.
+    rail.style.width = `${bar.clientWidth + (scroll.scrollWidth - scroll.clientWidth)}px`;
     bar.scrollLeft = scroll.scrollLeft;
   }
 
-  /** Sync: table scrolled (trackpad/keyboard) moves the synthetic bar. */
+  /** Reflects the table's scroll position onto the chevrons' disabled state. */
+  private updateScrollEdges(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    if (!scroll) {
+      return;
+    }
+    const max = scroll.scrollWidth - scroll.clientWidth;
+    const atStart = scroll.scrollLeft <= 1;
+    const atEnd = scroll.scrollLeft >= max - 1;
+    if (atStart !== this.atScrollStart || atEnd !== this.atScrollEnd) {
+      this.atScrollStart = atStart;
+      this.atScrollEnd = atEnd;
+      this.cd.markForCheck();
+    }
+  }
+
+  /** Smoothly scroll the table fully left (start). */
+  scrollToStart(): void {
+    this.tableScroll?.nativeElement.scrollTo({ left: 0, behavior: 'smooth' });
+  }
+
+  /** Smoothly scroll the table fully right (end). */
+  scrollToEnd(): void {
+    const scroll = this.tableScroll?.nativeElement;
+    scroll?.scrollTo({ left: scroll.scrollWidth, behavior: 'smooth' });
+  }
+
+  /** Sync: table scrolled (trackpad/keyboard/drag) moves the synthetic bar. */
   onTableScroll(): void {
     const scroll = this.tableScroll?.nativeElement;
     const bar = this.tableXScroll?.nativeElement;
     if (scroll && bar && Math.abs(bar.scrollLeft - scroll.scrollLeft) > 0.5) {
       bar.scrollLeft = scroll.scrollLeft;
     }
+    this.updateScrollEdges();
   }
 
   /** Sync: dragging the synthetic bar scrolls the table. */

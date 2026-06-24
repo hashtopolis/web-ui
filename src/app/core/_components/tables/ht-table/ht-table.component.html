@@ -123,6 +123,29 @@
     </div>
     <!-- Filter section BACKEND END-->
   </div>
+  <!-- Header chevrons: jump to start/end from above the table (mirrors the scrollbar's). -->
+  @if (stickyLeadingEnabled) {
+    <div class="ht-table-chevrons ht-table-chevrons--header" [hidden]="!hasHorizontalOverflow">
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to start"
+        [disabled]="atScrollStart"
+        (click)="scrollToStart()"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to end"
+        [disabled]="atScrollEnd"
+        (click)="scrollToEnd()"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  }
   <div
     #tableScroll
     class="ht-table-scroll"
@@ -310,11 +333,32 @@
     </tr>
   </table>
   </div>
-  <!-- Synthetic horizontal scrollbar: only spans the scrollable columns (not the frozen
-       groups) and drives the hidden native scroll above. Shown only when the table overflows. -->
+  <!-- Synthetic horizontal scrollbar flanked by jump-to-start/end chevrons: only spans the
+       scrollable columns (not the frozen groups) and drives the hidden native scroll above.
+       The chevrons stay usable even when the OS hides the scrollbar. Shown only on overflow. -->
   @if (stickyLeadingEnabled) {
-    <div #tableXScroll class="ht-table-xscroll" [hidden]="!hasHorizontalOverflow" (scroll)="onXScroll()">
-      <div #tableXScrollRail class="ht-table-xscroll__rail"></div>
+    <div class="ht-table-xscroll-row" [hidden]="!hasHorizontalOverflow">
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to start"
+        [disabled]="atScrollStart"
+        (click)="scrollToStart()"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <div #tableXScroll class="ht-table-xscroll" (scroll)="onXScroll()">
+        <div #tableXScrollRail class="ht-table-xscroll__rail"></div>
+      </div>
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to end"
+        [disabled]="atScrollEnd"
+        (click)="scrollToEnd()"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
     </div>
   }
 
