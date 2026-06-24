@@ -6,6 +6,9 @@ services:
     restart: always
     environment:
       - HASHTOPOLIS_BACKEND_URL
+      # Custom themes are opt-in. Set this to the folder to scan inside the
+      # container and mount your .css folder to that same path (volume below).
+      # - HASHTOPOLIS_CUSTOM_THEMES_DIR=/custom-themes
     build:
       context: ..
       dockerfile: Dockerfile
@@ -16,12 +19,11 @@ services:
       # This is where VS Code should expect to find your project's source code
       # and the value of "workspaceFolder" in .devcontainer/devcontainer.json
       - ..:/app
-      # No custom theme is loaded by default. To enable the bundled example
-      # themes (or your own), uncomment the mount below — the entrypoint scans
-      # /custom-themes on startup and registers every .css file it finds.
-      # Point HASHTOPOLIS_CUSTOM_THEMES_DIR at any host folder to override the
-      # source (defaults to ./custom-themes).
-      # - ${HASHTOPOLIS_CUSTOM_THEMES_DIR:-./custom-themes}:/custom-themes:ro
+      # No custom theme is loaded by default. To enable themes, set
+      # HASHTOPOLIS_CUSTOM_THEMES_DIR (above) to the container path the entrypoint
+      # should scan, and uncomment the mount below to provide the .css files at
+      # that path. The bundled examples live in ./custom-themes.
+      # - ./custom-themes:/custom-themes:ro
     networks:
       - hashtopolis_dev
 

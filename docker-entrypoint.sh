@@ -17,9 +17,15 @@ function update_app_config {
 }
 
 function sync_custom_themes {
+  # Custom themes are opt-in. When HASHTOPOLIS_CUSTOM_THEMES_DIR is unset, do
+  # nothing: no manifest is written and the frontend falls back to the built-in
+  # light/dark themes when it 404s on the (absent) manifest.
+  if [ -z "$HASHTOPOLIS_CUSTOM_THEMES_DIR" ]; then
+    return
+  fi
+
   app_cfg_base="$1"
-  built_in_source_dir="${app_cfg_base}/assets/custom-themes"
-  source_dir="${HASHTOPOLIS_CUSTOM_THEMES_DIR:-/custom-themes}"
+  source_dir="$HASHTOPOLIS_CUSTOM_THEMES_DIR"
   target_css_dir="${app_cfg_base}/assets/custom-themes"
   manifest_dir="${app_cfg_base}/assets/themes"
   manifest_file="${manifest_dir}/custom-themes.json"
@@ -27,59 +33,54 @@ function sync_custom_themes {
   mkdir -p "$target_css_dir"
   mkdir -p "$manifest_dir"
 
+  if [ ! -d "$source_dir" ]; then
+    echo "Custom theme source directory not found: $source_dir"
+    echo "[]" > "$manifest_file"
+    return
+  fi
+
   echo "[" > "$manifest_file"
 
   first=true
-  seen_ids="," 
-  theme_source_dirs=("$built_in_source_dir")
+  seen_ids=","
 
-  if [ "$source_dir" != "$built_in_source_dir" ]; then
-    theme_source_dirs+=("$source_dir")
-  fi
+  while IFS= read -r -d '' css_path; do
 
-  for current_source in "${theme_source_dirs[@]}"; do
-    if [ ! -d "$current_source" ]; then
-      echo "Custom theme source directory not found: $current_source"
+    file_name="$(basename "$css_path")"
+    base_name="${file_name%.*}"
+    theme_id="$(echo "$base_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+
+    if [ -z "$theme_id" ]; then
+      echo "Skipping invalid theme file: $file_name"
       continue
     fi
 
-    while IFS= read -r -d '' css_path; do
+    if echo "$seen_ids" | grep -q ",$theme_id,"; then
+      echo "Skipping duplicate theme id: $theme_id"
+      continue
+    fi
+    seen_ids="${seen_ids}${theme_id},"
 
-      file_name="$(basename "$css_path")"
-      base_name="${file_name%.*}"
-      theme_id="$(echo "$base_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+    if [ "$css_path" != "$target_css_dir/${theme_id}.css" ]; then
+      cp "$css_path" "$target_css_dir/${theme_id}.css"
+    fi
+    theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/[\\"]//g')"
 
-      if [ -z "$theme_id" ]; then
-        echo "Skipping invalid theme file: $file_name"
-        continue
-      fi
+    # Mark the theme dark when its CSS declares a dark color-scheme, so the app
+    # can pick dark-mode assets (logo, icon colors, charts) for it.
+    if grep -Eiq 'color-scheme[[:space:]]*:[^;]*dark' "$css_path"; then
+      is_dark=true
+    else
+      is_dark=false
+    fi
 
-      if echo "$seen_ids" | grep -q ",$theme_id,"; then
-        echo "Skipping duplicate theme id: $theme_id"
-        continue
-      fi
-      seen_ids="${seen_ids}${theme_id},"
+    if [ "$first" = true ]; then
+      first=false
+    else
+      echo "," >> "$manifest_file"
+    fi
 
-      if [ "$css_path" != "$target_css_dir/${theme_id}.css" ]; then
-        cp "$css_path" "$target_css_dir/${theme_id}.css"
-      fi
-      theme_label="$(echo "$base_name" | sed -E 's/[_-]+/ /g; s/[\\"]//g')"
-
-      # Mark the theme dark when its CSS declares a dark color-scheme, so the app
-      # can pick dark-mode assets (logo, icon colors, charts) for it.
-      if grep -Eiq 'color-scheme[[:space:]]*:[^;]*dark' "$css_path"; then
-        is_dark=true
-      else
-        is_dark=false
-      fi
-
-      if [ "$first" = true ]; then
-        first=false
-      else
-        echo "," >> "$manifest_file"
-      fi
-
-      cat >> "$manifest_file" <<EOF
+    cat >> "$manifest_file" <<EOF
   {
     "value": "$theme_id",
     "description": "$theme_label",
@@ -88,8 +89,7 @@ function sync_custom_themes {
     "isDark": $is_dark
   }
 EOF
-    done < <(find "$current_source" -type f -iname '*.css' -print0 | sort -z)
-  done
+  done < <(find "$source_dir" -type f -iname '*.css' -print0 | sort -z)
 
   echo "]" >> "$manifest_file"
   echo "Custom themes synced to $target_css_dir"

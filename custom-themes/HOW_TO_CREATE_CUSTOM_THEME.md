@@ -37,7 +37,10 @@ At minimum, define the color tokens your components rely on.
 
 ## 3) Recreate container
 
-When the container starts, `docker-entrypoint.sh` scans `custom-themes`, copies CSS files into served assets, and generates a manifest.
+Custom themes are opt-in. Set `HASHTOPOLIS_CUSTOM_THEMES_DIR` to the folder the
+container should scan and mount your `.css` folder to that path (see
+`custom-themes/README.md`). When the container starts, `docker-entrypoint.sh`
+scans that folder, copies CSS files into served assets, and generates a manifest.
 
 Apply changes with:
 

@@ -56,11 +56,12 @@ COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
 COPY --from=hashtopolis-web-ui-build /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY ./nginx/hashtopolis.conf /etc/nginx/conf.d/default.conf
 
-# Bake custom theme CSS into the image so themes ship without a runtime mount.
-# CUSTOM_THEMES_DIR is a folder in the build context; the entrypoint syncs its
-# *.css into the served assets and registers them on startup. Override with
-# --build-arg CUSTOM_THEMES_DIR=path (a runtime /custom-themes mount still wins).
-ARG CUSTOM_THEMES_DIR=custom-themes
+# Custom themes are opt-in at runtime via HASHTOPOLIS_CUSTOM_THEMES_DIR.
+# By default this bakes an empty folder (no themes ship in the image). To bake
+# themes, build with --build-arg CUSTOM_THEMES_DIR=custom-themes (or your own
+# folder of *.css), then set HASHTOPOLIS_CUSTOM_THEMES_DIR=/custom-themes at
+# runtime to enable them.
+ARG CUSTOM_THEMES_DIR=docker/empty-custom-themes
 COPY ${CUSTOM_THEMES_DIR}/ /custom-themes/
 
 ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "production" ]

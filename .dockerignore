@@ -2,6 +2,9 @@
 node_modules
 .angular
 
+src/assets/custom-themes
+src/assets/themes
+
 # Docker stuff
 Dockerfile*
 docker-compose*
