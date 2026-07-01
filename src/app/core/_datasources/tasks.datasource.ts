@@ -12,13 +12,13 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview> {
-  private _isArchived = false;
+  private _isArchived: boolean | null = false;
   private _hashlistID = 0;
   private filterQuery: Filter;
   setFilterQuery(filter: Filter): void {
     this.filterQuery = filter;
   }
-  setIsArchived(isArchived: boolean): void {
+  setIsArchived(isArchived: boolean | null): void {
     this.reset(true);
     this.pageAfter = null;
     this.pageBefore = null;
@@ -37,12 +37,14 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
       .addAggregate({
         field: 'taskwrapperdisplay',
         values: ['totalAssignedAgents', 'searched', 'dispatched', 'status', 'currentSpeed'] as const
-      })
-      .addFilter({
+      });
+    if (this._isArchived !== null) {
+      params.addFilter({
         field: 'taskWrapperIsArchived',
         operator: FilterType.EQUAL,
         value: this._isArchived
       });
+    }
     if (query) {
       params.addFilter(query);
     }
