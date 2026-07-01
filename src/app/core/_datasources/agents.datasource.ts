@@ -122,6 +122,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             agent.user = users.find((user) => user.id === agent.userId)!;
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task.id;
+            agent.assignmentId = assignment.id;
             agent.benchmark = assignment.benchmark;
             agents.push(agent);
           });
