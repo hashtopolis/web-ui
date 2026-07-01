@@ -53,7 +53,7 @@
           @if (useBrain) {
             <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
             <fixed-alert
-              message="Note: When brain is enabled, it'll create a network server. If used wrongly, it could cause bottlenecks or collapse the network server. You can disable this setting in Config > Server > General Settings."
+              message="Note: When brain is enabled, Hashtopolis will connect to your Hashcat Brain server using the host, port and password configured in Config > Server > General Settings. Make sure your Brain server is running independently before using this option."
             ></fixed-alert>
           }
           <app-divider />
