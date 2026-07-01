@@ -188,6 +188,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     return this.form.controls.sourceType.value;
   }
 
+  get useBrain() {
+    return this.form.controls.useBrain.value;
+  }
+
   /**
    * Load configurations
    * ToDO. id could change
@@ -196,7 +200,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
       const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
       this.brainenabled = Number(config.value);
-      this.form.patchValue({ useBrain: !!this.brainenabled });
       this.changeDetectorRef.detectChanges();
     });
     this.unsubscribeService.add(configSubscription$);
