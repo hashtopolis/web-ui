@@ -508,16 +508,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   /**
-    * Sets the archived state of the tasks and reloads the data source accordingly.
-    * @param isArchived  A `boolean` indicating whether to `archive (true)` or `unarchive (false)` the tasks.
-    */
-   setIsArchived(isArchived: boolean): void {
-     this.isArchived = isArchived;
-     const archiveState = this.includeArchived ? null : this.isArchived;
-     this.dataSource.reset(true);
-     this.dataSource.setIsArchived(archiveState);
-     this.dataSource.loadAll();
-   }
+   * Sets the archived state of the tasks and reloads the data source accordingly.
+   * @param isArchived  A `boolean` indicating whether to `archive (true)` or `unarchive (false)` the tasks.
+   */
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+    const archiveState = this.includeArchived ? null : this.isArchived;
+    this.dataSource.reset(true);
+    this.dataSource.setIsArchived(archiveState);
+    this.dataSource.loadAll();
+  }
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplayOverview): HTTableIcon {

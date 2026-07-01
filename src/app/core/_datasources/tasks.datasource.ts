@@ -32,12 +32,10 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
 
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder()
-      .addInitial(this)
-      .addAggregate({
-        field: 'taskwrapperdisplay',
-        values: ['totalAssignedAgents', 'searched', 'dispatched', 'status', 'currentSpeed'] as const
-      });
+    const params = new RequestParamBuilder().addInitial(this).addAggregate({
+      field: 'taskwrapperdisplay',
+      values: ['totalAssignedAgents', 'searched', 'dispatched', 'status', 'currentSpeed'] as const
+    });
     if (this._isArchived !== null) {
       params.addFilter({
         field: 'taskWrapperIsArchived',
