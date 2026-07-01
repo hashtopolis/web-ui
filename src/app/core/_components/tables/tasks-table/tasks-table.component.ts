@@ -46,6 +46,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       this._hashlistId = value;
     }
   }
+  @Input()
+  includeArchived = false;
   get hashlistId(): number {
     if (this._hashlistId === undefined) {
       return 0;
@@ -63,7 +65,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.tableColumns = this.getColumns();
     this.dataSource = new TasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.setIsArchived(this.isArchived);
+    const archiveState = this.includeArchived ? null : this.isArchived;
+    this.dataSource.setIsArchived(archiveState);
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     // Setup filter error handling
@@ -510,8 +513,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    const archiveState = this.includeArchived ? null : this.isArchived;
     this.dataSource.reset(true);
-    this.dataSource.setIsArchived(isArchived);
+    this.dataSource.setIsArchived(archiveState);
     this.dataSource.loadAll();
   }
 

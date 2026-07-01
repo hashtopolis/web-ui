@@ -1020,6 +1020,42 @@ describe('TasksTableComponent', () => {
     });
   });
 
+  describe('includeArchived input', () => {
+    it('should default to false', () => {
+      expect(component.includeArchived).toBe(false);
+    });
+
+    it('should pass null to dataSource when includeArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = true;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(null);
+    });
+
+    it('should pass false to dataSource when includeArchived is false', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(false);
+    });
+
+    it('should pass true to dataSource when includeArchived is false and isArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = true;
+
+      component.setIsArchived(true);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(true);
+    });
+  });
+
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
