@@ -167,7 +167,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) => wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
+        render: (wrapper: JTaskWrapperDisplayOverview) =>
+          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -176,7 +177,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.DISPATCHED_SEARCHED,
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`) : '',
+          wrapper.taskType === TaskType.TASK
+            ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`)
+            : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
