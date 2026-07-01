@@ -40,6 +40,8 @@ class TestTasksAgentsTableComponent extends TasksAgentsTableComponent {
     this.tableColumns = this.getColumns();
     this.dataSource = new MockAgentsDataSource() as unknown as AgentsDataSource;
   }
+
+  override reload(): void {}
 }
 
 describe('TasksAgentsTableComponent', () => {
