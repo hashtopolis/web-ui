@@ -107,6 +107,8 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
-    this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
+    this.exportService.handleExportAction<JLog>(event, visibleColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }
 }

@@ -130,9 +130,11 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JSuperTask>(
       event,
-      this.tableColumns,
+      visibleColumns,
       SupertasksTableColumnLabel,
       'hashtopolis-supertasks'
     );

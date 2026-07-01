@@ -466,9 +466,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    * @param event The action menu event containing the selected tasks for export.
    */
   exportActionClicked(event: ActionMenuEvent<JTaskWrapperDisplayOverview[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JTaskWrapperDisplayOverview>(
       event,
-      this.tableColumns,
+      visibleColumns,
       TaskTableColumnLabel,
       'hashtopolis-tasks'
     );

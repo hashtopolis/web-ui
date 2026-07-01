@@ -156,9 +156,11 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JNotification[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JNotification>(
       event,
-      this.tableColumns,
+      visibleColumns,
       NotificationsTableColumnLabel,
       'hashtopolis-notifications'
     );

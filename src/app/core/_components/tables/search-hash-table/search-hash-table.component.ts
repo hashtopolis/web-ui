@@ -92,9 +92,11 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<SearchHashModel[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<SearchHashModel>(
       event,
-      this.tableColumns,
+      visibleColumns,
       SearchHashTableColumnLabel,
       'hashtopolis-search-hash'
     );
