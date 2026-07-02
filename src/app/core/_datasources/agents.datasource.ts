@@ -2,13 +2,19 @@
  * Contains data source for agents resource
  * @module
  */
-import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
+import {
+  zAgentAssignmentListResponse,
+  zAgentListResponse,
+  zChunkListResponse,
+  zUserListResponse
+} from '@generated/api/zod';
 import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
@@ -112,17 +118,31 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             .map((assignment) => assignment.agent?.userId)
             .filter((userId): userId is number => userId !== undefined && userId !== null);
           const users = await this.loadUserData(userIds);
+          const agentIds = assignments
+            .map((assignment) => assignment.agent?.id)
+            .filter((agentId): agentId is number => agentId !== undefined && agentId !== null);
+          const chunks = await this.loadChunksData(agentIds, this._taskId);
 
           const agents: JAgent[] = [];
           assignments.forEach((assignment) => {
             if (!assignment.task || !assignment.agent) return;
             const task = assignment.task;
             const agent = assignment.agent;
+            const taskChunks = this.getTaskChunks(chunks, agent.id, task.id);
+
             agent.task = task;
             agent.user = users.find((user) => user.id === agent.userId)!;
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task.id;
             agent.benchmark = assignment.benchmark;
+            if (taskChunks.length > 0) {
+              agent.chunkData = this.convertChunks(agent.id, taskChunks, true, task.keyspace);
+              const currentChunk = this.getCurrentChunk(taskChunks);
+              if (currentChunk) {
+                agent.chunk = currentChunk;
+                agent.chunkId = currentChunk.id;
+              }
+            }
             agents.push(agent);
           });
 
@@ -184,5 +204,55 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       }
     }
     return users;
+  }
+
+  private async loadChunksData(agentIds: Array<number>, taskId: number): Promise<JChunk[]> {
+    if (agentIds.length === 0 || taskId === 0) {
+      return [];
+    }
+
+    const chunkParams = new RequestParamBuilder()
+      .setPageSize(this.maxResults)
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: taskId })
+      .addFilter({ field: 'agentId', operator: FilterType.IN, value: agentIds });
+
+    try {
+      const response = await firstValueFrom(
+        this.service.getAll(SERV.CHUNKS, chunkParams.create()).pipe(
+          catchError((error) => {
+            this.handleFilterError(error);
+            throw error;
+          })
+        )
+      );
+      return this.serializer.deserialize(response, zChunkListResponse);
+    } catch {
+      return [];
+    }
+  }
+
+  private getTaskChunks(chunks: Array<JChunk>, agentId: number, taskId: number): Array<JChunk> {
+    if (chunks.length === 0) {
+      return [];
+    }
+    return chunks.filter((chunk) => chunk.agentId === agentId && chunk.taskId === taskId);
+  }
+
+  private getCurrentChunk(chunks: Array<JChunk>): JChunk | undefined {
+    if (chunks.length === 0) {
+      return undefined;
+    }
+
+    return [...chunks].sort((left, right) => {
+      const leftIsActive = left.progress < 10000 ? 1 : 0;
+      const rightIsActive = right.progress < 10000 ? 1 : 0;
+      if (leftIsActive !== rightIsActive) {
+        return rightIsActive - leftIsActive;
+      }
+
+      const leftActivity = Math.max(left.solveTime ?? 0, left.dispatchTime ?? 0);
+      const rightActivity = Math.max(right.solveTime ?? 0, right.dispatchTime ?? 0);
+      return rightActivity - leftActivity;
+    })[0];
   }
 }
