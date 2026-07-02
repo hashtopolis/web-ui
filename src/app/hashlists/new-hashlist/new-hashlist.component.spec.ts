@@ -331,4 +331,49 @@ describe('NewHashlistComponent', () => {
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
     });
   });
+
+  describe('Deprecated format handling', () => {
+    it('should return true for deprecated formats 1 (HCCAPX/PMKID) and 2 (Binary)', () => {
+      expect(component.isFormatDeprecated(1)).toBeTrue();
+      expect(component.isFormatDeprecated(2)).toBeTrue();
+      expect(component.isFormatDeprecated(0)).toBeFalse();
+      expect(component.isFormatDeprecated(3)).toBeFalse();
+    });
+
+    it('should disable submit button when deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '2500',
+        accessGroupId: 1,
+        format: 1,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeTrue();
+    }));
+
+    it('should enable submit button when non-deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '0',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeFalse();
+    }));
+  });
 });
