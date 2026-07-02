@@ -1,5 +1,10 @@
 /// <reference types="jasmine" />
-import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
+import {
+  zAgentAssignmentListResponse,
+  zAgentListResponse,
+  zChunkListResponse,
+  zUserListResponse
+} from '@generated/api/zod';
 import { of } from 'rxjs';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
@@ -7,6 +12,7 @@ import { TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
 import { RequestParams } from '@models/request-params.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
@@ -27,8 +33,43 @@ import { mockResponse } from '@src/app/testing/mock-response';
 const MOCK_TASK: JTask = {
   id: 10,
   type: 'task',
-  taskName: 'Test Task'
+  taskName: 'Test Task',
+  keyspace: 1000
 } as unknown as JTask;
+
+const NOW = Math.floor(Date.now() / 1000);
+
+const MOCK_TASK_CHUNK: JChunk = {
+  id: 100,
+  type: 'chunk',
+  taskId: 10,
+  agentId: 1,
+  skip: 0,
+  length: 500,
+  dispatchTime: NOW - 60,
+  solveTime: NOW - 30,
+  checkpoint: 250,
+  progress: 5000,
+  state: 2,
+  cracked: 2,
+  speed: 1200
+} as unknown as JChunk;
+
+const MOCK_OTHER_TASK_CHUNK: JChunk = {
+  id: 101,
+  type: 'chunk',
+  taskId: 11,
+  agentId: 1,
+  skip: 0,
+  length: 500,
+  dispatchTime: NOW - 60,
+  solveTime: NOW - 30,
+  checkpoint: 500,
+  progress: 10000,
+  state: 5,
+  cracked: 8,
+  speed: 9999
+} as unknown as JChunk;
 
 const MOCK_USER: JUser = {
   id: 5,
@@ -42,7 +83,9 @@ const MOCK_AGENT: JAgent = {
   type: 'agent',
   agentName: 'Agent1',
   userId: MOCK_USER.id,
-  tasks: [MOCK_TASK]
+  lastTime: NOW,
+  tasks: [MOCK_TASK],
+  chunks: [MOCK_TASK_CHUNK, MOCK_OTHER_TASK_CHUNK]
 } as unknown as JAgent;
 
 const MOCK_AGENT_NO_TASKS: JAgent = {
@@ -92,6 +135,7 @@ describe('AgentsDataSource', () => {
       (_body: unknown, schema?: unknown) => {
         if (schema === zAgentListResponse) return [MOCK_AGENT];
         if (schema === zAgentAssignmentListResponse) return [MOCK_ASSIGNMENT];
+        if (schema === zChunkListResponse) return [MOCK_TASK_CHUNK, MOCK_OTHER_TASK_CHUNK];
         if (schema === zUserListResponse) return [MOCK_USER];
         return [];
       }
@@ -233,6 +277,26 @@ describe('AgentsDataSource', () => {
       expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
     }));
 
+    it('should not request nested agent chunks include on assignments endpoint', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+      const [, params] = gsSpy.getAll.calls.all()[0].args;
+      expect((params as RequestParams).include).not.toContain('agent.chunks');
+    }));
+
+    it('should fetch chunks for the assigned agents and task', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      const chunkCall = gsSpy.getAll.calls.all().find((call) => call.args[0] === SERV.CHUNKS);
+      expect(chunkCall).toBeDefined();
+      const [, params] = chunkCall!.args;
+      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
+      expect((params as RequestParams).filter).toContain(
+        jasmine.objectContaining({ field: 'agentId', operator: 'in', value: [1] })
+      );
+    }));
+
     it('should fetch user data for the agents in the assignments', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
@@ -251,6 +315,46 @@ describe('AgentsDataSource', () => {
       expect(agent.taskId).toBe(MOCK_TASK.id);
       expect(agent.benchmark).toBe(MOCK_ASSIGNMENT.benchmark);
       expect(agent.user).toEqual(MOCK_USER);
+    }));
+
+    it('should derive task-scoped chunk data and current chunk for assigned agents', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      const agent = dataSource.getOriginalData()[0];
+      expect(agent.chunkData).toEqual(
+        jasmine.objectContaining({
+          speed: MOCK_TASK_CHUNK.speed,
+          timeSpent: MOCK_TASK_CHUNK.solveTime - MOCK_TASK_CHUNK.dispatchTime,
+          searched: (MOCK_TASK_CHUNK.checkpoint - MOCK_TASK_CHUNK.skip) / MOCK_TASK.keyspace,
+          cracked: MOCK_TASK_CHUNK.cracked
+        })
+      );
+      expect(agent.chunkId).toBe(MOCK_TASK_CHUNK.id);
+      expect(agent.chunk).toEqual(MOCK_TASK_CHUNK);
+    }));
+
+    it('should not derive time spent from agent last activity', fakeAsync(() => {
+      const activeAgent = {
+        ...MOCK_AGENT,
+        lastTime: NOW,
+        chunks: [{ ...MOCK_TASK_CHUNK, solveTime: NOW - 45, dispatchTime: NOW - 120, progress: 5000 }]
+      } as JAgent;
+      const activeAssignment = { ...MOCK_ASSIGNMENT, agent: activeAgent } as JAgentAssignment;
+
+      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+        if (schema === zAgentAssignmentListResponse) return [activeAssignment];
+        if (schema === zChunkListResponse) return activeAgent.chunks;
+        if (schema === zUserListResponse) return [MOCK_USER];
+        if (schema === zAgentListResponse) return [activeAgent];
+        return [];
+      });
+
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      const agent = dataSource.getOriginalData()[0];
+      expect(agent.chunkData?.timeSpent).toBe(75);
     }));
 
     it('should set data to an empty array when there are no assignments', fakeAsync(() => {
