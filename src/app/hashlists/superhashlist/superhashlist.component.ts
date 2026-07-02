@@ -16,7 +16,7 @@ export class SuperhashlistComponent {
     private titleService: AutoTitleService,
     private roleService: SuperHashListRoleService
   ) {
-    this.titleService.set(['Show SuperHashlist']);
+    this.titleService.set(['Show Superhashlist']);
     this.showCreateButton = this.roleService.hasRole('create');
   }
 }

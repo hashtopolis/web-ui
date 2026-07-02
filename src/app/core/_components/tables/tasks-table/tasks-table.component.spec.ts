@@ -188,7 +188,7 @@ describe('TasksTableComponent', () => {
       const typeColumn = columns.find((col) => col.id === TaskTableCol.TASK_TYPE);
       const taskWrapper = { taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
 
-      expect(typeColumn?.render!(taskWrapper)).toBe('<b>SuperTask</b>');
+      expect(typeColumn?.render!(taskWrapper)).toBe('<b>Supertask</b>');
     });
 
     it('should include NAME column with routerLink function', () => {

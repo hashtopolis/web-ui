@@ -148,7 +148,7 @@ export class MetadataService {
       title: 'New Supertask',
       customform: false,
       subtitle: false,
-      submitok: 'New SuperTask created!',
+      submitok: 'New Supertask created!',
       submitokredirect: 'tasks/supertasks'
     }
   ];
