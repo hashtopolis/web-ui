@@ -137,7 +137,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>SuperTask</b>',
+          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>Supertask</b>',
         export: async (wrapper: JTaskWrapperDisplayOverview) =>
           wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + '',
         isSortable: true

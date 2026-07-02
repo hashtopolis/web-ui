@@ -52,7 +52,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
 
-  /** Form group for the new SuperHashlist. */
+  /** Form group for the new Superhashlist. */
   form: FormGroup<NewHashlistForm>;
 
   /** On form create show a spinner loading */
