@@ -82,6 +82,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   saltSubscription = new Subscription();
 
+  /**
+   * Deprecation message for legacy formats
+   */
+  deprecationMessage =
+    'HCCAPX / PMKID and binary formats are deprecated and will be removed in a future hashcat release. Please use a ' +
+    'text-based hash type instead as Hashtopolis does not support the deprecated formats anymore.';
+
   // Unsubcribe
   private fileUnsubscribe = new Subject<void>();
 
@@ -357,6 +364,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       width: '720px',
       maxWidth: '90vw'
     });
+  }
+
+  /**
+   * Check if the selected format is deprecated
+   */
+  isFormatDeprecated(formatId: number): boolean {
+    return [1, 2].includes(formatId);
   }
 
   /**

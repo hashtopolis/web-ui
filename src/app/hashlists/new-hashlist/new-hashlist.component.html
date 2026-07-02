@@ -34,8 +34,17 @@
           [items]="selectAccessgroup"
           [isRequired]="true"
         ></input-select>
-        <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
+        <input-select title="Hashlist format" formControlName="format" [items]="selectFormat" [tooltip]="deprecationMessage"></input-select>
       </app-form-row>
+
+      @if (this.isFormatDeprecated(form.controls.format.value)) {
+        <div class="flex flex-col gap-1" style="color: #dc2626;">
+          <mat-icon>warning</mat-icon>
+          <span>
+            <strong>Deprecated Format</strong> - {{ deprecationMessage }}
+          </span>
+        </div>
+      }
 
       <app-form-row>
         <input-text title="Separator" formControlName="separator"></input-text>
@@ -69,7 +78,7 @@
           <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [loading]="isCreatingLoading" [disabled]="this.isFormatDeprecated(form.controls.format.value)"></button-submit>
           </grid-buttons>
         </div>
       }
@@ -95,7 +104,7 @@
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
             <button-submit
               [name]="'Create'"
-              [disabled]="false"
+              [disabled]="this.isFormatDeprecated(form.controls.format.value)"
               [loading]="isCreatingLoading"
               data-testid="submit-button"
             ></button-submit>
@@ -123,7 +132,7 @@
           }
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [disabled]="false" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="this.isFormatDeprecated(form.controls.format.value)" [loading]="isCreatingLoading"></button-submit>
           </grid-buttons>
         </div>
       }
@@ -138,7 +147,7 @@
           ></input-text>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [disabled]="false" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="this.isFormatDeprecated(form.controls.format.value)" [loading]="isCreatingLoading"></button-submit>
           </grid-buttons>
         </div>
       }
