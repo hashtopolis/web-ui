@@ -90,6 +90,7 @@ export const RowActionMenuAction = {
 
 export const RowActionMenuIcon = {
   ADD: 'add',
+  CANCEL: 'cancel',
   EDIT: 'edit',
   DELETE: 'delete',
   NEW: 'add',

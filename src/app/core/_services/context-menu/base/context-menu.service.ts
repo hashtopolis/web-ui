@@ -226,9 +226,12 @@ export abstract class ContextMenuService {
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
-    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, condition);
+    if (condition.value) {
+      this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.CANCEL, permissions, condition);
+    } else {
+      this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, condition);
+    }
   }
-
   /**
    * Add a new copy entry to context menu
    * @param label - label of the entry
