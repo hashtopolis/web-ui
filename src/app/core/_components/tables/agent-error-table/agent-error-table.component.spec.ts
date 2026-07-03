@@ -3,37 +3,37 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { JAgentErrors } from '@models/agent-errors.model';
 import { BaseModel } from '@models/base.model';
-import { JNotification } from '@models/notification.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { AgentErrorTableComponent } from '@components/tables/agent-error-table/agent-error-table.component';
+import { AgentErrorTableColumnLabel } from '@components/tables/agent-error-table/agent-error-table.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { NotificationsTableComponent } from '@components/tables/notifications-table/notifications-table.component';
-import { NotificationsTableColumnLabel } from '@components/tables/notifications-table/notifications-table.constants';
 
-import { NotificationsDataSource } from '@datasources/notifications.datasource';
+import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
 
 import { ExportService } from '@src/app/core/_services/export/export.service';
 
-class MockNotificationsDataSource {
+class MockAgentErrorDataSource {
   loadAll() {}
   setColumns() {}
   clearFilter() {}
   reload() {}
 }
 
-class TestNotificationsTableComponent extends NotificationsTableComponent {
+class TestAgentErrorTableComponent extends AgentErrorTableComponent {
   override ngOnInit(): void {
-    this.setColumnLabels(NotificationsTableColumnLabel);
+    this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new MockNotificationsDataSource() as unknown as NotificationsDataSource;
+    this.dataSource = new MockAgentErrorDataSource() as unknown as AgentErrorDatasource;
   }
 }
 
-describe('NotificationsTableComponent', () => {
-  let component: TestNotificationsTableComponent;
-  let fixture: ComponentFixture<TestNotificationsTableComponent>;
+describe('AgentErrorTableComponent', () => {
+  let component: TestAgentErrorTableComponent;
+  let fixture: ComponentFixture<TestAgentErrorTableComponent>;
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
@@ -42,7 +42,7 @@ describe('NotificationsTableComponent', () => {
     mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
 
     await TestBed.configureTestingModule({
-      declarations: [TestNotificationsTableComponent],
+      declarations: [TestAgentErrorTableComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -51,7 +51,7 @@ describe('NotificationsTableComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestNotificationsTableComponent);
+    fixture = TestBed.createComponent(TestAgentErrorTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     component.table = mockHTTable as HTTableComponent<BaseModel>;
@@ -62,15 +62,15 @@ describe('NotificationsTableComponent', () => {
   });
 
   describe('table columns', () => {
-    it('should expose columns for notifications', () => {
+    it('should expose columns for agent errors', () => {
       expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JNotification[];
-      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JNotification[]>;
+      const items = [{ id: 1 }] as JAgentErrors[];
+      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgentErrors[]>;
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
 
       component.exportActionClicked(event);
@@ -78,15 +78,15 @@ describe('NotificationsTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
         event,
         component.tableColumns,
-        NotificationsTableColumnLabel,
-        'hashtopolis-notifications'
+        AgentErrorTableColumnLabel,
+        'hashtopolis-task-errors'
       );
     });
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items = [{ id: 1 }, { id: 2 }] as JNotification[];
-      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JNotification[]>;
+      const items = [{ id: 1 }, { id: 2 }] as JAgentErrors[];
+      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgentErrors[]>;
 
       component.exportActionClicked(event);
 
@@ -94,8 +94,8 @@ describe('NotificationsTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         expectedColumns,
-        NotificationsTableColumnLabel,
-        'hashtopolis-notifications'
+        AgentErrorTableColumnLabel,
+        'hashtopolis-task-errors'
       );
     });
   });

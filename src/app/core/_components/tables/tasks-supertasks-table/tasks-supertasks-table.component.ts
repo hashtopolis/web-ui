@@ -167,7 +167,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       event,
       visibleColumns,
       TasksSupertasksDataSourceTableColumnLabel,
-      'hashtopolis-tasks-supertaks'
+      'hashtopolis-tasks-supertasks'
     );
   }
 

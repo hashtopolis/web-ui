@@ -7,12 +7,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
 
 import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
 import {
   AccessGroupsAgentsTableCol,
   AccessGroupsAgentsTableColumnLabel
 } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -63,7 +65,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
   let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<{ reload: () => void }>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -89,7 +91,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     // Provide a spy for the @ViewChild('table') so BaseTableComponent.reload() works
-    component.table = mockHTTable as any;
+    component.table = mockHTTable as HTTableComponent<BaseModel>;
   });
 
   it('should create', () => {
@@ -401,12 +403,32 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should delegate to exportService with the correct file name', () => {
       const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
       const event = { data: agents, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
+      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
 
       component.exportActionClicked(event);
 
       expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
         event,
         component.tableColumns,
+        AccessGroupsAgentsTableColumnLabel,
+        'hashtopolis-access-groups-agents'
+      );
+    });
+
+    it('should pass only visible columns when displayedColumns is set', () => {
+      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
+      const agents = [
+        { id: 1, agentName: 'A1' },
+        { id: 2, agentName: 'A2' }
+      ] as JAgent[];
+      const event = { data: agents, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
+
+      component.exportActionClicked(event);
+
+      const expectedColumns = component.tableColumns.filter((col) => [0, 1].includes(col.id));
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        expectedColumns,
         AccessGroupsAgentsTableColumnLabel,
         'hashtopolis-access-groups-agents'
       );
