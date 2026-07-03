@@ -22,7 +22,7 @@ class MockAgentsDataSource {
   reload() {}
   startAutoRefresh() {}
   stopAutoRefresh() {}
-  autoRefreshService = { refreshPage: false }
+  autoRefreshService = { refreshPage: false };
 }
 
 class TestAgentsStatusTableComponent extends AgentsStatusTableComponent {
