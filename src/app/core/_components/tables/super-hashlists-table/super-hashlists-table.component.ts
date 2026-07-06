@@ -142,9 +142,11 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   }
 
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JHashlist>(
       event,
-      this.tableColumns,
+      visibleColumns,
       SuperHashlistsTableColumnLabel,
       'hashtopolis-super-hashlists'
     );

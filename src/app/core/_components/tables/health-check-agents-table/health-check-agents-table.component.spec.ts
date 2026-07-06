@@ -4,36 +4,37 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BaseModel } from '@models/base.model';
-import { JNotification } from '@models/notification.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { HealthCheckAgentsTableComponent } from '@components/tables/health-check-agents-table/health-check-agents-table.component';
+import { HealthCheckAgentsTableColColumnLabel } from '@components/tables/health-check-agents-table/health-check-agents-table.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { NotificationsTableComponent } from '@components/tables/notifications-table/notifications-table.component';
-import { NotificationsTableColumnLabel } from '@components/tables/notifications-table/notifications-table.constants';
 
-import { NotificationsDataSource } from '@datasources/notifications.datasource';
+import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.datasource';
 
 import { ExportService } from '@src/app/core/_services/export/export.service';
 
-class MockNotificationsDataSource {
+class MockHealthCheckAgentsDataSource {
   loadAll() {}
   setColumns() {}
+  setHealthCheckId() {}
   clearFilter() {}
   reload() {}
 }
 
-class TestNotificationsTableComponent extends NotificationsTableComponent {
+class TestHealthCheckAgentsTableComponent extends HealthCheckAgentsTableComponent {
   override ngOnInit(): void {
-    this.setColumnLabels(NotificationsTableColumnLabel);
+    this.setColumnLabels(HealthCheckAgentsTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new MockNotificationsDataSource() as unknown as NotificationsDataSource;
+    this.dataSource = new MockHealthCheckAgentsDataSource() as unknown as HealthCheckAgentsDataSource;
   }
 }
 
-describe('NotificationsTableComponent', () => {
-  let component: TestNotificationsTableComponent;
-  let fixture: ComponentFixture<TestNotificationsTableComponent>;
+describe('HealthCheckAgentsTableComponent', () => {
+  let component: TestHealthCheckAgentsTableComponent;
+  let fixture: ComponentFixture<TestHealthCheckAgentsTableComponent>;
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
@@ -42,7 +43,7 @@ describe('NotificationsTableComponent', () => {
     mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
 
     await TestBed.configureTestingModule({
-      declarations: [TestNotificationsTableComponent],
+      declarations: [TestHealthCheckAgentsTableComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -51,7 +52,7 @@ describe('NotificationsTableComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TestNotificationsTableComponent);
+    fixture = TestBed.createComponent(TestHealthCheckAgentsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     component.table = mockHTTable as HTTableComponent<BaseModel>;
@@ -62,15 +63,16 @@ describe('NotificationsTableComponent', () => {
   });
 
   describe('table columns', () => {
-    it('should expose columns for notifications', () => {
-      expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
+    it('should expose exactly six columns', () => {
+      const ids = component.tableColumns.map((c) => c.id);
+      expect(ids.length).toBe(6);
     });
   });
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JNotification[];
-      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JNotification[]>;
+      const items = [{ id: 1, agentName: 'A1' }] as unknown as JHealthCheckAgent[];
+      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHealthCheckAgent[]>;
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
 
       component.exportActionClicked(event);
@@ -78,15 +80,15 @@ describe('NotificationsTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
         event,
         component.tableColumns,
-        NotificationsTableColumnLabel,
-        'hashtopolis-notifications'
+        HealthCheckAgentsTableColColumnLabel,
+        'hashtopolis-health-checks-view'
       );
     });
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items = [{ id: 1 }, { id: 2 }] as JNotification[];
-      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JNotification[]>;
+      const items = [{ id: 1 }, { id: 2 }] as unknown as JHealthCheckAgent[];
+      const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHealthCheckAgent[]>;
 
       component.exportActionClicked(event);
 
@@ -94,8 +96,8 @@ describe('NotificationsTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         expectedColumns,
-        NotificationsTableColumnLabel,
-        'hashtopolis-notifications'
+        HealthCheckAgentsTableColColumnLabel,
+        'hashtopolis-health-checks-view'
       );
     });
   });
