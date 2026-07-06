@@ -3,7 +3,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JTask, JTaskWith } from '@models/task.model';
+import { JTask, JTaskWith, TaskStatus } from '@models/task.model';
 
 import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
@@ -23,7 +23,13 @@ import {
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched'>;
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+
+type Subtask = JTaskWith<'dispatched' | 'searched'> & {
+  activeAgents?: number;
+  status?: number;
+  currentSpeed?: number;
+};
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -100,11 +106,25 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        dataKey: 'totalAssignedAgents',
+        dataKey: 'activeAgents',
         isNumeric: true,
-        render: (task: JTask) => this.renderAgents(task),
+        render: (task: Subtask) => this.renderAgents(task),
         isSortable: false,
-        export: async (task: JTask) => this.getNumAgents(task) + ''
+        export: async (task: Subtask) => this.getNumAgents(task) + ''
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.STATUS,
+        dataKey: 'status',
+        render: (task: Subtask) => this.renderStatus(task),
+        isSortable: false,
+        export: async (task: Subtask) => this.getStatusLabel(task)
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.SPEED,
+        dataKey: 'currentSpeed',
+        render: (task: Subtask) => this.renderCurrentSpeed(task),
+        isSortable: false,
+        export: async (task: Subtask) => (task.currentSpeed ?? 0).toString()
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
@@ -283,13 +303,33 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     return '';
   }
 
-  private getNumAgents(task: JTask): number {
-    return task.totalAssignedAgents ?? 0;
+  private getNumAgents(task: Subtask): number {
+    return task.activeAgents ?? task.totalAssignedAgents ?? task.chunkData?.agents.length ?? 0;
   }
 
-  private renderAgents(task: JTask): SafeHtml {
-    const numAgents = task.totalAssignedAgents;
+  private renderAgents(task: Subtask): SafeHtml {
+    const numAgents = this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
+  }
+
+  private getStatusLabel(task: Subtask): string {
+    const computedSpeed = task.currentSpeed ?? task.chunkData?.speed ?? 0;
+    switch (task.status) {
+      case TaskStatus.RUNNING:
+        return 'Active';
+      case TaskStatus.COMPLETED:
+        return 'Completed';
+      default:
+        return computedSpeed > 0 ? 'Active' : 'Idle';
+    }
+  }
+
+  private renderStatus(task: Subtask): SafeHtml {
+    return this.sanitize(this.getStatusLabel(task));
+  }
+
+  private renderCurrentSpeed(task: Subtask): SafeHtml {
+    return this.sanitize(convertCrackingSpeed(task.currentSpeed ?? task.chunkData?.speed ?? 0));
   }
 
   private renderDispatchedSearched(task: Subtask): SafeHtml {

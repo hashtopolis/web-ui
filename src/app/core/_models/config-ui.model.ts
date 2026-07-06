@@ -584,6 +584,8 @@ const _uiConfigDefault = {
         TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         TasksSupertasksDataSourceTableCol.CRACKED,
         TasksSupertasksDataSourceTableCol.AGENTS,
+        TasksSupertasksDataSourceTableCol.STATUS,
+        TasksSupertasksDataSourceTableCol.SPEED,
         TasksSupertasksDataSourceTableCol.PRIORITY,
         TasksSupertasksDataSourceTableCol.MAX_AGENTS
       ],
