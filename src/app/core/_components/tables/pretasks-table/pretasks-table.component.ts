@@ -305,9 +305,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    * @param event ActionMenuEvent containing selected menu item and data (list of pretasks)
    */
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JPretask>(
       event,
-      this.tableColumns,
+      visibleColumns,
       PretasksTableColumnLabel,
       'hashtopolis-pretasks'
     );

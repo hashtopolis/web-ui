@@ -163,9 +163,9 @@ describe('NewHashlistComponent', () => {
       expect(component.isLoadingHashtypes).toBeFalse();
     });
 
-    it('should load config and patch form for brainenabled', () => {
+    it('should load config and set brainenabled, keeping useBrain false by default', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.controls.useBrain.value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeFalse();
     });
   });
 
@@ -325,10 +325,98 @@ describe('NewHashlistComponent', () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
+  describe('Hashcat Brain opt-in', () => {
+    it('should show the "Use Hashcat Brain" checkbox when brain is globally enabled', () => {
+      fixture.detectChanges();
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).not.toBeNull();
+    });
+
+    it('should NOT render brain mode selector when useBrain is false', () => {
+      component.form.controls.useBrain.setValue(false);
+      fixture.detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).toBeNull();
+    });
+
+    it('should render brain mode selector when useBrain is true', () => {
+      component.form.controls.useBrain.setValue(true);
+      component['changeDetectorRef'].detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).not.toBeNull();
+    });
+
+    it('should NOT show brain section when brain is globally disabled', fakeAsync(() => {
+      const disabledConfig: ResponseWrapper = mockResponse({
+        data: {
+          id: 66,
+          type: 'config',
+          attributes: { configSectionId: 1, item: 'Enable Brain', value: '0' }
+        }
+      });
+      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(disabledConfig));
+
+      fixture = TestBed.createComponent(NewHashlistComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.brainenabled).toBe(0);
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).toBeNull();
+    }));
+  });
+
   describe('Access group scoping', () => {
     it('should fetch access groups via the getAccessGroups helper, not getAll', () => {
       expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
     });
+  });
+
+  describe('Deprecated format handling', () => {
+    it('should return true for deprecated formats 1 (HCCAPX/PMKID) and 2 (Binary)', () => {
+      expect(component.isFormatDeprecated(1)).toBeTrue();
+      expect(component.isFormatDeprecated(2)).toBeTrue();
+      expect(component.isFormatDeprecated(0)).toBeFalse();
+      expect(component.isFormatDeprecated(3)).toBeFalse();
+    });
+
+    it('should disable submit button when deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '2500',
+        accessGroupId: 1,
+        format: 1,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeTrue();
+    }));
+
+    it('should enable submit button when non-deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '0',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeFalse();
+    }));
   });
 });

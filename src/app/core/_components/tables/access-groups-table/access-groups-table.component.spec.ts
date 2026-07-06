@@ -8,6 +8,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
+import { BaseModel } from '@models/base.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -17,6 +18,8 @@ import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
 } from '@components/tables/access-groups-table/access-groups-table.constants';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 
@@ -67,7 +70,7 @@ describe('AccessGroupsTableComponent', () => {
   let mockAlertService: jasmine.SpyObj<AlertService>;
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockRouter: jasmine.SpyObj<Router>;
-  let mockHTTable: jasmine.SpyObj<{ reload: () => void }>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -100,7 +103,7 @@ describe('AccessGroupsTableComponent', () => {
     // CUSTOM_ELEMENTS_SCHEMA causes @ViewChild('table') to resolve to a native
     // custom element without a reload() method — replace it with the spy so
     // that BaseTableComponent.reload() can be exercised without runtime errors.
-    component.table = mockHTTable as any;
+    component.table = mockHTTable as HTTableComponent<BaseModel>;
 
     // Spies are set up AFTER detectChanges so that the initial loadAll() call
     // from ngAfterViewInit is not counted in assertion expectations.
@@ -304,10 +307,31 @@ describe('AccessGroupsTableComponent', () => {
         data: groups,
         menuItem: { action: 'excel', label: '' }
       };
+      component.table.displayedColumns = ['0', '1', '2', '3'];
       component.exportActionClicked(event);
       expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
         event,
         component.tableColumns,
+        AccessGroupsTableColumnLabel,
+        'hashtopolis-access-groups'
+      );
+    });
+
+    it('should pass only visible columns when displayedColumns is set', () => {
+      component.table.displayedColumns = ['0', '1'];
+      const groups = [
+        { id: 1, groupName: 'G1' },
+        { id: 2, groupName: 'G2' }
+      ] as JAccessGroup[];
+      const event: ActionMenuEvent<JAccessGroup[]> = {
+        data: groups,
+        menuItem: { action: 'excel', label: '' }
+      };
+      component.exportActionClicked(event);
+      const expectedColumns = component.tableColumns.filter((col: HTTableColumn) => [0, 1].includes(col.id as number));
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        expectedColumns,
         AccessGroupsTableColumnLabel,
         'hashtopolis-access-groups'
       );

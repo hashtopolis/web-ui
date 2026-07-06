@@ -1020,6 +1020,42 @@ describe('TasksTableComponent', () => {
     });
   });
 
+  describe('includeArchived input', () => {
+    it('should default to false', () => {
+      expect(component.includeArchived).toBe(false);
+    });
+
+    it('should pass null to dataSource when includeArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = true;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(null);
+    });
+
+    it('should pass false to dataSource when includeArchived is false', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(false);
+    });
+
+    it('should pass true to dataSource when includeArchived is false and isArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = true;
+
+      component.setIsArchived(true);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(true);
+    });
+  });
+
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
@@ -1182,8 +1218,26 @@ describe('TasksTableComponent', () => {
   });
 
   describe('exportActionClicked', () => {
-    it('should call exportService.handleExportAction', () => {
-      component.tableColumns = [];
+    it('should call exportService.handleExportAction with filtered columns based on displayedColumns', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }];
+      component.table.displayedColumns = [
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+        '13',
+        '14',
+        '15'
+      ];
       const event = {
         menuItem: { label: 'Export' },
         data: [{ id: 1, taskName: 'Test' }]
@@ -1193,7 +1247,59 @@ describe('TasksTableComponent', () => {
 
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
-        component.tableColumns,
+        [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }],
+        TaskTableColumnLabel,
+        'hashtopolis-tasks'
+      );
+    });
+
+    it('should filter out columns not in displayedColumns', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }, { id: TaskTableCol.STATUS }];
+      component.table.displayedColumns = ['0'];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1, taskName: 'Test' }]
+      } as ActionMenuEvent<JTaskWrapperDisplay[]>;
+
+      component.exportActionClicked(event);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        [{ id: TaskTableCol.ID }],
+        TaskTableColumnLabel,
+        'hashtopolis-tasks'
+      );
+    });
+
+    it('should pass all columns when all are displayed', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }];
+      component.table.displayedColumns = [
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+        '13',
+        '14'
+      ];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1, taskName: 'Test' }]
+      } as ActionMenuEvent<JTaskWrapperDisplay[]>;
+
+      component.exportActionClicked(event);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }],
         TaskTableColumnLabel,
         'hashtopolis-tasks'
       );

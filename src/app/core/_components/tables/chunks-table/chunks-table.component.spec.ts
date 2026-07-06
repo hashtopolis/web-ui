@@ -6,6 +6,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 
@@ -16,6 +17,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { ChunksTableComponent } from '@components/tables/chunks-table/chunks-table.component';
 import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 class MockDataSource {
@@ -70,6 +72,7 @@ describe('ChunksTableComponent', () => {
     fixture = TestBed.createComponent(TestChunksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    component.table = { reload: jasmine.createSpy('reload') } as unknown as HTTableComponent<BaseModel>;
     (component as unknown as { table: { reload: jasmine.Spy; clearFilterError: jasmine.Spy } }).table = {
       clearFilterError: jasmine.createSpy('clearFilterError'),
       reload: jasmine.createSpy('reload')

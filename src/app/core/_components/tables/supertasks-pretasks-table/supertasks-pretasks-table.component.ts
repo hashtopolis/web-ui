@@ -129,9 +129,11 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JPretask>(
       event,
-      this.tableColumns,
+      visibleColumns,
       SupertasksPretasksTableColumnLabel,
       'hashtopolis-supertasks-pretasks'
     );

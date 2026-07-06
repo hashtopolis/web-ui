@@ -9,7 +9,7 @@ import { UIConfigService } from '@services/shared/storage.service';
   standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {
-  @Input() value: string;
+  @Input() value: string = '';
 
   hasErrors = false;
   blacklistedChars: string[] = [];
@@ -23,39 +23,32 @@ export class BlacklistAttackComponent implements OnChanges {
   }
 
   /**
-   * Gets a regular expression pattern for matching blacklisted characters.
-   * The pattern is constructed based on the blacklisted characters retrieved from the UI settings.
-   * @returns {RegExp} A regular expression for matching blacklisted characters.
+   * Safely escapes all special regex characters from the config string
    */
-  getBanChars() {
-    const chars = (this.uiService.getUISettings()?.blacklistChars ?? '').replace(']', '\\]').replace('[', '\\[');
-    return new RegExp('[' + chars + '/]', 'g');
+  private escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
   }
 
-  /**
-   * Checks if the input value contains blacklisted characters.
-   * If blacklisted characters are present, sets hasErrors to true
-   * and populates the blacklistedChars array with the detected characters.
-   * @returns void
-   */
-  checkForBanChars() {
-    const banCharsRegex = this.getBanChars();
-    const inputValue = this.value || ''; // Ensure a default value if value is null or undefined
+  checkForBanChars(): void {
+    const rawConfigChars = this.uiService.getUISettings()?.blacklistChars ?? '';
+    const inputValue = this.value || '';
 
-    this.blacklistedChars = []; // Reset the array
+    // Reset state early
+    this.blacklistedChars = [];
+    this.hasErrors = false;
 
-    if (banCharsRegex.test(inputValue)) {
-      // Ban characters are present
+    // Short-circuit if there's nothing to check or input is empty
+    if (!rawConfigChars || !inputValue) {
+      return;
+    }
+
+    const escapedChars = this.escapeRegex(rawConfigChars);
+    const banCharsRegex = new RegExp('[' + escapedChars + ']', 'g');
+
+    const matches = inputValue.match(banCharsRegex);
+    if (matches) {
       this.hasErrors = true;
-
-      // Extract blacklisted characters and populate blacklistedChars array
-      const matches = inputValue.match(banCharsRegex) as string[];
-      if (matches) {
-        this.blacklistedChars = [...new Set(matches)]; // Remove duplicates
-      }
-    } else {
-      // No ban characters
-      this.hasErrors = false;
+      this.blacklistedChars = [...new Set(matches)];
     }
   }
 }

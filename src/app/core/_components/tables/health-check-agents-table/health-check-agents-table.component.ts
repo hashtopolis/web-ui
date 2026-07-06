@@ -104,9 +104,11 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHealthCheckAgent[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JHealthCheckAgent>(
       event,
-      this.tableColumns,
+      visibleColumns,
       HealthCheckAgentsTableColColumnLabel,
       'hashtopolis-health-checks-view'
     );
