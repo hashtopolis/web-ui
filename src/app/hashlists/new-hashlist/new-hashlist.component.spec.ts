@@ -167,6 +167,15 @@ describe('NewHashlistComponent', () => {
       expect(component.brainenabled).toBe(1);
       expect(component.form.controls.useBrain.value).toBeFalse();
     });
+
+    it('should auto-select the first access group when accessGroupId is null', () => {
+      expect(component.form.controls.accessGroupId.value).toBe(1);
+    });
+
+    it('should not override an existing accessGroupId value', () => {
+      component.form.controls.accessGroupId.setValue(2);
+      expect(component.form.controls.accessGroupId.value).toBe(2);
+    });
   });
 
   describe('Form changes', () => {
