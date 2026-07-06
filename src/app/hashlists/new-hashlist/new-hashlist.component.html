@@ -34,8 +34,17 @@
           [items]="selectAccessgroup"
           [isRequired]="true"
         ></input-select>
-        <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
+        <input-select title="Hashlist format" formControlName="format" [items]="selectFormat" [tooltip]="deprecationMessage"></input-select>
       </app-form-row>
+
+      @if (this.isFormatDeprecated(form.controls.format.value)) {
+        <div class="flex flex-col gap-1" style="color: #dc2626;">
+          <mat-icon>warning</mat-icon>
+          <span>
+            <strong>Deprecated Format</strong> - {{ deprecationMessage }}
+          </span>
+        </div>
+      }
 
       <app-form-row>
         <input-text title="Separator" formControlName="separator"></input-text>
@@ -49,12 +58,13 @@
         <div>
           <app-divider />
           <h5>Hashcat Brain Enabled</h5>
-          <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
-          <fixed-alert
-            message="Note: When brain is enabled, it'll create a network server. If used wrongly,
-      it could cause bottlenecks or collapse the network server. You can disable
-      this setting in Config > Server > General Settings."
-          ></fixed-alert>
+          <input-check title="Use Hashcat Brain for this hashlist" formControlName="useBrain"></input-check>
+          @if (useBrain) {
+            <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
+            <fixed-alert
+              message="Note: When brain is enabled, Hashtopolis will connect to your Hashcat Brain server using the host, port and password configured in Config > Server > General Settings. Make sure your Brain server is running independently before using this option."
+            ></fixed-alert>
+          }
           <app-divider />
         </div>
       }
@@ -69,7 +79,7 @@
           <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [loading]="isCreatingLoading" [disabled]="this.isFormatDeprecated(form.controls.format.value)"></button-submit>
           </grid-buttons>
         </div>
       }
@@ -95,7 +105,7 @@
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
             <button-submit
               [name]="'Create'"
-              [disabled]="false"
+              [disabled]="this.isFormatDeprecated(form.controls.format.value)"
               [loading]="isCreatingLoading"
               data-testid="submit-button"
             ></button-submit>
@@ -123,7 +133,7 @@
           }
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [disabled]="false" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="this.isFormatDeprecated(form.controls.format.value)" [loading]="isCreatingLoading"></button-submit>
           </grid-buttons>
         </div>
       }
@@ -138,7 +148,7 @@
           ></input-text>
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" [disabled]="false" [loading]="isCreatingLoading"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="this.isFormatDeprecated(form.controls.format.value)" [loading]="isCreatingLoading"></button-submit>
           </grid-buttons>
         </div>
       }

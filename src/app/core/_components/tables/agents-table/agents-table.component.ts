@@ -341,12 +341,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    this.exportService.handleExportAction<JAgent>(
-      event,
-      this.tableColumns,
-      AgentsTableColumnLabel,
-      'hashtopolis-agents'
-    );
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
+    this.exportService.handleExportAction<JAgent>(event, visibleColumns, AgentsTableColumnLabel, 'hashtopolis-agents');
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgent>): void {

@@ -132,7 +132,7 @@
     @if (roleService.hasRole('tasks')) {
       <app-table>
         <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-        <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex"> </app-tasks-table>
+        <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [includeArchived]="true"> </app-tasks-table>
       </app-table>
     }
   </app-page>

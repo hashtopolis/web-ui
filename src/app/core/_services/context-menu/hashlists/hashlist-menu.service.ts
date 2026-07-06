@@ -26,8 +26,8 @@ export class HashListContextMenuService extends ContextMenuService {
       permHashListUpdate,
       isArchiveCondition
     );
-    this.addCtxImportItem(RowActionMenuLabel.IMPORT_HASHLIST, permHashListCreate, isArchiveCondition);
-    this.addCtxExportItem(RowActionMenuLabel.EXPORT_HASHLIST, permHashListRead, isArchiveCondition);
+    this.addCtxImportItem(RowActionMenuLabel.IMPORT_CRACKS, permHashListCreate, isArchiveCondition);
+    this.addCtxExportItem(RowActionMenuLabel.EXPORT_CRACKS, permHashListRead, isArchiveCondition);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_HASHLIST, permHashListDelete);
     this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_HASHLIST, permHashListUpdate, isArchiveCondition);
     this.addCtxUnArchiveItem(RowActionMenuLabel.UNARCHIVE_HASHLIST, permHashListUpdate, isUnArchiveCondition);

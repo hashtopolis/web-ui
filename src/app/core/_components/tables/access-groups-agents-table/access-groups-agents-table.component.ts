@@ -103,9 +103,11 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAgent>(
       event as ActionMenuEvent<JAgent[]>,
-      this.tableColumns,
+      visibleColumns,
       AccessGroupsAgentsTableColumnLabel,
       'hashtopolis-access-groups-agents'
     );
