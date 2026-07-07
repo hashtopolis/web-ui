@@ -11,3 +11,10 @@ export interface JSuperTask extends BaseModel {
   supertaskName: string;
   pretasks?: JPretask[];
 }
+
+export interface JSuperTaskAggregateFields extends JSuperTask {
+  amountPretasks: number;
+}
+
+/** Aggregate field keys on JSuperTask. */
+export type JSuperTaskAggregates = keyof JSuperTaskAggregateFields;

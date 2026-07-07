@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { JAgentAggregates } from '@models/agent.model';
 import { JPretaskAggregates } from '@models/pretask.model';
 import { JTaskAggregates, JTaskWrapperDisplayAggregates } from '@models/task.model';
+import { JSuperTaskAggregates } from './supertask.model';
 
 /** Extract the JSON:API resource `type` literal from an envelope type (handles both list and single `data`). */
 type ResourceTypeLiteral<T> = T extends { data: readonly (infer D)[] }
@@ -30,6 +31,7 @@ export interface ResourceAggregateMap {
   agent: JAgentAggregates;
   preTask: JPretaskAggregates;
   taskWrapperDisplay: JTaskWrapperDisplayAggregates;
+  superTask: JSuperTaskAggregates;
 }
 
 /** Full aggregate-key union for the entity a Zod envelope schema describes (`never` if it has none). */
