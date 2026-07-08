@@ -219,11 +219,19 @@ export abstract class ContextMenuService {
    * Add a new reset entry to context menu
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
    */
-  protected addCtxResetItem(label: string, permissions: Array<PermissionValues>): void {
-    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions);
+  protected addCtxResetItem(
+    label: string,
+    permissions: Array<PermissionValues>,
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    if (condition.value) {
+      this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.CANCEL, permissions, condition);
+    } else {
+      this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, condition);
+    }
   }
-
   /**
    * Add a new copy entry to context menu
    * @param label - label of the entry
