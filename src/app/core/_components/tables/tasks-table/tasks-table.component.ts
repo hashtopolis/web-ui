@@ -207,7 +207,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
       {
         id: TaskTableCol.HASHLISTS,
-        dataKey: 'hashlistId',
+        dataKey: 'hashlistName',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapperDisplayOverview) => {
           const allHashesCracked =
@@ -223,6 +223,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           }
         },
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplayOverview) => {
           return wrapper.hashlistName || wrapper.hashlistId + '';
         }

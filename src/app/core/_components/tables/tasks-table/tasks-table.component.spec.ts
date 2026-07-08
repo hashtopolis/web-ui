@@ -1094,6 +1094,23 @@ describe('TasksTableComponent', () => {
       });
     });
 
+    it('should filter the hashlist column by hashlistName', () => {
+      component.selectedFilterColumn = {
+        id: TaskTableCol.HASHLISTS,
+        dataKey: 'hashlistName'
+      } as unknown as HTTableColumn;
+      component.mockDataSource.loadAll.calls.reset();
+
+      component.filter('123');
+
+      expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
+        value: '123',
+        field: 'hashlistName',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
     it('should pass parent from selectedFilterColumn to filter', () => {
       component.selectedFilterColumn = {
         dataKey: 'name',
