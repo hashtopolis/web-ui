@@ -100,7 +100,8 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'pretasks',
         isSortable: false,
         render: (supertask: JSuperTaskAggregateFields) => (supertask.amountPretasks ? supertask.amountPretasks : ''),
-        export: async (supertask: JSuperTaskAggregateFields) => (supertask.amountPretasks ? supertask.amountPretasks.toString() : '')
+        export: async (supertask: JSuperTaskAggregateFields) =>
+          supertask.amountPretasks ? supertask.amountPretasks.toString() : ''
       }
     ];
   }
