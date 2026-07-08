@@ -83,6 +83,7 @@ export const RowActionMenuAction = {
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
   UNARCHIVE: 'unarchive',
+  UNASSIGN: 'unassign',
   RESET: 'reset',
   VIEW: 'view'
 };

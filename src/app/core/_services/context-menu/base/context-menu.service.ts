@@ -354,7 +354,19 @@ export abstract class ContextMenuService {
   protected addCtxViewItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.VIEW, RowActionMenuIcon.VIEW, permissions);
   }
-
+  /**
+   * Add a new unassign entry to context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
+   */
+  protected addCtxUnassignItem(
+    label: string,
+    permissions: Array<PermissionValues>,
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(label, 1, RowActionMenuAction.UNASSIGN, RowActionMenuIcon.DELETE, permissions, condition);
+  }
   /**
    * Register a subclass-local context-menu item. Use this for actions that are
    * specific to a single table and don't warrant a shared `addCtx*Item` helper
