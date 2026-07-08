@@ -8,7 +8,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  Optional,
   OnChanges,
   OnDestroy,
   SimpleChanges,
