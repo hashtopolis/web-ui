@@ -55,6 +55,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return this._hashlistId;
     }
   }
+
+  // @Input() set isArchivedInput(value: boolean) {
+  //   if (value !== this.isArchived) {
+  //     this.isArchived = value;
+  //   }
+  // }
+
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -163,7 +170,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) => this.renderCurrentSpeed(wrapper),
+        render: (wrapper: JTaskWrapperDisplayOverview) =>
+          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -172,7 +180,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.DISPATCHED_SEARCHED,
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`),
+          wrapper.taskType === TaskType.TASK
+            ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`)
+            : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
