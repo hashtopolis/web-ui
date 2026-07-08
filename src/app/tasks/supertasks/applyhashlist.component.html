@@ -38,6 +38,11 @@
           ></input-select>
         </div>
       </div>
+      <input-check
+        title="Skip pretasks already completed"
+        tooltip="If an identical attack has already been fully run against this hashlist, skip creating a duplicate task for it."
+        formControlName="skipCompleted"
+      ></input-check>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
