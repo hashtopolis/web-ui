@@ -177,6 +177,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        if (this.selectAccessgroup.length > 0 && this.form.controls.accessGroupId.value === null) {
+          this.form.patchValue({ accessGroupId: this.selectAccessgroup[0].id });
+        }
         this.isLoadingAccessGroups = false;
         this.changeDetectorRef.detectChanges();
       });
