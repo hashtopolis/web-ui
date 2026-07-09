@@ -173,18 +173,19 @@ export class InputMultiSelectComponent
   }
 
   public remove(item: SelectOption<number>): void {
-    const index = this.selectedItems.findIndex((i) => i.id === item.id);
-    if (index >= 0) {
-      this.selectedItems.splice(index, 1);
-      this.chipGridValidation = [...this.selectedItems];
+    const nextSelectedItems = this.selectedItems.filter((selectedItem) => selectedItem.id !== item.id);
+    if (nextSelectedItems.length === this.selectedItems.length) return;
 
-      this.updateAvailableItems();
-      this.searchInputSubject.next(this.searchTerm);
-      this.itemsSubject.next(this.availableItems);
+    this.selectedItems = nextSelectedItems;
+    this.chipGridValidation = [...this.selectedItems];
 
-      this.onChangeValue(this.selectedItems);
-      this.onTouched();
-    }
+    this.updateAvailableItems();
+    this.searchInputSubject.next(this.searchTerm);
+    this.itemsSubject.next(this.availableItems);
+
+    this.onChangeValue(this.selectedItems);
+    this.onTouched();
+    this.cdr.markForCheck();
   }
 
   /**
@@ -208,20 +209,20 @@ export class InputMultiSelectComponent
     const value = event.value?.trim();
     if (!value) return;
 
-    this.addChip({ id: Number(value), name: value });
-    event.chipInput.clear();
-    this.searchTerm = '';
-    if (this.selectInput) {
-      try {
-        this.selectInput.value = '';
-      } catch {
-        // noop
-      }
+    const firstFilteredItem = this.filteredItems[0];
+    if (firstFilteredItem) {
+      this.clearInvalidSelectionError();
+      this.onAutocompleteSelect(firstFilteredItem);
+      event.chipInput.clear();
+      return;
     }
+
+    this.setInvalidSelectionError();
   }
 
   // When selecting from autocomplete
   onAutocompleteSelect(selected: SelectOption<number>) {
+    this.clearInvalidSelectionError();
     this.addChip(selected);
     this.searchTerm = '';
     this.searchInputSubject.next(this.searchTerm);
@@ -280,7 +281,28 @@ export class InputMultiSelectComponent
       const target = event.target as HTMLInputElement;
       this.searchTerm = target.value;
     }
+    this.clearInvalidSelectionError();
     this.searchInputSubject.next(this.searchTerm);
+  }
+
+  private setInvalidSelectionError(): void {
+    const control = this.ngControl?.control;
+    if (!control) return;
+
+    control.setErrors({ ...(control.errors ?? {}), invalidSelection: true });
+    control.markAsTouched();
+    this.cdr.markForCheck();
+  }
+
+  private clearInvalidSelectionError(): void {
+    const control = this.ngControl?.control;
+    const errors = control?.errors;
+    if (!control || !errors?.['invalidSelection']) return;
+
+    const { invalidSelection, ...remainingErrors } = errors;
+    void invalidSelection;
+    control.setErrors(Object.keys(remainingErrors).length > 0 ? remainingErrors : null);
+    this.cdr.markForCheck();
   }
 
   /**

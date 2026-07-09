@@ -75,8 +75,8 @@ export class SERV {
   public static GET_FILES = { URL: '/helper/getFile', RESOURCE: 'Files' };
   // HASHLISTS
   public static HASHES = { URL: '/ui/hashes', RESOURCE: 'Hashes' };
-  public static HASHLISTS = { URL: '/ui/hashlists', RESOURCE: 'HashLists' };
-  public static SUPER_HASHLISTS = { URL: '/ui/superhashlists', RESOURCE: 'SuperHashLists' };
+  public static HASHLISTS = { URL: '/ui/hashlists', RESOURCE: 'Hashlists' };
+  public static SUPER_HASHLISTS = { URL: '/ui/superhashlists', RESOURCE: 'Superhashlists' };
   public static HASHES_COUNT = { URL: '/ui/hashes/count', RESOURCE: 'HashesCount' };
   // TASKS
   public static CHUNKS = { URL: '/ui/chunks', RESOURCE: 'Chunks' };

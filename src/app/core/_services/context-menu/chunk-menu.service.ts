@@ -12,7 +12,8 @@ export class ChunkContextMenuService extends ContextMenuService {
 
   addContextMenu(): ChunkContextMenuService {
     const permissions: Array<PermissionValues> = [Perm.Chunk.UPDATE, Perm.Task.UPDATE];
-    this.addCtxResetItem(RowActionMenuLabel.RESET_CHUNK, permissions);
+    this.addCtxResetItem(RowActionMenuLabel.RESET_CHUNK, permissions, { key: 'isRunning', value: false });
+    this.addCtxResetItem(RowActionMenuLabel.ABORT_CHUNK, permissions, { key: 'isRunning', value: true });
     return this;
   }
 }

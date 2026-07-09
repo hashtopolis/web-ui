@@ -199,7 +199,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   /**
    * Handles form submission, edit Pretask
-   * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
+   * If the form is valid, it makes an API request and navigates to the Pretask page.
    */
   onSubmit(): void {
     if (this.updateForm.valid && !this.isReadOnly) {
@@ -208,7 +208,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
         .subscribe({
           next: () => {
-            this.alert.showSuccessMessage('PreTask saved');
+            this.alert.showSuccessMessage('Preconfigured Task saved');
             this.isUpdatingLoading = false;
             this.router.navigate(['tasks/preconfigured-tasks']);
           },

@@ -6,6 +6,9 @@ import { JTask } from '@models/task.model';
 /** Chunk state values (0–10) matching the generated Zod schema. */
 export type ChunkState = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+/** State reported while an agent is actively cracking a chunk (matches DHashcatStatus::RUNNING on the server). */
+export const CHUNK_STATE_RUNNING: ChunkState = 2;
+
 /**
  * Interface for a task chunk
  * @extends BaseModel
@@ -25,6 +28,8 @@ export interface JChunk extends BaseModel {
   checkpoint: number;
   progress: number;
   state: ChunkState;
+  /** Derived client-side from `state`; used to switch the reset/abort row action. */
+  isRunning?: boolean;
   cracked: number;
   speed: number;
 }

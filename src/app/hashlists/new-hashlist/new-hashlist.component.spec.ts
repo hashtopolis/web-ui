@@ -163,9 +163,18 @@ describe('NewHashlistComponent', () => {
       expect(component.isLoadingHashtypes).toBeFalse();
     });
 
-    it('should load config and patch form for brainenabled', () => {
+    it('should load config and set brainenabled, keeping useBrain false by default', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.controls.useBrain.value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeFalse();
+    });
+
+    it('should auto-select the first access group when accessGroupId is null', () => {
+      expect(component.form.controls.accessGroupId.value).toBe(1);
+    });
+
+    it('should not override an existing accessGroupId value', () => {
+      component.form.controls.accessGroupId.setValue(2);
+      expect(component.form.controls.accessGroupId.value).toBe(2);
     });
   });
 
@@ -277,7 +286,7 @@ describe('NewHashlistComponent', () => {
         jasmine.objectContaining({ sourceData: expectedEncoded })
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
-      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
+      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New Hashlist created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
   });
@@ -323,6 +332,49 @@ describe('NewHashlistComponent', () => {
     expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
     expect(nextSpy).toHaveBeenCalled();
     expect(completeSpy).toHaveBeenCalled();
+  });
+
+  describe('Hashcat Brain opt-in', () => {
+    it('should show the "Use Hashcat Brain" checkbox when brain is globally enabled', () => {
+      fixture.detectChanges();
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).not.toBeNull();
+    });
+
+    it('should NOT render brain mode selector when useBrain is false', () => {
+      component.form.controls.useBrain.setValue(false);
+      fixture.detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).toBeNull();
+    });
+
+    it('should render brain mode selector when useBrain is true', () => {
+      component.form.controls.useBrain.setValue(true);
+      component['changeDetectorRef'].detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).not.toBeNull();
+    });
+
+    it('should NOT show brain section when brain is globally disabled', fakeAsync(() => {
+      const disabledConfig: ResponseWrapper = mockResponse({
+        data: {
+          id: 66,
+          type: 'config',
+          attributes: { configSectionId: 1, item: 'Enable Brain', value: '0' }
+        }
+      });
+      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(disabledConfig));
+
+      fixture = TestBed.createComponent(NewHashlistComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.brainenabled).toBe(0);
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).toBeNull();
+    }));
   });
 
   describe('Access group scoping', () => {
