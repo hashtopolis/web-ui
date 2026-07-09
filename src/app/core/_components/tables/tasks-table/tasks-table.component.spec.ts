@@ -188,7 +188,7 @@ describe('TasksTableComponent', () => {
       const typeColumn = columns.find((col) => col.id === TaskTableCol.TASK_TYPE);
       const taskWrapper = { taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
 
-      expect(typeColumn?.render!(taskWrapper)).toBe('<b>SuperTask</b>');
+      expect(typeColumn?.render!(taskWrapper)).toBe('<b>Supertask</b>');
     });
 
     it('should include NAME column with routerLink function', () => {
@@ -442,6 +442,23 @@ describe('TasksTableComponent', () => {
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Hashlist');
         expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
+        done();
+      });
+    });
+
+    it('should truncate long HASHLISTS label and keep full name in tooltip', (done) => {
+      const columns = component.getColumns();
+      const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
+      const longName = 'This is a very long hashlist name that should be truncated';
+      const taskWrapper = {
+        hashlistId: 11,
+        hashlistName: longName
+      } as JTaskWrapperDisplay;
+
+      hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
+        expect(links[0].label).toBe('This is a very long ...');
+        expect(links[0].tooltip).toBe(longName);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
         done();
       });
     });
