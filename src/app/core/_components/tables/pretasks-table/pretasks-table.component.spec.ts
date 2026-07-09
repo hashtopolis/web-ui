@@ -7,9 +7,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
 import {
@@ -64,6 +67,7 @@ describe('PretasksTableComponent', () => {
   let component: TestPretasksTableComponent;
   let fixture: ComponentFixture<TestPretasksTableComponent>;
   let mockDialog: jasmine.SpyObj<MatDialog>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockRouter: jasmine.SpyObj<Router>;
@@ -74,6 +78,7 @@ describe('PretasksTableComponent', () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockRouter.navigate.and.returnValue(Promise.resolve(true));
+    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
     mockGlobalService = jasmine.createSpyObj('GlobalService', [
       'bulkDelete',
       'delete',
@@ -109,6 +114,7 @@ describe('PretasksTableComponent', () => {
     fixture = TestBed.createComponent(TestPretasksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    component.table = mockHTTable as HTTableComponent<BaseModel>;
     (component as unknown as { table: unknown }).table = {
       clearFilterError: jasmine.createSpy('clearFilterError'),
       reload: jasmine.createSpy('reload')
@@ -499,6 +505,7 @@ describe('PretasksTableComponent', () => {
   describe('exportActionClicked', () => {
     it('should call exportService.handleExportAction', () => {
       component.tableColumns = [];
+      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6'];
       const event = {
         menuItem: { label: 'Export' },
         data: [{ id: 1, taskName: 'Test' }]
@@ -509,6 +516,24 @@ describe('PretasksTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
+        PretasksTableColumnLabel,
+        'hashtopolis-pretasks'
+      );
+    });
+
+    it('should pass only visible columns when displayedColumns is set', () => {
+      component.table.displayedColumns = ['0', '1'];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1 }, { id: 2 }]
+      } as ActionMenuEvent<JPretask[]>;
+
+      component.exportActionClicked(event);
+
+      const expectedColumns = component.tableColumns.filter((col: HTTableColumn) => [0, 1].includes(col.id));
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        expectedColumns,
         PretasksTableColumnLabel,
         'hashtopolis-pretasks'
       );

@@ -55,6 +55,7 @@ export const RowActionMenuLabel = {
   UNASSIGN_AGENT: 'Unassign Agent',
   UNASSIGN_USER: 'Unassign User',
   UNASSIGN_PRETASK: 'Unassign Pretask',
+  ABORT_CHUNK: 'Abort Task Chunk',
   RESET_CHUNK: 'Reset Task Chunk',
   REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
   REMOVE_ACCESSGROUP_USER: 'Remove User',
@@ -89,6 +90,7 @@ export const RowActionMenuAction = {
 
 export const RowActionMenuIcon = {
   ADD: 'add',
+  CANCEL: 'cancel',
   EDIT: 'edit',
   DELETE: 'delete',
   NEW: 'add',

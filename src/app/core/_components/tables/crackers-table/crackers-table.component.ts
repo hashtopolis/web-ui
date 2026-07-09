@@ -124,9 +124,11 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JCrackerBinaryType[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JCrackerBinaryType>(
       event,
-      this.tableColumns,
+      visibleColumns,
       CrackersTableColumnLabel,
       'hashtopolis-crackers'
     );
