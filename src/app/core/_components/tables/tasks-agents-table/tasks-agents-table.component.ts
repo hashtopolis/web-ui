@@ -526,7 +526,13 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       return;
     }
 
-    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.id, {
+    if (!agent.assignmentId) {
+      this.alertService.showErrorMessage('Failed to update benchmark!');
+      console.error('Failed to update benchmark: missing assignment ID for agent', agent.id);
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.assignmentId, {
       benchmark: benchmark
     });
     this.subscriptions.push(

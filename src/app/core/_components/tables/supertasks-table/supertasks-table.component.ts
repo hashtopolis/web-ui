@@ -2,7 +2,7 @@ import { catchError } from 'rxjs';
 
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
-import { JSuperTask } from '@models/supertask.model';
+import { JSuperTask, JSuperTaskAggregateFields } from '@models/supertask.model';
 
 import { SuperTaskContextMenuService } from '@services/context-menu/tasks/supertask-menu.service';
 import { SERV } from '@services/main.config';
@@ -99,8 +99,9 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         isNumeric: true,
         dataKey: 'pretasks',
         isSortable: false,
-        render: (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length : ''),
-        export: async (supertask: JSuperTask) => (supertask.pretasks ? supertask.pretasks.length.toString() : '')
+        render: (supertask: JSuperTaskAggregateFields) => (supertask.amountPretasks ? supertask.amountPretasks : ''),
+        export: async (supertask: JSuperTaskAggregateFields) =>
+          supertask.amountPretasks ? supertask.amountPretasks.toString() : ''
       }
     ];
   }

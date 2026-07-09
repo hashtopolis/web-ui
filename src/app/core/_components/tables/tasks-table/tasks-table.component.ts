@@ -55,6 +55,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return this._hashlistId;
     }
   }
+
+  // @Input() set isArchivedInput(value: boolean) {
+  //   if (value !== this.isArchived) {
+  //     this.isArchived = value;
+  //   }
+  // }
+
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -163,7 +170,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) => this.renderCurrentSpeed(wrapper),
+        render: (wrapper: JTaskWrapperDisplayOverview) =>
+          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -172,7 +180,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.DISPATCHED_SEARCHED,
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`),
+          wrapper.taskType === TaskType.TASK
+            ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`)
+            : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -197,7 +207,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
       {
         id: TaskTableCol.HASHLISTS,
-        dataKey: 'hashlistId',
+        dataKey: 'hashlistName',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapperDisplayOverview) => {
           const allHashesCracked =
@@ -213,6 +223,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           }
         },
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplayOverview) => {
           return wrapper.hashlistName || wrapper.hashlistId + '';
         }
@@ -526,6 +537,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     switch (wrapper.status) {
       case TaskStatus.RUNNING:
         return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.IDLE:
+        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
       case TaskStatus.COMPLETED:
         return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
       default:
