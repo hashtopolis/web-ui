@@ -518,6 +518,14 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     });
   }
   private rowActionUnassign(agent: JAgent): void {
+    this.subscriptions.push(
+      this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId!).subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully unassigned agent!');
+        this.dataSource.reload();
+        this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
+      })
+    );
+    // curl --compressed   --header "Authorization: Bearer $TOKEN"   -X DELETE   -g 'http://localhost:8080/api/v2/ui/agentassignments/4'
     console.log('Unassigning agent:', agent);
   }
   private changeBenchmark(agent: JAgent, benchmark: string): void {
