@@ -96,11 +96,11 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render supertask link', (done) => {
-    const mockSuperTask = { id: 1, supertaskName: 'Test SuperTask' } as JSuperTask;
+    const mockSuperTask = { id: 1, supertaskName: 'Test Supertask' } as JSuperTask;
     component.renderSupertaskLink(mockSuperTask).subscribe((links) => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/tasks/', 1, 'edit']);
-      expect(links[0].label).toBe('Test SuperTask');
+      expect(links[0].label).toBe('Test Supertask');
       done();
     });
   });

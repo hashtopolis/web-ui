@@ -46,7 +46,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  /** Form group for the new SuperHashlist. */
+  /** Form group for the new Superhashlist. */
   form: FormGroup<ApplyHashlistForm>;
 
   /** On form create show a spinner loading */
@@ -57,7 +57,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
-  // Get SuperTask Index
+  // Get Supertask Index
   editedIndex: number;
 
   /**
@@ -112,7 +112,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the form for creating a new Superhashlist.
    */
   buildForm(): void {
     this.form = new FormGroup<ApplyHashlistForm>({
@@ -124,7 +124,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initializes the form for creating a new SuperHashlist.
+   * Initializes the form for creating a new Superhashlist.
    * Sets up form controls with default values and subscribes to changes for handling select cracker binary.
    * Loads necessary data.
    *
@@ -255,7 +255,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         crackerVersionId: formValue.crackerBinaryTypeId
       };
       const onSubmitSubscription$ = this.gs.chelper(SERV.HELPER, 'createSupertask', adaptedFormValue).subscribe(() => {
-        this.alert.showSuccessMessage('New SuperTask created');
+        this.alert.showSuccessMessage('New Supertask created');
         this.router.navigate(['tasks/show-tasks']);
         this.isCreatingLoading = false;
       });

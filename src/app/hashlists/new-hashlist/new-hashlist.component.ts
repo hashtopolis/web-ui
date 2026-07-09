@@ -52,7 +52,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
 
-  /** Form group for the new SuperHashlist. */
+  /** Form group for the new Superhashlist. */
   form: FormGroup<NewHashlistForm>;
 
   /** On form create show a spinner loading */
@@ -339,11 +339,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
       try {
         await firstValueFrom(this.gs.create(SERV.HASHLISTS, payload));
-        this.alert.showSuccessMessage('New HashList created');
+        this.alert.showSuccessMessage('New Hashlist created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
         console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
+        this.alert.showErrorMessage('Failed to create Hashlist.');
       } finally {
         this.isCreatingLoading = false;
       }
@@ -351,11 +351,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       try {
         await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
-        this.alert.showSuccessMessage('New HashList created');
+        this.alert.showSuccessMessage('New Hashlist created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
         console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
+        this.alert.showErrorMessage('Failed to create Hashlist.');
       } finally {
         this.isCreatingLoading = false;
       }

@@ -19,7 +19,7 @@ import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
- * Component class to create a new supertask
+ * Component class to create a new Supertask
  */
 @Component({
   selector: 'app-new-supertasks',
@@ -31,10 +31,10 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  /** Form group for the new SuperTask. */
+  /** Form group for the new Supertask. */
   form: FormGroup;
 
-  /** List of PreTasks. */
+  /** List of Preconfigured Tasks. */
   selectPretasks: SelectOption<PretaskId>[];
 
   private unsubscribeService = inject(UnsubscribeService);
@@ -47,7 +47,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.buildForm();
-    this.titleService.set(['New SuperTask']);
+    this.titleService.set(['New Supertask']);
   }
 
   /**
@@ -66,7 +66,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the form for creating a new Supertask.
    */
   buildForm(): void {
     this.form = this.formBuilder.group({
@@ -95,7 +95,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.form.valid) {
       const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, this.form.value).subscribe(() => {
-        this.alert.showSuccessMessage('New SuperTask created');
+        this.alert.showSuccessMessage('New Supertask created');
         this.router.navigate(['tasks/supertasks']);
       });
 
