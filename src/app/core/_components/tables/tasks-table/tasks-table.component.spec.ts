@@ -1189,12 +1189,14 @@ describe('TasksTableComponent', () => {
       expect(icon.tooltip).toBe('Completed');
     });
 
-    it('should return empty icon for IDLE status', () => {
+    it('should return waiting icon for IDLE status', () => {
       const wrapper = { status: TaskStatus.IDLE } as JTaskWrapperDisplay;
 
       const icon = component.renderStatusIcons(wrapper);
 
-      expect(icon.name).toBe('');
+      expect(icon.name).toBe('schedule');
+      expect(icon.cls).toBe('text-warning');
+      expect(icon.tooltip).toBe('Waiting');
     });
 
     it('should return empty icon when status is undefined', () => {

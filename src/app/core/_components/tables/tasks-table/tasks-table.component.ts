@@ -537,6 +537,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     switch (wrapper.status) {
       case TaskStatus.RUNNING:
         return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.IDLE:
+        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
       case TaskStatus.COMPLETED:
         return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
       default:
