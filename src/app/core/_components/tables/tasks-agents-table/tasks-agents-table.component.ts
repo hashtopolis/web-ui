@@ -525,6 +525,19 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     });
   }
   private bulkActionUnassign(agents: JAgent[]): void {
+    agents.forEach((agent) => {
+      if (agent.assignmentId) {
+        this.subscriptions.push(
+          this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
+            this.alertService.showSuccessMessage('Successfully unassigned agent!');
+            this.dataSource.reload();
+            this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
+          })
+        );
+      } else {
+        this.alertService.showErrorMessage('Failed to unassign agent!' + agent.agentName);
+      }
+    });
     console.log('Bulk unassigning agents:', agents);
   }
   private rowActionUnassign(agents: JAgent[]): void {
