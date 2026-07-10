@@ -30,6 +30,7 @@ import {
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
+import { TaskAgentContextMenuService } from '@src/app/core/_services/context-menu/tasks/task-agent-menu.service';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
@@ -77,7 +78,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new TaskAgentContextMenuService(this.permissionService).addContextMenu();
   }
 
   ngAfterViewInit(): void {
@@ -219,8 +220,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
+            case RowActionMenuAction.UNASSIGN:
+              this.rowActionUnassign(result.data);
               break;
             case BulkActionMenuAction.ACTIVATE:
               this.bulkActionActivate(result.data, true);
@@ -396,6 +397,16 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           action: event.menuItem.action
         });
         break;
+      case RowActionMenuAction.UNASSIGN:
+        this.openDialog({
+          rows: [event.data],
+          title: `Unassigning  ${event.data.agentName} ...`,
+          icon: 'warning',
+          body: `Are you sure you want to unassign ${event.data.agentName}?`,
+          warn: true,
+          action: event.menuItem.action
+        });
+        break;
     }
   }
 
@@ -487,7 +498,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agents: JAgent[]): void {
+  /*   private rowActionDelete(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
       this.subscriptions.push(
@@ -506,12 +517,27 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         })
       );
     }
-  }
+  } */
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink!).then(() => {});
     });
+  }
+
+  private rowActionUnassign(agents: JAgent[]): void {
+    const agent = agents[0];
+    if (agent.assignmentId) {
+      this.subscriptions.push(
+        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully unassigned agent!');
+          this.dataSource.reload();
+          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
+        })
+      );
+    } else {
+      this.alertService.showErrorMessage('Failed to unassign agent!');
+    }
   }
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {
