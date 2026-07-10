@@ -41,7 +41,7 @@ export const BulkActionMenuAction = {
   DEACTIVATE: 'bulk-deactivate',
   ARCHIVE: 'bulk-archive',
   RESET: 'bulk-reset',
-  UNASSIGN: 'unassign'
+  UNASSIGN: 'bulk-unassign'
 };
 
 export const BulkActionMenuIcon = {

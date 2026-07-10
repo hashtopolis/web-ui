@@ -229,8 +229,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
             case BulkActionMenuAction.DEACTIVATE:
               this.bulkActionActivate(result.data, false);
               break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionDelete(result.data);
+            case BulkActionMenuAction.UNASSIGN:
+              this.bulkActionUnassign(result.data);
               break;
           }
         }
@@ -430,12 +430,12 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           action: event.menuItem.action
         });
         break;
-      case BulkActionMenuAction.DELETE:
+      case BulkActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: event.data,
-          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${event.data.length} agents ...`,
+          title: `Unassigning ${event.data.length} agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? Note that this action cannot be undone.`,
+          body: `Are you sure you want to unassign the above agents?`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -478,7 +478,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agents: JAgent[]): void {
+  /*   private bulkActionDelete(agents: JAgent[]): void {
     this.subscriptions.push(
       this.gs
         .bulkDelete(SERV.AGENTS, agents)
@@ -493,7 +493,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           this.dataSource.reload();
         })
     );
-  }
+  } */
 
   /**
    * @todo Implement error handling.
@@ -524,7 +524,9 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       this.router.navigate(links[0].routerLink!).then(() => {});
     });
   }
-
+  private bulkActionUnassign(agents: JAgent[]): void {
+    console.log('Bulk unassigning agents:', agents);
+  }
   private rowActionUnassign(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
