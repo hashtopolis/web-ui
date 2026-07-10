@@ -24,7 +24,9 @@ export class TaskAgentContextMenuService extends ContextMenuService {
       value: false
     });
     this.addCtxUnassignItem(RowActionMenuLabel.UNASSIGN_AGENT, permAgentUpdate);
-    /*         this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
+    this.addBulkUnassignItem(BulkActionMenuLabel.UNASSIGN_AGENTS, permAgentUpdate);
+
+    /*     this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
     this.addBulkDeactivateItem(BulkActionMenuLabel.DEACTIVATE_AGENTS, permAgentUpdate); */
 
     return this;
