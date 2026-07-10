@@ -475,8 +475,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     );
   }
 
-
-
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink!).then(() => {});
