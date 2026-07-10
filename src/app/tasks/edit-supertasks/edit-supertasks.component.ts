@@ -34,12 +34,12 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  /** Form group for the new SuperTask. */
+  /** Form group for the new Supertask. */
   updateForm: FormGroup;
   etForm: FormGroup; //estimation time form
   viewForm: FormGroup; //Supertask details
 
-  /** List of PreTasks. */
+  /** List of Preconfigured Tasks. */
   selectPretasks: SelectOption<PretaskId>[] | undefined;
 
   // Edit
@@ -76,7 +76,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.buildForm();
-    this.titleService.set(['Edit SuperTasks']);
+    this.titleService.set(['Edit Supertasks']);
   }
 
   /**
@@ -96,7 +96,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the form for creating a new Superhashlist.
    */
   buildForm(): void {
     // Form details
@@ -247,9 +247,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const updateSubscription$ = this.gs
         .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
-          this.alert.showSuccessMessage('SuperTask saved');
+          this.alert.showSuccessMessage('Supertask saved');
           this.refresh(); // Reload the Pretask-Select-Component
-          this.superTasksPretasksTable.reload(); // reload SuperTasks table
+          this.superTasksPretasksTable.reload(); // reload Supertasks table
         });
       this.unsubscribeService.add(updateSubscription$);
     } else {

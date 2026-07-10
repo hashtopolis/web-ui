@@ -286,7 +286,7 @@ describe('NewHashlistComponent', () => {
         jasmine.objectContaining({ sourceData: expectedEncoded })
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
-      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
+      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New Hashlist created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
   });

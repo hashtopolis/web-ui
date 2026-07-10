@@ -147,7 +147,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>SuperTask</b>',
+          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>Supertask</b>',
         export: async (wrapper: JTaskWrapperDisplayOverview) =>
           wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + '',
         isSortable: true
@@ -890,14 +890,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderHashlistLinkFromWrapper(wrapper: JTaskWrapperDisplayOverview): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
+    const maxHashlistLabelLength = 20;
 
     if (wrapper && wrapper.hashlistId !== undefined) {
       const id = wrapper.hashlistId;
-      const name = wrapper.hashlistName || String(id);
+      const fullName = wrapper.hashlistName || String(id);
+      const truncatedName =
+        fullName.length > maxHashlistLabelLength ? `${fullName.substring(0, maxHashlistLabelLength)}...` : fullName;
 
       links.push({
         routerLink: ['/hashlists', 'hashlist', id, 'edit'],
-        label: name
+        label: truncatedName,
+        tooltip: fullName
       });
     }
     return of(links);

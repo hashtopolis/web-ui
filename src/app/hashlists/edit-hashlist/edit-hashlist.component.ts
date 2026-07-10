@@ -46,7 +46,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   editedHashlistIndex: number;
   editedHashlist: JHashlist | undefined; // Change to Model
   hashtype: JHashtype | undefined;
-  type: number | undefined; // Hashlist or SuperHashlist (format)
+  type: number | undefined; // Hashlist or Superhashlist (format)
 
   // Lists of Selected inputs
   selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
