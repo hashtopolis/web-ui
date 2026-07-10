@@ -13,6 +13,9 @@ export class TaskAgentContextMenuService extends ContextMenuService {
 
   addContextMenu(): TaskAgentContextMenuService {
     const permAgentUpdate: Array<PermissionValues> = [Perm.Agent.UPDATE];
+    this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
+    this.addBulkDeactivateItem(BulkActionMenuLabel.DEACTIVATE_AGENTS, permAgentUpdate);
+    this.addBulkUnassignItem(BulkActionMenuLabel.UNASSIGN_AGENTS, permAgentUpdate);
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT, RowActionMenuAction.EDIT, permAgentUpdate);
     this.addCtxDeactivateItem(RowActionMenuLabel.DEACTIVATE_AGENT, permAgentUpdate, {
@@ -24,10 +27,6 @@ export class TaskAgentContextMenuService extends ContextMenuService {
       value: false
     });
     this.addCtxUnassignItem(RowActionMenuLabel.UNASSIGN_AGENT, permAgentUpdate);
-    this.addBulkUnassignItem(BulkActionMenuLabel.UNASSIGN_AGENTS, permAgentUpdate);
-
-    /*     this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
-    this.addBulkDeactivateItem(BulkActionMenuLabel.DEACTIVATE_AGENTS, permAgentUpdate); */
 
     return this;
   }
