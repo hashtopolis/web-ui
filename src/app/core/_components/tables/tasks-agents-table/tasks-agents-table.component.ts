@@ -475,49 +475,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     );
   }
 
-  /**
-   * @todo Implement error handling.
-   */
-  /*   private bulkActionDelete(agents: JAgent[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENTS, agents)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
-          this.dataSource.reload();
-        })
-    );
-  } */
 
-  /**
-   * @todo Implement error handling.
-   */
-  /*   private rowActionDelete(agents: JAgent[]): void {
-    const agent = agents[0];
-    if (agent.assignmentId) {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully unassigned agent!');
-          this.dataSource.reload();
-          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-        })
-      );
-    } else {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent!');
-          this.dataSource.reload();
-          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-        })
-      );
-    }
-  } */
 
   private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
@@ -525,20 +483,34 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     });
   }
   private bulkActionUnassign(agents: JAgent[]): void {
-    agents.forEach((agent) => {
-      if (agent.assignmentId) {
-        this.subscriptions.push(
-          this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
-            this.alertService.showSuccessMessage('Successfully unassigned agent!');
-            this.dataSource.reload();
-            this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-          })
-        );
-      } else {
-        this.alertService.showErrorMessage('Failed to unassign agent!' + agent.agentName);
-      }
+    const assignedAgents = agents.filter((agent): agent is JAgent & { assignmentId: number } => !!agent.assignmentId);
+    const unassignedAgents = agents.filter((agent) => !agent.assignmentId);
+
+    unassignedAgents.forEach((agent) => {
+      this.alertService.showErrorMessage('Failed to unassign agent!' + agent.agentName);
     });
-    console.log('Bulk unassigning agents:', agents);
+
+    if (assignedAgents.length === 0) {
+      return;
+    }
+
+    const assignments = assignedAgents.map((agent) => ({ id: agent.assignmentId }));
+
+    this.subscriptions.push(
+      this.gs
+        .bulkDelete(SERV.AGENT_ASSIGN, assignments)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during unassignment: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully unassigned agents!`);
+          this.dataSource.reload();
+          this.assignedAgentsChanged.emit();
+        })
+    );
   }
   private rowActionUnassign(agents: JAgent[]): void {
     const agent = agents[0];
