@@ -30,7 +30,6 @@ import {
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
-import { TaskAgentContextMenuService } from '@src/app/core/_services/context-menu/tasks/task-agent-menu.service';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
@@ -78,7 +77,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new TaskAgentContextMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
   }
 
   ngAfterViewInit(): void {
@@ -397,9 +396,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           action: event.menuItem.action
         });
         break;
-      case RowActionMenuAction.UNASSIGN:
-        this.rowActionUnassign(event.data);
-        break;
     }
   }
 
@@ -517,17 +513,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       this.router.navigate(links[0].routerLink!).then(() => {});
     });
   }
-  private rowActionUnassign(agent: JAgent): void {
-    this.subscriptions.push(
-      this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId!).subscribe(() => {
-        this.alertService.showSuccessMessage('Successfully unassigned agent!');
-        this.dataSource.reload();
-        this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-      })
-    );
-    // curl --compressed   --header "Authorization: Bearer $TOKEN"   -X DELETE   -g 'http://localhost:8080/api/v2/ui/agentassignments/4'
-    console.log('Unassigning agent:', agent);
-  }
+
   private changeBenchmark(agent: JAgent, benchmark: string): void {
     if (!benchmark || agent.benchmark == benchmark) {
       this.alertService.showSuccessMessage('Nothing changed!');
