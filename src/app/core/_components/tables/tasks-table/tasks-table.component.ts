@@ -181,7 +181,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
           wrapper.taskType === TaskType.TASK
-            ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`)
+            ? this.sanitize(`${wrapper.dispatched ?? '0'}% / ${wrapper.searched ?? '0'}%`)
             : '',
         isSortable: false,
         isSearchable: false,
