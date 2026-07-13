@@ -387,7 +387,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-      case RowActionMenuAction.DELETE:
+      /*       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
           title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
@@ -396,7 +396,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           warn: true,
           action: event.menuItem.action
         });
-        break;
+        break; */
       case RowActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: [event.data],
@@ -516,7 +516,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       this.subscriptions.push(
         this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
-          this.dataSource.reload();
+          this.reload();
           this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
         })
       );

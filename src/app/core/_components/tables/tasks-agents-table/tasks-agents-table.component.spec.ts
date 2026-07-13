@@ -1,11 +1,15 @@
+import { Subject, of } from 'rxjs';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import { BaseModel } from '@models/base.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
@@ -15,12 +19,30 @@ import { AgentsDataSource } from '@datasources/agents.datasource';
 
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { ExportService } from '@src/app/core/_services/export/export.service';
+import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
 class MockTasksAgentsDataSource {
   loadAll() {}
   setColumns() {}
   clearFilter() {}
   reload() {}
+}
+
+/**
+ * Helpers to open a dialog and simulate its close result.
+ */
+function openDialogAndClose(
+  mockDialog: jasmine.SpyObj<MatDialog>,
+  triggerFn: () => void
+): Subject<{ action: string; data: JAgent[] } | null> {
+  const afterClosedSubject = new Subject<{ action: string; data: JAgent[] } | null>();
+  mockDialog.open.and.returnValue({
+    afterClosed: () => afterClosedSubject.asObservable()
+  } as MatDialogRef<unknown>);
+  triggerFn();
+  return afterClosedSubject;
 }
 
 class TestTasksAgentsTableComponent extends TasksAgentsTableComponent {
@@ -36,17 +58,26 @@ describe('TasksAgentsTableComponent', () => {
   let fixture: ComponentFixture<TestTasksAgentsTableComponent>;
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockDialog: jasmine.SpyObj<MatDialog>;
+  let mockGlobalService: jasmine.SpyObj<GlobalService>;
+  let mockAlertService: jasmine.SpyObj<AlertService>;
 
   beforeEach(async () => {
     mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
     mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+    mockGlobalService = jasmine.createSpyObj('GlobalService', ['delete']);
+    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
       declarations: [TestTasksAgentsTableComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ExportService, useValue: mockExportService }
+        { provide: ExportService, useValue: mockExportService },
+        { provide: MatDialog, useValue: mockDialog },
+        { provide: GlobalService, useValue: mockGlobalService },
+        { provide: AlertService, useValue: mockAlertService }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -100,6 +131,66 @@ describe('TasksAgentsTableComponent', () => {
         TasksAgentsTableColumnLabel,
         'hashtopolis-agents'
       );
+    });
+  });
+
+  // ─── Unassign agent (row action) ─────────────────────────────────────────────
+
+  describe('rowActionUnassign (via UNASSIGN row action)', () => {
+    function triggerConfirmedUnassign(agent: JAgent): Subject<{ action: string; data: JAgent[] } | null> {
+      const subject = openDialogAndClose(mockDialog, () =>
+        component.rowActionClicked({
+          data: agent,
+          menuItem: { action: RowActionMenuAction.UNASSIGN, label: '' }
+        })
+      );
+      subject.next({ action: RowActionMenuAction.UNASSIGN, data: [agent] });
+      return subject;
+    }
+
+    it('should call gs.delete with SERV.AGENT_ASSIGN and the assignment ID when the agent has one', () => {
+      mockGlobalService.delete.and.returnValue(of({}));
+      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+
+      triggerConfirmedUnassign(agent);
+
+      expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, 42);
+    });
+
+    it('should show a success message, reload the table, and emit assignedAgentsChanged after a successful unassign', () => {
+      mockGlobalService.delete.and.returnValue(of({}));
+      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+      let emitted = false;
+      component.assignedAgentsChanged.subscribe(() => (emitted = true));
+
+      triggerConfirmedUnassign(agent);
+
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledOnceWith('Successfully unassigned agent!');
+      expect(mockHTTable.reload).toHaveBeenCalledTimes(1);
+      expect(emitted).toBeTrue();
+    });
+
+    it('should show an error message and NOT call the API when the agent has no assignment ID', () => {
+      const agent = { id: 1, agentName: 'A1' } as JAgent;
+
+      triggerConfirmedUnassign(agent);
+
+      expect(mockGlobalService.delete).not.toHaveBeenCalled();
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!');
+    });
+
+    it('should NOT call the API when the confirmation dialog is dismissed', () => {
+      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+
+      const subject = openDialogAndClose(mockDialog, () =>
+        component.rowActionClicked({
+          data: agent,
+          menuItem: { action: RowActionMenuAction.UNASSIGN, label: '' }
+        })
+      );
+      subject.next(null);
+
+      expect(mockGlobalService.delete).not.toHaveBeenCalled();
     });
   });
 });
