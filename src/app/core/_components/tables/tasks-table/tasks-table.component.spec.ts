@@ -324,7 +324,7 @@ describe('TasksTableComponent', () => {
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
       const taskWrapper = { dispatched: '50', searched: '25', taskType: TaskType.TASK } as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('50 / 25');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('50% / 25%');
     });
 
     it('should render DISPATCHED_SEARCHED with "0" fallback when dispatched is undefined', () => {
@@ -336,7 +336,7 @@ describe('TasksTableComponent', () => {
         taskType: TaskType.TASK
       } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 10');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0% / 10%');
     });
 
     it('should render DISPATCHED_SEARCHED with "0" fallback when searched is undefined', () => {
@@ -348,10 +348,10 @@ describe('TasksTableComponent', () => {
         taskType: TaskType.TASK
       } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('30 / 0');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('30% / 0%');
     });
 
-    it('should render DISPATCHED_SEARCHED as "0 / 0" when both are undefined', () => {
+    it('should render DISPATCHED_SEARCHED as "0% / 0%" when both are undefined', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
       const taskWrapper = {
@@ -360,7 +360,7 @@ describe('TasksTableComponent', () => {
         taskType: TaskType.TASK
       } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 0');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0% / 0%');
     });
 
     it('should render HASHTYPE column correctly when hashTypeId and description exist', () => {
