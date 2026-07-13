@@ -557,6 +557,11 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   margin-bottom: 2px;
 }
 
+.ht-table-xscroll-row[hidden],
+.ht-table-chevrons[hidden] {
+  display: none;
+}
+
 // Tiny jump-to-start / jump-to-end chevron buttons; usable even when the OS hides the scrollbar.
 .ht-table-chevron {
   flex: 0 0 auto;
