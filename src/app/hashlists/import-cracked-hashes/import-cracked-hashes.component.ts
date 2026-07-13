@@ -1,5 +1,5 @@
 import { zHashlistResponse } from '@generated/api/zod';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, lastValueFrom, takeUntil } from 'rxjs';
 
 import { Component, OnInit, inject } from '@angular/core';
 import { OnDestroy } from '@angular/core';
@@ -246,7 +246,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   async loadServerFiles(): Promise<void> {
     this.isLoadingServerFiles = true;
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       this.serverFiles = response.meta || [];
@@ -309,7 +309,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       const files = response.meta || [];

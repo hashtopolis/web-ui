@@ -1,5 +1,5 @@
 import { zAccessGroupListResponse } from '@generated/api/zod';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
@@ -196,7 +196,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       this.serverFiles = response.meta || [];

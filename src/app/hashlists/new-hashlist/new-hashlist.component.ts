@@ -2,7 +2,7 @@
  * This module contains the component class to create a new hashlist
  */
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
-import { Subject, Subscription, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, Subscription, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -258,7 +258,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     this.changeDetectorRef.detectChanges();
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       this.serverFiles = response.meta || [];
