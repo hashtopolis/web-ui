@@ -49,7 +49,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   // Edit variables
   editedHashlistIndex: number;
   hashtype: JHashtype;
-  type: number; // Hashlist or SuperHashlist
+  type: number; // Hashlist or Superhashlist
 
   selectSource = hashSource;
 

@@ -231,12 +231,9 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
-    this.exportService.handleExportAction<JHash>(
-      event,
-      this.tableColumns,
-      CracksTableColumnLabel,
-      'hashtopolis-cracks'
-    );
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
+    this.exportService.handleExportAction<JHash>(event, visibleColumns, CracksTableColumnLabel, 'hashtopolis-cracks');
   }
 
   rowActionClicked(event: ActionMenuEvent<JHash>): void {

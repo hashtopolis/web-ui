@@ -46,6 +46,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       this._hashlistId = value;
     }
   }
+  @Input()
+  includeArchived = false;
   get hashlistId(): number {
     if (this._hashlistId === undefined) {
       return 0;
@@ -53,6 +55,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return this._hashlistId;
     }
   }
+
+  // @Input() set isArchivedInput(value: boolean) {
+  //   if (value !== this.isArchived) {
+  //     this.isArchived = value;
+  //   }
+  // }
+
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -63,7 +72,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.tableColumns = this.getColumns();
     this.dataSource = new TasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.setIsArchived(this.isArchived);
+    const archiveState = this.includeArchived ? null : this.isArchived;
+    this.dataSource.setIsArchived(archiveState);
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     // Setup filter error handling
@@ -137,7 +147,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>SuperTask</b>',
+          wrapper.taskType === TaskType.TASK ? 'Task' : '<b>Supertask</b>',
         export: async (wrapper: JTaskWrapperDisplayOverview) =>
           wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + '',
         isSortable: true
@@ -160,7 +170,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) => this.renderCurrentSpeed(wrapper),
+        render: (wrapper: JTaskWrapperDisplayOverview) =>
+          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -169,7 +180,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.DISPATCHED_SEARCHED,
         dataKey: 'currentSpeed',
         render: (wrapper: JTaskWrapperDisplayOverview) =>
-          this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`),
+          wrapper.taskType === TaskType.TASK
+            ? this.sanitize(`${wrapper.dispatched ?? '0'} / ${wrapper.searched ?? '0'}`)
+            : '',
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -194,7 +207,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
       {
         id: TaskTableCol.HASHLISTS,
-        dataKey: 'hashlistId',
+        dataKey: 'hashlistName',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapperDisplayOverview) => {
           const allHashesCracked =
@@ -210,6 +223,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           }
         },
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplayOverview) => {
           return wrapper.hashlistName || wrapper.hashlistId + '';
         }
@@ -466,9 +480,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    * @param event The action menu event containing the selected tasks for export.
    */
   exportActionClicked(event: ActionMenuEvent<JTaskWrapperDisplayOverview[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JTaskWrapperDisplayOverview>(
       event,
-      this.tableColumns,
+      visibleColumns,
       TaskTableColumnLabel,
       'hashtopolis-tasks'
     );
@@ -510,8 +526,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    const archiveState = this.includeArchived ? null : this.isArchived;
     this.dataSource.reset(true);
-    this.dataSource.setIsArchived(isArchived);
+    this.dataSource.setIsArchived(archiveState);
     this.dataSource.loadAll();
   }
 
@@ -520,6 +537,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     switch (wrapper.status) {
       case TaskStatus.RUNNING:
         return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.IDLE:
+        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
       case TaskStatus.COMPLETED:
         return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
       default:
@@ -871,14 +890,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderHashlistLinkFromWrapper(wrapper: JTaskWrapperDisplayOverview): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
+    const maxHashlistLabelLength = 20;
 
     if (wrapper && wrapper.hashlistId !== undefined) {
       const id = wrapper.hashlistId;
-      const name = wrapper.hashlistName || String(id);
+      const fullName = wrapper.hashlistName || String(id);
+      const truncatedName =
+        fullName.length > maxHashlistLabelLength ? `${fullName.substring(0, maxHashlistLabelLength)}...` : fullName;
 
       links.push({
         routerLink: ['/hashlists', 'hashlist', id, 'edit'],
-        label: name
+        label: truncatedName,
+        tooltip: fullName
       });
     }
     return of(links);

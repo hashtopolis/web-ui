@@ -1,91 +1,74 @@
 @if (isLoading) {
-  <div>
-    @if (isLoading) {
-      <mat-spinner diameter="16" class="spinner"></mat-spinner>
-    }
-  </div>
+<div>
+  @if (isLoading) {
+  <mat-spinner diameter="16" class="spinner"></mat-spinner>
+  }
+</div>
 } @else {
-  <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
-    <label class="field-stack__label">
-      @if (linkTo) {
-        <a [routerLink]="linkTo">{{ label }}</a>
-      } @else {
-        {{ label }}
-      }
-      @if (isRequired && !readonly) {
-        <span class="field-stack__required" aria-hidden="true">*</span>
-      }
-    </label>
+<div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
+  <label class="field-stack__label">
+    @if (linkTo) {
+    <a [routerLink]="linkTo">{{ label }}</a>
+    } @else {
+    {{ label }}
+    }
+    @if (isRequired && !readonly) {
+    <span class="field-stack__required" aria-hidden="true">*</span>
+    }
+  </label>
 
-    <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
-      <mat-chip-grid
-        #chipGridRef
-        [required]="isRequired"
-        aria-label="Items selection"
-        [disabled]="disabled || readonly"
-      >
-        @for (item of readonly ? items : selectedItems; track item.id) {
-          <mat-chip-row [removable]="!readonly" (removed)="remove(item)">
-            <div matTooltip="{{ item.name }}">
-              {{ item.id }}
-              <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
-            </div>
-            @if (!readonly) {
-              <button matChipRemove [attr.aria-label]="'remove ' + item">
-                <mat-icon>cancel</mat-icon>
-              </button>
-            }
-          </mat-chip-row>
+  <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
+    <mat-chip-grid #chipGridRef [required]="isRequired" aria-label="Items selection" [disabled]="disabled || readonly">
+      @for (item of readonly ? items : selectedItems; track item.id) {
+      <mat-chip-row [removable]="!readonly">
+        <div matTooltip="{{ item.name }}">
+          {{ item.id }}
+          <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
+        </div>
+        @if (!readonly) {
+        <button type="button" matChipRemove (click)="remove(item); $event.stopPropagation()"
+          [attr.aria-label]="'remove ' + item.name">
+          <mat-icon>cancel</mat-icon>
+        </button>
         }
-      </mat-chip-grid>
-      @if (!readonly) {
-        <input
-          matInput
-          #selectInput
-          [matChipInputFor]="chipGridRef"
-          [matAutocomplete]="auto"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="onInputChipAdd($event)"
-          (input)="onSearchInputChange($event)"
-          (blur)="onTouched()"
-          [value]="searchTerm"
-          placeholder="{{ placeholder }}"
-        />
-        <mat-autocomplete
-          #auto="matAutocomplete"
-          (optionSelected)="onAutocompleteSelect($event.option.value)"
-          (opened)="onPanelOpened()"
-          class="multiselect-virtual-panel"
-        >
-          <cdk-virtual-scroll-viewport
-            [itemSize]="itemSize"
-            [style.height.px]="viewportHeight"
-            [minBufferPx]="viewportHeight"
-            [maxBufferPx]="viewportHeight * 2"
-          >
-            <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
-              <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
-            </mat-option>
-          </cdk-virtual-scroll-viewport>
-        </mat-autocomplete>
-      } @else {
-        <!-- mat-chip-grid requires a registered matChipInput; without it form-field focus-state read crashes -->
-        <input [matChipInputFor]="chipGridRef" hidden aria-hidden="true" tabindex="-1" />
+      </mat-chip-row>
       }
-      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-      <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">
-        <ng-content select="[matSuffix]"></ng-content>
-      </span>
-      @if (hasError && errors && !readonly) {
-        <mat-hint class="mat-mdc-form-field-error text-destructive">
-          @if (errors['required']) {
-            <span>This field is required.</span>
-          }
-          @if (errors['mixedHashTypes']) {
-            <span>All selected hashlists must share the same hash type to be combined into a SuperHashlist.</span>
-          }
-        </mat-hint>
+    </mat-chip-grid>
+    @if (!readonly) {
+    <input matInput #selectInput [matChipInputFor]="chipGridRef" [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="onInputChipAdd($event)"
+      (input)="onSearchInputChange($event)" (blur)="onTouched()" [value]="searchTerm" placeholder="{{ placeholder }}" />
+    <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption
+      (optionSelected)="onAutocompleteSelect($event.option.value)" (opened)="onPanelOpened()"
+      class="multiselect-virtual-panel">
+      <cdk-virtual-scroll-viewport [itemSize]="itemSize" [style.height.px]="viewportHeight"
+        [minBufferPx]="viewportHeight" [maxBufferPx]="viewportHeight * 2">
+        <mat-option *cdkVirtualFor="let item of filteredItems" [value]="item">
+          <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
+        </mat-option>
+      </cdk-virtual-scroll-viewport>
+    </mat-autocomplete>
+    } @else {
+    <!-- mat-chip-grid requires a registered matChipInput; without it form-field focus-state read crashes -->
+    <input [matChipInputFor]="chipGridRef" hidden aria-hidden="true" tabindex="-1" />
+    }
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+    <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">
+      <ng-content select="[matSuffix]"></ng-content>
+    </span>
+    @if (hasError && errors && !readonly) {
+    <mat-hint class="mat-mdc-form-field-error text-destructive">
+      @if (errors['required']) {
+      <span>This field is required.</span>
       }
-    </mat-form-field>
-  </div>
+      @if (errors['mixedHashTypes']) {
+      <span>All selected hashlists must share the same hash type to be combined into a SuperHashlist.</span>
+      }
+      @if (errors['invalidSelection']) {
+      <span>Select one of the available matches.</span>
+      }
+    </mat-hint>
+    }
+  </mat-form-field>
+</div>
 }

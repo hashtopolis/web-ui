@@ -161,9 +161,11 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   exportActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JHashtype>(
       event,
-      this.tableColumns,
+      visibleColumns,
       HashtypesTableColumnLabel,
       'hashtopolis-hashtypes'
     );

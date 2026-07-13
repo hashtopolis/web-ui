@@ -72,7 +72,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the form for creating a new Superhashlist.
    */
   buildForm(): void {
     this.form = new FormGroup<NewHealthCheckForm>({

@@ -119,9 +119,11 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JVoucher[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JVoucher>(
       event,
-      this.tableColumns,
+      visibleColumns,
       VouchersTableColumnLabel,
       'hashtopolis-vouchers'
     );

@@ -2,7 +2,7 @@ import { EMPTY, Observable, catchError, map } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 
-import { JChunk } from '@models/chunk.model';
+import { CHUNK_STATE_RUNNING, JChunk } from '@models/chunk.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -27,7 +27,7 @@ export class ChunkActionsService {
    *          an error message via AlertService.
    */
   resetChunk(chunk: JChunk): Observable<void> {
-    const path = chunk.state === 2 ? 'abortChunk' : 'resetChunk';
+    const path = chunk.state === CHUNK_STATE_RUNNING ? 'abortChunk' : 'resetChunk';
     const payload = { chunkId: chunk.id };
 
     return this.gs.chelper(SERV.HELPER, path, payload).pipe(

@@ -22,8 +22,8 @@ export class TaskContextMenuService extends ContextMenuService {
 
     const isTaskCondition: ContextMenuCondition = { key: 'taskType', value: false };
     const isSuperTaskCondition: ContextMenuCondition = { key: 'taskType', value: true };
-    const isArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: false };
-    const isUnArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: true };
+    const isArchiveCondition: ContextMenuCondition = { key: 'taskIsArchived', value: false };
+    const isUnArchiveCondition: ContextMenuCondition = { key: 'taskIsArchived', value: true };
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_TASK, RowActionMenuAction.EDIT_TASKS, permTaskUpdate, isTaskCondition);
     this.addCtxEditItem(

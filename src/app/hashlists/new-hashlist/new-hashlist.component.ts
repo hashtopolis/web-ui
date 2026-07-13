@@ -52,7 +52,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isLoadingAccessGroups = true;
   isLoadingHashtypes = true;
 
-  /** Form group for the new SuperHashlist. */
+  /** Form group for the new Superhashlist. */
   form: FormGroup<NewHashlistForm>;
 
   /** On form create show a spinner loading */
@@ -81,6 +81,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isLoadingServerFiles = false;
 
   saltSubscription = new Subscription();
+
+  /**
+   * Deprecation message for legacy formats
+   */
+  deprecationMessage =
+    'HCCAPX / PMKID and binary formats are deprecated and will be removed in a future hashcat release. Please use a ' +
+    'text-based hash type instead as Hashtopolis does not support the deprecated formats anymore.';
 
   // Unsubcribe
   private fileUnsubscribe = new Subject<void>();
@@ -170,6 +177,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+        if (this.selectAccessgroup.length > 0 && this.form.controls.accessGroupId.value === null) {
+          this.form.patchValue({ accessGroupId: this.selectAccessgroup[0].id });
+        }
         this.isLoadingAccessGroups = false;
         this.changeDetectorRef.detectChanges();
       });
@@ -188,6 +198,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     return this.form.controls.sourceType.value;
   }
 
+  get useBrain() {
+    return this.form.controls.useBrain.value;
+  }
+
   /**
    * Load configurations
    * ToDO. id could change
@@ -196,7 +210,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
       const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
       this.brainenabled = Number(config.value);
-      this.form.patchValue({ useBrain: !!this.brainenabled });
       this.changeDetectorRef.detectChanges();
     });
     this.unsubscribeService.add(configSubscription$);
@@ -326,11 +339,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
       try {
         await firstValueFrom(this.gs.create(SERV.HASHLISTS, payload));
-        this.alert.showSuccessMessage('New HashList created');
+        this.alert.showSuccessMessage('New Hashlist created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
         console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
+        this.alert.showErrorMessage('Failed to create Hashlist.');
       } finally {
         this.isCreatingLoading = false;
       }
@@ -338,11 +351,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       try {
         await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.getRawValue()));
-        this.alert.showSuccessMessage('New HashList created');
+        this.alert.showSuccessMessage('New Hashlist created');
         this.router.navigate(['/hashlists/hashlist']);
       } catch (error) {
         console.error('Error creating Hashlist', error);
-        this.alert.showErrorMessage('Failed to create hashlist.');
+        this.alert.showErrorMessage('Failed to create Hashlist.');
       } finally {
         this.isCreatingLoading = false;
       }
@@ -357,6 +370,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       width: '720px',
       maxWidth: '90vw'
     });
+  }
+
+  /**
+   * Check if the selected format is deprecated
+   */
+  isFormatDeprecated(formatId: number): boolean {
+    return [1, 2].includes(formatId);
   }
 
   /**

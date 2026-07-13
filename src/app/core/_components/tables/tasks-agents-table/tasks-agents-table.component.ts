@@ -365,9 +365,11 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAgent>(
       event,
-      this.tableColumns,
+      visibleColumns,
       TasksAgentsTableColumnLabel,
       'hashtopolis-agents'
     );
@@ -518,7 +520,13 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       return;
     }
 
-    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.id, {
+    if (!agent.assignmentId) {
+      this.alertService.showErrorMessage('Failed to update benchmark!');
+      console.error('Failed to update benchmark: missing assignment ID for agent', agent.id);
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.assignmentId, {
       benchmark: benchmark
     });
     this.subscriptions.push(

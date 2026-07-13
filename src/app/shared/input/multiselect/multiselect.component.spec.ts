@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, NgControl } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -92,6 +93,30 @@ describe('InputMultiSelectComponent', () => {
       component.addChip(ITEMS[0]);
       component.addChip(ITEMS[0]);
       expect(component.selectedItems.filter((i) => i.id === ITEMS[0].id).length).toBe(1);
+    });
+
+    it('should prefer the first filtered item when submitting typed input', () => {
+      component.onSearchInputChange({ target: { value: 'ga' } } as unknown as Event);
+
+      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      component.onInputChipAdd({ value: 'ga', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+
+      expect(component.selectedItems).toEqual([ITEMS[2]]);
+      expect(chipInput.clear).toHaveBeenCalled();
+    });
+
+    it('should set an invalidSelection error instead of creating a NaN chip when no match exists', () => {
+      const control = new FormControl<number[] | null>(null);
+      spyOnProperty(component, 'ngControl', 'get').and.returnValue({ control } as unknown as NgControl);
+
+      component.onSearchInputChange({ target: { value: 'zzz' } } as unknown as Event);
+
+      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      component.onInputChipAdd({ value: 'zzz', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+
+      expect(component.selectedItems).toEqual([]);
+      expect(control.hasError('invalidSelection')).toBeTrue();
+      expect(chipInput.clear).not.toHaveBeenCalled();
     });
   });
 
@@ -225,5 +250,45 @@ describe('InputMultiSelectComponent (readonly)', () => {
     fixture.detectChanges();
     const chips = fixture.nativeElement.querySelectorAll('mat-chip-row');
     expect(chips.length).toBe(ITEMS.length);
+  });
+});
+
+describe('InputMultiSelectComponent chip removal interaction', () => {
+  let component: InputMultiSelectComponent;
+  let fixture: ComponentFixture<InputMultiSelectComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [InputMultiSelectComponent],
+      imports: [
+        NoopAnimationsModule,
+        MatFormFieldModule,
+        MatChipsModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatAutocompleteModule
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(InputMultiSelectComponent);
+    component = fixture.componentInstance;
+    component.items = [...ITEMS];
+    component.addChip(ITEMS[0]);
+    fixture.detectChanges();
+  });
+
+  it('should render chip remove buttons as non-submit buttons', () => {
+    const removeButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('button[matChipRemove]');
+    expect(removeButton?.type).toBe('button');
+  });
+
+  it('should remove the chip when the remove button is clicked', () => {
+    const removeButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('button[matChipRemove]');
+
+    removeButton?.click();
+    fixture.detectChanges();
+
+    expect(component.selectedItems).toEqual([]);
+    expect(fixture.nativeElement.querySelectorAll('mat-chip-row').length).toBe(0);
   });
 });

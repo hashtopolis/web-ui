@@ -24,7 +24,10 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    let params = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
+    let params = new RequestParamBuilder().addInitial(this).addAggregate({
+      field: 'supertask',
+      values: ['amountPretasks'] as const
+    });
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors

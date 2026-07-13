@@ -134,9 +134,11 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPreprocessor[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JPreprocessor>(
       event,
-      this.tableColumns,
+      visibleColumns,
       PreprocessorsTableColumnLabel,
       'hashtopolis-preprocessors'
     );

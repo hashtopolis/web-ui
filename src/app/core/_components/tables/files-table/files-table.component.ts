@@ -215,7 +215,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JFile[]>): void {
-    this.exportService.handleExportAction<JFile>(event, this.tableColumns, FilesTableColumnLabel, 'hashtopolis-files');
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
+    this.exportService.handleExportAction<JFile>(event, visibleColumns, FilesTableColumnLabel, 'hashtopolis-files');
   }
 
   rowActionClicked(event: ActionMenuEvent<JFile>): void {
