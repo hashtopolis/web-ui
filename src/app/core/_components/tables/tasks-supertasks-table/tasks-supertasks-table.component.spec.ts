@@ -69,7 +69,7 @@ describe('TasksSupertasksTableComponent', () => {
     it('should delegate to exportService with the correct file name', () => {
       const items = [{ id: 1, type: 'tasks' }] as JTask[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JTask[]>;
-      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6'];
+      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
 
       component.exportActionClicked(event);
 

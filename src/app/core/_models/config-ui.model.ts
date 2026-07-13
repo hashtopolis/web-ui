@@ -581,9 +581,11 @@ const _uiConfigDefault = {
       columns: [
         TasksSupertasksDataSourceTableCol.ID,
         TasksSupertasksDataSourceTableCol.NAME,
+        TasksSupertasksDataSourceTableCol.STATUS,
         TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         TasksSupertasksDataSourceTableCol.CRACKED,
         TasksSupertasksDataSourceTableCol.AGENTS,
+        TasksSupertasksDataSourceTableCol.SPEED,
         TasksSupertasksDataSourceTableCol.PRIORITY,
         TasksSupertasksDataSourceTableCol.MAX_AGENTS
       ],

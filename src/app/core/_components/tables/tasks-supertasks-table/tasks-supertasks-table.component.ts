@@ -3,7 +3,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JTask, JTaskWith } from '@models/task.model';
+import { JTask, JTaskWith, TaskStatus } from '@models/task.model';
 
 import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
@@ -12,7 +12,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
@@ -23,7 +23,9 @@ import {
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched'>;
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'status' | 'currentSpeed'>;
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -87,6 +89,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
       {
+        id: TasksSupertasksDataSourceTableCol.STATUS,
+        dataKey: 'status',
+        icon: (task: Subtask) => this.renderStatusIcons(task),
+        isSortable: false,
+        export: async (task: Subtask) => this.getTaskStatusLabel(task)
+      },
+      {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'dispatched',
         render: (task: Subtask) => this.renderDispatchedSearched(task),
@@ -105,6 +114,14 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         render: (task: JTask) => this.renderAgents(task),
         isSortable: false,
         export: async (task: JTask) => this.getNumAgents(task) + ''
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.SPEED,
+        dataKey: 'currentSpeed',
+        render: (task: Subtask) => this.renderCurrentSpeed(task),
+        isSortable: false,
+        isSearchable: false,
+        export: async (task: Subtask) => task.currentSpeed?.toString() ?? ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
@@ -295,6 +312,37 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   private renderDispatchedSearched(task: Subtask): SafeHtml {
     const html = this.getDispatchedSearchedString(task);
     return this.sanitize(html);
+  }
+
+  renderStatusIcons(task: Subtask): HTTableIcon {
+    switch (task.status) {
+      case TaskStatus.RUNNING:
+        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.IDLE:
+        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
+      case TaskStatus.COMPLETED:
+        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
+      default:
+        return { name: '' };
+    }
+  }
+
+  private getTaskStatusLabel(task: Subtask): string {
+    switch (task.status) {
+      case TaskStatus.RUNNING:
+        return 'Running';
+      case TaskStatus.COMPLETED:
+        return 'Completed';
+      default:
+        return '';
+    }
+  }
+
+  private renderCurrentSpeed(task: Subtask): SafeHtml {
+    if (task.currentSpeed) {
+      return this.sanitize(convertCrackingSpeed(task.currentSpeed));
+    }
+    return '0 H/s';
   }
 
   private rowActionDelete(tasks: JTask[]): void {
