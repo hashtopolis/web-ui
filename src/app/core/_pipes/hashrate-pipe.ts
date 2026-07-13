@@ -17,9 +17,13 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class HashRatePipe implements PipeTransform {
   private readonly units = ['H/s', 'kH/s', 'MH/s', 'GH/s', 'TH/s', 'PH/s'];
 
-  transform(value: number, decimals: number = 2, asObject: boolean = false): string | { value: number; unit: string } {
+  transform(
+    value: number,
+    decimals: number = 2,
+    asObject: boolean = false
+  ): string | { value: number; unit: string; scale: number } {
     if (!value || value <= 0) {
-      return asObject ? { value: 0, unit: 'H/s' } : '0 H/s';
+      return asObject ? { value: 0, unit: 'H/s', scale: 1 } : '0 H/s';
     }
 
     let i = 0;
@@ -30,6 +34,6 @@ export class HashRatePipe implements PipeTransform {
 
     const rounded = +value.toFixed(decimals);
 
-    return asObject ? { value: rounded, unit: this.units[i] } : `${rounded} ${this.units[i]}`;
+    return asObject ? { value: rounded, unit: this.units[i], scale: 1000 ** i } : `${rounded} ${this.units[i]}`;
   }
 }

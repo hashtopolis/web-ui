@@ -109,22 +109,23 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return res;
     }, {});
 
+    const maxRawSpeed = Math.max(...result.map((item) => item.speed));
+    const { unit, scale } = this.hashratePipe.transform(maxRawSpeed, 2, true) as {
+      value: number;
+      unit: string;
+      scale: number;
+    };
+
     const arr: { name: string; value: [string, number]; unit: string }[] = [];
     const timestamps: number[] = [];
 
     for (const item of result) {
       const iso = this.transDate(item.time);
-      const transformed = this.hashratePipe.transform(item.speed, 2, true) as {
-        value: number;
-        unit: string;
-      };
-
-      if (!transformed) continue;
 
       arr.push({
         name: iso,
-        value: [iso, transformed.value],
-        unit: transformed.unit
+        value: [iso, +(item.speed / scale).toFixed(2)],
+        unit
       });
 
       timestamps.push(item.time);
@@ -141,7 +142,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     const maxIndex = speedsOnly.indexOf(maxSpeed);
     const minIndex = speedsOnly.indexOf(minSpeed);
 
-    const displayUnit = arr[maxIndex]?.unit || 'H/s';
     const startdate = timestamps[0];
     const enddate = timestamps[timestamps.length - 1];
     const datelabel = this.transDate(enddate);
@@ -163,7 +163,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           }
           const data = params.data as { value: [string, number]; unit: string } | undefined;
           if (data?.value?.[1]) {
-            return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
+            return `${params.name}: <strong>${data.value[1]} ${data.unit}</strong>`;
           }
           return '';
         }
@@ -178,7 +178,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: displayUnit,
+        name: unit,
         position: 'left',
         alignTicks: true
       },
@@ -214,12 +214,12 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
             {
               name: 'Max',
               coord: arr[maxIndex]?.value ?? [],
-              value: `${arr[maxIndex]?.value?.[1]} ${arr[maxIndex]?.unit}`
+              value: `${arr[maxIndex]?.value?.[1]} ${unit}`
             },
             {
               name: 'Min',
               coord: arr[minIndex]?.value ?? [],
-              value: `${arr[minIndex]?.value?.[1]} ${arr[minIndex]?.unit}`
+              value: `${arr[minIndex]?.value?.[1]} ${unit}`
             }
           ]
         },
