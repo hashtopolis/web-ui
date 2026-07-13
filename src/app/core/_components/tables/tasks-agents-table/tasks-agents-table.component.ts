@@ -387,16 +387,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-      /*       case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
-          icon: 'warning',
-          body: `Are you sure you want to ${event.data?.assignmentId ? 'unassign' : 'delete'} ${event.data.agentName}? ${event.data?.assignmentId ? '' : 'Note that this action cannot be undone.'}`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break; */
       case RowActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: [event.data],
