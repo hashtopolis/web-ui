@@ -9,6 +9,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BaseModel } from '@models/base.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -66,7 +67,7 @@ describe('TasksAgentsTableComponent', () => {
     mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
     mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['delete']);
+    mockGlobalService = jasmine.createSpyObj('GlobalService', ['delete', 'bulkDelete']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     await TestBed.configureTestingModule({
@@ -191,6 +192,83 @@ describe('TasksAgentsTableComponent', () => {
       subject.next(null);
 
       expect(mockGlobalService.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  // ─── Unassign agents (bulk action) ───────────────────────────────────────────
+
+  describe('bulkActionUnassign (via UNASSIGN bulk action)', () => {
+    function triggerConfirmedBulkUnassign(agents: JAgent[]): Subject<{ action: string; data: JAgent[] } | null> {
+      const subject = openDialogAndClose(mockDialog, () =>
+        component.bulkActionClicked({
+          data: agents,
+          menuItem: { action: BulkActionMenuAction.UNASSIGN, label: '' }
+        })
+      );
+      subject.next({ action: BulkActionMenuAction.UNASSIGN, data: agents });
+      return subject;
+    }
+
+    it('should call gs.bulkDelete with SERV.AGENT_ASSIGN and the assignment IDs of the assigned agents', () => {
+      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      const agents = [
+        { id: 1, agentName: 'A1', assignmentId: 42 },
+        { id: 2, agentName: 'A2', assignmentId: 43 }
+      ] as JAgent[];
+
+      triggerConfirmedBulkUnassign(agents);
+
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
+    });
+
+    it('should show a success message, reload the data source, and emit assignedAgentsChanged after a successful bulk unassign', () => {
+      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      spyOn(component.dataSource, 'reload');
+      const agents = [{ id: 1, agentName: 'A1', assignmentId: 42 }] as JAgent[];
+      let emitted = false;
+      component.assignedAgentsChanged.subscribe(() => (emitted = true));
+
+      triggerConfirmedBulkUnassign(agents);
+
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledOnceWith('Successfully unassigned agents!');
+      expect(component.dataSource.reload).toHaveBeenCalledTimes(1);
+      expect(emitted).toBeTrue();
+    });
+
+    it('should show an error message per agent and exclude them from the bulkDelete request when some agents have no assignment ID', () => {
+      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      const agents = [
+        { id: 1, agentName: 'A1', assignmentId: 42 },
+        { id: 2, agentName: 'A2' }
+      ] as JAgent[];
+
+      triggerConfirmedBulkUnassign(agents);
+
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!A2');
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
+    });
+
+    it('should NOT call the API when none of the agents have an assignment ID', () => {
+      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+
+      triggerConfirmedBulkUnassign(agents);
+
+      expect(mockGlobalService.bulkDelete).not.toHaveBeenCalled();
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!A1');
+    });
+
+    it('should NOT call the API when the confirmation dialog is dismissed', () => {
+      const agents = [{ id: 1, agentName: 'A1', assignmentId: 42 }] as JAgent[];
+
+      const subject = openDialogAndClose(mockDialog, () =>
+        component.bulkActionClicked({
+          data: agents,
+          menuItem: { action: BulkActionMenuAction.UNASSIGN, label: '' }
+        })
+      );
+      subject.next(null);
+
+      expect(mockGlobalService.bulkDelete).not.toHaveBeenCalled();
     });
   });
 });
