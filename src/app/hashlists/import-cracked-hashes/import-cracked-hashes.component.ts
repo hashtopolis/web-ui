@@ -345,6 +345,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.router.navigate([path]);
         },
         error: (error) => {
+          this.isCreatingLoading = false;
           const detail = (error as { error?: { title?: string; message?: string } })?.error?.title;
           this.alert.showErrorMessage(
             detail ? `Failed to import cracked hashes: ${detail}` : 'Failed to import cracked hashes.'
