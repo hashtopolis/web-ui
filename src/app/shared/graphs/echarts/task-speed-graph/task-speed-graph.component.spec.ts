@@ -54,11 +54,7 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('sums the speeds of agents reporting at the same timestamp', () => {
     // Two agents at t=100 (3 MH/s each) collapse into one 6 MH/s point; t=200 stays separate.
-    const option = drawWith([
-      speedStat(100, 3_000_000),
-      speedStat(100, 3_000_000),
-      speedStat(200, 1_000_000)
-    ]);
+    const option = drawWith([speedStat(100, 3_000_000), speedStat(100, 3_000_000), speedStat(200, 1_000_000)]);
     const plotted = option.series[0].data.map((point: { value: [string, number] }) => point.value[1]);
 
     expect(plotted).toEqual([6, 1]);

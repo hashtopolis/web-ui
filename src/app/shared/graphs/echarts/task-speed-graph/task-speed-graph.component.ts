@@ -18,15 +18,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
@@ -113,10 +105,11 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
     for (const item of result) {
       const iso = this.transDate(item.time);
+      const convertedValue = +(item.speed / scale).toFixed(2);
 
       arr.push({
         name: iso,
-        value: [iso, +(item.speed / scale).toFixed(2)],
+        value: [iso, convertedValue],
         unit
       });
 
