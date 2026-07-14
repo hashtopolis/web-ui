@@ -29,6 +29,9 @@ import {
 import { SelectOption } from '@src/app/shared/utils/forms';
 import { handleEncode, removeFakePath } from '@src/app/shared/utils/forms';
 
+/** Backend error payload shape carried on a failed request. */
+type WithError = { error?: { title?: string; message?: string } };
+
 /**
  * Component for import pre cracked hashes
  */
@@ -346,7 +349,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.isCreatingLoading = false;
-          const detail = (error as { error?: { title?: string; message?: string } })?.error?.title;
+          const detail = (error as WithError)?.error?.title;
           this.alert.showErrorMessage(
             detail ? `Failed to import cracked hashes: ${detail}` : 'Failed to import cracked hashes.'
           );

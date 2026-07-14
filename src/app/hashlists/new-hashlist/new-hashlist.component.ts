@@ -32,6 +32,9 @@ import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hash
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+/** Backend error payload shape carried on a failed request. */
+type WithError = { error?: { title?: string; message?: string }; message?: string };
+
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
@@ -256,10 +259,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   /** Show the backend reason (e.g. "too many lines") when the create fails. */
   private buildUploadErrorMessage(error: unknown): string {
-    const e = (typeof error === 'object' ? error : null) as {
-      error?: { title?: string; message?: string };
-      message?: string;
-    } | null;
+    const e = (typeof error === 'object' ? error : null) as WithError | null;
     const detail = typeof error === 'string' ? error : e?.error?.title || e?.error?.message || e?.message;
 
     return detail ? `Failed to create Hashlist: ${detail}` : 'Failed to create Hashlist.';
