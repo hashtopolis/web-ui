@@ -25,12 +25,11 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
-  ViewChild,
-  inject
+  ViewChild
 } from '@angular/core';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
-import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
+import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
 
 // Compose ECharts option type
 type EChartsOption = ComposeOption<
@@ -56,8 +55,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
-  template: `<div #chart style="height: 310px;"></div>`,
-  providers: [HashRatePipe]
+  template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @Input() speeds: SpeedStat[] = [];
@@ -65,8 +63,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
 
   private chart: EChartsType;
-
-  private hashratePipe = inject(HashRatePipe);
 
   /**
    * Initializes the chart after view is ready.
@@ -110,11 +106,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     }, {});
 
     const maxRawSpeed = Math.max(...result.map((item) => item.speed));
-    const { unit, scale } = this.hashratePipe.transform(maxRawSpeed, 2, true) as {
-      value: number;
-      unit: string;
-      scale: number;
-    };
+    const { unit, scale } = getHashRateFormatComponents(maxRawSpeed);
 
     const arr: { name: string; value: [string, number]; unit: string }[] = [];
     const timestamps: number[] = [];
