@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -294,6 +294,25 @@ describe('ImportCrackedHashesComponent', () => {
       await component.loadServerFiles();
       tick();
       expect(component.isLoadingServerFiles).toBeFalse();
+    }));
+
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list (file added after login stayed hidden until re-login);
+    // the fix uses lastValueFrom, which resolves on the revalidated emission.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh: ResponseWrapper = mockResponse({
+        data: [],
+        meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
+      });
+      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+
+      await component.loadServerFiles();
+      tick();
+
+      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
     }));
   });
 
