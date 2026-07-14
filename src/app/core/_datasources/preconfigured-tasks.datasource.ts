@@ -1,6 +1,6 @@
 // typescript
 import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -108,7 +108,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private async loadPretasks(params: RequestParams): Promise<JPretask[]> {
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     try {
-      const response = await firstValueFrom<ResponseWrapper>(
+      const response = await lastValueFrom<ResponseWrapper>(
         this.service.getAll(SERV.PRETASKS, params, httpOptions).pipe(
           catchError((error) => {
             this.handleFilterError(error);
@@ -133,7 +133,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask | null> {
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     try {
-      const response = await firstValueFrom<ResponseWrapper>(
+      const response = await lastValueFrom<ResponseWrapper>(
         this.service.get(SERV.SUPER_TASKS, superTaskId, params, httpOptions).pipe(
           catchError((error) => {
             this.handleFilterError(error);
@@ -173,7 +173,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       const paramsPretaskFiles = paramsBuilder.create();
       const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
       try {
-        const response = await firstValueFrom<ResponseWrapper>(
+        const response = await lastValueFrom<ResponseWrapper>(
           this.service.getAll(SERV.PRETASKS, paramsPretaskFiles, httpOptions).pipe(
             catchError((error) => {
               this.handleFilterError(error);

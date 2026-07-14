@@ -1,7 +1,7 @@
 import { zPreTaskResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -54,9 +54,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Read-only mode based on roles */
   isReadOnly = false;
 
-  /** HttpClient without interceptors to avoid global error dialog */
-  private httpNoInterceptors: HttpClient;
-
   private unsubscribeService = inject(UnsubscribeService);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -66,12 +63,10 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   private serializer = inject(JsonAPISerializer);
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
-  private httpBackend = inject(HttpBackend);
   protected roleService = inject(PreconfiguredTasksRoleService);
 
   constructor() {
     this.titleService.set(['Edit Preconfigured Tasks']);
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
     this.buildForm();
   }
 
@@ -150,7 +145,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   private async loadPretask(): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
 
-    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+    const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
     const pretask: JPretask = this.serializer.deserialize(response, zPreTaskResponse);
 
