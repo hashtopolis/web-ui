@@ -8,6 +8,11 @@
   overflow: visible;
 }
 
+// Action links (onClick, no href) need an explicit pointer cursor.
+a.link[role='button'] {
+  cursor: pointer;
+}
+
 a.link:has(fa-icon) {
   display: inline-flex;
   align-items: center;
@@ -27,13 +32,9 @@ a.link:has(fa-icon) {
   }
 }
 
+// Rendered inside a CDK overlay (panelClass: graph-preview-overlay); CDK handles
+// positioning and stacking, so only the panel's own appearance lives here.
 .graph-preview {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + var(--space-xs));
-  transform: translateX(-50%);
-  z-index: var(--z-tooltip);
-  display: none;
   width: min(520px, 85vw);
   min-width: 320px;
   padding: 12px 14px;
@@ -49,10 +50,6 @@ a.link:has(fa-icon) {
   font-weight: 600;
   color: var(--heading-foreground);
   margin-bottom: var(--space-xs);
-}
-
-.link-wrapper.has-graph-preview:hover .graph-preview {
-  display: block;
 }
 
 .graph-preview-image {

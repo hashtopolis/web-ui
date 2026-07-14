@@ -153,9 +153,11 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAgentBinary>(
       event,
-      this.tableColumns,
+      visibleColumns,
       AgentBinariesTableColumnLabel,
       'hashtopolis-agent-binaries'
     );

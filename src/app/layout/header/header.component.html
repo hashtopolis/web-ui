@@ -45,11 +45,19 @@
         <button
           matIconButton
           class="app-header__theme-toggle"
-          (click)="toggleTheme()"
-          [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+          [matMenuTriggerFor]="themeMenu"
+          aria-label="Theme selector"
         >
-          <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <mat-icon>{{ getCurrentThemeIcon() }}</mat-icon>
         </button>
+        <mat-menu #themeMenu="matMenu">
+          @for (themeOption of themeOptions; track themeOption.value) {
+            <button mat-menu-item (click)="selectTheme(themeOption.value)">
+              <mat-icon>{{ themeOption.icon }}</mat-icon>
+              {{ themeOption.description }}
+            </button>
+          }
+        </mat-menu>
       </div>
     </div>
   </mat-toolbar>

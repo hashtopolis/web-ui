@@ -178,9 +178,11 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JHashlist>(
       event,
-      this.tableColumns,
+      visibleColumns,
       HashlistsTableColumnLabel,
       'hashtopolis-hashlists'
     );

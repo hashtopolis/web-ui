@@ -27,7 +27,7 @@ interface NewSuperhashlistForm {
 }
 
 /**
- * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
+ * Represents the NewSuperhashlistComponent responsible for creating a new Superhashlist.
  */
 @Component({
   selector: 'app-new-superhashlist',
@@ -39,7 +39,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  /** Form group for the new SuperHashlist. */
+  /** Form group for the new Superhashlist. */
   form: FormGroup<NewSuperhashlistForm>;
 
   /** Select List of hashlists. */
@@ -56,7 +56,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.buildForm();
-    this.titleService.set(['New SuperHashlist']);
+    this.titleService.set(['New Superhashlist']);
   }
 
   /**
@@ -75,7 +75,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a new SuperHashlist.
+   * Builds the form for creating a new Superhashlist.
    */
   buildForm(): void {
     this.form = new FormGroup<NewSuperhashlistForm>({
@@ -110,15 +110,15 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles form submission, creating a new SuperHashlist.
-   * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
+   * Handles form submission, creating a new Superhashlist.
+   * If the form is valid, it makes an API request and navigates to the Superhashlist page.
    */
   onSubmit(): void {
     if (this.form.valid) {
       const createSubscription$ = this.globalService
         .chelper(SERV.HELPER, 'createSuperHashlist', this.form.value)
         .subscribe(() => {
-          this.alert.showSuccessMessage('New SuperHashList created');
+          this.alert.showSuccessMessage('New Superhashlist created');
           this.router.navigate(['hashlists/superhashlist']);
         });
 

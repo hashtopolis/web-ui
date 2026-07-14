@@ -161,11 +161,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JTask[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JTask>(
       event,
-      this.tableColumns,
+      visibleColumns,
       TasksSupertasksDataSourceTableColumnLabel,
-      'hashtopolis-tasks-supertaks'
+      'hashtopolis-tasks-supertasks'
     );
   }
 

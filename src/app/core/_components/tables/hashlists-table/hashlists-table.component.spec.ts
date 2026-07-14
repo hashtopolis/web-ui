@@ -7,6 +7,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -15,6 +17,7 @@ import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
@@ -96,6 +99,7 @@ describe('HashlistsTableComponent', () => {
     fixture = TestBed.createComponent(TestHashlistsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    component.table = { reload: () => {} } as HTTableComponent<BaseModel>;
     (component as unknown as { table: unknown }).table = {
       clearFilterError: jasmine.createSpy('clearFilterError'),
       reload: jasmine.createSpy('reload')
@@ -295,6 +299,7 @@ describe('HashlistsTableComponent', () => {
   describe('exportActionClicked', () => {
     it('should call exportService.handleExportAction', () => {
       component.tableColumns = [];
+      component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6'];
       const event = {
         menuItem: { label: 'Export' },
         data: [{ id: 1, name: 'Test' }]
@@ -305,6 +310,24 @@ describe('HashlistsTableComponent', () => {
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
+        HashlistsTableColumnLabel,
+        'hashtopolis-hashlists'
+      );
+    });
+
+    it('should pass only visible columns when displayedColumns is set', () => {
+      component.table.displayedColumns = ['0', '1'];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1 }, { id: 2 }]
+      } as ActionMenuEvent<JHashlist[]>;
+
+      component.exportActionClicked(event);
+
+      const expectedColumns = component.tableColumns.filter((col: HTTableColumn) => [0, 1].includes(col.id));
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        expectedColumns,
         HashlistsTableColumnLabel,
         'hashtopolis-hashlists'
       );

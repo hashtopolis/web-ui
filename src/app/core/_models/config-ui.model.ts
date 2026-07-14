@@ -35,7 +35,8 @@ import { UsersTableCol } from '@components/tables/users-table/users-table.consta
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
 export type Layout = 'full' | 'fixed';
-export type Theme = 'light' | 'dark';
+export type BuiltInTheme = 'light' | 'dark';
+export type Theme = BuiltInTheme | (string & {});
 
 /**
  * Interface definition for TableSettings

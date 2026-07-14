@@ -1,5 +1,5 @@
 import { zAccessGroupListResponse } from '@generated/api/zod';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
@@ -196,7 +196,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   async loadServerFiles(): Promise<void> {
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       this.serverFiles = response.meta || [];
@@ -293,8 +293,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     });
     this.updateValidatorsBySourceType(type);
 
-    // Load server import directory files only when switching to tab3
-    if (view === 'tab3' && this.serverFiles.length === 0) {
+    if (view === 'tab3') {
       void this.loadServerFiles();
     }
   }
@@ -406,9 +405,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       await Promise.all(requests);
 
       this.alert.showSuccessMessage('Server files imported successfully!');
-      // Reload server files
-      await this.loadServerFiles();
       this.selectedServerFiles.clear();
+      void this.router.navigate(['/files', this.redirect]);
     } catch (error) {
       console.error('Error importing server files:', error);
       this.alert.showErrorMessage('Could not import selected files.');

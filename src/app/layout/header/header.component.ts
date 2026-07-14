@@ -22,6 +22,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { ApiTokensRole, ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.service';
 import { AlertService } from '@services/shared/alert.service';
+import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -42,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themes = inject(ThemeService);
+  private themeCatalog = inject(ThemeCatalogService);
   private permissionService = inject(PermissionService);
   private easterEggService = inject(EasterEggService);
   private alert = inject(AlertService);
@@ -64,6 +66,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
+  currentTheme = 'light';
+  themeOptions: RuntimeThemeOption[] = [];
   private themeSub: Subscription;
 
   // Before showing header check Authentification
@@ -101,7 +105,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
     );
     this.themeSub = this.themes.theme$.subscribe((theme) => {
-      this.isDarkMode = theme === 'dark';
+      this.currentTheme = theme ?? this.themes.current;
+      this.isDarkMode = this.themes.isDark(this.currentTheme);
+    });
+    this.themeCatalog.getThemes().subscribe((themeOptions) => {
+      this.themeOptions = themeOptions;
     });
     // Listen for Konami code
     this.easterEggService
@@ -137,9 +145,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.easterEggFlag = !this.easterEggFlag;
   }
 
-  toggleTheme() {
-    const newTheme = this.isDarkMode ? 'light' : 'dark';
-    this.uiSettings.updateSettings({ theme: newTheme });
+  selectTheme(theme: string) {
+    this.uiSettings.updateSettings({ theme });
+  }
+
+  getCurrentThemeIcon(): string {
+    const option = this.themeOptions.find((themeOption) => themeOption.value === this.currentTheme);
+    if (option?.icon) {
+      return option.icon;
+    }
+
+    if (this.currentTheme === 'light') {
+      return 'light_mode';
+    }
+
+    if (this.currentTheme === 'dark') {
+      return 'dark_mode';
+    }
+
+    return 'palette';
   }
 
   menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void {

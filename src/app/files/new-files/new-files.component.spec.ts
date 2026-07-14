@@ -1,6 +1,6 @@
-import { of } from 'rxjs';
+import { concat, of } from 'rxjs';
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -37,6 +37,7 @@ class MockGlobalService {
   getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
   ghelper = jasmine.createSpy('ghelper').and.returnValue(of(mockResponse()));
   create = jasmine.createSpy('create').and.returnValue(of({}));
+  chelper = jasmine.createSpy('chelper').and.returnValue(of(mockResponse({ data: [], meta: [] })));
   userId = 1;
 }
 
@@ -207,6 +208,23 @@ describe('NewFilesComponent', () => {
     });
   });
 
+  cases.forEach(({ kind, expectedRedirect }) => {
+    it(`should navigate to the files list after a successful server import for kind="${kind}"`, async () => {
+      setup(kind);
+
+      // Select a server file to import
+      component.selectedServerFiles.add('rockyou.txt');
+
+      const alert = TestBed.inject(AlertService) as unknown as MockAlertService;
+      const router = TestBed.inject(Router) as unknown as MockRouter;
+
+      await component['onSubmitServerImport']();
+
+      expect(alert.showSuccessMessage).toHaveBeenCalledWith('Server files imported successfully!');
+      expect(router.navigate).toHaveBeenCalledWith(['/files', expectedRedirect]);
+    });
+  });
+
   it('should unsubscribe on destroy', () => {
     const comp = setup('wordlist-new');
     const unsubscribe = fixture.debugElement.injector.get(UnsubscribeService) as unknown as MockUnsubscribeService;
@@ -273,5 +291,23 @@ describe('NewFilesComponent', () => {
       expect(component.selectAccessgroup.find((g) => g.name === 'Ops Group')).toBeUndefined();
       expect(component.selectAccessgroup.find((g) => g.name === 'Dev Group')).toBeUndefined();
     });
+  });
+
+  describe('loadServerFiles', () => {
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const comp = setup('wordlist-new');
+      const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
+      const stale = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh = mockResponse({ data: [], meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }] });
+      (gs.chelper as jasmine.Spy).and.returnValue(concat(of(stale), of(fresh)));
+
+      await comp.loadServerFiles();
+      tick();
+
+      expect(comp.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+    }));
   });
 });

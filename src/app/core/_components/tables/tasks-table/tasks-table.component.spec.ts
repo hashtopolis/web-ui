@@ -188,7 +188,7 @@ describe('TasksTableComponent', () => {
       const typeColumn = columns.find((col) => col.id === TaskTableCol.TASK_TYPE);
       const taskWrapper = { taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
 
-      expect(typeColumn?.render!(taskWrapper)).toBe('<b>SuperTask</b>');
+      expect(typeColumn?.render!(taskWrapper)).toBe('<b>Supertask</b>');
     });
 
     it('should include NAME column with routerLink function', () => {
@@ -233,17 +233,31 @@ describe('TasksTableComponent', () => {
       });
     });
 
-    it('should render NAME column routerLink with null link for SUPERTASK', (done) => {
+    it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', (done) => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
+        id: 42,
         taskType: TaskType.SUPERTASK,
         displayName: 'Test Supertask'
       } as JTaskWrapperDisplay;
 
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(undefined)
+      } as unknown as ReturnType<typeof mockDialog.open>);
+
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Supertask');
         expect(links[0].routerLink).toBeNull();
+        expect(links[0].onClick).toBeDefined();
+
+        links[0].onClick!();
+        expect(mockDialog.open).toHaveBeenCalledWith(
+          jasmine.anything(),
+          jasmine.objectContaining({
+            data: { supertaskId: 42, supertaskName: 'Test Supertask' }
+          })
+        );
         done();
       });
     });
@@ -261,7 +275,7 @@ describe('TasksTableComponent', () => {
     it('should render TASK_SPEED as formatted string when currentSpeed is set', () => {
       const columns = component.getColumns();
       const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
-      const taskWrapper = { currentSpeed: 500 } as JTaskWrapperDisplay;
+      const taskWrapper = { currentSpeed: 500, taskType: TaskType.TASK } as JTaskWrapperDisplay;
 
       const result = speedColumn?.render!(taskWrapper) as string;
 
@@ -272,7 +286,7 @@ describe('TasksTableComponent', () => {
     it('should render TASK_SPEED as "0 H/s" when currentSpeed is undefined', () => {
       const columns = component.getColumns();
       const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
-      const taskWrapper = { currentSpeed: undefined } as unknown as JTaskWrapperDisplay;
+      const taskWrapper = { currentSpeed: undefined, taskType: TaskType.TASK } as unknown as JTaskWrapperDisplay;
 
       expect(speedColumn?.render!(taskWrapper)).toBe('0 H/s');
     });
@@ -280,7 +294,7 @@ describe('TasksTableComponent', () => {
     it('should render TASK_SPEED as "0 H/s" when currentSpeed is 0', () => {
       const columns = component.getColumns();
       const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
-      const taskWrapper = { currentSpeed: 0 } as JTaskWrapperDisplay;
+      const taskWrapper = { currentSpeed: 0, taskType: TaskType.TASK } as JTaskWrapperDisplay;
 
       expect(speedColumn?.render!(taskWrapper)).toBe('0 H/s');
     });
@@ -288,7 +302,7 @@ describe('TasksTableComponent', () => {
     it('should render TASK_SPEED with kH/s for speed >= 1000', () => {
       const columns = component.getColumns();
       const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
-      const taskWrapper = { currentSpeed: 1000 } as JTaskWrapperDisplay;
+      const taskWrapper = { currentSpeed: 1000, taskType: TaskType.TASK } as JTaskWrapperDisplay;
 
       const result = speedColumn?.render!(taskWrapper) as string;
 
@@ -308,33 +322,45 @@ describe('TasksTableComponent', () => {
     it('should render DISPATCHED_SEARCHED with both values when set', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
-      const taskWrapper = { dispatched: '50', searched: '25' } as JTaskWrapperDisplay;
+      const taskWrapper = { dispatched: '50', searched: '25', taskType: TaskType.TASK } as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('50 / 25');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('50% / 25%');
     });
 
     it('should render DISPATCHED_SEARCHED with "0" fallback when dispatched is undefined', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
-      const taskWrapper = { dispatched: undefined, searched: '10' } as unknown as JTaskWrapperDisplay;
+      const taskWrapper = {
+        dispatched: undefined,
+        searched: '10',
+        taskType: TaskType.TASK
+      } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 10');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0% / 10%');
     });
 
     it('should render DISPATCHED_SEARCHED with "0" fallback when searched is undefined', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
-      const taskWrapper = { dispatched: '30', searched: undefined } as unknown as JTaskWrapperDisplay;
+      const taskWrapper = {
+        dispatched: '30',
+        searched: undefined,
+        taskType: TaskType.TASK
+      } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('30 / 0');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('30% / 0%');
     });
 
-    it('should render DISPATCHED_SEARCHED as "0 / 0" when both are undefined', () => {
+    it('should render DISPATCHED_SEARCHED as "0% / 0%" when both are undefined', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
-      const taskWrapper = { dispatched: undefined, searched: undefined } as unknown as JTaskWrapperDisplay;
+      const taskWrapper = {
+        dispatched: undefined,
+        searched: undefined,
+        taskType: TaskType.TASK
+      } as unknown as JTaskWrapperDisplay;
 
-      expect(dispatchedCol?.render!(taskWrapper)).toBe('0 / 0');
+      expect(dispatchedCol?.render!(taskWrapper)).toBe('0% / 0%');
     });
 
     it('should render HASHTYPE column correctly when hashTypeId and description exist', () => {
@@ -406,6 +432,23 @@ describe('TasksTableComponent', () => {
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Hashlist');
         expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
+        done();
+      });
+    });
+
+    it('should truncate long HASHLISTS label and keep full name in tooltip', (done) => {
+      const columns = component.getColumns();
+      const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
+      const longName = 'This is a very long hashlist name that should be truncated';
+      const taskWrapper = {
+        hashlistId: 11,
+        hashlistName: longName
+      } as JTaskWrapperDisplay;
+
+      hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
+        expect(links[0].label).toBe('This is a very long ...');
+        expect(links[0].tooltip).toBe(longName);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
         done();
       });
     });
@@ -1006,6 +1049,42 @@ describe('TasksTableComponent', () => {
     });
   });
 
+  describe('includeArchived input', () => {
+    it('should default to false', () => {
+      expect(component.includeArchived).toBe(false);
+    });
+
+    it('should pass null to dataSource when includeArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = true;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(null);
+    });
+
+    it('should pass false to dataSource when includeArchived is false', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = false;
+
+      component.setIsArchived(false);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(false);
+    });
+
+    it('should pass true to dataSource when includeArchived is false and isArchived is true', () => {
+      component.mockDataSource.setIsArchived.calls.reset();
+      component.includeArchived = false;
+      component.isArchived = true;
+
+      component.setIsArchived(true);
+
+      expect(component.mockDataSource.setIsArchived).toHaveBeenCalledWith(true);
+    });
+  });
+
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
@@ -1039,6 +1118,23 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: '123',
         field: 'taskId',
+        operator: jasmine.anything(),
+        parent: undefined
+      });
+    });
+
+    it('should filter the hashlist column by hashlistName', () => {
+      component.selectedFilterColumn = {
+        id: TaskTableCol.HASHLISTS,
+        dataKey: 'hashlistName'
+      } as unknown as HTTableColumn;
+      component.mockDataSource.loadAll.calls.reset();
+
+      component.filter('123');
+
+      expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
+        value: '123',
+        field: 'hashlistName',
         operator: jasmine.anything(),
         parent: undefined
       });
@@ -1122,12 +1218,14 @@ describe('TasksTableComponent', () => {
       expect(icon.tooltip).toBe('Completed');
     });
 
-    it('should return empty icon for IDLE status', () => {
+    it('should return waiting icon for IDLE status', () => {
       const wrapper = { status: TaskStatus.IDLE } as JTaskWrapperDisplay;
 
       const icon = component.renderStatusIcons(wrapper);
 
-      expect(icon.name).toBe('');
+      expect(icon.name).toBe('schedule');
+      expect(icon.cls).toBe('text-warning');
+      expect(icon.tooltip).toBe('Waiting');
     });
 
     it('should return empty icon when status is undefined', () => {
@@ -1168,8 +1266,26 @@ describe('TasksTableComponent', () => {
   });
 
   describe('exportActionClicked', () => {
-    it('should call exportService.handleExportAction', () => {
-      component.tableColumns = [];
+    it('should call exportService.handleExportAction with filtered columns based on displayedColumns', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }];
+      component.table.displayedColumns = [
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+        '13',
+        '14',
+        '15'
+      ];
       const event = {
         menuItem: { label: 'Export' },
         data: [{ id: 1, taskName: 'Test' }]
@@ -1179,7 +1295,59 @@ describe('TasksTableComponent', () => {
 
       expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
-        component.tableColumns,
+        [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }],
+        TaskTableColumnLabel,
+        'hashtopolis-tasks'
+      );
+    });
+
+    it('should filter out columns not in displayedColumns', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }, { id: TaskTableCol.STATUS }];
+      component.table.displayedColumns = ['0'];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1, taskName: 'Test' }]
+      } as ActionMenuEvent<JTaskWrapperDisplay[]>;
+
+      component.exportActionClicked(event);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        [{ id: TaskTableCol.ID }],
+        TaskTableColumnLabel,
+        'hashtopolis-tasks'
+      );
+    });
+
+    it('should pass all columns when all are displayed', () => {
+      component.tableColumns = [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }];
+      component.table.displayedColumns = [
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+        '13',
+        '14'
+      ];
+      const event = {
+        menuItem: { label: 'Export' },
+        data: [{ id: 1, taskName: 'Test' }]
+      } as ActionMenuEvent<JTaskWrapperDisplay[]>;
+
+      component.exportActionClicked(event);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+        event,
+        [{ id: TaskTableCol.ID }, { id: TaskTableCol.NAME }],
         TaskTableColumnLabel,
         'hashtopolis-tasks'
       );

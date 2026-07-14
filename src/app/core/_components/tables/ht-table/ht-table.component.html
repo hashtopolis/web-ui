@@ -123,8 +123,37 @@
     </div>
     <!-- Filter section BACKEND END-->
   </div>
-  <!-- Table -->
-  <table [dataSource]="dataSource" class="hashtopolis-table" mat-table matSort>
+  <!-- Header chevrons: jump to start/end from above the table (mirrors the scrollbar's). -->
+  @if (stickyLeadingEnabled) {
+    <div class="ht-table-chevrons ht-table-chevrons--header" [hidden]="!hasHorizontalOverflow">
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to start"
+        [disabled]="atScrollStart"
+        (click)="scrollToStart()"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to end"
+        [disabled]="atScrollEnd"
+        (click)="scrollToEnd()"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  }
+  <div
+    #tableScroll
+    appDragScroll
+    class="ht-table-scroll"
+    [class.ht-table-scroll--overflow]="hasHorizontalOverflow"
+    (scroll)="onTableScroll()"
+  >
+    <table [dataSource]="dataSource" class="hashtopolis-table" mat-table matSort>
     @if (dataSource.loading$ | async) {
       <div class="spinner-container">
         <mat-spinner></mat-spinner>
@@ -132,7 +161,7 @@
     }
     <!-- select column -->
     @if (isSelectable) {
-      <ng-container matColumnDef="{{ colSelect }}">
+      <ng-container matColumnDef="{{ colSelect }}" [sticky]="stickyLeadingEnabled">
         <th *matHeaderCellDef mat-header-cell>
           <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
           @if (isCmdTask && isCmdPreproAttack) {
@@ -178,7 +207,7 @@
 
     <!-- action column -->
     @if (contextMenuService && contextMenuService.getHasContextMenu()) {
-      <ng-container matColumnDef="{{ colRowAction }}">
+      <ng-container matColumnDef="{{ colRowAction }}" [stickyEnd]="stickyTrailingEnabled">
         <th *matHeaderCellDef mat-header-cell></th>
         <td *matCellDef="let element" [class.text-right]="true" mat-cell>
           <row-action-menu
@@ -191,7 +220,7 @@
     }
 
     @for (tableColumn of tableColumns; track tableColumn.id) {
-      <ng-container [matColumnDef]="tableColumn.id + ''">
+      <ng-container [matColumnDef]="tableColumn.id + ''" [sticky]="isLeadingSticky(tableColumn)">
         <!-- if sortable column header -->
         @if (tableColumn.isSortable) {
           <th
@@ -304,6 +333,35 @@
       </td>
     </tr>
   </table>
+  </div>
+  <!-- Synthetic horizontal scrollbar flanked by jump-to-start/end chevrons: only spans the
+       scrollable columns (not the frozen groups) and drives the hidden native scroll above.
+       The chevrons stay usable even when the OS hides the scrollbar. Shown only on overflow. -->
+  @if (stickyLeadingEnabled) {
+    <div class="ht-table-xscroll-row" [hidden]="!hasHorizontalOverflow">
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to start"
+        [disabled]="atScrollStart"
+        (click)="scrollToStart()"
+      >
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <div #tableXScroll class="ht-table-xscroll" (scroll)="onXScroll()">
+        <div #tableXScrollRail class="ht-table-xscroll__rail"></div>
+      </div>
+      <button
+        type="button"
+        class="ht-table-chevron"
+        aria-label="Scroll to end"
+        [disabled]="atScrollEnd"
+        (click)="scrollToEnd()"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  }
 
   <!-- Pagination -->
   @if (isPageable) {

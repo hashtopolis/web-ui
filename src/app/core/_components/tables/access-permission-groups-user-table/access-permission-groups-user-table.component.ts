@@ -29,12 +29,7 @@ import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-t
 import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
 import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
-import {
-  CrudVerb,
-  PERMISSION_DENIED_TOOLTIP,
-  PERMISSION_NOT_APPLICABLE_TOOLTIP,
-  PermissionMatrixRow
-} from '@src/app/shared/utils/permission-matrix';
+import { CrudVerb, PERMISSION_DENIED_TOOLTIP, PermissionMatrixRow } from '@src/app/shared/utils/permission-matrix';
 
 export const PermissionTableMode = {
   EDIT: 'edit',
@@ -171,13 +166,13 @@ export class AccessPermissionGroupsUserTableComponent
   }
 
   /**
-   * Build a single CRUD column descriptor. The descriptor's `checkbox` callback
-   * shape changes between modes:
+   * Build a single CRUD column descriptor. When the backend has no key for this
+   * row × verb the cell renders empty in every mode (see {@link cellCheckbox}).
+   * Otherwise the `checkbox` callback shape changes between modes:
    *   - edit: returns `value = row.<verb>`, no disabled/tooltip — the cell flip
    *     drives a PATCH.
    *   - form: returns `value = selection.has(row.keys[verb])`, with `disabled`
-   *     and `tooltip` honoring whether the user holds the permission and
-   *     whether the permission exists for this resource at all.
+   *     and `tooltip` honoring whether the user holds the permission.
    */
   private crudColumn(verb: CrudVerb): HTTableColumn {
     const colId = VERB_TO_COL[verb];
@@ -193,23 +188,22 @@ export class AccessPermissionGroupsUserTableComponent
   }
 
   private cellCheckbox(row: PermissionMatrixRow, verb: CrudVerb, action: string): HTTableEditable<UserPermissions> {
+    const key = row.keys?.[verb];
+    if (!key) {
+      // No backend permission exists for this row × verb — render an empty cell.
+      // The editable-checkbox template hides cells whose value is 'undefined'.
+      return {
+        data: row,
+        value: 'undefined',
+        action
+      };
+    }
+
     if (this.mode === PermissionTableMode.EDIT) {
       return {
         data: row,
         value: row[verb] + '',
         action
-      };
-    }
-
-    const key = row.keys?.[verb];
-    if (!key) {
-      // No backend permission exists for this row × verb.
-      return {
-        data: row,
-        value: 'false',
-        action,
-        disabled: true,
-        tooltip: PERMISSION_NOT_APPLICABLE_TOOLTIP
       };
     }
 
@@ -238,9 +232,11 @@ export class AccessPermissionGroupsUserTableComponent
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<UserPermissions>(
       event as ActionMenuEvent<UserPermissions[]>,
-      this.tableColumns,
+      visibleColumns,
       AccessPermissionGroupsUserTableColumnLabel,
       'hashtopolis-access-permission-groups-user'
     );

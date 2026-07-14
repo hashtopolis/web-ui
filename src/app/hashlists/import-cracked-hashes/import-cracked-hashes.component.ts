@@ -1,5 +1,5 @@
 import { zHashlistResponse } from '@generated/api/zod';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Subject, lastValueFrom, takeUntil } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
@@ -50,7 +50,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   // Edit variables
   editedHashlistIndex: number;
   hashtype: JHashtype;
-  type: number; // Hashlist or SuperHashlist
+  type: number; // Hashlist or Superhashlist
 
   selectSource = hashSource;
 
@@ -60,7 +60,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   serverFiles: ServerImportFile[] = [];
   serverFileOptions: SelectOption[] = [];
   isLoadingServerFiles = false;
-  hasLoadedServerFiles = false;
   hashesAreRequired = false;
 
   private fileUnsubscribe = new Subject<void>();
@@ -99,7 +98,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
       this.hashesAreRequired = false;
       this.resetHashesValidator();
-      if (sourceType === 'import' && !this.hasLoadedServerFiles && !this.isLoadingServerFiles) {
+      // Reload every time 'import' is selected so newly placed server files
+      // appear without a re-login; the loading flag guards against overlap.
+      if (sourceType === 'import' && !this.isLoadingServerFiles) {
         void this.loadServerFiles();
       }
 
@@ -248,12 +249,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     try {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
       const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
-      this.hasLoadedServerFiles = true;
     } catch (error) {
       console.error('Error fetching server import files:', error);
       this.alert.showErrorMessage('Could not load files from server import directory.');
@@ -312,13 +312,12 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
       );
       const files = response.meta || [];
       this.serverFiles = files;
       this.serverFileOptions = files.map((file) => ({ id: file.file, name: file.file }));
-      this.hasLoadedServerFiles = true;
       return files.some((file) => file.file === filename);
     } catch {
       return false;
@@ -345,8 +344,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
         },
-        error: () => {
-          this.alert.showErrorMessage('Failed to import cracked hashes.');
+        error: (error) => {
+          const detail = (error as { error?: { title?: string; message?: string } })?.error?.title;
+          this.alert.showErrorMessage(
+            detail ? `Failed to import cracked hashes: ${detail}` : 'Failed to import cracked hashes.'
+          );
         },
         complete: () => {
           this.isCreatingLoading = false;

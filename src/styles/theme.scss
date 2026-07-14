@@ -34,3 +34,10 @@ html {
 .dark-theme {
   color-scheme: dark;
 }
+
+/* Applied to <body> by ThemeService for one frame while switching themes, so the change lands in a
+   single repaint instead of animating every transitioned element (e.g. table rows) over its duration. */
+.theme-no-transition,
+.theme-no-transition * {
+  transition: none !important;
+}

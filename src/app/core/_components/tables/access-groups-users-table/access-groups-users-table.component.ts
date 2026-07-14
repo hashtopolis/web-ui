@@ -183,9 +183,11 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
 
   // --- Existing export action ---
   exportActionClicked(event: ActionMenuEvent<(JUser | JAgent)[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JUser>(
       event as ActionMenuEvent<JUser[]>,
-      this.tableColumns,
+      visibleColumns,
       AccessGroupsUsersTableColumnLabel,
       'hashtopolis-access-groups-users'
     );

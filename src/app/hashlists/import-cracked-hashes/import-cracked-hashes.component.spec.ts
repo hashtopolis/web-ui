@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -203,12 +203,16 @@ describe('ImportCrackedHashesComponent', () => {
       expect(loadSpy).toHaveBeenCalled();
     }));
 
-    it('should NOT call loadServerFiles when sourceType is import but files already loaded', fakeAsync(() => {
-      component.hasLoadedServerFiles = true;
+    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', fakeAsync(() => {
+      gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
       const loadSpy = spyOn(component, 'loadServerFiles').and.returnValue(Promise.resolve());
       component.form.controls.sourceType.setValue('import');
       tick();
-      expect(loadSpy).not.toHaveBeenCalled();
+      component.form.controls.sourceType.setValue('paste');
+      tick();
+      component.form.controls.sourceType.setValue('import');
+      tick();
+      expect(loadSpy).toHaveBeenCalledTimes(2);
     }));
 
     it('should NOT call loadServerFiles when sourceType is import but files already loading', fakeAsync(() => {
@@ -257,7 +261,6 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
       expect(component.serverFiles.length).toBe(2);
       expect(component.serverFileOptions.length).toBe(2);
-      expect(component.hasLoadedServerFiles).toBeTrue();
       expect(component.isLoadingServerFiles).toBeFalse();
     }));
 
@@ -268,7 +271,6 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
       expect(component.serverFiles.length).toBe(0);
       expect(component.serverFileOptions.length).toBe(0);
-      expect(component.hasLoadedServerFiles).toBeTrue();
       expect(component.isLoadingServerFiles).toBeFalse();
     }));
 
@@ -292,6 +294,25 @@ describe('ImportCrackedHashesComponent', () => {
       await component.loadServerFiles();
       tick();
       expect(component.isLoadingServerFiles).toBeFalse();
+    }));
+
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list (file added after login stayed hidden until re-login);
+    // the fix uses lastValueFrom, which resolves on the revalidated emission.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh: ResponseWrapper = mockResponse({
+        data: [],
+        meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
+      });
+      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+
+      await component.loadServerFiles();
+      tick();
+
+      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
     }));
   });
 
@@ -445,10 +466,6 @@ describe('ImportCrackedHashesComponent', () => {
 
     it('should have isLoadingServerFiles as false', () => {
       expect(component.isLoadingServerFiles).toBeFalse();
-    });
-
-    it('should have hasLoadedServerFiles as false', () => {
-      expect(component.hasLoadedServerFiles).toBeFalse();
     });
 
     it('should have hashesAreRequired as false initially', () => {
