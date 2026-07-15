@@ -309,16 +309,6 @@ describe('TasksTableComponent', () => {
       expect(result).toContain('kH/s');
     });
 
-    it('should render TASK_SPEED for SUPERTASK when currentSpeed is set', () => {
-      const columns = component.getColumns();
-      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
-      const taskWrapper = { currentSpeed: 14000, taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
-
-      const result = speedColumn?.render!(taskWrapper) as string;
-
-      expect(result).toContain('kH/s');
-    });
-
     it('should include DISPATCHED_SEARCHED column with correct properties', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
@@ -489,7 +479,7 @@ describe('TasksTableComponent', () => {
       expect(agentsColumn?.render!(taskWrapper)).toBe('3');
     });
 
-    it('should render AGENTS column for SUPERTASK type using aggregated totalAssignedAgents', () => {
+    it('should return empty string for AGENTS column for SUPERTASK type', () => {
       const columns = component.getColumns();
       const agentsColumn = columns.find((col) => col.id === TaskTableCol.AGENTS);
       const taskWrapper = {
@@ -497,7 +487,7 @@ describe('TasksTableComponent', () => {
         totalAssignedAgents: 3
       } as JTaskWrapperDisplay;
 
-      expect(agentsColumn?.render!(taskWrapper)).toBe('3');
+      expect(agentsColumn?.render!(taskWrapper)).toBe('');
     });
 
     it('should render PREPROCESSOR column for TASK with preprocessor', () => {

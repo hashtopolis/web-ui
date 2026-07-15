@@ -4,9 +4,8 @@ import { of, throwError } from 'rxjs';
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
-import { JTask, JTaskWrapperDisplay, TaskType } from '@models/task.model';
+import { JTaskWrapperDisplay } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -236,45 +235,6 @@ describe('TasksDataSource', () => {
       gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 0 } } })));
       dataSource.loadAll();
       expect(dataSource.pageAfter).toBeNull();
-    });
-
-    it('should compute supertask currentSpeed and totalAssignedAgents from related subtask chunks', () => {
-      const supertaskWrapper: JTaskWrapperDisplay = {
-        ...MOCK_WRAPPER,
-        taskType: TaskType.SUPERTASK,
-        taskWrapperId: 1300
-      } as unknown as JTaskWrapperDisplay;
-      const subtask: JTask = {
-        id: 1337,
-        type: 'task',
-        taskWrapperId: 1300,
-        keyspace: 1000
-      } as unknown as JTask;
-      const now = Math.floor(Date.now() / 1000);
-      const chunk: JChunk = {
-        id: 1,
-        type: 'chunk',
-        taskId: 1337,
-        agentId: 1,
-        skip: 0,
-        length: 100,
-        dispatchTime: now,
-        solveTime: now,
-        checkpoint: 50,
-        progress: 5000,
-        state: 0,
-        cracked: 0,
-        speed: 14000
-      } as unknown as JChunk;
-
-      gsSpy.getAll.and.returnValues(of(mockResponse()), of(mockResponse()), of(mockResponse()));
-      deserializeSpy.and.returnValues([supertaskWrapper], [subtask], [chunk]);
-
-      dataSource.loadAll();
-
-      expect(gsSpy.getAll.calls.count()).toBe(3);
-      expect(dataSource.getOriginalData()[0].currentSpeed).toBe(14000);
-      expect(dataSource.getOriginalData()[0].totalAssignedAgents).toBe(1);
     });
 
     it('should call handleFilterError and stop loading when request fails', () => {

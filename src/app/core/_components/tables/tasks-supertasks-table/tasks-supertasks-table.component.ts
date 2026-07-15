@@ -25,11 +25,7 @@ import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasou
 
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
-type Subtask = JTaskWith<'dispatched' | 'searched'> & {
-  activeAgents?: number;
-  status?: number;
-  currentSpeed?: number;
-};
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'activeAgents' | 'status' | 'currentSpeed'>;
 
 @Component({
   selector: 'app-tasks-supertasks-table',
