@@ -7,7 +7,7 @@ import {
 } from '@generated/api/zod';
 import { Subscription, finalize, firstValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
@@ -265,6 +265,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private async loadTask(): Promise<EditedTask> {
+    const noCacheHeaders = new HttpHeaders({ 'X-Cache-Skip': 'true' });
     const params = new RequestParamBuilder()
       .addInclude('hashlist')
       .addInclude('crackerBinary')
@@ -281,7 +282,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     try {
       const response = await firstValueFrom<ResponseWrapper>(
-        this.http.get<ResponseWrapper>(url, { params: setParameter(params) })
+        this.http.get<ResponseWrapper>(url, { params: setParameter(params), headers: noCacheHeaders })
       );
       // Cast: task relationship includes aren't schema-typed yet (see JTaskIncludes TODO in task.model.ts),
       // so the deserializer resolves them to worse types (null/never) than JTask's hand-typed relationships,
@@ -293,7 +294,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // resource exists — the UI can still open the edit form with the primary data.
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
-        const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+        const responseFallback = await firstValueFrom<ResponseWrapper>(
+          this.http.get<ResponseWrapper>(url, { headers: noCacheHeaders })
+        );
         // Fallback omits aggregates (no params sent) — the `?? ` guards in ngOnInit cover their runtime absence.
         return this.serializer.deserialize(responseFallback, zTaskResponse, params) as unknown as EditedTask;
       }

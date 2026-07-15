@@ -99,6 +99,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAssignments(): void {
     this.loading = true;
+    const noCacheOptions = {
+      headers: new HttpHeaders({ 'X-Cache-Skip': 'true' })
+    };
     const assignParams = new RequestParamBuilder()
       .addInclude('agent')
       .addInclude('task')
@@ -106,7 +109,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .create();
 
     this.service
-      .getAll(SERV.AGENT_ASSIGN, assignParams)
+      .getAll(SERV.AGENT_ASSIGN, assignParams, noCacheOptions)
       .pipe(
         catchError(() => EMPTY),
         finalize(() => (this.loading = false))
@@ -212,6 +215,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       return [];
     }
 
+    const noCacheOptions = {
+      headers: new HttpHeaders({ 'X-Cache-Skip': 'true' })
+    };
+
     const chunkParams = new RequestParamBuilder()
       .setPageSize(this.maxResults)
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: taskId })
@@ -219,7 +226,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
     try {
       const response = await firstValueFrom(
-        this.service.getAll(SERV.CHUNKS, chunkParams.create()).pipe(
+        this.service.getAll(SERV.CHUNKS, chunkParams.create(), noCacheOptions).pipe(
           catchError((error) => {
             this.handleFilterError(error);
             throw error;
