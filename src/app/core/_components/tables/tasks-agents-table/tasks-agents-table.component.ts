@@ -259,7 +259,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
     const agentSpeed = this.getAgentSpeed(agent);
-    if (agentSpeed !== undefined && agentSpeed !== null) {
+    if (agentSpeed !== undefined && agentSpeed !== null && agentSpeed > 0) {
       return this.sanitize(convertCrackingSpeed(agentSpeed));
     }
     return this.sanitize('-');
@@ -279,10 +279,17 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   private getAgentSpeed(agent: JAgent): number | undefined {
+    const aggregatedSpeed = this.getChunkDataValue(agent, 'speed');
+    // Prefer task-scoped aggregated speed because it is updated with backend activity timeout rules.
+    if (aggregatedSpeed !== undefined && aggregatedSpeed !== null) {
+      return aggregatedSpeed;
+    }
+
     if (agent.chunk?.speed !== undefined && agent.chunk?.speed !== null) {
       return agent.chunk.speed;
     }
-    return this.getChunkDataValue(agent, 'speed');
+
+    return undefined;
   }
 
   /**
