@@ -1,0 +1,53 @@
+.builder-table-wrapper {
+  overflow-x: auto;
+}
+
+.builder-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.builder-table th,
+.builder-table td {
+  border: 1px solid #d9d9d9;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+
+.builder-table th {
+  background: #f5f6f8;
+  text-align: left;
+  font-weight: 600;
+}
+
+.id-col {
+  width: 100px;
+}
+
+.color-col {
+  width: 180px;
+}
+
+.color-preview {
+  width: 100%;
+  min-height: 24px;
+}
+
+.checkbox-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -10,6 +10,8 @@ import { RouterModule } from '@angular/router';
 import { CoreComponentsModule } from '@components/core-components.module';
 import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 
+import { HashlistPretaskBuilderTableComponent } from '@src/app/core/_components/tables/hashlist-pretask-builder-table/hashlist-pretask-builder-table.component';
+import { HashlistSupertaskBuilderTableComponent } from '@src/app/core/_components/tables/hashlist-supertask-builder-table/hashlist-supertask-builder-table.component';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
 import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.component';
@@ -30,6 +32,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     NewSuperhashlistComponent,
     SuperhashlistComponent,
     EditHashlistComponent,
+    HashlistPretaskBuilderTableComponent,
+    HashlistSupertaskBuilderTableComponent,
     NewHashlistComponent,
     SearchHashComponent,
     ShowCracksComponent,

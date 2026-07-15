@@ -1,0 +1,43 @@
+<div class="builder-table-wrapper">
+  <table class="builder-table">
+    <thead>
+      <tr>
+        <th class="id-col">ID</th>
+        <th class="color-col">Color</th>
+        <th class="name-col">Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (pretask of pretasks; track pretask.id) {
+        <tr>
+          <td class="id-col">
+            <a [routerLink]="['/tasks/preconfigured-tasks', pretask.id, 'edit']">{{ pretask.id }}</a>
+          </td>
+          <td class="color-col">
+            <div class="color-preview" [style.backgroundColor]="pretask.color || null"></div>
+          </td>
+          <td class="name-col">
+            <label class="checkbox-cell">
+              <input
+                type="checkbox"
+                [checked]="selectedPretaskIds.has(pretask.id)"
+                (change)="togglePretaskSelection(pretask.id, $any($event.target).checked)"
+              />
+              <span>{{ pretask.taskName }}</span>
+            </label>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="builder-actions">
+    <button-submit [name]="'Create'" [disabled]="!selectedPretaskIds.size || isCreating" (click)="createTasksFromSelection()">
+    </button-submit>
+
+    <label class="select-all">
+      <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll($any($event.target).checked)" />
+      <span>Select All</span>
+    </label>
+  </div>
+</div>

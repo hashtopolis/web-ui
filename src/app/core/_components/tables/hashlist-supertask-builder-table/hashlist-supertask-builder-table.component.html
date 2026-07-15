@@ -1,0 +1,50 @@
+<div class="builder-table-wrapper">
+  <table class="builder-table">
+    <thead>
+      <tr>
+        <th class="id-col">ID</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (supertask of supertasks; track supertask.id) {
+        <tr>
+          <td class="id-col">
+            <a [routerLink]="['/tasks/supertasks', supertask.id, 'edit']">{{ supertask.id }}</a>
+          </td>
+          <td>
+            <div class="row-content">
+              <a [routerLink]="['/tasks/supertasks', supertask.id, 'edit']">{{ supertask.supertaskName }}</a>
+
+              <div class="row-actions">
+                <input-select
+                  title="Binary type"
+                  [items]="crackerTypes"
+                  [ngModel]="selectedTypeByRow[supertask.id]"
+                  (ngModelChange)="onTypeChanged(supertask.id, $event)"
+                >
+                </input-select>
+
+                <input-select
+                  title="Version"
+                  [items]="rowVersions[supertask.id] ?? []"
+                  [ngModel]="selectedVersionByRow[supertask.id]"
+                  (ngModelChange)="selectedVersionByRow[supertask.id] = $event"
+                >
+                </input-select>
+
+                <button-submit
+                  [name]="'Create Supertask'"
+                  [disabled]="!selectedVersionByRow[supertask.id] || rowLoading[supertask.id]"
+                  [loading]="rowLoading[supertask.id]"
+                  (click)="createSupertask(supertask.id)"
+                >
+                </button-submit>
+              </div>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

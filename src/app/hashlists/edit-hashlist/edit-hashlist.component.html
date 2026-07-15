@@ -135,5 +135,17 @@
         <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [includeArchived]="true"> </app-tasks-table>
       </app-table>
     }
+
+    @if (type !== 3 && roleService.hasRole('tasks')) {
+      <app-table>
+        <app-page-subtitle [subtitle]="'Create pre-configured tasks:'"></app-page-subtitle>
+        <app-hashlist-pretask-builder-table [hashlistId]="editedHashlistIndex"></app-hashlist-pretask-builder-table>
+      </app-table>
+
+      <app-table>
+        <app-page-subtitle [subtitle]="'Create supertask:'"></app-page-subtitle>
+        <app-hashlist-supertask-builder-table [hashlistId]="editedHashlistIndex"></app-hashlist-supertask-builder-table>
+      </app-table>
+    }
   </app-page>
 }
