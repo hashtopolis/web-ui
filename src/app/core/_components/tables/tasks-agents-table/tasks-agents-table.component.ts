@@ -6,7 +6,6 @@ import { SafeHtml } from '@angular/platform-browser';
 import { JAgent } from '@models/agent.model';
 import { ChunkData } from '@models/chunk.model';
 
-import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -30,6 +29,7 @@ import {
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
+import { TaskAgentContextMenuService } from '@src/app/core/_services/context-menu/tasks/task-agent-menu.service';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
@@ -77,7 +77,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new TaskAgentContextMenuService(this.permissionService).addContextMenu();
   }
 
   ngAfterViewInit(): void {
@@ -219,8 +219,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
+            case RowActionMenuAction.UNASSIGN:
+              this.rowActionUnassign(result.data);
               break;
             case BulkActionMenuAction.ACTIVATE:
               this.bulkActionActivate(result.data, true);
@@ -228,8 +228,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
             case BulkActionMenuAction.DEACTIVATE:
               this.bulkActionActivate(result.data, false);
               break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionDelete(result.data);
+            case BulkActionMenuAction.UNASSIGN:
+              this.bulkActionUnassign(result.data);
               break;
           }
         }
@@ -380,9 +380,11 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAgent>(
       event,
-      this.tableColumns,
+      visibleColumns,
       TasksAgentsTableColumnLabel,
       'hashtopolis-agents'
     );
@@ -399,12 +401,12 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-      case RowActionMenuAction.DELETE:
+      case RowActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: [event.data],
-          title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
+          title: `Unassigning  ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${event.data?.assignmentId ? 'unassign' : 'delete'} ${event.data.agentName}? ${event.data?.assignmentId ? '' : 'Note that this action cannot be undone.'}`,
+          body: `Are you sure you want to unassign ${event.data.agentName}?`,
           warn: true,
           action: event.menuItem.action
         });
@@ -432,12 +434,12 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           action: event.menuItem.action
         });
         break;
-      case BulkActionMenuAction.DELETE:
+      case BulkActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: event.data,
-          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${event.data.length} agents ...`,
+          title: `Unassigning ${event.data.length} agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? Note that this action cannot be undone.`,
+          body: `Are you sure you want to unassign the above agents?`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -477,54 +479,54 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     );
   }
 
-  /**
-   * @todo Implement error handling.
-   */
-  private bulkActionDelete(agents: JAgent[]): void {
+  private rowActionEdit(agent: JAgent): void {
+    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink!).then(() => {});
+    });
+  }
+  private bulkActionUnassign(agents: JAgent[]): void {
+    const assignedAgents = agents.filter((agent): agent is JAgent & { assignmentId: number } => !!agent.assignmentId);
+    const unassignedAgents = agents.filter((agent) => !agent.assignmentId);
+
+    unassignedAgents.forEach((agent) => {
+      this.alertService.showErrorMessage('Failed to unassign agent!' + agent.agentName);
+    });
+
+    if (assignedAgents.length === 0) {
+      return;
+    }
+
+    const assignments = assignedAgents.map((agent) => ({ id: agent.assignmentId }));
+
     this.subscriptions.push(
       this.gs
-        .bulkDelete(SERV.AGENTS, agents)
+        .bulkDelete(SERV.AGENT_ASSIGN, assignments)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion: ', error);
+            console.error('Error during unassignment: ', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
+          this.alertService.showSuccessMessage(`Successfully unassigned agents!`);
           this.dataSource.reload();
+          this.assignedAgentsChanged.emit();
         })
     );
   }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(agents: JAgent[]): void {
+  private rowActionUnassign(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
       this.subscriptions.push(
         this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
-          this.dataSource.reload();
+          this.reload();
           this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
         })
       );
     } else {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent!');
-          this.dataSource.reload();
-          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-        })
-      );
+      this.alertService.showErrorMessage('Failed to unassign agent!');
     }
-  }
-
-  private rowActionEdit(agent: JAgent): void {
-    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink!).then(() => {});
-    });
   }
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {
@@ -533,7 +535,13 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       return;
     }
 
-    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.id, {
+    if (!agent.assignmentId) {
+      this.alertService.showErrorMessage('Failed to update benchmark!');
+      console.error('Failed to update benchmark: missing assignment ID for agent', agent.id);
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.assignmentId, {
       benchmark: benchmark
     });
     this.subscriptions.push(

@@ -90,9 +90,11 @@ export class AccessPermissionGroupsUsersTableComponent
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<(JUser | UserPermissions)[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JUser>(
       event as ActionMenuEvent<JUser[]>,
-      this.tableColumns,
+      visibleColumns,
       AccessPermissionGroupsUsersTableColumnLabel,
       'hashtopolis-access-permission-groups-users'
     );

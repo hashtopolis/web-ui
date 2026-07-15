@@ -8,7 +8,7 @@ export enum SearchHashTableCol {
 export const SearchHashTableColumnLabel = {
   [SearchHashTableCol.HASH]: 'Hash',
   [SearchHashTableCol.PLAINTEXT]: 'Plaintext',
-  [SearchHashTableCol.HASHLIST]: 'HashLists',
+  [SearchHashTableCol.HASHLIST]: 'Hashlists',
   [SearchHashTableCol.INFO]: 'Info'
 };
 

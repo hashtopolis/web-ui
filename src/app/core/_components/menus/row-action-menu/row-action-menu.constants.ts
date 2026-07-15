@@ -46,10 +46,8 @@ export const RowActionMenuLabel = {
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
-  IMPORT_HASHLIST: 'Import Hashlist',
-  IMPORT_HASHLISTS: 'Import Hashlists',
-  EXPORT_HASHLIST: 'Export Hashlist',
-  EXPORT_HASHLISTS: 'Export Hashlists',
+  IMPORT_CRACKS: 'Import Cracks',
+  EXPORT_CRACKS: 'Export Cracks',
   NEW_VERSION: 'Add Version',
   DOWNLOAD_AGENT: 'Download Agent Binary',
   COPY_LINK_BINARY: 'Copy link Agent Binary',
@@ -57,6 +55,7 @@ export const RowActionMenuLabel = {
   UNASSIGN_AGENT: 'Unassign Agent',
   UNASSIGN_USER: 'Unassign User',
   UNASSIGN_PRETASK: 'Unassign Pretask',
+  ABORT_CHUNK: 'Abort Task Chunk',
   RESET_CHUNK: 'Reset Task Chunk',
   REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
   REMOVE_ACCESSGROUP_USER: 'Remove User',
@@ -85,12 +84,14 @@ export const RowActionMenuAction = {
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
   UNARCHIVE: 'unarchive',
+  UNASSIGN: 'unassign',
   RESET: 'reset',
   VIEW: 'view'
 };
 
 export const RowActionMenuIcon = {
   ADD: 'add',
+  CANCEL: 'cancel',
   EDIT: 'edit',
   DELETE: 'delete',
   NEW: 'add',

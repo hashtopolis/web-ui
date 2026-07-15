@@ -304,7 +304,7 @@ describe('AgentsDataSource', () => {
       expect(calledServices).toContain(SERV.USERS);
     }));
 
-    it('should map task, taskName, taskId, user and benchmark onto agents', fakeAsync(() => {
+    it('should map task, taskName, taskId, assignmentId, user and benchmark onto agents', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
       const agents = dataSource.getOriginalData();
@@ -313,6 +313,7 @@ describe('AgentsDataSource', () => {
       expect(agent.task).toEqual(MOCK_TASK);
       expect(agent.taskName).toBe(MOCK_TASK.taskName);
       expect(agent.taskId).toBe(MOCK_TASK.id);
+      expect(agent.assignmentId).toBe(MOCK_ASSIGNMENT.id);
       expect(agent.benchmark).toBe(MOCK_ASSIGNMENT.benchmark);
       expect(agent.user).toEqual(MOCK_USER);
     }));

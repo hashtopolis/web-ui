@@ -18,8 +18,8 @@ export class SuperHashListContextMenuService extends ContextMenuService {
     const permSuperHashListDelete: Array<PermissionValues> = [Perm.Hashlist.DELETE];
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_SUPERHASHLIST, RowActionMenuAction.EDIT, permSuperHashListUpdate);
-    this.addCtxImportItem(RowActionMenuLabel.IMPORT_HASHLISTS, permSuperHashListCreate);
-    this.addCtxExportItem(RowActionMenuLabel.EXPORT_HASHLISTS, permSuperHashListRead);
+    this.addCtxImportItem(RowActionMenuLabel.IMPORT_CRACKS, permSuperHashListCreate);
+    this.addCtxExportItem(RowActionMenuLabel.EXPORT_CRACKS, permSuperHashListRead);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_SUPERHASHLIST, permSuperHashListDelete);
 
     this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_SUPERHASHLIST, permSuperHashListDelete);

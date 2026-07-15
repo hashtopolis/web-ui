@@ -181,9 +181,11 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     }
   }
   exportActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAgentErrors>(
       event,
-      this.tableColumns,
+      visibleColumns,
       AgentErrorTableColumnLabel,
       'hashtopolis-task-errors'
     );

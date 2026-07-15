@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { concat, of } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -102,7 +102,7 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper', 'chelper']);
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
@@ -163,9 +163,18 @@ describe('NewHashlistComponent', () => {
       expect(component.isLoadingHashtypes).toBeFalse();
     });
 
-    it('should load config and patch form for brainenabled', () => {
+    it('should load config and set brainenabled, keeping useBrain false by default', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.controls.useBrain.value).toBeTrue();
+      expect(component.form.controls.useBrain.value).toBeFalse();
+    });
+
+    it('should auto-select the first access group when accessGroupId is null', () => {
+      expect(component.form.controls.accessGroupId.value).toBe(1);
+    });
+
+    it('should not override an existing accessGroupId value', () => {
+      component.form.controls.accessGroupId.setValue(2);
+      expect(component.form.controls.accessGroupId.value).toBe(2);
     });
   });
 
@@ -277,7 +286,7 @@ describe('NewHashlistComponent', () => {
         jasmine.objectContaining({ sourceData: expectedEncoded })
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
-      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
+      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New Hashlist created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
   });
@@ -325,10 +334,118 @@ describe('NewHashlistComponent', () => {
     expect(completeSpy).toHaveBeenCalled();
   });
 
+  describe('Hashcat Brain opt-in', () => {
+    it('should show the "Use Hashcat Brain" checkbox when brain is globally enabled', () => {
+      fixture.detectChanges();
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).not.toBeNull();
+    });
+
+    it('should NOT render brain mode selector when useBrain is false', () => {
+      component.form.controls.useBrain.setValue(false);
+      fixture.detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).toBeNull();
+    });
+
+    it('should render brain mode selector when useBrain is true', () => {
+      component.form.controls.useBrain.setValue(true);
+      component['changeDetectorRef'].detectChanges();
+      const modeSelect = fixture.debugElement.query(By.css('input-select[formcontrolname="brainFeatures"]'));
+      expect(modeSelect).not.toBeNull();
+    });
+
+    it('should NOT show brain section when brain is globally disabled', fakeAsync(() => {
+      const disabledConfig: ResponseWrapper = mockResponse({
+        data: {
+          id: 66,
+          type: 'config',
+          attributes: { configSectionId: 1, item: 'Enable Brain', value: '0' }
+        }
+      });
+      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(disabledConfig));
+
+      fixture = TestBed.createComponent(NewHashlistComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.brainenabled).toBe(0);
+      const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
+      expect(checkbox).toBeNull();
+    }));
+  });
+
   describe('Access group scoping', () => {
     it('should fetch access groups via the getAccessGroups helper, not getAll', () => {
       expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
     });
+  });
+
+  describe('loadServerFiles', () => {
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh: ResponseWrapper = mockResponse({
+        data: [],
+        meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
+      });
+      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+
+      await component.loadServerFiles();
+      tick();
+
+      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
+    }));
+  });
+
+  describe('Deprecated format handling', () => {
+    it('should return true for deprecated formats 1 (HCCAPX/PMKID) and 2 (Binary)', () => {
+      expect(component.isFormatDeprecated(1)).toBeTrue();
+      expect(component.isFormatDeprecated(2)).toBeTrue();
+      expect(component.isFormatDeprecated(0)).toBeFalse();
+      expect(component.isFormatDeprecated(3)).toBeFalse();
+    });
+
+    it('should disable submit button when deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '2500',
+        accessGroupId: 1,
+        format: 1,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeTrue();
+    }));
+
+    it('should enable submit button when non-deprecated format is selected', fakeAsync(() => {
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '0',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'upload'
+      });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
+      const button = buttonDebugEl.query(By.css('button'));
+      expect(button.nativeElement.disabled).toBeFalse();
+    }));
   });
 });

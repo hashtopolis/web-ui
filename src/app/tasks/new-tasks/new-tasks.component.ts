@@ -88,7 +88,7 @@ export class NewTasksComponent implements OnInit {
   selectCrackerversions: SelectOption<CrackerBinaryId>[];
   selectPreprocessor: SelectOption<PreprocessorId>[];
 
-  // Copy Task or PreTask configuration
+  // Copy Task or Preconfigured Task configuration
   copyMode = false;
   copyFiles: FileId[];
   editedIndex: number;

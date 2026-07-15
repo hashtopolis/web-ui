@@ -21,7 +21,7 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
- * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
+ * ImportSupertaskMaskComponent is a component responsible for importing Supertasks with masks.
  *
  */
 @Component({

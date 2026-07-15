@@ -127,9 +127,11 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JGlobalPermissionGroup>(
       event,
-      this.tableColumns,
+      visibleColumns,
       PermissionsTableColumnLabel,
       'hashtopolis-permissions'
     );

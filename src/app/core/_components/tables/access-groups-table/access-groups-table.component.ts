@@ -141,9 +141,11 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
+    const visibleColumnIds = this.table.displayedColumns.map(Number);
+    const visibleColumns = this.tableColumns.filter((col) => visibleColumnIds.includes(col.id));
     this.exportService.handleExportAction<JAccessGroup>(
       event,
-      this.tableColumns,
+      visibleColumns,
       AccessGroupsTableColumnLabel,
       'hashtopolis-access-groups'
     );
