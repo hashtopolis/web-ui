@@ -2,7 +2,7 @@ import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@gen
 import { firstValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
 
-import { Component, Injector, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
@@ -30,6 +30,9 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) hashlistId: number;
 
+  /** Emitted after a supertask is created, so the host can refresh its tasks table. */
+  @Output() created = new EventEmitter<void>();
+
   dataSource: HashlistSupertaskBuilderDataSource;
   supertasks: JSuperTask[] = [];
 
@@ -51,9 +54,11 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   ngOnInit(): void {
     this.dataSource = new HashlistSupertaskBuilderDataSource(this.injector);
 
-    this.tableSubscription = this.dataSource.connect(null as never).subscribe(async (rows) => {
+    // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
+    // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
+    this.tableSubscription = this.dataSource.connect(null as never).subscribe((rows) => {
       this.supertasks = rows;
-      await this.initializeRows();
+      void this.initializeRows();
     });
 
     void this.loadCrackerTypes().then(() => {
@@ -68,9 +73,14 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
   async onTypeChanged(rowId: number, typeId: number): Promise<void> {
     this.selectedTypeByRow[rowId] = typeId;
-    const versions = await this.getVersionsForType(typeId);
-    this.rowVersions[rowId] = versions;
-    this.selectedVersionByRow[rowId] = versions.slice(-1)[0]?.id as CrackerBinaryId;
+    try {
+      const versions = await this.getVersionsForType(typeId);
+      this.rowVersions[rowId] = versions;
+      this.selectedVersionByRow[rowId] = versions.slice(-1)[0]?.id as CrackerBinaryId;
+    } catch (error) {
+      // The global HTTP interceptor already surfaces the error dialog for this request.
+      console.error('Failed loading binary versions:', error);
+    }
   }
 
   async createSupertask(supertaskTemplateId: number): Promise<void> {
@@ -92,9 +102,10 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
       );
 
       this.alert.showSuccessMessage('New Supertask created');
+      this.created.emit();
     } catch (error) {
+      // The global HTTP interceptor already surfaces the error dialog for this request.
       console.error('Failed creating supertask from template:', error);
-      this.alert.showErrorMessage('Failed creating supertask.');
     } finally {
       this.rowLoading[supertaskTemplateId] = false;
     }
@@ -109,19 +120,24 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     const fallbackType = this.crackerTypes[0]?.id;
     const defaultType = (preferredType ?? fallbackType) as CrackerBinaryTypeId;
 
-    for (const supertask of this.supertasks) {
-      if (!defaultType) {
-        continue;
-      }
+    if (!defaultType) {
+      return;
+    }
 
-      if (this.selectedTypeByRow[supertask.id]) {
-        continue;
-      }
+    try {
+      for (const supertask of this.supertasks) {
+        if (this.selectedTypeByRow[supertask.id]) {
+          continue;
+        }
 
-      this.selectedTypeByRow[supertask.id] = defaultType;
-      const versions = await this.getVersionsForType(defaultType);
-      this.rowVersions[supertask.id] = versions;
-      this.selectedVersionByRow[supertask.id] = versions.slice(-1)[0]?.id as CrackerBinaryId;
+        this.selectedTypeByRow[supertask.id] = defaultType;
+        const versions = await this.getVersionsForType(defaultType);
+        this.rowVersions[supertask.id] = versions;
+        this.selectedVersionByRow[supertask.id] = versions.slice(-1)[0]?.id as CrackerBinaryId;
+      }
+    } catch (error) {
+      // The global HTTP interceptor already surfaces the error dialog for this request.
+      console.error('Failed initializing supertask rows:', error);
     }
   }
 

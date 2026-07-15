@@ -2,7 +2,7 @@ import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod'
 import { firstValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -20,6 +20,8 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
@@ -50,6 +52,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   // Lists of Selected inputs
   selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
+
+  /** The hashlist's own tasks table, refreshed when a builder creates tasks/supertasks. */
+  @ViewChild(TasksTableComponent) private tasksTable?: TasksTableComponent;
 
   private httpNoInterceptors: HttpClient;
 
@@ -257,6 +262,11 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       });
 
     this.unsubscribeService.add(helperExportedWordlistSubscription$);
+  }
+
+  /** Reloads the tasks table after a builder creates tasks/supertasks against this hashlist. */
+  onTasksCreated(): void {
+    this.tasksTable?.reload();
   }
 
   canDeactivate(): boolean {

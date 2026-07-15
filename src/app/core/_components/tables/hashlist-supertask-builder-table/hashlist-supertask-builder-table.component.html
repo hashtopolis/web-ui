@@ -47,4 +47,8 @@
       }
     </tbody>
   </table>
+
+  @if (dataSource && dataSource.totalCount > supertasks.length) {
+    <p class="builder-note">Showing the first {{ supertasks.length }} of {{ dataSource.totalCount }} supertask templates.</p>
+  }
 </div>

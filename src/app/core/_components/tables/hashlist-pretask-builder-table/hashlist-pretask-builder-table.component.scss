@@ -9,13 +9,13 @@
 
 .builder-table th,
 .builder-table td {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border);
   padding: 8px 10px;
   vertical-align: middle;
 }
 
 .builder-table th {
-  background: #f5f6f8;
+  background: var(--muted);
   text-align: left;
   font-weight: 600;
 }
@@ -50,4 +50,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.builder-note {
+  margin-top: 8px;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
 }

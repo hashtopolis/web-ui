@@ -136,15 +136,19 @@
       </app-table>
     }
 
-    @if (type !== 3 && roleService.hasRole('tasks')) {
+    @if (type !== 3 && roleService.hasRole('pretaskBuilder')) {
       <app-table>
         <app-page-subtitle [subtitle]="'Create pre-configured tasks:'"></app-page-subtitle>
-        <app-hashlist-pretask-builder-table [hashlistId]="editedHashlistIndex"></app-hashlist-pretask-builder-table>
+        <app-hashlist-pretask-builder-table [hashlistId]="editedHashlistIndex" (created)="onTasksCreated()">
+        </app-hashlist-pretask-builder-table>
       </app-table>
+    }
 
+    @if (type !== 3 && roleService.hasRole('supertaskBuilder')) {
       <app-table>
         <app-page-subtitle [subtitle]="'Create supertask:'"></app-page-subtitle>
-        <app-hashlist-supertask-builder-table [hashlistId]="editedHashlistIndex"></app-hashlist-supertask-builder-table>
+        <app-hashlist-supertask-builder-table [hashlistId]="editedHashlistIndex" (created)="onTasksCreated()">
+        </app-hashlist-supertask-builder-table>
       </app-table>
     }
   </app-page>

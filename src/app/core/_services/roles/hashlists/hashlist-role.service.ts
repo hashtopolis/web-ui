@@ -18,6 +18,8 @@ export class HashListRoleService extends RoleService {
       read: [Perm.Hashlist.READ],
       update: [Perm.Hashlist.UPDATE],
       tasks: [Perm.TaskWrapper.READ],
+      pretaskBuilder: [Perm.Pretask.READ, Perm.TaskWrapper.CREATE],
+      supertaskBuilder: [Perm.SuperTask.READ, Perm.SuperTask.CREATE],
       groups: [Perm.GroupAccess.READ],
       wordlist: [Perm.Hash.READ, Perm.File.CREATE]
     });

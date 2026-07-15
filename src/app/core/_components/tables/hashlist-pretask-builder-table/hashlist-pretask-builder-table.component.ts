@@ -2,7 +2,8 @@ import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
 
-import { Component, Injector, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
+import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JPretask } from '@models/pretask.model';
@@ -28,11 +29,18 @@ import { environment } from '@src/environments/environment';
 export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) hashlistId: number;
 
+  /** Emitted after at least one task is created, so the host can refresh its tasks table. */
+  @Output() created = new EventEmitter<void>();
+
   dataSource: HashlistPretaskBuilderDataSource;
   pretasks: JPretask[] = [];
 
   selectedPretaskIds = new Set<number>();
   isCreating = false;
+
+  // This is a plain selector table (no ht-table), so it owns its own error messaging via
+  // the aggregate result below. Suppress the global error dialog on its write/lookup calls.
+  private readonly skipErrorDialog = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
   private readonly serializer = new JsonAPISerializer();
   private readonly crackerVersionByType = new Map<number, number>();
@@ -45,6 +53,8 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.dataSource = new HashlistPretaskBuilderDataSource(this.injector);
 
+    // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
+    // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
     this.tableSubscription = this.dataSource.connect(null as never).subscribe((rows) => {
       this.pretasks = rows;
       this.selectedPretaskIds.clear();
@@ -101,6 +111,8 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
       if (created > 0) {
         this.alert.showSuccessMessage(`Created ${created} task(s) from pre-configured tasks.`);
+        this.selectedPretaskIds.clear();
+        this.created.emit();
       }
 
       if (created < selectedPretasks.length) {
@@ -142,7 +154,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         hashlistId: this.hashlistId
       };
 
-      await firstValueFrom(this.gs.create(SERV.TASKS, payload));
+      await firstValueFrom(this.gs.create(SERV.TASKS, payload, this.skipErrorDialog));
       return true;
     } catch (error) {
       console.error(`Failed to create task from pretask #${pretask.id}:`, error);
@@ -161,7 +173,9 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: crackerBinaryTypeId })
         .create();
 
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.getAll(SERV.CRACKERS, requestParams, this.skipErrorDialog)
+      );
       const crackers: JCrackerBinary[] = this.serializer.deserialize(response, zCrackerBinaryListResponse);
 
       const selectedCracker = crackers.slice(-1)[0];

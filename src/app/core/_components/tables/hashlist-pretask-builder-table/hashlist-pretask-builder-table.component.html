@@ -31,6 +31,10 @@
     </tbody>
   </table>
 
+  @if (dataSource && dataSource.totalCount > pretasks.length) {
+    <p class="builder-note">Showing the first {{ pretasks.length }} of {{ dataSource.totalCount }} pre-configured tasks.</p>
+  }
+
   <div class="builder-actions">
     <button-submit [name]="'Create'" [disabled]="!selectedPretaskIds.size || isCreating" (click)="createTasksFromSelection()">
     </button-submit>
