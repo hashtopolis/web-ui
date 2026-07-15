@@ -268,6 +268,12 @@ describe('AgentsDataSource', () => {
       flushMicrotasks();
       const firstCallArgs = gsSpy.getAll.calls.all()[0].args;
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
+      expect(firstCallArgs[2]).toEqual(jasmine.objectContaining({ headers: jasmine.objectContaining({}) }));
+
+      const httpOptions = firstCallArgs[2] as { headers?: { get(name: string): string | null } } | undefined;
+      expect(httpOptions).toBeDefined();
+      expect(httpOptions?.headers).toBeDefined();
+      expect(httpOptions?.headers?.get('X-Cache-Skip')).toBe('true');
     }));
 
     it('should filter assignments by the stored taskId', fakeAsync(() => {
@@ -290,11 +296,15 @@ describe('AgentsDataSource', () => {
 
       const chunkCall = gsSpy.getAll.calls.all().find((call) => call.args[0] === SERV.CHUNKS);
       expect(chunkCall).toBeDefined();
-      const [, params] = chunkCall!.args;
+      const [, params, httpOptions] = chunkCall!.args;
       expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
       expect((params as RequestParams).filter).toContain(
         jasmine.objectContaining({ field: 'agentId', operator: 'in', value: [1] })
       );
+      const options = httpOptions as { headers?: { get(name: string): string | null } } | undefined;
+      expect(options).toBeDefined();
+      expect(options?.headers).toBeDefined();
+      expect(options?.headers?.get('X-Cache-Skip')).toBe('true');
     }));
 
     it('should fetch user data for the agents in the assignments', fakeAsync(() => {
