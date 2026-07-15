@@ -35,8 +35,8 @@
 
                 <button-submit
                   [name]="'Create Supertask'"
-                  [disabled]="!selectedVersionByRow[supertask.id] || rowLoading[supertask.id]"
-                  [loading]="rowLoading[supertask.id]"
+                  [disabled]="!selectedVersionByRow[supertask.id] || (rowLoading[supertask.id] ?? false)"
+                  [loading]="rowLoading[supertask.id] ?? false"
                   (click)="createSupertask(supertask.id)"
                 >
                 </button-submit>
