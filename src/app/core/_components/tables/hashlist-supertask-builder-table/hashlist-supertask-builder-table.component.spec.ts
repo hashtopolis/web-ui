@@ -15,10 +15,6 @@ import { HashlistSupertaskBuilderTableComponent } from '@components/tables/hashl
 
 import { SelectOption } from '@src/app/shared/utils/forms';
 
-type HashlistSupertaskBuilderTableWithPrivateMethods = HashlistSupertaskBuilderTableComponent & {
-  getVersionsForType: (typeId: number) => Promise<SelectOption<CrackerBinaryId>[]>;
-};
-
 class TestHashlistSupertaskBuilderTableComponent extends HashlistSupertaskBuilderTableComponent {
   override ngOnInit(): void {}
   override ngOnDestroy(): void {}
@@ -103,8 +99,10 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
       { id: 2 as CrackerBinaryId, name: '6.2.7' }
     ] as SelectOption<CrackerBinaryId>[];
 
-    const privateComponent = component as HashlistSupertaskBuilderTableWithPrivateMethods;
-    spyOn(privateComponent, 'getVersionsForType').and.callFake(async () => versions);
+    const privateComponent = component as unknown as {
+      [key: string]: unknown;
+    };
+    privateComponent['getVersionsForType'] = async (): Promise<SelectOption<CrackerBinaryId>[]> => versions;
 
     await component.onTypeChanged(22, 5 as CrackerBinaryTypeId);
     await fixture.whenStable();

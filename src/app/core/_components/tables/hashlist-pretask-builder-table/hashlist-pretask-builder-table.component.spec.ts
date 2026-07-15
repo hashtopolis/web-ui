@@ -11,10 +11,6 @@ import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistPretaskBuilderTableComponent } from '@components/tables/hashlist-pretask-builder-table/hashlist-pretask-builder-table.component';
 
-type HashlistPretaskBuilderTableWithPrivateMethods = HashlistPretaskBuilderTableComponent & {
-  createTaskFromPretask: (pretask: JPretask) => Promise<boolean>;
-};
-
 class TestHashlistPretaskBuilderTableComponent extends HashlistPretaskBuilderTableComponent {
   override ngOnInit(): void {}
   override ngOnDestroy(): void {}
@@ -109,8 +105,10 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     ];
     component.selectedPretaskIds = new Set([1, 2]);
 
-    const privateComponent = component as HashlistPretaskBuilderTableWithPrivateMethods;
-    spyOn(privateComponent, 'createTaskFromPretask').and.callFake(async (pretask: JPretask) => pretask.id !== 2);
+    const privateComponent = component as unknown as {
+      [key: string]: unknown;
+    };
+    privateComponent['createTaskFromPretask'] = async (pretask: JPretask): Promise<boolean> => pretask.id !== 2;
 
     await component.createTasksFromSelection();
     await fixture.whenStable();

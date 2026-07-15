@@ -34,11 +34,11 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   supertasks: JSuperTask[] = [];
 
   crackerTypes: SelectOption<CrackerBinaryTypeId>[] = [];
-  rowVersions: Record<number, SelectOption<CrackerBinaryId>[]> = {};
+  rowVersions: Partial<Record<number, SelectOption<CrackerBinaryId>[]>> = {};
 
-  selectedTypeByRow: Record<number, CrackerBinaryTypeId> = {};
-  selectedVersionByRow: Record<number, CrackerBinaryId> = {};
-  rowLoading: Record<number, boolean> = {};
+  selectedTypeByRow: Partial<Record<number, CrackerBinaryTypeId>> = {};
+  selectedVersionByRow: Partial<Record<number, CrackerBinaryId>> = {};
+  rowLoading: Partial<Record<number, boolean>> = {};
 
   private readonly serializer = new JsonAPISerializer();
   private readonly versionsByType = new Map<number, SelectOption<CrackerBinaryId>[]>();
