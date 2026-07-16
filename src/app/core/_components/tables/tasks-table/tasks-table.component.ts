@@ -125,7 +125,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (taskWrapperDisplay.currentSpeed) {
       return this.sanitize(convertCrackingSpeed(taskWrapperDisplay.currentSpeed));
     }
-    return '0 H/s';
+    return taskWrapperDisplay.taskType === TaskType.TASK ? '0 H/s' : '';
   }
   getColumns(): HTTableColumn[] {
     const columns: HTTableColumn[] = [];
@@ -170,8 +170,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
+        render: (wrapper: JTaskWrapperDisplayOverview) => this.renderCurrentSpeed(wrapper),
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''

@@ -309,6 +309,24 @@ describe('TasksTableComponent', () => {
       expect(result).toContain('kH/s');
     });
 
+    it('should render TASK_SPEED for SUPERTASK rows when currentSpeed is set', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: 2000, taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
+
+      const result = speedColumn?.render!(taskWrapper) as string;
+
+      expect(result).toContain('kH/s');
+    });
+
+    it('should render TASK_SPEED as blank for SUPERTASK rows when currentSpeed is 0', () => {
+      const columns = component.getColumns();
+      const speedColumn = columns.find((col) => col.id === TaskTableCol.TASK_SPEED);
+      const taskWrapper = { currentSpeed: 0, taskType: TaskType.SUPERTASK } as JTaskWrapperDisplay;
+
+      expect(speedColumn?.render!(taskWrapper)).toBe('');
+    });
+
     it('should include DISPATCHED_SEARCHED column with correct properties', () => {
       const columns = component.getColumns();
       const dispatchedCol = columns.find((col) => col.id === TaskTableCol.DISPATCHED_SEARCHED);
