@@ -74,34 +74,32 @@ describe('TasksSupertasksTableComponent', () => {
       expect(ids).toContain(TasksSupertasksDataSourceTableCol.SPEED);
     });
 
-    it('should render AGENTS using activeAgents, then totalAssignedAgents, then chunk agents length', () => {
+    it('should render AGENTS using totalAssignedAgents, then chunk agents length, then 0', () => {
       const agentsColumn = component.tableColumns.find(
         (c) => c.id === TasksSupertasksDataSourceTableCol.AGENTS
       ) as HTTableColumn;
 
-      const withActiveAgents = { activeAgents: 3 } as unknown as JTask;
-      const withAssignedAgents = { activeAgents: undefined, totalAssignedAgents: 4 } as unknown as JTask;
-      const withChunkFallback = { activeAgents: undefined, chunkData: { agents: [10, 11] } } as unknown as JTask;
+      const withAssignedAgents = { totalAssignedAgents: 4 } as unknown as JTask;
+      const withChunkFallback = { totalAssignedAgents: undefined, chunkData: { agents: [10, 11] } } as unknown as JTask;
+      const withNothing = {} as unknown as JTask;
 
-      expect(agentsColumn.render?.(withActiveAgents) as string).toContain('3');
       expect(agentsColumn.render?.(withAssignedAgents) as string).toContain('4');
       expect(agentsColumn.render?.(withChunkFallback) as string).toContain('2');
+      expect(agentsColumn.render?.(withNothing) as string).toContain('0');
     });
 
-    it('should render STATUS as Active when running or when chunk speed is greater than 0', () => {
+    it('should render STATUS as an icon reflecting the task status', () => {
       const statusColumn = component.tableColumns.find(
         (c) => c.id === TasksSupertasksDataSourceTableCol.STATUS
       ) as HTTableColumn;
 
       const runningTask = { status: TaskStatus.RUNNING } as unknown as JTask;
-      const speedFallbackTask = {
-        status: undefined,
-        currentSpeed: undefined,
-        chunkData: { speed: 123 }
-      } as unknown as JTask;
+      const idleTask = { status: TaskStatus.IDLE } as unknown as JTask;
+      const completedTask = { status: TaskStatus.COMPLETED } as unknown as JTask;
 
-      expect(statusColumn.render?.(runningTask) as string).toContain('Active');
-      expect(statusColumn.render?.(speedFallbackTask) as string).toContain('Active');
+      expect(statusColumn.icon?.(runningTask)?.name).toBe('radio_button_checked');
+      expect(statusColumn.icon?.(idleTask)?.name).toBe('schedule');
+      expect(statusColumn.icon?.(completedTask)?.name).toBe('check_circle');
     });
 
     it('should render SPEED from chunk fallback when currentSpeed is missing', () => {

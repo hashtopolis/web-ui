@@ -12,7 +12,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
@@ -26,7 +26,7 @@ import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasou
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 type Subtask = JTaskWith<'dispatched' | 'searched'> & {
-  activeAgents?: number | undefined;
+  totalAssignedAgents?: number | undefined;
   status?: number | undefined;
   currentSpeed?: number | undefined;
 };
@@ -93,6 +93,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
       {
+        id: TasksSupertasksDataSourceTableCol.STATUS,
+        dataKey: 'status',
+        icon: (task: Subtask) => this.renderStatusIcons(task),
+        isSortable: false,
+        export: async (task: Subtask) => this.getTaskStatusLabel(task)
+      },
+      {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'dispatched',
         render: (task: Subtask) => this.renderDispatchedSearched(task),
@@ -106,18 +113,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        dataKey: 'activeAgents',
+        dataKey: 'totalAssignedAgents',
         isNumeric: true,
         render: (task: Subtask) => this.renderAgents(task),
         isSortable: false,
         export: async (task: Subtask) => this.getNumAgents(task) + ''
-      },
-      {
-        id: TasksSupertasksDataSourceTableCol.STATUS,
-        dataKey: 'status',
-        render: (task: Subtask) => this.renderStatus(task),
-        isSortable: false,
-        export: async (task: Subtask) => this.getStatusLabel(task)
       },
       {
         id: TasksSupertasksDataSourceTableCol.SPEED,
@@ -304,7 +304,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private getNumAgents(task: Subtask): number {
-    return task.activeAgents ?? task.totalAssignedAgents ?? task.chunkData?.agents.length ?? 0;
+    return task.totalAssignedAgents ?? task.chunkData?.agents.length ?? 0;
   }
 
   private renderAgents(task: Subtask): SafeHtml {
@@ -312,20 +312,28 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     return this.sanitize(`${numAgents}`);
   }
 
-  private getStatusLabel(task: Subtask): string {
-    const computedSpeed = task.currentSpeed ?? task.chunkData?.speed ?? 0;
+  renderStatusIcons(task: Subtask): HTTableIcon {
     switch (task.status) {
       case TaskStatus.RUNNING:
-        return 'Active';
+        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
+      case TaskStatus.IDLE:
+        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
       case TaskStatus.COMPLETED:
-        return 'Completed';
+        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
       default:
-        return computedSpeed > 0 ? 'Active' : 'Idle';
+        return { name: '' };
     }
   }
 
-  private renderStatus(task: Subtask): SafeHtml {
-    return this.sanitize(this.getStatusLabel(task));
+  private getTaskStatusLabel(task: Subtask): string {
+    switch (task.status) {
+      case TaskStatus.RUNNING:
+        return 'Running';
+      case TaskStatus.COMPLETED:
+        return 'Completed';
+      default:
+        return '';
+    }
   }
 
   private renderCurrentSpeed(task: Subtask): SafeHtml {
