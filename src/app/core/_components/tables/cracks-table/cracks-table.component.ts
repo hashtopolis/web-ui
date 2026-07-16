@@ -15,6 +15,7 @@ import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/crack
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/table-truncate.component';
 
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
@@ -95,7 +96,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         isSortable: true,
         isSearchable: true,
         isCopy: true,
-        truncate: (crack: JHash) => crack.hash.length > 40,
+        truncate: (crack: JHash) => crack.hash.length > TABLE_TRUNCATE_MAX_LENGTH,
         export: async (crack: JHash) => crack.hash
       },
       {

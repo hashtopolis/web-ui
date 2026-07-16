@@ -139,3 +139,21 @@ export const convertCrackingSpeed = (speed: number): string => {
 export const convertToLocale = (value: number) => {
   return (Math.round(value * 100) / 100).toLocaleString();
 };
+
+/**
+ * Shortens a string with a single "…" in the middle, keeping the leading and trailing characters.
+ * Strings no longer than `maxLength` are returned unchanged.
+ *
+ * @param value - the string to shorten
+ * @param maxLength - length up to which the value is shown in full
+ * @param endLength - number of trailing characters to keep (must not exceed `maxLength`)
+ * @returns the original string, or `<start>…<end>` when longer than `maxLength`
+ */
+export const truncateMiddle = (value: string, maxLength: number, endLength: number): string => {
+  if (value.length <= maxLength) {
+    return value;
+  }
+  const start = value.substring(0, maxLength - endLength);
+  const end = value.slice(-endLength);
+  return `${start}…${end}`;
+};
