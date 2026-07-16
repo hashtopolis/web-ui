@@ -1,5 +1,5 @@
 import { zApiTokenResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
@@ -63,7 +63,7 @@ export class ApiKeyDetailComponent implements OnInit {
 
     try {
       const params = new RequestParamBuilder().addInclude('user').create();
-      const response = await firstValueFrom(this.gs.get(SERV.API_TOKENS, id, params));
+      const response = await lastValueFrom(this.gs.get(SERV.API_TOKENS, id, params));
       const token: JApiToken = this.serializer.deserialize(response, zApiTokenResponse, {
         include: ['user']
       });

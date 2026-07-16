@@ -1,7 +1,7 @@
 import { zPreprocessorResponse } from '@generated/api/zod';
-import { Subscription, firstValueFrom } from 'rxjs';
+import { Subscription, firstValueFrom, lastValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -55,14 +55,10 @@ export class NewEditPreprocessorComponent implements OnInit {
   private alert = inject(AlertService);
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
-  private httpBackend = inject(HttpBackend);
   protected roleService = inject(PreprocessorRoleService);
-
-  httpNoInterceptors: HttpClient;
 
   constructor() {
     this.newEditPreprocessorForm = getNewEditPreprocessorForm();
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   async ngOnInit(): Promise<void> {
@@ -111,7 +107,7 @@ export class NewEditPreprocessorComponent implements OnInit {
   private async loadPreprocessor(preprocessorId: number): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PREPROCESSORS.URL}/${preprocessorId}`;
 
-    const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+    const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
 
     const preprocessor = new JsonAPISerializer().deserialize(response, zPreprocessorResponse);
 

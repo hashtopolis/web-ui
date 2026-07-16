@@ -178,7 +178,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
+      const response: ResponseWrapper = await lastValueFrom(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
       const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 
