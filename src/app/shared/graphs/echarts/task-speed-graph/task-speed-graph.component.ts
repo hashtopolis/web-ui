@@ -18,19 +18,10 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild,
-  inject
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
-import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
+import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
 
 // Compose ECharts option type
 type EChartsOption = ComposeOption<
@@ -56,8 +47,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
-  template: `<div #chart style="height: 310px;"></div>`,
-  providers: [HashRatePipe]
+  template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @Input() speeds: SpeedStat[] = [];
@@ -65,8 +55,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
 
   private chart: EChartsType;
-
-  private hashratePipe = inject(HashRatePipe);
 
   /**
    * Initializes the chart after view is ready.
@@ -109,22 +97,20 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return res;
     }, {});
 
+    const maxRawSpeed = Math.max(...result.map((item) => item.speed));
+    const { unit, scale } = getHashRateFormatComponents(maxRawSpeed);
+
     const arr: { name: string; value: [string, number]; unit: string }[] = [];
     const timestamps: number[] = [];
 
     for (const item of result) {
       const iso = this.transDate(item.time);
-      const transformed = this.hashratePipe.transform(item.speed, 2, true) as {
-        value: number;
-        unit: string;
-      };
-
-      if (!transformed) continue;
+      const convertedValue = +(item.speed / scale).toFixed(2);
 
       arr.push({
         name: iso,
-        value: [iso, transformed.value],
-        unit: transformed.unit
+        value: [iso, convertedValue],
+        unit
       });
 
       timestamps.push(item.time);
@@ -141,7 +127,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     const maxIndex = speedsOnly.indexOf(maxSpeed);
     const minIndex = speedsOnly.indexOf(minSpeed);
 
-    const displayUnit = arr[maxIndex]?.unit || 'H/s';
     const startdate = timestamps[0];
     const enddate = timestamps[timestamps.length - 1];
     const datelabel = this.transDate(enddate);
@@ -163,7 +148,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           }
           const data = params.data as { value: [string, number]; unit: string } | undefined;
           if (data?.value?.[1]) {
-            return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
+            return `${params.name}: <strong>${data.value[1]} ${data.unit}</strong>`;
           }
           return '';
         }
@@ -178,7 +163,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: displayUnit,
+        name: unit,
         position: 'left',
         alignTicks: true
       },
@@ -214,12 +199,12 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
             {
               name: 'Max',
               coord: arr[maxIndex]?.value ?? [],
-              value: `${arr[maxIndex]?.value?.[1]} ${arr[maxIndex]?.unit}`
+              value: `${arr[maxIndex]?.value?.[1]} ${unit}`
             },
             {
               name: 'Min',
               coord: arr[minIndex]?.value ?? [],
-              value: `${arr[minIndex]?.value?.[1]} ${arr[minIndex]?.unit}`
+              value: `${arr[minIndex]?.value?.[1]} ${unit}`
             }
           ]
         },
