@@ -125,7 +125,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (taskWrapperDisplay.currentSpeed) {
       return this.sanitize(convertCrackingSpeed(taskWrapperDisplay.currentSpeed));
     }
-    return '0 H/s';
+    return taskWrapperDisplay.taskType === TaskType.TASK ? '0 H/s' : '';
   }
   getColumns(): HTTableColumn[] {
     const columns: HTTableColumn[] = [];

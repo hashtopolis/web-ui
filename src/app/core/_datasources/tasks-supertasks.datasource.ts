@@ -11,11 +11,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched'> & {
-  totalAssignedAgents?: number | undefined;
-  status?: number | undefined;
-  currentSpeed?: number | undefined;
-};
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed'>;
 
 export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
   private _supertTaskId = 0;
