@@ -11,6 +11,7 @@ export const DEFAULT_CONFIG: Config = {
     brand: {
       logo: 'assets/img/logo_party.svg',
       logoheader: 'assets/img/logo_party_hat_text.svg',
+      logoheaderdark: 'assets/img/logo_party_hat_text_dark.svg',
       logored: 'assets/img/logo_red_circle.svg',
       name: '',
       height: '64',

@@ -4,7 +4,7 @@
       <a class="app-header__brand" routerLink="/" style="width:auto;height:auto;background:none;padding:0;border-radius:0;">
         <img
           class="app-header__logo"
-          [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logoheader"
+          [src]="easterEggFlag ? headerConfig.brand.logored : (isDarkMode ? headerConfig.brand.logoheaderdark : headerConfig.brand.logoheader)"
           [alt]="headerConfig.brand.name"
           style="display:block;height:64px;width:auto;"
         />
