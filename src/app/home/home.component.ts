@@ -268,16 +268,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Fetches total and completed supertasks count.
+   * Archived supertasks are excluded.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getSuperTasks$(): Observable<void> {
     const paramsTotalSupertasks = new RequestParamBuilder()
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
     const paramsCompletedSupertasks = new RequestParamBuilder()
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
     return forkJoin([
