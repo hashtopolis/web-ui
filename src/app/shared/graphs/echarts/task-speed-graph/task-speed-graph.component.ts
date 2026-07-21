@@ -26,7 +26,7 @@ import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
 
 /**
- * Group speeds into bucket (previously exact timestamp was used) so that we sum up the speed reports of parallel agents. 
+ * Group speeds into bucket (previously exact timestamp was used) so that we sum up the speed reports of parallel agents.
  */
 const BUCKET_SECONDS = 10;
 
