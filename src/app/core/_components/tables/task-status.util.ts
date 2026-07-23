@@ -1,6 +1,6 @@
 import { TaskStatus } from '@models/task.model';
 
-import { HTTableIcon } from './ht-table/ht-table.models';
+import { HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 
 export function taskStatusIcon(status: number | undefined): HTTableIcon {
   switch (status) {
