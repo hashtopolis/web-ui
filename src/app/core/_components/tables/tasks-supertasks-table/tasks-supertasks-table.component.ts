@@ -314,6 +314,8 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
       case TaskStatus.IDLE:
         return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
+      case TaskStatus.SKIPPED:
+        return { name: 'fast_forward', cls: 'text-warning', tooltip: 'Skipped' };
       case TaskStatus.COMPLETED:
         return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
       default:
@@ -325,6 +327,8 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     switch (task.status) {
       case TaskStatus.RUNNING:
         return 'Running';
+      case TaskStatus.SKIPPED:
+        return 'Skipped';
       case TaskStatus.COMPLETED:
         return 'Completed';
       default:
