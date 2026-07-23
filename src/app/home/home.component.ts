@@ -325,7 +325,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Calls getCracksPerDay, validates the JSON:API response with Zod and builds
-   * heatmap data for every day from January 1st of the current year up to today,
+   * heatmap data for every day across the trailing 12 months up to today,
    * filling days with no cracks with a count of 0.
    * @returns Observable<void> completing when data is loaded or errored
    */
@@ -340,9 +340,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         const rawData = parsed.meta;
 
         const today = new Date();
-        const year = today.getFullYear();
         const allDays: [string, number][] = [];
-        const cursor = new Date(year, 0, 1);
+        const cursor = new Date(today);
+        cursor.setFullYear(cursor.getFullYear() - 1);
 
         while (cursor <= today) {
           const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;

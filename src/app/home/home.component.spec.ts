@@ -440,20 +440,45 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     expect(jan2Entry![1]).toBe(42);
   });
 
-  it('should include all days from Jan 1st to today', () => {
+  it('should include all days across the trailing 12 months up to today', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
     globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
 
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    try {
+      fixture = TestBed.createComponent(HomeComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const start = new Date(year, 0, 1);
-    const expectedDays = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
+      // 2025-07-23 .. 2026-07-23 inclusive
+      expect(component.heatmapData.length).toBe(366);
+      expect(component.heatmapData[0][0]).toBe('2025-07-23');
+      expect(component.heatmapData[component.heatmapData.length - 1][0]).toBe('2026-07-23');
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
 
-    expect(component.heatmapData.length).toBe(expectedDays);
+  it('should include crack days from the previous calendar year that fall within the trailing 12 months', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    try {
+      // A crack recorded in the previous calendar year, still inside the trailing 12-month window.
+      globalServiceMock.ghelper.and.returnValue(of({ meta: { '2025-09-15': 7 }, data: [] }));
+
+      fixture = TestBed.createComponent(HomeComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      const entry = component.heatmapData.find(([d]) => d === '2025-09-15');
+      expect(entry).toBeTruthy();
+      expect(entry![1]).toBe(7);
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('should handle ghelper errors gracefully and keep heatmapData empty', () => {
