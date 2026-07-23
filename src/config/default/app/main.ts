@@ -9,11 +9,13 @@ export const DEFAULT_CONFIG: Config = {
   favicon: 'assets/img/favicon.ico',
   header: {
     brand: {
-      logo: 'assets/img/logo_rainbow_eyes.svg',
-      logored: 'assets/img/logo_red.svg',
+      logo: 'assets/img/logo_party.svg',
+      logoheader: 'assets/img/logo_party_hat_text.svg',
+      logoheaderdark: 'assets/img/logo_party_hat_text_dark.svg',
+      logored: 'assets/img/logo_red_circle.svg',
       name: '',
-      height: '60',
-      width: '60',
+      height: '64',
+      width: '319',
       heightred: '60',
       widthred: '60'
     }
