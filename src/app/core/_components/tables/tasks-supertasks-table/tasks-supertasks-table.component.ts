@@ -3,7 +3,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JTask, JTaskWith, TaskStatus } from '@models/task.model';
+import { JTask, JTaskWith } from '@models/task.model';
 
 import { TaskSupertaskSubtaskContextMenuService } from '@services/context-menu/tasks/task-supertask-subtask-menu.service';
 import { SERV } from '@services/main.config';
@@ -15,6 +15,7 @@ import { BaseTableComponent } from '@components/tables/base-table/base-table.com
 import { HTTableColumn, HTTableEditable, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { taskStatusIcon, taskStatusLabel } from '@components/tables/task-status.util';
 import {
   TasksSupertasksDataSourceTableCol,
   TasksSupertasksDataSourceTableColumnLabel,
@@ -309,31 +310,11 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   renderStatusIcons(task: Subtask): HTTableIcon {
-    switch (task.status) {
-      case TaskStatus.RUNNING:
-        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
-      case TaskStatus.IDLE:
-        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
-      case TaskStatus.SKIPPED:
-        return { name: 'fast_forward', cls: 'text-warning', tooltip: 'Skipped' };
-      case TaskStatus.COMPLETED:
-        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
-      default:
-        return { name: '' };
-    }
+    return taskStatusIcon(task.status);
   }
 
   private getTaskStatusLabel(task: Subtask): string {
-    switch (task.status) {
-      case TaskStatus.RUNNING:
-        return 'Running';
-      case TaskStatus.SKIPPED:
-        return 'Skipped';
-      case TaskStatus.COMPLETED:
-        return 'Completed';
-      default:
-        return '';
-    }
+    return taskStatusLabel(task.status);
   }
 
   private renderCurrentSpeed(task: Subtask): SafeHtml {
