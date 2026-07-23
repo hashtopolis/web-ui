@@ -189,7 +189,8 @@ export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
 export enum TaskStatus {
   RUNNING = 1,
   IDLE = 2,
-  COMPLETED = 3
+  COMPLETED = 3,
+  SKIPPED = 4
 }
 
 export interface TaskCompletionData {

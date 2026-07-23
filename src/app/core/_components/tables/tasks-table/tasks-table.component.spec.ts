@@ -1236,6 +1236,16 @@ describe('TasksTableComponent', () => {
       expect(icon.tooltip).toBe('Completed');
     });
 
+    it('should return skipped icon for SKIPPED status', () => {
+      const wrapper = { status: TaskStatus.SKIPPED } as JTaskWrapperDisplay;
+
+      const icon = component.renderStatusIcons(wrapper);
+
+      expect(icon.name).toBe('fast_forward');
+      expect(icon.cls).toBe('text-warning');
+      expect(icon.tooltip).toBe('Skipped');
+    });
+
     it('should return waiting icon for IDLE status', () => {
       const wrapper = { status: TaskStatus.IDLE } as JTaskWrapperDisplay;
 

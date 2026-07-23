@@ -95,10 +95,12 @@ describe('TasksSupertasksTableComponent', () => {
 
       const runningTask = { status: TaskStatus.RUNNING } as unknown as JTask;
       const idleTask = { status: TaskStatus.IDLE } as unknown as JTask;
+      const skippedTask = { status: TaskStatus.SKIPPED } as unknown as JTask;
       const completedTask = { status: TaskStatus.COMPLETED } as unknown as JTask;
 
       expect(statusColumn.icon?.(runningTask)?.name).toBe('radio_button_checked');
       expect(statusColumn.icon?.(idleTask)?.name).toBe('schedule');
+      expect(statusColumn.icon?.(skippedTask)?.name).toBe('fast_forward');
       expect(statusColumn.icon?.(completedTask)?.name).toBe('check_circle');
     });
 
