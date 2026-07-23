@@ -1,0 +1,50 @@
+.builder-table-wrapper {
+  overflow-x: auto;
+}
+
+.builder-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.builder-table th,
+.builder-table td {
+  border: 1px solid #d9d9d9;
+  padding: 8px 10px;
+  vertical-align: middle;
+}
+
+.builder-table th {
+  background: #f5f6f8;
+  text-align: left;
+  font-weight: 600;
+}
+
+.id-col {
+  width: 100px;
+}
+
+.row-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 1024px) {
+  .row-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .row-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
