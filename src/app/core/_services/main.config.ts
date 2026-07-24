@@ -37,6 +37,7 @@ export const HELPER_ENDPOINTS = [
   'resetChunk',
   'rebuildChunkCache',
   'rescanGlobalFiles',
+  'recountFileLines',
   'resetUserPassword'
 ] as const;
 

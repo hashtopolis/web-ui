@@ -4,7 +4,7 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
-import { JTaskWrapperDisplayOverview, TaskStatus, TaskType } from '@models/task.model';
+import { JTaskWrapperDisplayOverview, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -21,6 +21,7 @@ import {
 } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { taskStatusIcon, taskStatusLabel } from '@components/tables/task-status.util';
 import {
   TaskTableCol,
   TaskTableColumnLabel,
@@ -125,7 +126,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (taskWrapperDisplay.currentSpeed) {
       return this.sanitize(convertCrackingSpeed(taskWrapperDisplay.currentSpeed));
     }
-    return '0 H/s';
+    return taskWrapperDisplay.taskType === TaskType.TASK ? '0 H/s' : '';
   }
   getColumns(): HTTableColumn[] {
     const columns: HTTableColumn[] = [];
@@ -170,8 +171,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.TASK_SPEED,
         dataKey: 'currentSpeed',
-        render: (wrapper: JTaskWrapperDisplayOverview) =>
-          wrapper.taskType === TaskType.TASK ? this.renderCurrentSpeed(wrapper) : '',
+        render: (wrapper: JTaskWrapperDisplayOverview) => this.renderCurrentSpeed(wrapper),
         isSortable: false,
         isSearchable: false,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.currentSpeed?.toString() ?? ''
@@ -534,27 +534,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplayOverview): HTTableIcon {
-    switch (wrapper.status) {
-      case TaskStatus.RUNNING:
-        return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
-      case TaskStatus.IDLE:
-        return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
-      case TaskStatus.COMPLETED:
-        return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
-      default:
-        return { name: '' };
-    }
+    return taskStatusIcon(wrapper.status);
   }
 
   private getTaskStatusLabel(wrapper: JTaskWrapperDisplayOverview): string {
-    switch (wrapper.status) {
-      case TaskStatus.RUNNING:
-        return 'Running';
-      case TaskStatus.COMPLETED:
-        return 'Completed';
-      default:
-        return '';
-    }
+    return taskStatusLabel(wrapper.status);
   }
 
   private renderIsSmallIcon(wrapper: JTaskWrapperDisplayOverview): HTTableIcon {

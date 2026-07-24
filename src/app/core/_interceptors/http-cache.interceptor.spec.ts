@@ -1,4 +1,5 @@
 import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
+import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -307,6 +308,27 @@ describe('HttpCacheInterceptor', () => {
 
       // The background response should update the cache
       expect(setSpy).toHaveBeenCalled();
+    });
+
+    it('delivers stale then fresh to one subscriber, so lastValueFrom resolves to the fresh value', async () => {
+      // Guards the volatile-detail cache fix: those reads use lastValueFrom to get the
+      // revalidated value on a stale hit. firstValueFrom would resolve to staleData here
+      // and cancel the revalidation, which is the frozen-data bug this replaces.
+      const testUrl = 'https://api.test.com/data';
+      const staleData = { id: 1, name: 'Stale' };
+      const freshData = { id: 1, name: 'Fresh' };
+
+      spyOn(cacheService, 'get').and.returnValue({
+        response: new HttpResponse({ body: staleData, status: 200, statusText: 'OK' }),
+        isStale: true
+      } as CacheGetResult);
+
+      const result = lastValueFrom(httpClient.get(testUrl));
+
+      // Stale is served synchronously; the background revalidation fires — answer it with fresh data.
+      httpMock.expectOne(testUrl).flush(freshData);
+
+      await expectAsync(result).toBeResolvedTo(freshData);
     });
 
     it('should not trigger a background revalidation for a fresh cache hit', () => {

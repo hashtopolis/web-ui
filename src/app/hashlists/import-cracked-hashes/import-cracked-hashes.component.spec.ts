@@ -381,6 +381,35 @@ describe('ImportCrackedHashesComponent', () => {
     });
   });
 
+  describe('submitImport error handling', () => {
+    it('should surface the backend error, skip the global dialog and clear loading when the import fails', fakeAsync(() => {
+      gsSpy.chelper.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'Cracked hash file has too many lines!' } }))
+      );
+      component.form.patchValue({
+        sourceType: 'paste',
+        fieldSeparator: ':',
+        conflictResolution: false,
+        hashes: 'hash:password'
+      });
+
+      component.onSubmit();
+      tick();
+
+      // The component handles the error itself, so it tells the interceptor to skip the modal.
+      const call = gsSpy.chelper.calls.mostRecent();
+      expect(call.args[1]).toBe('importCrackedHashes');
+      const httpOptions = call.args[4];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
+        'Failed to import cracked hashes: Cracked hash file has too many lines!'
+      );
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.isCreatingLoading).toBe(false);
+    }));
+  });
+
   describe('onSubmit - sourceType import', () => {
     beforeEach(() => {
       component.form.patchValue({

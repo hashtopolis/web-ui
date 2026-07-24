@@ -12,9 +12,10 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableEditable, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { taskStatusIcon, taskStatusLabel } from '@components/tables/task-status.util';
 import {
   TasksSupertasksDataSourceTableCol,
   TasksSupertasksDataSourceTableColumnLabel,
@@ -23,7 +24,9 @@ import {
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched'>;
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed'>;
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -87,6 +90,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         export: async (wrapper: JTask) => wrapper.taskName + ''
       },
       {
+        id: TasksSupertasksDataSourceTableCol.STATUS,
+        dataKey: 'status',
+        icon: (task: Subtask) => this.renderStatusIcons(task),
+        isSortable: false,
+        export: async (task: Subtask) => this.getTaskStatusLabel(task)
+      },
+      {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'dispatched',
         render: (task: Subtask) => this.renderDispatchedSearched(task),
@@ -102,9 +112,16 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         id: TasksSupertasksDataSourceTableCol.AGENTS,
         dataKey: 'totalAssignedAgents',
         isNumeric: true,
-        render: (task: JTask) => this.renderAgents(task),
+        render: (task: Subtask) => this.renderAgents(task),
         isSortable: false,
-        export: async (task: JTask) => this.getNumAgents(task) + ''
+        export: async (task: Subtask) => this.getNumAgents(task) + ''
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.SPEED,
+        dataKey: 'currentSpeed',
+        render: (task: Subtask) => this.renderCurrentSpeed(task),
+        isSortable: false,
+        export: async (task: Subtask) => (task.currentSpeed ?? 0).toString()
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
@@ -283,13 +300,25 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     return '';
   }
 
-  private getNumAgents(task: JTask): number {
-    return task.totalAssignedAgents ?? 0;
+  private getNumAgents(task: Subtask): number {
+    return task.totalAssignedAgents ?? task.chunkData?.agents.length ?? 0;
   }
 
-  private renderAgents(task: JTask): SafeHtml {
-    const numAgents = task.totalAssignedAgents;
+  private renderAgents(task: Subtask): SafeHtml {
+    const numAgents = this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
+  }
+
+  renderStatusIcons(task: Subtask): HTTableIcon {
+    return taskStatusIcon(task.status);
+  }
+
+  private getTaskStatusLabel(task: Subtask): string {
+    return taskStatusLabel(task.status);
+  }
+
+  private renderCurrentSpeed(task: Subtask): SafeHtml {
+    return this.sanitize(convertCrackingSpeed(task.currentSpeed ?? task.chunkData?.speed ?? 0));
   }
 
   private renderDispatchedSearched(task: Subtask): SafeHtml {

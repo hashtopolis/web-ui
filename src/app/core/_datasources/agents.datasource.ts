@@ -8,7 +8,7 @@ import {
   zChunkListResponse,
   zUserListResponse
 } from '@generated/api/zod';
-import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
+import { EMPTY, catchError, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -194,7 +194,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         value: userIds
       });
       try {
-        const response = await firstValueFrom(
+        const response = await lastValueFrom(
           this.service.getAll(SERV.USERS, userParams.create()).pipe(
             catchError((error) => {
               this.handleFilterError(error);
@@ -225,7 +225,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addFilter({ field: 'agentId', operator: FilterType.IN, value: agentIds });
 
     try {
-      const response = await firstValueFrom(
+      const response = await lastValueFrom(
         this.service.getAll(SERV.CHUNKS, chunkParams.create(), noCacheOptions).pipe(
           catchError((error) => {
             this.handleFilterError(error);

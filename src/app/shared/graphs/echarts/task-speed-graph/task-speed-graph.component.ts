@@ -18,19 +18,30 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild,
-  inject
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+
+import { AgentId } from '@models/id.types';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
-import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
+import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
+
+/**
+ * Group speeds into bucket (previously exact timestamp was used) so that we sum up the speed reports of parallel agents.
+ */
+const BUCKET_SECONDS = 10;
+
+/**
+ * If an agent has not given a report within this time it is not counted to the current bucket.
+ * Deliberately larger than the sampling interval: err towards keeping an active
+ * agent rather than dropping it.
+ */
+const ACTIVE_WINDOW_SECONDS = 60;
+
+/**
+ * How much of the most recent history the chart shows by default. The full range
+ * (roughly the last hour) stays reachable via the zoom slider and mouse wheel.
+ */
+const DEFAULT_WINDOW_SECONDS = 30 * 60;
 
 // Compose ECharts option type
 type EChartsOption = ComposeOption<
@@ -56,8 +67,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
-  template: `<div #chart style="height: 310px;"></div>`,
-  providers: [HashRatePipe]
+  template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @Input() speeds: SpeedStat[] = [];
@@ -65,8 +75,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   @ViewChild('chart', { static: true }) chartRef!: ElementRef;
 
   private chart: EChartsType;
-
-  private hashratePipe = inject(HashRatePipe);
 
   /**
    * Initializes the chart after view is ready.
@@ -99,73 +107,43 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    const result: { time: number; speed: number }[] = [];
-    this.speeds.reduce<Record<number, { time: number; speed: number }>>((res, value) => {
-      if (!res[value.time]) {
-        res[value.time] = { time: value.time, speed: 0 };
-        result.push(res[value.time]);
-      }
-      res[value.time].speed += value.speed;
-      return res;
-    }, {});
+    const result = this.aggregateTotalSpeeds();
 
-    const arr: { name: string; value: [string, number]; unit: string }[] = [];
-    const timestamps: number[] = [];
-
-    for (const item of result) {
-      const iso = this.transDate(item.time);
-      const transformed = this.hashratePipe.transform(item.speed, 2, true) as {
-        value: number;
-        unit: string;
-      };
-
-      if (!transformed) continue;
-
-      arr.push({
-        name: iso,
-        value: [iso, transformed.value],
-        unit: transformed.unit
-      });
-
-      timestamps.push(item.time);
-    }
-
-    if (!arr.length) {
+    if (!result.length) {
       this.chart.clear();
       return;
     }
 
+    const maxRawSpeed = Math.max(...result.map((item) => item.speed));
+    const { unit, scale } = getHashRateFormatComponents(maxRawSpeed);
+
+    const arr = result.map((item) => ({
+      name: this.transDate(item.time),
+      value: [item.time * 1000, +(item.speed / scale).toFixed(2)] as [number, number],
+      unit
+    }));
+
     const speedsOnly = arr.map((item) => item.value[1]);
-    const maxSpeed = Math.max(...speedsOnly);
-    const minSpeed = Math.min(...speedsOnly);
-    const maxIndex = speedsOnly.indexOf(maxSpeed);
-    const minIndex = speedsOnly.indexOf(minSpeed);
+    const maxIndex = speedsOnly.indexOf(Math.max(...speedsOnly));
+    const minIndex = speedsOnly.indexOf(Math.min(...speedsOnly));
 
-    const displayUnit = arr[maxIndex]?.unit || 'H/s';
-    const startdate = timestamps[0];
-    const enddate = timestamps[timestamps.length - 1];
-    const datelabel = this.transDate(enddate);
-
-    const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
-    const xAxisData = xAxis.map((ts) => this.transDate(ts));
+    const startdate = result[0].time;
+    const enddate = result[result.length - 1].time;
+    const lastRecord = this.speeds.reduce((latest, stat) => Math.max(latest, stat.time), enddate);
+    const windowStart = Math.max(startdate, enddate - DEFAULT_WINDOW_SECONDS);
 
     const option: EChartsOption = {
       title: {
-        subtext: 'Last record: ' + datelabel
+        subtext: 'Last record: ' + this.transDate(lastRecord)
       },
       tooltip: {
+        trigger: 'axis',
         position: 'top',
         formatter: (params: TopLevelFormatterParams) => {
-          if (Array.isArray(params)) return '';
-
-          if (params.componentType === 'markPoint') {
-            return `${params.name}: <strong>${(params.data as { value: string }).value}</strong>`;
-          }
-          const data = params.data as { value: [string, number]; unit: string } | undefined;
-          if (data?.value?.[1]) {
-            return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
-          }
-          return '';
+          const point = Array.isArray(params) ? params[0] : params;
+          const data = point?.data as { value: [number, number]; unit: string } | undefined;
+          if (!Array.isArray(data?.value)) return '';
+          return `${this.transDate(data.value[0] / 1000)}: <strong>${data.value[1]} ${data.unit}</strong>`;
         }
       },
       grid: {
@@ -173,12 +151,16 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         right: '4%'
       },
       xAxis: {
-        type: 'category',
-        data: xAxisData
+        type: 'time',
+        min: startdate * 1000,
+        max: enddate * 1000,
+        axisLabel: {
+          formatter: (value: number) => this.transTime(value)
+        }
       },
       yAxis: {
         type: 'value',
-        name: displayUnit,
+        name: unit,
         position: 'left',
         alignTicks: true
       },
@@ -201,8 +183,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         }
       },
       dataZoom: [
-        { type: 'slider', xAxisIndex: 0, start: 0, end: 100 },
-        { type: 'inside', xAxisIndex: 0, start: 0, end: 100 }
+        { type: 'slider', xAxisIndex: 0, startValue: windowStart * 1000, endValue: enddate * 1000 },
+        { type: 'inside', xAxisIndex: 0, startValue: windowStart * 1000, endValue: enddate * 1000 }
       ],
       series: {
         name: '',
@@ -214,12 +196,12 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
             {
               name: 'Max',
               coord: arr[maxIndex]?.value ?? [],
-              value: `${arr[maxIndex]?.value?.[1]} ${arr[maxIndex]?.unit}`
+              value: `${arr[maxIndex]?.value?.[1]} ${unit}`
             },
             {
               name: 'Min',
               coord: arr[minIndex]?.value ?? [],
-              value: `${arr[minIndex]?.value?.[1]} ${arr[minIndex]?.unit}`
+              value: `${arr[minIndex]?.value?.[1]} ${unit}`
             }
           ]
         },
@@ -230,6 +212,66 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     };
 
     this.chart.setOption(option);
+  }
+
+  /**
+   * Aggregates the per-agent speed samples into a single total-throughput series.
+   *
+   * Speeds are grouped into buckets. Sweeping the bucket
+   * grid, each agent contributes its most recent speed for as long as it keeps
+   * reporting (within ACTIVE_WINDOW_SECONDS), so a bucket the agent
+   * happens to skip carries its previous value instead of dropping to a false
+   * dip, while an agent that stops reporting falls out of the total once its last
+   * sample ages past the window. Returns points sorted ascending by time, where
+   * `time` is the bucket start in UNIX seconds.
+   */
+  private aggregateTotalSpeeds(): { time: number; speed: number }[] {
+    const sorted = [...this.speeds].sort((a, b) => a.time - b.time);
+    if (!sorted.length) {
+      return [];
+    }
+
+    const bucketOf = (time: number): number => Math.floor(time / BUCKET_SECONDS) * BUCKET_SECONDS;
+
+    // Latest speed each agent reported within each bucket.
+    const perAgent = new Map<AgentId, Map<number, number>>();
+    for (const { time, agentId, speed } of sorted) {
+      let byBucket = perAgent.get(agentId);
+      if (!byBucket) {
+        byBucket = new Map<number, number>();
+        perAgent.set(agentId, byBucket);
+      }
+      byBucket.set(bucketOf(time), speed);
+    }
+
+    const firstBucket = bucketOf(sorted[0].time);
+    const lastBucket = bucketOf(sorted[sorted.length - 1].time);
+
+    const lastValue = new Map<AgentId, number>();
+    const lastSeen = new Map<AgentId, number>();
+    const result: { time: number; speed: number }[] = [];
+
+    for (let bucket = firstBucket; bucket <= lastBucket; bucket += BUCKET_SECONDS) {
+      let speed = 0;
+      let active = false;
+      for (const [agentId, byBucket] of perAgent) {
+        const reported = byBucket.get(bucket);
+        if (reported !== undefined) {
+          lastValue.set(agentId, reported);
+          lastSeen.set(agentId, bucket);
+        }
+        const seen = lastSeen.get(agentId);
+        if (seen !== undefined && bucket - seen <= ACTIVE_WINDOW_SECONDS) {
+          speed += lastValue.get(agentId) as number;
+          active = true;
+        }
+      }
+      if (active) {
+        result.push({ time: bucket, speed });
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -260,15 +302,16 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   }
 
   /**
-   * Generates an array of timestamps from `start` to `end` with a fixed `interval`.
+   * Converts a millisecond timestamp to a compact UTC time label (HH:MM:SS) for axis ticks.
    */
-  private generateIntervalsOf(interval: number, start: number, end: number): number[] {
-    const result = [];
-    let current = start;
-    while (current < end) {
-      result.push(current);
-      current += interval;
-    }
-    return result;
+  private transTime(ms: number): string {
+    const date = new Date(ms);
+    return (
+      this.leadingZeros(date.getUTCHours()) +
+      ':' +
+      this.leadingZeros(date.getUTCMinutes()) +
+      ':' +
+      this.leadingZeros(date.getUTCSeconds())
+    );
   }
 }

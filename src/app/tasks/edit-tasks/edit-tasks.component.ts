@@ -5,7 +5,7 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Subscription, finalize, firstValueFrom } from 'rxjs';
+import { Subscription, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -101,7 +101,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private rawTaskProgressObjectUrl: string | null = null;
 
   private routeSub: Subscription | undefined;
-  private httpNoInterceptors: HttpClient;
 
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -114,11 +113,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
-  private httpBackend = inject(HttpBackend);
 
   constructor() {
     this.titleService.set(['Edit Task']);
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   async ngOnInit(): Promise<void> {
@@ -281,7 +278,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     const url = `${base}/${this.editedTaskIndex}`;
 
     try {
-      const response = await firstValueFrom<ResponseWrapper>(
+      const response = await lastValueFrom<ResponseWrapper>(
         this.http.get<ResponseWrapper>(url, { params: setParameter(params), headers: noCacheHeaders })
       );
       // Cast: task relationship includes aren't schema-typed yet (see JTaskIncludes TODO in task.model.ts),
@@ -294,7 +291,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // resource exists — the UI can still open the edit form with the primary data.
       if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
-        const responseFallback = await firstValueFrom<ResponseWrapper>(
+        const responseFallback = await lastValueFrom<ResponseWrapper>(
           this.http.get<ResponseWrapper>(url, { headers: noCacheHeaders })
         );
         // Fallback omits aggregates (no params sent) — the `?? ` guards in ngOnInit cover their runtime absence.
