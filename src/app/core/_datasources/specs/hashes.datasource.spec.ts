@@ -79,7 +79,6 @@ const MOCK_HASHES: JHash[] = [
 describe('HashesDataSource', () => {
   let dataSource: HashesDataSource;
   let gsSpy: jasmine.SpyObj<GlobalService>;
-  let deserializeSpy: jasmine.Spy;
 
   // The hashlist returned when a `hashlists` load resolves the record; reassign per test.
   let resolvedHashlist: JHashlist;
@@ -105,7 +104,7 @@ describe('HashesDataSource', () => {
     gsSpy.getAll.and.returnValue(of(mockResponse()));
     gsSpy.ghelper.and.returnValue(of(mockResponse()));
 
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
+    spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
       if (schema === zHashlistResponse) return resolvedHashlist;
       if (schema === zHashListResponse) return MOCK_HASHES;
       return [];
