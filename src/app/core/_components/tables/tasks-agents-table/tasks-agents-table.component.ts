@@ -135,7 +135,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'speed') + ''
+        export: async (agent: JAgent) => this.getAgentSpeed(agent) + ''
       },
       {
         id: TasksAgentsTableCol.CURRENT_CHUNK,
@@ -158,7 +158,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(this.getTaskLastActivityTime(agent), this.dateFormat)
       },
       {
         id: TasksAgentsTableCol.CRACKED,
@@ -258,8 +258,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const agentSpeed = this.getChunkDataValue(agent, 'speed');
-    if (agentSpeed) {
+    const agentSpeed = this.getAgentSpeed(agent);
+    if (agentSpeed !== undefined && agentSpeed !== null && agentSpeed > 0) {
       return this.sanitize(convertCrackingSpeed(agentSpeed));
     }
     return this.sanitize('-');
@@ -272,10 +272,24 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if (this.getChunkDataValue(agent, 'speed')) {
+    if ((this.getAgentSpeed(agent) ?? 0) > 0) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
+  }
+
+  private getAgentSpeed(agent: JAgent): number | undefined {
+    const aggregatedSpeed = this.getChunkDataValue(agent, 'speed');
+    // Prefer task-scoped aggregated speed because it is updated with backend activity timeout rules.
+    if (aggregatedSpeed !== undefined && aggregatedSpeed !== null) {
+      return aggregatedSpeed;
+    }
+
+    if (agent.chunk?.speed !== undefined && agent.chunk?.speed !== null) {
+      return agent.chunk.speed;
+    }
+
+    return undefined;
   }
 
   /**
@@ -309,7 +323,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    */
   private renderCracked(agent: JAgent): SafeHtml {
     const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
+    return this.sanitize(cracked !== undefined && cracked !== null ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -338,9 +352,17 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
+    const lastActivityTime = this.getTaskLastActivityTime(agent);
+    const formattedDate = formatUnixTimestamp(lastActivityTime, this.dateFormat);
+    const data = `<time datetime="${formatUnixTimestamp(lastActivityTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
     return this.sanitize(data);
+  }
+
+  private getTaskLastActivityTime(agent: JAgent): number {
+    if (agent.chunk?.solveTime && agent.chunk.solveTime > 0) {
+      return agent.chunk.solveTime;
+    }
+    return agent.lastTime;
   }
 
   renderDevices(agent: JAgent): SafeHtml {
