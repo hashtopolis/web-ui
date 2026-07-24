@@ -497,7 +497,7 @@ describe('TasksTableComponent', () => {
       expect(agentsColumn?.render!(taskWrapper)).toBe('3');
     });
 
-    it('should return empty string for AGENTS column for SUPERTASK type', () => {
+    it('should render AGENTS column for SUPERTASK type using totalAssignedAgents', () => {
       const columns = component.getColumns();
       const agentsColumn = columns.find((col) => col.id === TaskTableCol.AGENTS);
       const taskWrapper = {
@@ -505,7 +505,18 @@ describe('TasksTableComponent', () => {
         totalAssignedAgents: 3
       } as JTaskWrapperDisplay;
 
-      expect(agentsColumn?.render!(taskWrapper)).toBe('');
+      expect(agentsColumn?.render!(taskWrapper)).toBe('3');
+    });
+
+    it('should render 0 (not blank) for AGENTS column when a SUPERTASK has no assigned agents', () => {
+      const columns = component.getColumns();
+      const agentsColumn = columns.find((col) => col.id === TaskTableCol.AGENTS);
+      const taskWrapper = {
+        taskType: TaskType.SUPERTASK,
+        totalAssignedAgents: 0
+      } as JTaskWrapperDisplay;
+
+      expect(agentsColumn?.render!(taskWrapper)).toBe('0');
     });
 
     it('should render PREPROCESSOR column for TASK with preprocessor', () => {
