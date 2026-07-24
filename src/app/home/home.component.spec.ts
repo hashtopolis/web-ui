@@ -100,9 +100,9 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
 });
 
 /**
- * Mock for `ghelper` — returns an empty meta object for any helper endpoint.
+ * Mock for `ghelper` — returns an empty data object for any helper endpoint.
  */
-globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+globalServiceMock.ghelper.and.returnValue(of({ data: {} }));
 
 /**
  * Mock implementation of LocalStorageService for testing purposes.
@@ -376,7 +376,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     mockAutoRefreshService = createMockAutoRefreshService();
 
     // Reset ghelper to a clean state before each test
-    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: {} }));
 
     await TestBed.configureTestingModule({
       declarations: [HomeComponent],
@@ -424,7 +424,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     const today = new Date();
     const year = today.getFullYear();
     const jan2 = `${year}-01-02`;
-    globalServiceMock.ghelper.and.returnValue(of({ meta: { [jan2]: 42 }, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: { [jan2]: 42 } }));
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -442,7 +442,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
 
   it('should include all days across the trailing 12 months up to today', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: {} }));
 
     jasmine.clock().install();
     jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
@@ -467,7 +467,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
     try {
       // A crack recorded in the previous calendar year, still inside the trailing 12-month window.
-      globalServiceMock.ghelper.and.returnValue(of({ meta: { '2025-09-15': 7 }, data: [] }));
+      globalServiceMock.ghelper.and.returnValue(of({ data: { '2025-09-15': 7 } }));
 
       fixture = TestBed.createComponent(HomeComponent);
       component = fixture.componentInstance;
