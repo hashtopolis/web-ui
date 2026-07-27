@@ -274,14 +274,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Fetches the number of completed tasks and supertasks from the getCompletedCount
-   * helper. The server derives completion from the searched keyspace
-   * (SUM(checkpoint) - SUM(skip) === keyspace) and counts a supertask as completed
-   * only when all of its subtasks are completed. This replaces the keyspace > 0
-   * heuristic, which turned true as soon as the first chunk was measured.
-   * @returns Observable<void> completing when data is loaded or errored
-   */
   private getCompletedCounts$(): Observable<void> {
     const completedCountSchema = z.object({
       data: z.object({

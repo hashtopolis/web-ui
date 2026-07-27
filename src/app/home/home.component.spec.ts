@@ -62,13 +62,11 @@ const globalServiceMock = jasmine.createSpyObj('GlobalService', ['getAll', 'ghel
  * Returns different counts depending on the service and filter parameters.
  */
 globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestParams) => {
-  // TASKS_WRAPPER_COUNT only yields the total now (tasks vs supertasks by taskType filter);
-  // completed counts come from the getCompletedCount ghelper mock below.
   if (service === SERV.TASKS_WRAPPER_COUNT) {
     const isSuperTask = params?.filter?.some(
       (filter: Filter) => filter.field === 'taskType' && filter.value === TaskType.SUPERTASK
     );
-    return of({ meta: { count: isSuperTask ? 10 : 30 } }); // 10 total supertasks, 30 total tasks
+    return of({ meta: { count: isSuperTask ? 10 : 30 } });
   }
 
   // Handle AGENTS_COUNT — returns total and active agent counts
@@ -90,11 +88,6 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
   return of({ meta: { count: 0 }, results: [] });
 });
 
-/**
- * Default `ghelper` mock: returns the completed task/supertask counts for the
- * getCompletedCount endpoint (15 tasks, 5 supertasks) and an empty data object
- * for every other helper (e.g. getCracksPerDay).
- */
 function ghelperDefaultFake(_service: ServiceConfig, option: string) {
   if (option === 'getCompletedCount') {
     return of({ data: { completedTasks: 15, completedSupertasks: 5 } });
@@ -190,8 +183,6 @@ describe('HomeComponent (template permissions and view)', () => {
 
     permissionServiceMock.hasPermissionSync.calls.reset();
     globalServiceMock.getAll.calls.reset();
-    // Re-arm the ghelper callFake: specs share this spy and run in random order, so a
-    // heatmap test that set a plain returnValue could otherwise zero out the counts here.
     globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
 
     fixture.detectChanges();
@@ -411,7 +402,6 @@ describe('HomeComponent — updateHeatmapData$()', () => {
 
   it('should NOT call ghelper for getCracksPerDay when canReadCracks is false', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
-    // canReadTasks is true here, so getCompletedCounts$ still runs — give it a valid response.
     globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
     globalServiceMock.ghelper.calls.reset();
 
@@ -419,8 +409,6 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    // ghelper is still used for getCompletedCount (gated by canReadTasks), so assert
-    // specifically that the cracks-per-day helper was not requested.
     expect(globalServiceMock.ghelper).not.toHaveBeenCalledWith(SERV.HELPER, 'getCracksPerDay');
   });
 
