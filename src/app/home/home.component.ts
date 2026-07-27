@@ -175,7 +175,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const observables: Observable<void>[] = [];
 
     if (this.canReadAgents) observables.push(this.getAgents$());
-    if (this.canReadTasks) observables.push(this.getTasks$(), this.getSuperTasks$());
+    if (this.canReadTasks) observables.push(this.getTasks$(), this.getSuperTasks$(), this.getCompletedCounts$());
     if (this.canReadCracks) observables.push(this.getCracks$(), this.updateHeatmapData$());
 
     if (observables.length === 0) return of(undefined);
@@ -230,75 +230,77 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Fetches total and completed tasks count.
-   * Archived tasks are excluded.
+   * Fetches the total number of tasks. Archived tasks are excluded.
+   * The completed count is fetched separately, see {@link getCompletedCounts$}.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getTasks$(): Observable<void> {
-    const paramsTotalTasks = new RequestParamBuilder()
+    const params = new RequestParamBuilder()
       .addInclude('tasks')
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
-    const paramsCompletedTasks = new RequestParamBuilder()
-      .addInclude('tasks')
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
-      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .create();
-
-    return forkJoin([
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
-        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch total tasks:', err);
-          return of(undefined);
-        })
-      ),
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
-        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch completed tasks:', err);
-          return of(undefined);
-        })
-      )
-    ]).pipe(map(() => undefined));
+    return this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, params).pipe(
+      map((res: ResponseWrapper) => {
+        this.totalTasks = res.meta.count ?? 0;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch total tasks:', err);
+        return of(undefined);
+      })
+    );
   }
 
   /**
-   * Fetches total and completed supertasks count.
-   * Archived supertasks are excluded.
+   * Fetches the total number of supertasks. Archived supertasks are excluded.
+   * The completed count is fetched separately, see {@link getCompletedCounts$}.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getSuperTasks$(): Observable<void> {
-    const paramsTotalSupertasks = new RequestParamBuilder()
+    const params = new RequestParamBuilder()
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
-    const paramsCompletedSupertasks = new RequestParamBuilder()
-      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
-      .create();
+    return this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, params).pipe(
+      map((res: ResponseWrapper) => {
+        this.totalSupertasks = res.meta.count ?? 0;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch total supertasks:', err);
+        return of(undefined);
+      })
+    );
+  }
 
-    return forkJoin([
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch total supertasks:', err);
-          return of(undefined);
-        })
-      ),
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch completed supertasks:', err);
-          return of(undefined);
-        })
-      )
-    ]).pipe(map(() => undefined));
+  /**
+   * Fetches the number of completed tasks and supertasks from the getCompletedCount
+   * helper. The server derives completion from the searched keyspace
+   * (SUM(checkpoint) - SUM(skip) === keyspace) and counts a supertask as completed
+   * only when all of its subtasks are completed. This replaces the keyspace > 0
+   * heuristic, which turned true as soon as the first chunk was measured.
+   * @returns Observable<void> completing when data is loaded or errored
+   */
+  private getCompletedCounts$(): Observable<void> {
+    const completedCountSchema = z.object({
+      data: z.object({
+        completedTasks: z.number(),
+        completedSupertasks: z.number()
+      })
+    });
+
+    return this.gs.ghelper(SERV.HELPER, 'getCompletedCount').pipe(
+      map((res: ResponseWrapper) => {
+        const { data } = completedCountSchema.parse(res);
+        this.completedTasks = data.completedTasks;
+        this.completedSupertasks = data.completedSupertasks;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch completed counts:', err);
+        return of(undefined);
+      })
+    );
   }
 
   /**
