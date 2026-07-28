@@ -2,6 +2,8 @@
 
 export interface BrandConfig {
   logo: string;
+  logoheader: string;
+  logoheaderdark: string;
   logored: string;
   name: string;
   height: string;
