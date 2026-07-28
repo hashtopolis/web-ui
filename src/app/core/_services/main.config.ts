@@ -21,6 +21,7 @@ export const HELPER_ENDPOINTS = [
   'getCracksPerDay',
   'getCompletedCount',
   'getAccessGroups',
+  'getGlobalConfig',
   // POST helpers (chelper)
   'changeOwnPassword',
   'importFile',
