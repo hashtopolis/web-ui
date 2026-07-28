@@ -4,7 +4,6 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
-import { ChunkData } from '@models/chunk.model';
 
 import { SERV } from '@services/main.config';
 
@@ -143,7 +142,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'chunkId',
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: true,
-        export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
+        export: async (agent: JAgent) => (agent.chunkId ? agent.chunkId + '' : '')
       },
       {
         id: TasksAgentsTableCol.GPUS_CPUS,
@@ -188,7 +187,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'timeSpent',
         render: (agent: JAgent) => this.renderTimeSpent(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'timeSpent') + ''
+        export: async (agent: JAgent) => agent.timeSpent + ''
       },
       {
         id: TasksAgentsTableCol.SEARCHED,
@@ -196,7 +195,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'searched',
         render: (agent: JAgent) => this.renderSearched(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'searched') + ''
+        export: async (agent: JAgent) => this.getSearchedFraction(agent) + ''
       }
     ];
   }
@@ -238,20 +237,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   /**
-   * Get a value from the agent's chunkdata attribute
-   * @param agent - agent instance to get value from
-   * @param property name of chunkdata property
-   * @return property value or undefined, if property or chunkdata are not defined
-   * @private
-   */
-  private getChunkDataValue(agent: JAgent, property: string): number | undefined {
-    if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property as keyof ChunkData] as number | undefined;
-    }
-    return undefined;
-  }
-
-  /**
    * Get current agent speed as safe html ready to be rendered
    * @param agent - agent instance to get value from
    * @return html code containing the current speed including a unit
@@ -259,7 +244,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
     const agentSpeed = this.getAgentSpeed(agent);
-    if (agentSpeed !== undefined && agentSpeed !== null && agentSpeed > 0) {
+    if (agentSpeed !== undefined && agentSpeed > 0) {
       return this.sanitize(convertCrackingSpeed(agentSpeed));
     }
     return this.sanitize('-');
@@ -279,17 +264,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   private getAgentSpeed(agent: JAgent): number | undefined {
-    const aggregatedSpeed = this.getChunkDataValue(agent, 'speed');
-    // Prefer task-scoped aggregated speed because it is updated with backend activity timeout rules.
-    if (aggregatedSpeed !== undefined && aggregatedSpeed !== null) {
-      return aggregatedSpeed;
-    }
-
-    if (agent.chunk?.speed !== undefined && agent.chunk?.speed !== null) {
-      return agent.chunk.speed;
-    }
-
-    return undefined;
+    return agent.currentSpeed;
   }
 
   /**
@@ -299,8 +274,19 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderTimeSpent(agent: JAgent): SafeHtml {
-    const timeSpent = this.getChunkDataValue(agent, 'timeSpent');
+    const timeSpent = agent.timeSpent;
     return this.sanitize(timeSpent ? `${formatSeconds(timeSpent)}` : '-');
+  }
+
+  /**
+   * Get the searched keyspace of the agent as a fraction of the task keyspace
+   * @param agent - agent instance to get value from
+   * @return searched fraction, 0 if the task keyspace is unknown
+   * @private
+   */
+  private getSearchedFraction(agent: JAgent): number {
+    const keyspace = agent.task?.keyspace ?? 0;
+    return keyspace ? (agent.searched ?? 0) / keyspace : 0;
   }
 
   /**
@@ -310,7 +296,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderSearched(agent: JAgent): SafeHtml {
-    const searched = (this.getChunkDataValue(agent, 'searched') ?? 0) * 100;
+    const searched = this.getSearchedFraction(agent) * 100;
     const percentSearched = `${(Math.round(searched * 100) / 100).toLocaleString()}%`;
     return this.sanitize(searched ? `${percentSearched}` : '-');
   }
@@ -322,8 +308,9 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderCracked(agent: JAgent): SafeHtml {
-    const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked !== undefined && cracked !== null ? `<span>${cracked.toLocaleString()}</span>` : '-');
+    const cracked = agent.cracked;
+    const isCracked = cracked !== undefined;
+    return this.sanitize(isCracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -359,8 +346,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   private getTaskLastActivityTime(agent: JAgent): number {
-    if (agent.chunk?.solveTime && agent.chunk.solveTime > 0) {
-      return agent.chunk.solveTime;
+    if (agent.lastActivity && agent.lastActivity > 0) {
+      return agent.lastActivity;
     }
     return agent.lastTime;
   }

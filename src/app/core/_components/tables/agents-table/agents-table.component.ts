@@ -4,7 +4,6 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
-import { ChunkData } from '@models/chunk.model';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
@@ -161,13 +160,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => {
-          if (agent.chunks && agent.chunks.length > 0) {
-            return agent.chunks[0].speed + '';
-          } else {
-            return '-';
-          }
-        }
+        export: async (agent: JAgent) => (agent.currentSpeed ? agent.currentSpeed + '' : '-')
       },
       {
         id: AgentsTableCol.CURRENT_CHUNK,
@@ -175,7 +168,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         isNumeric: true,
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
+        export: async (agent: JAgent) => (agent.chunkId ? agent.chunkId + '' : '')
       },
       {
         id: AgentsTableCol.GPUS_CPUS,
@@ -246,31 +239,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   /**
-   * Get a value from the agent's chunkdata attribute
-   * @param agent - agent instance to get value from
-   * @param property name of chunkdata property
-   * @return property value or undefined, if property or chunkdata are not defined
-   * @private
-   */
-  private getChunkDataValue(agent: JAgent, property: string): number | undefined {
-    if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property as keyof ChunkData] as number | undefined;
-    }
-    return undefined;
-  }
-
-  /**
    * Get current agent speed as safe html ready to be rendered
    * @param agent - agent instance to get value from
    * @return html code containing the current speed including a unit
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    if (agent.chunks) {
-      const chunk = agent.chunks[0];
-      if (chunk) {
-        return this.sanitize(convertCrackingSpeed(chunk.speed));
-      }
+    if (agent.currentSpeed && agent.currentSpeed > 0) {
+      return this.sanitize(convertCrackingSpeed(agent.currentSpeed));
     }
     return this.sanitize('-');
   }
@@ -282,7 +258,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if (this.getChunkDataValue(agent, 'speed')) {
+    if ((agent.currentSpeed ?? 0) > 0) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
@@ -412,11 +388,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (agent && agent.chunks && agent.chunks.length > 0) {
-      const chunkID = agent.chunks[0].id;
+    if (agent && agent.chunkId) {
       links.push({
-        routerLink: ['/tasks', 'chunks', chunkID, 'view'],
-        label: chunkID
+        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
+        label: agent.chunkId
       });
     }
     return of(links);

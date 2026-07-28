@@ -40,7 +40,14 @@ export const zAgentAssignmentResponse = z.object({
     attributes: z.object({
       taskId: z.int(),
       agentId: z.int(),
-      benchmark: z.string()
+      benchmark: z.string(),
+      // Aggregate fields — present only when requested via aggregate[assignment]=...
+      crackingTime: z.int().optional(),
+      cracked: z.int().optional(),
+      currentSpeed: z.int().optional(),
+      searched: z.int().optional(),
+      currentChunkId: z.int().nullish(),
+      lastActivity: z.int().nullish()
     })
   }),
   relationships: z
@@ -166,7 +173,14 @@ export const zAgentAssignmentListResponse = z.object({
       attributes: z.object({
         taskId: z.int(),
         agentId: z.int(),
-        benchmark: z.string()
+        benchmark: z.string(),
+        // Aggregate fields — present only when requested via aggregate[assignment]=...
+        crackingTime: z.int().optional(),
+        cracked: z.int().optional(),
+        currentSpeed: z.int().optional(),
+        searched: z.int().optional(),
+        currentChunkId: z.int().nullish(),
+        lastActivity: z.int().nullish()
       })
     })
   ),
