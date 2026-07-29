@@ -104,7 +104,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       },
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
-        dataKey: 'chunkData.cracked',
+        dataKey: 'cracked',
         routerLink: (task: JTask) => this.renderCrackedLinkFromTask(task),
         isSortable: false
       },
@@ -301,7 +301,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private getNumAgents(task: Subtask): number {
-    return task.totalAssignedAgents ?? task.chunkData?.agents.length ?? 0;
+    return task.totalAssignedAgents ?? 0;
   }
 
   private renderAgents(task: Subtask): SafeHtml {
@@ -318,7 +318,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private renderCurrentSpeed(task: Subtask): SafeHtml {
-    return this.sanitize(convertCrackingSpeed(task.currentSpeed ?? task.chunkData?.speed ?? 0));
+    return this.sanitize(convertCrackingSpeed(task.currentSpeed ?? 0));
   }
 
   private renderDispatchedSearched(task: Subtask): SafeHtml {

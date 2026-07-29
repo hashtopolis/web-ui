@@ -367,7 +367,8 @@ export const zTaskListResponse = z.object({
         timeSpent: z.int().optional(),
         currentSpeed: z.int().optional(),
         cprogress: z.int().optional(),
-        totalNumberOfChunks: z.number().optional().default(0)
+        totalNumberOfChunks: z.number().optional().default(0),
+        cracked: z.int().optional()
       })
     })
   ),

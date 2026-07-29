@@ -88,6 +88,7 @@ export interface JTaskAggregateFields {
   currentSpeed: number;
   cprogress: number;
   totalNumberOfChunks: number;
+  cracked: number;
 }
 
 /** Aggregate field keys on JTask. */
