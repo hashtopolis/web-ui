@@ -105,7 +105,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (task: JTask) => this.renderCrackedLinkFromTask(task),
+        routerLink: (task: JTaskWith<'cracked'>) => this.renderCrackedLinkFromTask(task),
         isSortable: false
       },
       {

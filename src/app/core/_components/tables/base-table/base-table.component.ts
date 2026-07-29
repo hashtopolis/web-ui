@@ -25,7 +25,7 @@ import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.m
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWrapperDisplay, TaskType } from '@models/task.model';
+import { JTask, JTaskWith, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -185,12 +185,12 @@ export class BaseTableComponent {
    * @return observable object containing a router link array
    * @param task
    */
-  renderCrackedLinkFromTask(task: JTask): Observable<HTTableRouterLink[]> {
+  renderCrackedLinkFromTask(task: JTaskWith<'cracked'>): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (task.chunkData?.cracked) {
+    if (task.cracked) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', task.id],
-        label: task.chunkData.cracked.toLocaleString()
+        label: task.cracked.toLocaleString()
       });
     }
     return of(links);
