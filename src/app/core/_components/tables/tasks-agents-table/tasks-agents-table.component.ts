@@ -134,7 +134,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => this.getAgentSpeed(agent) + ''
+        export: async (agent: JAgent) => {
+          const speed = agent.currentSpeed ?? 0;
+          return speed > 0 ? speed + '' : '-';
+        }
       },
       {
         id: TasksAgentsTableCol.CURRENT_CHUNK,
@@ -165,7 +168,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'cracked',
         render: (agent: JAgent) => this.renderCracked(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.renderCracked(agent) + ''
+        export: async (agent: JAgent) => (agent.cracked !== undefined ? agent.cracked + '' : '-')
       },
       {
         id: TasksAgentsTableCol.BENCHMARK,
@@ -187,7 +190,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'timeSpent',
         render: (agent: JAgent) => this.renderTimeSpent(agent),
         isSortable: true,
-        export: async (agent: JAgent) => agent.timeSpent + ''
+        export: async (agent: JAgent) => (agent.timeSpent ? agent.timeSpent + '' : '-')
       },
       {
         id: TasksAgentsTableCol.SEARCHED,
@@ -243,7 +246,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const agentSpeed = this.getAgentSpeed(agent);
+    const agentSpeed = agent.currentSpeed;
     if (agentSpeed !== undefined && agentSpeed > 0) {
       return this.sanitize(convertCrackingSpeed(agentSpeed));
     }
@@ -257,14 +260,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if ((this.getAgentSpeed(agent) ?? 0) > 0) {
+    if ((agent.currentSpeed ?? 0) > 0) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
-  }
-
-  private getAgentSpeed(agent: JAgent): number | undefined {
-    return agent.currentSpeed;
   }
 
   /**
