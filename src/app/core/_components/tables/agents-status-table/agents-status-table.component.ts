@@ -435,14 +435,15 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    */
   private renderWorkingOn(agent: JAgent): SafeHtml {
     let html = '';
-    if (agent.currentSpeed && agent.chunkId) {
-      const agentSpeed = convertCrackingSpeed(agent.currentSpeed);
+    const chunk = agent.chunks?.[0];
+    if (chunk) {
+      const agentSpeed = convertCrackingSpeed(chunk.speed);
 
       html = `
         <div>
         <div>Task: <a href="/#/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
         <div>at ${agentSpeed},<br></div>
-        <div>working on chunk <a href="/#/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        <div>working on chunk <a href="/#/tasks/chunks/${chunk.id}/view">${chunk.id}</a></div>
         </div>
       `;
     }
@@ -457,8 +458,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private exportWorkingOn(agent: JAgent): SafeHtml {
-    if (agent.currentSpeed && agent.chunkId) {
-      return `Task: ${agent.taskName} at ${agent.currentSpeed} H/s, working on chunk ${agent.chunkId}`;
+    const chunk = agent.chunks?.[0];
+    if (chunk) {
+      return `Task: ${agent.taskName} at ${chunk.speed} H/s, working on chunk ${chunk.id}`;
     } else {
       return '-';
     }

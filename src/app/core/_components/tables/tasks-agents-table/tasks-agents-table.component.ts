@@ -157,7 +157,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) => formatUnixTimestamp(this.getTaskLastActivityTime(agent), this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
         id: TasksAgentsTableCol.CRACKED,
@@ -339,17 +339,9 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   }
 
   renderLastActivity(agent: JAgent): SafeHtml {
-    const lastActivityTime = this.getTaskLastActivityTime(agent);
-    const formattedDate = formatUnixTimestamp(lastActivityTime, this.dateFormat);
-    const data = `<time datetime="${formatUnixTimestamp(lastActivityTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
     return this.sanitize(data);
-  }
-
-  private getTaskLastActivityTime(agent: JAgent): number {
-    if (agent.lastActivity && agent.lastActivity > 0) {
-      return agent.lastActivity;
-    }
-    return agent.lastTime;
   }
 
   renderDevices(agent: JAgent): SafeHtml {

@@ -160,7 +160,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (agent.currentSpeed ? agent.currentSpeed + '' : '-')
+        export: async (agent: JAgent) => {
+          const speed = this.getActiveChunkSpeed(agent);
+          return speed > 0 ? speed + '' : '-';
+        }
       },
       {
         id: AgentsTableCol.CURRENT_CHUNK,
@@ -168,7 +171,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         isNumeric: true,
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (agent.chunkId ? agent.chunkId + '' : '')
+        export: async (agent: JAgent) => {
+          const chunkId = this.getActiveChunkId(agent);
+          return chunkId ? chunkId + '' : '';
+        }
       },
       {
         id: AgentsTableCol.GPUS_CPUS,
@@ -245,8 +251,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    if (agent.currentSpeed && agent.currentSpeed > 0) {
-      return this.sanitize(convertCrackingSpeed(agent.currentSpeed));
+    const speed = this.getActiveChunkSpeed(agent);
+    if (speed > 0) {
+      return this.sanitize(convertCrackingSpeed(speed));
     }
     return this.sanitize('-');
   }
@@ -258,10 +265,30 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if ((agent.currentSpeed ?? 0) > 0) {
+    if (this.getActiveChunkSpeed(agent) > 0) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
+  }
+
+  /**
+   * Get the speed of the agent's active chunk
+   * @param agent - agent instance to get the speed from
+   * @return speed in hashes per second, 0 if the agent has no active chunk
+   * @private
+   */
+  private getActiveChunkSpeed(agent: JAgent): number {
+    return agent.chunks?.[0]?.speed ?? 0;
+  }
+
+  /**
+   * Get the id of the agent's active chunk
+   * @param agent - agent instance to get the chunk id from
+   * @return chunk id, or undefined if the agent has no active chunk
+   * @private
+   */
+  private getActiveChunkId(agent: JAgent): number | undefined {
+    return agent.chunks?.[0]?.id;
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -388,10 +415,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (agent && agent.chunkId) {
+    const chunkId = this.getActiveChunkId(agent);
+    if (chunkId) {
       links.push({
-        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
-        label: agent.chunkId
+        routerLink: ['/tasks', 'chunks', chunkId, 'view'],
+        label: chunkId
       });
     }
     return of(links);

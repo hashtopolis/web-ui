@@ -3,6 +3,7 @@ import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { BaseModel, Thin } from '@models/base.model';
+import { JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
@@ -10,7 +11,15 @@ import { JUser } from '@models/user.model';
 import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /** Keys for include-dependent relationship fields on JAgent (populated only when `?include=` is requested). */
-export type JAgentIncludes = 'user' | 'agentStats' | 'agentErrors' | 'accessGroups' | 'task' | 'tasks' | 'assignments';
+export type JAgentIncludes =
+  | 'user'
+  | 'agentStats'
+  | 'agentErrors'
+  | 'accessGroups'
+  | 'task'
+  | 'chunks'
+  | 'tasks'
+  | 'assignments';
 
 /**
  * Interface for cracking agent
@@ -45,8 +54,6 @@ export interface JAgent extends BaseModel {
   timeSpent?: number | undefined;
   // Keyspace units, not a fraction — divide by the task keyspace for a percentage.
   searched?: number | undefined;
-  // Unix ts of the latest chunk activity on the task; from the agent include on assignment queries, null when none.
-  lastActivity?: number | null | undefined;
   // Aggregate field `crackingTime` is intentionally NOT here — see JAgentAggregates / JAgentWith below.
   // Include-dependent relationships (require ?include= in API request)
   user: JUser;
@@ -54,6 +61,8 @@ export interface JAgent extends BaseModel {
   agentErrors: JAgentErrors[];
   accessGroups: JAccessGroup[];
   task: JTask;
+  // The agent's active (state RUNNING) chunk — the server appends it to every agent resource, no include needed.
+  chunks: JChunk[];
   tasks: JTask[];
   assignments: JAgentAssignment[];
 }

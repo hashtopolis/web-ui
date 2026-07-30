@@ -98,9 +98,7 @@ export const zAgentAssignmentResponse = z.object({
             lastIp: z.string(),
             userId: z.int().nullable(),
             cpuOnly: z.boolean(),
-            clientSignature: z.string(),
-            // Unix ts of the agent's latest chunk activity on the filtered task; null when it has none.
-            lastActivity: z.int().nullish()
+            clientSignature: z.string()
           })
         }),
         z.object({
@@ -233,9 +231,7 @@ export const zAgentAssignmentListResponse = z.object({
             lastIp: z.string(),
             userId: z.int().nullable(),
             cpuOnly: z.boolean(),
-            clientSignature: z.string(),
-            // Unix ts of the agent's latest chunk activity on the filtered task; null when it has none.
-            lastActivity: z.int().nullish()
+            clientSignature: z.string()
           })
         }),
         z.object({

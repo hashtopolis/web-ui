@@ -46,7 +46,6 @@ const MOCK_AGENT: JAgent = {
   agentName: 'Agent1',
   userId: MOCK_USER.id,
   lastTime: NOW,
-  lastActivity: NOW - 30,
   tasks: [MOCK_TASK]
 } as unknown as JAgent;
 
@@ -304,18 +303,16 @@ describe('AgentsDataSource', () => {
       expect(agent.chunkId).toBe(100);
     }));
 
-    it('should take lastActivity from the included agent', fakeAsync(() => {
+    it('should expose lastTime from the included agent for the last activity column', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      expect(dataSource.getOriginalData()[0].lastActivity).toBe(NOW - 30);
+      expect(dataSource.getOriginalData()[0].lastTime).toBe(NOW);
     }));
 
-    it('should leave the chunk id undefined when the agent has no chunk on the task', fakeAsync(() => {
-      const assignmentWithoutChunk = {
-        ...MOCK_ASSIGNMENT,
-        agent: { ...MOCK_AGENT, lastActivity: null },
-        currentChunkId: null
-      } as unknown as JAgentAssignment;
+    it('should leave the chunk id undefined when the server omits the currentChunkId aggregate', fakeAsync(() => {
+      // The server drops null aggregates from the payload instead of sending them as null.
+      const assignmentWithoutChunk = { ...MOCK_ASSIGNMENT, agent: { ...MOCK_AGENT } } as unknown as JAgentAssignment;
+      delete (assignmentWithoutChunk as { currentChunkId?: number }).currentChunkId;
 
       deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
         if (schema === zAgentAssignmentListResponse) return [assignmentWithoutChunk];
@@ -327,9 +324,7 @@ describe('AgentsDataSource', () => {
       dataSource.loadAssignments();
       flushMicrotasks();
 
-      const agent = dataSource.getOriginalData()[0];
-      expect(agent.chunkId).toBeUndefined();
-      expect(agent.lastActivity).toBeNull();
+      expect(dataSource.getOriginalData()[0].chunkId).toBeUndefined();
     }));
 
     it('should set data to an empty array when there are no assignments', fakeAsync(() => {
