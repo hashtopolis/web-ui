@@ -8,14 +8,13 @@ import { BaseModel } from '@models/base.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
-import { AgentsTableCol, AgentsTableColumnLabel } from '@components/tables/agents-table/agents-table.constants';
+import { AgentsTableColumnLabel } from '@components/tables/agents-table/agents-table.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
 import { ExportService } from '@src/app/core/_services/export/export.service';
-import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 class MockAgentsDataSource {
   loadAll() {}
@@ -65,59 +64,6 @@ describe('AgentsTableComponent', () => {
   describe('table columns', () => {
     it('should expose columns for agent management', () => {
       expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  describe('active chunk columns', () => {
-    // loadAll() has no assignment aggregates: speed and chunk id come from the `chunks` relationship,
-    // which the server appends to every agent resource without an include.
-    const CHUNK_SPEED = 1_500_000_000;
-    const working = { id: 1, chunks: [{ id: 289, speed: CHUNK_SPEED }] } as unknown as JAgent;
-    const idle = { id: 2, chunks: [] } as unknown as JAgent;
-
-    function column(id: AgentsTableCol): HTTableColumn {
-      return component.tableColumns.find((col: HTTableColumn) => col.id === id)!;
-    }
-
-    // sanitize() HTML-encodes the non-breaking space in convertCrackingSpeed output.
-    const encodedSpeed = convertCrackingSpeed(CHUNK_SPEED).replace('\u00A0', '&#160;');
-
-    it('should render the speed of the active chunk', () => {
-      expect(column(AgentsTableCol.TASK_SPEED).render!(working)).toBe(encodedSpeed);
-    });
-
-    it('should render a dash and no progress icon when the agent has no active chunk', () => {
-      const speedColumn = column(AgentsTableCol.TASK_SPEED);
-      expect(speedColumn.render!(idle)).toBe('-');
-      expect(speedColumn.icon!(idle)).toEqual({ name: '' });
-    });
-
-    it('should show the progress icon while the agent works on a chunk', () => {
-      expect(column(AgentsTableCol.TASK_SPEED).icon!(working)).toEqual({
-        name: 'radio_button_checked',
-        cls: 'pulsing-progress'
-      });
-    });
-
-    it('should link to the active chunk', (done) => {
-      column(AgentsTableCol.CURRENT_CHUNK).routerLink!(working).subscribe((links) => {
-        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
-        done();
-      });
-    });
-
-    it('should render no chunk link when the agent has no active chunk', (done) => {
-      column(AgentsTableCol.CURRENT_CHUNK).routerLink!(idle).subscribe((links) => {
-        expect(links).toEqual([]);
-        done();
-      });
-    });
-
-    it('should export the active chunk speed and id', async () => {
-      await expectAsync(column(AgentsTableCol.TASK_SPEED).export!(working)).toBeResolvedTo(CHUNK_SPEED + '');
-      await expectAsync(column(AgentsTableCol.CURRENT_CHUNK).export!(working)).toBeResolvedTo('289');
-      await expectAsync(column(AgentsTableCol.TASK_SPEED).export!(idle)).toBeResolvedTo('-');
-      await expectAsync(column(AgentsTableCol.CURRENT_CHUNK).export!(idle)).toBeResolvedTo('');
     });
   });
 

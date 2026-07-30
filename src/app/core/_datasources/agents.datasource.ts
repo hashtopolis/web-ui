@@ -113,7 +113,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        // Cast: the payload type models the API resource, the loop below enriches it with view-only fields.
         const assignments = this.serializer.deserialize(
           response,
           zAgentAssignmentListResponse,

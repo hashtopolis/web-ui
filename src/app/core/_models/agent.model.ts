@@ -3,7 +3,7 @@ import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentErrors } from '@models/agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { BaseModel, Thin } from '@models/base.model';
-import { JChunk } from '@models/chunk.model';
+import { ChunkData, JChunk } from '@models/chunk.model';
 import { ChunkId, TaskId, UserId } from '@models/id.types';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
@@ -17,6 +17,7 @@ export type JAgentIncludes =
   | 'agentErrors'
   | 'accessGroups'
   | 'task'
+  | 'chunk'
   | 'chunks'
   | 'tasks'
   | 'assignments';
@@ -48,6 +49,7 @@ export interface JAgent extends BaseModel {
   benchmark?: string;
   assignmentId?: number;
   agentSpeed?: number;
+  chunkData?: ChunkData;
   // Assignment aggregates for the displayed task, copied over by AgentsDataSource.loadAssignments().
   cracked?: number | undefined;
   currentSpeed?: number | undefined;
@@ -60,7 +62,7 @@ export interface JAgent extends BaseModel {
   agentErrors: JAgentErrors[];
   accessGroups: JAccessGroup[];
   task: JTask;
-  // The agent's active (state RUNNING) chunk — the server appends it to every agent resource, no include needed.
+  chunk: JChunk;
   chunks: JChunk[];
   tasks: JTask[];
   assignments: JAgentAssignment[];

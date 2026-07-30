@@ -4,6 +4,7 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
+import { ChunkData } from '@models/chunk.model';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
@@ -161,8 +162,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
         export: async (agent: JAgent) => {
-          const speed = this.getActiveChunkSpeed(agent);
-          return speed > 0 ? speed + '' : '-';
+          if (agent.chunks && agent.chunks.length > 0) {
+            return agent.chunks[0].speed + '';
+          } else {
+            return '-';
+          }
         }
       },
       {
@@ -171,10 +175,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         isNumeric: true,
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: false,
-        export: async (agent: JAgent) => {
-          const chunkId = this.getActiveChunkId(agent);
-          return chunkId ? chunkId + '' : '';
-        }
+        export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
       },
       {
         id: AgentsTableCol.GPUS_CPUS,
@@ -245,15 +246,31 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   /**
+   * Get a value from the agent's chunkdata attribute
+   * @param agent - agent instance to get value from
+   * @param property name of chunkdata property
+   * @return property value or undefined, if property or chunkdata are not defined
+   * @private
+   */
+  private getChunkDataValue(agent: JAgent, property: string): number | undefined {
+    if (agent.chunkData && property in agent.chunkData) {
+      return agent.chunkData[property as keyof ChunkData] as number | undefined;
+    }
+    return undefined;
+  }
+
+  /**
    * Get current agent speed as safe html ready to be rendered
    * @param agent - agent instance to get value from
    * @return html code containing the current speed including a unit
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const speed = this.getActiveChunkSpeed(agent);
-    if (speed > 0) {
-      return this.sanitize(convertCrackingSpeed(speed));
+    if (agent.chunks) {
+      const chunk = agent.chunks[0];
+      if (chunk) {
+        return this.sanitize(convertCrackingSpeed(chunk.speed));
+      }
     }
     return this.sanitize('-');
   }
@@ -265,30 +282,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if (this.getActiveChunkSpeed(agent) > 0) {
+    if (this.getChunkDataValue(agent, 'speed')) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
-  }
-
-  /**
-   * Get the speed of the agent's active chunk
-   * @param agent - agent instance to get the speed from
-   * @return speed in hashes per second, 0 if the agent has no active chunk
-   * @private
-   */
-  private getActiveChunkSpeed(agent: JAgent): number {
-    return agent.chunks?.[0]?.speed ?? 0;
-  }
-
-  /**
-   * Get the id of the agent's active chunk
-   * @param agent - agent instance to get the chunk id from
-   * @return chunk id, or undefined if the agent has no active chunk
-   * @private
-   */
-  private getActiveChunkId(agent: JAgent): number | undefined {
-    return agent.chunks?.[0]?.id;
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -415,11 +412,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    const chunkId = this.getActiveChunkId(agent);
-    if (chunkId) {
+    if (agent && agent.chunks && agent.chunks.length > 0) {
+      const chunkID = agent.chunks[0].id;
       links.push({
-        routerLink: ['/tasks', 'chunks', chunkId, 'view'],
-        label: chunkId
+        routerLink: ['/tasks', 'chunks', chunkID, 'view'],
+        label: chunkID
       });
     }
     return of(links);
