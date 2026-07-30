@@ -1,23 +1,23 @@
-# Installing Hashtopolis Server using Windows 10/11
+# Development
 
-1. Install the prerequisites [link](https://github.com/hashtopolis/server/wiki/Development-environment)
-2. Go to the windows store and install Ubuntu
-3. Open Docker desktop. Go to Settings -> General. You need the following options tick.
-* Use the WSL 2 based engine
-* Use Docker Compose V2
-4. In Docker Settings, go to Resources -> WSL Integration, and enable integration with Ubuntu
-5. Open the windows terminal and open the Ubuntu terminal, then install Hashtopolis Server
-* Clone `git clone https://github.com/hashtopolis/server.git`
-* Go to `cd server/`
-* Run `git branch --remote`
-* Run `git checkout feature/apiv2`
-* Run `code`
-5. Open Hashtopolis Server, go to .devcontainer and open Remote Containers (Vscode plugin)
+This guide covers setting up a local development environment for the Hashtopolis Web UI, the Angular frontend of Hashtopolis. For installing and running Hashtopolis itself (server and agents), see the documentation at <https://docs.hashtopolis.org>.
 
-# Installing Hashtopolis Server in Ubuntu
+## Prerequisites
 
-1. Clone project `git clone https://github.com/hashtopolis/server.git`
-2. Get branch code `git clopull origin feature/apiv2`
-3. Install docker-compose `sudo curl -L "https://github.com/docker/compose/releases/download/v2.1.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
-4. Go to `cd server/.devcontainer`
-5. Create container `sudo docker-compose up -d`  # run in background
+- [Node.js](https://nodejs.org) and npm. The supported versions are pinned in the `engines` field of [`package.json`](package.json).
+- A running Hashtopolis server with APIv2 enabled to develop against. See the [installation guide](https://docs.hashtopolis.org/installation_guidelines/basic_install/) and the [Docker guide](https://docs.hashtopolis.org/installation_guidelines/docker/) for how to set one up, or the [server repository](https://github.com/hashtopolis/server) to run it from source.
+
+## Running the app
+
+```bash
+npm install
+npm start
+```
+
+The app is served at <http://localhost:4200> and rebuilds on file changes.
+
+The frontend expects the backend at `http://localhost:8080/api/v2` by default. To use a different backend, edit `hashtopolis_backend_url` in [`src/assets/config.json`](src/assets/config.json).
+
+## Dev container (VS Code)
+
+The repository ships a [dev container configuration](.devcontainer/devcontainer.json). Open the project in VS Code with the Dev Containers extension to get a container with the correct Node version and the recommended extensions, serving the app on port 4200. Set the `HASHTOPOLIS_BACKEND_URL` environment variable to point the app at your backend.
