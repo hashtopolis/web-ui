@@ -19,6 +19,7 @@ The frontend is an Angular application. Key parts of the repository:
 - `openapi.json` / `openapi-ts.config.mjs` - OpenAPI specification and client generation config used to talk to the backend
 - `docker/`, `Dockerfile`, `docker-compose.yml` - containerized build and deployment
 - `nginx/` - production web server configuration
+- `custom-themes/` - example custom themes (`rainbow.css`, `fallout.css`); see the [custom themes guide](https://docs.hashtopolis.org/installation_guidelines/custom-themes/) for how to create and enable your own
 
 To get a local development environment running, follow the instructions in [DEVELOPMENT](DEVELOPMENT.md).
 
