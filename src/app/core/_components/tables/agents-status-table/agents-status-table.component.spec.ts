@@ -94,7 +94,8 @@ describe('AgentsStatusTableComponent', () => {
 
       expect(html).toContain('/#/tasks/show-tasks/72/edit');
       expect(html).toContain('seed-task-0072');
-      expect(html).toContain(convertCrackingSpeed(1_500_000_000));
+      // sanitize() HTML-encodes the non-breaking space in convertCrackingSpeed output.
+      expect(html).toContain(convertCrackingSpeed(1_500_000_000).replace('\u00A0', '&#160;'));
       expect(html).toContain('/#/tasks/chunks/289/view');
     });
 

@@ -79,8 +79,11 @@ describe('AgentsTableComponent', () => {
       return component.tableColumns.find((col: HTTableColumn) => col.id === id)!;
     }
 
+    // sanitize() HTML-encodes the non-breaking space in convertCrackingSpeed output.
+    const encodedSpeed = convertCrackingSpeed(CHUNK_SPEED).replace('\u00A0', '&#160;');
+
     it('should render the speed of the active chunk', () => {
-      expect(column(AgentsTableCol.TASK_SPEED).render!(working)).toBe(convertCrackingSpeed(CHUNK_SPEED));
+      expect(column(AgentsTableCol.TASK_SPEED).render!(working)).toBe(encodedSpeed);
     });
 
     it('should render a dash and no progress icon when the agent has no active chunk', () => {
