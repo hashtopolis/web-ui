@@ -7,7 +7,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
-import { ChunkData, JChunk } from '@models/chunk.model';
 import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
 
@@ -447,65 +446,6 @@ export abstract class BaseDataSource<
   forceReload(): void {
     this.cacheService.invalidate();
     this.reload();
-  }
-
-  /**
-   * Convert all JChunk objects related to a task or agent to a ChunkData object
-   * @param id - model ID of task or agent
-   * @param chunks - JChunk collection containing all tasks or agents related to the currenty displayed table object
-   * @param isAgent - true, ID is an agent ID, false: ID is a task ID
-   * @param keyspace - keyspace index
-   * @return mew ChunkData object containing data from all related JChunk objects
-   * @protected
-   */
-  protected convertChunks(id: number, chunks: Array<JChunk>, isAgent: boolean = true, keyspace = 0): ChunkData {
-    let dispatched = 0;
-    let searched = 0;
-    let cracked: number = 0;
-    let speed: number = 0;
-    let timespent: number = 0;
-    const tasks: Set<number> = new Set();
-    const agents: Set<number> = new Set();
-
-    if (isAgent) agents.add(id);
-    else tasks.add(id);
-
-    const filterFn = isAgent ? (element: JChunk) => element.agentId === id : (element: JChunk) => element.taskId === id;
-    chunks.filter(filterFn).forEach((chunk) => {
-      agents.add(chunk.agentId);
-      tasks.add(chunk.taskId);
-
-      // If progress is 100%, add total chunk length to dispatched
-      if (chunk.progress >= 10000) {
-        dispatched += chunk.length;
-      }
-      cracked += chunk.cracked;
-      searched += chunk.checkpoint - chunk.skip;
-
-      // Calculate speed for chunks completed within the last chunktime
-      if (
-        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunkTime &&
-        chunk.progress < 10000
-      ) {
-        speed += chunk.speed;
-      }
-
-      if (chunk.dispatchTime > 0) {
-        timespent += chunk.solveTime - chunk.dispatchTime;
-      } else if (chunk.solveTime > 0) {
-        timespent += chunk.solveTime;
-      }
-    });
-
-    return {
-      tasks: Array.from(tasks),
-      agents: Array.from(agents),
-      dispatched: keyspace ? dispatched / keyspace : 0,
-      searched: keyspace ? searched / keyspace : 0,
-      cracked: cracked,
-      speed: speed,
-      timeSpent: timespent
-    };
   }
 
   /**
