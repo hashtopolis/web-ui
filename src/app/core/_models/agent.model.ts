@@ -52,7 +52,6 @@ export interface JAgent extends BaseModel {
   cracked?: number | undefined;
   currentSpeed?: number | undefined;
   timeSpent?: number | undefined;
-  // Keyspace units, not a fraction — divide by the task keyspace for a percentage.
   searched?: number | undefined;
   // Aggregate field `crackingTime` is intentionally NOT here — see JAgentAggregates / JAgentWith below.
   // Include-dependent relationships (require ?include= in API request)

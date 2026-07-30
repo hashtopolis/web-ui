@@ -75,8 +75,6 @@ describe('AgentsStatusTableComponent', () => {
   });
 
   describe('currently working on column', () => {
-    // The speed and chunk id come from the `chunks` relationship the server appends to every agent
-    // resource — loadAll() requests no assignment aggregates.
     const working = {
       id: 1,
       taskId: 72,

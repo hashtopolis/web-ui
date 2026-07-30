@@ -30,7 +30,6 @@ export interface JAgentAssignmentAggregateFields {
   crackingTime: number;
   cracked: number;
   currentSpeed: number;
-  // Keyspace units (SUM(checkpoint) - SUM(skip)), not a fraction — divide by the task keyspace for a percentage.
   searched: number;
   // Null when the agent has no chunk on this task.
   currentChunkId: number | null;

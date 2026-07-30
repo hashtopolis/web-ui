@@ -233,11 +233,8 @@ describe('AgentsDataSource', () => {
       flushMicrotasks();
       const firstCallArgs = gsSpy.getAll.calls.all()[0].args;
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
-      expect(firstCallArgs[2]).toEqual(jasmine.objectContaining({ headers: jasmine.objectContaining({}) }));
 
       const httpOptions = firstCallArgs[2] as { headers?: { get(name: string): string | null } } | undefined;
-      expect(httpOptions).toBeDefined();
-      expect(httpOptions?.headers).toBeDefined();
       expect(httpOptions?.headers?.get('X-Cache-Skip')).toBe('true');
     }));
 
