@@ -9,9 +9,6 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
-import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +17,6 @@ export class UIConfigService {
   defaultSettings = false;
   cachevar = uisCacheNames;
   cexprity: number = 72 * 60 * 60 * 1000; // Default: 72 hours in milliseconds
-  private maxResults = environment.config.prodApiMaxResults;
 
   constructor(private gs: GlobalService) {}
 
@@ -45,8 +41,7 @@ export class UIConfigService {
   }
 
   public storeDefault(): void {
-    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-    this.gs.getAll(SERV.CONFIGS, params).subscribe({
+    this.gs.ghelper(SERV.HELPER, 'getGlobalConfig').subscribe({
       next: (response: ResponseWrapper) => {
         const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
         const configValues = convertNameValueConfigPairs(configs, this.cachevar);

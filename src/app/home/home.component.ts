@@ -175,7 +175,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const observables: Observable<void>[] = [];
 
     if (this.canReadAgents) observables.push(this.getAgents$());
-    if (this.canReadTasks) observables.push(this.getTasks$(), this.getSuperTasks$());
+    if (this.canReadTasks) observables.push(this.getTasks$(), this.getSuperTasks$(), this.getCompletedCounts$());
     if (this.canReadCracks) observables.push(this.getCracks$(), this.updateHeatmapData$());
 
     if (observables.length === 0) return of(undefined);
@@ -230,75 +230,69 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Fetches total and completed tasks count.
-   * Archived tasks are excluded.
+   * Fetches the total number of tasks. Archived tasks are excluded.
+   * The completed count is fetched separately, see {@link getCompletedCounts$}.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getTasks$(): Observable<void> {
-    const paramsTotalTasks = new RequestParamBuilder()
+    const params = new RequestParamBuilder()
       .addInclude('tasks')
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
-    const paramsCompletedTasks = new RequestParamBuilder()
-      .addInclude('tasks')
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 0 })
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
-      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .create();
-
-    return forkJoin([
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).pipe(
-        map((res: ResponseWrapper) => (this.totalTasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch total tasks:', err);
-          return of(undefined);
-        })
-      ),
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).pipe(
-        map((res: ResponseWrapper) => (this.completedTasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch completed tasks:', err);
-          return of(undefined);
-        })
-      )
-    ]).pipe(map(() => undefined));
+    return this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, params).pipe(
+      map((res: ResponseWrapper) => {
+        this.totalTasks = res.meta.count ?? 0;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch total tasks:', err);
+        return of(undefined);
+      })
+    );
   }
 
   /**
-   * Fetches total and completed supertasks count.
-   * Archived supertasks are excluded.
+   * Fetches the total number of supertasks. Archived supertasks are excluded.
+   * The completed count is fetched separately, see {@link getCompletedCounts$}.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private getSuperTasks$(): Observable<void> {
-    const paramsTotalSupertasks = new RequestParamBuilder()
+    const params = new RequestParamBuilder()
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
       .create();
 
-    const paramsCompletedSupertasks = new RequestParamBuilder()
-      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: 0 })
-      .create();
+    return this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, params).pipe(
+      map((res: ResponseWrapper) => {
+        this.totalSupertasks = res.meta.count ?? 0;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch total supertasks:', err);
+        return of(undefined);
+      })
+    );
+  }
 
-    return forkJoin([
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.totalSupertasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch total supertasks:', err);
-          return of(undefined);
-        })
-      ),
-      this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedSupertasks).pipe(
-        map((res: ResponseWrapper) => (this.completedSupertasks = res.meta.count ?? 0)),
-        catchError((err) => {
-          console.error('Failed to fetch completed supertasks:', err);
-          return of(undefined);
-        })
-      )
-    ]).pipe(map(() => undefined));
+  private getCompletedCounts$(): Observable<void> {
+    const completedCountSchema = z.object({
+      data: z.object({
+        completedTasks: z.number(),
+        completedSupertasks: z.number()
+      })
+    });
+
+    return this.gs.ghelper(SERV.HELPER, 'getCompletedCount').pipe(
+      map((res: ResponseWrapper) => {
+        const { data } = completedCountSchema.parse(res);
+        this.completedTasks = data.completedTasks;
+        this.completedSupertasks = data.completedSupertasks;
+      }),
+      catchError((err) => {
+        console.error('Failed to fetch completed counts:', err);
+        return of(undefined);
+      })
+    );
   }
 
   /**
@@ -325,24 +319,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Calls getCracksPerDay, validates the JSON:API response with Zod and builds
-   * heatmap data for every day from January 1st of the current year up to today,
+   * heatmap data for every day across the trailing 12 months up to today,
    * filling days with no cracks with a count of 0.
    * @returns Observable<void> completing when data is loaded or errored
    */
   private updateHeatmapData$(): Observable<void> {
     const cracksPerDaySchema = z.object({
-      meta: z.record(z.string(), z.number())
+      data: z.record(z.string(), z.number())
     });
 
     return this.gs.ghelper(SERV.HELPER, 'getCracksPerDay').pipe(
       map((res: ResponseWrapper) => {
         const parsed = cracksPerDaySchema.parse(res);
-        const rawData = parsed.meta;
+        const rawData = parsed.data;
 
         const today = new Date();
-        const year = today.getFullYear();
         const allDays: [string, number][] = [];
-        const cursor = new Date(year, 0, 1);
+        const cursor = new Date(today);
+        cursor.setFullYear(cursor.getFullYear() - 1);
 
         while (cursor <= today) {
           const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
