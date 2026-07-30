@@ -64,7 +64,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   preprocessorId: PreprocessorId;
   preprocessorCommand: string;
   // Aggregate fields (dispatched, searched, status, estimatedTime, timeSpent, currentSpeed, cprogress,
-  // totalNumberOfChunks, totalAssignedAgents) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
+  // totalNumberOfChunks, totalAssignedAgents, cracked) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
   // the aggregate fields have to be explicitely requested
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
@@ -88,6 +88,7 @@ export interface JTaskAggregateFields {
   currentSpeed: number;
   cprogress: number;
   totalNumberOfChunks: number;
+  cracked: number;
 }
 
 /** Aggregate field keys on JTask. */

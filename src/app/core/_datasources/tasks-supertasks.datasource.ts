@@ -1,7 +1,6 @@
-import { zChunkListResponse, zTaskListResponse } from '@generated/api/zod';
+import { zTaskListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
-import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWith } from '@models/task.model';
@@ -11,7 +10,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed'>;
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed' | 'cracked'>;
 
 export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
   private _supertTaskId = 0;
@@ -31,7 +30,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
       .addAggregate({
         field: 'task',
-        values: ['dispatched', 'searched', 'totalAssignedAgents', 'status', 'currentSpeed'] as const
+        values: ['dispatched', 'searched', 'totalAssignedAgents', 'status', 'currentSpeed', 'cracked'] as const
       })
       .create();
 
@@ -52,27 +51,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
           const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
-          if (subtasks.length > 0) {
-            const chunkParams = new RequestParamBuilder().addFilter({
-              field: 'taskId',
-              operator: FilterType.IN,
-              value: subtasks.map((task) => task.id)
-            });
-
-            this.subscriptions.push(
-              this.service
-                .getAll(SERV.CHUNKS, chunkParams.create())
-                .pipe(finalize(() => this.setData(subtasks)))
-                .subscribe((chunkResponse: ResponseWrapper) => {
-                  const chunks: JChunk[] = this.serializer.deserialize(chunkResponse, zChunkListResponse);
-                  subtasks.forEach((task) => {
-                    task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
-                  });
-                })
-            );
-          } else {
-            this.setData(subtasks);
-          }
+          this.setData(subtasks);
         })
     );
   }

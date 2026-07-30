@@ -80,11 +80,9 @@ describe('TasksSupertasksTableComponent', () => {
       ) as HTTableColumn;
 
       const withAssignedAgents = { totalAssignedAgents: 4 } as unknown as JTask;
-      const withChunkFallback = { totalAssignedAgents: undefined, chunkData: { agents: [10, 11] } } as unknown as JTask;
       const withNothing = {} as unknown as JTask;
 
       expect(agentsColumn.render?.(withAssignedAgents) as string).toContain('4');
-      expect(agentsColumn.render?.(withChunkFallback) as string).toContain('2');
       expect(agentsColumn.render?.(withNothing) as string).toContain('0');
     });
 
@@ -102,17 +100,6 @@ describe('TasksSupertasksTableComponent', () => {
       expect(statusColumn.icon?.(idleTask)?.name).toBe('schedule');
       expect(statusColumn.icon?.(skippedTask)?.name).toBe('fast_forward');
       expect(statusColumn.icon?.(completedTask)?.name).toBe('check_circle');
-    });
-
-    it('should render SPEED from chunk fallback when currentSpeed is missing', () => {
-      const speedColumn = component.tableColumns.find(
-        (c) => c.id === TasksSupertasksDataSourceTableCol.SPEED
-      ) as HTTableColumn;
-
-      const speedFallbackTask = { currentSpeed: undefined, chunkData: { speed: 13000 } } as unknown as JTask;
-
-      expect(speedColumn.render?.(speedFallbackTask) as string).toContain('13');
-      expect(speedColumn.render?.(speedFallbackTask) as string).toContain('kH/s');
     });
   });
 
