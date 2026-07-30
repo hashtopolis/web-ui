@@ -34,8 +34,6 @@ export interface JAgentAssignmentAggregateFields {
   searched: number;
   // Null when the agent has no chunk on this task.
   currentChunkId: number | null;
-  // Unix ts of the agent's latest chunk activity on this task; null when it has none.
-  lastActivity: number | null;
 }
 
 /** Aggregate field keys on JAgentAssignment. */

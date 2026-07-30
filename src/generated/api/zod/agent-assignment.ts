@@ -46,8 +46,7 @@ export const zAgentAssignmentResponse = z.object({
       cracked: z.int().optional(),
       currentSpeed: z.int().optional(),
       searched: z.int().optional(),
-      currentChunkId: z.int().nullish(),
-      lastActivity: z.int().nullish()
+      currentChunkId: z.int().nullish()
     })
   }),
   relationships: z
@@ -99,7 +98,9 @@ export const zAgentAssignmentResponse = z.object({
             lastIp: z.string(),
             userId: z.int().nullable(),
             cpuOnly: z.boolean(),
-            clientSignature: z.string()
+            clientSignature: z.string(),
+            // Unix ts of the agent's latest chunk activity on the filtered task; null when it has none.
+            lastActivity: z.int().nullish()
           })
         }),
         z.object({
@@ -179,8 +180,7 @@ export const zAgentAssignmentListResponse = z.object({
         cracked: z.int().optional(),
         currentSpeed: z.int().optional(),
         searched: z.int().optional(),
-        currentChunkId: z.int().nullish(),
-        lastActivity: z.int().nullish()
+        currentChunkId: z.int().nullish()
       })
     })
   ),
@@ -233,7 +233,9 @@ export const zAgentAssignmentListResponse = z.object({
             lastIp: z.string(),
             userId: z.int().nullable(),
             cpuOnly: z.boolean(),
-            clientSignature: z.string()
+            clientSignature: z.string(),
+            // Unix ts of the agent's latest chunk activity on the filtered task; null when it has none.
+            lastActivity: z.int().nullish()
           })
         }),
         z.object({

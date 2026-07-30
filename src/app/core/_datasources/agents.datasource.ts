@@ -102,7 +102,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
       .addAggregate({
         field: 'assignment',
-        values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId', 'lastActivity'] as const
+        values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId'] as const
       })
       .create();
 
@@ -119,7 +119,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           zAgentAssignmentListResponse,
           assignParams
         ) as unknown as JAgentAssignmentWith<
-          'cracked' | 'currentSpeed' | 'crackingTime' | 'searched' | 'currentChunkId' | 'lastActivity'
+          'cracked' | 'currentSpeed' | 'crackingTime' | 'searched' | 'currentChunkId'
         >[];
         if (assignments && assignments.length > 0) {
           const userIds: number[] = assignments
@@ -144,7 +144,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             agent.timeSpent = assignment.crackingTime;
             agent.searched = assignment.searched;
             agent.chunkId = assignment.currentChunkId ?? undefined;
-            agent.lastActivity = assignment.lastActivity;
             agents.push(agent);
           });
 

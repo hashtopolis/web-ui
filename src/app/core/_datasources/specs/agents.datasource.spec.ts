@@ -46,6 +46,7 @@ const MOCK_AGENT: JAgent = {
   agentName: 'Agent1',
   userId: MOCK_USER.id,
   lastTime: NOW,
+  lastActivity: NOW - 30,
   tasks: [MOCK_TASK]
 } as unknown as JAgent;
 
@@ -68,7 +69,6 @@ const MOCK_ASSIGNMENT: JAgentAssignment = {
   crackingTime: 30,
   searched: 250,
   currentChunkId: 100,
-  lastActivity: NOW - 30,
   agent: { ...MOCK_AGENT },
   task: MOCK_TASK
 } as unknown as JAgentAssignment;
@@ -266,7 +266,7 @@ describe('AgentsDataSource', () => {
       expect((params as RequestParams).aggregate).toContain(
         jasmine.objectContaining({
           field: 'assignment',
-          values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId', 'lastActivity']
+          values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId']
         })
       );
     }));
@@ -301,16 +301,20 @@ describe('AgentsDataSource', () => {
       expect(agent.currentSpeed).toBe(1200);
       expect(agent.timeSpent).toBe(30);
       expect(agent.searched).toBe(250);
-      expect(agent.lastActivity).toBe(NOW - 30);
       expect(agent.chunkId).toBe(100);
+    }));
+
+    it('should take lastActivity from the included agent', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+      expect(dataSource.getOriginalData()[0].lastActivity).toBe(NOW - 30);
     }));
 
     it('should leave the chunk id undefined when the agent has no chunk on the task', fakeAsync(() => {
       const assignmentWithoutChunk = {
         ...MOCK_ASSIGNMENT,
-        agent: { ...MOCK_AGENT },
-        currentChunkId: null,
-        lastActivity: null
+        agent: { ...MOCK_AGENT, lastActivity: null },
+        currentChunkId: null
       } as unknown as JAgentAssignment;
 
       deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {

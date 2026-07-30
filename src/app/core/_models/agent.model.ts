@@ -45,7 +45,7 @@ export interface JAgent extends BaseModel {
   timeSpent?: number | undefined;
   // Keyspace units, not a fraction — divide by the task keyspace for a percentage.
   searched?: number | undefined;
-  // Unix ts of the latest chunk activity on the task; null when the agent has none.
+  // Unix ts of the latest chunk activity on the task; from the agent include on assignment queries, null when none.
   lastActivity?: number | null | undefined;
   // Aggregate field `crackingTime` is intentionally NOT here — see JAgentAggregates / JAgentWith below.
   // Include-dependent relationships (require ?include= in API request)
