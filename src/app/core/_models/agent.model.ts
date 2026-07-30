@@ -12,15 +12,7 @@ import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /** Keys for include-dependent relationship fields on JAgent (populated only when `?include=` is requested). */
 export type JAgentIncludes =
-  | 'user'
-  | 'agentStats'
-  | 'agentErrors'
-  | 'accessGroups'
-  | 'task'
-  | 'chunk'
-  | 'chunks'
-  | 'tasks'
-  | 'assignments';
+  'user' | 'agentStats' | 'agentErrors' | 'accessGroups' | 'task' | 'chunk' | 'chunks' | 'tasks' | 'assignments';
 
 /**
  * Interface for cracking agent
