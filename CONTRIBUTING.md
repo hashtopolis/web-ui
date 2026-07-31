@@ -38,7 +38,7 @@ This project follows semantic versioning. Before creating a pull request, consid
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [LICENSE](LICENSE.md) file.
+By contributing, you agree that your contributions will be licensed under the [LICENSE](LICENSE) file.
 
 ---
 
