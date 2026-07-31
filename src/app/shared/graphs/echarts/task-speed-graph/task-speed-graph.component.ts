@@ -18,12 +18,26 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  inject
+} from '@angular/core';
 
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { AgentId } from '@models/id.types';
+
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
  * Group speeds into bucket (previously exact timestamp was used) so that we sum up the speed reports of parallel agents.
@@ -76,6 +90,9 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
   private chart: EChartsType;
 
+  private uiSettings = new UISettingsUtilityClass(inject<LocalStorageService<UIConfig>>(LocalStorageService));
+  private dateFormat = this.uiSettings.getSetting('timefmt') || uiConfigDefault.timefmt;
+
   /**
    * Initializes the chart after view is ready.
    */
@@ -118,7 +135,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     const { unit, scale } = getHashRateFormatComponents(maxRawSpeed);
 
     const arr = result.map((item) => ({
-      name: this.transDate(item.time),
+      name: formatUnixTimestamp(item.time, this.dateFormat),
       value: [item.time * 1000, +(item.speed / scale).toFixed(2)] as [number, number],
       unit
     }));
@@ -134,7 +151,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
     const option: EChartsOption = {
       title: {
-        subtext: 'Last record: ' + this.transDate(lastRecord)
+        subtext: 'Last record: ' + formatUnixTimestamp(lastRecord, this.dateFormat)
       },
       tooltip: {
         trigger: 'axis',
@@ -143,7 +160,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           const point = Array.isArray(params) ? params[0] : params;
           const data = point?.data as { value: [number, number]; unit: string } | undefined;
           if (!Array.isArray(data?.value)) return '';
-          return `${this.transDate(data.value[0] / 1000)}: <strong>${data.value[1]} ${data.unit}</strong>`;
+          return `${formatUnixTimestamp(data.value[0] / 1000, this.dateFormat)}: <strong>${data.value[1]} ${data.unit}</strong>`;
         }
       },
       grid: {
@@ -155,7 +172,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         min: startdate * 1000,
         max: enddate * 1000,
         axisLabel: {
-          formatter: (value: number) => this.transTime(value)
+          formatter: (value: number) => formatDate(new Date(value), 'hh:mm:ss')
         }
       },
       yAxis: {
@@ -164,7 +181,6 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         position: 'left',
         alignTicks: true
       },
-      useUTC: true,
       toolbox: {
         show: true,
         right: 20,
@@ -272,46 +288,5 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     }
 
     return result;
-  }
-
-  /**
-   * Returns a date string with leading zeros for formatting.
-   */
-  private leadingZeros(dt: number): string {
-    return dt < 10 ? '0' + dt : dt.toString();
-  }
-
-  /**
-   * Converts a UNIX timestamp to formatted date string (UTC).
-   */
-  private transDate(dt: number): string {
-    const date = new Date(dt * 1000);
-    return (
-      date.getUTCDate() +
-      '-' +
-      this.leadingZeros(date.getUTCMonth() + 1) +
-      '-' +
-      date.getUTCFullYear() +
-      ',' +
-      this.leadingZeros(date.getUTCHours()) +
-      ':' +
-      this.leadingZeros(date.getUTCMinutes()) +
-      ':' +
-      this.leadingZeros(date.getUTCSeconds())
-    );
-  }
-
-  /**
-   * Converts a millisecond timestamp to a compact UTC time label (HH:MM:SS) for axis ticks.
-   */
-  private transTime(ms: number): string {
-    const date = new Date(ms);
-    return (
-      this.leadingZeros(date.getUTCHours()) +
-      ':' +
-      this.leadingZeros(date.getUTCMinutes()) +
-      ':' +
-      this.leadingZeros(date.getUTCSeconds())
-    );
   }
 }

@@ -1,8 +1,11 @@
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { uiConfigDefault } from '@models/config-ui.model';
+
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
+import { formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 describe('TaskSpeedGraphComponent', () => {
   let component: TaskSpeedGraphComponent;
@@ -176,13 +179,13 @@ describe('TaskSpeedGraphComponent', () => {
     expect(min?.value).toBe('5 MH/s');
   });
 
-  it('formats the axis tooltip as "<time>: <summed speed> <unit>"', () => {
+  it('formats the axis tooltip in the configured local-time format, matching the tables', () => {
     const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 3_000_000, 2)]);
     const tooltip = Array.isArray(option.tooltip) ? option.tooltip[0] : option.tooltip;
     const html = tooltip.formatter([{ data: { value: [100 * 1000, 6], unit: 'MH/s' } }]);
 
     expect(html).toContain('<strong>6 MH/s</strong>');
-    expect(html).toContain('00:01:40'); // 100s after the UTC epoch
+    expect(html).toContain(formatUnixTimestamp(100, uiConfigDefault.timefmt));
   });
 
   it('renders no tooltip for a mark-point style param without a [time, value] pair', () => {
@@ -193,10 +196,10 @@ describe('TaskSpeedGraphComponent', () => {
     expect(tooltip.formatter([])).toBe('');
   });
 
-  it('labels the time axis with a UTC HH:MM:SS formatter', () => {
+  it('labels the time axis with a local-time HH:MM:SS formatter', () => {
     const option = drawWith([speedStat(100, 3_000_000, 1)]);
 
-    expect(option.xAxis[0].axisLabel.formatter(100 * 1000)).toBe('00:01:40');
+    expect(option.xAxis[0].axisLabel.formatter(100 * 1000)).toBe(formatDate(new Date(100 * 1000), 'hh:mm:ss'));
   });
 
   it('draws on ngAfterViewInit when speeds are already present (initial load path)', () => {
