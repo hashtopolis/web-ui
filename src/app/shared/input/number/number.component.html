@@ -1,5 +1,5 @@
 <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
-  <label class="field-stack__label" [attr.for]="inputId">
+  <label class="field-stack__label" [attr.for]="inputId" [title]="title">
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>
     } @else {
@@ -22,7 +22,7 @@
     }
   </label>
 
-  <mat-form-field class="field-stack__field">
+  <mat-form-field class="field-stack__field" [title]="title">
     <div [class.is-invalid]="error && !readonly">
       <input
         #inputField

@@ -6,7 +6,7 @@
 </div>
 } @else {
 <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
-  <label class="field-stack__label">
+  <label class="field-stack__label" [title]="label">
     @if (linkTo) {
     <a [routerLink]="linkTo">{{ label }}</a>
     } @else {
@@ -17,7 +17,7 @@
     }
   </label>
 
-  <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
+  <mat-form-field class="custom-chip-grid field-stack__field show-subscript" [title]="label">
     <mat-chip-grid #chipGridRef [required]="isRequired" aria-label="Items selection" [disabled]="disabled || readonly">
       @for (item of readonly ? items : selectedItems; track item.id) {
       <mat-chip-row [removable]="!readonly">
