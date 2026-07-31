@@ -133,6 +133,7 @@ describe('EditTasksComponent', () => {
 
   function respondToTaskRequest(response: ResponseWrapper): void {
     const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
+    expect(req.request.headers.get('X-Cache-Skip')).toBe('true');
     req.flush(response);
   }
 
@@ -327,10 +328,12 @@ describe('EditTasksComponent', () => {
     it('should show error message on 500 without redirect', fakeAsync(() => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
+      expect(req.request.headers.get('X-Cache-Skip')).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
       tick();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
+      expect(retryReq.request.headers.get('X-Cache-Skip')).toBe('true');
       retryReq.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
       tick();
 
@@ -342,10 +345,12 @@ describe('EditTasksComponent', () => {
     it('should retry without includes on 500 and succeed', fakeAsync(() => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
+      expect(req.request.headers.get('X-Cache-Skip')).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
       tick();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
+      expect(retryReq.request.headers.get('X-Cache-Skip')).toBe('true');
       retryReq.flush(mockTaskResponse());
       tick();
 
@@ -356,6 +361,7 @@ describe('EditTasksComponent', () => {
     it('should show generic error message on non-HTTP error', fakeAsync(() => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
+      expect(req.request.headers.get('X-Cache-Skip')).toBe('true');
       req.error(new ProgressEvent('error'));
       tick();
 

@@ -14,7 +14,10 @@ import { RowActionMenuAction } from '@components/menus/row-action-menu/row-actio
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
-import { TasksAgentsTableColumnLabel } from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
+import {
+  TasksAgentsTableCol,
+  TasksAgentsTableColumnLabel
+} from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
@@ -23,6 +26,8 @@ import { ExportService } from '@src/app/core/_services/export/export.service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { formatSeconds } from '@src/app/shared/utils/datetime';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 class MockTasksAgentsDataSource {
   loadAll() {}
@@ -96,6 +101,88 @@ describe('TasksAgentsTableComponent', () => {
   describe('table columns', () => {
     it('should expose columns for tasks/agents', () => {
       expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('assignment aggregate columns', () => {
+    // loadAssignments() copies the assignment aggregates onto each agent; the task comes from the include.
+    const working = {
+      id: 1,
+      currentSpeed: 1200,
+      chunkId: 289,
+      timeSpent: 30,
+      searched: 250,
+      cracked: 2,
+      task: { id: 10, keyspace: 1000 }
+    } as unknown as JAgent;
+    const idle = { id: 2, task: { id: 10, keyspace: 1000 } } as unknown as JAgent;
+
+    function column(id: TasksAgentsTableCol): HTTableColumn {
+      return component.tableColumns.find((col: HTTableColumn) => col.id === id)!;
+    }
+
+    it('should render the current speed with the progress icon', () => {
+      const speedColumn = column(TasksAgentsTableCol.TASK_SPEED);
+      // sanitize() HTML-encodes the non-breaking space in convertCrackingSpeed output.
+      expect(speedColumn.render!(working)).toBe(convertCrackingSpeed(1200).replace('\u00A0', '&#160;'));
+      expect(speedColumn.icon!(working)).toEqual({ name: 'radio_button_checked', cls: 'pulsing-progress' });
+    });
+
+    it('should render a dash and no progress icon when the agent has no current speed', () => {
+      const speedColumn = column(TasksAgentsTableCol.TASK_SPEED);
+      expect(speedColumn.render!(idle)).toBe('-');
+      expect(speedColumn.icon!(idle)).toEqual({ name: '' });
+    });
+
+    it('should link to the current chunk', (done) => {
+      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working).subscribe((links) => {
+        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
+        done();
+      });
+    });
+
+    it('should render no chunk link when the agent has no chunk', (done) => {
+      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle).subscribe((links) => {
+        expect(links).toEqual([]);
+        done();
+      });
+    });
+
+    it('should render the time spent on the task', () => {
+      expect(column(TasksAgentsTableCol.TIME_SPENT).render!(working)).toBe(formatSeconds(30));
+      expect(column(TasksAgentsTableCol.TIME_SPENT).render!(idle)).toBe('-');
+    });
+
+    it('should render searched as a percentage of the task keyspace', () => {
+      expect(column(TasksAgentsTableCol.SEARCHED).render!(working)).toBe('25%');
+      expect(column(TasksAgentsTableCol.SEARCHED).render!(idle)).toBe('-');
+    });
+
+    it('should render a dash when the task keyspace is unknown', () => {
+      const noKeyspace = { ...working, task: { id: 10 } } as unknown as JAgent;
+      expect(column(TasksAgentsTableCol.SEARCHED).render!(noKeyspace)).toBe('-');
+    });
+
+    it('should render the cracked count, including zero', () => {
+      expect(column(TasksAgentsTableCol.CRACKED).render!(working)).toBe('<span>2</span>');
+      expect(column(TasksAgentsTableCol.CRACKED).render!({ ...working, cracked: 0 } as JAgent)).toBe('<span>0</span>');
+      expect(column(TasksAgentsTableCol.CRACKED).render!(idle)).toBe('-');
+    });
+
+    it('should export the aggregate values', async () => {
+      await expectAsync(column(TasksAgentsTableCol.TASK_SPEED).export!(working)).toBeResolvedTo('1200');
+      await expectAsync(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(working)).toBeResolvedTo('289');
+      await expectAsync(column(TasksAgentsTableCol.TIME_SPENT).export!(working)).toBeResolvedTo('30');
+      await expectAsync(column(TasksAgentsTableCol.SEARCHED).export!(working)).toBeResolvedTo('0.25');
+      await expectAsync(column(TasksAgentsTableCol.CRACKED).export!(working)).toBeResolvedTo('2');
+    });
+
+    it('should export placeholders when the aggregates are missing', async () => {
+      await expectAsync(column(TasksAgentsTableCol.TASK_SPEED).export!(idle)).toBeResolvedTo('-');
+      await expectAsync(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(idle)).toBeResolvedTo('');
+      await expectAsync(column(TasksAgentsTableCol.TIME_SPENT).export!(idle)).toBeResolvedTo('-');
+      await expectAsync(column(TasksAgentsTableCol.SEARCHED).export!(idle)).toBeResolvedTo('0');
+      await expectAsync(column(TasksAgentsTableCol.CRACKED).export!(idle)).toBeResolvedTo('-');
     });
   });
 

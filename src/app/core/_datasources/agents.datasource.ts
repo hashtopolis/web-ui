@@ -7,7 +7,7 @@ import { EMPTY, catchError, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
-import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentAssignmentWith } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -93,20 +93,33 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAssignments(): void {
     this.loading = true;
+    const noCacheOptions = {
+      headers: new HttpHeaders({ 'X-Cache-Skip': 'true' })
+    };
     const assignParams = new RequestParamBuilder()
       .addInclude('agent')
       .addInclude('task')
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
+      .addAggregate({
+        field: 'assignment',
+        values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId'] as const
+      })
       .create();
 
     this.service
-      .getAll(SERV.AGENT_ASSIGN, assignParams)
+      .getAll(SERV.AGENT_ASSIGN, assignParams, noCacheOptions)
       .pipe(
         catchError(() => EMPTY),
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        const assignments: JAgentAssignment[] = this.serializer.deserialize(response, zAgentAssignmentListResponse);
+        const assignments = this.serializer.deserialize(
+          response,
+          zAgentAssignmentListResponse,
+          assignParams
+        ) as unknown as JAgentAssignmentWith<
+          'cracked' | 'currentSpeed' | 'crackingTime' | 'searched' | 'currentChunkId'
+        >[];
         if (assignments && assignments.length > 0) {
           const userIds: number[] = assignments
             .map((assignment) => assignment.agent?.userId)
@@ -118,12 +131,18 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             if (!assignment.task || !assignment.agent) return;
             const task = assignment.task;
             const agent = assignment.agent;
+
             agent.task = task;
             agent.user = users.find((user) => user.id === agent.userId)!;
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task.id;
             agent.assignmentId = assignment.id;
             agent.benchmark = assignment.benchmark;
+            agent.cracked = assignment.cracked;
+            agent.currentSpeed = assignment.currentSpeed;
+            agent.timeSpent = assignment.crackingTime;
+            agent.searched = assignment.searched;
+            agent.chunkId = assignment.currentChunkId ?? undefined;
             agents.push(agent);
           });
 

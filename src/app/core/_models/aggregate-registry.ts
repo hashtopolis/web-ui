@@ -6,6 +6,7 @@
  */
 import { z } from 'zod';
 
+import { JAgentAssignmentAggregates } from '@models/agent-assignment.model';
 import { JAgentAggregates } from '@models/agent.model';
 import { JPretaskAggregates } from '@models/pretask.model';
 import { JSuperTaskAggregates } from '@models/supertask.model';
@@ -29,6 +30,7 @@ type ResourceTypeLiteral<T> = T extends { data: readonly (infer D)[] }
 export interface ResourceAggregateMap {
   task: JTaskAggregates;
   agent: JAgentAggregates;
+  agentAssignment: JAgentAssignmentAggregates;
   preTask: JPretaskAggregates;
   taskWrapperDisplay: JTaskWrapperDisplayAggregates;
   superTask: JSuperTaskAggregates;
