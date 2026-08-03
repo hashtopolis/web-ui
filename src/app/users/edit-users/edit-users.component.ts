@@ -153,13 +153,13 @@ export class EditUsersComponent implements OnInit, OnDestroy {
         this.updateForm.setValue({
           id: user.id,
           name: user.name,
-          email: user.email,
+          email: user.email ?? '',
           registered: this.datePipe.transform(user.registeredSince) ?? '',
           lastLogin: this.datePipe.transform(user.lastLoginDate) ?? '',
           globalPermissionGroup: user.globalPermissionGroup,
           updateData: {
-            globalPermissionGroupId: user.globalPermissionGroupId,
-            isValid: user.isValid
+            globalPermissionGroupId: user.globalPermissionGroupId ?? null,
+            isValid: user.isValid ?? false
           }
         });
       });
