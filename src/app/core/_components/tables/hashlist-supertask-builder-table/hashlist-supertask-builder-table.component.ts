@@ -1,5 +1,5 @@
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
 
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
@@ -61,9 +61,16 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
       void this.initializeRows();
     });
 
-    void this.loadCrackerTypes().then(() => {
-      this.dataSource.loadAll();
-    });
+    // Types must be known before rows initialize, but a failure must not stop the rows from loading:
+    // without types the create controls stay disabled while the templates are still listed.
+    void this.loadCrackerTypes()
+      .catch((error) => {
+        // The global HTTP interceptor already surfaces the error dialog for this request.
+        console.error('Failed loading binary types:', error);
+      })
+      .finally(() => {
+        this.dataSource.loadAll();
+      });
   }
 
   ngOnDestroy(): void {
@@ -142,7 +149,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   }
 
   private async loadCrackerTypes(): Promise<void> {
-    const response = await firstValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }));
+    const response = await lastValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }));
     const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
       this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
     );
@@ -160,7 +167,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: typeId })
       .create();
 
-    const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
+    const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
     const crackers: JCrackerBinary[] = this.serializer.deserialize(response, zCrackerBinaryListResponse);
     const versions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 

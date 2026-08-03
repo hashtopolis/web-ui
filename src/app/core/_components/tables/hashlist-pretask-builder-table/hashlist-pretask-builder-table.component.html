@@ -17,9 +17,10 @@
             <div class="color-preview" [style.backgroundColor]="pretask.color || null"></div>
           </td>
           <td class="name-col">
-            <label class="checkbox-cell">
+            <label class="checkbox-cell" [attr.for]="'pretask-select-' + pretask.id">
               <input
                 type="checkbox"
+                [attr.id]="'pretask-select-' + pretask.id"
                 [checked]="selectedPretaskIds.has(pretask.id)"
                 (change)="togglePretaskSelection(pretask.id, $any($event.target).checked)"
               />
@@ -32,15 +33,26 @@
   </table>
 
   @if (dataSource && dataSource.totalCount > pretasks.length) {
-    <p class="builder-note">Showing the first {{ pretasks.length }} of {{ dataSource.totalCount }} pre-configured tasks.</p>
+    <p class="builder-note">
+      Showing the first {{ pretasks.length }} of {{ dataSource.totalCount }} pre-configured tasks.
+    </p>
   }
 
   <div class="builder-actions">
-    <button-submit [name]="'Create'" [disabled]="!selectedPretaskIds.size || isCreating" (click)="createTasksFromSelection()">
+    <button-submit
+      [name]="'Create'"
+      [disabled]="!selectedPretaskIds.size || isCreating"
+      (click)="createTasksFromSelection()"
+    >
     </button-submit>
 
-    <label class="select-all">
-      <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll($any($event.target).checked)" />
+    <label class="select-all" for="pretask-select-all">
+      <input
+        id="pretask-select-all"
+        type="checkbox"
+        [checked]="isAllSelected()"
+        (change)="toggleSelectAll($any($event.target).checked)"
+      />
       <span>Select All</span>
     </label>
   </div>

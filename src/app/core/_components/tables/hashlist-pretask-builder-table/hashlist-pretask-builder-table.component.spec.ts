@@ -91,6 +91,23 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     expect(component.selectedPretaskIds.size).toBe(0);
   });
 
+  it('should keep the selection when rows are re-emitted and drop ids that vanished', () => {
+    const rows = [
+      { id: 1, taskName: 'A', type: 'pretask' } as JPretask,
+      { id: 2, taskName: 'B', type: 'pretask' } as JPretask
+    ];
+    component.pretasks = rows;
+    component.selectedPretaskIds = new Set([1, 2]);
+
+    const privateComponent = component as unknown as { retainSelection(rows: JPretask[]): void };
+
+    privateComponent.retainSelection(rows);
+    expect(Array.from(component.selectedPretaskIds)).toEqual([1, 2]);
+
+    privateComponent.retainSelection([rows[0]]);
+    expect(Array.from(component.selectedPretaskIds)).toEqual([1]);
+  });
+
   it('should show an error when creating with no selection', async () => {
     await component.createTasksFromSelection();
     await fixture.whenStable();

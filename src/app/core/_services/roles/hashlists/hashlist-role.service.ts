@@ -18,8 +18,17 @@ export class HashListRoleService extends RoleService {
       read: [Perm.Hashlist.READ],
       update: [Perm.Hashlist.UPDATE],
       tasks: [Perm.TaskWrapper.READ],
-      pretaskBuilder: [Perm.Pretask.READ, Perm.TaskWrapper.CREATE],
-      supertaskBuilder: [Perm.SuperTask.READ, Perm.SuperTask.CREATE],
+      // Mirrors the permissions the server requires for POST /ui/tasks and the cracker lookup it needs.
+      pretaskBuilder: [Perm.Pretask.READ, Perm.Task.CREATE, Perm.CrackerBinary.READ],
+      // Mirrors CreateSupertaskHelperAPI::getRequiredPermissions plus the binary type lookup.
+      supertaskBuilder: [
+        Perm.SuperTask.READ,
+        Perm.TaskWrapper.CREATE,
+        Perm.Task.CREATE,
+        Perm.Hashlist.READ,
+        Perm.CrackerBinary.READ,
+        Perm.CrackerBinaryType.READ
+      ],
       groups: [Perm.GroupAccess.READ],
       wordlist: [Perm.Hash.READ, Perm.File.CREATE]
     });

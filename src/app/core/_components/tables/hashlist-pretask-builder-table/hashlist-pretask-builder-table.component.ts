@@ -1,5 +1,5 @@
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -57,7 +57,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
     this.tableSubscription = this.dataSource.connect(null as never).subscribe((rows) => {
       this.pretasks = rows;
-      this.selectedPretaskIds.clear();
+      this.retainSelection(rows);
     });
     this.dataSource.loadAll();
   }
@@ -87,6 +87,15 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   isAllSelected(): boolean {
     return this.pretasks.length > 0 && this.selectedPretaskIds.size === this.pretasks.length;
+  }
+
+  /**
+   * Drops selected ids that are no longer among the loaded rows. The HTTP cache serves a stale list and then
+   * re-emits the revalidated one, so clearing the whole selection here would wipe picks made in between.
+   */
+  private retainSelection(rows: JPretask[]): void {
+    const loadedIds = new Set(rows.map((pretask) => pretask.id));
+    this.selectedPretaskIds = new Set([...this.selectedPretaskIds].filter((id) => loadedIds.has(id)));
   }
 
   async createTasksFromSelection(): Promise<void> {
@@ -173,7 +182,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: crackerBinaryTypeId })
         .create();
 
-      const response: ResponseWrapper = await firstValueFrom(
+      const response: ResponseWrapper = await lastValueFrom(
         this.gs.getAll(SERV.CRACKERS, requestParams, this.skipErrorDialog)
       );
       const crackers: JCrackerBinary[] = this.serializer.deserialize(response, zCrackerBinaryListResponse);
