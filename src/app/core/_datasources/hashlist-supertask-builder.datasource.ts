@@ -12,14 +12,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HashlistSupertaskBuilderDataSource extends BaseDataSource<JSuperTask> {
-  /** Total number of supertask templates on the server, so the table can flag when it only shows the first page. */
-  totalCount = 0;
-
   loadAll(): void {
     this.loading = true;
-
-    // Builder table should show a larger batch because it is used as a selector list.
-    this.pageSize = 100;
 
     const params = new RequestParamBuilder().addInitial(this);
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
@@ -37,7 +31,6 @@ export class HashlistSupertaskBuilderDataSource extends BaseDataSource<JSuperTas
         .subscribe((response: ResponseWrapper) => {
           const supertasks = this.serializer.deserialize(response, zSupertaskListResponse);
           const length = response.meta?.page?.total_elements ?? supertasks.length;
-          this.totalCount = length;
           const nextLink = response.links?.next;
           const prevLink = response.links?.prev;
           const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;

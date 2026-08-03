@@ -34,10 +34,15 @@
     </table>
   </div>
 
-  @if (dataSource && dataSource.totalCount > pretasks.length) {
-    <p class="builder-note">
-      Showing the first {{ pretasks.length }} of {{ dataSource.totalCount }} pre-configured tasks.
-    </p>
+  @if (dataSource) {
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [disabled]="(dataSource.loading$ | async) ?? false"
+      [length]="dataSource.totalItems"
+      [pageIndex]="dataSource.index"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageSize]="dataSource.pageSize"
+    ></mat-paginator>
   }
 
   <div class="builder-actions">

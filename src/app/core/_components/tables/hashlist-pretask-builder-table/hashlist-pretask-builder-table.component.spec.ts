@@ -133,4 +133,44 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Created 1 task(s) from pre-configured tasks.');
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Failed to create 1 task(s).');
   });
+
+  it('should keep the after cursor and clear selection when paging forward', () => {
+    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
+    const reload = jasmine.createSpy('reload');
+    component.selectedPretaskIds = new Set([1, 2]);
+    (component as unknown as { dataSource: unknown }).dataSource = {
+      pageAfter: 'AFTER',
+      pageBefore: 'BEFORE',
+      index: 0,
+      pageSize: 10,
+      totalItems: 30,
+      setPaginationConfig,
+      reload
+    };
+
+    component.onPageChange({ pageIndex: 1, pageSize: 10, length: 30, previousPageIndex: 0 });
+
+    expect(component.selectedPretaskIds.size).toBe(0);
+    expect(setPaginationConfig).toHaveBeenCalledWith(10, 30, 'AFTER', null, 1);
+    expect(reload).toHaveBeenCalled();
+  });
+
+  it('should reset cursors when jumping to the first page', () => {
+    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
+    const reload = jasmine.createSpy('reload');
+    (component as unknown as { dataSource: unknown }).dataSource = {
+      pageAfter: 'AFTER',
+      pageBefore: 'BEFORE',
+      index: 2,
+      pageSize: 10,
+      totalItems: 30,
+      setPaginationConfig,
+      reload
+    };
+
+    component.onPageChange({ pageIndex: 0, pageSize: 10, length: 30, previousPageIndex: 2 });
+
+    expect(setPaginationConfig).toHaveBeenCalledWith(10, 30, null, null, 0);
+    expect(reload).toHaveBeenCalled();
+  });
 });

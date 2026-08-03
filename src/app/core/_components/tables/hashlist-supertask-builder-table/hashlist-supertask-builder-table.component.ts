@@ -3,6 +3,7 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
 
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
@@ -36,6 +37,8 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   dataSource: HashlistSupertaskBuilderDataSource;
   supertasks: JSuperTask[] = [];
 
+  readonly pageSizeOptions = [10, 25, 50, 100];
+
   crackerTypes: SelectOption<CrackerBinaryTypeId>[] = [];
   rowVersions: Partial<Record<number, SelectOption<CrackerBinaryId>[]>> = {};
 
@@ -53,6 +56,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
   ngOnInit(): void {
     this.dataSource = new HashlistSupertaskBuilderDataSource(this.injector);
+    this.dataSource.pageSize = this.pageSizeOptions[0];
 
     // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
     // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
@@ -76,6 +80,27 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   ngOnDestroy(): void {
     this.tableSubscription?.unsubscribe();
     this.dataSource.disconnect(null as never);
+  }
+
+  onPageChange(event: PageEvent): void {
+    let pageAfter = this.dataSource.pageAfter;
+    let pageBefore = this.dataSource.pageBefore;
+    let index = event.pageIndex;
+
+    if (index > this.dataSource.index) {
+      pageBefore = null;
+    } else if (index < this.dataSource.index) {
+      pageAfter = null;
+    }
+
+    if (event.pageSize !== this.dataSource.pageSize || index === 0) {
+      index = 0;
+      pageAfter = null;
+      pageBefore = null;
+    }
+
+    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+    this.dataSource.reload();
   }
 
   async onTypeChanged(rowId: number, typeId: number): Promise<void> {

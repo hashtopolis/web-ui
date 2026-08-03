@@ -5,6 +5,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'; // You may need to import other modules based on your application's requirements.
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
@@ -43,6 +44,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   imports: [
     MatFormFieldModule,
     MatInputModule,
+    MatPaginatorModule,
     HashlistRoutingModule,
     ReactiveFormsModule,
     CoreFormsModule,

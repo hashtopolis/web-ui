@@ -13,14 +13,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HashlistPretaskBuilderDataSource extends BaseDataSource<JPretask> {
-  /** Total number of pretasks on the server, so the table can flag when it only shows the first page. */
-  totalCount = 0;
-
   loadAll(): void {
     this.loading = true;
-
-    // Builder table should show a larger batch because it is used as a selector list.
-    this.pageSize = 100;
 
     let params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
     if (this.uiService.getUISettings()?.hideImportMasks === 1) {
@@ -42,7 +36,6 @@ export class HashlistPretaskBuilderDataSource extends BaseDataSource<JPretask> {
         .subscribe((response: ResponseWrapper) => {
           const pretasks = this.serializer.deserialize(response, zPreTaskListResponse);
           const length = response.meta?.page?.total_elements ?? pretasks.length;
-          this.totalCount = length;
           const nextLink = response.links?.next;
           const prevLink = response.links?.prev;
           const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;

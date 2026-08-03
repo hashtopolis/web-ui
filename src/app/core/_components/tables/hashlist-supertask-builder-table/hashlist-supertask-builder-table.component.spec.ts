@@ -111,4 +111,42 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     expect(component.rowVersions[22]).toEqual(versions);
     expect(component.selectedVersionByRow[22]).toBe(2 as CrackerBinaryId);
   });
+
+  it('should keep the after cursor when paging forward', () => {
+    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
+    const reload = jasmine.createSpy('reload');
+    (component as unknown as { dataSource: unknown }).dataSource = {
+      pageAfter: 'AFTER',
+      pageBefore: 'BEFORE',
+      index: 0,
+      pageSize: 10,
+      totalItems: 30,
+      setPaginationConfig,
+      reload
+    };
+
+    component.onPageChange({ pageIndex: 1, pageSize: 10, length: 30, previousPageIndex: 0 });
+
+    expect(setPaginationConfig).toHaveBeenCalledWith(10, 30, 'AFTER', null, 1);
+    expect(reload).toHaveBeenCalled();
+  });
+
+  it('should reset cursors when the page size changes', () => {
+    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
+    const reload = jasmine.createSpy('reload');
+    (component as unknown as { dataSource: unknown }).dataSource = {
+      pageAfter: 'AFTER',
+      pageBefore: 'BEFORE',
+      index: 2,
+      pageSize: 10,
+      totalItems: 30,
+      setPaginationConfig,
+      reload
+    };
+
+    component.onPageChange({ pageIndex: 2, pageSize: 25, length: 30, previousPageIndex: 2 });
+
+    expect(setPaginationConfig).toHaveBeenCalledWith(25, 30, null, null, 0);
+    expect(reload).toHaveBeenCalled();
+  });
 });

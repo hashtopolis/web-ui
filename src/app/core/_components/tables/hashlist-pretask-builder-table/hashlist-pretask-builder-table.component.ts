@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JPretask } from '@models/pretask.model';
@@ -35,6 +36,8 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   dataSource: HashlistPretaskBuilderDataSource;
   pretasks: JPretask[] = [];
 
+  readonly pageSizeOptions = [10, 25, 50, 100];
+
   selectedPretaskIds = new Set<number>();
   isCreating = false;
 
@@ -52,6 +55,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataSource = new HashlistPretaskBuilderDataSource(this.injector);
+    this.dataSource.pageSize = this.pageSizeOptions[0];
 
     // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
     // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
@@ -87,6 +91,28 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   isAllSelected(): boolean {
     return this.pretasks.length > 0 && this.selectedPretaskIds.size === this.pretasks.length;
+  }
+
+  onPageChange(event: PageEvent): void {
+    let pageAfter = this.dataSource.pageAfter;
+    let pageBefore = this.dataSource.pageBefore;
+    let index = event.pageIndex;
+
+    if (index > this.dataSource.index) {
+      pageBefore = null;
+    } else if (index < this.dataSource.index) {
+      pageAfter = null;
+    }
+
+    if (event.pageSize !== this.dataSource.pageSize || index === 0) {
+      index = 0;
+      pageAfter = null;
+      pageBefore = null;
+    }
+
+    this.selectedPretaskIds.clear();
+    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+    this.dataSource.reload();
   }
 
   /**
