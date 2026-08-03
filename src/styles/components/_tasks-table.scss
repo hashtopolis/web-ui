@@ -1,7 +1,13 @@
 app-tasks-table table.hashtopolis-table {
   .mat-column-2 {
-    width: 100%;
     min-width: 12rem;
+    max-width: 32rem;
+
+    .link-wrapper {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .mat-column-8 {

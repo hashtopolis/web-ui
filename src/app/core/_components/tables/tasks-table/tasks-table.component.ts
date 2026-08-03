@@ -821,7 +821,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderTaskWrapperLink(wrapper: JTaskWrapperDisplayOverview): Observable<HTTableRouterLink[]> {
     if (wrapper.taskType === TaskType.TASK) {
       const displayName = wrapper.displayName ?? '';
-      const taskName = displayName.length > 40 ? `${displayName.substring(0, 40)}...` : displayName;
       const isRunning = (wrapper.keyspaceProgress ?? 0) > 0; // Assuming running if progress > 0
       const taskId = wrapper.taskId ?? 0;
       const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${taskId}`;
@@ -835,7 +834,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
       return of([
         {
-          label: taskName,
+          label: displayName,
           routerLink: ['/tasks', 'show-tasks', taskId, 'edit'],
           tooltip: wrapper.attackCmd ?? '',
           visualGraph: {
