@@ -90,15 +90,16 @@ export const zTaskResponse = z.object({
       forcePipe: z.boolean(),
       preprocessorId: z.int(),
       preprocessorCommand: z.string(),
-      activeAgents: z.int().optional(),
+      totalAssignedAgents: z.int().optional(),
       dispatched: z.string().optional(),
       searched: z.string().optional(),
-      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
+      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
       cprogress: z.int().optional(),
-      totalNumberOfChunks: z.number().optional().default(0)
+      totalNumberOfChunks: z.number().optional().default(0),
+      cracked: z.int().optional()
     })
   }),
   relationships: z
@@ -304,10 +305,10 @@ export const zTaskPostPatchResponse = z.object({
       forcePipe: z.boolean(),
       preprocessorId: z.int(),
       preprocessorCommand: z.string(),
-      activeAgents: z.int().optional(),
+      totalAssignedAgents: z.int().optional(),
       dispatched: z.string().optional(),
       searched: z.string().optional(),
-      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
+      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
       currentSpeed: z.int().optional(),
@@ -359,15 +360,16 @@ export const zTaskListResponse = z.object({
         forcePipe: z.boolean(),
         preprocessorId: z.int(),
         preprocessorCommand: z.string(),
-        activeAgents: z.int().optional(),
+        totalAssignedAgents: z.int().optional(),
         dispatched: z.string().optional(),
         searched: z.string().optional(),
-        status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
+        status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
         estimatedTime: z.int().optional(),
         timeSpent: z.int().optional(),
         currentSpeed: z.int().optional(),
         cprogress: z.int().optional(),
-        totalNumberOfChunks: z.number().optional().default(0)
+        totalNumberOfChunks: z.number().optional().default(0),
+        cracked: z.int().optional()
       })
     })
   ),

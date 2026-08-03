@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -102,7 +102,7 @@ describe('NewHashlistComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper']);
+    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper', 'chelper']);
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
@@ -137,6 +137,7 @@ describe('NewHashlistComponent', () => {
 
   beforeEach(() => {
     gsSpy.ghelper.and.returnValue(of(mockAccessGroups));
+    gsSpy.chelper.and.returnValue(of({ meta: [] }));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
     (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
@@ -267,6 +268,34 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     }));
 
+    it('should show the backend error message when the upload/creation fails', fakeAsync(() => {
+      const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      component.selectedFiles = dataTransfer.files;
+
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '2500',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'upload'
+      });
+
+      uploadSpy.uploadFile.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'The hashlist contains too many lines.' } }))
+      );
+
+      component.onSubmit();
+      tick();
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
+        'Failed to create Hashlist: The hashlist contains too many lines.'
+      );
+      expect(component.uploadProgress).toBe(0);
+      expect(component.isCreatingLoading).toBe(false);
+    }));
+
     it('should submit form with "paste" sourceType and base64-encode sourceData', fakeAsync(() => {
       gsSpy.create.and.returnValue(of(mockResponse()));
       component.form.patchValue({
@@ -283,11 +312,48 @@ describe('NewHashlistComponent', () => {
       const expectedEncoded = btoa('some data');
       expect(gsSpy.create).toHaveBeenCalledWith(
         jasmine.anything(),
-        jasmine.objectContaining({ sourceData: expectedEncoded })
+        jasmine.objectContaining({ sourceData: expectedEncoded }),
+        jasmine.anything()
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New Hashlist created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
+    }));
+
+    it('should surface the backend error and skip the global dialog when "import" creation fails', fakeAsync(() => {
+      gsSpy.create.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'Hashlist has too many lines!' } }))
+      );
+      component.form.patchValue({
+        name: 'Test Hashlist',
+        hashTypeId: '0',
+        accessGroupId: 1,
+        format: 0,
+        sourceType: 'import',
+        sourceData: 'valid-1-line.txt'
+      });
+
+      component.onSubmit();
+      tick();
+
+      // The component handles the error itself, so it tells the interceptor to skip the modal.
+      const httpOptions = gsSpy.create.calls.mostRecent().args[2];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to create Hashlist: Hashlist has too many lines!');
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.isCreatingLoading).toBe(false);
+    }));
+
+    it('should skip the global error dialog when loading server import files', fakeAsync(() => {
+      component.loadServerFiles();
+      tick();
+
+      // loadServerFiles shows its own toast on failure, so it tells the interceptor to skip the modal.
+      const call = gsSpy.chelper.calls.mostRecent();
+      expect(call.args[1]).toBe('importFile');
+      const httpOptions = call.args[4];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
     }));
   });
 
@@ -382,6 +448,26 @@ describe('NewHashlistComponent', () => {
       expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(gsSpy.getAll).not.toHaveBeenCalledWith(SERV.ACCESS_GROUPS);
     });
+  });
+
+  describe('loadServerFiles', () => {
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh: ResponseWrapper = mockResponse({
+        data: [],
+        meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
+      });
+      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+
+      await component.loadServerFiles();
+      tick();
+
+      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
+    }));
   });
 
   describe('Deprecated format handling', () => {

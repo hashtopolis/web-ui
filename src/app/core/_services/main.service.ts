@@ -337,7 +337,8 @@ export class GlobalService {
     serviceConfig: ServiceConfig,
     option: HelperEndpoint,
     arr?: Record<string, unknown>,
-    method: 'POST' | 'GET' = 'POST'
+    method: 'POST' | 'GET' = 'POST',
+    httpOptions?: { headers?: HttpHeaders }
   ): Observable<T> {
     const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
 
@@ -350,11 +351,15 @@ export class GlobalService {
           }
         }
       }
-      return this.http.get<T>(url, { params });
+      const options: { params?: HttpParams; headers?: HttpHeaders } = { params };
+      if (httpOptions?.headers) {
+        options.headers = httpOptions.headers;
+      }
+      return this.http.get<T>(url, options);
     }
 
     // default POST
-    return this.http.post<T>(url, arr ?? {});
+    return this.http.post<T>(url, arr ?? {}, httpOptions);
   }
 
   /**

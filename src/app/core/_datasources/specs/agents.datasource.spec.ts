@@ -27,8 +27,11 @@ import { mockResponse } from '@src/app/testing/mock-response';
 const MOCK_TASK: JTask = {
   id: 10,
   type: 'task',
-  taskName: 'Test Task'
+  taskName: 'Test Task',
+  keyspace: 1000
 } as unknown as JTask;
+
+const NOW = Math.floor(Date.now() / 1000);
 
 const MOCK_USER: JUser = {
   id: 5,
@@ -42,6 +45,7 @@ const MOCK_AGENT: JAgent = {
   type: 'agent',
   agentName: 'Agent1',
   userId: MOCK_USER.id,
+  lastTime: NOW,
   tasks: [MOCK_TASK]
 } as unknown as JAgent;
 
@@ -59,6 +63,11 @@ const MOCK_ASSIGNMENT: JAgentAssignment = {
   taskId: 10,
   agentId: 1,
   benchmark: '1000H/s',
+  cracked: 2,
+  currentSpeed: 1200,
+  crackingTime: 30,
+  searched: 250,
+  currentChunkId: 100,
   agent: { ...MOCK_AGENT },
   task: MOCK_TASK
 } as unknown as JAgentAssignment;
@@ -224,6 +233,9 @@ describe('AgentsDataSource', () => {
       flushMicrotasks();
       const firstCallArgs = gsSpy.getAll.calls.all()[0].args;
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
+
+      const httpOptions = firstCallArgs[2] as { headers?: { get(name: string): string | null } } | undefined;
+      expect(httpOptions?.headers?.get('X-Cache-Skip')).toBe('true');
     }));
 
     it('should filter assignments by the stored taskId', fakeAsync(() => {
@@ -231,6 +243,28 @@ describe('AgentsDataSource', () => {
       flushMicrotasks();
       const [, params] = gsSpy.getAll.calls.all()[0].args;
       expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
+    }));
+
+    it('should not request nested agent chunks include on assignments endpoint', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+      const [, params] = gsSpy.getAll.calls.all()[0].args;
+      expect((params as RequestParams).include).not.toContain('agent.chunks');
+    }));
+
+    it('should request the assignment aggregates instead of fetching chunks', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      expect(gsSpy.getAll.calls.all().find((call) => call.args[0] === SERV.CHUNKS)).toBeUndefined();
+
+      const [, params] = gsSpy.getAll.calls.all()[0].args;
+      expect((params as RequestParams).aggregate).toContain(
+        jasmine.objectContaining({
+          field: 'assignment',
+          values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId']
+        })
+      );
     }));
 
     it('should fetch user data for the agents in the assignments', fakeAsync(() => {
@@ -252,6 +286,42 @@ describe('AgentsDataSource', () => {
       expect(agent.assignmentId).toBe(MOCK_ASSIGNMENT.id);
       expect(agent.benchmark).toBe(MOCK_ASSIGNMENT.benchmark);
       expect(agent.user).toEqual(MOCK_USER);
+    }));
+
+    it('should map the assignment aggregates onto agents', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      const agent = dataSource.getOriginalData()[0];
+      expect(agent.cracked).toBe(2);
+      expect(agent.currentSpeed).toBe(1200);
+      expect(agent.timeSpent).toBe(30);
+      expect(agent.searched).toBe(250);
+      expect(agent.chunkId).toBe(100);
+    }));
+
+    it('should expose lastTime from the included agent for the last activity column', fakeAsync(() => {
+      dataSource.loadAssignments();
+      flushMicrotasks();
+      expect(dataSource.getOriginalData()[0].lastTime).toBe(NOW);
+    }));
+
+    it('should leave the chunk id undefined when the server omits the currentChunkId aggregate', fakeAsync(() => {
+      // The server drops null aggregates from the payload instead of sending them as null.
+      const assignmentWithoutChunk = { ...MOCK_ASSIGNMENT, agent: { ...MOCK_AGENT } } as unknown as JAgentAssignment;
+      delete (assignmentWithoutChunk as { currentChunkId?: number }).currentChunkId;
+
+      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+        if (schema === zAgentAssignmentListResponse) return [assignmentWithoutChunk];
+        if (schema === zUserListResponse) return [MOCK_USER];
+        if (schema === zAgentListResponse) return [MOCK_AGENT];
+        return [];
+      });
+
+      dataSource.loadAssignments();
+      flushMicrotasks();
+
+      expect(dataSource.getOriginalData()[0].chunkId).toBeUndefined();
     }));
 
     it('should set data to an empty array when there are no assignments', fakeAsync(() => {

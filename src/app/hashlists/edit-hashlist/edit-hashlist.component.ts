@@ -1,7 +1,7 @@
 import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
-import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -56,8 +56,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   /** The hashlist's own tasks table, refreshed when a builder creates tasks/supertasks. */
   @ViewChild(TasksTableComponent) private tasksTable?: TasksTableComponent;
 
-  private httpNoInterceptors: HttpClient;
-
   private unsavedChangesService = inject(UnsavedChangesService);
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);
@@ -69,7 +67,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   private router = inject(Router);
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
-  private httpBackend = inject(HttpBackend);
   protected roleService = inject(HashListRoleService);
 
   /**
@@ -78,7 +75,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   constructor() {
     this.updateForm = getEditHashlistForm();
     this.titleService.set(['Edit Hashlist']);
-    this.httpNoInterceptors = new HttpClient(this.httpBackend);
   }
 
   /**
@@ -135,7 +131,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     const params: { [k: string]: string } = { include: 'tasks,hashlists,hashType' };
 
     try {
-      const response = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
+      const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
       const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
       this.editedHashlist = hashlist;
@@ -163,7 +159,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         // Retry without includes if server failed resolving relationships
 
         console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
-        const responseFallback = await firstValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
+        const responseFallback = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
         const hashlist: JHashlist = new JsonAPISerializer().deserialize(responseFallback, zHashlistResponse);
 
         this.editedHashlist = hashlist;
@@ -198,7 +194,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     if (!this.roleService.hasRole('groups')) {
       return;
     }
-    const response = await firstValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
+    const response = await lastValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
     const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
 

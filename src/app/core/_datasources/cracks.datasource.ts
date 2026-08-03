@@ -1,5 +1,5 @@
 import { zHashListResponse, zTaskResponse } from '@generated/api/zod';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, lastValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -48,7 +48,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(
+      const response: ResponseWrapper = await lastValueFrom(
         this.service.getAll(SERV.HASHES, params.create()).pipe(
           catchError((error) => {
             this.handleFilterError(error);
@@ -76,7 +76,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    */
   async loadTask(taskId: number) {
     try {
-      const response = await firstValueFrom<ResponseWrapper>(
+      const response = await lastValueFrom<ResponseWrapper>(
         this.service.get(SERV.TASKS, taskId).pipe(
           catchError((error) => {
             this.handleFilterError(error);

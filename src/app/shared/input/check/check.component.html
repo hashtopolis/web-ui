@@ -9,6 +9,7 @@
     (blur)="onTouched()"
     [disabled]="disabled || readonly"
     [id]="inputId"
+    [title]="title"
     [class.mat-mdc-checkbox-invalid]="hasError && isTouched && !readonly"
   >
     @if (linkTo) {

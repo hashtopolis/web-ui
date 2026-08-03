@@ -7,7 +7,7 @@ import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';
 
 import { uiConfigDefault } from '@models/config-ui.model';
-import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+import { Filter, RequestParams } from '@models/request-params.model';
 import { TaskType } from '@models/task.model';
 
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -62,22 +62,11 @@ const globalServiceMock = jasmine.createSpyObj('GlobalService', ['getAll', 'ghel
  * Returns different counts depending on the service and filter parameters.
  */
 globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestParams) => {
-  // Handle TASKS_WRAPPER_COUNT — differentiate between Supertasks and regular Tasks
   if (service === SERV.TASKS_WRAPPER_COUNT) {
     const isSuperTask = params?.filter?.some(
       (filter: Filter) => filter.field === 'taskType' && filter.value === TaskType.SUPERTASK
     );
-
-    const isCompleted = params?.filter?.some(
-      (filter: Filter) => filter.field === 'keyspace' && filter.operator === FilterType.GREATER
-    );
-
-    // Return counts based on task type and completion status
-    if (isSuperTask) {
-      return of({ meta: { count: isCompleted ? 5 : 10 } }); // 5 completed, 10 total supertasks
-    } else {
-      return of({ meta: { count: isCompleted ? 15 : 30 } }); // 15 completed, 30 total tasks
-    }
+    return of({ meta: { count: isSuperTask ? 10 : 30 } });
   }
 
   // Handle AGENTS_COUNT — returns total and active agent counts
@@ -99,10 +88,13 @@ globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestP
   return of({ meta: { count: 0 }, results: [] });
 });
 
-/**
- * Mock for `ghelper` — returns an empty meta object for any helper endpoint.
- */
-globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+function ghelperDefaultFake(_service: ServiceConfig, option: string) {
+  if (option === 'getCompletedCount') {
+    return of({ data: { completedTasks: 15, completedSupertasks: 5 } });
+  }
+  return of({ data: {} });
+}
+globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
 
 /**
  * Mock implementation of LocalStorageService for testing purposes.
@@ -191,6 +183,7 @@ describe('HomeComponent (template permissions and view)', () => {
 
     permissionServiceMock.hasPermissionSync.calls.reset();
     globalServiceMock.getAll.calls.reset();
+    globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
 
     fixture.detectChanges();
     mockAutoRefreshService.toggleAutoRefresh.calls.reset();
@@ -376,7 +369,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     mockAutoRefreshService = createMockAutoRefreshService();
 
     // Reset ghelper to a clean state before each test
-    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: {} }));
 
     await TestBed.configureTestingModule({
       declarations: [HomeComponent],
@@ -407,15 +400,16 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     expect(globalServiceMock.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getCracksPerDay');
   });
 
-  it('should NOT call ghelper when canReadCracks is false', () => {
+  it('should NOT call ghelper for getCracksPerDay when canReadCracks is false', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
     globalServiceMock.ghelper.calls.reset();
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(globalServiceMock.ghelper).not.toHaveBeenCalled();
+    expect(globalServiceMock.ghelper).not.toHaveBeenCalledWith(SERV.HELPER, 'getCracksPerDay');
   });
 
   it('should populate heatmapData from ghelper response and fill missing days with 0', () => {
@@ -424,7 +418,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     const today = new Date();
     const year = today.getFullYear();
     const jan2 = `${year}-01-02`;
-    globalServiceMock.ghelper.and.returnValue(of({ meta: { [jan2]: 42 }, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: { [jan2]: 42 } }));
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -440,20 +434,45 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     expect(jan2Entry![1]).toBe(42);
   });
 
-  it('should include all days from Jan 1st to today', () => {
+  it('should include all days across the trailing 12 months up to today', () => {
     permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.ghelper.and.returnValue(of({ meta: {}, data: [] }));
+    globalServiceMock.ghelper.and.returnValue(of({ data: {} }));
 
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    try {
+      fixture = TestBed.createComponent(HomeComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const start = new Date(year, 0, 1);
-    const expectedDays = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
+      // 2025-07-23 .. 2026-07-23 inclusive
+      expect(component.heatmapData.length).toBe(366);
+      expect(component.heatmapData[0][0]).toBe('2025-07-23');
+      expect(component.heatmapData[component.heatmapData.length - 1][0]).toBe('2026-07-23');
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
 
-    expect(component.heatmapData.length).toBe(expectedDays);
+  it('should include crack days from the previous calendar year that fall within the trailing 12 months', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    try {
+      // A crack recorded in the previous calendar year, still inside the trailing 12-month window.
+      globalServiceMock.ghelper.and.returnValue(of({ data: { '2025-09-15': 7 } }));
+
+      fixture = TestBed.createComponent(HomeComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      const entry = component.heatmapData.find(([d]) => d === '2025-09-15');
+      expect(entry).toBeTruthy();
+      expect(entry![1]).toBe(7);
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('should handle ghelper errors gracefully and keep heatmapData empty', () => {
@@ -465,5 +484,22 @@ describe('HomeComponent — updateHeatmapData$()', () => {
 
     expect(() => fixture.detectChanges()).not.toThrow();
     expect(component.heatmapData).toEqual([]);
+  });
+
+  it('should fetch completed counts via getCompletedCount when canReadTasks is true', () => {
+    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Task.READ);
+    globalServiceMock.ghelper.and.callFake((service: ServiceConfig, option: string) =>
+      option === 'getCompletedCount'
+        ? of({ data: { completedTasks: 12, completedSupertasks: 3 } })
+        : of({ meta: {}, data: [] })
+    );
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(globalServiceMock.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getCompletedCount');
+    expect(component.completedTasks).toBe(12);
+    expect(component.completedSupertasks).toBe(3);
   });
 });

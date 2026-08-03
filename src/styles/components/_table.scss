@@ -84,7 +84,7 @@ table.hashtopolis-table {
   overflow: visible;
   background: linear-gradient(var(--card), var(--card)), var(--background);
   width: auto;
-  min-width: 0;
+  min-width: 100%;
 
   .mat-mdc-row,
   .mat-mdc-cell,
@@ -555,6 +555,11 @@ table.hashtopolis-table .mat-mdc-cell.cell-numeric .flex-container {
   margin-left: var(--ht-frozen-left, 0);
   margin-right: var(--ht-frozen-right, 0);
   margin-bottom: 2px;
+}
+
+.ht-table-xscroll-row[hidden],
+.ht-table-chevrons[hidden] {
+  display: none;
 }
 
 // Tiny jump-to-start / jump-to-end chevron buttons; usable even when the OS hides the scrollbar.

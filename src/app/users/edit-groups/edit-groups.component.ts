@@ -1,5 +1,5 @@
 import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -127,7 +127,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   async loadAccessGroup() {
     const requestParams = new RequestParamBuilder().addInclude('userMembers').addInclude('agentMembers').create();
     try {
-      const response: ResponseWrapper = await firstValueFrom(
+      const response: ResponseWrapper = await lastValueFrom(
         this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
       );
 
@@ -151,7 +151,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         }
         const requestParams = requestParamBuilder.create();
 
-        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
+        const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.USERS, requestParams));
         const users: JUser[] = new JsonAPISerializer().deserialize(response, zUserListResponse);
         this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
       }
@@ -177,7 +177,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
           requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
         }
         const requestParams = requestParamBuilder.create();
-        const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
+        const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
         const agents: ThinJAgent[] = new JsonAPISerializer().deserialize(response, zAgentListResponse);
         this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
       }

@@ -12,15 +12,7 @@ import { AgentOS, IgnoreErrors } from '@src/app/core/_constants/agentsc.config';
 
 /** Keys for include-dependent relationship fields on JAgent (populated only when `?include=` is requested). */
 export type JAgentIncludes =
-  | 'user'
-  | 'agentStats'
-  | 'agentErrors'
-  | 'accessGroups'
-  | 'task'
-  | 'chunk'
-  | 'chunks'
-  | 'tasks'
-  | 'assignments';
+  'user' | 'agentStats' | 'agentErrors' | 'accessGroups' | 'task' | 'chunk' | 'chunks' | 'tasks' | 'assignments';
 
 /**
  * Interface for cracking agent
@@ -45,11 +37,16 @@ export interface JAgent extends BaseModel {
   accessGroup?: string;
   taskId?: TaskId;
   taskName?: string | undefined;
-  chunkId?: ChunkId;
+  chunkId?: ChunkId | undefined;
   benchmark?: string;
   assignmentId?: number;
   agentSpeed?: number;
   chunkData?: ChunkData;
+  // Assignment aggregates for the displayed task, copied over by AgentsDataSource.loadAssignments().
+  cracked?: number | undefined;
+  currentSpeed?: number | undefined;
+  timeSpent?: number | undefined;
+  searched?: number | undefined;
   // Aggregate field `crackingTime` is intentionally NOT here — see JAgentAggregates / JAgentWith below.
   // Include-dependent relationships (require ?include= in API request)
   user: JUser;

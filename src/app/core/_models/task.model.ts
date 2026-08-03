@@ -64,7 +64,7 @@ export interface JTask extends BaseModel, TaskAttributes {
   preprocessorId: PreprocessorId;
   preprocessorCommand: string;
   // Aggregate fields (dispatched, searched, status, estimatedTime, timeSpent, currentSpeed, cprogress,
-  // totalNumberOfChunks, activeAgents) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
+  // totalNumberOfChunks, totalAssignedAgents, cracked) are intentionally NOT here — see JTaskAggregates / JTaskWith below.
   // the aggregate fields have to be explicitely requested
   speeds?: SpeedStat[];
   chunkData?: ChunkData;
@@ -79,7 +79,7 @@ export interface JTask extends BaseModel, TaskAttributes {
  * `aggregate[task]=`. This interface is the source of their types.
  */
 export interface JTaskAggregateFields {
-  activeAgents: number;
+  totalAssignedAgents: number;
   dispatched: string;
   searched: string;
   status: number;
@@ -88,6 +88,7 @@ export interface JTaskAggregateFields {
   currentSpeed: number;
   cprogress: number;
   totalNumberOfChunks: number;
+  cracked: number;
 }
 
 /** Aggregate field keys on JTask. */
@@ -189,7 +190,8 @@ export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
 export enum TaskStatus {
   RUNNING = 1,
   IDLE = 2,
-  COMPLETED = 3
+  COMPLETED = 3,
+  SKIPPED = 4
 }
 
 export interface TaskCompletionData {

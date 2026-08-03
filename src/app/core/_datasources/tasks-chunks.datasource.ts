@@ -1,5 +1,5 @@
 import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
-import { EMPTY, catchError, finalize, firstValueFrom } from 'rxjs';
+import { EMPTY, catchError, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -46,7 +46,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
         const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
         try {
           const taskParams = new RequestParamBuilder().create();
-          const response = await firstValueFrom<ResponseWrapper>(
+          const response = await lastValueFrom<ResponseWrapper>(
             this.service.get(SERV.TASKS, this._taskId, taskParams, httpOptions).pipe(
               catchError((error) => {
                 this.handleFilterError(error);

@@ -19,7 +19,9 @@ export const HELPER_ENDPOINTS = [
   'getBestTasksAgent',
   'getCracksOfTask',
   'getCracksPerDay',
+  'getCompletedCount',
   'getAccessGroups',
+  'getGlobalConfig',
   // POST helpers (chelper)
   'changeOwnPassword',
   'importFile',
@@ -37,6 +39,7 @@ export const HELPER_ENDPOINTS = [
   'resetChunk',
   'rebuildChunkCache',
   'rescanGlobalFiles',
+  'recountFileLines',
   'resetUserPassword'
 ] as const;
 

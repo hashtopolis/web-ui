@@ -13,7 +13,7 @@ import { BaseModel } from '@src/app/core/_models/base.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
-import { JTask, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
+import { JTask, JTaskWith, JTaskWrapperDisplay } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
@@ -115,7 +115,7 @@ describe('BaseTableComponent', () => {
     });
   });
   it('should render cracked link from task', (done) => {
-    const mockTask = { id: 1, chunkData: { cracked: 100 } } as JTask;
+    const mockTask = { id: 1, cracked: 100 } as JTaskWith<'cracked'>;
     component.renderCrackedLinkFromTask(mockTask).subscribe((links) => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);

@@ -8,6 +8,7 @@ import { RowActionMenuAction } from '@components/menus/row-action-menu/row-actio
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/table-truncate.component';
 
 import { HashesDataSource } from '@datasources/hashes.datasource';
 
@@ -78,7 +79,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         isSortable: true,
         isSearchable: true,
         isCopy: true,
-        truncate: (hash: JHash) => hash.hash.length > 40,
+        truncate: (hash: JHash) => hash.hash.length > TABLE_TRUNCATE_MAX_LENGTH,
         export: async (hash: JHash) => hash.hash + ''
       },
       {

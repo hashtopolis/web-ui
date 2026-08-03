@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs';
+import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -295,6 +295,25 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
       expect(component.isLoadingServerFiles).toBeFalse();
     }));
+
+    // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
+    // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
+    // firstValueFrom took the stale list (file added after login stayed hidden until re-login);
+    // the fix uses lastValueFrom, which resolves on the revalidated emission.
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+      const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
+      const fresh: ResponseWrapper = mockResponse({
+        data: [],
+        meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
+      });
+      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+
+      await component.loadServerFiles();
+      tick();
+
+      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
+    }));
   });
 
   describe('onSubmit - form validation', () => {
@@ -360,6 +379,35 @@ describe('ImportCrackedHashesComponent', () => {
       component.onSubmit();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('The hash must contain the specified separator!');
     });
+  });
+
+  describe('submitImport error handling', () => {
+    it('should surface the backend error, skip the global dialog and clear loading when the import fails', fakeAsync(() => {
+      gsSpy.chelper.and.returnValue(
+        throwError(() => ({ status: 400, error: { title: 'Cracked hash file has too many lines!' } }))
+      );
+      component.form.patchValue({
+        sourceType: 'paste',
+        fieldSeparator: ':',
+        conflictResolution: false,
+        hashes: 'hash:password'
+      });
+
+      component.onSubmit();
+      tick();
+
+      // The component handles the error itself, so it tells the interceptor to skip the modal.
+      const call = gsSpy.chelper.calls.mostRecent();
+      expect(call.args[1]).toBe('importCrackedHashes');
+      const httpOptions = call.args[4];
+      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
+        'Failed to import cracked hashes: Cracked hash file has too many lines!'
+      );
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.isCreatingLoading).toBe(false);
+    }));
   });
 
   describe('onSubmit - sourceType import', () => {

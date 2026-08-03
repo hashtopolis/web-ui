@@ -12,7 +12,11 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import {
+  FilesRowAction,
+  FilesTableCol,
+  FilesTableColumnLabel
+} from '@components/tables/files-table/files-table.constants';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
@@ -238,6 +242,12 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       case RowActionMenuAction.DOWNLOAD:
         this.rowActionDownload(event.data);
         break;
+      case FilesRowAction.TOGGLE_SECRET:
+        this.rowActionToggleSecret(event.data);
+        break;
+      case FilesRowAction.RECOUNT_LINES:
+        this.rowActionRecount(event.data);
+        break;
     }
   }
 
@@ -322,5 +332,40 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionDownload(file: JFile): void {
     this.gs.getFile(SERV.GET_FILES, file.id, file.filename);
+  }
+
+  private rowActionToggleSecret(file: JFile): void {
+    const isSecret = !file.isSecret;
+    this.subscriptions.push(
+      this.gs
+        .update(SERV.FILES, file.id, { isSecret })
+        .pipe(
+          catchError((error) => {
+            console.error('Error updating secret flag:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`File ${file.filename} is now ${isSecret ? 'secret' : 'not secret'}!`);
+          this.reload();
+        })
+    );
+  }
+
+  private rowActionRecount(file: JFile): void {
+    this.subscriptions.push(
+      this.gs
+        .chelper(SERV.HELPER, 'recountFileLines', { fileId: file.id })
+        .pipe(
+          catchError((error) => {
+            console.error('Error recounting file lines:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Recounted lines for ${file.filename}!`);
+          this.reload();
+        })
+    );
   }
 }

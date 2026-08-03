@@ -4,9 +4,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
-import { ChunkData } from '@models/chunk.model';
 
-import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -30,6 +28,7 @@ import {
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
+import { TaskAgentContextMenuService } from '@src/app/core/_services/context-menu/tasks/task-agent-menu.service';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
@@ -77,7 +76,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.contextMenuService = new TaskAgentContextMenuService(this.permissionService).addContextMenu();
   }
 
   ngAfterViewInit(): void {
@@ -135,7 +134,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'speed') + ''
+        export: async (agent: JAgent) => {
+          const speed = agent.currentSpeed ?? 0;
+          return speed > 0 ? speed + '' : '-';
+        }
       },
       {
         id: TasksAgentsTableCol.CURRENT_CHUNK,
@@ -143,7 +145,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'chunkId',
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: true,
-        export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
+        export: async (agent: JAgent) => (agent.chunkId ? agent.chunkId + '' : '')
       },
       {
         id: TasksAgentsTableCol.GPUS_CPUS,
@@ -166,7 +168,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'cracked',
         render: (agent: JAgent) => this.renderCracked(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.renderCracked(agent) + ''
+        export: async (agent: JAgent) => (agent.cracked !== undefined ? agent.cracked + '' : '-')
       },
       {
         id: TasksAgentsTableCol.BENCHMARK,
@@ -188,7 +190,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'timeSpent',
         render: (agent: JAgent) => this.renderTimeSpent(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'timeSpent') + ''
+        export: async (agent: JAgent) => (agent.timeSpent ? agent.timeSpent + '' : '-')
       },
       {
         id: TasksAgentsTableCol.SEARCHED,
@@ -196,7 +198,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'searched',
         render: (agent: JAgent) => this.renderSearched(agent),
         isSortable: true,
-        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'searched') + ''
+        export: async (agent: JAgent) => this.getSearchedFraction(agent) + ''
       }
     ];
   }
@@ -219,8 +221,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
+            case RowActionMenuAction.UNASSIGN:
+              this.rowActionUnassign(result.data);
               break;
             case BulkActionMenuAction.ACTIVATE:
               this.bulkActionActivate(result.data, true);
@@ -228,27 +230,13 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
             case BulkActionMenuAction.DEACTIVATE:
               this.bulkActionActivate(result.data, false);
               break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionDelete(result.data);
+            case BulkActionMenuAction.UNASSIGN:
+              this.bulkActionUnassign(result.data);
               break;
           }
         }
       })
     );
-  }
-
-  /**
-   * Get a value from the agent's chunkdata attribute
-   * @param agent - agent instance to get value from
-   * @param property name of chunkdata property
-   * @return property value or undefined, if property or chunkdata are not defined
-   * @private
-   */
-  private getChunkDataValue(agent: JAgent, property: string): number | undefined {
-    if (agent.chunkData && property in agent.chunkData) {
-      return agent.chunkData[property as keyof ChunkData] as number | undefined;
-    }
-    return undefined;
   }
 
   /**
@@ -258,8 +246,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
-    const agentSpeed = this.getChunkDataValue(agent, 'speed');
-    if (agentSpeed) {
+    const agentSpeed = agent.currentSpeed;
+    if (agentSpeed !== undefined && agentSpeed > 0) {
       return this.sanitize(convertCrackingSpeed(agentSpeed));
     }
     return this.sanitize('-');
@@ -272,7 +260,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderProgressIcon(agent: JAgent): HTTableIcon {
-    if (this.getChunkDataValue(agent, 'speed')) {
+    if ((agent.currentSpeed ?? 0) > 0) {
       return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
     return { name: '' };
@@ -285,8 +273,19 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderTimeSpent(agent: JAgent): SafeHtml {
-    const timeSpent = this.getChunkDataValue(agent, 'timeSpent');
+    const timeSpent = agent.timeSpent;
     return this.sanitize(timeSpent ? `${formatSeconds(timeSpent)}` : '-');
+  }
+
+  /**
+   * Get the searched keyspace of the agent as a fraction of the task keyspace
+   * @param agent - agent instance to get value from
+   * @return searched fraction, 0 if the task keyspace is unknown
+   * @private
+   */
+  private getSearchedFraction(agent: JAgent): number {
+    const keyspace = agent.task?.keyspace ?? 0;
+    return keyspace ? (agent.searched ?? 0) / keyspace : 0;
   }
 
   /**
@@ -296,7 +295,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderSearched(agent: JAgent): SafeHtml {
-    const searched = (this.getChunkDataValue(agent, 'searched') ?? 0) * 100;
+    const searched = this.getSearchedFraction(agent) * 100;
     const percentSearched = `${(Math.round(searched * 100) / 100).toLocaleString()}%`;
     return this.sanitize(searched ? `${percentSearched}` : '-');
   }
@@ -308,8 +307,9 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
    * @private
    */
   private renderCracked(agent: JAgent): SafeHtml {
-    const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
+    const cracked = agent.cracked;
+    const isCracked = cracked !== undefined;
+    return this.sanitize(isCracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -386,12 +386,12 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-      case RowActionMenuAction.DELETE:
+      case RowActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: [event.data],
-          title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
+          title: `Unassigning  ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${event.data?.assignmentId ? 'unassign' : 'delete'} ${event.data.agentName}? ${event.data?.assignmentId ? '' : 'Note that this action cannot be undone.'}`,
+          body: `Are you sure you want to unassign ${event.data.agentName}?`,
           warn: true,
           action: event.menuItem.action
         });
@@ -419,12 +419,12 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
           action: event.menuItem.action
         });
         break;
-      case BulkActionMenuAction.DELETE:
+      case BulkActionMenuAction.UNASSIGN:
         this.openDialog({
           rows: event.data,
-          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${event.data.length} agents ...`,
+          title: `Unassigning ${event.data.length} agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? Note that this action cannot be undone.`,
+          body: `Are you sure you want to unassign the above agents?`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -464,54 +464,54 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     );
   }
 
-  /**
-   * @todo Implement error handling.
-   */
-  private bulkActionDelete(agents: JAgent[]): void {
+  private rowActionEdit(agent: JAgent): void {
+    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink!).then(() => {});
+    });
+  }
+  private bulkActionUnassign(agents: JAgent[]): void {
+    const assignedAgents = agents.filter((agent): agent is JAgent & { assignmentId: number } => !!agent.assignmentId);
+    const unassignedAgents = agents.filter((agent) => !agent.assignmentId);
+
+    unassignedAgents.forEach((agent) => {
+      this.alertService.showErrorMessage('Failed to unassign agent!' + agent.agentName);
+    });
+
+    if (assignedAgents.length === 0) {
+      return;
+    }
+
+    const assignments = assignedAgents.map((agent) => ({ id: agent.assignmentId }));
+
     this.subscriptions.push(
       this.gs
-        .bulkDelete(SERV.AGENTS, agents)
+        .bulkDelete(SERV.AGENT_ASSIGN, assignments)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion: ', error);
+            console.error('Error during unassignment: ', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
+          this.alertService.showSuccessMessage(`Successfully unassigned agents!`);
           this.dataSource.reload();
+          this.assignedAgentsChanged.emit();
         })
     );
   }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(agents: JAgent[]): void {
+  private rowActionUnassign(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
       this.subscriptions.push(
         this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
-          this.dataSource.reload();
+          this.reload();
           this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
         })
       );
     } else {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent!');
-          this.dataSource.reload();
-          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-        })
-      );
+      this.alertService.showErrorMessage('Failed to unassign agent!');
     }
-  }
-
-  private rowActionEdit(agent: JAgent): void {
-    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink!).then(() => {});
-    });
   }
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {

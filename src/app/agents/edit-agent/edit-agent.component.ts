@@ -1,7 +1,7 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -174,7 +174,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       includes.push('assignments');
     }
     try {
-      const response = await firstValueFrom<ResponseWrapper>(
+      const response = await lastValueFrom<ResponseWrapper>(
         this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
           include: includes,
           aggregate: [{ field: 'agent', values: ['crackingTime'] }]
@@ -208,7 +208,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       // If the server fails while resolving included relations (500+),
       // try once more without the `include` params so the primary resource can still load.
       if (httpErr?.status && httpErr.status >= 500) {
-        const response = await firstValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
+        const response = await lastValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
         // Degraded fallback: no includes loaded due to server error
         const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);

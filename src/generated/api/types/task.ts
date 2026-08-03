@@ -91,7 +91,7 @@ export type TaskResponse = {
       activeAgents?: number;
       dispatched?: string;
       searched?: string;
-      status?: 0 | 1 | 2 | 3;
+      status?: 0 | 1 | 2 | 3 | 4;
       estimatedTime?: number;
       timeSpent?: number;
       currentSpeed?: number;
@@ -280,7 +280,7 @@ export type TaskPostPatchResponse = {
       activeAgents?: number;
       dispatched?: string;
       searched?: string;
-      status?: 0 | 1 | 2 | 3;
+      status?: 0 | 1 | 2 | 3 | 4;
       estimatedTime?: number;
       timeSpent?: number;
       currentSpeed?: number;
@@ -331,7 +331,7 @@ export type TaskListResponse = {
       activeAgents?: number;
       dispatched?: string;
       searched?: string;
-      status?: 0 | 1 | 2 | 3;
+      status?: 0 | 1 | 2 | 3 | 4;
       estimatedTime?: number;
       timeSpent?: number;
       currentSpeed?: number;

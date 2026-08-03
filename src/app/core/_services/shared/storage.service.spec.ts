@@ -40,8 +40,8 @@ describe('UIConfigService', () => {
   let service: UIConfigService;
 
   beforeEach(() => {
-    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    globalServiceSpy.getAll.and.returnValue(of(mockResponse()));
+    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['ghelper']);
+    globalServiceSpy.ghelper.and.returnValue(of(mockResponse()));
 
     TestBed.configureTestingModule({
       providers: [UIConfigService, { provide: GlobalService, useValue: globalServiceSpy }]

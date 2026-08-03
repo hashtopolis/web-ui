@@ -6,7 +6,7 @@ import {
   zPreprocessorListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { combineLatest, firstValueFrom, switchMap } from 'rxjs';
+import { combineLatest, lastValueFrom, switchMap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -191,7 +191,7 @@ export class NewTasksComponent implements OnInit {
   private async loadHashlistSelectOptions(): Promise<void> {
     const filter: Filter[] = [{ field: 'isArchived', operator: FilterType.EQUAL, value: false }];
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.HASHLISTS, { filter }));
+      const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.HASHLISTS, { filter }));
       const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
       this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
       this.isLoading = false;
@@ -210,7 +210,7 @@ export class NewTasksComponent implements OnInit {
    */
   private async loadCrackerSelectOptions(): Promise<void> {
     try {
-      const typeResponse: ResponseWrapper = await firstValueFrom(
+      const typeResponse: ResponseWrapper = await lastValueFrom(
         this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
       );
       const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
@@ -231,7 +231,7 @@ export class NewTasksComponent implements OnInit {
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: typeId })
         .create();
 
-      const versionResponse: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
+      const versionResponse: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
 
       const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
         versionResponse,
@@ -256,7 +256,7 @@ export class NewTasksComponent implements OnInit {
    */
   private async loadPreprocessorSelectOptions(): Promise<void> {
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.PREPROCESSORS));
+      const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.PREPROCESSORS));
       const preprocessors: JPreprocessor[] = new JsonAPISerializer().deserialize(response, zPreprocessorListResponse);
       this.selectPreprocessor = transformSelectOptions(preprocessors, DEFAULT_FIELD_MAPPING);
       this.changeDetectorRef.detectChanges();
@@ -315,7 +315,7 @@ export class NewTasksComponent implements OnInit {
       .create();
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
+      const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
       const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
@@ -366,7 +366,7 @@ export class NewTasksComponent implements OnInit {
     const requestParams = requestParamBuilder.create();
 
     try {
-      const response: ResponseWrapper = await firstValueFrom(this.gs.get(endpoint, this.editedIndex, requestParams));
+      const response: ResponseWrapper = await lastValueFrom(this.gs.get(endpoint, this.editedIndex, requestParams));
       const schema = isTask ? zTaskResponse : zPreTaskResponse;
       const task: JTask | JPretask = new JsonAPISerializer().deserialize(response, schema);
 
