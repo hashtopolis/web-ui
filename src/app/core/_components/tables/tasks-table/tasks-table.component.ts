@@ -156,6 +156,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.NAME,
         dataKey: 'displayName',
+        cssClass: 'cell-task-name',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderTaskWrapperLink(wrapper),
         isSortable: true,
         isSearchable: true,
