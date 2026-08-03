@@ -1,5 +1,5 @@
 @if (!isLoading) {
-  <app-page [title]="(type === 3 ? 'Superhashlist ' : 'Hashlist ') + (editedHashlist?.name ?? '')">
+  <app-page [title]="(isSuperhashlist ? 'Superhashlist ' : 'Hashlist ') + (editedHashlist?.name ?? '')">
     <div class="grid grid-cols-12 gap-4">
       <div class="col-span-12 md:col-span-6">
         <grid-main>
@@ -121,7 +121,7 @@
       </div>
     </div>
 
-    @if (type === 3) {
+    @if (isSuperhashlist) {
       <app-table>
         <app-page-subtitle [subtitle]="'Included Hashlists within the Superhashlist'"> </app-page-subtitle>
         <app-superhashlist-hashlist-table #table name="hashlistsInShTable" [shashlistId]="editedHashlistIndex">
@@ -137,7 +137,7 @@
       </app-table>
     }
 
-    @if (type !== 3 && roleService.hasRole('pretaskBuilder')) {
+    @if (canBuildPretasks) {
       <app-table>
         <app-page-subtitle [subtitle]="'Create pre-configured tasks'"></app-page-subtitle>
         <app-hashlist-pretask-builder-table [hashlistId]="editedHashlistIndex" (created)="onTasksCreated()">
@@ -145,7 +145,7 @@
       </app-table>
     }
 
-    @if (type !== 3 && roleService.hasRole('supertaskBuilder')) {
+    @if (canBuildSupertasks) {
       <app-table>
         <app-page-subtitle [subtitle]="'Create supertask'"></app-page-subtitle>
         <app-hashlist-supertask-builder-table [hashlistId]="editedHashlistIndex" (created)="onTasksCreated()">

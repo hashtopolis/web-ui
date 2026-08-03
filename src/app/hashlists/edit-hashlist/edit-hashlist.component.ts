@@ -23,6 +23,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
 
+import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
@@ -68,6 +69,20 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   protected roleService = inject(HashListRoleService);
+
+  get isSuperhashlist(): boolean {
+    return this.type === HashListFormat.SUPERHASHLIST;
+  }
+
+  /** Pre-configured tasks can only be built against a plain hashlist. */
+  get canBuildPretasks(): boolean {
+    return !this.isSuperhashlist && this.roleService.hasRole('pretaskBuilder');
+  }
+
+  /** Supertasks can only be built against a plain hashlist. */
+  get canBuildSupertasks(): boolean {
+    return !this.isSuperhashlist && this.roleService.hasRole('supertaskBuilder');
+  }
 
   /**
    * Constructor for the component.
@@ -213,7 +228,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         .subscribe(() => {
           this.alert.showSuccessMessage('Hashlist saved');
           this.updateForm.reset(); // success, we reset form
-          const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
+          const path = this.isSuperhashlist ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
         });
       this.unsubscribeService.add(createSubscription$);
