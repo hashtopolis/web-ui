@@ -93,6 +93,12 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     return this.pretasks.length > 0 && this.selectedPretaskIds.size === this.pretasks.length;
   }
 
+  /** Colors are stored without a leading '#' (see InputColorComponent), so re-add it and drop invalid values. */
+  hexColor(color?: string | null): string | null {
+    const hex = (color ?? '').trim().replace(/^#/, '');
+    return /^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex}` : null;
+  }
+
   onPageChange(event: PageEvent): void {
     let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;

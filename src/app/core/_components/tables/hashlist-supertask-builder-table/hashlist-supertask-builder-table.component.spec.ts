@@ -70,6 +70,18 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     expect(text).toContain('WL set');
   });
 
+  it('should link the name to the supertask', async () => {
+    component.supertasks = [{ id: 10, supertaskName: 'BF set', type: 'supertask' } as JSuperTask];
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const links = Array.from(fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>);
+    const nameLink = links.find((link) => link.textContent?.trim() === 'BF set');
+    expect(nameLink?.getAttribute('href')).toBe('/tasks/10/edit');
+  });
+
   it('should show error and not call backend when no version is selected', async () => {
     await component.createSupertask(10);
     await fixture.whenStable();

@@ -64,8 +64,10 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
   it('should render color preview when pretask has color and keep empty when no color', async () => {
     component.pretasks = [
-      { id: 1, taskName: 'With color', color: '#ff0000', type: 'pretask' } as JPretask,
-      { id: 2, taskName: 'No color', color: '', type: 'pretask' } as JPretask
+      { id: 1, taskName: 'Stored without hash', color: 'ff0000', type: 'pretask' } as JPretask,
+      { id: 2, taskName: 'Stored with hash', color: '#00ff00', type: 'pretask' } as JPretask,
+      { id: 3, taskName: 'No color', color: '', type: 'pretask' } as JPretask,
+      { id: 4, taskName: 'Invalid color', color: 'not-a-color', type: 'pretask' } as JPretask
     ];
 
     fixture.detectChanges();
@@ -73,9 +75,23 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     fixture.detectChanges();
 
     const previews = fixture.nativeElement.querySelectorAll('.color-preview') as NodeListOf<HTMLElement>;
-    expect(previews.length).toBe(2);
-    expect(previews[0].style.backgroundColor).not.toBe('');
-    expect(previews[1].style.backgroundColor).toBe('');
+    expect(previews.length).toBe(4);
+    expect(previews[0].style.backgroundColor).toBe('rgb(255, 0, 0)');
+    expect(previews[1].style.backgroundColor).toBe('rgb(0, 255, 0)');
+    expect(previews[2].style.backgroundColor).toBe('');
+    expect(previews[3].style.backgroundColor).toBe('');
+  });
+
+  it('should link the name to the pretask', async () => {
+    component.pretasks = [{ id: 7, taskName: 'Linked', type: 'pretask' } as JPretask];
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const nameLink = fixture.nativeElement.querySelector('.name-col a') as HTMLAnchorElement;
+    expect(nameLink.textContent?.trim()).toBe('Linked');
+    expect(nameLink.getAttribute('href')).toBe('/tasks/preconfigured-tasks/7/edit');
   });
 
   it('should select and unselect all rows', () => {

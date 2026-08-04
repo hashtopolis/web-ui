@@ -15,18 +15,18 @@
               <a [routerLink]="['/tasks/preconfigured-tasks', pretask.id, 'edit']">{{ pretask.id }}</a>
             </td>
             <td class="color-col">
-              <div class="color-preview" [style.backgroundColor]="pretask.color || null"></div>
+              <div class="color-preview" [style.backgroundColor]="hexColor(pretask.color)"></div>
             </td>
             <td class="name-col">
-              <label class="checkbox-cell" [attr.for]="'pretask-select-' + pretask.id">
+              <div class="checkbox-cell">
                 <input
                   type="checkbox"
-                  [attr.id]="'pretask-select-' + pretask.id"
+                  [attr.aria-label]="'Select ' + pretask.taskName"
                   [checked]="selectedPretaskIds.has(pretask.id)"
                   (change)="togglePretaskSelection(pretask.id, $any($event.target).checked)"
                 />
-                <span>{{ pretask.taskName }}</span>
-              </label>
+                <a [routerLink]="['/tasks/preconfigured-tasks', pretask.id, 'edit']">{{ pretask.taskName }}</a>
+              </div>
             </td>
           </tr>
         }

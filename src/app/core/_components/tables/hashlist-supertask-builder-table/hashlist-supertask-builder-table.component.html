@@ -11,11 +11,11 @@
         @for (supertask of supertasks; track supertask.id) {
           <tr>
             <td class="id-col">
-              <a [routerLink]="['/tasks/supertasks', supertask.id, 'edit']">{{ supertask.id }}</a>
+              <a [routerLink]="['/tasks', supertask.id, 'edit']">{{ supertask.id }}</a>
             </td>
             <td>
               <div class="row-content">
-                <a [routerLink]="['/tasks/supertasks', supertask.id, 'edit']">{{ supertask.supertaskName }}</a>
+                <a [routerLink]="['/tasks', supertask.id, 'edit']">{{ supertask.supertaskName }}</a>
 
                 <div class="row-actions">
                   <input-select
