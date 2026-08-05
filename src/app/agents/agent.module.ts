@@ -7,7 +7,6 @@ import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
 
-import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
 import { AgentsRoutingModule } from '@src/app/agents/agents-routing.module';
 import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
@@ -19,13 +18,7 @@ import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-st
 import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
-  declarations: [
-    AgentStatusModalComponent,
-    AgentStatusComponent,
-    ShowAgentsComponent,
-    EditAgentComponent,
-    NewAgentComponent
-  ],
+  declarations: [AgentStatusComponent, ShowAgentsComponent, EditAgentComponent, NewAgentComponent],
   imports: [
     CoreComponentsModule,
     CoreFormsModule,
