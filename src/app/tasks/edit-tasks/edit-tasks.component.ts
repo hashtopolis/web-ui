@@ -22,7 +22,7 @@ import { JHashtype } from '@models/hashtype.model';
 import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { zEditTaskRouteData, zIdRouteParams } from '@models/routes.schema';
+import { EditTaskRouteKind, zEditTaskRouteData, zIdRouteParams } from '@models/routes.schema';
 import { SpeedStat } from '@models/speed-stat.model';
 import { JTask, JTaskWith } from '@models/task.model';
 
@@ -439,10 +439,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.route.data.subscribe((data) => {
       const routeKind = zEditTaskRouteData.parse(data).kind;
       switch (routeKind) {
-        case 'edit-task':
+        case EditTaskRouteKind.EditTask:
           this.chunkview = 0;
           break;
-        case 'edit-task-cAll':
+        case EditTaskRouteKind.EditTaskCrackedAll:
           this.chunkview = 1;
           break;
       }

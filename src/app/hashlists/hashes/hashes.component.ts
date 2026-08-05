@@ -7,7 +7,13 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { zHashesQueryParams, zHashesRouteData, zHashesRouteParams, zRouteId } from '@models/routes.schema';
+import {
+  HashesRouteKind,
+  zHashesQueryParams,
+  zHashesRouteData,
+  zHashesRouteParams,
+  zRouteId
+} from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -142,7 +148,7 @@ export class HashesComponent implements OnInit, OnDestroy {
     this.route.data.subscribe((data) => {
       const routeDataKind = zHashesRouteData.parse(data).kind;
       switch (routeDataKind) {
-        case 'chunkshash':
+        case HashesRouteKind.ChunkHashes:
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
@@ -150,7 +156,7 @@ export class HashesComponent implements OnInit, OnDestroy {
           });
           break;
 
-        case 'taskhas':
+        case HashesRouteKind.TaskHashes:
           this.whichView = 'tasks';
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
@@ -158,7 +164,7 @@ export class HashesComponent implements OnInit, OnDestroy {
           });
           break;
 
-        case 'hashlisthash':
+        case HashesRouteKind.HashlistHashes:
           this.whichView = 'hashlists';
           this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);

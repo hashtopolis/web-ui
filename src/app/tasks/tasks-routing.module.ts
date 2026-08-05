@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { EditTaskRouteKind, NewPretaskRouteKind } from '@models/routes.schema';
 
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
@@ -61,7 +62,7 @@ const routes: MyRoute[] = [
         path: 'show-tasks/:id/edit',
         component: EditTasksComponent,
         data: {
-          kind: 'edit-task',
+          kind: EditTaskRouteKind.EditTask,
           breadcrumb: 'Edit Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
@@ -72,7 +73,7 @@ const routes: MyRoute[] = [
         path: 'show-tasks/:id/edit/show-all-chunks',
         component: EditTasksComponent,
         data: {
-          kind: 'edit-task-cAll',
+          kind: EditTaskRouteKind.EditTaskCrackedAll,
           breadcrumb: 'Edit Task > Show All chunks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
@@ -128,7 +129,7 @@ const routes: MyRoute[] = [
         path: 'new-preconfigured-tasks',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'new-preconfigured-tasks',
+          kind: NewPretaskRouteKind.NewPretask,
           breadcrumb: 'New Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
@@ -151,7 +152,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks/:id/copy',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'copy-preconfigured-tasks',
+          kind: NewPretaskRouteKind.CopyPretask,
           breadcrumb: 'Copy Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
@@ -162,7 +163,7 @@ const routes: MyRoute[] = [
         path: 'preconfigured-tasks/:id/copytask',
         component: NewPreconfiguredTasksComponent,
         data: {
-          kind: 'copy-tasks',
+          kind: NewPretaskRouteKind.CopyTask,
           breadcrumb: 'Copy Task to Preconfigured task',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'

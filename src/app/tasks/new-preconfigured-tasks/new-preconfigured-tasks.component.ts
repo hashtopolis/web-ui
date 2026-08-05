@@ -86,11 +86,11 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   private determineView(kind: NewPretaskRouteKind): string {
     switch (kind) {
-      case 'new-preconfigured-tasks':
+      case NewPretaskRouteKind.NewPretask:
         return 'create';
-      case 'copy-preconfigured-tasks':
+      case NewPretaskRouteKind.CopyPretask:
         return 'edit';
-      case 'copy-tasks':
+      case NewPretaskRouteKind.CopyTask:
         return 'task';
       default:
         return 'create';

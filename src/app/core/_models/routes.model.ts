@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Type } from '@angular/core';
 import { CanActivate, CanActivateFn, CanDeactivate, CanDeactivateFn, LoadChildren } from '@angular/router';
 
-import { formRouteType } from '@models/routes.schema';
+import { FormRouteType } from '@models/routes.schema';
 
 import { ServiceConfig } from '@services/main.config';
 import { RoleService } from '@services/roles/base/role.service';
@@ -13,7 +13,7 @@ import { RoleService } from '@services/roles/base/role.service';
  */
 export interface RouteData {
   kind?: string;
-  type?: z.infer<typeof formRouteType>;
+  type?: FormRouteType;
   serviceConfig?: ServiceConfig;
   responseSchema?: z.ZodTypeAny;
   breadcrumb?: string;

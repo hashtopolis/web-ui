@@ -11,7 +11,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { ServerImportFile } from '@models/file.model';
 import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
-import { zNewFilesRouteData } from '@models/routes.schema';
+import { NewFilesRouteKind, zNewFilesRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
@@ -110,19 +110,19 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.route.data.subscribe((data) => {
       const routeDataKind = zNewFilesRouteData.parse(data).kind;
       switch (routeDataKind) {
-        case 'wordlist-new':
+        case NewFilesRouteKind.NewWordlist:
           this.filterType = 0;
           this.title = 'New Wordlist';
           this.redirect = 'wordlist';
           break;
 
-        case 'rule-new':
+        case NewFilesRouteKind.NewRule:
           this.filterType = 1;
           this.title = 'New Rule';
           this.redirect = 'rules';
           break;
 
-        case 'other-new':
+        case NewFilesRouteKind.NewOther:
           this.filterType = 2;
           this.title = 'New Other';
           this.redirect = 'other';
