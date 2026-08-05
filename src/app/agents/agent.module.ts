@@ -14,7 +14,6 @@ import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.compon
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
 import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-stat-graph/agent-stat-graph.component';
 import { PipesModule } from '@src/app/shared/pipes.module';
@@ -33,7 +32,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FontAwesomeModule,
     ReactiveFormsModule,
     AgentsRoutingModule,
-    DirectivesModule,
     ComponentsModule,
     CoreFormsModule,
     CommonModule,

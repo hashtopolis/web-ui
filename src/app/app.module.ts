@@ -38,7 +38,6 @@ import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-f
 import { ScreenSizeDetectorComponent } from '@src/app/layout/screen-size-detector/screen-size-detector.component';
 import { BreadcrumbComponent } from '@src/app/shared/breadcrumb/breadcrumb.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.component';
 
@@ -57,7 +56,6 @@ import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.compo
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    DirectivesModule,
     ComponentsModule,
     BrowserModule,
     CommonModule,
