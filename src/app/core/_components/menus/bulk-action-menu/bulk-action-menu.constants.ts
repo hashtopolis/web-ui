@@ -43,12 +43,3 @@ export const BulkActionMenuAction = {
   RESET: 'bulk-reset',
   UNASSIGN: 'bulk-unassign'
 };
-
-export const BulkActionMenuIcon = {
-  ADD: 'bulk-add',
-  DELETE: 'delete',
-  ARCHIVE: 'archive',
-  ACTIVATE: 'check_circle',
-  DEACTIVATE: 'remove_circle',
-  RESET: 'restore'
-};
