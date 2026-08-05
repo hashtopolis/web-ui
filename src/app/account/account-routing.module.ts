@@ -2,9 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
-import { FormRouteType } from '@models/routes.schema';
-
-import { SERV } from '@services/main.config';
 
 import { AccountComponent } from '@src/app/account/account.component';
 import { ApiKeyDetailComponent } from '@src/app/account/api-keys/api-key-detail/api-key-detail.component';
@@ -23,67 +20,41 @@ const routes: MyRoute[] = [
       {
         path: '',
         component: AccountComponent,
-        data: {
-          kind: 'account'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'acc-settings',
         component: AccountSettingsComponent,
-        data: {
-          kind: 'acc-settings'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'ui-settings',
         component: UiSettingsComponent,
-        data: {
-          kind: 'uisettings',
-          type: FormRouteType.Edit,
-          serviceConfig: SERV.CONFIGS
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'notifications',
         component: NotificationsComponent,
-        data: {
-          kind: 'notifications'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'notifications/new-notification',
         component: NewNotificationComponent,
-        data: {
-          kind: 'new-notifications'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys',
         component: ApiKeysComponent,
-        data: {
-          kind: 'api-keys'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys/new',
         component: NewApiKeyComponent,
-        data: {
-          kind: 'new-api-key'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys/:id',
         component: ApiKeyDetailComponent,
-        data: {
-          kind: 'api-key-detail'
-        },
         canActivate: [IsAuth]
       }
     ]

@@ -23,7 +23,6 @@ const routes: MyRoute[] = [
         path: 'agent-status',
         component: AgentStatusComponent,
         data: {
-          kind: 'agent-status',
           roleServiceClass: roleServiceClass,
           roleName: 'readStat'
         },
@@ -33,7 +32,6 @@ const routes: MyRoute[] = [
         path: 'new-agent',
         component: NewAgentComponent,
         data: {
-          kind: 'new-agent',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
         },
@@ -43,7 +41,6 @@ const routes: MyRoute[] = [
         path: 'show-agents',
         component: ShowAgentsComponent,
         data: {
-          kind: 'show-agents',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -53,7 +50,6 @@ const routes: MyRoute[] = [
         path: 'show-agents/:id/edit',
         component: EditAgentComponent,
         data: {
-          kind: 'edit-agent',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },

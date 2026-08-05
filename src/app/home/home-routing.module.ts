@@ -12,10 +12,7 @@ const routes: MyRoute[] = [
     children: [
       {
         path: '',
-        component: HomeComponent,
-        data: {
-          kind: 'Home'
-        }
+        component: HomeComponent
       }
     ]
   }

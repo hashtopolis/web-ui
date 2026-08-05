@@ -11,9 +11,6 @@ const routes: MyRoute[] = [
       {
         path: '',
         component: AuthComponent,
-        data: {
-          kind: 'auth'
-        },
         canActivate: [IsAuth]
       }
     ]

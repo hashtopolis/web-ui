@@ -34,17 +34,6 @@ const routes: MyRoute[] = [
         path: 'hashlist',
         component: HashlistComponent,
         data: {
-          kind: 'hashlist',
-          roleServiceClass: hashlistRoleServiceClass,
-          roleName: 'read'
-        },
-        canActivate: [CheckRole]
-      },
-      {
-        path: 'archived',
-        component: HashlistComponent,
-        data: {
-          kind: 'archived',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -54,7 +43,6 @@ const routes: MyRoute[] = [
         path: 'hashlist/:id/edit',
         component: EditHashlistComponent,
         data: {
-          kind: 'edit-hashlist',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -65,7 +53,6 @@ const routes: MyRoute[] = [
         path: 'hashlist/:id/import-cracked-hashes',
         component: ImportCrackedHashesComponent,
         data: {
-          kind: 'import-cracked-hashes',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'update'
         },
@@ -75,7 +62,6 @@ const routes: MyRoute[] = [
         path: 'new-hashlist',
         component: NewHashlistComponent,
         data: {
-          kind: 'new-hashlist',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'create'
         },
@@ -86,17 +72,6 @@ const routes: MyRoute[] = [
         path: 'superhashlist',
         component: SuperhashlistComponent,
         data: {
-          kind: 'super-hashlist',
-          roleServiceClass: superhashlistRoleServiceClass,
-          roleName: 'read'
-        },
-        canActivate: [CheckRole]
-      },
-      {
-        path: 'superhashlist/:id/edit',
-        component: EditHashlistComponent,
-        data: {
-          kind: 'edit-super-hashlist',
           roleServiceClass: superhashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -106,7 +81,6 @@ const routes: MyRoute[] = [
         path: 'new-superhashlist',
         component: NewSuperhashlistComponent,
         data: {
-          kind: 'new-superhashlist',
           roleServiceClass: superhashlistRoleServiceClass,
           roleName: 'create'
         },
@@ -146,7 +120,6 @@ const routes: MyRoute[] = [
         path: 'search-hash',
         component: SearchHashComponent,
         data: {
-          kind: 'search-hash',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },
@@ -156,7 +129,6 @@ const routes: MyRoute[] = [
         path: 'show-cracks',
         component: ShowCracksComponent,
         data: {
-          kind: 'show-cracks',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },

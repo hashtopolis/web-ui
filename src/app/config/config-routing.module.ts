@@ -113,7 +113,6 @@ const routes: MyRoute[] = [
         path: 'hashtypes',
         component: HashtypesComponent,
         data: {
-          kind: 'hashtypes',
           roleServiceClass: HashTypesRoleService,
           roleName: 'read'
         },
@@ -148,7 +147,6 @@ const routes: MyRoute[] = [
         path: 'log',
         component: LogComponent,
         data: {
-          kind: 'log',
           roleServiceClass: LogRoleService,
           roleName: 'read'
         },
@@ -158,7 +156,6 @@ const routes: MyRoute[] = [
         path: 'health-checks',
         component: HealthChecksComponent,
         data: {
-          kind: 'health-checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'read'
         },
@@ -168,7 +165,6 @@ const routes: MyRoute[] = [
         path: 'health-checks/new',
         component: NewHealthChecksComponent,
         data: {
-          kind: 'new-health-checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'create'
         },
@@ -178,7 +174,6 @@ const routes: MyRoute[] = [
         path: 'health-checks/:id',
         component: ViewHealthChecksComponent,
         data: {
-          kind: 'view-health-checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'read'
         },
@@ -188,7 +183,6 @@ const routes: MyRoute[] = [
         path: 'engine/agent-binaries',
         component: AgentBinariesComponent,
         data: {
-          kind: 'agent-binaries',
           roleServiceClass: AgentBinaryRoleService,
           roleName: 'read'
         },
@@ -223,7 +217,6 @@ const routes: MyRoute[] = [
         path: 'engine/crackers',
         component: CrackersComponent,
         data: {
-          kind: 'crackers',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'read'
         },
@@ -233,9 +226,6 @@ const routes: MyRoute[] = [
         path: 'engine/crackers/new',
         component: NewCrackerComponent,
         data: {
-          kind: 'newcracker',
-          type: FormRouteType.Create,
-          serviceConfig: SERV.CRACKERS_TYPES,
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'create'
         },
@@ -270,7 +260,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors',
         component: PreprocessorsComponent,
         data: {
-          kind: 'preprocessors',
           roleServiceClass: PreprocessorRoleService,
           roleName: 'read'
         },
@@ -280,9 +269,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors/new-preprocessor',
         component: NewEditPreprocessorComponent,
         data: {
-          kind: 'newpreprocessor',
-          type: FormRouteType.Create,
-          serviceConfig: SERV.PREPROCESSORS,
           roleServiceClass: PreprocessorRoleService,
           roleName: 'create'
         },
@@ -292,9 +278,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors/:id/edit',
         component: NewEditPreprocessorComponent,
         data: {
-          kind: 'editpreprocessor',
-          type: FormRouteType.Edit,
-          serviceConfig: SERV.PREPROCESSORS,
           roleServiceClass: PreprocessorRoleService,
           roleName: 'read'
         },

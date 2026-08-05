@@ -34,9 +34,6 @@ const routes: MyRoute[] = [
         path: '',
         component: NewUserComponent,
         data: {
-          kind: 'newuser',
-          type: FormRouteType.Create,
-          serviceConfig: SERV.USERS,
           roleServiceClass: userRoleServiceClass,
           roleName: 'create'
         },
@@ -46,7 +43,6 @@ const routes: MyRoute[] = [
         path: ':id/edit',
         component: EditUsersComponent,
         data: {
-          kind: 'edit',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -56,7 +52,6 @@ const routes: MyRoute[] = [
         path: 'all-users',
         component: AllUsersComponent,
         data: {
-          kind: 'all-users',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -66,7 +61,6 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups',
         component: GlobalpermissionsgroupsComponent,
         data: {
-          kind: 'globalpermissionsgp',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -88,7 +82,6 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups/:id/edit',
         component: EditGlobalpermissionsgroupsComponent,
         data: {
-          kind: 'edit-gpg',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -98,7 +91,6 @@ const routes: MyRoute[] = [
         path: 'access-groups',
         component: GroupsComponent,
         data: {
-          kind: 'access-groups',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
@@ -120,8 +112,6 @@ const routes: MyRoute[] = [
         path: 'access-groups/:id/edit',
         component: EditGroupsComponent,
         data: {
-          kind: 'editaccessgroups',
-          type: FormRouteType.Edit,
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },

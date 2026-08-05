@@ -13,8 +13,7 @@ const zServiceConfig = z.object({
 
 export const FormRouteType = {
   Create: 'create',
-  Edit: 'edit',
-  Helper: 'helper'
+  Edit: 'edit'
 } as const;
 
 export type FormRouteType = (typeof FormRouteType)[keyof typeof FormRouteType];
@@ -67,8 +66,6 @@ export const zFormConfigRouteData = z.object({
   kind: z.enum(FormConfigRouteKind),
   serviceConfig: zServiceConfig
 });
-
-export type FormConfigRouteData = z.infer<typeof zFormConfigRouteData>;
 
 export const zErrorPageRouteData = z.object({
   message: z.string()
