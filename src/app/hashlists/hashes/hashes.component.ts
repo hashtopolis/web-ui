@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zHashesRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -141,7 +142,8 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
 
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
+      const routeDataKind = zHashesRouteData.parse(data).kind;
+      switch (routeDataKind) {
         case 'chunkshash':
           this.whichView = 'chunks';
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {

@@ -10,6 +10,7 @@ import { JFile, TaskSelectFile } from '@models/file.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
+import { NewPretaskRouteKind, zNewPretaskRouteData } from '@models/routes.schema';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -69,7 +70,8 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
-      this.whichView = this.determineView(data['kind']);
+      const routeKind = zNewPretaskRouteData.parse(data).kind;
+      this.whichView = this.determineView(routeKind);
       this.initializeForm(this.whichView);
     });
 
@@ -81,7 +83,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
     this.unsubscribeService.unsubscribeAll();
   }
 
-  private determineView(kind: string): string {
+  private determineView(kind: NewPretaskRouteKind): string {
     switch (kind) {
       case 'new-preconfigured-tasks':
         return 'create';

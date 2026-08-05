@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { TableSettingsKey } from '@models/config-ui.model';
 import { FileType } from '@models/file.model';
+import { zFilesRouteData } from '@models/routes.schema';
 
 import { FileRoleService } from '@services/roles/file-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -45,7 +46,8 @@ export class FilesComponent implements OnInit {
 
   loadFiles() {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
+      const routeDataKind = zFilesRouteData.parse(data).kind;
+      switch (routeDataKind) {
         case 'wordlist':
           this.fileType = FileType.WORDLIST;
           break;

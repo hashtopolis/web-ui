@@ -11,6 +11,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { ServerImportFile } from '@models/file.model';
 import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
+import { zNewFilesRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
@@ -107,7 +108,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   getLocation() {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
+      const routeDataKind = zNewFilesRouteData.parse(data).kind;
+      switch (routeDataKind) {
         case 'wordlist-new':
           this.filterType = 0;
           this.title = 'New Wordlist';

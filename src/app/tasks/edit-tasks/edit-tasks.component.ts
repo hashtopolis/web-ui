@@ -22,6 +22,7 @@ import { JHashtype } from '@models/hashtype.model';
 import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zEditTaskRouteData } from '@models/routes.schema';
 import { SpeedStat } from '@models/speed-stat.model';
 import { JTask, JTaskWith } from '@models/task.model';
 
@@ -436,7 +437,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private assignChunksInit(): void {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
+      const routeKind = zEditTaskRouteData.parse(data).kind;
+      switch (routeKind) {
         case 'edit-task':
           this.chunkview = 0;
           break;
