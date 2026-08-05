@@ -12,7 +12,6 @@ import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
 import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
-import { GraphsModule } from '@src/app/shared/graphs/graphs.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { InputModule } from '@src/app/shared/input/input.module';
@@ -48,7 +47,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     ButtonsModule,
     ReportsModule,
     CommonModule,
-    GraphsModule,
     TableModule,
     InputModule,
     GridModule,
@@ -70,7 +68,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     AlertNavModule,
     ButtonsModule,
     ReportsModule,
-    GraphsModule,
     CommonModule,
     InputModule,
     TableModule,
