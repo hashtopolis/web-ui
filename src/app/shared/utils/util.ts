@@ -6,29 +6,6 @@
  */
 
 /**
- * Validate the file extension
- * Notes: This function is not in place but it could be usefule in the section of files
- *
- * @param filename - File name with extension (.xls, .txt)
- * @returns true or false
- * ```
- * @beta
- */
-
-export function validateFileExt(filename: string): boolean {
-  const filext = filename.split('.').pop();
-  if (!filext) return false;
-  switch (filext.toLowerCase()) {
-    case 'zip':
-    case 'dic':
-    case 'txt':
-      // Add more extensions
-      return true;
-  }
-  return false;
-}
-
-/**
  * Converts any URL path, local or http to base64 image.
  * Notes: Only tested with png
  *

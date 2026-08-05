@@ -1,6 +1,6 @@
 import { Permission, UserPermissions } from '@models/global-permission-group.model';
 
-import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 /**
  * One row of the CRUD permission matrix.
@@ -77,25 +77,6 @@ export function buildPermissionMatrix(permissions: Permission): PermissionMatrix
   }, []);
 
   return rows.sort((a, b) => a.name.localeCompare(b.name));
-}
-
-/**
- * Build a permission map containing every backend permission key set to `true`.
- *
- * Used by read-only consumers (e.g. the API-key detail page) that need to
- * render the *full* CRUD matrix regardless of what the current user holds —
- * the per-cell selection state is then driven by the resource's stored scopes,
- * not by `granted`. Source-of-truth is the static {@link Perm} catalogue, so
- * the matrix stays in lockstep with the frontend's known permission keys.
- */
-export function buildAllPermissionsMap(): Permission {
-  const all: Permission = {};
-  for (const group of Object.values(Perm) as Array<Record<string, string>>) {
-    for (const key of Object.values(group)) {
-      all[key] = true;
-    }
-  }
-  return all;
 }
 
 function humanizeResourceName(operation: string): string {
