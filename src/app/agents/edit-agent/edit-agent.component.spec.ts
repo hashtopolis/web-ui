@@ -175,9 +175,7 @@ describe('EditAgentComponent', () => {
     agentRoleServiceSpy = jasmine.createSpyObj('AgentRoleService', ['hasRole']);
     activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
       snapshot: {
-        paramMap: {
-          get: jasmine.createSpy('get').and.returnValue('1')
-        }
+        params: { id: '1' }
       }
     });
 
@@ -296,7 +294,7 @@ describe('EditAgentComponent', () => {
 
   it('should navigate to /not-found when agent ID is invalid', fakeAsync(() => {
     // Reconfigure ActivatedRoute with invalid ID
-    (activatedRouteSpy.snapshot.paramMap.get as jasmine.Spy).and.returnValue(null);
+    activatedRouteSpy.snapshot.params = {};
 
     // Create new component with invalid ID
     fixture = TestBed.createComponent(EditAgentComponent);

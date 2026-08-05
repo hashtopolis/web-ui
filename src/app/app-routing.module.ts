@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule } from '@angular/router';
+
+import { MyRoute } from '@models/routes.model';
 
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
 import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
 import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
 
-const appRoutes: Routes = [
+const appRoutes: MyRoute[] = [
   {
     path: '',
     loadChildren: () => import('./home/home.module').then((m) => m.HomeModule),

@@ -8,6 +8,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { AccessGroupId, GlobalPermissionGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -81,7 +82,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
-      this.editedUserIndex = +params['id'];
+      this.editedUserIndex = zIdRouteParams.parse(params).id;
       this.loadData();
     });
   }

@@ -10,7 +10,7 @@ import { JFile, TaskSelectFile } from '@models/file.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
-import { NewPretaskRouteKind, zNewPretaskRouteData } from '@models/routes.schema';
+import { NewPretaskRouteKind, zNewPretaskRouteData, zOptionalIdRouteParams } from '@models/routes.schema';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -63,8 +63,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
-      this.copyMode = params && params['id'] !== null;
+      const { id } = zOptionalIdRouteParams.parse(params);
+      this.editedIndex = id ?? NaN;
+      this.copyMode = id !== undefined;
     });
   }
 

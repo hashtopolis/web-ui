@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -83,7 +84,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Lifecycle hook called after component initialization.
    */
   ngOnInit(): void {
-    this.editedSTIndex = +this.route.snapshot.params['id'];
+    this.editedSTIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
     this.loadData();
   }
 

@@ -7,7 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ResponseWrapper } from '@models/response.model';
-import { zHashesRouteData } from '@models/routes.schema';
+import { zHashesQueryParams, zHashesRouteData, zHashesRouteParams, zRouteId } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -84,16 +84,16 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   buildForm(): void {
-    const qp = this.route.snapshot.queryParams;
-    if (qp['crackpos']) {
-      this.crackPos = qp['crackpos'];
+    const qp = zHashesQueryParams.parse(this.route.snapshot.queryParams);
+    if (qp.crackpos) {
+      this.crackPos = qp.crackpos;
     }
-    if (qp['filter']) {
-      this.filtering = qp['filter'];
+    if (qp.filter) {
+      this.filtering = qp.filter;
       this.filteringDescr = this.getDescrip(this.filtering, 2) ?? '';
     }
-    if (qp['display']) {
-      this.displaying = qp['display'];
+    if (qp.display) {
+      this.displaying = qp.display;
       this.displayingDescr = this.getDescrip(this.displaying, 3) ?? '';
     }
     this.viewForm = new FormGroup<HashesViewForm>({
@@ -132,12 +132,10 @@ export class HashesComponent implements OnInit, OnDestroy {
    */
   loadHashes(): void {
     this.route.params.subscribe((params: Params) => {
-      if (params['id'].includes('?')) {
-        const split = params['id'].split('?');
-        this.editedIndex = Number(split[0]);
-        this.filterParam = split[1];
-      } else {
-        this.editedIndex = Number(params['id']);
+      const [rawId, filterParam] = zHashesRouteParams.parse(params).id.split('?');
+      this.editedIndex = zRouteId.parse(rawId);
+      if (filterParam) {
+        this.filterParam = filterParam;
       }
     });
 

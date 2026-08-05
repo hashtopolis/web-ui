@@ -55,7 +55,7 @@ describe('NewEditPreprocessorComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: { get: () => null } },
+            snapshot: { params: {} },
             paramMap: of({ get: () => null })
           }
         },
@@ -265,7 +265,7 @@ describe('NewEditPreprocessorComponent', () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
 
     // simulate new-modus (no id)
-    activatedRoute.snapshot.paramMap.get = () => null;
+    activatedRoute.snapshot.params = {};
 
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;
@@ -292,7 +292,7 @@ describe('NewEditPreprocessorComponent', () => {
     const activatedRoute = TestBed.inject(ActivatedRoute);
 
     // simulate edit-modus route with id=9
-    activatedRoute.snapshot.paramMap.get = () => '9';
+    activatedRoute.snapshot.params = { id: '9' };
 
     fixture = TestBed.createComponent(NewEditPreprocessorComponent);
     component = fixture.componentInstance;

@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { FormRouteData, zFormRouteData } from '@models/routes.schema';
+import { FormRouteData, zFormRouteData, zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -152,7 +152,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   getIndex() {
     this.routeParamsSubscription = this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
+      this.editedIndex = zIdRouteParams.parse(params).id;
     });
   }
 
@@ -161,7 +161,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   loadEdit() {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
+      this.editedIndex = zIdRouteParams.parse(params).id;
     });
 
     // Fetch data from the API for editing
