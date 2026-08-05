@@ -16,8 +16,6 @@ import { GraphsModule } from '@src/app/shared/graphs/graphs.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { InputModule } from '@src/app/shared/input/input.module';
-import { ActiveSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner-active.component';
-import { LoadingSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner.component';
 import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
@@ -31,9 +29,7 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   declarations: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    LoadingSpinnerComponent,
     TimeoutDialogComponent,
-    ActiveSpinnerComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
@@ -61,9 +57,7 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   exports: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    LoadingSpinnerComponent,
     TimeoutDialogComponent,
-    ActiveSpinnerComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     FilterTextboxModule,
