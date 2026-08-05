@@ -1,19 +1,10 @@
-import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel, With } from '@models/base.model';
 import { ChunkData } from '@models/chunk.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { JFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
-import { JHashtype } from '@models/hashtype.model';
-import {
-  AccessGroupId,
-  CrackerBinaryId,
-  CrackerBinaryTypeId,
-  HashlistId,
-  PreprocessorId,
-  TaskWrapperId
-} from '@models/id.types';
+import { CrackerBinaryId, CrackerBinaryTypeId, PreprocessorId, TaskWrapperId } from '@models/id.types';
 import { SpeedStat } from '@models/speed-stat.model';
 
 /**
@@ -98,25 +89,6 @@ export type JTaskAggregates = keyof JTaskAggregateFields;
 export type JTaskWith<K extends JTaskAggregates> = JTask & Pick<JTaskAggregateFields, K>;
 
 /**
- * Interface definition for a task wrapper (wrapper object for cracking tasks and supertasks)
- */
-export interface JTaskWrapper extends BaseModel, TaskAttributes {
-  accessGroupId: AccessGroupId;
-  accessGroup?: JAccessGroup;
-  accessGroupName?: string;
-  cracked: number;
-  hashlistId: HashlistId;
-  hashlist?: JHashlist;
-  hashType?: JHashtype;
-  isArchived: boolean;
-  taskType?: TaskType;
-  taskWrapperId?: TaskWrapperId;
-  taskWrapperName: string;
-  tasks?: JTask[];
-  chunkData?: ChunkData;
-}
-
-/**
  * Interface definition for a task wrapper display (combined view for tasks and task wrappers)
  */
 export interface JTaskWrapperDisplay extends BaseModel {
@@ -192,14 +164,4 @@ export enum TaskStatus {
   IDLE = 2,
   COMPLETED = 3,
   SKIPPED = 4
-}
-
-export interface TaskCompletionData {
-  keyspace: number;
-  keyspaceProgress: number;
-  searched: string;
-}
-
-export interface TaskStatusData extends TaskCompletionData {
-  totalAssignedAgents: number;
 }

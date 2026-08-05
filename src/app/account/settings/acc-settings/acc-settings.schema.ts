@@ -5,5 +5,3 @@ export const changeOwnPasswordResponseSchema = z.object({
     'Change password': z.string()
   })
 });
-
-export type ChangeOwnPasswordResponse = z.infer<typeof changeOwnPasswordResponseSchema>;
