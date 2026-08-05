@@ -10,14 +10,12 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
 import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
-import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
-import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
 import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
 import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
@@ -32,13 +30,11 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
-    FixedAlertComponent,
-    PassMatchComponent
+    FixedAlertComponent
   ],
   imports: [
     ReactiveFormsModule,
     MatCheckboxModule,
-    FilterTextboxModule,
     HorizontalNavModule,
     DynamicFormModule,
     CoreFormsModule,
@@ -58,11 +54,9 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     TimeoutDialogComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
-    FilterTextboxModule,
     HorizontalNavModule,
     CheatsheetComponent,
     FixedAlertComponent,
-    PassMatchComponent,
     DynamicFormModule,
     PageTitleModule,
     AlertNavModule,

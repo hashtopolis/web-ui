@@ -38,17 +38,9 @@ import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-f
 import { BreadcrumbComponent } from '@src/app/shared/breadcrumb/breadcrumb.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
-import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.component';
 
 @NgModule({
-  declarations: [
-    PageNotFoundComponent,
-    ScrollYTopComponent,
-    BreadcrumbComponent,
-    ErrorPageComponent,
-    FooterComponent,
-    AppComponent
-  ],
+  declarations: [PageNotFoundComponent, BreadcrumbComponent, ErrorPageComponent, FooterComponent, AppComponent],
   bootstrap: [AppComponent],
   imports: [
     BrowserAnimationsModule,
