@@ -1,10 +1,8 @@
 import { BaseModel } from '@models/base.model';
 import { UserId } from '@models/id.types';
 
-/** Notification action values matching the generated Zod schema. */
 export type NotificationAction = 'createNotification' | 'setActive' | 'deleteNotification';
 
-/** Notification event type values matching the generated Zod schema. */
 export type NotificationEvent =
   | 'taskComplete'
   | 'agentError'

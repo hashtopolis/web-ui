@@ -19,7 +19,6 @@ export const FormRouteType = {
 
 export type FormRouteType = (typeof FormRouteType)[keyof typeof FormRouteType];
 
-/** The keys the form metadata of FormComponent is looked up with. */
 export const FormRouteKind = {
   EditAgentBinary: 'editagentbinary',
   EditCrackerVersion: 'editcrackerversion',
@@ -39,8 +38,6 @@ export type FormRouteKind = (typeof FormRouteKind)[keyof typeof FormRouteKind];
 /**
  * Zod schema for route data consumed by FormComponent.
  * Validates that required fields are present and correctly typed.
- * `kind` is the key the form metadata is looked up with, so only kinds that have
- * metadata are accepted.
  */
 export const zFormRouteData = z.object({
   kind: z.enum(FormRouteKind),
@@ -154,24 +151,20 @@ export const zNewPretaskRouteData = z.object({
   kind: z.enum(NewPretaskRouteKind)
 });
 
-/** The `:id` path parameter, which every detail and edit route carries. */
 export const zRouteId = z.coerce.number().int().positive();
 
 export const zIdRouteParams = z.object({
   id: zRouteId
 });
 
-/** Routes where `:id` is only present in copy mode, create routes carry no id. */
 export const zOptionalIdRouteParams = z.object({
   id: zRouteId.optional()
 });
 
-/** The hashes routes carry a legacy `<id>?<filter>` path parameter, so `id` is split by hand. */
 export const zHashesRouteParams = z.object({
   id: z.string()
 });
 
-/** Query parameters of the hashes view. */
 export const zHashesQueryParams = z.object({
   crackpos: z.string().optional(),
   filter: z.string().optional(),
