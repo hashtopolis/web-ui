@@ -8,18 +8,17 @@ const routes: MyRoute[] = [
   {
     path: 'auth',
     children: [
-    {
+      {
         path: '',
         component: AuthComponent,
         data: {
-          kind: 'auth',
-          breadcrumb: ''
+          kind: 'auth'
         },
         canActivate: [IsAuth]
-      },
+      }
     ]
   }
-]
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

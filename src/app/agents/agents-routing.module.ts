@@ -24,7 +24,6 @@ const routes: MyRoute[] = [
         component: AgentStatusComponent,
         data: {
           kind: 'agent-status',
-          breadcrumb: 'Agent Status',
           roleServiceClass: roleServiceClass,
           roleName: 'readStat'
         },
@@ -35,7 +34,6 @@ const routes: MyRoute[] = [
         component: NewAgentComponent,
         data: {
           kind: 'new-agent',
-          breadcrumb: 'New Agent',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
         },
@@ -46,7 +44,6 @@ const routes: MyRoute[] = [
         component: ShowAgentsComponent,
         data: {
           kind: 'show-agents',
-          breadcrumb: 'Show Agent',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -57,7 +54,6 @@ const routes: MyRoute[] = [
         component: EditAgentComponent,
         data: {
           kind: 'edit-agent',
-          breadcrumb: 'Edit Agent',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },

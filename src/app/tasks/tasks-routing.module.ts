@@ -41,7 +41,6 @@ const routes: MyRoute[] = [
         component: ShowTasksComponent,
         data: {
           kind: 'show-tasks',
-          breadcrumb: 'Show tasks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -52,7 +51,6 @@ const routes: MyRoute[] = [
         component: ShowTasksComponent,
         data: {
           kind: 'show-tasks-archived',
-          breadcrumb: 'Show Archived Tasks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -63,7 +61,6 @@ const routes: MyRoute[] = [
         component: EditTasksComponent,
         data: {
           kind: EditTaskRouteKind.EditTask,
-          breadcrumb: 'Edit Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -74,7 +71,6 @@ const routes: MyRoute[] = [
         component: EditTasksComponent,
         data: {
           kind: EditTaskRouteKind.EditTaskCrackedAll,
-          breadcrumb: 'Edit Task > Show All chunks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -85,7 +81,6 @@ const routes: MyRoute[] = [
         component: NewTasksComponent,
         data: {
           kind: NewTaskRouteKind.NewTask,
-          breadcrumb: 'New task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
         },
@@ -97,7 +92,6 @@ const routes: MyRoute[] = [
         component: NewTasksComponent,
         data: {
           kind: NewTaskRouteKind.CopyTask,
-          breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
         },
@@ -108,7 +102,6 @@ const routes: MyRoute[] = [
         component: NewTasksComponent,
         data: {
           kind: NewTaskRouteKind.CopyPreTask,
-          breadcrumb: 'Copy Task',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
         },
@@ -119,7 +112,6 @@ const routes: MyRoute[] = [
         component: PreconfiguredTasksComponent,
         data: {
           kind: 'preconfigured-tasks',
-          breadcrumb: 'Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'read'
         },
@@ -130,7 +122,6 @@ const routes: MyRoute[] = [
         component: NewPreconfiguredTasksComponent,
         data: {
           kind: NewPretaskRouteKind.NewPretask,
-          breadcrumb: 'New Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
         },
@@ -141,7 +132,6 @@ const routes: MyRoute[] = [
         component: EditPreconfiguredTasksComponent,
         data: {
           kind: 'edit-preconfigured-tasks',
-          breadcrumb: 'Edit Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'read'
         },
@@ -153,7 +143,6 @@ const routes: MyRoute[] = [
         component: NewPreconfiguredTasksComponent,
         data: {
           kind: NewPretaskRouteKind.CopyPretask,
-          breadcrumb: 'Copy Preconfigured tasks',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
         },
@@ -164,7 +153,6 @@ const routes: MyRoute[] = [
         component: NewPreconfiguredTasksComponent,
         data: {
           kind: NewPretaskRouteKind.CopyTask,
-          breadcrumb: 'Copy Task to Preconfigured task',
           roleServiceClass: pretaskRoleServiceClass,
           roleName: 'create'
         },
@@ -175,7 +163,6 @@ const routes: MyRoute[] = [
         component: SupertasksComponent,
         data: {
           kind: 'supertasks',
-          breadcrumb: 'Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'
         },
@@ -186,7 +173,6 @@ const routes: MyRoute[] = [
         component: ApplyHashlistComponent,
         data: {
           kind: 'applyhashlist',
-          breadcrumb: 'Apply hashlist',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'create'
         },
@@ -197,7 +183,6 @@ const routes: MyRoute[] = [
         component: NewSupertasksComponent,
         data: {
           kind: 'new-supertasks',
-          breadcrumb: 'New Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'create'
         },
@@ -208,7 +193,6 @@ const routes: MyRoute[] = [
         component: EditSupertasksComponent,
         data: {
           kind: 'edit-supertasks',
-          breadcrumb: 'Edit Supertasks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'
         },
@@ -219,7 +203,6 @@ const routes: MyRoute[] = [
         component: MasksComponent,
         data: {
           kind: 'masks',
-          breadcrumb: 'Import Masks',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'
         },
@@ -230,7 +213,6 @@ const routes: MyRoute[] = [
         component: WrbulkComponent,
         data: {
           kind: 'wrbulk',
-          breadcrumb: 'Import Wordlist/Rules Bulk',
           roleServiceClass: supertaskRoleServiceClass,
           roleName: 'read'
         },
@@ -241,7 +223,6 @@ const routes: MyRoute[] = [
         component: ChunksComponent,
         data: {
           kind: 'chunks',
-          breadcrumb: 'Chunks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -252,7 +233,6 @@ const routes: MyRoute[] = [
         component: ChunksComponent,
         data: {
           kind: 'chunks-view',
-          breadcrumb: 'Chunks > View Chunk',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },
@@ -263,7 +243,6 @@ const routes: MyRoute[] = [
         component: ChunksComponent,
         data: {
           kind: 'chunks-cAll',
-          breadcrumb: 'Chunks > Show All chunks',
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
         },

@@ -16,7 +16,6 @@ export interface RouteData {
   type?: FormRouteType;
   serviceConfig?: ServiceConfig;
   responseSchema?: z.ZodTypeAny;
-  breadcrumb?: string;
   roleName?: string;
   roleServiceClass?: Type<RoleService>;
   preload?: boolean;

@@ -35,7 +35,6 @@ const routes: MyRoute[] = [
         component: HashlistComponent,
         data: {
           kind: 'hashlist',
-          breadcrumb: 'Hashlist',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -46,7 +45,6 @@ const routes: MyRoute[] = [
         component: HashlistComponent,
         data: {
           kind: 'archived',
-          breadcrumb: 'Hashlist Archived',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -57,7 +55,6 @@ const routes: MyRoute[] = [
         component: EditHashlistComponent,
         data: {
           kind: 'edit-hashlist',
-          breadcrumb: 'Edit Hashlist',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -69,7 +66,6 @@ const routes: MyRoute[] = [
         component: ImportCrackedHashesComponent,
         data: {
           kind: 'import-cracked-hashes',
-          breadcrumb: 'Import Cracked Hashes',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'update'
         },
@@ -80,7 +76,6 @@ const routes: MyRoute[] = [
         component: NewHashlistComponent,
         data: {
           kind: 'new-hashlist',
-          breadcrumb: 'New Hashlist',
           roleServiceClass: hashlistRoleServiceClass,
           roleName: 'create'
         },
@@ -92,7 +87,6 @@ const routes: MyRoute[] = [
         component: SuperhashlistComponent,
         data: {
           kind: 'super-hashlist',
-          breadcrumb: 'Super Hashlist',
           roleServiceClass: superhashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -103,7 +97,6 @@ const routes: MyRoute[] = [
         component: EditHashlistComponent,
         data: {
           kind: 'edit-super-hashlist',
-          breadcrumb: 'Edit Super Hashlist',
           roleServiceClass: superhashlistRoleServiceClass,
           roleName: 'read'
         },
@@ -114,7 +107,6 @@ const routes: MyRoute[] = [
         component: NewSuperhashlistComponent,
         data: {
           kind: 'new-superhashlist',
-          breadcrumb: 'New Super Hashlist',
           roleServiceClass: superhashlistRoleServiceClass,
           roleName: 'create'
         },
@@ -125,7 +117,6 @@ const routes: MyRoute[] = [
         component: HashesComponent,
         data: {
           kind: HashesRouteKind.TaskHashes,
-          breadcrumb: 'Task Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },
@@ -136,7 +127,6 @@ const routes: MyRoute[] = [
         component: HashesComponent,
         data: {
           kind: HashesRouteKind.HashlistHashes,
-          breadcrumb: 'Hashlist Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },
@@ -147,7 +137,6 @@ const routes: MyRoute[] = [
         component: HashesComponent,
         data: {
           kind: HashesRouteKind.ChunkHashes,
-          breadcrumb: 'Chunks Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },
@@ -158,7 +147,6 @@ const routes: MyRoute[] = [
         component: SearchHashComponent,
         data: {
           kind: 'search-hash',
-          breadcrumb: 'Search-hash',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },
@@ -169,7 +157,6 @@ const routes: MyRoute[] = [
         component: ShowCracksComponent,
         data: {
           kind: 'show-cracks',
-          breadcrumb: 'Show Cracks',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
         },

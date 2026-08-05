@@ -35,12 +35,11 @@ import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.compon
 import { FooterComponent } from '@src/app/layout/footer/footer.component';
 import { LayoutHeaderModule } from '@src/app/layout/header/header.module';
 import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
-import { BreadcrumbComponent } from '@src/app/shared/breadcrumb/breadcrumb.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
-  declarations: [PageNotFoundComponent, BreadcrumbComponent, ErrorPageComponent, FooterComponent, AppComponent],
+  declarations: [PageNotFoundComponent, ErrorPageComponent, FooterComponent, AppComponent],
   bootstrap: [AppComponent],
   imports: [
     BrowserAnimationsModule,

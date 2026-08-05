@@ -74,10 +74,6 @@ export const zErrorPageRouteData = z.object({
   message: z.string()
 });
 
-export const zBreadcrumbRouteData = z.object({
-  breadcrumb: z.string().optional()
-});
-
 export const zPreloadRouteData = z.object({
   preload: z.boolean().optional(),
   delay: z.boolean().optional()

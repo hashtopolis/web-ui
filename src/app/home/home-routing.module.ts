@@ -14,8 +14,7 @@ const routes: MyRoute[] = [
         path: '',
         component: HomeComponent,
         data: {
-          kind: 'Home',
-          breadcrumb: 'Home'
+          kind: 'Home'
         }
       }
     ]

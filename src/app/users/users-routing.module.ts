@@ -37,7 +37,6 @@ const routes: MyRoute[] = [
           kind: 'newuser',
           type: FormRouteType.Create,
           serviceConfig: SERV.USERS,
-          breadcrumb: 'New User',
           roleServiceClass: userRoleServiceClass,
           roleName: 'create'
         },
@@ -48,7 +47,6 @@ const routes: MyRoute[] = [
         component: EditUsersComponent,
         data: {
           kind: 'edit',
-          breadcrumb: 'Edit User',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -59,7 +57,6 @@ const routes: MyRoute[] = [
         component: AllUsersComponent,
         data: {
           kind: 'all-users',
-          breadcrumb: 'All Users',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -70,7 +67,6 @@ const routes: MyRoute[] = [
         component: GlobalpermissionsgroupsComponent,
         data: {
           kind: 'globalpermissionsgp',
-          breadcrumb: 'Global Permissions Groups',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -83,7 +79,6 @@ const routes: MyRoute[] = [
           kind: FormRouteKind.NewGlobalPermissionsGroup,
           type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
-          breadcrumb: 'New Global Permissions Groups',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'create'
         },
@@ -94,7 +89,6 @@ const routes: MyRoute[] = [
         component: EditGlobalpermissionsgroupsComponent,
         data: {
           kind: 'edit-gpg',
-          breadcrumb: 'Edit Global Permissions Group',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -105,7 +99,6 @@ const routes: MyRoute[] = [
         component: GroupsComponent,
         data: {
           kind: 'access-groups',
-          breadcrumb: 'Access Groups',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
@@ -118,7 +111,6 @@ const routes: MyRoute[] = [
           kind: FormRouteKind.NewAccessGroups,
           type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_GROUPS,
-          breadcrumb: 'New Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
@@ -130,7 +122,6 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editaccessgroups',
           type: FormRouteType.Edit,
-          breadcrumb: 'Edit Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
