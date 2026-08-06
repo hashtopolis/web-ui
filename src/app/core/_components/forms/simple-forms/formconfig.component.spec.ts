@@ -40,8 +40,7 @@ describe('FormConfigComponent', () => {
       data: of({
         kind: 'servergs',
         type: 'edit',
-        serviceConfig: SERV.CONFIGS,
-        breadcrumb: 'General Settings'
+        serviceConfig: SERV.CONFIGS
       })
     };
 
