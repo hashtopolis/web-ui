@@ -1,3 +1,14 @@
+input-multiselect .custom-chip-grid mat-chip-row {
+  height: auto;
+  min-height: var(--mat-chip-container-height, 32px);
+  max-width: 100%;
+
+  .mdc-evolution-chip__text-label {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 input-multiselect .custom-chip-grid mat-chip-row button[matchipremove] {
   display: inline-flex;
   align-items: center;

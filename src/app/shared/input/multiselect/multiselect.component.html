@@ -21,9 +21,9 @@
     <mat-chip-grid #chipGridRef [required]="isRequired" aria-label="Items selection" [disabled]="disabled || readonly">
       @for (item of readonly ? items : selectedItems; track item.id) {
       <mat-chip-row [removable]="!readonly">
-        <div matTooltip="{{ item.name }}">
+        <div>
           {{ item.id }}
-          <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
+          <span>{{ item.name }}</span>
         </div>
         @if (!readonly) {
         <button type="button" matChipRemove (click)="remove(item); $event.stopPropagation()"
