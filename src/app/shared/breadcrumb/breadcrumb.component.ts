@@ -4,6 +4,8 @@ import { filter } from 'rxjs/operators';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
+import { zBreadcrumbRouteData } from '@models/routes.schema';
+
 @Component({
   selector: 'app-breadcrumb',
   templateUrl: './breadcrumb.component.html',
@@ -17,7 +19,7 @@ export class BreadcrumbComponent implements OnInit {
   @Input()
   public deliminator = '>';
 
-  breadcrumbs: Array<{ label: string; url: string }>;
+  breadcrumbs: Array<{ label: string | undefined; url: string }>;
 
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
@@ -35,8 +37,9 @@ export class BreadcrumbComponent implements OnInit {
             const routeSnapshot = route.snapshot;
 
             url += '/' + routeSnapshot.url.map((segment) => segment.path).join('/');
+            const routeData = zBreadcrumbRouteData.parse(routeSnapshot.data);
             this.breadcrumbs.push({
-              label: route.snapshot.data['breadcrumb'],
+              label: routeData.breadcrumb,
               url: url
             });
             currentRoute = route;

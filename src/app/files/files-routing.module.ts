@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { FilesRouteKind, FormRouteKind, FormRouteType, NewFilesRouteKind } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 import { FileRoleService } from '@services/roles/file-role.service';
@@ -26,7 +27,7 @@ const routes: MyRoute[] = [
         path: 'wordlist',
         component: FilesComponent,
         data: {
-          kind: 'wordlist',
+          kind: FilesRouteKind.Wordlist,
           breadcrumb: 'Wordlist',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
@@ -37,7 +38,7 @@ const routes: MyRoute[] = [
         path: 'wordlist/new-wordlist',
         component: NewFilesComponent,
         data: {
-          kind: 'wordlist-new',
+          kind: NewFilesRouteKind.NewWordlist,
           breadcrumb: 'Wordlist New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
@@ -48,8 +49,8 @@ const routes: MyRoute[] = [
         path: ':id/wordlist-edit',
         component: FormComponent,
         data: {
-          kind: 'editwordlist',
-          type: 'edit',
+          kind: FormRouteKind.EditWordlist,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
           breadcrumb: 'Wordlist Edit',
@@ -62,7 +63,7 @@ const routes: MyRoute[] = [
         path: 'rules',
         component: FilesComponent,
         data: {
-          kind: 'rules',
+          kind: FilesRouteKind.Rules,
           breadcrumb: 'Rules',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
@@ -73,7 +74,7 @@ const routes: MyRoute[] = [
         path: 'rules/new-rule',
         component: NewFilesComponent,
         data: {
-          kind: 'rule-new',
+          kind: NewFilesRouteKind.NewRule,
           breadcrumb: 'Rule New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
@@ -84,8 +85,8 @@ const routes: MyRoute[] = [
         path: ':id/rules-edit',
         component: FormComponent,
         data: {
-          kind: 'editrule',
-          type: 'edit',
+          kind: FormRouteKind.EditRule,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
           breadcrumb: 'Rules Edit',
@@ -98,7 +99,7 @@ const routes: MyRoute[] = [
         path: 'other',
         component: FilesComponent,
         data: {
-          kind: 'other',
+          kind: FilesRouteKind.Other,
           breadcrumb: 'Other',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
@@ -109,7 +110,7 @@ const routes: MyRoute[] = [
         path: 'other/new-other',
         component: NewFilesComponent,
         data: {
-          kind: 'other-new',
+          kind: NewFilesRouteKind.NewOther,
           breadcrumb: 'Other New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
@@ -120,8 +121,8 @@ const routes: MyRoute[] = [
         path: ':id/other-edit',
         component: FormComponent,
         data: {
-          kind: 'editother',
-          type: 'edit',
+          kind: FormRouteKind.EditOther,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
           breadcrumb: 'Other Edit',

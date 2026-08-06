@@ -105,6 +105,12 @@ export interface HTTableColumn {
   isNumeric?: boolean;
   isSortable?: boolean;
   isSearchable?: boolean;
+  /**
+   * Extra class applied to the column's th/td cells. Stable styling hook,
+   * unlike the generated mat-column-<id> classes which shift when column
+   * enum values are renumbered.
+   */
+  cssClass?: string;
   render?(data: BaseModel): SafeHtml;
   async?(data: BaseModel): Promise<SafeHtml>;
   export?(data: BaseModel): Promise<string>;

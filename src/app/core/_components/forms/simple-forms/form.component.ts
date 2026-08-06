@@ -6,7 +6,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
-import { FormRouteData, zFormRouteData } from '@models/routes.schema';
+import { FormRouteData, FormRouteType, zFormRouteData, zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -49,7 +49,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * This property determines whether the form is in the process of creating a new item or editing an existing one.
    * @type {string}
    */
-  type: 'create' | 'edit' | 'helper';
+  type: FormRouteType;
 
   /**
    * Flag that indicates whether the data for the form has been loaded and the form is ready for rendering.
@@ -128,7 +128,7 @@ export class FormComponent implements OnInit, OnDestroy {
       this.serviceConfig = routeData.serviceConfig;
       this.responseSchema = routeData.responseSchema;
       this.type = routeData.type;
-      this.isCreate = this.type === 'create';
+      this.isCreate = this.type === FormRouteType.Create;
       // Load metadata and form information
       this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
       this.formMetadata = this.metadataService.getFormMetadata(formKind);
@@ -136,7 +136,7 @@ export class FormComponent implements OnInit, OnDestroy {
       this.customform = this.globalMetadata.customform ?? false;
       this.titleService.set([this.title]);
       // Load metadata and form information
-      if (this.type === 'edit') {
+      if (this.type === FormRouteType.Edit) {
         this.getIndex();
         this.loadEdit(); // Load data for editing
       } else {
@@ -152,7 +152,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   getIndex() {
     this.routeParamsSubscription = this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
+      this.editedIndex = zIdRouteParams.parse(params).id;
     });
   }
 
@@ -161,7 +161,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   loadEdit() {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
+      this.editedIndex = zIdRouteParams.parse(params).id;
     });
 
     // Fetch data from the API for editing
@@ -223,7 +223,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     // If in "edit" mode, load data for editing
-    if (this.type === 'edit') {
+    if (this.type === FormRouteType.Edit) {
       this.loadEdit();
     }
   }
@@ -250,7 +250,7 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.customform) {
       this.modifyFormValues(formValues);
     }
-    if (this.type === 'create') {
+    if (this.type === FormRouteType.Create) {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
         this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
@@ -258,7 +258,7 @@ export class FormComponent implements OnInit, OnDestroy {
       });
 
       this.unsubscribeService.add(createSubscription);
-    } else if (this.type === 'helper' && isHelperEndpoint(this.serviceConfig.RESOURCE)) {
+    } else if (this.type === FormRouteType.Helper && isHelperEndpoint(this.serviceConfig.RESOURCE)) {
       const createSubscription = this.gs.chelper(SERV.HELPER, this.serviceConfig.RESOURCE, formValues).subscribe(() => {
         this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
         this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert

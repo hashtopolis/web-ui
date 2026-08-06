@@ -1,9 +1,10 @@
 import { Observable, catchError, map, of } from 'rxjs';
 
-import { Injectable, Type, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
 
-import { RoleService } from '@services/roles/base/role.service';
+import { zPermissionRouteData } from '@models/routes.schema';
+
 import { AlertService } from '@services/shared/alert.service';
 
 @Injectable({
@@ -34,13 +35,14 @@ export class PermissionGuard {
    * @return An observable that emits true if access is granted, false otherwise
    */
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const roleName = route.data['roleName'] as string;
-    const roleServiceClass = route.data['roleServiceClass'] as Type<RoleService>;
+    const routeData = zPermissionRouteData.safeParse(route.data);
 
-    if (!roleName || !roleServiceClass) {
+    if (!routeData.success) {
       console.error('PermissionGuard: Missing roleName or roleServiceClass in route data');
       return of(false);
     }
+
+    const { roleName, roleServiceClass } = routeData.data;
 
     // Instantiate the correct subclass of RoleService
     const service = inject(roleServiceClass);
