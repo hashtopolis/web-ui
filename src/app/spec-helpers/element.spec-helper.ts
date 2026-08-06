@@ -14,7 +14,7 @@ import { By } from '@angular/platform-browser';
  * @param testId Test id set by `data-testid`
  *
  */
-export function testIdSelector(testId: string): string {
+function testIdSelector(testId: string): string {
   return `[data-testid="${testId}"]`;
 }
 
@@ -26,7 +26,7 @@ export function testIdSelector(testId: string): string {
  * @param selector CSS selector
  *
  */
-export function queryByCss<T>(fixture: ComponentFixture<T>, selector: string): DebugElement {
+function queryByCss<T>(fixture: ComponentFixture<T>, selector: string): DebugElement {
   // The return type of DebugElement#query() is declared as DebugElement,
   // but the actual return type is DebugElement | null.
   // See https://github.com/angular/angular/issues/22449.
@@ -51,23 +51,13 @@ export function findEl<T>(fixture: ComponentFixture<T>, testId: string): DebugEl
 }
 
 /**
- * Gets the text content of an element with the given `data-testid` attribute.
- *
- * @param fixture Component fixture
- * @param testId Test id set by `data-testid`
- */
-export function getText<T>(fixture: ComponentFixture<T>, testId: string): string {
-  return findEl(fixture, testId).nativeElement.textContent;
-}
-
-/**
  * Dispatches a fake event (synthetic event) at the given element.
  *
  * @param element Element that is the target of the event
  * @param type Event name, e.g. `input`
  * @param bubbles Whether the event bubbles up in the DOM tree
  */
-export function dispatchFakeEvent(element: EventTarget, type: string, bubbles = false): void {
+function dispatchFakeEvent(element: EventTarget, type: string, bubbles = false): void {
   const event = document.createEvent('Event');
   event.initEvent(type, bubbles, false);
   element.dispatchEvent(event);
@@ -82,7 +72,7 @@ export function dispatchFakeEvent(element: EventTarget, type: string, bubbles = 
  * @param element Form field
  * @param value Form field value
  */
-export function setFieldElementValue(
+function setFieldElementValue(
   element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
   value: string
 ): void {
@@ -102,37 +92,4 @@ export function setFieldElementValue(
  */
 export function setFieldValue<T>(fixture: ComponentFixture<T>, testId: string, value: string): void {
   setFieldElementValue(findEl(fixture, testId).nativeElement, value);
-}
-
-/**
- * Makes a fake click event that provides the most important properties.
- * Sets the button to left.
- * The event can be passed to DebugElement#triggerEventHandler.
- *
- * @param target Element that is the target of the click event
- */
-export function makeClickEvent(target: EventTarget): Partial<MouseEvent> {
-  return {
-    preventDefault(): void {},
-    stopPropagation(): void {},
-    stopImmediatePropagation(): void {},
-    type: 'click',
-    target,
-    currentTarget: target,
-    bubbles: true,
-    cancelable: true,
-    button: 0
-  };
-}
-
-/**
- * Emulates a left click on the element with the given `data-testid` attribute.
- *
- * @param fixture Component fixture
- * @param testId Test id set by `data-testid`
- */
-export function click<T>(fixture: ComponentFixture<T>, testId: string): void {
-  const element = findEl(fixture, testId);
-  const event = makeClickEvent(element.nativeElement);
-  element.triggerEventHandler('click', event);
 }
