@@ -19,6 +19,7 @@
         [id]="inputId"
         [value]="nativeColor || DEFAULT_NATIVE_INPUT_PLACEHOLDER"
         [class.color-unset]="!value"
+        (click)="onPickerOpen()"
         (input)="onValueChange($event)"
         (blur)="onTouched()"
         [style.background]="nativeColor || null"

@@ -75,6 +75,30 @@ describe('InputColorComponent', () => {
     });
   });
 
+  describe('onPickerOpen', () => {
+    it('emits the fallback color as bare hex when opened from the unset state', () => {
+      const onChange = jasmine.createSpy('onChange');
+      component.registerOnChange(onChange);
+      component.writeValue(null);
+
+      component.onPickerOpen();
+
+      expect(component.value).toBe('FFFFFF');
+      expect(onChange).toHaveBeenCalledWith('FFFFFF');
+    });
+
+    it('leaves an already selected color untouched', () => {
+      const onChange = jasmine.createSpy('onChange');
+      component.registerOnChange(onChange);
+      component.writeValue('#3366ff');
+
+      component.onPickerOpen();
+
+      expect(component.value).toBe('#3366ff');
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
   describe('defaultColor', () => {
     it('applies the default visually but does not emit when registerOnChange runs after a null writeValue', () => {
       component.defaultColor = 'random';
@@ -111,6 +135,19 @@ describe('InputColorComponent', () => {
       fixture.detectChanges();
 
       expect(nativeInput().value).toBe(component.DEFAULT_NATIVE_INPUT_PLACEHOLDER.toLowerCase());
+    });
+
+    it('commits the placeholder color when the native input is clicked while unset (regression: #2345)', () => {
+      component.registerOnChange(jasmine.createSpy('onChange'));
+      component.writeValue(null);
+      fixture.detectChanges();
+
+      nativeInput().click();
+      fixture.detectChanges();
+
+      expect(component.value).toBe('FFFFFF');
+      expect(nativeInput().classList).not.toContain('color-unset');
+      expect(swatchText().textContent?.trim()).toBe('#FFFFFF');
     });
 
     it('binds the actual hex to the native input when value is set', () => {
