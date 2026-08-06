@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse, zUserListResponse, zUserResponse } from '@generated/api/zod';
+import { zAccessGroupListResponse, zApiTokenListResponse, zUserListResponse, zUserResponse } from '@generated/api/zod';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
@@ -108,6 +108,78 @@ describe('JsonAPISerializer', () => {
       expect(() => {
         serializer.deserialize(userListBody, zAccessGroupListResponse);
       }).not.toThrow();
+
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+    });
+
+    it('logs an error when an attribute is present but has the wrong type', () => {
+      const consoleSpy = spyOn(console, 'error');
+      const wrongTypeBody = {
+        jsonapi,
+        data: {
+          id: 1,
+          type: 'user',
+          attributes: { ...userAttributes, sessionLifetime: 'not-a-number' }
+        }
+      };
+
+      serializer.deserialize(wrongTypeBody, zUserResponse);
+
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+    });
+  });
+
+  describe('permission-stripped user responses', () => {
+    const strippedUser = {
+      id: 1,
+      type: 'user',
+      attributes: { name: 'admin' }
+    };
+    const strippedSingleBody = { jsonapi, data: strippedUser };
+    const strippedListBody = { jsonapi, data: [strippedUser] };
+
+    it('does not log an error for a stripped single-object response', () => {
+      const consoleSpy = spyOn(console, 'error');
+
+      const user = serializer.deserialize(strippedSingleBody, zUserResponse);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+      expect(user.name).toBe('admin');
+    });
+
+    it('does not log an error for a stripped list response', () => {
+      const consoleSpy = spyOn(console, 'error');
+
+      const users = serializer.deserialize(strippedListBody, zUserListResponse);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+      expect(users[0].name).toBe('admin');
+    });
+
+    it('does not log an error for a stripped user included by another entity', () => {
+      const consoleSpy = spyOn(console, 'error');
+      const body = {
+        jsonapi,
+        data: [
+          {
+            id: 22,
+            type: 'apiToken',
+            attributes: { startValid: 1785743381, endValid: 1785829781, userId: 1, isRevoked: false }
+          }
+        ],
+        included: [strippedUser]
+      };
+
+      serializer.deserialize(body, zApiTokenListResponse);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('still logs an error when a stripped user misses its public attribute', () => {
+      const consoleSpy = spyOn(console, 'error');
+      const body = { jsonapi, data: [{ id: 1, type: 'user', attributes: {} }] };
+
+      serializer.deserialize(body, zUserListResponse);
 
       expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
     });

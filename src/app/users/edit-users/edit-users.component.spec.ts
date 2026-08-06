@@ -27,8 +27,9 @@ const MOCK_PERMISSION_GROUP: JGlobalPermissionGroup = {
   permissions: {}
 } as JGlobalPermissionGroup;
 
-const MOCK_USER: JUser = {
+const MOCK_USER = {
   id: 1,
+  type: 'user',
   name: 'admin',
   email: 'admin@localhost',
   registeredSince: 1704067200,
@@ -36,7 +37,7 @@ const MOCK_USER: JUser = {
   globalPermissionGroupId: 1,
   globalPermissionGroup: MOCK_PERMISSION_GROUP,
   isValid: true,
-  accessGroups: [{ id: 1, groupName: 'Default Group' }],
+  accessGroups: [{ id: 1, type: 'accessGroup', groupName: 'Default Group' }],
   isComputedPassword: false,
   otp1: '',
   otp2: '',
@@ -44,7 +45,7 @@ const MOCK_USER: JUser = {
   otp4: '',
   sessionLifetime: 0,
   yubikey: ''
-} as JUser;
+} satisfies JUser;
 
 const MOCK_PERMISSION_GROUPS: JGlobalPermissionGroup[] = [MOCK_PERMISSION_GROUP];
 

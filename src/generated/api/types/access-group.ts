@@ -65,18 +65,18 @@ export type AccessGroupResponse = {
         type: 'user';
         attributes: {
           name: string;
-          email: string;
-          isValid: boolean;
-          isComputedPassword: boolean;
-          lastLoginDate: number;
-          registeredSince: number;
-          sessionLifetime: number;
-          globalPermissionGroupId: number;
-          yubikey: string;
-          otp1: string;
-          otp2: string;
-          otp3: string;
-          otp4: string;
+          email?: string;
+          isValid?: boolean;
+          isComputedPassword?: boolean;
+          lastLoginDate?: number;
+          registeredSince?: number;
+          sessionLifetime?: number;
+          globalPermissionGroupId?: number;
+          yubikey?: string;
+          otp1?: string;
+          otp2?: string;
+          otp3?: string;
+          otp4?: string;
         };
       }
     | {
@@ -164,18 +164,18 @@ export type AccessGroupListResponse = {
         type: 'user';
         attributes: {
           name: string;
-          email: string;
-          isValid: boolean;
-          isComputedPassword: boolean;
-          lastLoginDate: number;
-          registeredSince: number;
-          sessionLifetime: number;
-          globalPermissionGroupId: number;
-          yubikey: string;
-          otp1: string;
-          otp2: string;
-          otp3: string;
-          otp4: string;
+          email?: string;
+          isValid?: boolean;
+          isComputedPassword?: boolean;
+          lastLoginDate?: number;
+          registeredSince?: number;
+          sessionLifetime?: number;
+          globalPermissionGroupId?: number;
+          yubikey?: string;
+          otp1?: string;
+          otp2?: string;
+          otp3?: string;
+          otp4?: string;
         };
       }
     | {

@@ -70,18 +70,18 @@ export const zApiTokenResponse = z.object({
         type: z.literal('user'),
         attributes: z.object({
           name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+          email: z.string().optional(),
+          isValid: z.boolean().optional(),
+          isComputedPassword: z.boolean().optional(),
+          lastLoginDate: z.number().optional(),
+          registeredSince: z.number().optional(),
+          sessionLifetime: z.int().optional(),
+          globalPermissionGroupId: z.int().optional(),
+          yubikey: z.string().optional(),
+          otp1: z.string().optional(),
+          otp2: z.string().optional(),
+          otp3: z.string().optional(),
+          otp4: z.string().optional()
         })
       })
     )
@@ -156,18 +156,18 @@ export const zApiTokenListResponse = z.object({
         type: z.literal('user'),
         attributes: z.object({
           name: z.string(),
-          email: z.string(),
-          isValid: z.boolean(),
-          isComputedPassword: z.boolean(),
-          lastLoginDate: z.number(),
-          registeredSince: z.number(),
-          sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
-          yubikey: z.string(),
-          otp1: z.string(),
-          otp2: z.string(),
-          otp3: z.string(),
-          otp4: z.string()
+          email: z.string().optional(),
+          isValid: z.boolean().optional(),
+          isComputedPassword: z.boolean().optional(),
+          lastLoginDate: z.number().optional(),
+          registeredSince: z.number().optional(),
+          sessionLifetime: z.int().optional(),
+          globalPermissionGroupId: z.int().optional(),
+          yubikey: z.string().optional(),
+          otp1: z.string().optional(),
+          otp2: z.string().optional(),
+          otp3: z.string().optional(),
+          otp4: z.string().optional()
         })
       })
     )
