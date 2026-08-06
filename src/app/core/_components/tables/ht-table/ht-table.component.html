@@ -230,6 +230,7 @@
             arrowPosition="before"
             (click)="onColumnHeaderClick(tableColumn)"
             [class.cell-numeric]="tableColumn.isNumeric"
+            [class]="tableColumn.cssClass"
           >
             {{ columnLabels[tableColumn.id] }}
           </th>
@@ -238,6 +239,7 @@
             *matHeaderCellDef
             [class.text-right]="tableColumn.position === 'right'"
             [class.cell-numeric]="tableColumn.isNumeric"
+            [class]="tableColumn.cssClass"
             mat-header-cell
           >
             {{ columnLabels[tableColumn.id] }}
@@ -261,6 +263,7 @@
           }"
           [class.text-right]="tableColumn.position === 'right'"
           [class.cell-numeric]="tableColumn.isNumeric"
+          [class]="tableColumn.cssClass"
         >
           <div
             class="flex-container"
