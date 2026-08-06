@@ -10,6 +10,7 @@ import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -77,7 +78,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    */
   async ngOnInit(): Promise<void> {
     this.route.params.subscribe(async (params) => {
-      this.editedHashlistIndex = +params['id'];
+      this.editedHashlistIndex = zIdRouteParams.parse(params).id;
       this.isLoading = true;
 
       try {

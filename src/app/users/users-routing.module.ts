@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { FormRouteKind, FormRouteType } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
@@ -34,7 +35,7 @@ const routes: MyRoute[] = [
         component: NewUserComponent,
         data: {
           kind: 'newuser',
-          type: 'create',
+          type: FormRouteType.Create,
           serviceConfig: SERV.USERS,
           breadcrumb: 'New User',
           roleServiceClass: userRoleServiceClass,
@@ -79,8 +80,8 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups/new',
         component: FormComponent,
         data: {
-          kind: 'newglobalpermissionsgp',
-          type: 'create',
+          kind: FormRouteKind.NewGlobalPermissionsGroup,
+          type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
           breadcrumb: 'New Global Permissions Groups',
           roleServiceClass: permissionRoleServiceClass,
@@ -114,8 +115,8 @@ const routes: MyRoute[] = [
         path: 'access-groups/new',
         component: FormComponent,
         data: {
-          kind: 'newaccessgroups',
-          type: 'create',
+          kind: FormRouteKind.NewAccessGroups,
+          type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_GROUPS,
           breadcrumb: 'New Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
@@ -128,7 +129,7 @@ const routes: MyRoute[] = [
         component: EditGroupsComponent,
         data: {
           kind: 'editaccessgroups',
-          type: 'edit',
+          type: FormRouteType.Edit,
           breadcrumb: 'Edit Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'

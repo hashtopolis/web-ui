@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { JConfig } from '@models/configs.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
-import { zFormConfigRouteData } from '@models/routes.schema';
+import { FormConfigRouteKind, zFormConfigRouteData } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -94,7 +94,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     this.route.data.subscribe((data) => {
       const routeData = zFormConfigRouteData.parse(data);
       const formKind = routeData.kind;
-      this.isServerAction = formKind === 'server-actions';
+      this.isServerAction = formKind === FormConfigRouteKind.ServerActions;
       this.serviceConfig = routeData.serviceConfig;
       // Load metadata and form information
       if (!this.isServerAction) {

@@ -9,6 +9,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { ThinJAgent } from '@models/agent.model';
 import { AgentId, UserId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
+import { zIdRouteParams } from '@models/routes.schema';
 import { JUser } from '@models/user.model';
 
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
@@ -84,7 +85,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
-      this.editedAccessGroupIndex = +params['id'];
+      this.editedAccessGroupIndex = zIdRouteParams.parse(params).id;
     });
   }
 

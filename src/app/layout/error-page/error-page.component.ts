@@ -1,5 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+
+import { zErrorPageRouteData } from '@models/routes.schema';
 
 @Component({
   selector: 'app-error-page',
@@ -12,8 +14,9 @@ export class ErrorPageComponent implements OnInit {
   errorMessage: string;
 
   ngOnInit() {
-    this.route.data.subscribe((data: Data) => {
-      this.errorMessage = data['message'];
+    this.route.data.subscribe((data) => {
+      const parsedRouteData = zErrorPageRouteData.parse(data);
+      this.errorMessage = parsedRouteData.message;
     });
   }
 }

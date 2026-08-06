@@ -22,6 +22,7 @@ import { JHashtype } from '@models/hashtype.model';
 import { AgentId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { EditTaskRouteKind, zEditTaskRouteData, zIdRouteParams } from '@models/routes.schema';
 import { SpeedStat } from '@models/speed-stat.model';
 import { JTask, JTaskWith } from '@models/task.model';
 
@@ -121,7 +122,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.isReadOnly = !this.roleService.hasRole('edit');
 
-    this.editedTaskIndex = +this.route.snapshot.params['id'];
+    this.editedTaskIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
     this.editMode = Number.isFinite(this.editedTaskIndex);
 
     this.buildForm();
@@ -436,11 +437,12 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private assignChunksInit(): void {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
-        case 'edit-task':
+      const routeKind = zEditTaskRouteData.parse(data).kind;
+      switch (routeKind) {
+        case EditTaskRouteKind.EditTask:
           this.chunkview = 0;
           break;
-        case 'edit-task-cAll':
+        case EditTaskRouteKind.EditTaskCrackedAll:
           this.chunkview = 1;
           break;
       }

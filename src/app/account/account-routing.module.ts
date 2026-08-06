@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { FormRouteType } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 
@@ -42,7 +43,7 @@ const routes: MyRoute[] = [
         component: UiSettingsComponent,
         data: {
           kind: 'uisettings',
-          type: 'edit',
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'UI Settings'
         },

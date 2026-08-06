@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { HashesRouteKind } from '@models/routes.schema';
 
 import { HashRoleService } from '@services/roles/hashlists/hash-role.service';
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
@@ -123,7 +124,7 @@ const routes: MyRoute[] = [
         path: 'hashes/tasks/:id',
         component: HashesComponent,
         data: {
-          kind: 'taskhas',
+          kind: HashesRouteKind.TaskHashes,
           breadcrumb: 'Task Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
@@ -134,7 +135,7 @@ const routes: MyRoute[] = [
         path: 'hashes/hashlists/:id',
         component: HashesComponent,
         data: {
-          kind: 'hashlisthash',
+          kind: HashesRouteKind.HashlistHashes,
           breadcrumb: 'Hashlist Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'
@@ -145,7 +146,7 @@ const routes: MyRoute[] = [
         path: 'hashes/chunks/:id',
         component: HashesComponent,
         data: {
-          kind: 'chunkshash',
+          kind: HashesRouteKind.ChunkHashes,
           breadcrumb: 'Chunks Hashes',
           roleServiceClass: hashRoleServiceClass,
           roleName: 'read'

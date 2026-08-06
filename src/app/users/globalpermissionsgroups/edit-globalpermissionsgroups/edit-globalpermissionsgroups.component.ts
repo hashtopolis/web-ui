@@ -9,6 +9,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -47,7 +48,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
-      this.editedGPGIndex = +params['id'];
+      this.editedGPGIndex = zIdRouteParams.parse(params).id;
     });
   }
 

@@ -9,6 +9,7 @@ import { JHashlist } from '@models/hashlist.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -91,7 +92,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
+      this.editedIndex = zIdRouteParams.parse(params).id;
       this.initForm();
     });
   }
