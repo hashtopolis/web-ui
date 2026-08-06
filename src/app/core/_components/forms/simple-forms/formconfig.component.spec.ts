@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
+import { UisCacheName } from '@models/config-ui.schema';
+
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -299,8 +301,9 @@ describe('FormConfigComponent', () => {
       [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
       [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
     ]);
-    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('serverLogLevel' as any);
-    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('hashcatBrainEnable' as any);
+    // serverLogLevel is not a UisCacheName, the component forwards every saved key regardless
+    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('serverLogLevel' as unknown as UisCacheName);
+    expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('hashcatBrainEnable');
     expect(alertService.showSuccessMessage).toHaveBeenCalledWith('Saved General Settings');
   });
 
@@ -374,11 +377,11 @@ describe('FormConfigComponent', () => {
 
   it('should add the notifications menu item when user has read role', () => {
     notificationRoleService.hasRole.and.returnValue(true);
-    (component as any).menuItems = [];
+    component['menuItems'] = [];
 
     component.ngOnInit();
 
-    expect((component as any).menuItems.some((item: any) => item.label === 'Notifications')).toBeTrue();
+    expect(component['menuItems'].some((item) => item.label === 'Notifications')).toBeTrue();
   });
 
   it('should call unsubscribeAll when destroyed', () => {

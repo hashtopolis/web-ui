@@ -1,8 +1,10 @@
-import { MyRoute } from '@models/routes.model';
-import { RouterModule } from '@angular/router';
-import { IsAuth } from '../core/_guards/login.guard';
 import { NgModule } from '@angular/core';
-import { AuthComponent } from './auth.component';
+import { RouterModule } from '@angular/router';
+
+import { MyRoute } from '@models/routes.model';
+
+import { AuthComponent } from '@src/app/auth/auth.component';
+import { IsAuth } from '@src/app/core/_guards/login.guard';
 
 const routes: MyRoute[] = [
   {
