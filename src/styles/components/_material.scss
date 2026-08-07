@@ -347,18 +347,18 @@ textarea.mat-mdc-input-element.custom-textarea {
   --mat-slide-toggle-handle-shape: 999px;
   --mat-slide-toggle-track-width: 32px;
   --mat-slide-toggle-track-height: 18px;
-  --mat-slide-toggle-handle-width: 14px;
-  --mat-slide-toggle-handle-height: 14px;
+  --mat-slide-toggle-handle-width: null;
+  --mat-slide-toggle-handle-height: null;
   --mat-slide-toggle-selected-handle-size: 14px;
   --mat-slide-toggle-unselected-handle-size: 14px;
   --mat-slide-toggle-pressed-handle-size: 14px;
   --mat-slide-toggle-with-icon-handle-size: 14px;
 
   --mat-slide-toggle-unselected-handle-horizontal-margin: 0 2px;
-  --mat-slide-toggle-selected-handle-horizontal-margin: 0 2px;
-  --mat-slide-toggle-selected-with-icon-handle-horizontal-margin: 0 2px;
+  --mat-slide-toggle-selected-handle-horizontal-margin: 0 16px;
+  --mat-slide-toggle-selected-with-icon-handle-horizontal-margin: 0 16px;
   --mat-slide-toggle-unselected-with-icon-handle-horizontal-margin: 0 2px;
-  --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0 2px;
+  --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0 16px;
   --mat-slide-toggle-unselected-pressed-handle-horizontal-margin: 0 2px;
 
   --mat-slide-toggle-track-outline-color: var(--border);
