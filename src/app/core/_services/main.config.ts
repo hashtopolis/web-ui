@@ -45,10 +45,6 @@ export const HELPER_ENDPOINTS = [
 
 export type HelperEndpoint = (typeof HELPER_ENDPOINTS)[number];
 
-export function isHelperEndpoint(value: string): value is HelperEndpoint {
-  return (HELPER_ENDPOINTS as readonly string[]).includes(value);
-}
-
 export class SERV {
   // HELPER
   public static HELPER = { URL: '/helper', RESOURCE: 'Helper' };

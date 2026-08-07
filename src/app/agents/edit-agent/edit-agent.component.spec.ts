@@ -23,7 +23,6 @@ import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.compon
 import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
@@ -216,8 +215,7 @@ describe('EditAgentComponent', () => {
         InputModule,
         TableModule,
         ComponentsModule,
-        CoreFormsModule,
-        DirectivesModule
+        CoreFormsModule
       ],
       providers: [
         { provide: AlertService, useValue: alertServiceSpy },

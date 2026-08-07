@@ -28,7 +28,6 @@ import { NotificationsComponent } from '@src/app/account/notifications/notificat
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 
@@ -51,7 +50,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     ComponentsModule,
     CoreFormsModule,
     CoreComponentsModule,
-    DirectivesModule,
     RouterModule,
     CommonModule,
     PipesModule,

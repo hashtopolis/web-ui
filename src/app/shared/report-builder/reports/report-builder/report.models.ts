@@ -1,5 +1,3 @@
-import { SafeHtml } from '@angular/platform-browser';
-
 /** Base pdfMake text styling properties */
 export interface PdfTextElement {
   text?: string;
@@ -51,12 +49,6 @@ export interface ReportGlobalStyles {
   text?: PdfTextElement;
   tables?: { tableHeader?: PdfTableHeaderStyle };
   [key: string]: PdfTextElement | { tableHeader?: PdfTableHeaderStyle } | undefined;
-}
-
-export interface ReportTableColumn {
-  id: number;
-  dataKey: string;
-  render?: (data: Record<string, string | number | boolean>) => SafeHtml;
 }
 
 /**
@@ -153,12 +145,7 @@ export interface ReportDataProvider {
 
 /** Recursive union covering all pdfMake content node shapes. */
 export type PdfContentItem =
-  | string
-  | number
-  | CoverPageElement
-  | ReportHeaderText
-  | Record<string, unknown>
-  | PdfContentItem[];
+  string | number | CoverPageElement | ReportHeaderText | Record<string, unknown> | PdfContentItem[];
 
 /** Document definition passed to pdfMake's createPdf(). */
 export interface PdfDocumentDefinition {

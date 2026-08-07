@@ -20,7 +20,6 @@ import { SearchHashComponent } from '@src/app/hashlists/search-hash/search-hash.
 import { ShowCracksComponent } from '@src/app/hashlists/show-cracks/show-cracks.component';
 import { SuperhashlistComponent } from '@src/app/hashlists/superhashlist/superhashlist.component';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 
@@ -44,7 +43,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     CoreFormsModule,
     CoreComponentsModule,
     FontAwesomeModule,
-    DirectivesModule,
     ComponentsModule,
     CoreFormsModule,
     CommonModule,

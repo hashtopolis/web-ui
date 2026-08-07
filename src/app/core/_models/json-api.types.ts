@@ -128,25 +128,8 @@ export type JsonApiPayload<
   AggReq extends string = never
 > = JsonApiPayloadInner<NormalizeEnvelope<T>, IncKeys, AggAll, AggReq>;
 
-/**
- * Shorthand: extract JsonApiPayload directly from a Zod envelope schema.
- */
-export type JsonApiPayloadOf<
-  TSchema extends z.ZodTypeAny,
-  IncKeys extends string = never,
-  AggAll extends string = never,
-  AggReq extends string = never
-> = JsonApiPayload<z.infer<TSchema>, IncKeys, AggAll, AggReq>;
-
 /** Valid relationship key names from an envelope type. */
 export type RelationshipKeysOf<T> = keyof ExtractRelationships<T> & string;
 
 /** Valid relationship key names from a Zod envelope schema. */
 export type RelationshipKeysOfSchema<TSchema extends z.ZodTypeAny> = RelationshipKeysOf<z.infer<TSchema>>;
-
-/**
- * Aggregate key names are model-declared (the JSON:API schema has no marker to derive them from, unlike
- * relationships). This is the explicit contract type used to thread an entity's aggregate union into
- * `JsonApiPayload` / `deserialize` — there is deliberately no schema-derived counterpart.
- */
-export type AggregateKeysOf<AggAll extends string> = AggAll;

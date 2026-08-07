@@ -28,7 +28,6 @@ const routes: MyRoute[] = [
         component: FilesComponent,
         data: {
           kind: FilesRouteKind.Wordlist,
-          breadcrumb: 'Wordlist',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -39,7 +38,6 @@ const routes: MyRoute[] = [
         component: NewFilesComponent,
         data: {
           kind: NewFilesRouteKind.NewWordlist,
-          breadcrumb: 'Wordlist New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
         },
@@ -53,7 +51,6 @@ const routes: MyRoute[] = [
           type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
-          breadcrumb: 'Wordlist Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -64,7 +61,6 @@ const routes: MyRoute[] = [
         component: FilesComponent,
         data: {
           kind: FilesRouteKind.Rules,
-          breadcrumb: 'Rules',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -75,7 +71,6 @@ const routes: MyRoute[] = [
         component: NewFilesComponent,
         data: {
           kind: NewFilesRouteKind.NewRule,
-          breadcrumb: 'Rule New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
         },
@@ -89,7 +84,6 @@ const routes: MyRoute[] = [
           type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
-          breadcrumb: 'Rules Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -100,7 +94,6 @@ const routes: MyRoute[] = [
         component: FilesComponent,
         data: {
           kind: FilesRouteKind.Other,
-          breadcrumb: 'Other',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },
@@ -111,7 +104,6 @@ const routes: MyRoute[] = [
         component: NewFilesComponent,
         data: {
           kind: NewFilesRouteKind.NewOther,
-          breadcrumb: 'Other New',
           roleServiceClass: roleServiceClass,
           roleName: 'create'
         },
@@ -125,7 +117,6 @@ const routes: MyRoute[] = [
           type: FormRouteType.Edit,
           serviceConfig: SERV.FILES,
           responseSchema: zFileResponse,
-          breadcrumb: 'Other Edit',
           roleServiceClass: roleServiceClass,
           roleName: 'read'
         },

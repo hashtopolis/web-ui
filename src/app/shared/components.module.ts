@@ -10,17 +10,12 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
 import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
-import { FilterTextboxModule } from '@src/app/shared/filter-textbox/filter-textbox.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
-import { GraphsModule } from '@src/app/shared/graphs/graphs.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 import { InputModule } from '@src/app/shared/input/input.module';
-import { ActiveSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner-active.component';
-import { LoadingSpinnerComponent } from '@src/app/shared/loading-spinner/loading-spinner.component';
 import { HorizontalNavModule } from '@src/app/shared/navigation/navigation.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
-import { PassMatchComponent } from '@src/app/shared/password/pass-match/pass-match.component';
 import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
 import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
@@ -31,19 +26,15 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   declarations: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    LoadingSpinnerComponent,
     TimeoutDialogComponent,
-    ActiveSpinnerComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
-    FixedAlertComponent,
-    PassMatchComponent
+    FixedAlertComponent
   ],
   imports: [
     ReactiveFormsModule,
     MatCheckboxModule,
-    FilterTextboxModule,
     HorizontalNavModule,
     DynamicFormModule,
     CoreFormsModule,
@@ -52,7 +43,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
     ButtonsModule,
     ReportsModule,
     CommonModule,
-    GraphsModule,
     TableModule,
     InputModule,
     GridModule,
@@ -61,22 +51,17 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   exports: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    LoadingSpinnerComponent,
     TimeoutDialogComponent,
-    ActiveSpinnerComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
-    FilterTextboxModule,
     HorizontalNavModule,
     CheatsheetComponent,
     FixedAlertComponent,
-    PassMatchComponent,
     DynamicFormModule,
     PageTitleModule,
     AlertNavModule,
     ButtonsModule,
     ReportsModule,
-    GraphsModule,
     CommonModule,
     InputModule,
     TableModule,
