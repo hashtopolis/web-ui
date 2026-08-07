@@ -5,11 +5,14 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'; // You may need to import other modules based on your application's requirements.
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
 import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 
+import { HashlistPretaskBuilderTableComponent } from '@src/app/core/_components/tables/hashlist-pretask-builder-table/hashlist-pretask-builder-table.component';
+import { HashlistSupertaskBuilderTableComponent } from '@src/app/core/_components/tables/hashlist-supertask-builder-table/hashlist-supertask-builder-table.component';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
 import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.component';
@@ -29,6 +32,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     NewSuperhashlistComponent,
     SuperhashlistComponent,
     EditHashlistComponent,
+    HashlistPretaskBuilderTableComponent,
+    HashlistSupertaskBuilderTableComponent,
     NewHashlistComponent,
     SearchHashComponent,
     ShowCracksComponent,
@@ -38,6 +43,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   imports: [
     MatFormFieldModule,
     MatInputModule,
+    MatPaginatorModule,
     HashlistRoutingModule,
     ReactiveFormsModule,
     CoreFormsModule,

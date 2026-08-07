@@ -1,0 +1,66 @@
+<div class="builder-table-wrapper">
+  <div class="builder-table-scroll">
+    <table class="builder-table">
+      <thead>
+        <tr>
+          <th class="id-col">ID</th>
+          <th class="color-col">Color</th>
+          <th class="name-col">Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (pretask of pretasks; track pretask.id) {
+          <tr>
+            <td class="id-col">
+              <a [routerLink]="['/tasks/preconfigured-tasks', pretask.id, 'edit']">{{ pretask.id }}</a>
+            </td>
+            <td class="color-col">
+              <div class="color-preview" [style.backgroundColor]="hexColor(pretask.color)"></div>
+            </td>
+            <td class="name-col">
+              <div class="checkbox-cell">
+                <input
+                  type="checkbox"
+                  [attr.aria-label]="'Select ' + pretask.taskName"
+                  [checked]="selectedPretaskIds.has(pretask.id)"
+                  (change)="togglePretaskSelection(pretask.id, $any($event.target).checked)"
+                />
+                <a [routerLink]="['/tasks/preconfigured-tasks', pretask.id, 'edit']">{{ pretask.taskName }}</a>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (dataSource) {
+    <mat-paginator
+      (page)="onPageChange($event)"
+      [disabled]="(dataSource.loading$ | async) ?? false"
+      [length]="dataSource.totalItems"
+      [pageIndex]="dataSource.index"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageSize]="dataSource.pageSize"
+    ></mat-paginator>
+  }
+
+  <div class="builder-actions">
+    <button-submit
+      [name]="'Create'"
+      [disabled]="!selectedPretaskIds.size || isCreating"
+      (click)="createTasksFromSelection()"
+    >
+    </button-submit>
+
+    <label class="select-all" for="pretask-select-all">
+      <input
+        id="pretask-select-all"
+        type="checkbox"
+        [checked]="isAllSelected()"
+        (change)="toggleSelectAll($any($event.target).checked)"
+      />
+      <span>Select All</span>
+    </label>
+  </div>
+</div>
