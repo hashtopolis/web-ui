@@ -83,7 +83,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
-  /** Raw staticChunks value, drives which chunkSize field the template shows. */
   staticChunksMode: number = StaticChunkingMode.NONE;
   protected readonly StaticChunkingMode = StaticChunkingMode;
 

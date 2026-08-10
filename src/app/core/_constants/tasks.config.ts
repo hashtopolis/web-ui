@@ -1,9 +1,5 @@
 import { SelectOption } from '@src/app/shared/utils/forms';
 
-/**
- * Static chunking modes as stored in a task's `staticChunks` attribute.
- * `chunkSize` carries the configured number for both fixed modes.
- */
 export const StaticChunkingMode = {
   NONE: 0,
   FIXED_CHUNK_SIZE: 1,
