@@ -1,3 +1,4 @@
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zChunkListResponse, zTaskResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize, lastValueFrom } from 'rxjs';
 
@@ -43,7 +44,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
 
     if (!this._isChunksLive) {
       if (this._taskId) {
-        const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+        const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
         try {
           const taskParams = new RequestParamBuilder().create();
           const response = await lastValueFrom<ResponseWrapper>(
@@ -70,7 +71,7 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
     chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
 
     this.service
       .getAll(SERV.CHUNKS, chunkParams.create(), httpOptions)

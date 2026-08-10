@@ -10,9 +10,10 @@ export const ChunkState = {
   BYPASS: 'Bypass',
   TRIMMED: 'Trimmed',
   ABORTING: 'Aborting...'
-};
+} as const;
+export type ChunkState = (typeof ChunkState)[keyof typeof ChunkState];
 
-export const chunkStates = [
+export const chunkStates: ChunkState[] = [
   ChunkState.NEW,
   ChunkState.INIT,
   ChunkState.RUNNING,

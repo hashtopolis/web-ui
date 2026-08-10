@@ -1,3 +1,4 @@
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zPreTaskListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -21,7 +22,7 @@ export class HashlistPretaskBuilderDataSource extends BaseDataSource<JPretask> {
       params = params.addFilter({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false });
     }
 
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
     const pretasks$ = this.service.getAll(SERV.PRETASKS, params.create(), httpOptions);
 
     this.subscriptions.push(

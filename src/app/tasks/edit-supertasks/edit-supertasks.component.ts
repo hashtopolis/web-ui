@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -152,17 +153,17 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       },
       error: (err: unknown) => {
         const status = err instanceof HttpErrorResponse ? err.status : undefined;
-        if (status === 403) {
+        if (status === HttpStatus.FORBIDDEN) {
           this.router.navigateByUrl('/forbidden');
           return;
         }
-        if (status === 404) {
+        if (status === HttpStatus.NOT_FOUND) {
           this.router.navigateByUrl('/not-found');
           return;
         }
 
         // For server errors try a fallback request without includes to at least load primary data
-        if (err instanceof HttpErrorResponse && status && status >= 500) {
+        if (err instanceof HttpErrorResponse && status && status >= HttpStatus.INTERNAL_SERVER_ERROR) {
           console.warn('loadData(): request with includes failed, retrying without includes', err);
           const retry$ = this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex).subscribe({
             next: (response2: ResponseWrapper) => {

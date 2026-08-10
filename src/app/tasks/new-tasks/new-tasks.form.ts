@@ -1,6 +1,8 @@
 /**
  * This module contains form definitions for the new tasks page.
  */
+import { StaticChunking } from '@constants/tasks.config';
+
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
@@ -71,7 +73,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     crackerBinaryId: new FormControl<number>(1, { nonNullable: true, validators: [Validators.required] }),
     crackerBinaryTypeId: new FormControl<number | null>(null, [Validators.required]),
     isArchived: new FormControl<boolean>(false, { nonNullable: true }),
-    staticChunks: new FormControl<number>(0, { nonNullable: true }),
+    staticChunks: new FormControl<number>(StaticChunking.NO, { nonNullable: true }),
     chunkSize: new FormControl<number>(chunkSize, { nonNullable: true }),
     forcePipe: new FormControl<boolean>(false, { nonNullable: true }),
     preprocessorId: new FormControl<number>(0, { nonNullable: true }),

@@ -1,3 +1,4 @@
+import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse } from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
@@ -93,7 +94,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .addFilter({ field: 'format', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.TEXT })
       .create();
 
     const loadSubscription$ = this.globalService

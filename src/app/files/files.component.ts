@@ -14,7 +14,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class FilesComponent implements OnInit {
-  fileType: FileType = 0;
+  fileType: FileType = FileType.WORDLIST;
   FileType = FileType;
   name: TableSettingsKey = 'filesTable';
 

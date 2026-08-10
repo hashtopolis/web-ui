@@ -1,3 +1,6 @@
+import { HashListFormat } from '@constants/hashlist.config';
+import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpStatus } from '@constants/http.config';
+import { StaticChunking } from '@constants/tasks.config';
 import {
   zAgentAssignmentListResponse,
   zAgentListResponse,
@@ -64,6 +67,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
 
   pageTitle = 'Task';
+
+  protected readonly HashListFormat = HashListFormat;
 
   updateForm: FormGroup;
   createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
@@ -192,7 +197,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
-      if (status === 403) {
+      if (status === HttpStatus.FORBIDDEN) {
         this.router.navigateByUrl('/forbidden');
         return;
       }
@@ -200,7 +205,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // For other server errors (500 etc.) show an error message so the
       // user knows something went wrong on the server instead of silently
       // redirecting to the 404 page.
-      if (status === 404) {
+      if (status === HttpStatus.NOT_FOUND) {
         this.router.navigateByUrl('/not-found');
         return;
       }
@@ -263,7 +268,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private async loadTask(): Promise<EditedTask> {
-    const noCacheHeaders = new HttpHeaders({ 'X-Cache-Skip': 'true' });
+    const noCacheHeaders = new HttpHeaders({ [HttpHeaderName.SKIP_CACHE]: HTTP_HEADER_ENABLED });
     const params = new RequestParamBuilder()
       .addInclude('hashlist')
       .addInclude('crackerBinary')
@@ -290,7 +295,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
       // resource exists — the UI can still open the edit form with the primary data.
-      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
+      if (err instanceof HttpErrorResponse && err.status && err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await lastValueFrom<ResponseWrapper>(
           this.http.get<ResponseWrapper>(url, { headers: noCacheHeaders })
@@ -500,10 +505,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private getStaticChunkingLabel(staticChunks: number): string {
     switch (staticChunks) {
-      case 1:
-        return 'Fixed chunk size (1)';
-      case 2:
-        return 'Fixed number of chunks (2)';
+      case StaticChunking.FIXED_CHUNK_SIZE:
+        return `Fixed chunk size (${StaticChunking.FIXED_CHUNK_SIZE})`;
+      case StaticChunking.FIXED_NUMBER_OF_CHUNKS:
+        return `Fixed number of chunks (${StaticChunking.FIXED_NUMBER_OF_CHUNKS})`;
       default:
         return 'No';
     }

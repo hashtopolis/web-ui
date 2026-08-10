@@ -28,7 +28,7 @@ interface PrepareAttackResult {
   standalone: false
 })
 export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() fileType: FileType = 0;
+  @Input() fileType: FileType = FileType.WORDLIST;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
   @Input() customLabel: string;
@@ -142,7 +142,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       if (indexFileName !== -1) {
         newCmdArray.splice(indexFileName, 1);
       }
-      if (row.fileType === 1) {
+      if (row.fileType === FileType.RULES) {
         newCmdArray.splice(indexFileName - 1, 1);
       }
 
@@ -156,7 +156,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
 
       // Only add if filename is NOT already in the command
       if (fileIndex === -1) {
-        if (row.fileType === 1) {
+        if (row.fileType === FileType.RULES) {
           // Add -r only if it doesn't already precede this file
           newCmdArray.push('-r');
         }

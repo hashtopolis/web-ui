@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
@@ -110,12 +111,12 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       } catch (e: unknown) {
         const status = e instanceof HttpErrorResponse ? e.status : undefined;
 
-        if (status === 403) {
+        if (status === HttpStatus.FORBIDDEN) {
           this.router.navigateByUrl('/forbidden');
           return;
         }
 
-        if (status === 404) {
+        if (status === HttpStatus.NOT_FOUND) {
           this.router.navigateByUrl('/not-found');
           return;
         }
@@ -171,7 +172,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       });
       return;
     } catch (err: unknown) {
-      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
+      if (err instanceof HttpErrorResponse && err.status && err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
         // Retry without includes if server failed resolving relationships
 
         console.warn('loadHashlist(): request with includes failed, retrying without includes', err);

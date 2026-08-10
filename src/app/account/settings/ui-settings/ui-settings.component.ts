@@ -3,6 +3,7 @@ import { Setting, dateFormats, layouts, themes } from '@constants/settings.confi
 import { Component, OnInit, inject } from '@angular/core';
 
 import { UIConfig } from '@models/config-ui.model';
+import { BuiltInTheme } from '@models/config-ui.model';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -38,7 +39,7 @@ export class UiSettingsComponent implements OnInit {
     ...theme,
     icon: 'palette',
     source: 'builtin',
-    isDark: theme.value === 'dark'
+    isDark: theme.value === BuiltInTheme.DARK
   }));
 
   ngOnInit(): void {

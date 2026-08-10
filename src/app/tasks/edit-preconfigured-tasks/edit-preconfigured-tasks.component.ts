@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zPreTaskResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
@@ -87,12 +88,12 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
-      if (status === 403) {
+      if (status === HttpStatus.FORBIDDEN) {
         this.router.navigateByUrl('/forbidden');
         return;
       }
 
-      if (status === 404) {
+      if (status === HttpStatus.NOT_FOUND) {
         this.router.navigateByUrl('/not-found');
         return;
       }

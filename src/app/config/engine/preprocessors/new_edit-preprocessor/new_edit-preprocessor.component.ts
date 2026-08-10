@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zPreprocessorResponse } from '@generated/api/zod';
 import { Subscription, firstValueFrom, lastValueFrom } from 'rxjs';
 
@@ -77,12 +78,12 @@ export class NewEditPreprocessorComponent implements OnInit {
       } catch (e: unknown) {
         const status = e instanceof HttpErrorResponse ? e.status : undefined;
 
-        if (status === 403) {
+        if (status === HttpStatus.FORBIDDEN) {
           void this.router.navigateByUrl('/forbidden');
           return;
         }
 
-        if (status === 404) {
+        if (status === HttpStatus.NOT_FOUND) {
           void this.router.navigateByUrl('/not-found');
           return;
         }

@@ -2,29 +2,35 @@
  * Agent Stats Constants
  **/
 
-export class ASC {
-  public static GPU_TEMP = 1;
-  public static GPU_UTIL = 2;
-  public static CPU_UTIL = 3;
-}
+/**
+ * Stat type recorded per agent, matching the `statType` field on agent stats.
+ */
+export const ASC = {
+  GPU_TEMP: 1,
+  GPU_UTIL: 2,
+  CPU_UTIL: 3
+} as const;
+export type ASC = (typeof ASC)[keyof typeof ASC];
 
 /**
- * Enum for agent operating system
+ * Agent operating system
  */
-export enum AgentOS {
-  LINUX = 0,
-  WINDOWS = 1,
-  MACOS = 2
-}
+export const AgentOS = {
+  LINUX: 0,
+  WINDOWS: 1,
+  MACOS: 2
+} as const;
+export type AgentOS = (typeof AgentOS)[keyof typeof AgentOS];
 
 /**
- * Enum for agent ignore errors
+ * Agent behaviour when a cracking error occurs
  */
-export enum IgnoreErrors {
-  NO = 0,
-  IGNORE_SAVE = 1,
-  IGNORE_NOSAVE = 2
-}
+export const IgnoreErrors = {
+  NO: 0,
+  IGNORE_SAVE: 1,
+  IGNORE_NOSAVE: 2
+} as const;
+export type IgnoreErrors = (typeof IgnoreErrors)[keyof typeof IgnoreErrors];
 
 export const IGNORE_ERROR_CHOICES = [
   { id: IgnoreErrors.NO, name: 'Deactivate agent on error' },

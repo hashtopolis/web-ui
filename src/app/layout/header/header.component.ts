@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
+import { BuiltInTheme } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
@@ -66,7 +67,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
-  currentTheme = 'light';
+  currentTheme: string = BuiltInTheme.LIGHT;
   themeOptions: RuntimeThemeOption[] = [];
   private themeSub: Subscription;
 
@@ -155,11 +156,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return option.icon;
     }
 
-    if (this.currentTheme === 'light') {
+    if (this.currentTheme === BuiltInTheme.LIGHT) {
       return 'light_mode';
     }
 
-    if (this.currentTheme === 'dark') {
+    if (this.currentTheme === BuiltInTheme.DARK) {
       return 'dark_mode';
     }
 

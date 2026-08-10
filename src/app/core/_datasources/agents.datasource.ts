@@ -2,6 +2,7 @@
  * Contains data source for agents resource
  * @module
  */
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize, lastValueFrom } from 'rxjs';
 
@@ -56,7 +57,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
 
     this.service
       .getAll(SERV.AGENTS, agentParams.create(), httpOptions)
@@ -94,7 +95,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   loadAssignments(): void {
     this.loading = true;
     const noCacheOptions = {
-      headers: new HttpHeaders({ 'X-Cache-Skip': 'true' })
+      headers: new HttpHeaders({ [HttpHeaderName.SKIP_CACHE]: HTTP_HEADER_ENABLED })
     };
     const assignParams = new RequestParamBuilder()
       .addInclude('agent')

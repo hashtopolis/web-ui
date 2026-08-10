@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
@@ -32,12 +33,15 @@ import { environment } from '@src/environments/environment';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
+/** Rows fetched per page before the user picks a different page size. */
+export const DEFAULT_PAGE_SIZE = 25;
+
 @Injectable()
 export abstract class BaseDataSource<
   T extends BaseModel,
   P extends MatPaginator = MatPaginator
 > implements DataSource<T> {
-  public pageSize = 25;
+  public pageSize = DEFAULT_PAGE_SIZE;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: SortingColumn;
@@ -172,9 +176,9 @@ export abstract class BaseDataSource<
     // Handle filter validation errors gracefully
     if (error?.error?.title) {
       this.filterError$.next(error.error.title);
-    } else if (error?.status === 403) {
+    } else if (error?.status === HttpStatus.FORBIDDEN) {
       this.filterError$.next('Access forbidden. Please check your permissions.');
-    } else if (error?.status === 400) {
+    } else if (error?.status === HttpStatus.BAD_REQUEST) {
       const message = error?.error?.title || 'Invalid filter parameter';
       this.filterError$.next(message);
     } else if (error?.status) {

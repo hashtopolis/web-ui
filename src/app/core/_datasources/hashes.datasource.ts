@@ -12,20 +12,21 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { HashesViewType } from '@src/app/core/_constants/hashes.config';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 const crackedFilterSchema = z.enum(['cracked', 'uncracked']);
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
-  private _dataType: string;
+  private _dataType: HashesViewType;
   private _filterparam: string;
 
   setId(id: number): void {
     this._id = id;
   }
 
-  setDataType(type: string): void {
+  setDataType(type: HashesViewType): void {
     this._dataType = type;
   }
 
@@ -36,7 +37,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
   loadAll(query?: Filter): void {
     this.loading = true;
 
-    if (this._dataType === 'tasks') {
+    if (this._dataType === HashesViewType.TASKS) {
       const hashesService = this.service.ghelper(SERV.HELPER, 'getCracksOfTask', { task: this._id });
 
       this.subscriptions.push(
@@ -54,7 +55,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       return;
     }
 
-    if (this._dataType === 'hashlists') {
+    if (this._dataType === HashesViewType.HASHLISTS) {
       this.loadHashlistHashes(query);
       return;
     }
@@ -63,7 +64,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     if (query) {
       params.addFilter(query);
     }
-    if (this._dataType === 'chunks') {
+    if (this._dataType === HashesViewType.CHUNKS) {
       params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
     }
 

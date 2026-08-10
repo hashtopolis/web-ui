@@ -71,10 +71,10 @@ function badge(status: string) {
 }
 ```
 
-Prefer this over both bare primitives and TypeScript `enum`s (a few older `enum`s
-such as `AgentOS` / `IgnoreErrors` in `_constants/agentsc.config.ts` predate the
-convention). On the zod side the same idea is a literal union - see "Type anything
-you add" in [section 5](#5-backend-contract-and-generated-types).
+Prefer this over both bare primitives and TypeScript `enum`s (the remaining `enum`s
+are the per-table `*TableCol` column identifiers). On the zod side the same idea is
+a literal union - see "Type anything you add" in
+[section 5](#5-backend-contract-and-generated-types).
 
 ### 2. Naming Conventions
 

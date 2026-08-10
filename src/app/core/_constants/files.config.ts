@@ -1,9 +1,10 @@
 /**
  * Files values and label
-**/
+ **/
+import { FileType } from '@models/file.model';
 
 export const fileFormat = [
-  {value: 0, label:'Wordlist'},
-  {value: 1, label:'Rule'},
-  {value: 2, label:'Other'},
+  { value: FileType.WORDLIST, label: 'Wordlist' },
+  { value: FileType.RULES, label: 'Rule' },
+  { value: FileType.OTHER, label: 'Other' }
 ];

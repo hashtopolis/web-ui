@@ -7,13 +7,13 @@ import { AccessGroupId, FileId } from '@models/id.types';
  * - `WORDLIST` Wordlist/dictionary
  * - `RULES`    Rules file
  * - `OTHER`    Any other file
- * @enum
  */
-export enum FileType {
-  WORDLIST,
-  RULES,
-  OTHER
-}
+export const FileType = {
+  WORDLIST: 0,
+  RULES: 1,
+  OTHER: 2
+} as const;
+export type FileType = (typeof FileType)[keyof typeof FileType];
 
 /**
  * Interface definition for an uploaded file

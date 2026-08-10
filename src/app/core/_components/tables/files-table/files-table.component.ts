@@ -39,7 +39,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
 export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _editIndex: number;
 
-  @Input() fileType: FileType = 0;
+  @Input() fileType: FileType = FileType.WORDLIST;
   @Input()
   set editIndex(value: number) {
     if (value !== this._editIndex) {

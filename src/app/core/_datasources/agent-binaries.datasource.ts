@@ -1,3 +1,4 @@
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zAgentBinaryListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -29,7 +30,7 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
     const binaries$ = this.service.getAll(SERV.AGENT_BINARY, params.create(), httpOptions);
 
     this.subscriptions.push(

@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { Subscription } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -175,11 +176,11 @@ export class FormComponent implements OnInit, OnDestroy {
       },
       error: (err: unknown) => {
         const status = err instanceof HttpErrorResponse ? err.status : undefined;
-        if (status === 403) {
+        if (status === HttpStatus.FORBIDDEN) {
           this.router.navigateByUrl('/forbidden');
           return;
         }
-        if (status === 404) {
+        if (status === HttpStatus.NOT_FOUND) {
           this.router.navigateByUrl('/not-found');
           return;
         }

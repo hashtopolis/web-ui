@@ -34,8 +34,18 @@ import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constan
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
-export type Layout = 'full' | 'fixed';
-export type BuiltInTheme = 'light' | 'dark';
+export const Layout = {
+  FULL: 'full',
+  FIXED: 'fixed'
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
+
+export const BuiltInTheme = {
+  LIGHT: 'light',
+  DARK: 'dark'
+} as const;
+export type BuiltInTheme = (typeof BuiltInTheme)[keyof typeof BuiltInTheme];
+
 export type Theme = BuiltInTheme | (string & {});
 
 /**
@@ -99,8 +109,8 @@ export interface Sorting {
 }
 
 const _uiConfigDefault = {
-  layout: 'fixed',
-  theme: 'light',
+  layout: Layout.FIXED,
+  theme: BuiltInTheme.LIGHT,
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
     notificationsTable: {

@@ -51,9 +51,9 @@
                 @if (hashlistinform) {
                   <input-text
                     [title]="
-                      hashlistinform.format === 0
+                      hashlistinform.format === HashListFormat.TEXT
                         ? 'Hashlist'
-                        : hashlistinform.format === 3
+                        : hashlistinform.format === HashListFormat.SUPERHASHLIST
                           ? 'Superhashlist'
                           : 'Hashlist not found'
                     "

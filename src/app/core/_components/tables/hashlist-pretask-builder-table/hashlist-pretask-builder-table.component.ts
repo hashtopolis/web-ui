@@ -1,3 +1,4 @@
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -43,7 +44,9 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   // This is a plain selector table (no ht-table), so it owns its own error messaging via
   // the aggregate result below. Suppress the global error dialog on its write/lookup calls.
-  private readonly skipErrorDialog = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+  private readonly skipErrorDialog = {
+    headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED })
+  };
 
   private readonly serializer = new JsonAPISerializer();
   private readonly crackerVersionByType = new Map<number, number>();

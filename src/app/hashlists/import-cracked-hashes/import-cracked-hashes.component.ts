@@ -1,3 +1,5 @@
+import { HashListFormat } from '@constants/hashlist.config';
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zHashlistResponse } from '@generated/api/zod';
 import { Subject, lastValueFrom, takeUntil } from 'rxjs';
 
@@ -21,7 +23,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { hashSource } from '@src/app/core/_constants/hashlist.config';
+import { HashSource, hashSource } from '@src/app/core/_constants/hashlist.config';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import {
   ImportCrackedHashesForm,
@@ -55,8 +57,10 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   editedHashlistIndex: number;
   hashtype: JHashtype;
   type: number; // Hashlist or Superhashlist
+  protected readonly HashListFormat = HashListFormat;
 
   selectSource = hashSource;
+  protected readonly HashSource = HashSource;
 
   selectedFiles: FileList | null = null;
   fileName: string;
@@ -99,22 +103,22 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     this.getInitialization();
 
     const sourceTypeControl = this.form.controls.sourceType;
-    const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
+    const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: HashSource) => {
       this.hashesAreRequired = false;
       this.resetHashesValidator();
       // Reload every time 'import' is selected so newly placed server files
       // appear without a re-login; the loading flag guards against overlap.
-      if (sourceType === 'import' && !this.isLoadingServerFiles) {
+      if (sourceType === HashSource.IMPORT && !this.isLoadingServerFiles) {
         void this.loadServerFiles();
       }
 
-      if (sourceType !== 'upload') {
+      if (sourceType !== HashSource.UPLOAD) {
         this.selectedFiles = null;
         this.fileName = '';
         this.uploadProgress = 0;
       }
 
-      if (sourceType === 'paste') {
+      if (sourceType === HashSource.PASTE) {
         this.hashesAreRequired = true;
 
         // set required validator now that control is visible
@@ -174,7 +178,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
       const sourceType = this.form.controls.sourceType.value;
 
-      if (sourceType === 'upload') {
+      if (sourceType === HashSource.UPLOAD) {
         if (!this.selectedFiles || this.selectedFiles.length === 0) {
           this.alert.showErrorMessage('Please select a file to upload.');
           return;
@@ -183,7 +187,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (sourceType === 'paste') {
+      if (sourceType === HashSource.PASTE) {
         const hashes = this.form.controls.hashes.value;
         if (!hashes || hashes.trim() === '') {
           this.alert.showErrorMessage('Please paste hashes to import.');
@@ -202,7 +206,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (sourceType === 'import') {
+      if (sourceType === HashSource.IMPORT) {
         const sourceData = this.form.controls.sourceData.value;
         if (!sourceData || sourceData.trim() === '') {
           this.alert.showErrorMessage('Please select a file from the server import directory.');
@@ -218,7 +222,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (sourceType === 'url') {
+      if (sourceType === HashSource.URL) {
         const sourceData = this.form.controls.sourceData.value;
         if (!sourceData || sourceData.trim() === '') {
           this.alert.showErrorMessage('Please provide a URL to download cracked hashes from.');
@@ -252,7 +256,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     try {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
-      const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+      const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
       const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
       );
@@ -337,7 +341,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   }): void {
     this.isCreatingLoading = true;
     // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
     const createSubscription$ = this.gs
       .chelper(SERV.HELPER, 'importCrackedHashes', payload, 'POST', httpOptions)
       .subscribe({
@@ -345,7 +349,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.alert.showSuccessMessage(
             `Processed pre-cracked hashes: ${response.meta.totalLines} total lines, ${response.meta.newCracked} new cracked hashes, ${response.meta.alreadyCracked} were already cracked, ${response.meta.invalid} invalid lines, ${response.meta.notFound} not matching entries (0s)!`
           );
-          const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
+          const path = this.type === HashListFormat.SUPERHASHLIST ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
         },
         error: (error) => {
@@ -373,7 +377,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       })
       .subscribe((response: ResponseWrapper) => {
         const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
-        this.type = hashlist.format ?? 0;
+        this.type = hashlist.format ?? HashListFormat.TEXT;
         this.hashtype = hashlist.hashType!;
 
         this.form.setValue({

@@ -1,3 +1,4 @@
+import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
 import { zChunkListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
@@ -37,7 +38,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     }
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create(), httpOptions);
 
     forkJoin([chunks$])

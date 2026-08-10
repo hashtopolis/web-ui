@@ -21,7 +21,7 @@ import { GlobalService } from '@services/main.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { displays, filters } from '@src/app/core/_constants/hashes.config';
+import { HashesViewType, displays, filters } from '@src/app/core/_constants/hashes.config';
 
 export interface HashesViewForm {
   display: FormControl<string | null>;
@@ -57,7 +57,8 @@ export class HashesComponent implements OnInit, OnDestroy {
   editedIndex: number;
 
   // View type and filter options
-  whichView: string;
+  whichView: HashesViewType;
+  protected readonly HashesViewType = HashesViewType;
   titleName: string;
   filterParam: string;
 
@@ -121,11 +122,11 @@ export class HashesComponent implements OnInit, OnDestroy {
 
   getRouterLink(): (string | number)[] {
     switch (this.whichView) {
-      case 'chunks':
+      case HashesViewType.CHUNKS:
         return ['/tasks/show-tasks/', this.editedIndex, 'edit'];
-      case 'tasks':
+      case HashesViewType.TASKS:
         return ['/tasks/show-tasks/', this.editedIndex, 'edit'];
-      case 'hashlists':
+      case HashesViewType.HASHLISTS:
         return ['/hashlists/hashlist/', this.editedIndex, 'edit'];
       default:
         return [];
@@ -149,7 +150,7 @@ export class HashesComponent implements OnInit, OnDestroy {
       const routeDataKind = zHashesRouteData.parse(data).kind;
       switch (routeDataKind) {
         case HashesRouteKind.ChunkHashes:
-          this.whichView = 'chunks';
+          this.whichView = HashesViewType.CHUNKS;
           this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
             this.titleName = String(chunk.id);
@@ -157,7 +158,7 @@ export class HashesComponent implements OnInit, OnDestroy {
           break;
 
         case HashesRouteKind.TaskHashes:
-          this.whichView = 'tasks';
+          this.whichView = HashesViewType.TASKS;
           this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
             this.titleName = task.taskName ?? '';
@@ -165,7 +166,7 @@ export class HashesComponent implements OnInit, OnDestroy {
           break;
 
         case HashesRouteKind.HashlistHashes:
-          this.whichView = 'hashlists';
+          this.whichView = HashesViewType.HASHLISTS;
           this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
             const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
             this.titleName = hashlist.name;
