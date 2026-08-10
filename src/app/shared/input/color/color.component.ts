@@ -65,6 +65,16 @@ export class InputColorComponent extends AbstractInputComponent<string> {
     this.setValue(this.stripHash((event.target as HTMLInputElement).value));
   }
 
+  /**
+   * Browsers suppress the picker's `input` event when the chosen color already
+   * equals the element's value, so the fallback hex an unset field displays was
+   * the one color it could never take (hashtopolis#2345). Opening the picker
+   * commits that color up front; every other choice then differs and emits.
+   */
+  onPickerOpen(): void {
+    if (!this.value) this.setValue(this.stripHash(this.DEFAULT_NATIVE_INPUT_PLACEHOLDER));
+  }
+
   private stripHash(value: string): string {
     return (value ?? '').replace(/^#/, '');
   }

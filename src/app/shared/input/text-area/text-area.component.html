@@ -4,7 +4,7 @@
   [class.input--readonly]="readonly"
   [class.field-stack--row-aligned]="rowAligned"
 >
-  <label class="field-stack__label" [attr.for]="inputId">
+  <label class="field-stack__label" [attr.for]="inputId" [title]="title">
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>
     } @else {
@@ -22,13 +22,14 @@
         matTooltipClass="tooltip-custom-style"
         matTooltipShowDelay="500"
         aria-hidden="true"
+        title=""
       >
         info
       </mat-icon>
     }
   </label>
 
-  <mat-form-field class="custom-textarea field-stack__field">
+  <mat-form-field class="custom-textarea field-stack__field" [title]="title">
     <textarea
       matInput
       [class.is-invalid]="error && !readonly"

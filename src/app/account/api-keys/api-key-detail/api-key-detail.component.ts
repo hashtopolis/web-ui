@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-token.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -54,8 +55,8 @@ export class ApiKeyDetailComponent implements OnInit {
   }
 
   private async loadToken(): Promise<void> {
-    const id = Number(this.route.snapshot.params['id']);
-    if (!Number.isFinite(id)) {
+    const routeParams = zIdRouteParams.safeParse(this.route.snapshot.params);
+    if (!routeParams.success) {
       this.notFound = true;
       this.loading = false;
       return;
@@ -63,7 +64,7 @@ export class ApiKeyDetailComponent implements OnInit {
 
     try {
       const params = new RequestParamBuilder().addInclude('user').create();
-      const response = await lastValueFrom(this.gs.get(SERV.API_TOKENS, id, params));
+      const response = await lastValueFrom(this.gs.get(SERV.API_TOKENS, routeParams.data.id, params));
       const token: JApiToken = this.serializer.deserialize(response, zApiTokenResponse, {
         include: ['user']
       });

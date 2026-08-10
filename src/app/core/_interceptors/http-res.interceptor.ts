@@ -1,4 +1,4 @@
-import { Observable, catchError, finalize, throwError } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '@services/access/auth.service';
 import { AlertService } from '@services/shared/alert.service';
-import { LoadingService } from '@services/shared/loading.service';
 
 import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component';
 
@@ -14,22 +13,19 @@ import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component
 export class HttpResInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private loadingService = inject(LoadingService);
   private alertService = inject(AlertService);
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // If request contains this header, don't show modal/snackbar for errors
     const skipDialog: boolean = req.headers.has('X-Skip-Error-Dialog');
 
-    this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (skipDialog) {
           return throwError(() => error);
         }
         return this.handleError(req, error);
-      }),
-      finalize(() => this.loadingService.handleRequest())
+      })
     );
   }
 
@@ -61,9 +57,7 @@ export class HttpResInterceptor implements HttpInterceptor {
       errmsg = error.error.title;
       showAlert = true;
     } else if (error.status === 0) {
-      errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
-        req.url
-      )}) and try again. Note: APIv2 HASHTOPOLIS_APIV2_ENABLE=1 needs to be enabled. `;
+      errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(req.url)}) and try again.`;
     } else {
       errmsg = error.error?.title || 'An unknown error occurred.';
     }

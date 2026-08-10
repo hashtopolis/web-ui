@@ -216,7 +216,7 @@ describe('TasksTableComponent', () => {
       });
     });
 
-    it('should truncate long task names in NAME column routerLink', (done) => {
+    it('should pass the full task name to the NAME column label (CSS handles truncation)', (done) => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const longName = 'A'.repeat(50);
@@ -227,7 +227,7 @@ describe('TasksTableComponent', () => {
       } as JTaskWrapperDisplay;
 
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('A'.repeat(40) + '...');
+        expect(links[0].label).toBe(longName);
         expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
         done();
       });

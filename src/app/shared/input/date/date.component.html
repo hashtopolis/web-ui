@@ -1,5 +1,5 @@
 <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
-  <label class="field-stack__label" [attr.for]="inputId">
+  <label class="field-stack__label" [attr.for]="inputId" [title]="title">
     @if (linkTo) {
       <a [routerLink]="linkTo">{{ title }}</a>
     } @else {
@@ -10,7 +10,7 @@
     }
   </label>
 
-  <mat-form-field class="form-group field-stack__field" appearance="outline">
+  <mat-form-field class="form-group field-stack__field" appearance="outline" [title]="title">
     <input
       matInput
       [matDatepicker]="picker"

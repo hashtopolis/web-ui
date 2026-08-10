@@ -23,7 +23,6 @@ import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.compon
 import { AgentOS } from '@src/app/core/_constants/agentsc.config';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
@@ -175,9 +174,7 @@ describe('EditAgentComponent', () => {
     agentRoleServiceSpy = jasmine.createSpyObj('AgentRoleService', ['hasRole']);
     activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
       snapshot: {
-        paramMap: {
-          get: jasmine.createSpy('get').and.returnValue('1')
-        }
+        params: { id: '1' }
       }
     });
 
@@ -218,8 +215,7 @@ describe('EditAgentComponent', () => {
         InputModule,
         TableModule,
         ComponentsModule,
-        CoreFormsModule,
-        DirectivesModule
+        CoreFormsModule
       ],
       providers: [
         { provide: AlertService, useValue: alertServiceSpy },
@@ -296,7 +292,7 @@ describe('EditAgentComponent', () => {
 
   it('should navigate to /not-found when agent ID is invalid', fakeAsync(() => {
     // Reconfigure ActivatedRoute with invalid ID
-    (activatedRouteSpy.snapshot.paramMap.get as jasmine.Spy).and.returnValue(null);
+    activatedRouteSpy.snapshot.params = {};
 
     // Create new component with invalid ID
     fixture = TestBed.createComponent(EditAgentComponent);

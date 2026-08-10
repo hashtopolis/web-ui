@@ -8,7 +8,6 @@ import { RouterModule } from '@angular/router';
 import { CoreComponentsModule } from '@components/core-components.module';
 
 import { ComponentsModule } from '@src/app/shared/components.module';
-import { DirectivesModule } from '@src/app/shared/directives.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
@@ -36,7 +35,6 @@ import { UsersRoutingModule } from '@src/app/users/users-routing.module';
     UsersRoutingModule,
     FontAwesomeModule,
     ComponentsModule,
-    DirectivesModule,
     CoreFormsModule,
     RouterModule,
     CommonModule,

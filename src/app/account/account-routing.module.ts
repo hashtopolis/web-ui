@@ -3,8 +3,6 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
-import { SERV } from '@services/main.config';
-
 import { AccountComponent } from '@src/app/account/account.component';
 import { ApiKeyDetailComponent } from '@src/app/account/api-keys/api-key-detail/api-key-detail.component';
 import { ApiKeysComponent } from '@src/app/account/api-keys/api-keys.component';
@@ -22,75 +20,41 @@ const routes: MyRoute[] = [
       {
         path: '',
         component: AccountComponent,
-        data: {
-          kind: 'account',
-          breadcrumb: ''
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'acc-settings',
         component: AccountSettingsComponent,
-        data: {
-          kind: 'acc-settings',
-          breadcrumb: 'Account Settings'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'ui-settings',
         component: UiSettingsComponent,
-        data: {
-          kind: 'uisettings',
-          type: 'edit',
-          serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'UI Settings'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'notifications',
         component: NotificationsComponent,
-        data: {
-          kind: 'notifications',
-          breadcrumb: 'Notifications'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'notifications/new-notification',
         component: NewNotificationComponent,
-        data: {
-          kind: 'new-notifications',
-          breadcrumb: 'New Notification'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys',
         component: ApiKeysComponent,
-        data: {
-          kind: 'api-keys',
-          breadcrumb: 'API Keys'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys/new',
         component: NewApiKeyComponent,
-        data: {
-          kind: 'new-api-key',
-          breadcrumb: 'New API Key'
-        },
         canActivate: [IsAuth]
       },
       {
         path: 'api-keys/:id',
         component: ApiKeyDetailComponent,
-        data: {
-          kind: 'api-key-detail',
-          breadcrumb: 'API Key Details'
-        },
         canActivate: [IsAuth]
       }
     ]

@@ -22,6 +22,7 @@ import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zNewTaskRouteData, zOptionalIdRouteParams } from '@models/routes.schema';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -127,11 +128,13 @@ export class NewTasksComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(async ([params, data]) => {
-          this.editedIndex = +params['id'];
-          this.copyMode = params['id'] != null;
+          const { id } = zOptionalIdRouteParams.parse(params);
+          this.editedIndex = id ?? NaN;
+          this.copyMode = id !== undefined;
           this.buildForm();
           await this.loadSelectOptions();
-          await this.determineView(data['kind'] as NewTaskRouteKind);
+          const routeKind = zNewTaskRouteData.parse(data).kind;
+          await this.determineView(routeKind);
         })
       )
       .subscribe();

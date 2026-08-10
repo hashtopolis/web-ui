@@ -11,6 +11,7 @@ import { ServerImportFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { UploadTUSService } from '@services/files/files_tus.service';
@@ -86,7 +87,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   getInitialization() {
     this.route.params.subscribe((params: Params) => {
-      this.editedHashlistIndex = +params['id'];
+      this.editedHashlistIndex = zIdRouteParams.parse(params).id;
       this.formValues();
     });
   }

@@ -6,7 +6,7 @@
 </div>
 } @else {
 <div class="field-stack" [class.is-invalid]="hasError && isTouched && !readonly" [class.input--readonly]="readonly">
-  <label class="field-stack__label">
+  <label class="field-stack__label" [title]="label">
     @if (linkTo) {
     <a [routerLink]="linkTo">{{ label }}</a>
     } @else {
@@ -17,13 +17,13 @@
     }
   </label>
 
-  <mat-form-field class="custom-chip-grid field-stack__field show-subscript">
+  <mat-form-field class="custom-chip-grid field-stack__field show-subscript" [title]="label">
     <mat-chip-grid #chipGridRef [required]="isRequired" aria-label="Items selection" [disabled]="disabled || readonly">
       @for (item of readonly ? items : selectedItems; track item.id) {
       <mat-chip-row [removable]="!readonly">
-        <div matTooltip="{{ item.name }}">
+        <div title="">
           {{ item.id }}
-          <span>{{ item.name.length > 30 ? (item.name | slice: 0 : 30) + '...' : item.name }}</span>
+          <span>{{ item.name }}</span>
         </div>
         @if (!readonly) {
         <button type="button" matChipRemove (click)="remove(item); $event.stopPropagation()"
@@ -53,7 +53,7 @@
     <input [matChipInputFor]="chipGridRef" hidden aria-hidden="true" tabindex="-1" />
     }
     <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-    <span matSuffix class="multiselect-suffix-slot" (click)="$event.stopPropagation()">
+    <span matSuffix class="multiselect-suffix-slot" title="" (click)="$event.stopPropagation()">
       <ng-content select="[matSuffix]"></ng-content>
     </span>
     @if (hasError && errors && !readonly) {

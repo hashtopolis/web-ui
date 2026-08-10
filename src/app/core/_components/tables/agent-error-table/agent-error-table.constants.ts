@@ -1,19 +1,17 @@
-export interface AgentErrorTable {
-}
 export enum AgentErrorTableCol {
   ID,
-  TIME ,
+  TIME,
   TASK_ID,
-  TASK ,
-  CHUNK ,
-  MESSAGE,
+  TASK,
+  CHUNK,
+  MESSAGE
 }
 
-export const  AgentErrorTableColumnLabel = {
+export const AgentErrorTableColumnLabel = {
   [AgentErrorTableCol.ID]: 'ID',
   [AgentErrorTableCol.TIME]: 'Time',
   [AgentErrorTableCol.TASK_ID]: 'Task ID',
   [AgentErrorTableCol.TASK]: 'Task',
   [AgentErrorTableCol.CHUNK]: 'Chunk',
-  [AgentErrorTableCol.MESSAGE]: 'Message',
+  [AgentErrorTableCol.MESSAGE]: 'Message'
 };

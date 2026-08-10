@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -54,7 +55,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
    * Component initialization get ID to use in Table component
    */
   onInitialize(): void {
-    this.viewedHealthCIndex = +this.route.snapshot.params['id'];
+    this.viewedHealthCIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
     this.uiSettings = new UISettingsUtilityClass(this.settingsService);
     this.dateFormat = this.getDateFormat();
   }

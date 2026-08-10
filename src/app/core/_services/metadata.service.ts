@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse, zGlobalPermissionGroupListResponse } from '@generated/api/zod';
+import { zAccessGroupListResponse } from '@generated/api/zod';
 import { Observable } from 'rxjs';
 import { z } from 'zod';
 
@@ -13,8 +13,7 @@ import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.se
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
-import { Option, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
-import { emailValidator } from '@src/app/core/_validators/email.validator';
+import { Option, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { urlValidator } from '@src/app/core/_validators/url.validator';
 import { SelectOption } from '@src/app/shared/utils/forms';
 
@@ -139,50 +138,6 @@ export class MetadataService {
   // Pretask
   // //
 
-  // //
-  // Supertask
-  // //
-
-  supertaskInfo = [
-    {
-      title: 'New Supertask',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Supertask created!',
-      submitokredirect: 'tasks/supertasks'
-    }
-  ];
-
-  supertask: MetadataFormField[] = [
-    {
-      name: 'supertaskName',
-      label: 'Name',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    },
-    {
-      name: 'pretasks',
-      label: 'Select or search tasks assigned to this supertask:',
-      type: 'select',
-      selectOptions: [],
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    }
-  ];
-
-  // // // // // // // //
-  // FILES SECTION    //
-  // // // // // // // //
-
-  // //
-  // Files
-  // //
-
-  // This variable stores information about the edit wordlist file page.
-  // Edit wordlist file page
   editwordlistInfo = [
     {
       title: 'Edit Wordlist File',
@@ -281,51 +236,6 @@ export class MetadataService {
   // New Cracker
   // //
 
-  // This variable stores information about the new cracker page.
-  newcrackerInfo = [
-    {
-      title: 'New Cracker Type',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Cracker created!',
-      submitokredirect: '/config/engine/crackers'
-    }
-  ];
-
-  //This variable defines the fields and properties required when creating a new cracker.
-  newcracker: MetadataFormField[] = [
-    {
-      name: 'typeName',
-      label: 'Type',
-      type: 'select',
-      selectOptions: [
-        { label: 'Hashcat', value: 'hashcat' },
-        { label: 'Generic Cracker', value: 'generic' }
-      ],
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    }
-    /* Only crackers with chunking are supported right now
-    {
-      name: 'isChunkingAvailable',
-      label: 'Chunking Available',
-      type: 'select',
-      selectOptions: [
-        { label: 'Yes', value: true },
-        { label: 'No', value: false }
-      ],
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    }*/
-  ];
-
-  // //
-  // Agent Binary
-  // //
-
-  // This variable stores information about the New Agent Binary page.
   newagentbinaryInfo = [
     {
       title: 'New Agent Binary',
@@ -502,94 +412,6 @@ export class MetadataService {
   // Preprocessor
   // //
 
-  // This variable stores information about the New Preprocessor page.
-  newpreprocessorInfo = [
-    {
-      title: 'New Preprocessor',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Preprocessor created!',
-      submitokredirect: 'config/engine/preprocessors'
-    }
-  ];
-
-  // This variable stores information about the Edit Preprocessor page.
-  editpreprocessorInfo = [
-    {
-      title: 'Edit Preprocessor',
-      customform: false,
-      subtitle: false,
-      submitok: 'Preprocessor saved!',
-      submitokredirect: 'config/engine/preprocessors',
-      deltitle: 'Preprocessors',
-      delsubmitok: 'Deleted Preprocessor',
-      delsubmitokredirect: 'config/engine/preprocessors',
-      delsubmitcancel: 'Preprocessor is safe!'
-    }
-  ];
-
-  //This variable defines the fields and properties required when creating/editing a Hashtype.
-  preprocessor: MetadataFormField[] = [
-    {
-      name: 'name',
-      label: 'Name',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    },
-    {
-      name: 'binaryName',
-      label: 'Binary Basename',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    },
-    {
-      name: 'url',
-      label: 'Download URL',
-      type: 'url',
-      requiredasterisk: true,
-      tooltip:
-        'Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z',
-      validators: [Validators.required, urlValidator()]
-    },
-    { label: 'Commands (set to empty if not available)', isTitle: true },
-    {
-      name: 'keyspaceCommand',
-      label: 'Keyspace Command',
-      type: 'text',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: '--keyspace'
-    },
-    {
-      name: 'skipCommand',
-      label: 'Skip Command',
-      type: 'text',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: '--skip'
-    },
-    {
-      name: 'limitCommand',
-      label: 'Limit Command',
-      type: 'text',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: '--limit'
-    }
-  ];
-
-  // //
-  // Hashtypes
-  // //
-
-  // This variable stores information about the New Hashtypes page.
   newhashtypeInfo = [
     {
       title: 'Create Hashtype',
@@ -1089,106 +911,6 @@ export class MetadataService {
   // Health Check
   // //
 
-  // This variable holds information about the fields required when creating a new health check.
-  newhealthcheck: MetadataFormField[] = [
-    {
-      name: 'attack',
-      label: 'Attack',
-      type: 'select',
-      requiredasterisk: true,
-      selectOptions: [{ value: 0, label: 'Brute-Force' }],
-      validators: [Validators.required]
-    },
-    {
-      name: 'hashtypeId',
-      label: 'Hashtype',
-      type: 'select',
-      requiredasterisk: true,
-      selectOptions: [
-        { value: 0, label: 'MD5' },
-        { value: 3200, label: 'BCRYPT' }
-      ],
-      validators: [Validators.required]
-    },
-    {
-      name: 'crackerBinaryType',
-      label: 'Binary',
-      type: 'asyncSelect',
-      requiredasterisk: true,
-      selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectSchema: zGlobalPermissionGroupListResponse,
-      selectOptions$: [],
-      fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
-      validators: [Validators.required]
-    },
-    {
-      name: 'crackerBinaryId',
-      label: 'Binary Version',
-      type: 'asyncSelect',
-      requiredasterisk: true,
-      selectEndpoint$: () =>
-        this.gs.getRelationships(SERV.USERS, this.gs.userId!, RelationshipType.GLOBALPERMISSIONGROUP),
-      selectSchema: zGlobalPermissionGroupListResponse,
-      selectOptions$: [],
-      fieldMapping: { id: 'crackerBinaryId', name: 'version' },
-      validators: [Validators.required]
-    }
-  ];
-
-  // // // // // // // //
-  // USER SECTION      //
-  // // // // // // // //
-
-  // //
-  // USERS
-  // //
-
-  // This variable stores information about the user page.
-  newuserInfo = [
-    {
-      title: 'New User',
-      customform: false,
-      subtitle: false,
-      submitok: 'New User created!',
-      submitokredirect: 'users/all-users'
-    }
-  ];
-
-  //This variable holds information about the fields required when creating a new user.
-  newuser: MetadataFormField[] = [
-    {
-      name: 'name',
-      label: 'User Name',
-      type: 'text',
-      requiredasterisk: true,
-      validators: [Validators.required]
-    },
-    {
-      name: 'email',
-      label: 'Email',
-      type: 'email',
-      requiredasterisk: true,
-      validators: [Validators.required, emailValidator]
-    },
-    {
-      name: 'globalPermissionGroupId',
-      label: 'Global Permission Group',
-      type: 'asyncSelect',
-      requiredasterisk: true,
-      selectEndpoint$: () => this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS),
-      selectSchema: zGlobalPermissionGroupListResponse,
-      selectOptions$: [],
-      fieldMapping: { id: 'id', name: 'name' },
-      validators: [Validators.required]
-    }
-  ];
-
-  // //
-  // New Global Permission Group
-  // //
-
-  // This variable stores information about the global permission group page.
   newglobalpermissionsgpInfo = [
     {
       title: 'New Global Permission Group',
@@ -1225,21 +947,6 @@ export class MetadataService {
     }
   ];
 
-  // This variable contains information related to editing an access group.
-  editaccessgroupsInfo = [
-    {
-      title: 'Edit Access Group',
-      subtitle: false,
-      submitok: 'Access Group saved!',
-      submitokredirect: '/users/access-groups',
-      deltitle: 'Agent Groups',
-      delsubmitok: 'Deleted Access Group',
-      delsubmitokredirect: '/users/access-groups',
-      delsubmitcancel: 'Agent Group is safe!'
-    }
-  ];
-
-  // This variable contains information about the fields required when creating or editing an access group.
   accessgroups: MetadataFormField[] = [
     {
       name: 'groupName',
@@ -1257,58 +964,22 @@ export class MetadataService {
 
   uisettingsInfo = [{ title: 'UI Settings', subtitle: false }];
 
-  uisettings: MetadataFormField[] = [
-    {
-      name: 'localtimefmt',
-      label: 'Set the time format',
-      type: 'select',
-      selectOptions: dateFormats.map((f) => ({ label: f.description, value: f.value }))
-    },
-    {
-      name: 'autorefresh',
-      label: 'Dashboard Refresh Interval (seconds)',
-      type: 'text',
-      tooltip: 'Manage refresh interval in the show tasks view'
-    },
-    {
-      name: 'tooltip',
-      label: 'Manage Global level of tooltip details',
-      type: 'select',
-      selectOptions: [
-        { label: 'Concise', value: 0 },
-        { label: 'Detailed', value: 1 },
-        { label: 'Very Detailed', value: 2 }
-      ]
-    }
-  ];
-
-  /**
-   * Retrieves form metadata based on the provided form name.
-   * @param formName - The name of the form for which metadata is requested.
-   * @returns An array of form metadata.editnotifInfo
-   */
   getFormMetadata(formName: string): MetadataFormField[] {
     if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
       return this.editfile;
-    } else if (formName === 'uisettings') {
-      return this.uisettings;
-    } else if (formName === 'newcracker') {
-      return this.newcracker;
     } else if (formName === 'newagentbinary' || formName === 'editagentbinary') {
       return this.agentbinary;
     } else if (formName === 'newcrackerversion') {
       return this.newcrackerversion;
     } else if (formName === 'editcrackerversion') {
       return this.editcrackerversion;
-    } else if (formName === 'editpreprocessor') {
-      return this.preprocessor;
     } else if (formName === 'newhashtype') {
       return this.newhashtype;
     } else if (formName === 'edithashtype') {
       return this.edithashtype;
     } else if (formName === 'newglobalpermissionsgp') {
       return this.newglobalpermissionsgp;
-    } else if (formName === 'newaccessgroups' || formName === 'editaccessgroups') {
+    } else if (formName === 'newaccessgroups') {
       return this.accessgroups;
     } else if (formName === 'serveragent') {
       return this.serveragent;
@@ -1320,8 +991,6 @@ export class MetadataService {
       return this.servernotif;
     } else if (formName === 'servergs') {
       return this.servergs;
-    } else if (formName === 'newuser') {
-      return this.newuser;
     } else {
       return [];
     }
@@ -1339,10 +1008,6 @@ export class MetadataService {
       return this.editruleInfo;
     } else if (formName === 'editotherInfo') {
       return this.editotherInfo;
-    } else if (formName === 'uisettingsInfo') {
-      return this.uisettingsInfo;
-    } else if (formName === 'newcrackerInfo') {
-      return this.newcrackerInfo;
     } else if (formName === 'newagentbinaryInfo') {
       return this.newagentbinaryInfo;
     } else if (formName === 'editagentbinaryInfo') {
@@ -1351,10 +1016,6 @@ export class MetadataService {
       return this.newcrackerversionInfo;
     } else if (formName === 'editcrackerversionInfo') {
       return this.editcrackerversionInfo;
-    } else if (formName === 'newpreprocessorInfo') {
-      return this.newpreprocessorInfo;
-    } else if (formName === 'editpreprocessorInfo') {
-      return this.editpreprocessorInfo;
     } else if (formName === 'newhashtypeInfo') {
       return this.newhashtypeInfo;
     } else if (formName === 'edithashtypeInfo') {
@@ -1363,8 +1024,6 @@ export class MetadataService {
       return this.newglobalpermissionsgpInfo;
     } else if (formName === 'newaccessgroupsInfo') {
       return this.newaccessgroupsInfo;
-    } else if (formName === 'editaccessgroupsInfo') {
-      return this.editaccessgroupsInfo;
     } else if (formName === 'serveragentInfo') {
       return this.serveragentInfo;
     } else if (formName === 'servertaskchunkInfo') {
@@ -1375,8 +1034,6 @@ export class MetadataService {
       return this.servernotifInfo;
     } else if (formName === 'servergsInfo') {
       return this.servergsInfo;
-    } else if (formName === 'newuserInfo') {
-      return this.newuserInfo;
     } else {
       return [];
     }

@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JPretask } from '@models/pretask.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -78,7 +79,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     this.buildForm();
 
-    this.editedPretaskIndex = +this.route.snapshot.params['id'];
+    this.editedPretaskIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
 
     try {
       await this.loadPretask();

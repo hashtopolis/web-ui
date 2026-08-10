@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { FormRouteKind, FormRouteType } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
@@ -33,10 +34,6 @@ const routes: MyRoute[] = [
         path: '',
         component: NewUserComponent,
         data: {
-          kind: 'newuser',
-          type: 'create',
-          serviceConfig: SERV.USERS,
-          breadcrumb: 'New User',
           roleServiceClass: userRoleServiceClass,
           roleName: 'create'
         },
@@ -46,8 +43,6 @@ const routes: MyRoute[] = [
         path: ':id/edit',
         component: EditUsersComponent,
         data: {
-          kind: 'edit',
-          breadcrumb: 'Edit User',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -57,8 +52,6 @@ const routes: MyRoute[] = [
         path: 'all-users',
         component: AllUsersComponent,
         data: {
-          kind: 'all-users',
-          breadcrumb: 'All Users',
           roleServiceClass: userRoleServiceClass,
           roleName: 'read'
         },
@@ -68,8 +61,6 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups',
         component: GlobalpermissionsgroupsComponent,
         data: {
-          kind: 'globalpermissionsgp',
-          breadcrumb: 'Global Permissions Groups',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -79,10 +70,9 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups/new',
         component: FormComponent,
         data: {
-          kind: 'newglobalpermissionsgp',
-          type: 'create',
+          kind: FormRouteKind.NewGlobalPermissionsGroup,
+          type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
-          breadcrumb: 'New Global Permissions Groups',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'create'
         },
@@ -92,8 +82,6 @@ const routes: MyRoute[] = [
         path: 'global-permissions-groups/:id/edit',
         component: EditGlobalpermissionsgroupsComponent,
         data: {
-          kind: 'edit-gpg',
-          breadcrumb: 'Edit Global Permissions Group',
           roleServiceClass: permissionRoleServiceClass,
           roleName: 'read'
         },
@@ -103,8 +91,6 @@ const routes: MyRoute[] = [
         path: 'access-groups',
         component: GroupsComponent,
         data: {
-          kind: 'access-groups',
-          breadcrumb: 'Access Groups',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
@@ -114,10 +100,9 @@ const routes: MyRoute[] = [
         path: 'access-groups/new',
         component: FormComponent,
         data: {
-          kind: 'newaccessgroups',
-          type: 'create',
+          kind: FormRouteKind.NewAccessGroups,
+          type: FormRouteType.Create,
           serviceConfig: SERV.ACCESS_GROUPS,
-          breadcrumb: 'New Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },
@@ -127,9 +112,6 @@ const routes: MyRoute[] = [
         path: 'access-groups/:id/edit',
         component: EditGroupsComponent,
         data: {
-          kind: 'editaccessgroups',
-          type: 'edit',
-          breadcrumb: 'Edit Access Group',
           roleServiceClass: accessGroupRoleServiceClass,
           roleName: 'read'
         },

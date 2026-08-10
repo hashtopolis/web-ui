@@ -12,6 +12,7 @@ import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentWith, ThinJAgent } from '@models/agent.model';
 import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -100,10 +101,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * If the id is missing or invalid, redirect to 404.
    */
   private onInitialize(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    this.editedAgentIndex = idParam ? +idParam : NaN;
+    const routeParams = zIdRouteParams.safeParse(this.route.snapshot.params);
+    this.editedAgentIndex = routeParams.success ? routeParams.data.id : NaN;
 
-    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+    if (!routeParams.success) {
       this.router.navigate(['/not-found']);
     }
   }

@@ -7,6 +7,7 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ValidationPatterns } from '@services/main.config';
@@ -62,13 +63,12 @@ export class NewEditPreprocessorComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const idFromRoute = this.route.snapshot.paramMap.get('id');
-    const parsedId = idFromRoute !== null ? Number(idFromRoute) : NaN;
+    const routeParams = zIdRouteParams.safeParse(this.route.snapshot.params);
 
-    if (Number.isFinite(parsedId)) {
+    if (routeParams.success) {
       // Edit mode
       this.isEditMode = true;
-      this.preprocessorId = parsedId;
+      this.preprocessorId = routeParams.data.id;
       this.pageTitle = 'Edit Preprocessor';
       this.submitButtonText = 'Update';
 

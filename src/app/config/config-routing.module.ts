@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
+import { FormConfigRouteKind, FormRouteKind, FormRouteType } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
@@ -40,10 +41,9 @@ const routes: MyRoute[] = [
         path: 'agent',
         component: FormConfigComponent,
         data: {
-          kind: 'serveragent',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerAgent,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'Agent Settings',
           roleServiceClass: SettingsRoleService,
           roleName: 'read'
         },
@@ -53,10 +53,9 @@ const routes: MyRoute[] = [
         path: 'task-chunk',
         component: FormConfigComponent,
         data: {
-          kind: 'servertaskchunk',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerTaskChunk,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'Task Chunk Settings',
           roleServiceClass: SettingsRoleService,
           roleName: 'read'
         },
@@ -66,10 +65,9 @@ const routes: MyRoute[] = [
         path: 'hch',
         component: FormConfigComponent,
         data: {
-          kind: 'serverhch',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerHealthChecks,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'Hashes/Cracks/Hashlist Settings',
           roleServiceClass: SettingsRoleService,
           roleName: 'read'
         },
@@ -79,10 +77,9 @@ const routes: MyRoute[] = [
         path: 'notifications',
         component: FormConfigComponent,
         data: {
-          kind: 'servernotif',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerNotifications,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'Notifications',
           roleServiceClass: NotificationsRoleService,
           roleName: 'read'
         },
@@ -92,10 +89,9 @@ const routes: MyRoute[] = [
         path: 'general-settings',
         component: FormConfigComponent,
         data: {
-          kind: 'servergs',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerGeneralSettings,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'General Settings',
           roleServiceClass: SettingsRoleService,
           roleName: 'read'
         },
@@ -105,10 +101,9 @@ const routes: MyRoute[] = [
         path: 'server-actions',
         component: FormConfigComponent,
         data: {
-          kind: 'server-actions',
-          type: 'edit',
+          kind: FormConfigRouteKind.ServerActions,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CONFIGS,
-          breadcrumb: 'Server Actions',
           roleServiceClass: SettingsRoleService,
           roleName: 'read'
         },
@@ -118,8 +113,6 @@ const routes: MyRoute[] = [
         path: 'hashtypes',
         component: HashtypesComponent,
         data: {
-          kind: 'hashtypes',
-          breadcrumb: 'Hashtypes',
           roleServiceClass: HashTypesRoleService,
           roleName: 'read'
         },
@@ -129,10 +122,9 @@ const routes: MyRoute[] = [
         path: 'hashtypes/new',
         component: FormComponent,
         data: {
-          kind: 'newhashtype',
-          type: 'create',
+          kind: FormRouteKind.NewHashtype,
+          type: FormRouteType.Create,
           serviceConfig: SERV.HASHTYPES,
-          breadcrumb: 'New Hashtype',
           roleServiceClass: HashTypesRoleService,
           roleName: 'create'
         },
@@ -142,11 +134,10 @@ const routes: MyRoute[] = [
         path: 'hashtypes/:id/edit',
         component: FormComponent,
         data: {
-          kind: 'edithashtype',
-          type: 'edit',
+          kind: FormRouteKind.EditHashtype,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.HASHTYPES,
           responseSchema: zHashTypeResponse,
-          breadcrumb: 'Edit Hashtype',
           roleServiceClass: HashTypesRoleService,
           roleName: 'read'
         },
@@ -156,8 +147,6 @@ const routes: MyRoute[] = [
         path: 'log',
         component: LogComponent,
         data: {
-          kind: 'log',
-          breadcrumb: 'Logs',
           roleServiceClass: LogRoleService,
           roleName: 'read'
         },
@@ -167,8 +156,6 @@ const routes: MyRoute[] = [
         path: 'health-checks',
         component: HealthChecksComponent,
         data: {
-          kind: 'health-checks',
-          breadcrumb: 'Health Checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'read'
         },
@@ -178,8 +165,6 @@ const routes: MyRoute[] = [
         path: 'health-checks/new',
         component: NewHealthChecksComponent,
         data: {
-          kind: 'new-health-checks',
-          breadcrumb: 'New Health Checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'create'
         },
@@ -189,8 +174,6 @@ const routes: MyRoute[] = [
         path: 'health-checks/:id',
         component: ViewHealthChecksComponent,
         data: {
-          kind: 'view-health-checks',
-          breadcrumb: 'View Health Checks',
           roleServiceClass: HealthCheckRoleService,
           roleName: 'read'
         },
@@ -200,8 +183,6 @@ const routes: MyRoute[] = [
         path: 'engine/agent-binaries',
         component: AgentBinariesComponent,
         data: {
-          kind: 'agent-binaries',
-          breadcrumb: 'Engine > Agent-binaries',
           roleServiceClass: AgentBinaryRoleService,
           roleName: 'read'
         },
@@ -211,10 +192,9 @@ const routes: MyRoute[] = [
         path: 'engine/agent-binaries/new-agent-binary',
         component: FormComponent,
         data: {
-          kind: 'newagentbinary',
-          type: 'create',
+          kind: FormRouteKind.NewAgentBinary,
+          type: FormRouteType.Create,
           serviceConfig: SERV.AGENT_BINARY,
-          breadcrumb: 'Engine > New Agent binary',
           roleServiceClass: AgentBinaryRoleService,
           roleName: 'create'
         },
@@ -224,11 +204,10 @@ const routes: MyRoute[] = [
         path: 'engine/agent-binaries/:id/edit',
         component: FormComponent,
         data: {
-          kind: 'editagentbinary',
-          type: 'edit',
+          kind: FormRouteKind.EditAgentBinary,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.AGENT_BINARY,
           responseSchema: zAgentBinaryResponse,
-          breadcrumb: 'Engine > Edit Agent binary',
           roleServiceClass: AgentBinaryRoleService,
           roleName: 'read'
         },
@@ -238,8 +217,6 @@ const routes: MyRoute[] = [
         path: 'engine/crackers',
         component: CrackersComponent,
         data: {
-          kind: 'crackers',
-          breadcrumb: 'Engine > Crackers',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'read'
         },
@@ -249,10 +226,6 @@ const routes: MyRoute[] = [
         path: 'engine/crackers/new',
         component: NewCrackerComponent,
         data: {
-          kind: 'newcracker',
-          type: 'create',
-          serviceConfig: SERV.CRACKERS_TYPES,
-          breadcrumb: 'Engine > New Cracker',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'create'
         },
@@ -262,10 +235,9 @@ const routes: MyRoute[] = [
         path: 'engine/crackers/:id/new',
         component: FormComponent,
         data: {
-          kind: 'newcrackerversion',
-          type: 'create',
+          kind: FormRouteKind.NewCrackerVersion,
+          type: FormRouteType.Create,
           serviceConfig: SERV.CRACKERS,
-          breadcrumb: 'Engine > New Cracker Version/Binary',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'create'
         },
@@ -275,11 +247,10 @@ const routes: MyRoute[] = [
         path: 'engine/crackers/:id/edit',
         component: FormComponent,
         data: {
-          kind: 'editcrackerversion',
-          type: 'edit',
+          kind: FormRouteKind.EditCrackerVersion,
+          type: FormRouteType.Edit,
           serviceConfig: SERV.CRACKERS,
           responseSchema: zCrackerBinaryResponse,
-          breadcrumb: 'Engine > Edit Cracker Version/Binary',
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'read'
         },
@@ -289,8 +260,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors',
         component: PreprocessorsComponent,
         data: {
-          kind: 'preprocessors',
-          breadcrumb: 'Engine > Preprocessors',
           roleServiceClass: PreprocessorRoleService,
           roleName: 'read'
         },
@@ -300,10 +269,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors/new-preprocessor',
         component: NewEditPreprocessorComponent,
         data: {
-          kind: 'newpreprocessor',
-          type: 'create',
-          serviceConfig: SERV.PREPROCESSORS,
-          breadcrumb: 'Engine > New Preprocessor',
           roleServiceClass: PreprocessorRoleService,
           roleName: 'create'
         },
@@ -313,10 +278,6 @@ const routes: MyRoute[] = [
         path: 'engine/preprocessors/:id/edit',
         component: NewEditPreprocessorComponent,
         data: {
-          kind: 'editpreprocessor',
-          type: 'edit',
-          serviceConfig: SERV.PREPROCESSORS,
-          breadcrumb: 'Engine > Edit Preprocessor',
           roleServiceClass: PreprocessorRoleService,
           roleName: 'read'
         },

@@ -2,7 +2,7 @@ import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod'
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { AccessGroupId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
+import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -21,6 +22,9 @@ import { ConfigService } from '@services/shared/config.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
+
+import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
@@ -51,6 +55,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   // Lists of Selected inputs
   selectAccessgroup: Array<SelectOption<AccessGroupId>> = [];
 
+  /** The hashlist's own tasks table, refreshed when a builder creates tasks/supertasks. */
+  @ViewChild(TasksTableComponent) private tasksTable?: TasksTableComponent;
+
   private unsavedChangesService = inject(UnsavedChangesService);
   private unsubscribeService = inject(UnsubscribeService);
   private changeDetectorRef = inject(ChangeDetectorRef);
@@ -63,6 +70,20 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   protected roleService = inject(HashListRoleService);
+
+  get isSuperhashlist(): boolean {
+    return this.type === HashListFormat.SUPERHASHLIST;
+  }
+
+  /** Pre-configured tasks can only be built against a plain hashlist. */
+  get canBuildPretasks(): boolean {
+    return !this.isSuperhashlist && this.roleService.hasRole('pretaskBuilder');
+  }
+
+  /** Supertasks can only be built against a plain hashlist. */
+  get canBuildSupertasks(): boolean {
+    return !this.isSuperhashlist && this.roleService.hasRole('supertaskBuilder');
+  }
 
   /**
    * Constructor for the component.
@@ -77,7 +98,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    */
   async ngOnInit(): Promise<void> {
     this.route.params.subscribe(async (params) => {
-      this.editedHashlistIndex = +params['id'];
+      this.editedHashlistIndex = zIdRouteParams.parse(params).id;
       this.isLoading = true;
 
       try {
@@ -208,7 +229,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         .subscribe(() => {
           this.alert.showSuccessMessage('Hashlist saved');
           this.updateForm.reset(); // success, we reset form
-          const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
+          const path = this.isSuperhashlist ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
         });
       this.unsubscribeService.add(createSubscription$);
@@ -253,6 +274,11 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       });
 
     this.unsubscribeService.add(helperExportedWordlistSubscription$);
+  }
+
+  /** Reloads the tasks table after a builder creates tasks/supertasks against this hashlist. */
+  onTasksCreated(): void {
+    this.tasksTable?.reload();
   }
 
   canDeactivate(): boolean {
