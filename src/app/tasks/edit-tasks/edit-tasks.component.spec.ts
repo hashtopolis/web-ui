@@ -17,6 +17,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { EditTasksComponent } from '@src/app/tasks/edit-tasks/edit-tasks.component';
 import { mockResponse } from '@src/app/testing/mock-response';
 
@@ -271,7 +272,7 @@ describe('EditTasksComponent', () => {
       expect(component.updateForm.getRawValue()['skipKeyspace']).toBe(500);
     }));
 
-    it('should label staticChunks=1 as "Fixed chunk size (1)"', fakeAsync(() => {
+    it('should label staticChunks=1 as "Fixed chunk size"', fakeAsync(() => {
       const response = mockResponse({
         data: {
           ...(mockTaskResponse().data as object),
@@ -286,10 +287,11 @@ describe('EditTasksComponent', () => {
       respondToTaskRequest(response);
       tick();
 
-      expect(component.updateForm.getRawValue()['staticChunks']).toBe('Fixed chunk size (1)');
+      expect(component.updateForm.getRawValue()['staticChunks']).toBe('Fixed chunk size');
+      expect(component.staticChunksMode).toBe(StaticChunkingMode.FIXED_CHUNK_SIZE);
     }));
 
-    it('should label staticChunks=2 as "Fixed number of chunks (2)"', fakeAsync(() => {
+    it('should label staticChunks=2 as "Fixed number of chunks"', fakeAsync(() => {
       const response = mockResponse({
         data: {
           ...(mockTaskResponse().data as object),
@@ -304,7 +306,43 @@ describe('EditTasksComponent', () => {
       respondToTaskRequest(response);
       tick();
 
-      expect(component.updateForm.getRawValue()['staticChunks']).toBe('Fixed number of chunks (2)');
+      expect(component.updateForm.getRawValue()['staticChunks']).toBe('Fixed number of chunks');
+      expect(component.staticChunksMode).toBe(StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS);
+    }));
+
+    function renderWithStaticChunks(staticChunks: number): HTMLElement | null {
+      const response = mockResponse({
+        data: {
+          ...(mockTaskResponse().data as object),
+          attributes: {
+            ...((mockTaskResponse().data as Record<string, unknown>)['attributes'] as object),
+            staticChunks
+          }
+        }
+      }) as ResponseWrapper;
+
+      initComponent();
+      respondToTaskRequest(response);
+      tick();
+      fixture.detectChanges();
+
+      return fixture.nativeElement.querySelector('input-text[formControlName="chunkSize"]');
+    }
+
+    it('should render the chunkSize field as "Fixed size of chunks" for staticChunks=1', fakeAsync(() => {
+      const field = renderWithStaticChunks(StaticChunkingMode.FIXED_CHUNK_SIZE);
+
+      expect(field?.getAttribute('title')).toBe('Fixed size of chunks');
+    }));
+
+    it('should render the chunkSize field as "Fixed number of chunks" for staticChunks=2', fakeAsync(() => {
+      const field = renderWithStaticChunks(StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS);
+
+      expect(field?.getAttribute('title')).toBe('Fixed number of chunks');
+    }));
+
+    it('should not render the chunkSize field when static chunking is off', fakeAsync(() => {
+      expect(renderWithStaticChunks(StaticChunkingMode.NONE)).toBeNull();
     }));
 
     it('should navigate to /not-found on 404 error', fakeAsync(() => {

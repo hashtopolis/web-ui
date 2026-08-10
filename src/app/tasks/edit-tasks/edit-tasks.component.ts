@@ -41,6 +41,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { StaticChunkingMode, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -82,6 +83,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   isLoadingAgents = false;
   crackerinfo: JCrackerBinary | undefined;
   tkeyspace: number;
+  /** Raw staticChunks value, drives which chunkSize field the template shows. */
+  staticChunksMode: number = StaticChunkingMode.NONE;
+  protected readonly StaticChunkingMode = StaticChunkingMode;
 
   @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
@@ -142,6 +146,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.currenspeed = task.currentSpeed ?? 0;
       this.estimatedTime = task.estimatedTime ?? 0;
       this.cprogress = task.cprogress ?? 0;
+      this.staticChunksMode = task.staticChunks;
 
       if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
         this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
@@ -499,13 +504,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private getStaticChunkingLabel(staticChunks: number): string {
-    switch (staticChunks) {
-      case 1:
-        return 'Fixed chunk size (1)';
-      case 2:
-        return 'Fixed number of chunks (2)';
-      default:
-        return 'No';
-    }
+    return staticChunking.find((mode) => mode.id === staticChunks)?.name ?? '';
   }
 }

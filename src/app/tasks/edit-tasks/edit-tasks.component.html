@@ -24,7 +24,7 @@
                 <input-number title="Priority" formControlName="priority"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer"></input-number>
                 <input-number title="Max agents" formControlName="maxAgents"></input-number>
-                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+                <input-number title="Chunk time" formControlName="chunkTime"></input-number>
               </app-form-row>
               <app-form-row align="left">
                 <input-check title="CPU only" formControlName="isCpuTask"></input-check>
@@ -125,6 +125,12 @@
             <app-form-row [columns]="2">
               <input-text title="Use static chunking" formControlName="staticChunks"></input-text>
               <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
+
+              @if (staticChunksMode === StaticChunkingMode.FIXED_CHUNK_SIZE) {
+                <input-text title="Fixed size of chunks" formControlName="chunkSize"></input-text>
+              } @else if (staticChunksMode === StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS) {
+                <input-text title="Fixed number of chunks" formControlName="chunkSize"></input-text>
+              }
             </app-form-row>
           </div>
 

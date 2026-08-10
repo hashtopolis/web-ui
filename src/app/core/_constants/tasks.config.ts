@@ -1,7 +1,20 @@
-export const staticChunking = [
-  { id: 0, name: 'No' },
-  { id: 1, name: 'Fixed chunk size' },
-  { id: 2, name: 'Fixed number of chunks' }
+import { SelectOption } from '@src/app/shared/utils/forms';
+
+/**
+ * Static chunking modes as stored in a task's `staticChunks` attribute.
+ * `chunkSize` carries the configured number for both fixed modes.
+ */
+export const StaticChunkingMode = {
+  NONE: 0,
+  FIXED_CHUNK_SIZE: 1,
+  FIXED_NUMBER_OF_CHUNKS: 2
+} as const;
+export type StaticChunkingMode = (typeof StaticChunkingMode)[keyof typeof StaticChunkingMode];
+
+export const staticChunking: SelectOption<number>[] = [
+  { id: StaticChunkingMode.NONE, name: 'No' },
+  { id: StaticChunkingMode.FIXED_CHUNK_SIZE, name: 'Fixed chunk size' },
+  { id: StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS, name: 'Fixed number of chunks' }
 ];
 
 export const benchmarkType = [
