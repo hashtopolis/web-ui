@@ -123,14 +123,8 @@
             </app-form-row>
 
             <app-form-row [columns]="2">
-              <input-text title="Use static chunking" formControlName="staticChunks"></input-text>
+              <input-text title="Static chunking" formControlName="staticChunks"></input-text>
               <input-text title="Enforce Piping" formControlName="forcePipe"></input-text>
-
-              @if (staticChunksMode === StaticChunkingMode.FIXED_CHUNK_SIZE) {
-                <input-text title="Fixed size of chunks" formControlName="chunkSize"></input-text>
-              } @else if (staticChunksMode === StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS) {
-                <input-text title="Fixed number of chunks" formControlName="chunkSize"></input-text>
-              }
             </app-form-row>
           </div>
 
