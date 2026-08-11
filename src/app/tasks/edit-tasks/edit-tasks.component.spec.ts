@@ -314,7 +314,7 @@ describe('EditTasksComponent', () => {
         'input-text[formControlName="staticChunks"]'
       );
 
-      expect(field?.getAttribute('title')).toBe('Static chunking');
+      expect(field?.getAttribute('title')).toBe('Use static chunking');
     }));
 
     it('should navigate to /not-found on 404 error', fakeAsync(() => {
