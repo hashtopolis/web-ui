@@ -45,7 +45,8 @@ describe('UiSettingsComponent', () => {
   beforeEach(async () => {
     mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
     mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    mockLocalStorageService.getItem.and.returnValue(uiConfigDefault);
+    // Clone like the real service does: onSubmit() mutates this object in place.
+    mockLocalStorageService.getItem.and.returnValue(structuredClone(uiConfigDefault));
     mockThemeCatalogService = jasmine.createSpyObj('ThemeCatalogService', ['getThemes']);
     mockThemeCatalogService.getThemes.and.returnValue(of(mockThemes));
 
