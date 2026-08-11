@@ -4,6 +4,7 @@ import {
   TimePrecision,
   dateTimeFormat,
   formatDate,
+  formatUnixTimestamp,
   lastValidSecond,
   startOfNextDay,
   timeFormat,
@@ -38,8 +39,16 @@ describe('formatDate', () => {
     expect(formatDate(new Date(2023, 6, 6, 12, 0), 'h:mm a')).toBe('12:00 PM');
   });
 
-  it('does not rewrite an already substituted value', () => {
+  it('renders a month name and an AM/PM marker in the same format', () => {
     expect(formatDate(new Date(2023, 2, 4, 9, 0), 'MMM d, yyyy h:mm a')).toBe('Mar 4, 2023 9:00 AM');
+  });
+});
+
+describe('formatUnixTimestamp', () => {
+  it('returns N/A for a missing or unusable timestamp', () => {
+    expect(formatUnixTimestamp(0, DateFormat.DAY_MONTH_YEAR_DOT)).toBe('N/A');
+    expect(formatUnixTimestamp(NaN, DateFormat.DAY_MONTH_YEAR_DOT)).toBe('N/A');
+    expect(formatUnixTimestamp(undefined as unknown as number, DateFormat.DAY_MONTH_YEAR_DOT)).toBe('N/A');
   });
 });
 

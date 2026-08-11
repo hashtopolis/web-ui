@@ -1,6 +1,6 @@
-//import moment from 'moment';
-
 import { DateFormat, TimeFormat } from '@constants/settings.config';
+
+import { formatDate as ngFormatDate } from '@angular/common';
 
 type Seconds = number;
 type Days = number;
@@ -103,24 +103,26 @@ export const dateTimeFormat = (dateFmt: DateFormat, clock: TimeFormat, precision
  * @returns The formatted date-time string.
  */
 export function formatUnixTimestamp(unixTimestamp: number, fmt: string): string {
-  if (unixTimestamp === 0) {
+  if (unixTimestamp === 0 || !Number.isFinite(unixTimestamp)) {
     return 'N/A';
   }
-  //return moment.unix(unixTimestamp).format(fmt)
   const date = new Date(unixTimestamp * 1000);
 
   return formatDate(date, fmt);
 }
 
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const FORMAT_TOKENS = /yyyy|yy|MMM|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|a/g;
+/**
+ * The app registers no locale data beyond the one Angular bundles by default, so month names and
+ * the AM/PM marker are always rendered in English.
+ */
+const FORMAT_LOCALE = 'en-US';
 
 /**
  * Formats a Date into a date-time string using a custom format.
  *
  * @param date The date to format.
- * @param fmt The format string to define the output format. Supported placeholders:
+ * @param fmt The format string to define the output format. Placeholders are the ones Angular's
+ *   `DatePipe` understands, the ones used here being:
  *   - yy: 2-digit year
  *   - yyyy: 4-digit year
  *   - MMM: Abbreviated month name (Jan-Dec)
@@ -141,30 +143,7 @@ const FORMAT_TOKENS = /yyyy|yy|MMM|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s|a/g;
  * @returns The formatted date-time string.
  */
 export function formatDate(date: Date, fmt: string): string {
-  //return moment(date).format(fmt)
-  const pad = (value: number) => (value < 10 ? `0${value}` : value.toString());
-  const hours12 = date.getHours() % 12 || 12;
-
-  const values: Record<string, string> = {
-    yyyy: date.getFullYear().toString(),
-    yy: date.getFullYear().toString().slice(-2),
-    MMM: SHORT_MONTHS[date.getMonth()],
-    MM: pad(date.getMonth() + 1),
-    M: (date.getMonth() + 1).toString(),
-    dd: pad(date.getDate()),
-    d: date.getDate().toString(),
-    HH: pad(date.getHours()),
-    H: date.getHours().toString(),
-    hh: pad(hours12),
-    h: hours12.toString(),
-    mm: pad(date.getMinutes()),
-    m: date.getMinutes().toString(),
-    ss: pad(date.getSeconds()),
-    s: date.getSeconds().toString(),
-    a: date.getHours() < 12 ? 'AM' : 'PM'
-  };
-
-  return fmt.replace(FORMAT_TOKENS, (token) => values[token]);
+  return ngFormatDate(date, fmt, FORMAT_LOCALE);
 }
 
 /**
