@@ -20,6 +20,7 @@ export interface JApiToken extends BaseModel {
   endValid: number;
   userId: UserId;
   isRevoked: boolean;
+  tokenName?: string | undefined;
   token?: string | undefined;
   user?: JUser | null;
 }
