@@ -11,16 +11,23 @@ describe('LastUpdatedComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LastUpdatedComponent],
-      providers: [
-        {
-          provide: UISettingsUtilityClass,
-          useValue: {
-            getSetting: jasmine.createSpy('getSetting').and.returnValue('dd/MM/yyyy h:mm:ss')
-          }
-        },
-        ChangeDetectorRef
-      ]
-    }).compileComponents();
+      providers: [ChangeDetectorRef]
+    })
+      // The component provides UISettingsUtilityClass itself, so the mock has to replace that
+      // provider rather than a module-level one.
+      .overrideComponent(LastUpdatedComponent, {
+        set: {
+          providers: [
+            {
+              provide: UISettingsUtilityClass,
+              useValue: {
+                getDateTimeFormat: jasmine.createSpy('getDateTimeFormat').and.returnValue('dd/MM/yyyy HH:mm:ss')
+              }
+            }
+          ]
+        }
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(LastUpdatedComponent);
     component = fixture.componentInstance;

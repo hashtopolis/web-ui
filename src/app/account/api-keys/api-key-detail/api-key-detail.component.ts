@@ -18,7 +18,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
+import { TimePrecision, dateTimeFormat, formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-api-key-detail',
@@ -43,14 +43,11 @@ export class ApiKeyDetailComponent implements OnInit {
   notFound = false;
   loadError = false;
 
-  protected dateFormat = uiConfigDefault.timefmt;
+  protected dateTimeFormat = dateTimeFormat(uiConfigDefault.dateFmt, uiConfigDefault.timeFmt, TimePrecision.SECONDS);
 
   ngOnInit() {
     this.titleService.set(['API Key Details']);
-    const fmt = new UISettingsUtilityClass(this.settingsService).getSetting('timefmt');
-    if (fmt) {
-      this.dateFormat = fmt;
-    }
+    this.dateTimeFormat = new UISettingsUtilityClass(this.settingsService).getDateTimeFormat(TimePrecision.SECONDS);
     this.loadToken();
   }
 
@@ -84,12 +81,12 @@ export class ApiKeyDetailComponent implements OnInit {
   }
 
   formatTimestamp(ts: number): string {
-    return formatUnixTimestamp(ts, this.dateFormat);
+    return formatUnixTimestamp(ts, this.dateTimeFormat);
   }
 
   /** Format an exclusive endValid cutoff as the last second of validity. */
   formatExpiry(endValidSec: number): string {
-    return formatUnixTimestamp(lastValidSecond(endValidSec), this.dateFormat);
+    return formatUnixTimestamp(lastValidSecond(endValidSec), this.dateTimeFormat);
   }
 
   goBack(): void {

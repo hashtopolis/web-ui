@@ -1,4 +1,4 @@
-import { Setting, dateFormats, layouts, themes } from '@constants/settings.config';
+import { DateFormat, Setting, TimeFormat, dateFormats, layouts, themes, timeFormats } from '@constants/settings.config';
 
 import { Component, OnInit, inject } from '@angular/core';
 
@@ -11,6 +11,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-settings.form';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { TimePrecision, dateTimeFormat, formatDate } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-ui-settings',
@@ -32,7 +33,8 @@ export class UiSettingsComponent implements OnInit {
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 
-  formats: Setting[] = dateFormats;
+  dateFormats: Setting<DateFormat>[] = dateFormats;
+  timeFormats: Setting<TimeFormat>[] = timeFormats;
   layouts: Setting[] = layouts;
   themes: RuntimeThemeOption[] = themes.map((theme) => ({
     ...theme,
@@ -40,6 +42,19 @@ export class UiSettingsComponent implements OnInit {
     source: 'builtin',
     isDark: theme.value === 'dark'
   }));
+
+  private readonly previewDate = new Date();
+
+  get datePreview(): string {
+    return formatDate(this.previewDate, this.form.controls.dateFmt.value);
+  }
+
+  get dateTimePreview(): string {
+    return formatDate(
+      this.previewDate,
+      dateTimeFormat(this.form.controls.dateFmt.value, this.form.controls.timeFmt.value, TimePrecision.SECONDS)
+    );
+  }
 
   ngOnInit(): void {
     this.util = new UISettingsUtilityClass(this.service);
@@ -54,7 +69,8 @@ export class UiSettingsComponent implements OnInit {
    */
   loadSettings(): void {
     this.form.patchValue({
-      timefmt: this.util.uiConfig.timefmt,
+      dateFmt: this.util.uiConfig.dateFmt,
+      timeFmt: this.util.uiConfig.timeFmt,
       layout: this.util.uiConfig.layout,
       theme: this.util.uiConfig.theme,
       refreshPage: this.util.uiConfig.refreshPage,

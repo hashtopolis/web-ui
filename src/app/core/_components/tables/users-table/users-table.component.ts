@@ -94,18 +94,18 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
-        render: (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat),
+        render: (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateTimeFormat),
         isSortable: true,
-        export: async (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat)
+        export: async (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateTimeFormat)
       },
       {
         id: UsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
         render: (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never',
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateTimeFormat) : 'Never',
         isSortable: true,
         export: async (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateTimeFormat) : 'Never'
       },
       {
         id: UsersTableCol.EMAIL,

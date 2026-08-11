@@ -3,7 +3,7 @@ import { zHealthCheckResponse } from '@generated/api/zod';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { UIConfig } from '@models/config-ui.model';
 import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -16,7 +16,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-view-health-checks',
@@ -32,7 +32,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   //Date format
   protected uiSettings: UISettingsUtilityClass;
   formatUnixTimestamp = formatUnixTimestamp;
-  protected dateFormat: string;
+  protected dateTimeFormat: string;
 
   /**
    * Constructs a new instance of the YourComponentName class.
@@ -57,7 +57,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   onInitialize(): void {
     this.viewedHealthCIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
     this.uiSettings = new UISettingsUtilityClass(this.settingsService);
-    this.dateFormat = this.getDateFormat();
+    this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
   /**
@@ -86,11 +86,5 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
         this.healthc = healthCheck;
       });
     this.unsubscribeService.add(loadSubscription$);
-  }
-
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }

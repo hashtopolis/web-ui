@@ -36,7 +36,8 @@ describe('UiSettingsComponent', () => {
   const mockModifiedUIConfig = {
     layout: 'full',
     theme: 'dark',
-    timefmt: 'dd/MM/yyyy h:mm:ss',
+    dateFmt: 'yyyy-MM-dd',
+    timeFmt: '12h',
     refreshPage: true,
     refreshInterval: 10
   } as UIConfig;
@@ -79,7 +80,8 @@ describe('UiSettingsComponent', () => {
 
   it('should initialize form with default values', () => {
     expect(component.form).toBeDefined();
-    expect(component.form.controls.timefmt).toBeDefined();
+    expect(component.form.controls.dateFmt).toBeDefined();
+    expect(component.form.controls.timeFmt).toBeDefined();
     expect(component.form.controls.layout).toBeDefined();
     expect(component.form.controls.theme).toBeDefined();
     expect(component.form.controls.refreshPage).toBeDefined();
@@ -88,18 +90,20 @@ describe('UiSettingsComponent', () => {
 
   it('should call updateForm and patch form values', () => {
     component.util = {
-      uiConfig: { timefmt: 'dd/MM/yyyy h:mm:ss', layout: 'fixed', theme: 'dark' }
+      uiConfig: { dateFmt: 'dd/MM/yyyy', timeFmt: '24h', layout: 'fixed', theme: 'dark' }
     } as UISettingsUtilityClass;
 
     component.loadSettings();
 
-    expect(component.form.controls.timefmt.value).toBe('dd/MM/yyyy h:mm:ss');
+    expect(component.form.controls.dateFmt.value).toBe('dd/MM/yyyy');
+    expect(component.form.controls.timeFmt.value).toBe('24h');
     expect(component.form.controls.layout.value).toBe('fixed');
     expect(component.form.controls.theme.value).toBe('dark');
   });
 
   it('should show info message on submit, if values have changed', () => {
-    component.form.controls.timefmt.patchValue(mockModifiedUIConfig.timefmt);
+    component.form.controls.dateFmt.patchValue(mockModifiedUIConfig.dateFmt);
+    component.form.controls.timeFmt.patchValue(mockModifiedUIConfig.timeFmt);
     component.form.controls.layout.patchValue(mockModifiedUIConfig.layout);
     component.form.controls.theme.patchValue(mockModifiedUIConfig.theme);
     component.form.controls.refreshPage.patchValue(mockModifiedUIConfig.refreshPage);

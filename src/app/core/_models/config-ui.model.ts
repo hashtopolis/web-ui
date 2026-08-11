@@ -1,3 +1,5 @@
+import { DateFormat, TimeFormat, browserDateFormat, browserTimeFormat } from '@constants/settings.config';
+
 import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-users-table/access-groups-users-table.constants';
@@ -68,7 +70,8 @@ export interface TableConfig {
  * @prop layout           UI layout
  * @prop theme            UI theme
  * @prop tableSettings    UI table settings
- * @prop timefmt          Time format
+ * @prop dateFmt          Date format, used on its own for date-only output
+ * @prop timeFmt          Clock convention, combined with dateFmt for date-time output
  * @prop refreshPage      Refresh page true/false
  * @prop refreshInterval  Refresh interval
  */
@@ -76,7 +79,8 @@ export interface UIConfig {
   layout: Layout;
   theme: Theme;
   tableSettings: TableSettings;
-  timefmt: string;
+  dateFmt: DateFormat;
+  timeFmt: TimeFormat;
   refreshPage: boolean;
   refreshInterval: number;
 }
@@ -101,7 +105,8 @@ export interface Sorting {
 const _uiConfigDefault = {
   layout: 'fixed',
   theme: 'light',
-  timefmt: 'dd/MM/yyyy h:mm:ss',
+  dateFmt: browserDateFormat(),
+  timeFmt: browserTimeFormat(),
   tableSettings: {
     notificationsTable: {
       page: 25,

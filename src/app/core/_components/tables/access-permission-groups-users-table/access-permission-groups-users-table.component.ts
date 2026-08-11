@@ -80,10 +80,10 @@ export class AccessPermissionGroupsUsersTableComponent
         id: AccessPermissionGroupsUsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
         render: (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never',
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateTimeFormat) : 'Never',
         isSortable: true,
         export: async (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateTimeFormat) : 'Never'
       }
     ];
   }
