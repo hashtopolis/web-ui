@@ -36,6 +36,8 @@ import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constan
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
+import { TimePrecision, dateTimeFormat } from '@src/app/shared/utils/datetime';
+
 export type Layout = 'full' | 'fixed';
 export type BuiltInTheme = 'light' | 'dark';
 export type Theme = BuiltInTheme | (string & {});
@@ -803,3 +805,10 @@ const _uiConfigDefault = {
 
 export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];
 export const uiConfigDefault: UIConfig = _uiConfigDefault;
+
+/** Date-time format from the default config, for use before the stored UI config has been read. */
+export const DEFAULT_DATETIME_FORMAT = dateTimeFormat(
+  uiConfigDefault.dateFmt,
+  uiConfigDefault.timeFmt,
+  TimePrecision.SECONDS
+);

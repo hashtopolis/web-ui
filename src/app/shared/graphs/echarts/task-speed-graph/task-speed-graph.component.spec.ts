@@ -1,17 +1,11 @@
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { uiConfigDefault } from '@models/config-ui.model';
+import { DEFAULT_DATETIME_FORMAT, uiConfigDefault } from '@models/config-ui.model';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
-import {
-  TimePrecision,
-  dateTimeFormat,
-  formatDate,
-  formatUnixTimestamp,
-  timeFormat
-} from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatDate, formatUnixTimestamp, timeFormat } from '@src/app/shared/utils/datetime';
 
 describe('TaskSpeedGraphComponent', () => {
   let component: TaskSpeedGraphComponent;
@@ -191,9 +185,7 @@ describe('TaskSpeedGraphComponent', () => {
     const html = tooltip.formatter([{ data: { value: [100 * 1000, 6], unit: 'MH/s' } }]);
 
     expect(html).toContain('<strong>6 MH/s</strong>');
-    expect(html).toContain(
-      formatUnixTimestamp(100, dateTimeFormat(uiConfigDefault.dateFmt, uiConfigDefault.timeFmt, TimePrecision.SECONDS))
-    );
+    expect(html).toContain(formatUnixTimestamp(100, DEFAULT_DATETIME_FORMAT));
   });
 
   it('renders no tooltip for a mark-point style param without a [time, value] pair', () => {

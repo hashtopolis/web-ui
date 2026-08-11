@@ -6,7 +6,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-token.model';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { DEFAULT_DATETIME_FORMAT, UIConfig } from '@models/config-ui.model';
 import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -18,7 +18,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { TimePrecision, dateTimeFormat, formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-api-key-detail',
@@ -43,7 +43,7 @@ export class ApiKeyDetailComponent implements OnInit {
   notFound = false;
   loadError = false;
 
-  protected dateTimeFormat = dateTimeFormat(uiConfigDefault.dateFmt, uiConfigDefault.timeFmt, TimePrecision.SECONDS);
+  protected dateTimeFormat = DEFAULT_DATETIME_FORMAT;
 
   ngOnInit() {
     this.titleService.set(['API Key Details']);

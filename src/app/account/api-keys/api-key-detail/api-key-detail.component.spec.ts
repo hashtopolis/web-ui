@@ -132,7 +132,7 @@ describe('ApiKeyDetailComponent', () => {
   it('formatExpiry returns the same string as formatTimestamp for one second earlier', () => {
     createFixture('7');
     // No detectChanges: we only test the pure formatters, which read dateFormat from
-    // the field initializer (the uiConfigDefault formats) and do not require ngOnInit.
+    // the field initializer (uiConfigDefault.timefmt) and don't require ngOnInit.
 
     const endValidSec = 1_700_086_400;
     expect(component.formatExpiry(endValidSec)).toBe(component.formatTimestamp(endValidSec - 1));
