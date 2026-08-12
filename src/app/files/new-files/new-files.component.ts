@@ -303,7 +303,7 @@ export class NewFilesComponent implements OnInit {
       width: 'auto',
       maxWidth: '100vw'
     });
-    dialogRef.afterClosed().subscribe();
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
