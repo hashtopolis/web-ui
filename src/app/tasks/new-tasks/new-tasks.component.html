@@ -101,13 +101,13 @@
                   formControlName="staticChunks"
                   [items]="selectStaticChunking"
                 ></input-select>
-                @if (form.controls.staticChunks.value === 1) {
+                @if (form.controls.staticChunks.value === StaticChunkingMode.FIXED_CHUNK_SIZE) {
                   <input-number
                     title="Fixed size of chunks"
                     formControlName="chunkSize"
                     [tooltip]="tasktip.chunkSize"
                   ></input-number>
-                } @else if (form.controls.staticChunks.value === 2) {
+                } @else if (form.controls.staticChunks.value === StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS) {
                   <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
                 }
               </app-form-row>

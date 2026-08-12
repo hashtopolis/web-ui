@@ -19,6 +19,7 @@ import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistPretaskBuilderDataSource } from '@datasources/hashlist-pretask-builder.datasource';
 
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -186,7 +187,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         crackerBinaryId,
         isArchived: false,
         notes: '',
-        staticChunks: 0,
+        staticChunks: StaticChunkingMode.NONE,
         chunkSize: Number(environment.config.tasks.chunkSize),
         forcePipe: false,
         preprocessorId: 0,

@@ -41,6 +41,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -162,7 +163,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.updateForm.setValue({
         taskId: task.id,
         forcePipe: task.forcePipe === true ? 'Yes' : 'No',
-        staticChunks: this.getStaticChunkingLabel(task.staticChunks),
+        staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
         skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
         keyspace: task.keyspace,
         keyspaceProgress: task.keyspaceProgress,
@@ -498,12 +499,12 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getStaticChunkingLabel(staticChunks: number): string {
+  private getStaticChunkingLabel(staticChunks: number, chunkSize: number): string {
     switch (staticChunks) {
-      case 1:
-        return 'Fixed chunk size (1)';
-      case 2:
-        return 'Fixed number of chunks (2)';
+      case StaticChunkingMode.FIXED_CHUNK_SIZE:
+        return `Fixed chunksize: ${chunkSize.toLocaleString()}`;
+      case StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS:
+        return `Fixed number of chunks: ${chunkSize.toLocaleString()}`;
       default:
         return 'No';
     }
