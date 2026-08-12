@@ -39,7 +39,7 @@ import {
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { StaticChunkingMode, benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
@@ -99,6 +99,7 @@ export class NewTasksComponent implements OnInit {
 
   // Tables File Types
   protected readonly FileType = FileType;
+  protected readonly StaticChunkingMode = StaticChunkingMode;
 
   private formReady = false;
 
@@ -467,7 +468,7 @@ export class NewTasksComponent implements OnInit {
       hashlistId: null,
       skipKeyspace: 0,
       crackerBinaryId: 1,
-      staticChunks: 0,
+      staticChunks: StaticChunkingMode.NONE,
       chunkSize: environment.config.tasks.chunkSize,
       forcePipe: false,
       preprocessorId: 0,
