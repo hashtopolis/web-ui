@@ -137,13 +137,14 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     }
 
     if (!event.checked) {
-      // Remove -r and filename from the command
+      // Remove the filename and only its own preceding -r flag.
       const indexFileName = newCmdArray.indexOf(fileName);
       if (indexFileName !== -1) {
-        newCmdArray.splice(indexFileName, 1);
-      }
-      if (row.fileType === 1) {
-        newCmdArray.splice(indexFileName - 1, 1);
+        if (row.fileType === FileType.RULES && newCmdArray[indexFileName - 1] === '-r') {
+          newCmdArray.splice(indexFileName - 1, 2);
+        } else {
+          newCmdArray.splice(indexFileName, 1);
+        }
       }
 
       // Remove fileId from the array
