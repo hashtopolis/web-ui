@@ -238,7 +238,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         this.form.patchValue({
           name: user.name,
           registeredSince: this.datePipe.transform(user.registeredSince),
-          email: user.email
+          email: user.email ?? null
         });
       })
     );

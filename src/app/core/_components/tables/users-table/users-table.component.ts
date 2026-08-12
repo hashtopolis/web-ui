@@ -94,9 +94,11 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
-        render: (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat),
+        render: (user: JUser) =>
+          user.registeredSince ? formatUnixTimestamp(user.registeredSince, this.dateFormat) : '',
         isSortable: true,
-        export: async (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat)
+        export: async (user: JUser) =>
+          user.registeredSince ? formatUnixTimestamp(user.registeredSince, this.dateFormat) : ''
       },
       {
         id: UsersTableCol.LAST_LOGIN,
@@ -112,7 +114,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'email',
         isSortable: true,
         isSearchable: true,
-        export: async (user: JUser) => user.email
+        export: async (user: JUser) => user.email ?? ''
       },
       {
         id: UsersTableCol.STATUS,
@@ -126,7 +128,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
-        export: async (user: JUser) => user.sessionLifetime + ''
+        export: async (user: JUser) => user.sessionLifetime?.toString() ?? ''
       },
       {
         id: UsersTableCol.PERM_GROUP,
