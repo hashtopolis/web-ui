@@ -511,12 +511,4 @@ describe('EditAgentComponent', () => {
 
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading agent details');
   }));
-  it('should unsubscribe on ngOnDestroy', () => {
-    fixture.detectChanges();
-
-    const unsubscribeSpy = spyOn(component['unsubscribeService'], 'unsubscribeAll');
-    component.ngOnDestroy();
-
-    expect(unsubscribeSpy).toHaveBeenCalled();
-  });
 });

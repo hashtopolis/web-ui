@@ -1,7 +1,8 @@
 import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -20,7 +21,6 @@ import { PermissionRoleService } from '@services/roles/user/permission-role.serv
 import { UserRoleService } from '@services/roles/user/user-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING, USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
@@ -38,7 +38,7 @@ import {
   providers: [uiDatePipe],
   standalone: false
 })
-export class EditUsersComponent implements OnInit, OnDestroy {
+export class EditUsersComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -59,7 +59,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   editedUserIndex: number;
   editedUserName = '';
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -81,7 +81,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    * Initializes the component by extracting and setting the user ID,
    */
   onInitialize() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedUserIndex = zIdRouteParams.parse(params).id;
       this.loadData();
     });
@@ -92,14 +92,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -115,18 +107,18 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const params = new RequestParamBuilder().addInclude('accessGroups').create();
-    const loaduserAGPSubscription$ = this.gs
+    this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
         this.selectUserAgps = transformSelectOptions(user.accessGroups ?? [], USER_AGP_FIELD_MAPPING);
         this.editedUserName = user.name;
       });
 
-    this.unsubscribeService.add(loaduserAGPSubscription$);
-
-    const loadAGPSubscription$ = this.gs
+    this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const globalPermissionGroups: JGlobalPermissionGroup[] = new JsonAPISerializer().deserialize(
           response,
@@ -136,7 +128,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
-    this.unsubscribeService.add(loadAGPSubscription$);
 
     this.initForm();
   }
@@ -146,8 +137,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   initForm() {
     const params = new RequestParamBuilder().addInclude('globalPermissionGroup').create();
-    const loadSubscription$ = this.gs
+    this.gs
       .get(SERV.USERS, this.editedUserIndex, params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
@@ -164,7 +156,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
           }
         });
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -176,9 +167,12 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       this.isUpdatingLoading = true;
       this.onUpdatePass(this.updatePassForm.value);
 
-      const onSubmitSubscription$ = this.gs
+      this.gs
         .update(SERV.USERS, this.editedUserIndex, { ...this.updateForm.value.updateData } as Record<string, unknown>)
-        .pipe(finalize(() => (this.isUpdatingLoading = false)))
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => (this.isUpdatingLoading = false))
+        )
         .subscribe(() => {
           this.updateForm.reset(); // success, we reset form
           this.updatePassForm.reset();
@@ -186,7 +180,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
             .navigate(['users/all-users'])
             .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully updated`));
         });
-      this.unsubscribeService.add(onSubmitSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
@@ -199,17 +192,21 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    * If the deletion is successful, it navigates to the user list.
    */
   onDelete() {
-    this.confirmDialog.confirmDeletion('user', this.editedUserName).subscribe((confirmed) => {
-      if (confirmed) {
-        this.unsubscribeService.add(
-          this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
-            this.router
-              .navigate(['/users/all-users'])
-              .then(() => this.alert.showSuccessMessage(`Successfully deleted the user: ${this.editedUserName}`));
-          })
-        );
-      }
-    });
+    this.confirmDialog
+      .confirmDeletion('user', this.editedUserName)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.gs
+            .delete(SERV.USERS, this.editedUserIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.router
+                .navigate(['/users/all-users'])
+                .then(() => this.alert.showSuccessMessage(`Successfully deleted the user: ${this.editedUserName}`));
+            });
+        }
+      });
   }
 
   /**
@@ -225,8 +222,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
         password: val['password'],
         userId: this.editedUserIndex
       };
-      const onUpdatePasswordSubscription$ = this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe();
-      this.unsubscribeService.add(onUpdatePasswordSubscription$);
+      this.gs
+        .chelper(SERV.HELPER, 'setUserPassword', payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 }

@@ -1,9 +1,9 @@
 import { zHashlistResponse } from '@generated/api/zod';
-import { Subject, lastValueFrom, takeUntil } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
-import { OnDestroy } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -19,7 +19,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { hashSource } from '@src/app/core/_constants/hashlist.config';
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
@@ -41,7 +40,7 @@ type WithError = { error?: { title?: string; message?: string } };
   templateUrl: './import-cracked-hashes.component.html',
   standalone: false
 })
-export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
+export class ImportCrackedHashesComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -66,9 +65,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   isLoadingServerFiles = false;
   hashesAreRequired = false;
 
-  private fileUnsubscribe = new Subject<void>();
-
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private format = inject(StaticArrayPipe);
   private route = inject(ActivatedRoute);
@@ -86,7 +83,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * Initializes the form based on route parameters.
    */
   getInitialization() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedHashlistIndex = zIdRouteParams.parse(params).id;
       this.formValues();
     });
@@ -99,7 +96,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     this.getInitialization();
 
     const sourceTypeControl = this.form.controls.sourceType;
-    const sourceTypeSubscription$ = sourceTypeControl.valueChanges.subscribe((sourceType: string) => {
+    sourceTypeControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((sourceType: string) => {
       this.hashesAreRequired = false;
       this.resetHashesValidator();
       // Reload every time 'import' is selected so newly placed server files
@@ -126,8 +123,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         this.form.patchValue({ hashes: '' });
       }
     });
-
-    this.unsubscribeService.add(sourceTypeSubscription$);
   }
 
   /**
@@ -138,16 +133,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     ctrl.clearValidators();
     ctrl.setValue('');
     ctrl.updateValueAndValidity();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next();
-    this.fileUnsubscribe.complete();
   }
 
   /**
@@ -289,7 +274,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS)
-      .pipe(takeUntil(this.fileUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (progress) => {
           this.uploadProgress = progress;
@@ -338,8 +323,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     this.isCreatingLoading = true;
     // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
-    const createSubscription$ = this.gs
+    this.gs
       .chelper(SERV.HELPER, 'importCrackedHashes', payload, 'POST', httpOptions)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: ResponseWrapper) => {
           this.alert.showSuccessMessage(
@@ -359,7 +345,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
           this.isCreatingLoading = false;
         }
       });
-    this.unsubscribeService.add(createSubscription$);
   }
 
   /**
@@ -367,10 +352,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   private formValues() {
-    const updateSubscription$ = this.gs
+    this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
         include: ['tasks,hashlists,hashType']
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
         this.type = hashlist.format ?? 0;
@@ -390,6 +376,5 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
         this.isLoading = false; // Set isLoading to false after data is loaded
       });
-    this.unsubscribeService.add(updateSubscription$);
   }
 }

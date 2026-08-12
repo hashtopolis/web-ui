@@ -11,7 +11,6 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { WrbulkComponent } from '@src/app/tasks/import-supertasks/wrbulk/wrbulk.component';
 
@@ -54,8 +53,7 @@ describe('WrbulkComponent', () => {
         { provide: UIConfigService, useValue: uiServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: UnsubscribeService, useValue: jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']) }
+        { provide: Router, useValue: routerSpy }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })

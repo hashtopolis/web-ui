@@ -13,7 +13,6 @@ import { GlobalService } from '@services/main.service';
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
@@ -148,8 +147,7 @@ describe('EditGroupsComponent', () => {
         { provide: ActivatedRoute, useValue: { params: of({ id: '1' }) } },
         { provide: ConfirmDialogService, useValue: jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']) },
         { provide: AccessGroupRoleService, useValue: {} },
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
-        UnsubscribeService
+        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) }
       ]
     })
       .overrideComponent(EditGroupsComponent, { set: { template: '' } })

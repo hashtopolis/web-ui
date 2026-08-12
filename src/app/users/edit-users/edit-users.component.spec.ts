@@ -16,7 +16,6 @@ import { PermissionRoleService } from '@services/roles/user/permission-role.serv
 import { UserRoleService } from '@services/roles/user/user-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { mockResponse } from '@src/app/testing/mock-response';
 import { EditUsersComponent } from '@src/app/users/edit-users/edit-users.component';
@@ -54,7 +53,6 @@ describe('EditUsersComponent', () => {
   let fixture: ComponentFixture<EditUsersComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockUnsubscribeService: jasmine.SpyObj<UnsubscribeService>;
   let mockAutoTitleService: jasmine.SpyObj<AutoTitleService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockConfirmDialogService: jasmine.SpyObj<ConfirmDialogService>;
@@ -64,7 +62,6 @@ describe('EditUsersComponent', () => {
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['get', 'getAll', 'update', 'delete', 'chelper']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
-    mockUnsubscribeService = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     mockAutoTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockConfirmDialogService = jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']);
@@ -103,7 +100,6 @@ describe('EditUsersComponent', () => {
         { provide: LOCALE_ID, useValue: 'en-US' },
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
-        { provide: UnsubscribeService, useValue: mockUnsubscribeService },
         { provide: AutoTitleService, useValue: mockAutoTitleService },
         { provide: Router, useValue: mockRouter },
         { provide: ConfirmDialogService, useValue: mockConfirmDialogService },
@@ -307,15 +303,6 @@ describe('EditUsersComponent', () => {
     it('should NOT call gs.chelper when no password is provided', () => {
       component.onUpdatePass({});
       expect(mockGlobalService.chelper).not.toHaveBeenCalled();
-    });
-  });
-
-  //ngOnDestroy()
-
-  describe('ngOnDestroy()', () => {
-    it('should call unsubscribeService.unsubscribeAll to prevent memory leaks', () => {
-      component.ngOnDestroy();
-      expect(mockUnsubscribeService.unsubscribeAll).toHaveBeenCalledTimes(1);
     });
   });
 });

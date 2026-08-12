@@ -1,7 +1,8 @@
 import { zAccessGroupResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -26,7 +27,6 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   AddAgentsForm,
@@ -40,7 +40,7 @@ import {
   templateUrl: './edit-groups.component.html',
   standalone: false
 })
-export class EditGroupsComponent implements OnInit, OnDestroy {
+export class EditGroupsComponent implements OnInit {
   accessGroup: JAccessGroup; // The access group currently being edited
 
   addAgentsForm: FormGroup<AddAgentsForm>; // Form group for adding agents to group
@@ -71,7 +71,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   readonly titleService = inject(AutoTitleService);
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   protected roleService = inject(AccessGroupRoleService);
 
   constructor() {
@@ -84,7 +84,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Initializes the component by extracting and setting the user ID,
    */
   onInitialize() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedAccessGroupIndex = zIdRouteParams.parse(params).id;
     });
   }
@@ -94,14 +94,6 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -226,15 +218,15 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.updateForm.valid) {
       this.isUpdatingLoading = true;
-      const onSubmitSubscription$ = this.gs
+      this.gs
         .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.isUpdatingLoading = false;
           this.router
             .navigate(['/users/access-groups'])
             .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
-      this.unsubscribeService.add(onSubmitSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
@@ -321,18 +313,22 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * If the deletion is successful, it navigates to the user list.
    */
   onDelete() {
-    this.confirmDialog.confirmDeletion('Access Group', this.editName).subscribe((confirmed) => {
-      if (confirmed) {
-        this.unsubscribeService.add(
-          this.gs.delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex).subscribe(() => {
-            // Successful deletion
-            this.router
-              .navigate(['/users/access-groups'])
-              .then(() => this.alert.showSuccessMessage(`Succesfully deleted access group: ${this.editName}`));
-          })
-        );
-      }
-    });
+    this.confirmDialog
+      .confirmDeletion('Access Group', this.editName)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.gs
+            .delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              // Successful deletion
+              this.router
+                .navigate(['/users/access-groups'])
+                .then(() => this.alert.showSuccessMessage(`Succesfully deleted access group: ${this.editName}`));
+            });
+        }
+      });
   }
 
   /**

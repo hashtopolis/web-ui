@@ -1,6 +1,7 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -13,7 +14,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -27,7 +27,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class NewSupertasksComponent implements OnInit, OnDestroy {
+export class NewSupertasksComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -37,7 +37,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** List of Preconfigured Tasks. */
   selectPretasks: SelectOption<PretaskId>[];
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private formBuilder = inject(FormBuilder);
@@ -58,14 +58,6 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Builds the form for creating a new Supertask.
    */
   buildForm(): void {
@@ -79,13 +71,15 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
-      const pretasks: JPretask[] = new JsonAPISerializer().deserialize(response, zPreTaskListResponse);
-      this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
-      this.isLoading = false;
-      this.changeDetectorRef.detectChanges();
-    });
-    this.unsubscribeService.add(loadSubscription$);
+    this.gs
+      .getAll(SERV.PRETASKS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: ResponseWrapper) => {
+        const pretasks: JPretask[] = new JsonAPISerializer().deserialize(response, zPreTaskListResponse);
+        this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
+        this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   /**
@@ -94,12 +88,13 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
-      const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, this.form.value).subscribe(() => {
-        this.alert.showSuccessMessage('New Supertask created');
-        this.router.navigate(['tasks/supertasks']);
-      });
-
-      this.unsubscribeService.add(createSubscription$);
+      this.gs
+        .create(SERV.SUPER_TASKS, this.form.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.alert.showSuccessMessage('New Supertask created');
+          this.router.navigate(['tasks/supertasks']);
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

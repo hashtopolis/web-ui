@@ -1,6 +1,7 @@
 import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -19,7 +20,6 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
 
@@ -38,8 +38,8 @@ export interface HashesViewForm {
   templateUrl: './hashes.component.html',
   standalone: false
 })
-export class HashesComponent implements OnInit, OnDestroy {
-  private unsubscribeService = inject(UnsubscribeService);
+export class HashesComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private gs = inject(GlobalService);
@@ -81,14 +81,6 @@ export class HashesComponent implements OnInit, OnDestroy {
     this.loadHashes();
   }
 
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
   buildForm(): void {
     const qp = zHashesQueryParams.parse(this.route.snapshot.queryParams);
     if (qp.crackpos) {
@@ -110,11 +102,11 @@ export class HashesComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select trigger actions
-    this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.display.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newvalue) => {
       this.onQueryp(newvalue ?? '', 0);
     });
 
-    this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
+    this.viewForm.controls.filter.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newvalue) => {
       this.onQueryp(newvalue ?? '', 1);
     });
   }
@@ -137,7 +129,7 @@ export class HashesComponent implements OnInit, OnDestroy {
    * Subscribes to the API response and updates the hashes list.
    */
   loadHashes(): void {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       const [rawId, filterParam] = zHashesRouteParams.parse(params).id.split('?');
       this.editedIndex = zRouteId.parse(rawId);
       if (filterParam) {
@@ -145,31 +137,40 @@ export class HashesComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const routeDataKind = zHashesRouteData.parse(data).kind;
       switch (routeDataKind) {
         case HashesRouteKind.ChunkHashes:
           this.whichView = 'chunks';
-          this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
-            this.titleName = String(chunk.id);
-          });
+          this.gs
+            .get(SERV.CHUNKS, this.editedIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((response: ResponseWrapper) => {
+              const chunk: JChunk = new JsonAPISerializer().deserialize(response, zChunkResponse);
+              this.titleName = String(chunk.id);
+            });
           break;
 
         case HashesRouteKind.TaskHashes:
           this.whichView = 'tasks';
-          this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
-            this.titleName = task.taskName ?? '';
-          });
+          this.gs
+            .get(SERV.TASKS, this.editedIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((response: ResponseWrapper) => {
+              const task = new JsonAPISerializer().deserialize(response, zTaskResponse);
+              this.titleName = task.taskName ?? '';
+            });
           break;
 
         case HashesRouteKind.HashlistHashes:
           this.whichView = 'hashlists';
-          this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-            const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
-            this.titleName = hashlist.name;
-          });
+          this.gs
+            .get(SERV.HASHLISTS, this.editedIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((response: ResponseWrapper) => {
+              const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
+              this.titleName = hashlist.name;
+            });
           break;
       }
       this.buildForm();

@@ -12,7 +12,6 @@ import { UploadTUSService } from '@services/files/files_tus.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
@@ -25,10 +24,6 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 import { mockResponse } from '@src/app/testing/mock-response';
 
 // Mock services
-class MockUnsubscribeService {
-  unsubscribeAll = jasmine.createSpy('unsubscribeAll');
-}
-
 class MockUploadTUSService {
   uploadFile = jasmine.createSpy('uploadFile').and.returnValue(of(100));
 }
@@ -72,8 +67,7 @@ describe('NewFilesComponent', () => {
         { provide: Router, useClass: MockRouter },
         { provide: UploadTUSService, useClass: MockUploadTUSService },
         { provide: GlobalService, useClass: MockGlobalService },
-        { provide: AlertService, useClass: MockAlertService },
-        { provide: UnsubscribeService, useClass: MockUnsubscribeService }
+        { provide: AlertService, useClass: MockAlertService }
       ]
     }).compileComponents();
   });
@@ -223,13 +217,6 @@ describe('NewFilesComponent', () => {
       expect(alert.showSuccessMessage).toHaveBeenCalledWith('Server files imported successfully!');
       expect(router.navigate).toHaveBeenCalledWith(['/files', expectedRedirect]);
     });
-  });
-
-  it('should unsubscribe on destroy', () => {
-    const comp = setup('wordlist-new');
-    const unsubscribe = fixture.debugElement.injector.get(UnsubscribeService) as unknown as MockUnsubscribeService;
-    comp.ngOnDestroy();
-    expect(unsubscribe.unsubscribeAll).toHaveBeenCalled();
   });
 
   describe('Access group scoping', () => {
