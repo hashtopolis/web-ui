@@ -1,6 +1,7 @@
 import { zHealthCheckResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
@@ -13,7 +14,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -23,7 +23,7 @@ import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/dateti
   templateUrl: './view-health-checks.component.html',
   standalone: false
 })
-export class ViewHealthChecksComponent implements OnInit, OnDestroy {
+export class ViewHealthChecksComponent implements OnInit {
   // The index of the edited health check.
   viewedHealthCIndex: number;
   // The health check object.
@@ -41,7 +41,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The global service.
    */
   protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private gs = inject(GlobalService);
@@ -68,23 +68,15 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Loads data, specifically health checks, for the view component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs
+    this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const healthCheck: JHealthCheck = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
         this.healthc = healthCheck;
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 }

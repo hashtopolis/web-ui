@@ -1,6 +1,7 @@
 import { zCrackerBinaryTypeListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -19,7 +20,6 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
@@ -33,7 +33,7 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
   host: { class: 'block' },
   standalone: false
 })
-export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
+export class NewPreconfiguredTasksComponent implements OnInit {
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
@@ -48,7 +48,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
@@ -62,7 +62,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   onInitialize() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       const { id } = zOptionalIdRouteParams.parse(params);
       this.editedIndex = id ?? NaN;
       this.copyMode = id !== undefined;
@@ -70,7 +70,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const routeKind = zNewPretaskRouteData.parse(data).kind;
       this.whichView = this.determineView(routeKind);
       this.initializeForm(this.whichView);
@@ -78,10 +78,6 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
     this.buildForm();
     this.loadData();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   private determineView(kind: NewPretaskRouteKind): string {
@@ -113,15 +109,15 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const loadCrackersSubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
         );
         this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       });
-    this.unsubscribeService.add(loadCrackersSubscription$);
   }
 
   getFormData() {
@@ -142,10 +138,11 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
     if (this.copyMode) {
       const endpoint = isPretask ? SERV.PRETASKS : SERV.TASKS;
 
-      const onCopy$ = this.gs
+      this.gs
         .get(endpoint, this.editedIndex, {
           include: isPretask ? ['pretaskFiles'] : ['files']
         })
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((response: ResponseWrapper) => {
           const schema = isPretask ? zPreTaskResponse : zTaskResponse;
           const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
@@ -171,26 +168,26 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             files: filesArray
           });
         });
-
-      this.unsubscribeService.add(onCopy$);
     }
   }
 
   onSubmit() {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe({
-        next: () => {
-          this.alert.showSuccessMessage('New Preconfigured Task created');
-          this.isCreatingLoading = false;
-          this.router.navigate(['tasks/preconfigured-tasks']);
-        },
-        error: (err) => {
-          console.error('Error creating Preconfigured Task', err);
-          this.isCreatingLoading = false;
-        }
-      });
-      this.unsubscribeService.add(onSubmitSubscription$);
+      this.gs
+        .create(SERV.PRETASKS, this.createForm.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('New Preconfigured Task created');
+            this.isCreatingLoading = false;
+            this.router.navigate(['tasks/preconfigured-tasks']);
+          },
+          error: (err) => {
+            console.error('Error creating Preconfigured Task', err);
+            this.isCreatingLoading = false;
+          }
+        });
     } else {
       this.createForm.markAllAsTouched();
       this.createForm.updateValueAndValidity();

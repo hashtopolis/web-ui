@@ -12,7 +12,6 @@ import { By } from '@angular/platform-browser';
 
 import { AuthService } from '@services/access/auth.service';
 import { ConfigService } from '@services/shared/config.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { AuthComponent } from '@src/app/auth/auth.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
@@ -25,12 +24,10 @@ describe('AuthComponent', () => {
 
   // Mocks
   let mockAuthService: jasmine.SpyObj<AuthService>;
-  let mockUnsubscribeService: jasmine.SpyObj<UnsubscribeService>;
   let mockConfigService: jasmine.SpyObj<ConfigService>;
 
   beforeEach(async () => {
     mockAuthService = jasmine.createSpyObj('AuthService', ['logIn']);
-    mockUnsubscribeService = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     mockConfigService = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
 
     await TestBed.configureTestingModule({
@@ -49,7 +46,6 @@ describe('AuthComponent', () => {
       declarations: [AuthComponent],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
-        { provide: UnsubscribeService, useValue: mockUnsubscribeService },
         { provide: ConfigService, useValue: mockConfigService }
       ]
     }).compileComponents();
@@ -87,7 +83,6 @@ describe('AuthComponent', () => {
     expect(component.isLoading).toBeFalse();
     expect(component.loginForm.value.username).toBeNull();
     expect(component.loginForm.value.password).toBeNull();
-    expect(mockUnsubscribeService.add).toHaveBeenCalled();
   }));
 
   it('should stop loading when login fails on submit button click', fakeAsync(() => {
@@ -123,9 +118,4 @@ describe('AuthComponent', () => {
 
     expect(component.isLoading).toBeFalse();
   }));
-
-  it('should call unsubscribeAll on destroy', () => {
-    component.ngOnDestroy();
-    expect(mockUnsubscribeService.unsubscribeAll).toHaveBeenCalled();
-  });
 });

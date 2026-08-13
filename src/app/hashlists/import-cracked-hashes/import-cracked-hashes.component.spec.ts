@@ -14,7 +14,6 @@ import { UploadTUSService } from '@services/files/files_tus.service';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { ImportCrackedHashesComponent } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.component';
@@ -36,7 +35,6 @@ describe('ImportCrackedHashesComponent', () => {
   let uploadSpy: jasmine.SpyObj<UploadTUSService>;
   let alertSpy: jasmine.SpyObj<AlertService>;
   let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let unsubSpy: jasmine.SpyObj<UnsubscribeService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
@@ -44,7 +42,6 @@ describe('ImportCrackedHashesComponent', () => {
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    unsubSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -64,7 +61,6 @@ describe('ImportCrackedHashesComponent', () => {
         { provide: UploadTUSService, useValue: uploadSpy },
         { provide: AlertService, useValue: alertSpy },
         { provide: AutoTitleService, useValue: titleSpy },
-        { provide: UnsubscribeService, useValue: unsubSpy },
         { provide: Router, useValue: routerSpy },
         {
           provide: ActivatedRoute,
@@ -93,22 +89,6 @@ describe('ImportCrackedHashesComponent', () => {
     expect(component.form).toBeDefined();
     expect(component.selectSource).toBeDefined();
     expect(component.selectSource.length).toBe(4);
-  });
-
-  describe('ngOnDestroy', () => {
-    it('should call unsubscribeService.unsubscribeAll', () => {
-      unsubSpy.unsubscribeAll.calls.reset();
-      component.ngOnDestroy();
-      expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    });
-
-    it('should complete fileUnsubscribe subject', () => {
-      const nextSpy = spyOn(component['fileUnsubscribe'], 'next');
-      const completeSpy = spyOn(component['fileUnsubscribe'], 'complete');
-      component.ngOnDestroy();
-      expect(nextSpy).toHaveBeenCalled();
-      expect(completeSpy).toHaveBeenCalled();
-    });
   });
 
   describe('resetHashesValidator', () => {

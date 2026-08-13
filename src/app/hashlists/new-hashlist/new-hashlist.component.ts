@@ -2,10 +2,11 @@
  * This module contains the component class to create a new hashlist
  */
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
-import { Subject, Subscription, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -23,7 +24,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { hashSource, hashcatbrainFormat, hashlistFormat } from '@src/app/core/_constants/hashlist.config';
 import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
@@ -42,8 +42,8 @@ type WithError = { error?: { title?: string; message?: string }; message?: strin
   providers: [FileSizePipe],
   standalone: false
 })
-export class NewHashlistComponent implements OnInit, OnDestroy {
-  private unsubscribeService = inject(UnsubscribeService);
+export class NewHashlistComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private uploadService = inject(UploadTUSService);
   private titleService = inject(AutoTitleService);
@@ -84,17 +84,12 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   serverFileOptions: SelectOption[] = [];
   isLoadingServerFiles = false;
 
-  saltSubscription = new Subscription();
-
   /**
    * Deprecation message for legacy formats
    */
   deprecationMessage =
     'HCCAPX / PMKID and binary formats are deprecated and will be removed in a future hashcat release. Please use a ' +
     'text-based hash type instead as Hashtopolis does not support the deprecated formats anymore.';
-
-  // Unsubcribe
-  private fileUnsubscribe = new Subject<void>();
 
   constructor() {
     this.buildForm();
@@ -121,20 +116,19 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     }
 
     // Check for changes and enable/disable
-    this.saltSubscription.add(
-      isSaltedCtrl.valueChanges.subscribe((val: boolean) => {
-        if (val) {
-          separatorCtrl.enable();
-          isHexSaltCtrl.enable();
-        } else {
-          separatorCtrl.disable();
-          isHexSaltCtrl.disable();
-        }
-      })
-    );
+    isSaltedCtrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val: boolean) => {
+      if (val) {
+        separatorCtrl.enable();
+        isHexSaltCtrl.enable();
+      } else {
+        separatorCtrl.disable();
+        isHexSaltCtrl.disable();
+      }
+    });
 
-    this.saltSubscription.add(
-      this.form.controls.sourceType.valueChanges.subscribe((sourceType: string) => {
+    this.form.controls.sourceType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((sourceType: string) => {
         if (sourceType === 'import' && !this.isLoadingServerFiles) {
           void this.loadServerFiles();
         }
@@ -144,19 +138,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
           this.fileName = '';
           this.uploadProgress = 0;
         }
-      })
-    );
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next();
-    this.fileUnsubscribe.complete();
-    this.saltSubscription.unsubscribe();
+      });
   }
 
   /**
@@ -166,7 +148,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.form = getNewHashlistForm();
 
     //subscribe to changes to handle select salted hashes
-    this.form.controls.hashTypeId.valueChanges.subscribe((newvalue) => {
+    this.form.controls.hashTypeId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newvalue) => {
       this.handleSelectedItems(Number(newvalue));
     });
   }
@@ -176,8 +158,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.loadConfigs();
-    const accessGroupSubscription = this.gs
+    this.gs
       .ghelper(SERV.HELPER, 'getAccessGroups')
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
@@ -187,15 +170,16 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
         this.isLoadingAccessGroups = false;
         this.changeDetectorRef.detectChanges();
       });
-    this.unsubscribeService.add(accessGroupSubscription);
 
-    const hashtypesSubscription$ = this.gs.getAll(SERV.HASHTYPES).subscribe((response: ResponseWrapper) => {
-      this.hashtypes = new JsonAPISerializer().deserialize(response, zHashTypeListResponse);
-      this.selectHashtypes = transformSelectOptions(this.hashtypes, HASHTYPE_FIELD_MAPPING);
-      this.isLoadingHashtypes = false;
-      this.changeDetectorRef.detectChanges();
-    });
-    this.unsubscribeService.add(hashtypesSubscription$);
+    this.gs
+      .getAll(SERV.HASHTYPES)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: ResponseWrapper) => {
+        this.hashtypes = new JsonAPISerializer().deserialize(response, zHashTypeListResponse);
+        this.selectHashtypes = transformSelectOptions(this.hashtypes, HASHTYPE_FIELD_MAPPING);
+        this.isLoadingHashtypes = false;
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   get sourceType() {
@@ -211,12 +195,14 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * ToDO. id could change
    */
   loadConfigs() {
-    const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
-      const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
-      this.brainenabled = Number(config.value);
-      this.changeDetectorRef.detectChanges();
-    });
-    this.unsubscribeService.add(configSubscription$);
+    this.gs
+      .get(SERV.CONFIGS, 66)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: ResponseWrapper) => {
+        const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
+        this.brainenabled = Number(config.value);
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   /**
@@ -239,7 +225,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
-      .pipe(takeUntil(this.fileUnsubscribe))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (progress) => {
           this.uploadProgress = progress;

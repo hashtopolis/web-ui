@@ -1,7 +1,8 @@
 import { zConfigListResponse } from '@generated/api/zod';
-import { Subscription, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -18,7 +19,6 @@ import { NotificationsRoleService } from '@services/roles/config/notifications-r
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 type ConfigValues = Record<string, string | boolean | number>;
 type ConfigIds = Record<string, number>;
@@ -31,7 +31,7 @@ type ConfigIds = Record<string, number>;
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
-export class FormConfigComponent implements OnInit, OnDestroy {
+export class FormConfigComponent implements OnInit {
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: InfoMetadataForm;
   serviceConfig: ServiceConfig;
@@ -74,12 +74,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    */
   formIds: ConfigIds = {};
 
-  // Subscription for managing asynchronous data retrieval
-  private mySubscription: Subscription;
-
   public isServerAction = false;
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private metadataService = inject(MetadataService);
   private titleService = inject(AutoTitleService);
   private uicService = inject(UIConfigService);
@@ -91,7 +88,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
 
   constructor() {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const routeData = zFormConfigRouteData.parse(data);
       const formKind = routeData.kind;
       this.isServerAction = formKind === FormConfigRouteKind.ServerActions;
@@ -104,8 +101,6 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         this.titleService.set([this.title]);
       }
     });
-    // Add this.mySubscription to UnsubscribeService
-    this.unsubscribeService.add(this.mySubscription);
   }
 
   /**
@@ -135,8 +130,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    */
   loadEdit() {
     // Fetch data from the API for editing
-    this.mySubscription = this.gs
+    this.gs
       .getAll(this.serviceConfig, { page: { size: 500 } })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const config: JConfig[] = this.serializer.deserialize(response, zConfigListResponse);
 
@@ -171,14 +167,6 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Angular lifecycle hook: ngOnDestroy
-   * Unsubscribe from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Handles the submission of the form using parallel requests for all changed fields.
    * Shows a single success message when all updates complete.
    * @param formValues - The current form values emitted from the dynamic form.
@@ -209,21 +197,23 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     });
 
     // Execute all updates in parallel
-    this.mySubscription = forkJoin(updateRequests).subscribe({
-      next: () => {
-        // Mark all fields as updated
-        updatableKeys.forEach((key) =>
-          this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0])
-        );
+    forkJoin(updateRequests)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Mark all fields as updated
+          updatableKeys.forEach((key) =>
+            this.uicService.onUpdatingCheck(key as Parameters<typeof this.uicService.onUpdatingCheck>[0])
+          );
 
-        // Show a single success message
-        this.alert.showSuccessMessage(`Saved ${this.title}`);
-      },
-      error: (err) => {
-        console.error(`Error updating ${this.title}`, err);
-        this.alert.showErrorMessage(`Failed to save ${this.title}`);
-      }
-    });
+          // Show a single success message
+          this.alert.showSuccessMessage(`Saved ${this.title}`);
+        },
+        error: (err) => {
+          console.error(`Error updating ${this.title}`, err);
+          this.alert.showErrorMessage(`Failed to save ${this.title}`);
+        }
+      });
   }
 
   /**
