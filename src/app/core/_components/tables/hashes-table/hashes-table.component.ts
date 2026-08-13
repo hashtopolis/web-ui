@@ -112,8 +112,8 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.TIMECRACKED,
         dataKey: 'timeCracked',
         isSortable: true,
-        render: (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat),
-        export: async (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat) + ''
+        render: (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateTimeFormat),
+        export: async (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateTimeFormat) + ''
       }
     ];
   }

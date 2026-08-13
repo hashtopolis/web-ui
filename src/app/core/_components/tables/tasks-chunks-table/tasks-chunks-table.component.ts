@@ -199,7 +199,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   }
 
   renderDispatchTime(chunk: JChunk): SafeHtml {
-    const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateFormat);
+    const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateTimeFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
@@ -208,7 +208,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     if (chunk.solveTime === 0) {
       return '(No activity)';
     } else if (chunk.solveTime > 0) {
-      return this.sanitize(formatUnixTimestamp(chunk.solveTime, this.dateFormat));
+      return this.sanitize(formatUnixTimestamp(chunk.solveTime, this.dateTimeFormat));
     }
 
     return this.sanitize(`${chunk.solveTime}`);

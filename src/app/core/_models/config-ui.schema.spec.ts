@@ -35,7 +35,8 @@ describe('uiConfigSchema', () => {
       expect(result.data.layout).toBe('full');
       expect(result.data.theme).toBe('dark');
       // Missing fields get defaults (type checks — exact values may vary)
-      expect(typeof result.data.timefmt).toBe('string');
+      expect(typeof result.data.dateFmt).toBe('string');
+      expect(['12h', '24h']).toContain(result.data.timeFmt);
       expect(typeof result.data.refreshPage).toBe('boolean');
       expect(typeof result.data.refreshInterval).toBe('number');
     }
@@ -198,7 +199,8 @@ describe('uiConfigSchema', () => {
     if (result.success) {
       expect(['full', 'fixed']).toContain(result.data.layout);
       expect(['light', 'dark']).toContain(result.data.theme);
-      expect(typeof result.data.timefmt).toBe('string');
+      expect(typeof result.data.dateFmt).toBe('string');
+      expect(['12h', '24h']).toContain(result.data.timeFmt);
       expect(typeof result.data.refreshPage).toBe('boolean');
       expect(typeof result.data.refreshInterval).toBe('number');
     }

@@ -21,7 +21,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { TableSettingsKey, UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
@@ -46,6 +46,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { TimePrecision } from '@src/app/shared/utils/datetime';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -82,7 +83,7 @@ export class BaseTableComponent {
   @Input() hasTemperatureInformation = true;
 
   protected uiSettings: UISettingsUtilityClass;
-  protected dateFormat: string;
+  protected dateTimeFormat: string;
   protected subscriptions: Subscription[] = [];
   protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
@@ -91,7 +92,7 @@ export class BaseTableComponent {
     const settingsService = this.settingsService;
 
     this.uiSettings = new UISettingsUtilityClass(settingsService);
-    this.dateFormat = this.getDateFormat();
+    this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
   reload(): void {
@@ -410,15 +411,5 @@ export class BaseTableComponent {
 
   protected setColumnLabels(labels: Record<string, string>): void {
     this.columnLabels = labels;
-  }
-
-  /**
-   * Retrieves the date format for rendering timestamps.
-   * @returns The date format string.
-   */
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }

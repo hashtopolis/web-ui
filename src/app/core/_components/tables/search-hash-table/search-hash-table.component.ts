@@ -34,7 +34,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     if (this.search) {
       this.dataSource.setSearch(this.search);
     }
-    this.dataSource.setDateFormat(this.dateFormat);
+    this.dataSource.setDateFormat(this.dateTimeFormat);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
     this.initDone = true;

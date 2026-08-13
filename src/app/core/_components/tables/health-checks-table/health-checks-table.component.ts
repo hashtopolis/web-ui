@@ -93,8 +93,8 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         id: HealthChecksTableCol.CREATED,
         dataKey: 'created',
         isSortable: false,
-        render: (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat),
-        export: async (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat)
+        render: (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateTimeFormat),
+        export: async (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateTimeFormat)
       },
       {
         id: HealthChecksTableCol.TYPE,

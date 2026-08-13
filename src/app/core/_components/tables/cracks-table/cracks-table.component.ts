@@ -79,9 +79,9 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
-        render: (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateFormat),
+        render: (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateTimeFormat),
         isSortable: true,
-        export: async (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateFormat)
+        export: async (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateTimeFormat)
       },
       {
         id: CracksTableCol.PLAINTEXT,

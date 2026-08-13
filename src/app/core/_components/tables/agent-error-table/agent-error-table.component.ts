@@ -68,7 +68,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'time',
         isSortable: true,
         render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError),
-        export: async (agentError: JAgentErrors) => formatUnixTimestamp(agentError.time, this.dateFormat)
+        export: async (agentError: JAgentErrors) => formatUnixTimestamp(agentError.time, this.dateTimeFormat)
       },
       {
         id: AgentErrorTableCol.TASK_ID,
@@ -222,7 +222,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     );
   }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
-    const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);
+    const formattedDate = formatUnixTimestamp(chunk.time, this.dateTimeFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
