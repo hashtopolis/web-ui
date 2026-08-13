@@ -222,10 +222,7 @@ export class EditUsersComponent implements OnInit {
         password: val['password'],
         userId: this.editedUserIndex
       };
-      this.gs
-        .chelper(SERV.HELPER, 'setUserPassword', payload)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+      this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 }
