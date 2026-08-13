@@ -108,8 +108,11 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
     if (control) {
       const currentTouched = control.touched;
       const currentInvalid = control.invalid;
-      const isFormTouched = !!(control.parent?.touched || control.root?.touched);
-      const shouldShowValidation = control.dirty || currentTouched || isFormTouched;
+      // A parent FormGroup becomes touched as soon as any child is blurred.
+      // Validation feedback must therefore depend on this control only. Invalid
+      // submissions still reveal every error because submit handlers call
+      // markAllAsTouched(), which marks each individual control.
+      const shouldShowValidation = currentTouched;
 
       // Update error state properties for template binding
       const newHasError = !!(control && control.invalid && shouldShowValidation);
