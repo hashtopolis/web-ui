@@ -22,7 +22,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   standalone: false
 })
 export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() id: number;
+  @Input() id: string;
   @Input() dataType: string;
   @Input() filterParam: string;
 

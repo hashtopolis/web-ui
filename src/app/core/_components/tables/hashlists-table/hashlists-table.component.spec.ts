@@ -148,7 +148,7 @@ describe('HashlistsTableComponent', () => {
     });
 
     it('should not include HASHTYPE column when shashlistId is set', () => {
-      component.shashlistId = 1;
+      component.shashlistId = '1';
       const columns = component.getColumns();
       const hashTypeColumn = columns.find((col) => col.id === HashlistsTableCol.HASHTYPE);
 
@@ -156,7 +156,7 @@ describe('HashlistsTableComponent', () => {
     });
 
     it('should include HASHTYPE column when shashlistId is not set', () => {
-      component.shashlistId = 0;
+      component.shashlistId = '';
       const columns = component.getColumns();
       const hashTypeColumn = columns.find((col) => col.id === HashlistsTableCol.HASHTYPE);
 
@@ -165,10 +165,10 @@ describe('HashlistsTableComponent', () => {
   });
 
   describe('rowActionClicked', () => {
-    const testHashlist = { id: 5, name: 'Test Hashlist' } as JHashlist;
+    const testHashlist = { id: '5', name: 'Test Hashlist' } as JHashlist;
 
     beforeEach(() => {
-      component.shashlistId = 0;
+      component.shashlistId = '';
       mockDialog.open.and.returnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
@@ -193,7 +193,7 @@ describe('HashlistsTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/hashlists', 'hashlist', 5, 'edit']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/hashlists', 'hashlist', '5', 'edit']);
     });
 
     it('should call rowActionExport for EXPORT action', () => {
@@ -243,7 +243,7 @@ describe('HashlistsTableComponent', () => {
 
   describe('bulkActionClicked', () => {
     beforeEach(() => {
-      component.shashlistId = 0;
+      component.shashlistId = '';
       mockDialog.open.and.returnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
@@ -252,7 +252,7 @@ describe('HashlistsTableComponent', () => {
     it('should open dialog for ARCHIVE action', () => {
       const event = {
         menuItem: { label: 'Archive', action: BulkActionMenuAction.ARCHIVE },
-        data: [{ id: 1, name: 'Test' }] as JHashlist[]
+        data: [{ id: '1', name: 'Test' }] as JHashlist[]
       };
 
       component.bulkActionClicked(event);
@@ -263,7 +263,7 @@ describe('HashlistsTableComponent', () => {
     it('should open dialog for DELETE action', () => {
       const event = {
         menuItem: { label: 'Delete', action: BulkActionMenuAction.DELETE },
-        data: [{ id: 1, name: 'Test' }] as JHashlist[]
+        data: [{ id: '1', name: 'Test' }] as JHashlist[]
       };
 
       component.bulkActionClicked(event);
@@ -281,7 +281,7 @@ describe('HashlistsTableComponent', () => {
 
     it('should open dialog with correct configuration', () => {
       component.openDialog({
-        rows: [{ id: 1 }] as JHashlist[],
+        rows: [{ id: '1' }] as JHashlist[],
         title: 'Test Title',
         icon: 'warning',
         body: 'Test body',
@@ -302,7 +302,7 @@ describe('HashlistsTableComponent', () => {
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6'];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1, name: 'Test' }]
+        data: [{ id: '1', name: 'Test' }]
       } as ActionMenuEvent<JHashlist[]>;
 
       component.exportActionClicked(event);
@@ -319,7 +319,7 @@ describe('HashlistsTableComponent', () => {
       component.table.displayedColumns = ['0', '1'];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1 }, { id: 2 }]
+        data: [{ id: '1' }, { id: '2' }]
       } as ActionMenuEvent<JHashlist[]>;
 
       component.exportActionClicked(event);

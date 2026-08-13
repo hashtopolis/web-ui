@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
 import { Permission } from '@models/global-permission-group.model';
+import { UserId } from '@models/id.types';
 import { JwtPayload } from '@models/jwt-payload.model';
 
 import { LoginRedirectService } from '@services/access/login-redirect.service';
@@ -28,7 +29,7 @@ export class AuthService {
   static readonly STORAGE_KEY = 'userData';
 
   user = new BehaviorSubject<AuthData | null>(null);
-  userId: number | null = null;
+  userId: UserId | null = null;
 
   @Output() authChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   isAuthenticated = false;
@@ -64,7 +65,7 @@ export class AuthService {
     const token: string = userData._token;
     const expires: Date = userData._expires instanceof Date ? userData._expires : new Date(userData._expires);
 
-    const userId = typeof userData.userId === 'number' ? userData.userId : (this.getUserId(token) ?? 0);
+    const userId = typeof userData.userId === 'string' ? userData.userId : (this.getUserId(token) ?? '0');
 
     const canonicalUsername: string = userData.canonicalUsername ?? this.getCanonicalUsernameFromJwt(token) ?? '';
 
@@ -151,11 +152,9 @@ export class AuthService {
             return this.injector.get(PermissionService).loadPermissions();
           }
 
-          const payload = this.decodeJwt(token);
-          const rawUid = payload?.userId ?? payload?.sub;
-          const uid = typeof rawUid === 'string' ? Number(rawUid) : typeof rawUid === 'number' ? rawUid : null;
+          const uid = this.getUserId(token);
 
-          if (uid == null || !Number.isFinite(uid)) {
+          if (uid == null) {
             console.warn('Could not extract userId from token. Falling back to form username.');
             this.handleAuthentication(token, expires, username);
             this.isAuthenticated = true;
@@ -185,7 +184,7 @@ export class AuthService {
           const redirectUrl = this.redirectUrl;
           const uid = this.getUserId(this.token);
           if (uid != null) {
-            redirectService.handlePostLoginRedirect(String(uid), redirectUrl);
+            redirectService.handlePostLoginRedirect(uid, redirectUrl);
           } else {
             console.warn('No userId available for post-login redirect');
           }
@@ -215,20 +214,19 @@ export class AuthService {
     }
   }
 
-  private getUserId(token: string | null): number | null {
+  private getUserId(token: string | null): UserId | null {
     if (!token) return null;
     const p = this.decodeJwt<JwtPayload>(token);
     if (!p) return null;
 
-    let id: number | null = null;
+    let id: UserId | null = null;
 
     if (typeof p.userId === 'number') {
-      id = p.userId;
+      id = String(p.userId);
     } else if (typeof p.sub === 'number') {
-      id = p.sub;
+      id = String(p.sub);
     } else if (typeof p.sub === 'string') {
-      const n = Number(p.sub);
-      id = Number.isFinite(n) ? n : null;
+      id = Number.isFinite(Number(p.sub)) ? p.sub : null;
     }
 
     return id;
@@ -239,7 +237,7 @@ export class AuthService {
     return p?.username ?? p?.name ?? p?.user ?? null;
   }
 
-  private fetchCanonicalUsername(userId: number, token: string): Observable<string | null> {
+  private fetchCanonicalUsername(userId: UserId, token: string): Observable<string | null> {
     const base = this.cs.getEndpoint();
     const url = `${base}/ui/users/${userId}`;
 
@@ -317,7 +315,7 @@ export class AuthService {
   private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string): void {
     const expires = new Date(expiresEpochSec * 1000);
 
-    const userId = this.getUserId(token) ?? 0;
+    const userId = this.getUserId(token) ?? '0';
     const canonicalUsername = this.getCanonicalUsernameFromJwt(token) ?? usernameFromForm;
     this.userId = userId;
 

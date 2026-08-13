@@ -39,7 +39,7 @@ export interface JAgent extends BaseModel {
   taskName?: string | undefined;
   chunkId?: ChunkId | undefined;
   benchmark?: string;
-  assignmentId?: number;
+  assignmentId?: string;
   agentSpeed?: number;
   chunkData?: ChunkData;
   // Assignment aggregates for the displayed task, copied over by AgentsDataSource.loadAssignments().

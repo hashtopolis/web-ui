@@ -72,7 +72,7 @@ describe('SuperTasksTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items: JSuperTask[] = [{ id: 1, type: 'supertask', supertaskName: 'test' }];
+      const items: JSuperTask[] = [{ id: '1', type: 'supertask', supertaskName: 'test' }];
       const event: ActionMenuEvent<JSuperTask[]> = { data: items, menuItem: { action: 'excel', label: '' } };
       component.table.displayedColumns = component.tableColumns.map((col) => String(col.id));
 
@@ -90,8 +90,8 @@ describe('SuperTasksTableComponent', () => {
       const visibleIds = [SupertasksTableCol.ID, SupertasksTableCol.NAME];
       component.table.displayedColumns = visibleIds.map(String);
       const items: JSuperTask[] = [
-        { id: 1, type: 'supertask', supertaskName: 'test1' },
-        { id: 2, type: 'supertask', supertaskName: 'test2' }
+        { id: '1', type: 'supertask', supertaskName: 'test1' },
+        { id: '2', type: 'supertask', supertaskName: 'test2' }
       ];
       const event: ActionMenuEvent<JSuperTask[]> = { data: items, menuItem: { action: 'excel', label: '' } };
 

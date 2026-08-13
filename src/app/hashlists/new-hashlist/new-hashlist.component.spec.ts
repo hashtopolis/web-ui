@@ -29,14 +29,14 @@ import { mockResponse } from '@src/app/testing/mock-response';
 const mockAccessGroups: ResponseWrapper = mockResponse({
   data: [
     {
-      id: 1,
+      id: '1',
       type: 'accessGroup',
       attributes: {
         groupName: 'Admin'
       }
     },
     {
-      id: 2,
+      id: '2',
       type: 'accessGroup',
       attributes: {
         groupName: 'User'
@@ -48,7 +48,7 @@ const mockAccessGroups: ResponseWrapper = mockResponse({
 const mockHashtypes: ResponseWrapper = mockResponse({
   data: [
     {
-      id: 2500,
+      id: '2500',
       type: 'hashType',
       attributes: {
         description: 'MD5',
@@ -57,7 +57,7 @@ const mockHashtypes: ResponseWrapper = mockResponse({
       }
     },
     {
-      id: 0,
+      id: '0',
       type: 'hashType',
       attributes: {
         description: 'SHA1',
@@ -66,7 +66,7 @@ const mockHashtypes: ResponseWrapper = mockResponse({
       }
     },
     {
-      id: 16800,
+      id: '16800',
       type: 'hashType',
       attributes: {
         description: 'WPA/WPA2',
@@ -79,10 +79,10 @@ const mockHashtypes: ResponseWrapper = mockResponse({
 
 const mockConfigs: ResponseWrapper = mockResponse({
   data: {
-    id: 66,
+    id: '66',
     type: 'config',
     attributes: {
-      configSectionId: 1,
+      configSectionId: '1',
       item: 'Enable Brain',
       value: '1'
     }
@@ -139,7 +139,7 @@ describe('NewHashlistComponent', () => {
     gsSpy.ghelper.and.returnValue(of(mockAccessGroups));
     gsSpy.chelper.and.returnValue(of({ meta: [] }));
     gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
-    (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
+    (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, '66').and.returnValue(of(mockConfigs));
     dialogSpy.open.and.returnValue({
       afterClosed: () => of(true)
     } as MatDialogRef<unknown>);
@@ -170,12 +170,12 @@ describe('NewHashlistComponent', () => {
     });
 
     it('should auto-select the first access group when accessGroupId is null', () => {
-      expect(component.form.controls.accessGroupId.value).toBe(1);
+      expect(component.form.controls.accessGroupId.value).toBe('1');
     });
 
     it('should not override an existing accessGroupId value', () => {
-      component.form.controls.accessGroupId.setValue(2);
-      expect(component.form.controls.accessGroupId.value).toBe(2);
+      component.form.controls.accessGroupId.setValue('2');
+      expect(component.form.controls.accessGroupId.value).toBe('2');
     });
   });
 
@@ -210,7 +210,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'test',
         hashTypeId: '2500',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'upload',
         sourceData: 'hashes'
@@ -243,7 +243,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'upload'
       });
@@ -277,7 +277,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'upload'
       });
@@ -301,7 +301,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'paste',
         sourceData: 'some data'
@@ -327,7 +327,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'import',
         sourceData: 'valid-1-line.txt'
@@ -361,7 +361,7 @@ describe('NewHashlistComponent', () => {
     component.form.patchValue({
       name: 'Test Hashlist',
       hashTypeId: '2500',
-      accessGroupId: 1,
+      accessGroupId: '1',
       format: 0,
       sourceType: 'upload'
     });
@@ -377,7 +377,7 @@ describe('NewHashlistComponent', () => {
     component.form.patchValue({
       name: 'Test Hashlist',
       hashTypeId: '2500',
-      accessGroupId: 1,
+      accessGroupId: '1',
       format: 0,
       sourceType: 'paste',
       sourceData: ''
@@ -424,12 +424,12 @@ describe('NewHashlistComponent', () => {
     it('should NOT show brain section when brain is globally disabled', fakeAsync(() => {
       const disabledConfig: ResponseWrapper = mockResponse({
         data: {
-          id: 66,
+          id: '66',
           type: 'config',
-          attributes: { configSectionId: 1, item: 'Enable Brain', value: '0' }
+          attributes: { configSectionId: '1', item: 'Enable Brain', value: '0' }
         }
       });
-      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(disabledConfig));
+      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, '66').and.returnValue(of(disabledConfig));
 
       fixture = TestBed.createComponent(NewHashlistComponent);
       component = fixture.componentInstance;
@@ -482,7 +482,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 1,
         sourceType: 'upload'
       });
@@ -500,7 +500,7 @@ describe('NewHashlistComponent', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
-        accessGroupId: 1,
+        accessGroupId: '1',
         format: 0,
         sourceType: 'upload'
       });

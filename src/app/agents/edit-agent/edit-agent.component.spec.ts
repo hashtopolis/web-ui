@@ -89,7 +89,7 @@ describe('EditAgentComponent', () => {
   let agentRoleServiceSpy: jasmine.SpyObj<AgentRoleService>;
 
   const mockAgent = {
-    id: 1,
+    id: '1',
     type: 'agent',
     attributes: {
       agentName: 'Test Agent',
@@ -104,14 +104,14 @@ describe('EditAgentComponent', () => {
       lastAct: 'now',
       lastTime: 123456,
       lastIp: '127.0.0.1',
-      userId: 1,
+      userId: '1',
       cpuOnly: false,
       clientSignature: 'signature-001'
     }
   };
 
   const mockUser = {
-    id: 1,
+    id: '1',
     type: 'user',
     attributes: {
       name: 'admin',
@@ -121,7 +121,7 @@ describe('EditAgentComponent', () => {
       lastLoginDate: 1,
       registeredSince: 1,
       sessionLifetime: 3600,
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       yubikey: '0',
       otp1: '',
       otp2: '',
@@ -131,7 +131,7 @@ describe('EditAgentComponent', () => {
   };
 
   const mockTask = {
-    id: 1,
+    id: '1',
     type: 'task',
     attributes: {
       taskName: 'Task 1',
@@ -147,9 +147,9 @@ describe('EditAgentComponent', () => {
       isCpuTask: false,
       useNewBench: false,
       skipKeyspace: 0,
-      crackerBinaryId: 0,
+      crackerBinaryId: '0',
       crackerBinaryTypeId: null,
-      taskWrapperId: 0,
+      taskWrapperId: '0',
       isArchived: false,
       notes: '',
       staticChunks: 0,
@@ -248,7 +248,7 @@ describe('EditAgentComponent', () => {
 
     expect((globalServiceSpy.get as jasmine.Spy).calls.argsFor(0)).toEqual([
       SERV.AGENTS,
-      1,
+      '1',
       {
         include: ['agentStats', 'accessGroups'],
         aggregate: [{ field: 'agent', values: ['crackingTime'] }]
@@ -264,7 +264,7 @@ describe('EditAgentComponent', () => {
 
     expect(component.updateForm.controls.agentName.value).toBe('Test Agent');
     expect(component.updateForm.controls.isActive.value).toBe(true);
-    expect(component.updateForm.controls.userId.value).toBe(1);
+    expect(component.updateForm.controls.userId.value).toBe('1');
   }));
 
   it('should load users on ngOnInit', fakeAsync(() => {
@@ -287,7 +287,7 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     tick();
 
-    expect(globalServiceSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getBestTasksAgent', { agent: 1 });
+    expect(globalServiceSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getBestTasksAgent', { agent: '1' });
   }));
 
   it('should navigate to /not-found when agent ID is invalid', fakeAsync(() => {
@@ -335,7 +335,7 @@ describe('EditAgentComponent', () => {
     component.updateForm.patchValue({
       agentName: 'Updated Agent',
       isActive: false,
-      userId: 2
+      userId: '2'
     });
 
     component.onSubmit();
@@ -343,11 +343,11 @@ describe('EditAgentComponent', () => {
 
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
-      1,
+      '1',
       jasmine.objectContaining({
         agentName: 'Updated Agent',
         isActive: false,
-        userId: 2
+        userId: '2'
       })
     );
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Agent saved');
@@ -407,25 +407,25 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     tick();
 
-    component.updateAssignForm.patchValue({ taskId: 5 });
-    component.onUpdateAssign(5);
+    component.updateAssignForm.patchValue({ taskId: '5' });
+    component.onUpdateAssign('5');
     tick();
 
     expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, {
-      taskId: 5,
-      agentId: 1
+      taskId: '5',
+      agentId: '1'
     });
   }));
 
   it('should delete assignment when task is set to null', fakeAsync(() => {
-    component.assignId = 10;
+    component.assignId = '10';
     fixture.detectChanges();
     tick();
 
     component.onUpdateAssign(null);
     tick();
 
-    expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 10);
+    expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, '10');
   }));
 
   it('should render devices with count', () => {

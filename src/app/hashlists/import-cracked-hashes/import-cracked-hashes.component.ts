@@ -52,7 +52,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   form: FormGroup<ImportCrackedHashesForm>;
 
   // Edit variables
-  editedHashlistIndex: number;
+  editedHashlistIndex: string;
   hashtype: JHashtype;
   type: number; // Hashlist or Superhashlist
 
@@ -194,7 +194,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         }
         this.submitImport({
           sourceType: sourceType,
-          hashlistId: this.editedHashlistIndex,
+          hashlistId: Number(this.editedHashlistIndex),
           separator: separator,
           sourceData: handleEncode(hashes),
           overwrite: conflictResolution
@@ -210,7 +210,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         }
         this.submitImport({
           sourceType: sourceType,
-          hashlistId: this.editedHashlistIndex,
+          hashlistId: Number(this.editedHashlistIndex),
           separator: separator,
           sourceData,
           overwrite: conflictResolution
@@ -226,7 +226,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         }
         this.submitImport({
           sourceType: sourceType,
-          hashlistId: this.editedHashlistIndex,
+          hashlistId: Number(this.editedHashlistIndex),
           separator: separator,
           sourceData,
           overwrite: conflictResolution
@@ -277,7 +277,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     if (alreadyExists) {
       this.submitImport({
         sourceType: 'import',
-        hashlistId: this.editedHashlistIndex,
+        hashlistId: Number(this.editedHashlistIndex),
         separator: this.form.controls.fieldSeparator.value,
         sourceData: filename,
         overwrite: this.form.controls.conflictResolution.value ? 1 : 0
@@ -301,7 +301,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         complete: () => {
           this.submitImport({
             sourceType: 'import',
-            hashlistId: this.editedHashlistIndex,
+            hashlistId: Number(this.editedHashlistIndex),
             separator: this.form.controls.fieldSeparator.value,
             sourceData: filename,
             overwrite: this.form.controls.conflictResolution.value ? 1 : 0

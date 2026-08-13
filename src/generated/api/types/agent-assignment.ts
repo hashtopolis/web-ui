@@ -1,11 +1,11 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type AgentAssignmentCreate = {
   data: {
     type: 'agentAssignment';
     attributes: {
-      taskId: number;
-      agentId: number;
+      taskId: string;
+      agentId: string;
       benchmark: string;
     };
   };
@@ -20,52 +20,68 @@ export type AgentAssignmentPatch = {
   };
 };
 
+export type AgentAssignmentPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'agentAssignment';
+    attributes: {
+      benchmark?: string;
+    };
+  }>;
+};
+
+export type AgentAssignmentDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'agentAssignment';
+  }>;
+};
+
 export type AgentAssignmentResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'agentAssignment';
     attributes: {
-      taskId: number;
-      agentId: number;
+      taskId: string;
+      agentId: string;
       benchmark: string;
     };
-  };
-  relationships?: {
-    agent: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'agent';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    task: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      agent: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'agent';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -80,13 +96,13 @@ export type AgentAssignmentResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -102,9 +118,9 @@ export type AgentAssignmentResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -122,63 +138,46 @@ export type AgentAssignmentPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'agentAssignment';
-    attributes: {
-      taskId: number;
-      agentId: number;
-      benchmark: string;
-    };
-  };
-};
-
-export type AgentAssignmentListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'agentAssignment';
     attributes: {
-      taskId: number;
-      agentId: number;
+      taskId: string;
+      agentId: string;
       benchmark: string;
     };
-  }>;
-  relationships?: {
-    agent: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'agent';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    task: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      agent: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'agent';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -193,13 +192,13 @@ export type AgentAssignmentListResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -215,9 +214,9 @@ export type AgentAssignmentListResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -230,22 +229,150 @@ export type AgentAssignmentListResponse = {
   >;
 };
 
+export type AgentAssignmentListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'agentAssignment';
+    attributes: {
+      taskId: string;
+      agentId: string;
+      benchmark: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      agent: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'agent';
+          id: string;
+        } | null;
+      };
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: string;
+        type: 'agent';
+        attributes: {
+          agentName: string;
+          uid: string;
+          os: 0 | 1 | 2;
+          devices: string;
+          cmdPars: string;
+          ignoreErrors: 0 | 1 | 2;
+          isActive: boolean;
+          isTrusted: boolean;
+          token: string;
+          lastAct: string;
+          lastTime: number;
+          lastIp: string;
+          userId: string | null;
+          cpuOnly: boolean;
+          clientSignature: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'task';
+        attributes: {
+          taskName: string;
+          attackCmd: string;
+          chunkTime: number;
+          statusTimer: number;
+          keyspace: number;
+          keyspaceProgress: number;
+          priority: number;
+          maxAgents: number;
+          color: string | null;
+          isSmall: boolean;
+          isCpuTask: boolean;
+          useNewBench: boolean;
+          skipKeyspace: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
+          isArchived: boolean;
+          notes: string;
+          staticChunks: number;
+          chunkSize: number;
+          forcePipe: boolean;
+          preprocessorId: number;
+          preprocessorCommand: string;
+        };
+      }
+  >;
+};
+
+export type AgentAssignmentCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type AgentAssignmentRelationTask = {
   data: {
     type: 'task';
-    id: number;
+    id: string;
   };
 };
 
 export type AgentAssignmentRelationTaskGetResponse = {
   data: {
     type: 'task';
-    id: number;
+    id: string;
   };
 };
 
 export type DeleteAgentassignmentsData = {
-  body?: never;
+  body: AgentAssignmentDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/agentassignments';
@@ -260,43 +387,71 @@ export type DeleteAgentassignmentsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteAgentassignmentsError = DeleteAgentassignmentsErrors[keyof DeleteAgentassignmentsErrors];
 
 export type DeleteAgentassignmentsResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteAgentassignmentsResponse = DeleteAgentassignmentsResponses[keyof DeleteAgentassignmentsResponses];
 
 export type GetAgentassignmentsData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"assignmentId": 123}}` -> `eyJwcmltYXJ5Ijp7ImFzc2lnbm1lbnRJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"assignmentId": 123}}` -> `eyJwcmltYXJ5Ijp7ImFzc2lnbm1lbnRJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[assignmentId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: agent, task
      */
-    include?: string;
+    include?: Array<'agent' | 'task'>;
+    /**
+     * Aggregated fields to include by type (comma separated values). Possible options: assignment: crackingTime, cracked, currentSpeed, currentChunkId, searched
+     */
+    aggregate?: {
+      [key: string]: string;
+    };
   };
   url: '/api/v2/ui/agentassignments';
 };
@@ -310,6 +465,10 @@ export type GetAgentassignmentsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetAgentassignmentsError = GetAgentassignmentsErrors[keyof GetAgentassignmentsErrors];
@@ -324,7 +483,7 @@ export type GetAgentassignmentsResponses = {
 export type GetAgentassignmentsResponse = GetAgentassignmentsResponses[keyof GetAgentassignmentsResponses];
 
 export type PatchAgentassignmentsData = {
-  body?: never;
+  body: AgentAssignmentPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/agentassignments';
@@ -339,16 +498,30 @@ export type PatchAgentassignmentsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAgentassignmentsError = PatchAgentassignmentsErrors[keyof PatchAgentassignmentsErrors];
 
 export type PatchAgentassignmentsResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchAgentassignmentsResponse = PatchAgentassignmentsResponses[keyof PatchAgentassignmentsResponses];
 
 export type PostAgentassignmentsData = {
   body: AgentAssignmentCreate;
@@ -366,6 +539,14 @@ export type PostAgentassignmentsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostAgentassignmentsError = PostAgentassignmentsErrors[keyof PostAgentassignmentsErrors];
@@ -384,27 +565,15 @@ export type GetAgentassignmentsCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[assignmentId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/agentassignments/count';
 };
@@ -418,6 +587,10 @@ export type GetAgentassignmentsCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetAgentassignmentsCountError = GetAgentassignmentsCountErrors[keyof GetAgentassignmentsCountErrors];
@@ -426,7 +599,7 @@ export type GetAgentassignmentsCountResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentListResponse;
+  200: AgentAssignmentCountResponse;
 };
 
 export type GetAgentassignmentsCountResponse =
@@ -452,9 +625,13 @@ export type GetAgentassignmentsByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAgentassignmentsByIdByRelationError =
@@ -490,9 +667,13 @@ export type GetAgentassignmentsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAgentassignmentsByIdRelationshipsByRelationError =
@@ -528,9 +709,17 @@ export type PatchAgentassignmentsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAgentassignmentsByIdRelationshipsByRelationError =
@@ -547,9 +736,7 @@ export type PatchAgentassignmentsByIdRelationshipsByRelationResponse =
   PatchAgentassignmentsByIdRelationshipsByRelationResponses[keyof PatchAgentassignmentsByIdRelationshipsByRelationResponses];
 
 export type DeleteAgentassignmentsByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -567,9 +754,13 @@ export type DeleteAgentassignmentsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteAgentassignmentsByIdError = DeleteAgentassignmentsByIdErrors[keyof DeleteAgentassignmentsByIdErrors];
@@ -591,9 +782,9 @@ export type GetAgentassignmentsByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: agent, task
      */
-    include?: string;
+    include?: Array<'agent' | 'task'>;
   };
   url: '/api/v2/ui/agentassignments/{id}';
 };
@@ -608,9 +799,13 @@ export type GetAgentassignmentsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAgentassignmentsByIdError = GetAgentassignmentsByIdErrors[keyof GetAgentassignmentsByIdErrors];
@@ -643,9 +838,17 @@ export type PatchAgentassignmentsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAgentassignmentsByIdError = PatchAgentassignmentsByIdErrors[keyof PatchAgentassignmentsByIdErrors];

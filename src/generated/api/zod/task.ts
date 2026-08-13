@@ -17,8 +17,8 @@ export const zTaskCreate = z.object({
       isCpuTask: z.boolean(),
       useNewBench: z.boolean(),
       skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullish(),
+      crackerBinaryId: z.string(),
+      crackerBinaryTypeId: z.string().nullish(),
       isArchived: z.boolean(),
       notes: z.string(),
       staticChunks: z.int(),
@@ -49,22 +49,47 @@ export const zTaskPatch = z.object({
   })
 });
 
+export const zTaskPatchMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.string().regex(/^[0-9]+$/),
+      type: z.literal('task'),
+      attributes: z.object({
+        attackCmd: z.string().optional(),
+        chunkTime: z.int().optional(),
+        color: z.string().nullish(),
+        isArchived: z.boolean().optional(),
+        isCpuTask: z.boolean().optional(),
+        isSmall: z.boolean().optional(),
+        maxAgents: z.int().optional(),
+        notes: z.string().optional(),
+        priority: z.int().optional(),
+        statusTimer: z.int().optional(),
+        taskName: z.string().optional()
+      })
+    })
+  )
+});
+
+export const zTaskDeleteMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.string().regex(/^[0-9]+$/),
+      type: z.literal('task')
+    })
+  )
+});
+
 export const zTaskResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
-    })
-    .optional(),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/tasks/1')
+  }),
   data: z.object({
-    id: z.int(),
+    id: z.string().regex(/^[0-9]+$/),
     type: z.literal('task'),
     attributes: z.object({
       taskName: z.string(),
@@ -80,9 +105,9 @@ export const zTaskResponse = z.object({
       isCpuTask: z.boolean(),
       useNewBench: z.boolean(),
       skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullable(),
-      taskWrapperId: z.int(),
+      crackerBinaryId: z.string(),
+      crackerBinaryTypeId: z.string().nullable(),
+      taskWrapperId: z.string(),
       isArchived: z.boolean(),
       notes: z.string(),
       staticChunks: z.int(),
@@ -94,16 +119,16 @@ export const zTaskResponse = z.object({
       dispatched: z.string().optional(),
       searched: z.string().optional(),
       status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+      totalNumberOfChunks: z.int().optional(),
+      currentSpeed: z.int().optional(),
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
-      currentSpeed: z.int().optional(),
-      cprogress: z.int().optional(),
-      totalNumberOfChunks: z.number().optional().default(0),
-      cracked: z.int().optional()
-    })
-  }),
-  relationships: z
-    .object({
+      cprogress: z.int().optional()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/tasks/1')
+    }),
+    relationships: z.object({
       assignedAgents: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
@@ -113,7 +138,7 @@ export const zTaskResponse = z.object({
           .array(
             z.object({
               type: z.literal('agent'),
-              id: z.int()
+              id: z.string().regex(/^[0-9]+$/)
             })
           )
           .optional()
@@ -126,7 +151,7 @@ export const zTaskResponse = z.object({
         data: z
           .object({
             type: z.literal('crackerBinary'),
-            id: z.int()
+            id: z.string().regex(/^[0-9]+$/)
           })
           .nullish()
       }),
@@ -138,7 +163,7 @@ export const zTaskResponse = z.object({
         data: z
           .object({
             type: z.literal('crackerBinaryType'),
-            id: z.int()
+            id: z.string().regex(/^[0-9]+$/)
           })
           .nullish()
       }),
@@ -151,7 +176,7 @@ export const zTaskResponse = z.object({
           .array(
             z.object({
               type: z.literal('file'),
-              id: z.int()
+              id: z.string().regex(/^[0-9]+$/)
             })
           )
           .optional()
@@ -164,7 +189,7 @@ export const zTaskResponse = z.object({
         data: z
           .object({
             type: z.literal('hashlist'),
-            id: z.int()
+            id: z.string().regex(/^[0-9]+$/)
           })
           .nullish()
       }),
@@ -177,28 +202,28 @@ export const zTaskResponse = z.object({
           .array(
             z.object({
               type: z.literal('speed'),
-              id: z.int()
+              id: z.string().regex(/^[0-9]+$/)
             })
           )
           .optional()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.union([
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('crackerBinary'),
           attributes: z.object({
-            crackerBinaryTypeId: z.int(),
+            crackerBinaryTypeId: z.string(),
             version: z.string(),
             downloadUrl: z.string(),
             binaryName: z.string()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
@@ -206,19 +231,19 @@ export const zTaskResponse = z.object({
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('hashlist'),
           attributes: z.object({
             name: z.string(),
             format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
+            hashTypeId: z.string(),
             hashCount: z.int(),
             separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
             isSalted: z.boolean(),
-            accessGroupId: z.int(),
+            accessGroupId: z.string(),
             notes: z.string(),
             useBrain: z.boolean(),
             brainFeatures: z.int(),
@@ -226,7 +251,7 @@ export const zTaskResponse = z.object({
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('agent'),
           attributes: z.object({
             agentName: z.string(),
@@ -241,29 +266,29 @@ export const zTaskResponse = z.object({
             lastAct: z.string(),
             lastTime: z.number(),
             lastIp: z.string(),
-            userId: z.int().nullable(),
+            userId: z.string().nullable(),
             cpuOnly: z.boolean(),
             clientSignature: z.string()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('file'),
           attributes: z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
             fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-            accessGroupId: z.int(),
+            accessGroupId: z.string(),
             lineCount: z.number()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('speed'),
           attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
+            agentId: z.string(),
+            taskId: z.string(),
             speed: z.number(),
             time: z.number()
           })
@@ -273,13 +298,16 @@ export const zTaskResponse = z.object({
     .optional()
 });
 
-export const zTaskPostPatchResponse = z.object({
+export const zTaskSingleResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/tasks/1')
+  }),
   data: z.object({
-    id: z.int(),
+    id: z.string().regex(/^[0-9]+$/),
     type: z.literal('task'),
     attributes: z.object({
       taskName: z.string(),
@@ -295,9 +323,9 @@ export const zTaskPostPatchResponse = z.object({
       isCpuTask: z.boolean(),
       useNewBench: z.boolean(),
       skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullable(),
-      taskWrapperId: z.int(),
+      crackerBinaryId: z.string(),
+      crackerBinaryTypeId: z.string().nullable(),
+      taskWrapperId: z.string(),
       isArchived: z.boolean(),
       notes: z.string(),
       staticChunks: z.int(),
@@ -309,13 +337,401 @@ export const zTaskPostPatchResponse = z.object({
       dispatched: z.string().optional(),
       searched: z.string().optional(),
       status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+      totalNumberOfChunks: z.int().optional(),
+      currentSpeed: z.int().optional(),
       estimatedTime: z.int().optional(),
       timeSpent: z.int().optional(),
-      currentSpeed: z.int().optional(),
-      cprogress: z.int().optional(),
-      totalNumberOfChunks: z.number().optional().default(0)
+      cprogress: z.int().optional()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/tasks/1')
+    }),
+    relationships: z.object({
+      assignedAgents: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('agent'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      }),
+      crackerBinary: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinary'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      crackerBinaryType: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinaryType'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      files: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+          related: z.string().default('/api/v2/ui/tasks/files')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('file'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      }),
+      hashlist: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+          related: z.string().default('/api/v2/ui/tasks/hashlist')
+        }),
+        data: z
+          .object({
+            type: z.literal('hashlist'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      speeds: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+          related: z.string().default('/api/v2/ui/tasks/speeds')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('speed'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      })
     })
-  })
+  }),
+  included: z
+    .array(
+      z.union([
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('crackerBinary'),
+          attributes: z.object({
+            crackerBinaryTypeId: z.string(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('crackerBinaryType'),
+          attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean().nullable()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('hashlist'),
+          attributes: z.object({
+            name: z.string(),
+            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            hashTypeId: z.string(),
+            hashCount: z.int(),
+            separator: z.string().nullable(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.string(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('agent'),
+          attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.string().nullable(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('file'),
+          attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
+            accessGroupId: z.string(),
+            lineCount: z.number()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('speed'),
+          attributes: z.object({
+            agentId: z.string(),
+            taskId: z.string(),
+            speed: z.number(),
+            time: z.number()
+          })
+        })
+      ])
+    )
+    .optional()
+});
+
+export const zTaskPostPatchResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/tasks/1')
+  }),
+  data: z.object({
+    id: z.string().regex(/^[0-9]+$/),
+    type: z.literal('task'),
+    attributes: z.object({
+      taskName: z.string(),
+      attackCmd: z.string(),
+      chunkTime: z.int(),
+      statusTimer: z.int(),
+      keyspace: z.number(),
+      keyspaceProgress: z.number(),
+      priority: z.int(),
+      maxAgents: z.int(),
+      color: z.string().nullable(),
+      isSmall: z.boolean(),
+      isCpuTask: z.boolean(),
+      useNewBench: z.boolean(),
+      skipKeyspace: z.number(),
+      crackerBinaryId: z.string(),
+      crackerBinaryTypeId: z.string().nullable(),
+      taskWrapperId: z.string(),
+      isArchived: z.boolean(),
+      notes: z.string(),
+      staticChunks: z.int(),
+      chunkSize: z.number(),
+      forcePipe: z.boolean(),
+      preprocessorId: z.int(),
+      preprocessorCommand: z.string(),
+      totalAssignedAgents: z.int().optional(),
+      dispatched: z.string().optional(),
+      searched: z.string().optional(),
+      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+      totalNumberOfChunks: z.int().optional(),
+      currentSpeed: z.int().optional(),
+      estimatedTime: z.int().optional(),
+      timeSpent: z.int().optional(),
+      cprogress: z.int().optional()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/tasks/1')
+    }),
+    relationships: z.object({
+      assignedAgents: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('agent'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      }),
+      crackerBinary: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinary'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      crackerBinaryType: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinaryType'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      files: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+          related: z.string().default('/api/v2/ui/tasks/files')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('file'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      }),
+      hashlist: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+          related: z.string().default('/api/v2/ui/tasks/hashlist')
+        }),
+        data: z
+          .object({
+            type: z.literal('hashlist'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      }),
+      speeds: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+          related: z.string().default('/api/v2/ui/tasks/speeds')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('speed'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+          )
+          .optional()
+      })
+    })
+  }),
+  included: z
+    .array(
+      z.union([
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('crackerBinary'),
+          attributes: z.object({
+            crackerBinaryTypeId: z.string(),
+            version: z.string(),
+            downloadUrl: z.string(),
+            binaryName: z.string()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('crackerBinaryType'),
+          attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean().nullable()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('hashlist'),
+          attributes: z.object({
+            name: z.string(),
+            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            hashTypeId: z.string(),
+            hashCount: z.int(),
+            separator: z.string().nullable(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.string(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('agent'),
+          attributes: z.object({
+            agentName: z.string(),
+            uid: z.string(),
+            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+            devices: z.string(),
+            cmdPars: z.string(),
+            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+            isActive: z.boolean(),
+            isTrusted: z.boolean(),
+            token: z.string(),
+            lastAct: z.string(),
+            lastTime: z.number(),
+            lastIp: z.string(),
+            userId: z.string().nullable(),
+            cpuOnly: z.boolean(),
+            clientSignature: z.string()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('file'),
+          attributes: z.object({
+            filename: z.string(),
+            size: z.number(),
+            isSecret: z.boolean(),
+            fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
+            accessGroupId: z.string(),
+            lineCount: z.number()
+          })
+        }),
+        z.object({
+          id: z.string().regex(/^[0-9]+$/),
+          type: z.literal('speed'),
+          attributes: z.object({
+            agentId: z.string(),
+            taskId: z.string(),
+            speed: z.number(),
+            time: z.number()
+          })
+        })
+      ])
+    )
+    .optional()
 });
 
 export const zTaskListResponse = z.object({
@@ -323,18 +739,36 @@ export const zTaskListResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/tasks?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/tasks?page[size]=25&page[before]=25')
+  links: z.object({
+    self: z.string().default('/api/v2/ui/tasks?page[size]=25'),
+    first: z.string().default('/api/v2/ui/tasks?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/tasks?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/tasks?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/tasks?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
     })
-    .optional(),
+  }),
   data: z.array(
     z.object({
-      id: z.int(),
+      id: z.string().regex(/^[0-9]+$/),
       type: z.literal('task'),
       attributes: z.object({
         taskName: z.string(),
@@ -350,9 +784,9 @@ export const zTaskListResponse = z.object({
         isCpuTask: z.boolean(),
         useNewBench: z.boolean(),
         skipKeyspace: z.number(),
-        crackerBinaryId: z.int(),
-        crackerBinaryTypeId: z.int().nullable(),
-        taskWrapperId: z.int(),
+        crackerBinaryId: z.string(),
+        crackerBinaryTypeId: z.string().nullable(),
+        taskWrapperId: z.string(),
         isArchived: z.boolean(),
         notes: z.string(),
         staticChunks: z.int(),
@@ -364,112 +798,112 @@ export const zTaskListResponse = z.object({
         dispatched: z.string().optional(),
         searched: z.string().optional(),
         status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+        totalNumberOfChunks: z.int().optional(),
+        currentSpeed: z.int().optional(),
         estimatedTime: z.int().optional(),
         timeSpent: z.int().optional(),
-        currentSpeed: z.int().optional(),
-        cprogress: z.int().optional(),
-        totalNumberOfChunks: z.number().optional().default(0),
-        cracked: z.int().optional()
+        cprogress: z.int().optional()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/1')
+      }),
+      relationships: z.object({
+        assignedAgents: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+            related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('agent'),
+                id: z.string().regex(/^[0-9]+$/)
+              })
+            )
+            .optional()
+        }),
+        crackerBinary: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+            related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+          }),
+          data: z
+            .object({
+              type: z.literal('crackerBinary'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+            .nullish()
+        }),
+        crackerBinaryType: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+            related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+          }),
+          data: z
+            .object({
+              type: z.literal('crackerBinaryType'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+            .nullish()
+        }),
+        files: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+            related: z.string().default('/api/v2/ui/tasks/files')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('file'),
+                id: z.string().regex(/^[0-9]+$/)
+              })
+            )
+            .optional()
+        }),
+        hashlist: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+            related: z.string().default('/api/v2/ui/tasks/hashlist')
+          }),
+          data: z
+            .object({
+              type: z.literal('hashlist'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+            .nullish()
+        }),
+        speeds: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+            related: z.string().default('/api/v2/ui/tasks/speeds')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('speed'),
+                id: z.string().regex(/^[0-9]+$/)
+              })
+            )
+            .optional()
+        })
       })
     })
   ),
-  relationships: z
-    .object({
-      assignedAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
-          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      files: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
-          related: z.string().default('/api/v2/ui/tasks/files')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/tasks/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      speeds: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
-          related: z.string().default('/api/v2/ui/tasks/speeds')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('speed'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
   included: z
     .array(
       z.union([
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('crackerBinary'),
           attributes: z.object({
-            crackerBinaryTypeId: z.int(),
+            crackerBinaryTypeId: z.string(),
             version: z.string(),
             downloadUrl: z.string(),
             binaryName: z.string()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('crackerBinaryType'),
           attributes: z.object({
             typeName: z.string(),
@@ -477,19 +911,19 @@ export const zTaskListResponse = z.object({
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('hashlist'),
           attributes: z.object({
             name: z.string(),
             format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
+            hashTypeId: z.string(),
             hashCount: z.int(),
             separator: z.string().nullable(),
             cracked: z.int(),
             isSecret: z.boolean(),
             isHexSalt: z.boolean(),
             isSalted: z.boolean(),
-            accessGroupId: z.int(),
+            accessGroupId: z.string(),
             notes: z.string(),
             useBrain: z.boolean(),
             brainFeatures: z.int(),
@@ -497,7 +931,7 @@ export const zTaskListResponse = z.object({
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('agent'),
           attributes: z.object({
             agentName: z.string(),
@@ -512,29 +946,29 @@ export const zTaskListResponse = z.object({
             lastAct: z.string(),
             lastTime: z.number(),
             lastIp: z.string(),
-            userId: z.int().nullable(),
+            userId: z.string().nullable(),
             cpuOnly: z.boolean(),
             clientSignature: z.string()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('file'),
           attributes: z.object({
             filename: z.string(),
             size: z.number(),
             isSecret: z.boolean(),
             fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-            accessGroupId: z.int(),
+            accessGroupId: z.string(),
             lineCount: z.number()
           })
         }),
         z.object({
-          id: z.int(),
+          id: z.string().regex(/^[0-9]+$/),
           type: z.literal('speed'),
           attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
+            agentId: z.string(),
+            taskId: z.string(),
             speed: z.number(),
             time: z.number()
           })
@@ -544,11 +978,23 @@ export const zTaskListResponse = z.object({
     .optional()
 });
 
+export const zTaskCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
 export const zTaskRelationSpeeds = z.object({
   data: z.array(
     z.object({
       type: z.literal('speeds'),
-      id: z.int().default(1)
+      id: z.string().regex(/^[0-9]+$/)
     })
   )
 });
@@ -557,41 +1003,31 @@ export const zTaskRelationSpeedsGetResponse = z.object({
   data: z.array(
     z.object({
       type: z.literal('speeds'),
-      id: z.int().default(1)
+      id: z.string().regex(/^[0-9]+$/)
     })
   )
 });
 
-export const zDeleteTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteTasksBody = zTaskDeleteMultiple;
 
-export const zGetTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+/**
+ * successfully deleted
+ */
+export const zDeleteTasksResponse = z.void();
+
+export const zGetTasksQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z
+    .array(z.enum(['crackerBinary', 'crackerBinaryType', 'hashlist', 'assignedAgents', 'files', 'speeds']))
+    .optional(),
+  aggregate: z.record(z.string(), z.string()).optional()
 });
 
 /**
@@ -599,64 +1035,36 @@ export const zGetTasksData = z.object({
  */
 export const zGetTasksResponse = zTaskListResponse;
 
-export const zPatchTasksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchTasksBody = zTaskPatchMultiple;
 
-export const zPostTasksData = z.object({
-  body: zTaskCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+/**
+ * successfully updated
+ */
+export const zPatchTasksResponse = z.void();
+
+export const zPostTasksBody = zTaskCreate;
 
 /**
  * successful operation
  */
 export const zPostTasksResponse = zTaskPostPatchResponse;
 
-export const zGetTasksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetTasksCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
  * successful operation
  */
-export const zGetTasksCountResponse = zTaskListResponse;
+export const zGetTasksCountResponse = zTaskCountResponse;
 
-export const zGetTasksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetTasksByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -664,13 +1072,11 @@ export const zGetTasksByIdByRelationData = z.object({
  */
 export const zGetTasksByIdByRelationResponse = zTaskRelationSpeedsGetResponse;
 
-export const zDeleteTasksByIdRelationshipsByRelationData = z.object({
-  body: zTaskRelationSpeeds,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
+
+export const zDeleteTasksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -678,16 +1084,12 @@ export const zDeleteTasksByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteTasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetTasksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetTasksByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -695,13 +1097,11 @@ export const zGetTasksByIdRelationshipsByRelationData = z.object({
  */
 export const zGetTasksByIdRelationshipsByRelationResponse = zTaskResponse;
 
-export const zPatchTasksByIdRelationshipsByRelationData = z.object({
-  body: zTaskRelationSpeeds,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
+
+export const zPatchTasksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -709,13 +1109,11 @@ export const zPatchTasksByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchTasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostTasksByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
+
+export const zPostTasksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -723,12 +1121,8 @@ export const zPostTasksByIdRelationshipsByRelationData = z.object({
  */
 export const zPostTasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteTasksByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteTasksByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -736,18 +1130,16 @@ export const zDeleteTasksByIdData = z.object({
  */
 export const zDeleteTasksByIdResponse = z.void();
 
-export const zGetTasksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
+export const zGetTasksByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetTasksByIdQuery = z.object({
+  include: z
+    .array(z.enum(['crackerBinary', 'crackerBinaryType', 'hashlist', 'assignedAgents', 'files', 'speeds']))
     .optional()
 });
 
@@ -756,12 +1148,10 @@ export const zGetTasksByIdData = z.object({
  */
 export const zGetTasksByIdResponse = zTaskResponse;
 
-export const zPatchTasksByIdData = z.object({
-  body: zTaskPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchTasksByIdBody = zTaskPatch;
+
+export const zPatchTasksByIdPath = z.object({
+  id: z.int()
 });
 
 /**

@@ -1,5 +1,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { CrackerBinaryTypeId, FileId } from '@models/id.types';
+
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
@@ -17,11 +19,11 @@ export interface NewPretaskForm {
   priority: FormControl<number>;
   color: FormControl<string>;
   isCpuTask: FormControl<boolean>;
-  crackerBinaryTypeId: FormControl<number>;
+  crackerBinaryTypeId: FormControl<CrackerBinaryTypeId>;
   isSmall: FormControl<boolean>;
   useNewBench: FormControl<boolean>;
   isMaskImport: FormControl<boolean>;
-  files: FormControl<number[]>;
+  files: FormControl<FileId[]>;
 }
 
 /**
@@ -44,10 +46,10 @@ export function getNewPretaskForm(uiService: UIConfigService): FormGroup<NewPret
     priority: new FormControl(environment.config.tasks.priority, { nonNullable: true }),
     color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl(false, { nonNullable: true }),
-    crackerBinaryTypeId: new FormControl(1, { nonNullable: true }),
+    crackerBinaryTypeId: new FormControl('1', { nonNullable: true }),
     isSmall: new FormControl(false, { nonNullable: true }),
     useNewBench: new FormControl(useSpeedBenchmark, { nonNullable: true }),
     isMaskImport: new FormControl(false, { nonNullable: true }),
-    files: new FormControl([], { nonNullable: true })
+    files: new FormControl<FileId[]>([], { nonNullable: true })
   });
 }

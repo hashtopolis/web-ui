@@ -25,7 +25,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 })
 export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.
-  viewedHealthCIndex: number;
+  viewedHealthCIndex: string;
   // The health check object.
   public healthc: JHealthCheck;
 

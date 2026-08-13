@@ -33,7 +33,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 const mockHashlistResponse = (): ResponseWrapper =>
   mockResponse({
     data: {
-      id: 1,
+      id: '1',
       type: 'hashlist',
       attributes: {
         name: 'Test Hashlist',
@@ -41,25 +41,25 @@ const mockHashlistResponse = (): ResponseWrapper =>
         isSecret: false,
         useBrain: false,
         format: 0,
-        hashTypeId: 0,
+        hashTypeId: '0',
         hashCount: 1000,
         cracked: 500,
         separator: ':',
         isHexSalt: false,
         isSalted: false,
-        accessGroupId: 1,
+        accessGroupId: '1',
         brainFeatures: 0,
         isArchived: false
       },
       relationships: {
         hashType: {
-          data: { id: 0, type: 'hashType' }
+          data: { id: '0', type: 'hashType' }
         }
       }
     },
     included: [
       {
-        id: 0,
+        id: '0',
         type: 'hashType',
         attributes: {
           description: 'MD5',
@@ -73,7 +73,7 @@ const mockHashlistResponse = (): ResponseWrapper =>
 const mockSuperHashlistResponse = (): ResponseWrapper =>
   mockResponse({
     data: {
-      id: 1,
+      id: '1',
       type: 'hashlist',
       attributes: {
         name: 'Super Hashlist',
@@ -81,23 +81,23 @@ const mockSuperHashlistResponse = (): ResponseWrapper =>
         isSecret: false,
         useBrain: false,
         format: 3,
-        hashTypeId: 0,
+        hashTypeId: '0',
         hashCount: 1000,
         cracked: 500,
         separator: ':',
         isHexSalt: false,
         isSalted: false,
-        accessGroupId: 1,
+        accessGroupId: '1',
         brainFeatures: 0,
         isArchived: false
       },
       relationships: {
-        hashType: { data: { id: 0, type: 'hashType' } }
+        hashType: { data: { id: '0', type: 'hashType' } }
       }
     },
     included: [
       {
-        id: 0,
+        id: '0',
         type: 'hashType',
         attributes: { description: 'MD5', isSalted: false, isSlowHash: false }
       }
@@ -106,8 +106,8 @@ const mockSuperHashlistResponse = (): ResponseWrapper =>
 
 const mockAccessGroupsResponse: ResponseWrapper = mockResponse({
   data: [
-    { id: 1, type: 'accessGroup', attributes: { groupName: 'Admin' } },
-    { id: 2, type: 'accessGroup', attributes: { groupName: 'User' } }
+    { id: '1', type: 'accessGroup', attributes: { groupName: 'Admin' } },
+    { id: '2', type: 'accessGroup', attributes: { groupName: 'User' } }
   ]
 }) as ResponseWrapper;
 
@@ -345,7 +345,11 @@ describe('EditHashlistComponent', () => {
       component.onSubmit();
       tick();
 
-      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, jasmine.objectContaining({ name: 'Updated Name' }));
+      expect(gsSpy.update).toHaveBeenCalledWith(
+        SERV.HASHLISTS,
+        '1',
+        jasmine.objectContaining({ name: 'Updated Name' })
+      );
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
@@ -361,7 +365,11 @@ describe('EditHashlistComponent', () => {
       component.onSubmit();
       tick();
 
-      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, jasmine.objectContaining({ name: 'Updated Name' }));
+      expect(gsSpy.update).toHaveBeenCalledWith(
+        SERV.HASHLISTS,
+        '1',
+        jasmine.objectContaining({ name: 'Updated Name' })
+      );
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/superhashlist']);
     }));
@@ -387,7 +395,7 @@ describe('EditHashlistComponent', () => {
     it('should navigate to import cracked hashes page', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      component.editedHashlistIndex = 42;
+      component.editedHashlistIndex = '42';
 
       component.importCrackedHashes();
 
@@ -399,13 +407,13 @@ describe('EditHashlistComponent', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      component.editedHashlistIndex = 42;
+      component.editedHashlistIndex = '42';
       gsSpy.chelper.and.returnValue(of({}));
 
       component.exportLeftHashes();
       tick();
 
-      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportLeftHashes', { hashlistId: 42 });
+      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportLeftHashes', { hashlistId: '42' });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Left Hashes');
       expect(unsubSpy.add).toHaveBeenCalled();
     }));
@@ -415,13 +423,13 @@ describe('EditHashlistComponent', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      component.editedHashlistIndex = 42;
+      component.editedHashlistIndex = '42';
       gsSpy.chelper.and.returnValue(of({}));
 
       component.exortPreCrackedHashes();
       tick();
 
-      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportCrackedHashes', { hashlistId: 42 });
+      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportCrackedHashes', { hashlistId: '42' });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Cracked hashes from hashlist exported');
       expect(unsubSpy.add).toHaveBeenCalled();
     }));
@@ -431,13 +439,13 @@ describe('EditHashlistComponent', () => {
     it('should call chelper and show success message', fakeAsync(() => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      component.editedHashlistIndex = 42;
+      component.editedHashlistIndex = '42';
       gsSpy.chelper.and.returnValue(of({}));
 
       component.exportWordlist();
       tick();
 
-      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportWordlist', { hashlistId: 42 });
+      expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportWordlist', { hashlistId: '42' });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Wordlist');
       expect(unsubSpy.add).toHaveBeenCalled();
     }));
@@ -453,7 +461,7 @@ describe('EditHashlistComponent', () => {
       routerSpy.serializeUrl.and.returnValue('/');
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      component.editedHashlistIndex = 42;
+      component.editedHashlistIndex = '42';
       tick();
       fixture.detectChanges();
 
@@ -468,7 +476,7 @@ describe('EditHashlistComponent', () => {
       expect([...linkByTitle.keys()]).toEqual(['Hashes', 'Cracked', 'Remaining']);
       // Hashes links to the unfiltered list; Cracked/Remaining pack the filter into
       // the :id segment (split on '?' in hashes.component.ts) for cracked/uncracked views.
-      expect(linkByTitle.get('Hashes')).toEqual(['/hashlists', 'hashes', 'hashlists', 42]);
+      expect(linkByTitle.get('Hashes')).toEqual(['/hashlists', 'hashes', 'hashlists', '42']);
       expect(linkByTitle.get('Cracked')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?cracked']);
       expect(linkByTitle.get('Remaining')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?uncracked']);
     }));

@@ -4,6 +4,7 @@ import { catchError, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
+import { PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -16,7 +17,7 @@ import { IParamBuilder } from '@services/params/builder-types.service';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
-  private _superTaskId = 0;
+  private _superTaskId = '';
   private _reverseQuery = false;
   private _currentFilter: Filter | null = null;
 
@@ -24,7 +25,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * Set the supertask ID to filter pre tasks for
    * @param superTaskId
    */
-  setSuperTaskId(superTaskId: number): void {
+  setSuperTaskId(superTaskId: string): void {
     this._superTaskId = superTaskId;
   }
 
@@ -52,7 +53,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     const activeFilter = query || this._currentFilter;
 
     try {
-      if (this._superTaskId === 0) {
+      if (!this._superTaskId) {
         let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
         params = this.applyMaskImportFilter(params);
         params = this.applyFilterWithPaginationReset(params, activeFilter, query);
@@ -130,7 +131,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     }
   }
 
-  private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask | null> {
+  private async loadSupertask(superTaskId: string, params: RequestParams): Promise<JSuperTask | null> {
     const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
     try {
       const response = await lastValueFrom<ResponseWrapper>(
@@ -156,7 +157,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @private
    */
   private async loadPretaskFiles(
-    pretaskIds: number[],
+    pretaskIds: PretaskId[],
     activeFilter?: Filter | null,
     query?: Filter
   ): Promise<JPretask[]> {

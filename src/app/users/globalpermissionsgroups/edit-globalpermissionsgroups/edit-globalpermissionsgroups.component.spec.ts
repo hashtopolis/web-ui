@@ -18,7 +18,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 import { EditGlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
 
 const MOCK_GPG: JGlobalPermissionGroup = {
-  id: 1,
+  id: '1',
   type: 'globalPermissionGroup',
   name: 'Administrators',
   permissions: {}
@@ -73,7 +73,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
 
   describe('initialization', () => {
     it('should extract the group ID from the route params', () => {
-      expect(component.editedGPGIndex).toBe(1);
+      expect(component.editedGPGIndex).toBe('1');
     });
 
     it('should set the page title', () => {
@@ -92,7 +92,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
       expect(mockGlobalService.get).toHaveBeenCalled();
       const [config, id, params] = mockGlobalService.get.calls.mostRecent().args;
       expect(config).toEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
-      expect(id).toBe(1);
+      expect(id).toBe('1');
       expect(params).toEqual(jasmine.objectContaining({ include: ['userMembers'] }));
     });
 

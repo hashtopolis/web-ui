@@ -15,7 +15,7 @@ describe('JsonAPISerializer', () => {
     lastLoginDate: 1752647017,
     registeredSince: 1744086356,
     sessionLifetime: 3600,
-    globalPermissionGroupId: 1,
+    globalPermissionGroupId: '1',
     yubikey: '0',
     otp1: '',
     otp2: '',
@@ -26,7 +26,7 @@ describe('JsonAPISerializer', () => {
   const singleUserBody = {
     jsonapi,
     data: {
-      id: 1,
+      id: '1',
       type: 'user',
       attributes: userAttributes
     }
@@ -36,12 +36,12 @@ describe('JsonAPISerializer', () => {
     jsonapi,
     data: [
       {
-        id: 1,
+        id: '1',
         type: 'user',
         attributes: userAttributes
       },
       {
-        id: 2,
+        id: '2',
         type: 'user',
         attributes: {
           ...userAttributes,
@@ -68,7 +68,7 @@ describe('JsonAPISerializer', () => {
     it('flattens attributes onto the root object', () => {
       const user = serializer.deserialize(singleUserBody, zUserResponse);
 
-      expect(user.id).toBe(1);
+      expect(user.id).toBe('1');
       expect(user.name).toBe('admin');
       expect(user.email).toBe('admin@localhost');
       expect(user.registeredSince).toBe(1744086356);

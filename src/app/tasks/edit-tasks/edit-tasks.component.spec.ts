@@ -25,7 +25,7 @@ const API_ENDPOINT = 'http://localhost:8080/api/v2';
 const mockTaskResponse = (): ResponseWrapper =>
   mockResponse({
     data: {
-      id: 1,
+      id: '1',
       type: 'task',
       attributes: {
         taskName: 'Test Task',
@@ -41,9 +41,9 @@ const mockTaskResponse = (): ResponseWrapper =>
         isCpuTask: false,
         useNewBench: true,
         skipKeyspace: 0,
-        crackerBinaryId: 1,
-        crackerBinaryTypeId: 1,
-        taskWrapperId: 2,
+        crackerBinaryId: '1',
+        crackerBinaryTypeId: '1',
+        taskWrapperId: '2',
         isArchived: false,
         notes: 'Test notes',
         staticChunks: 0,
@@ -183,13 +183,13 @@ describe('EditTasksComponent', () => {
 
       expect(component.updateForm.getRawValue()).toEqual(
         jasmine.objectContaining({
-          taskId: 1,
+          taskId: '1',
           forcePipe: 'No',
           staticChunks: 'No',
           skipKeyspace: 'N/A',
           keyspace: 1000,
           keyspaceProgress: 200,
-          crackerBinaryId: 1,
+          crackerBinaryId: '1',
           chunkSize: 1000,
           totalNumberOfChunks: 5
         })
@@ -224,7 +224,7 @@ describe('EditTasksComponent', () => {
       expect(component.estimatedTime).toBe(60);
       expect(component.cprogress).toBe(10);
       expect(component.tkeyspace).toBe(1000);
-      expect(component.taskWrapperId).toBe(2);
+      expect(component.taskWrapperId).toBe('2');
     }));
 
     it('should set chunkview to 0 for edit-task route', fakeAsync(() => {
@@ -406,7 +406,7 @@ describe('EditTasksComponent', () => {
 
       expect(globalServiceSpy.update).toHaveBeenCalledWith(
         SERV.TASKS,
-        1,
+        '1',
         jasmine.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
       );
       expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
@@ -494,7 +494,7 @@ describe('EditTasksComponent', () => {
       component.purgeTask();
       tick();
 
-      expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: 1 });
+      expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: '1' });
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Purged task id 1');
     }));
 

@@ -4,6 +4,7 @@ import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/cor
 import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
+import { AccessGroupId, TaskId, TaskWrapperId } from '@models/id.types';
 import { JTaskWrapperDisplayOverview, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
@@ -39,19 +40,19 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
   standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _hashlistId: number;
+  private _hashlistId: string;
 
   @Input()
-  set hashlistId(value: number) {
+  set hashlistId(value: string) {
     if (value !== this._hashlistId) {
       this._hashlistId = value;
     }
   }
   @Input()
   includeArchived = false;
-  get hashlistId(): number {
+  get hashlistId(): string {
     if (this._hashlistId === undefined) {
-      return 0;
+      return '';
     } else {
       return this._hashlistId;
     }
@@ -615,8 +616,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private bulkActionArchive(wrappers: JTaskWrapperDisplayOverview[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
-    const tasks: { id: number }[] = [];
-    const supertaskWrappers: { id: number }[] = [];
+    const tasks: { id: string }[] = [];
+    const supertaskWrappers: { id: string }[] = [];
     for (const wrapper of wrappers) {
       if (wrapper.taskType === TaskType.TASK && wrapper.taskId != null) {
         tasks.push({ id: wrapper.taskId });
@@ -707,7 +708,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
-  private updateIsArchived(taskId: number, isArchived: boolean): void {
+  private updateIsArchived(taskId: TaskId, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
@@ -717,7 +718,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     );
   }
 
-  private updateTaskWrapperIsArchived(taskWrapperId: number, isArchived: boolean): void {
+  private updateTaskWrapperIsArchived(taskWrapperId: TaskWrapperId, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS_WRAPPER, taskWrapperId, { isArchived: isArchived }).subscribe(() => {
@@ -735,7 +736,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     } catch (error) {
       // Do nothing
     }
-    let task: { id: number; priority: number };
+    let task: { id: string; priority: number };
     let serv: ServiceConfig;
 
     if (wrapper.taskType === TaskType.TASK) {
@@ -778,7 +779,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     } catch (error) {
       // Do nothing
     }
-    let task: { id: number; maxAgents: number };
+    let task: { id: string; maxAgents: number };
     let serv: ServiceConfig;
 
     if (wrapper.taskType === TaskType.TASK) {
@@ -823,7 +824,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === TaskType.TASK) {
       const displayName = wrapper.displayName ?? '';
       const isRunning = (wrapper.keyspaceProgress ?? 0) > 0; // Assuming running if progress > 0
-      const taskId = wrapper.taskId ?? 0;
+      const taskId = wrapper.taskId ?? '';
       const imageUrl = `${this.cs.getEndpoint()}${SERV.HELPER.URL}/getTaskProgressImage?task=${taskId}`;
       const totalHashes = wrapper.hashCount ?? 0;
       const crackedHashes = wrapper.cracked ?? 0;
@@ -892,7 +893,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    * @return observable containing an array of router links to be rendered in HTML
    * @private
    */
-  private renderAccessGroupLinkFromId(accessGroupId?: number, groupName?: string): Observable<HTTableRouterLink[]> {
+  private renderAccessGroupLinkFromId(
+    accessGroupId?: AccessGroupId,
+    groupName?: string
+  ): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (accessGroupId && groupName) {
       links.push({

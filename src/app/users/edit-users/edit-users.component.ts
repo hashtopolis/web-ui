@@ -56,7 +56,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   selectUserAgps: SelectOption<AccessGroupId>[];
 
   // Edit Configuration
-  editedUserIndex: number;
+  editedUserIndex: string;
   editedUserName = '';
 
   private unsubscribeService = inject(UnsubscribeService);

@@ -70,7 +70,7 @@ describe('AccessPermissionGroupsUserTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items: (JUser | UserPermissions)[] = [{ id: 1 }] as (JUser | UserPermissions)[];
+      const items: (JUser | UserPermissions)[] = [{ id: '1' }] as (JUser | UserPermissions)[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<
         (JUser | UserPermissions)[]
       >;
@@ -88,7 +88,7 @@ describe('AccessPermissionGroupsUserTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items: (JUser | UserPermissions)[] = [{ id: 1 }, { id: 2 }] as (JUser | UserPermissions)[];
+      const items: (JUser | UserPermissions)[] = [{ id: '1' }, { id: '2' }] as (JUser | UserPermissions)[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<
         (JUser | UserPermissions)[]
       >;

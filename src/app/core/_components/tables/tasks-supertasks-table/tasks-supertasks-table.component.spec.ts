@@ -105,7 +105,7 @@ describe('TasksSupertasksTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1, type: 'tasks' }] as JTask[];
+      const items = [{ id: '1', type: 'tasks' }] as JTask[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JTask[]>;
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
 
@@ -122,8 +122,8 @@ describe('TasksSupertasksTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
       const items = [
-        { id: 1, type: 'tasks' },
-        { id: 2, type: 'tasks' }
+        { id: '1', type: 'tasks' },
+        { id: '2', type: 'tasks' }
       ] as JTask[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JTask[]>;
 

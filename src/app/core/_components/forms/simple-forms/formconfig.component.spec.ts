@@ -81,9 +81,9 @@ describe('FormConfigComponent', () => {
       data: [
         {
           type: 'config',
-          id: 1,
+          id: '1',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'serverLogLevel',
             value: '30'
           }
@@ -120,9 +120,9 @@ describe('FormConfigComponent', () => {
       data: [
         {
           type: 'config',
-          id: 2,
+          id: '2',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'agentStatTension',
             value: '1'
           }
@@ -157,18 +157,18 @@ describe('FormConfigComponent', () => {
       data: [
         {
           type: 'config',
-          id: 3,
+          id: '3',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'hashcatBrainEnable',
             value: '1'
           }
         },
         {
           type: 'config',
-          id: 4,
+          id: '4',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'agentStatTension',
             value: '0'
           }
@@ -212,9 +212,9 @@ describe('FormConfigComponent', () => {
       data: [
         {
           type: 'config',
-          id: 5,
+          id: '5',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'timefmt',
             value: 'yyyy-MM-dd HH:mm:ss'
           }
@@ -244,18 +244,18 @@ describe('FormConfigComponent', () => {
       data: [
         {
           type: 'config',
-          id: 11,
+          id: '11',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'hashcatBrainEnable',
             value: '1'
           }
         },
         {
           type: 'config',
-          id: 12,
+          id: '12',
           attributes: {
-            configSectionId: 1,
+            configSectionId: '1',
             item: 'timefmt',
             value: 'yyyy-MM-dd HH:mm:ss'
           }
@@ -269,8 +269,8 @@ describe('FormConfigComponent', () => {
 
     expect(component.isloaded).toBeTrue();
     expect(component.formIds).toEqual({
-      hashcatBrainEnable: 11,
-      timefmt: 12
+      hashcatBrainEnable: '11',
+      timefmt: '12'
     });
     expect(component.formValues).toEqual({
       hashcatBrainEnable: true,
@@ -285,8 +285,8 @@ describe('FormConfigComponent', () => {
       hashcatBrainEnable: true
     } as unknown as typeof component.formValues;
     component.formIds = {
-      serverLogLevel: 21,
-      hashcatBrainEnable: 22
+      serverLogLevel: '21',
+      hashcatBrainEnable: '22'
     };
 
     globalService.update.and.returnValue(of({} as object));
@@ -298,8 +298,8 @@ describe('FormConfigComponent', () => {
 
     expect(globalService.update).toHaveBeenCalledTimes(2);
     expect(globalService.update.calls.allArgs()).toEqual([
-      [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
-      [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
+      [SERV.CONFIGS, '21', { item: 'serverLogLevel', value: '30' }],
+      [SERV.CONFIGS, '22', { item: 'hashcatBrainEnable', value: '0' }]
     ]);
     // serverLogLevel is not a UisCacheName, the component forwards every saved key regardless
     expect(uiConfigService.onUpdatingCheck).toHaveBeenCalledWith('serverLogLevel' as unknown as UisCacheName);
@@ -316,7 +316,7 @@ describe('FormConfigComponent', () => {
       chunktime: 700 as unknown as string | boolean
     } as unknown as typeof component.formValues;
     component.formIds = {
-      chunktime: 3
+      chunktime: '3'
     };
 
     globalService.update.and.returnValue(of({} as object));
@@ -325,11 +325,11 @@ describe('FormConfigComponent', () => {
 
     // The field with an id still saves...
     expect(globalService.update).toHaveBeenCalledTimes(1);
-    expect(globalService.update).toHaveBeenCalledWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
+    expect(globalService.update).toHaveBeenCalledWith(SERV.CONFIGS, '3', { item: 'chunktime', value: '800' });
     // ...the one without an id is never PATCHed with an undefined id...
     expect(globalService.update).not.toHaveBeenCalledWith(
       SERV.CONFIGS,
-      undefined as unknown as number,
+      undefined as unknown as string,
       jasmine.objectContaining({ item: 'ruleSplitAlways' })
     );
     // ...and the user is told it could not be saved.
@@ -345,8 +345,8 @@ describe('FormConfigComponent', () => {
       hashcatBrainEnable: true
     } as unknown as typeof component.formValues;
     component.formIds = {
-      serverLogLevel: 21,
-      hashcatBrainEnable: 22
+      serverLogLevel: '21',
+      hashcatBrainEnable: '22'
     };
 
     component.onFormSubmit({
@@ -364,7 +364,7 @@ describe('FormConfigComponent', () => {
       serverLogLevel: 20 as unknown as string | boolean
     } as unknown as typeof component.formValues;
     component.formIds = {
-      serverLogLevel: 21
+      serverLogLevel: '21'
     };
 
     globalService.update.and.returnValue(throwError(() => new Error('update failed')));

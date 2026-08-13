@@ -13,9 +13,9 @@ import { BaseDataSource } from '@datasources/base.datasource';
 type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed' | 'cracked'>;
 
 export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
-  private _supertTaskId = 0;
+  private _supertTaskId = '';
 
-  setSuperTaskId(supertTaskId: number) {
+  setSuperTaskId(supertTaskId: string) {
     this._supertTaskId = supertTaskId;
   }
 
@@ -43,7 +43,9 @@ export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const subtasks: Subtask[] = this.serializer.deserialize(response, zTaskListResponse, params);
+          // `cracked` is a documented task aggregate but missing from the spec's task attributes,
+          // so the deserialized type cannot carry it.
+          const subtasks = this.serializer.deserialize(response, zTaskListResponse, params) as unknown as Subtask[];
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

@@ -129,7 +129,7 @@ describe('NewFilesComponent', () => {
       expect(form.controls.filename.value).toBe('');
       expect(form.controls.isSecret.value).toBeTrue();
       expect(form.controls.fileType.value).toBe(expectedFileType);
-      expect(form.controls.accessGroupId.value).toBe(1);
+      expect(form.controls.accessGroupId.value).toBe('1');
       expect(form.controls.sourceType.value).toBe('import');
       expect(form.controls.sourceData.value).toBe('');
     });
@@ -199,7 +199,7 @@ describe('NewFilesComponent', () => {
           filename: file.name,
           isSecret: true,
           fileType: component.form.controls.fileType.value,
-          accessGroupId: 1,
+          accessGroupId: '1',
           sourceType: 'import',
           sourceData: file.name
         },
@@ -247,23 +247,23 @@ describe('NewFilesComponent', () => {
     it('should correctly transform access group API data to select options', () => {
       // Simulate deserialized access groups (what JsonAPISerializer would produce)
       const deserialized = [
-        { id: 1, groupName: 'Group A' },
-        { id: 3, groupName: 'Group C' }
+        { id: '1', groupName: 'Group A' },
+        { id: '3', groupName: 'Group C' }
       ];
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }));
-      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }));
+      expect(result[0]).toEqual(jasmine.objectContaining({ id: '1', name: 'Group A' }));
+      expect(result[1]).toEqual(jasmine.objectContaining({ id: '3', name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
       // The user belongs to 2 out of 5 total groups.
       // We mock loadData to bypass JsonAPISerializer (which needs an injection
       // context unavailable in tests) and verify the dropdown binding.
-      const userScopedGroups: SelectOption<number>[] = [
-        { id: 1, name: 'Group A' },
-        { id: 3, name: 'Group C' }
+      const userScopedGroups: SelectOption<string>[] = [
+        { id: '1', name: 'Group A' },
+        { id: '3', name: 'Group C' }
       ];
 
       TestBed.overrideProvider(ActivatedRoute, {

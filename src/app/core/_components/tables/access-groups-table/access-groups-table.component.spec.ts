@@ -156,10 +156,10 @@ describe('AccessGroupsTableComponent', () => {
 
   describe('NAME column routerLink', () => {
     it('should link to the access group edit page', (done) => {
-      const group = { id: 3, groupName: 'TestGroup' } as JAccessGroup;
+      const group = { id: '3', groupName: 'TestGroup' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAME)!;
       (col.routerLink!(group) as Observable<{ routerLink: unknown[]; label: string }[]>).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/users', 'access-groups', 3, 'edit']);
+        expect(links[0].routerLink).toEqual(['/users', 'access-groups', '3', 'edit']);
         expect(links[0].label).toBe('TestGroup');
         done();
       });
@@ -176,12 +176,12 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('should display the count of userMembers when present', () => {
-      const group = { id: 1, groupName: 'G', userMembers: [{}, {}, {}] } as unknown as JAccessGroup;
+      const group = { id: '1', groupName: 'G', userMembers: [{}, {}, {}] } as unknown as JAccessGroup;
       expect(col.render!(group)).toBe('3');
     });
 
     it('should display "-" when userMembers is undefined', () => {
-      const group = { id: 1, groupName: 'G' } as JAccessGroup;
+      const group = { id: '1', groupName: 'G' } as JAccessGroup;
       expect(col.render!(group)).toBe('-');
     });
   });
@@ -196,12 +196,12 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('should display the count of agentMembers when present', () => {
-      const group = { id: 1, groupName: 'G', agentMembers: [{}, {}] } as unknown as JAccessGroup;
+      const group = { id: '1', groupName: 'G', agentMembers: [{}, {}] } as unknown as JAccessGroup;
       expect(col.render!(group)).toBe('2');
     });
 
     it('should display "-" when agentMembers is undefined', () => {
-      const group = { id: 1, groupName: 'G' } as JAccessGroup;
+      const group = { id: '1', groupName: 'G' } as JAccessGroup;
       expect(col.render!(group)).toBe('-');
     });
   });
@@ -210,37 +210,37 @@ describe('AccessGroupsTableComponent', () => {
 
   describe('column export callbacks', () => {
     it('ID column should export the id as a string', async () => {
-      const group = { id: 7, groupName: 'G' } as JAccessGroup;
+      const group = { id: '7', groupName: 'G' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.ID)!;
       expect(await col.export!(group)).toBe('7');
     });
 
     it('NAME column should export groupName', async () => {
-      const group = { id: 7, groupName: 'MyGroup' } as JAccessGroup;
+      const group = { id: '7', groupName: 'MyGroup' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAME)!;
       expect(await col.export!(group)).toBe('MyGroup');
     });
 
     it('NUSERS column should export the count of userMembers', async () => {
-      const group = { id: 1, groupName: 'G', userMembers: [{}, {}] } as unknown as JAccessGroup;
+      const group = { id: '1', groupName: 'G', userMembers: [{}, {}] } as unknown as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NUSERS)!;
       expect(await col.export!(group)).toBe('2');
     });
 
     it('NUSERS column should export "-" when userMembers is undefined', async () => {
-      const group = { id: 1, groupName: 'G' } as JAccessGroup;
+      const group = { id: '1', groupName: 'G' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NUSERS)!;
       expect(await col.export!(group)).toBe('-');
     });
 
     it('NAGENTS column should export the count of agentMembers', async () => {
-      const group = { id: 1, groupName: 'G', agentMembers: [{}] } as unknown as JAccessGroup;
+      const group = { id: '1', groupName: 'G', agentMembers: [{}] } as unknown as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAGENTS)!;
       expect(await col.export!(group)).toBe('1');
     });
 
     it('NAGENTS column should export "-" when agentMembers is undefined', async () => {
-      const group = { id: 1, groupName: 'G' } as JAccessGroup;
+      const group = { id: '1', groupName: 'G' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAGENTS)!;
       expect(await col.export!(group)).toBe('-');
     });
@@ -302,7 +302,7 @@ describe('AccessGroupsTableComponent', () => {
 
   describe('exportActionClicked()', () => {
     it('should delegate to exportService with the correct filename', () => {
-      const groups = [{ id: 1, groupName: 'G1' }] as JAccessGroup[];
+      const groups = [{ id: '1', groupName: 'G1' }] as JAccessGroup[];
       const event: ActionMenuEvent<JAccessGroup[]> = {
         data: groups,
         menuItem: { action: 'excel', label: '' }
@@ -320,8 +320,8 @@ describe('AccessGroupsTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
       const groups = [
-        { id: 1, groupName: 'G1' },
-        { id: 2, groupName: 'G2' }
+        { id: '1', groupName: 'G1' },
+        { id: '2', groupName: 'G2' }
       ] as JAccessGroup[];
       const event: ActionMenuEvent<JAccessGroup[]> = {
         data: groups,
@@ -343,7 +343,7 @@ describe('AccessGroupsTableComponent', () => {
   describe('rowActionClicked()', () => {
     describe('DELETE action', () => {
       it('should open a confirmation dialog', () => {
-        const group = { id: 1, groupName: 'TestGroup' } as JAccessGroup;
+        const group = { id: '1', groupName: 'TestGroup' } as JAccessGroup;
         const subject = stubDialogAndTrigger(mockDialog, () =>
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
@@ -352,7 +352,7 @@ describe('AccessGroupsTableComponent', () => {
       });
 
       it('dialog title should contain the access group name', () => {
-        const group = { id: 1, groupName: 'TestGroup' } as JAccessGroup;
+        const group = { id: '1', groupName: 'TestGroup' } as JAccessGroup;
         const subject = stubDialogAndTrigger(mockDialog, () =>
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
@@ -362,7 +362,7 @@ describe('AccessGroupsTableComponent', () => {
       });
 
       it('dialog should be opened with warn: true', () => {
-        const group = { id: 1, groupName: 'TestGroup' } as JAccessGroup;
+        const group = { id: '1', groupName: 'TestGroup' } as JAccessGroup;
         const subject = stubDialogAndTrigger(mockDialog, () =>
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
@@ -374,17 +374,17 @@ describe('AccessGroupsTableComponent', () => {
 
     describe('EDIT action', () => {
       it('should navigate to the access group edit page', (done) => {
-        const group = { id: 2, groupName: 'EditGroup' } as JAccessGroup;
+        const group = { id: '2', groupName: 'EditGroup' } as JAccessGroup;
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
         setTimeout(() => {
-          expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/users', 'access-groups', 2, 'edit']);
+          expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/users', 'access-groups', '2', 'edit']);
           done();
         });
       });
 
       it('should NOT open a dialog', () => {
-        const group = { id: 2, groupName: 'EditGroup' } as JAccessGroup;
+        const group = { id: '2', groupName: 'EditGroup' } as JAccessGroup;
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
         expect(mockDialog.open).not.toHaveBeenCalled();
       });
@@ -396,8 +396,8 @@ describe('AccessGroupsTableComponent', () => {
   describe('bulkActionClicked()', () => {
     it('should open a confirmation dialog for DELETE', () => {
       const groups = [
-        { id: 1, groupName: 'G1' },
-        { id: 2, groupName: 'G2' }
+        { id: '1', groupName: 'G1' },
+        { id: '2', groupName: 'G2' }
       ] as JAccessGroup[];
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
@@ -408,8 +408,8 @@ describe('AccessGroupsTableComponent', () => {
 
     it('dialog title should contain the count of groups to delete', () => {
       const groups = [
-        { id: 1, groupName: 'G1' },
-        { id: 2, groupName: 'G2' }
+        { id: '1', groupName: 'G1' },
+        { id: '2', groupName: 'G2' }
       ] as JAccessGroup[];
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
@@ -420,7 +420,7 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('dialog should use groupName as the listAttribute', () => {
-      const groups = [{ id: 1, groupName: 'G1' }] as JAccessGroup[];
+      const groups = [{ id: '1', groupName: 'G1' }] as JAccessGroup[];
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -430,7 +430,7 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('dialog should be opened with warn: true', () => {
-      const groups = [{ id: 1, groupName: 'G1' }] as JAccessGroup[];
+      const groups = [{ id: '1', groupName: 'G1' }] as JAccessGroup[];
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -443,7 +443,7 @@ describe('AccessGroupsTableComponent', () => {
   // Row delete (after dialog confirmed)
 
   describe('row delete — single access group', () => {
-    const group = { id: 10, groupName: 'ToDelete' } as JAccessGroup;
+    const group = { id: '10', groupName: 'ToDelete' } as JAccessGroup;
 
     function triggerConfirmedRowDelete(apiResponse$: Observable<object>) {
       mockGlobalService.delete.and.returnValue(apiResponse$);
@@ -493,8 +493,8 @@ describe('AccessGroupsTableComponent', () => {
 
   describe('bulk delete — multiple access groups', () => {
     const groups = [
-      { id: 10, groupName: 'G10' },
-      { id: 20, groupName: 'G20' }
+      { id: '10', groupName: 'G10' },
+      { id: '20', groupName: 'G20' }
     ] as JAccessGroup[];
 
     function triggerConfirmedBulkDelete(apiResponse$: Observable<object>) {

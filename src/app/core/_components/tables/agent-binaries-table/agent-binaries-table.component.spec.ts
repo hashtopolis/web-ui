@@ -72,7 +72,7 @@ describe('AgentBinariesTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JAgentBinary[];
+      const items = [{ id: '1' }] as JAgentBinary[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgentBinary[]>;
       component.table.displayedColumns = [
         AgentBinariesTableCol.ID + '',
@@ -95,7 +95,7 @@ describe('AgentBinariesTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = [AgentBinariesTableCol.ID + '', AgentBinariesTableCol.TYPE + ''];
-      const items = [{ id: 1 }, { id: 2 }] as JAgentBinary[];
+      const items = [{ id: '1' }, { id: '2' }] as JAgentBinary[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgentBinary[]>;
 
       component.exportActionClicked(event);

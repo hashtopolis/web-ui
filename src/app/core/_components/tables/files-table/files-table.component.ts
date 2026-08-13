@@ -37,18 +37,18 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _editIndex: number;
+  private _editIndex: string;
 
   @Input() fileType: FileType = 0;
   @Input()
-  set editIndex(value: number) {
+  set editIndex(value: string) {
     if (value !== this._editIndex) {
       this._editIndex = value;
     }
   }
-  get editIndex(): number {
+  get editIndex(): string {
     if (this._editIndex === undefined) {
-      return 0;
+      return '';
     } else {
       return this._editIndex;
     }

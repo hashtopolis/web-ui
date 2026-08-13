@@ -22,21 +22,21 @@ import { mockResponse } from '@src/app/testing/mock-response';
 import { EditUsersComponent } from '@src/app/users/edit-users/edit-users.component';
 
 const MOCK_PERMISSION_GROUP: JGlobalPermissionGroup = {
-  id: 1,
+  id: '1',
   name: 'Administrator',
   permissions: {}
 } as JGlobalPermissionGroup;
 
 const MOCK_USER: JUser = {
-  id: 1,
+  id: '1',
   name: 'admin',
   email: 'admin@localhost',
   registeredSince: 1704067200,
   lastLoginDate: 1716115200,
-  globalPermissionGroupId: 1,
+  globalPermissionGroupId: '1',
   globalPermissionGroup: MOCK_PERMISSION_GROUP,
   isValid: true,
-  accessGroups: [{ id: 1, groupName: 'Default Group' }],
+  accessGroups: [{ id: '1', groupName: 'Default Group' }],
   isComputedPassword: false,
   otp1: '',
   otp2: '',
@@ -126,7 +126,7 @@ describe('EditUsersComponent', () => {
 
   describe('initialization', () => {
     it('should extract the user ID from the route params', () => {
-      expect(component.editedUserIndex).toBe(1);
+      expect(component.editedUserIndex).toBe('1');
     });
 
     it('should set the page title', () => {

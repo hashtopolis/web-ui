@@ -27,7 +27,7 @@ import {
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 export interface ApplyHashlistForm {
-  supertaskTemplateId: FormControl<number | null>;
+  supertaskTemplateId: FormControl<string | null>;
   hashlistId: FormControl<HashlistId | null>;
   crackerBinaryId: FormControl<CrackerBinaryId | null>;
   crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
@@ -59,7 +59,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
   // Get Supertask Index
-  editedIndex: number;
+  editedIndex: string;
 
   /**
    * Constructor for the ApplyHashlistComponent.
@@ -117,7 +117,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = new FormGroup<ApplyHashlistForm>({
-      supertaskTemplateId: new FormControl<number | null>(null),
+      supertaskTemplateId: new FormControl<string | null>(null),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
       crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
@@ -133,9 +133,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   initForm() {
     this.form = new FormGroup<ApplyHashlistForm>({
-      supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
+      supertaskTemplateId: new FormControl<string | null>(this.editedIndex),
       hashlistId: new FormControl<HashlistId | null>(null),
-      crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>('1'),
       crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
     });
 
@@ -194,7 +194,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
           new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
         );
         this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-        let id: number = 0;
+        let id = '';
         const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
         if (hashcatOption?.id) {
           id = hashcatOption.id;
@@ -227,7 +227,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    *
    * @param id - The selected Cracker Binary ID.
    */
-  handleChangeBinary(id: number) {
+  handleChangeBinary(id: CrackerBinaryId) {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
@@ -250,10 +250,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       const formValue = this.form.value;
       this.isCreatingLoading = true;
       // Adapt the form structure
+      // The createSupertask helper takes numeric ids.
       const adaptedFormValue = {
-        supertaskTemplateId: formValue.supertaskTemplateId,
-        hashlistId: formValue.hashlistId,
-        crackerVersionId: formValue.crackerBinaryTypeId
+        supertaskTemplateId: formValue.supertaskTemplateId != null ? Number(formValue.supertaskTemplateId) : null,
+        hashlistId: formValue.hashlistId != null ? Number(formValue.hashlistId) : null,
+        crackerVersionId: formValue.crackerBinaryTypeId != null ? Number(formValue.crackerBinaryTypeId) : null
       };
       const onSubmitSubscription$ = this.gs.chelper(SERV.HELPER, 'createSupertask', adaptedFormValue).subscribe(() => {
         this.alert.showSuccessMessage('New Supertask created');

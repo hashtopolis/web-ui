@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type FileCreate = {
   data: {
@@ -9,7 +9,7 @@ export type FileCreate = {
       filename: string;
       isSecret: boolean;
       fileType: 0 | 1 | 2 | 100;
-      accessGroupId: number;
+      accessGroupId: string;
     };
   };
 };
@@ -18,7 +18,7 @@ export type FilePatch = {
   data: {
     type: 'file';
     attributes: {
-      accessGroupId?: number;
+      accessGroupId?: string;
       fileType?: 0 | 1 | 2 | 100;
       filename?: string;
       isSecret?: boolean;
@@ -26,44 +26,63 @@ export type FilePatch = {
   };
 };
 
+export type FilePatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'file';
+    attributes: {
+      accessGroupId?: string;
+      fileType?: 0 | 1 | 2 | 100;
+      filename?: string;
+      isSecret?: boolean;
+    };
+  }>;
+};
+
+export type FileDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'file';
+  }>;
+};
+
 export type FileResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'file';
     attributes: {
       filename: string;
       size: number;
       isSecret: boolean;
       fileType: 0 | 1 | 2 | 100;
-      accessGroupId: number;
+      accessGroupId: string;
       lineCount: number;
     };
-  };
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
     };
   };
   included?: Array<{
-    id: number;
+    id: string;
     type: 'accessGroup';
     attributes: {
       groupName: string;
@@ -72,32 +91,42 @@ export type FileResponse = {
 };
 
 export type FileSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
   data: {
-    id: number;
+    id: string;
     type: 'file';
     attributes: {
       filename: string;
       size: number;
       isSecret: boolean;
       fileType: 0 | 1 | 2 | 100;
-      accessGroupId: number;
+      accessGroupId: string;
       lineCount: number;
     };
-  };
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
     };
   };
   included?: Array<{
-    id: number;
+    id: string;
     type: 'accessGroup';
     attributes: {
       groupName: string;
@@ -110,58 +139,38 @@ export type FilePostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'file';
-    attributes: {
-      filename: string;
-      size: number;
-      isSecret: boolean;
-      fileType: 0 | 1 | 2 | 100;
-      accessGroupId: number;
-      lineCount: number;
-    };
-  };
-};
-
-export type FileListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'file';
     attributes: {
       filename: string;
       size: number;
       isSecret: boolean;
       fileType: 0 | 1 | 2 | 100;
-      accessGroupId: number;
+      accessGroupId: string;
       lineCount: number;
     };
-  }>;
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
     };
   };
   included?: Array<{
-    id: number;
+    id: string;
     type: 'accessGroup';
     attributes: {
       groupName: string;
@@ -169,22 +178,98 @@ export type FileListResponse = {
   }>;
 };
 
+export type FileListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'file';
+    attributes: {
+      filename: string;
+      size: number;
+      isSecret: boolean;
+      fileType: 0 | 1 | 2 | 100;
+      accessGroupId: string;
+      lineCount: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: string;
+    type: 'accessGroup';
+    attributes: {
+      groupName: string;
+    };
+  }>;
+};
+
+export type FileCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type FileRelationAccessGroup = {
   data: {
     type: 'accessGroup';
-    id: number;
+    id: string;
   };
 };
 
 export type FileRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
-    id: number;
+    id: string;
   };
 };
 
 export type DeleteFilesData = {
-  body?: never;
+  body: FileDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/files';
@@ -199,43 +284,65 @@ export type DeleteFilesErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteFilesError = DeleteFilesErrors[keyof DeleteFilesErrors];
 
 export type DeleteFilesResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteFilesResponse = DeleteFilesResponses[keyof DeleteFilesResponses];
 
 export type GetFilesData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"fileId": 123}}` -> `eyJwcmltYXJ5Ijp7ImZpbGVJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"fileId": 123}}` -> `eyJwcmltYXJ5Ijp7ImZpbGVJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[fileId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: accessGroup
      */
-    include?: string;
+    include?: Array<'accessGroup'>;
   };
   url: '/api/v2/ui/files';
 };
@@ -249,6 +356,10 @@ export type GetFilesErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetFilesError = GetFilesErrors[keyof GetFilesErrors];
@@ -263,7 +374,7 @@ export type GetFilesResponses = {
 export type GetFilesResponse = GetFilesResponses[keyof GetFilesResponses];
 
 export type PatchFilesData = {
-  body?: never;
+  body: FilePatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/files';
@@ -278,16 +389,30 @@ export type PatchFilesErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchFilesError = PatchFilesErrors[keyof PatchFilesErrors];
 
 export type PatchFilesResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchFilesResponse = PatchFilesResponses[keyof PatchFilesResponses];
 
 export type PostFilesData = {
   body: FileCreate;
@@ -305,6 +430,14 @@ export type PostFilesErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostFilesError = PostFilesErrors[keyof PostFilesErrors];
@@ -323,27 +456,15 @@ export type GetFilesCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[fileId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/files/count';
 };
@@ -357,6 +478,10 @@ export type GetFilesCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetFilesCountError = GetFilesCountErrors[keyof GetFilesCountErrors];
@@ -365,7 +490,7 @@ export type GetFilesCountResponses = {
   /**
    * successful operation
    */
-  200: FileListResponse;
+  200: FileCountResponse;
 };
 
 export type GetFilesCountResponse = GetFilesCountResponses[keyof GetFilesCountResponses];
@@ -390,9 +515,13 @@ export type GetFilesByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetFilesByIdByRelationError = GetFilesByIdByRelationErrors[keyof GetFilesByIdByRelationErrors];
@@ -426,9 +555,13 @@ export type GetFilesByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetFilesByIdRelationshipsByRelationError =
@@ -464,9 +597,17 @@ export type PatchFilesByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchFilesByIdRelationshipsByRelationError =
@@ -483,9 +624,7 @@ export type PatchFilesByIdRelationshipsByRelationResponse =
   PatchFilesByIdRelationshipsByRelationResponses[keyof PatchFilesByIdRelationshipsByRelationResponses];
 
 export type DeleteFilesByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -503,9 +642,13 @@ export type DeleteFilesByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteFilesByIdError = DeleteFilesByIdErrors[keyof DeleteFilesByIdErrors];
@@ -526,9 +669,9 @@ export type GetFilesByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: accessGroup
      */
-    include?: string;
+    include?: Array<'accessGroup'>;
   };
   url: '/api/v2/ui/files/{id}';
 };
@@ -543,9 +686,13 @@ export type GetFilesByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetFilesByIdError = GetFilesByIdErrors[keyof GetFilesByIdErrors];
@@ -578,9 +725,17 @@ export type PatchFilesByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchFilesByIdError = PatchFilesByIdErrors[keyof PatchFilesByIdErrors];

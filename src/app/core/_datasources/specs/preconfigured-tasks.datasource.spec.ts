@@ -25,18 +25,18 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_FILE: JFile = {
-  id: 8,
+  id: '8',
   type: 'file',
   filename: 'wordlist1.txt',
   size: 1069609,
   isSecret: false,
   fileType: 0,
-  accessGroupId: 1,
+  accessGroupId: '1',
   lineCount: 128417
 } as unknown as JFile;
 
 const MOCK_PRETASK: JPretask = {
-  id: 7,
+  id: '7',
   type: 'preTask',
   taskName: 'Preconf_Wordlist1_dive-rule',
   attackCmd: '#HL# wordlist1.txt -r dive.rule',
@@ -49,19 +49,19 @@ const MOCK_PRETASK: JPretask = {
   priority: 0,
   maxAgents: 0,
   isMaskImport: false,
-  crackerBinaryTypeId: 1,
+  crackerBinaryTypeId: '1',
   pretaskFiles: [MOCK_FILE]
 } as unknown as JPretask;
 
 const MOCK_SUPERTASK: JSuperTask = {
-  id: 1,
+  id: '1',
   type: 'supertask',
   supertaskName: 'Test Supertask',
   pretasks: [MOCK_PRETASK]
 } as unknown as JSuperTask;
 
 const MOCK_SUPERTASK_NO_PRETASKS: JSuperTask = {
-  id: 2,
+  id: '2',
   type: 'supertask',
   supertaskName: 'Empty Supertask',
   pretasks: []
@@ -122,8 +122,8 @@ describe('PreTasksDataSource', () => {
 
   describe('setSuperTaskId()', () => {
     it('should store the provided supertask ID', () => {
-      dataSource.setSuperTaskId(42);
-      expect(dataSource['_superTaskId']).toBe(42);
+      dataSource.setSuperTaskId('42');
+      expect(dataSource['_superTaskId']).toBe('42');
     });
   });
 
@@ -259,7 +259,7 @@ describe('PreTasksDataSource', () => {
 
   describe('loadAll() — supertask mode (assigned pretasks, reverseQuery=false)', () => {
     beforeEach(() => {
-      dataSource.setSuperTaskId(1);
+      dataSource.setSuperTaskId('1');
     });
 
     it('should call service.get with SERV.SUPER_TASKS to fetch the supertask', async () => {
@@ -267,7 +267,7 @@ describe('PreTasksDataSource', () => {
       expect(gsSpy.get).toHaveBeenCalled();
       const [serviceConfig, entityId] = gsSpy.get.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.SUPER_TASKS);
-      expect(entityId).toBe(1);
+      expect(entityId).toBe('1');
     });
 
     it('should include pretasks in the supertask request params', async () => {
@@ -315,7 +315,7 @@ describe('PreTasksDataSource', () => {
 
   describe('loadAll() — supertask mode (assigned pretasks, reverseQuery=true)', () => {
     beforeEach(() => {
-      dataSource.setSuperTaskId(1);
+      dataSource.setSuperTaskId('1');
       dataSource.setReverseQuery(true);
     });
 
@@ -357,7 +357,7 @@ describe('PreTasksDataSource', () => {
 
   describe('loadAll() — supertask mode (no assigned pretasks, reverseQuery=false)', () => {
     beforeEach(() => {
-      dataSource.setSuperTaskId(2);
+      dataSource.setSuperTaskId('2');
       deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
         if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
@@ -386,7 +386,7 @@ describe('PreTasksDataSource', () => {
 
   describe('loadAll() — supertask mode (no assigned pretasks, reverseQuery=true)', () => {
     beforeEach(() => {
-      dataSource.setSuperTaskId(2);
+      dataSource.setSuperTaskId('2');
       dataSource.setReverseQuery(true);
       deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
@@ -422,7 +422,7 @@ describe('PreTasksDataSource', () => {
 
   describe('loadAll() — supertask fetch error', () => {
     beforeEach(() => {
-      dataSource.setSuperTaskId(1);
+      dataSource.setSuperTaskId('1');
       gsSpy.get.and.returnValue(throwError(() => new Error('supertask error')));
     });
 

@@ -24,26 +24,26 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_FILE: JFile = {
-  id: 2,
+  id: '2',
   type: 'file',
   filename: 'wordlist1.txt',
   size: 29825361920,
   isSecret: false,
   fileType: FileType.WORDLIST,
-  accessGroupId: 1,
+  accessGroupId: '1',
   lineCount: 2473033125,
-  accessGroup: { id: 1, groupName: 'Default Group' }
+  accessGroup: { id: '1', groupName: 'Default Group' }
 } as unknown as JFile;
 
 const MOCK_TASK: JTask = {
-  id: 100,
+  id: '100',
   type: 'task',
   taskName: 'Test Task',
   files: [MOCK_FILE]
 } as unknown as JTask;
 
 const MOCK_PRETASK: JPretask = {
-  id: 200,
+  id: '200',
   type: 'pretask',
   taskName: 'Test Pretask',
   pretaskFiles: [MOCK_FILE]
@@ -117,8 +117,8 @@ describe('FilesDataSource', () => {
 
   describe('setEditValues()', () => {
     it('should store the editIndex and editType', () => {
-      dataSource.setEditValues(42, 1);
-      expect(dataSource['editIndex']).toBe(42);
+      dataSource.setEditValues('42', 1);
+      expect(dataSource['editIndex']).toBe('42');
       expect(dataSource['editType']).toBe(1);
     });
   });
@@ -234,7 +234,7 @@ describe('FilesDataSource', () => {
 
   describe('loadAll() — task detail mode (editType 0)', () => {
     beforeEach(() => {
-      dataSource.setEditValues(100, 0);
+      dataSource.setEditValues('100', 0);
     });
 
     it('should call service.get with SERV.TASKS (not getAll)', () => {
@@ -254,7 +254,7 @@ describe('FilesDataSource', () => {
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
       const [, entityId] = gsSpy.get.calls.mostRecent().args;
-      expect(entityId).toBe(100);
+      expect(entityId).toBe('100');
     });
 
     it('should populate data with task.files', () => {
@@ -273,7 +273,7 @@ describe('FilesDataSource', () => {
 
   describe('loadAll() — pretask detail mode (editType 1)', () => {
     beforeEach(() => {
-      dataSource.setEditValues(200, 1);
+      dataSource.setEditValues('200', 1);
     });
 
     it('should call service.get with SERV.PRETASKS (not getAll)', () => {
@@ -293,7 +293,7 @@ describe('FilesDataSource', () => {
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
       const [, entityId] = gsSpy.get.calls.mostRecent().args;
-      expect(entityId).toBe(200);
+      expect(entityId).toBe('200');
     });
 
     it('should populate data with pretask.pretaskFiles', () => {

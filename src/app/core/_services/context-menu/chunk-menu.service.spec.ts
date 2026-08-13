@@ -12,12 +12,12 @@ describe('ChunkContextMenuService', () => {
 
   const buildChunk = (isRunning: boolean): JChunk =>
     ({
-      id: 1,
+      id: '1',
       type: 'chunk',
-      taskId: 1,
+      taskId: '1',
       skip: 0,
       length: 100,
-      agentId: 1,
+      agentId: '1',
       dispatchTime: 0,
       solveTime: 0,
       checkpoint: 0,

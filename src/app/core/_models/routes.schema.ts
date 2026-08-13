@@ -144,7 +144,8 @@ export const zNewPretaskRouteData = z.object({
   kind: z.enum(NewPretaskRouteKind)
 });
 
-export const zRouteId = z.coerce.number().int().positive();
+/** Resource ids are json:api strings; route params carry them verbatim. */
+export const zRouteId = z.string().regex(/^[1-9]\d*$/);
 
 export const zIdRouteParams = z.object({
   id: zRouteId

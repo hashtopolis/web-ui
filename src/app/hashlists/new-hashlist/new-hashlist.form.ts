@@ -38,7 +38,7 @@ export const getNewHashlistForm = () => {
     separator: new FormControl<string>(':', { nonNullable: true }),
     isSalted: new FormControl<boolean>(false, { nonNullable: true }),
     isHexSalt: new FormControl<boolean>(false, { nonNullable: true }),
-    accessGroupId: new FormControl<number | null>(null, [Validators.required]),
+    accessGroupId: new FormControl<AccessGroupId | null>(null, [Validators.required]),
     useBrain: new FormControl<boolean>(false, { nonNullable: true }),
     brainFeatures: new FormControl<number>(3, { nonNullable: true }),
     notes: new FormControl<string>('', { nonNullable: true }),

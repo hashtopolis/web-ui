@@ -35,7 +35,7 @@ export const getNewFilesForm = () => {
     filename: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     isSecret: new FormControl<boolean>(true, { nonNullable: true }),
     fileType: new FormControl<number | null>(null),
-    accessGroupId: new FormControl<number>(1, { nonNullable: true }),
+    accessGroupId: new FormControl<AccessGroupId>('1', { nonNullable: true }),
     sourceType: new FormControl<string>('import', { nonNullable: true }),
     sourceData: new FormControl<string>('', { nonNullable: true }),
     url: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })

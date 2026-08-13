@@ -18,7 +18,7 @@ import { JUser } from '@models/user.model';
 export interface JApiToken extends BaseModel {
   startValid: number;
   endValid: number;
-  userId: UserId;
+  userId: UserId | null;
   isRevoked: boolean;
   token?: string | undefined;
   user?: JUser | null;

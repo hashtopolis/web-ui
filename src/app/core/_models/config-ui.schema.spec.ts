@@ -87,7 +87,7 @@ describe('uiConfigSchema', () => {
           columns: [0, 1, 2],
           page: 25,
           search: '',
-          order: { id: 0, dataKey: '', isSortable: true, direction: 'asc' }
+          order: { id: '0', dataKey: '', isSortable: true, direction: 'asc' }
         }
       }
     };
@@ -108,7 +108,7 @@ describe('uiConfigSchema', () => {
           columns: customColumns,
           page: 25,
           search: '',
-          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+          order: { id: '0', dataKey: 'id', isSortable: true, direction: 'asc' as const }
         }
       }
     };
@@ -168,7 +168,7 @@ describe('uiConfigSchema', () => {
           columns: customColumns,
           page: 25,
           search: '',
-          order: { id: 0, dataKey: 'id', isSortable: true, direction: 'asc' as const }
+          order: { id: '0', dataKey: 'id', isSortable: true, direction: 'asc' as const }
         }
       }
     };
@@ -212,7 +212,7 @@ describe('uiConfigSchema', () => {
           columns: [1, 2],
           page: 10,
           search: '',
-          order: { id: 1, dataKey: 'name', isSortable: true, direction: 'asc' },
+          order: { id: '1', dataKey: 'name', isSortable: true, direction: 'asc' },
           before: 5,
           index: 3
         }
@@ -236,7 +236,7 @@ describe('uiConfigSchema', () => {
           columns: [1, 2],
           page: 25,
           search: '',
-          order: { id: 2, dataKey: 'taskName', isSortable: true, direction: 'asc', parent: 'task' }
+          order: { id: '2', dataKey: 'taskName', isSortable: true, direction: 'asc', parent: 'task' }
         }
       }
     };
@@ -259,7 +259,7 @@ describe('uiConfigSchema', () => {
           columns: [0, 1, 2],
           page: 5,
           search: '',
-          order: { id: 0, dataKey: 'taskWrapperId', isSortable: true, direction: 'desc' as const },
+          order: { id: '0', dataKey: 'taskWrapperId', isSortable: true, direction: 'desc' as const },
           start: cursor,
           before: cursor,
           index: 1
@@ -524,7 +524,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
 
   it('should strip unknown fields on the sorting object', () => {
     const withExtra = {
-      id: 1,
+      id: '1',
       dataKey: 'taskName',
       isSortable: true,
       direction: 'asc' as const,

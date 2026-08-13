@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type TaskCreate = {
   data: {
@@ -17,8 +17,8 @@ export type TaskCreate = {
       isCpuTask: boolean;
       useNewBench: boolean;
       skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId?: number | null;
+      crackerBinaryId: string;
+      crackerBinaryTypeId?: string | null;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -49,20 +49,43 @@ export type TaskPatch = {
   };
 };
 
+export type TaskPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'task';
+    attributes: {
+      attackCmd?: string;
+      chunkTime?: number;
+      color?: string | null;
+      isArchived?: boolean;
+      isCpuTask?: boolean;
+      isSmall?: boolean;
+      maxAgents?: number;
+      notes?: string;
+      priority?: number;
+      statusTimer?: number;
+      taskName?: string;
+    };
+  }>;
+};
+
+export type TaskDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'task';
+  }>;
+};
+
 export type TaskResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'task';
     attributes: {
       taskName: string;
@@ -78,9 +101,9 @@ export type TaskResponse = {
       isCpuTask: boolean;
       useNewBench: boolean;
       skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId: number | null;
-      taskWrapperId: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -88,91 +111,95 @@ export type TaskResponse = {
       forcePipe: boolean;
       preprocessorId: number;
       preprocessorCommand: string;
-      activeAgents?: number;
+      totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
       status?: 0 | 1 | 2 | 3 | 4;
+      totalNumberOfChunks?: number;
+      currentSpeed?: number;
       estimatedTime?: number;
       timeSpent?: number;
-      currentSpeed?: number;
       cprogress?: number;
     };
-  };
-  relationships?: {
-    assignedAgents: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: Array<{
-        type: 'agent';
-        id: number;
-      }>;
+    links: {
+      self: string;
     };
-    crackerBinary: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      assignedAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: string;
+        }>;
       };
-      data?: {
-        type: 'crackerBinary';
-        id: number;
-      } | null;
-    };
-    crackerBinaryType: {
-      links: {
-        self: string;
-        related: string;
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'crackerBinaryType';
-        id: number;
-      } | null;
-    };
-    files: {
-      links: {
-        self: string;
-        related: string;
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'file';
-        id: number;
-      }>;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+      files: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'file';
+          id: string;
+        }>;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-    speeds: {
-      links: {
-        self: string;
-        related: string;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'speed';
-        id: number;
-      }>;
+      speeds: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'speed';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinary';
         attributes: {
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: string;
           version: string;
           downloadUrl: string;
           binaryName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
@@ -180,19 +207,19 @@ export type TaskResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -200,7 +227,7 @@ export type TaskResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -215,29 +242,225 @@ export type TaskResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'file';
         attributes: {
           filename: string;
           size: number;
           isSecret: boolean;
           fileType: 0 | 1 | 2 | 100;
-          accessGroupId: number;
+          accessGroupId: string;
           lineCount: number;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'speed';
         attributes: {
-          agentId: number;
-          taskId: number;
+          agentId: string;
+          taskId: string;
+          speed: number;
+          time: number;
+        };
+      }
+  >;
+};
+
+export type TaskSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: string;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+      totalAssignedAgents?: number;
+      dispatched?: string;
+      searched?: string;
+      status?: 0 | 1 | 2 | 3 | 4;
+      totalNumberOfChunks?: number;
+      currentSpeed?: number;
+      estimatedTime?: number;
+      timeSpent?: number;
+      cprogress?: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      assignedAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: string;
+        }>;
+      };
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
+      };
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
+      };
+      files: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'file';
+          id: string;
+        }>;
+      };
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
+      speeds: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'speed';
+          id: string;
+        }>;
+      };
+    };
+  };
+  included?: Array<
+    | {
+        id: string;
+        type: 'crackerBinary';
+        attributes: {
+          crackerBinaryTypeId: string;
+          version: string;
+          downloadUrl: string;
+          binaryName: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'crackerBinaryType';
+        attributes: {
+          typeName: string;
+          isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashlist';
+        attributes: {
+          name: string;
+          format: 0 | 1 | 2 | 3;
+          hashTypeId: string;
+          hashCount: number;
+          separator: string | null;
+          cracked: number;
+          isSecret: boolean;
+          isHexSalt: boolean;
+          isSalted: boolean;
+          accessGroupId: string;
+          notes: string;
+          useBrain: boolean;
+          brainFeatures: number;
+          isArchived: boolean;
+        };
+      }
+    | {
+        id: string;
+        type: 'agent';
+        attributes: {
+          agentName: string;
+          uid: string;
+          os: 0 | 1 | 2;
+          devices: string;
+          cmdPars: string;
+          ignoreErrors: 0 | 1 | 2;
+          isActive: boolean;
+          isTrusted: boolean;
+          token: string;
+          lastAct: string;
+          lastTime: number;
+          lastIp: string;
+          userId: string | null;
+          cpuOnly: boolean;
+          clientSignature: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'file';
+        attributes: {
+          filename: string;
+          size: number;
+          isSecret: boolean;
+          fileType: 0 | 1 | 2 | 100;
+          accessGroupId: string;
+          lineCount: number;
+        };
+      }
+    | {
+        id: string;
+        type: 'speed';
+        attributes: {
+          agentId: string;
+          taskId: string;
           speed: number;
           time: number;
         };
@@ -250,59 +473,11 @@ export type TaskPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'task';
-    attributes: {
-      taskName: string;
-      attackCmd: string;
-      chunkTime: number;
-      statusTimer: number;
-      keyspace: number;
-      keyspaceProgress: number;
-      priority: number;
-      maxAgents: number;
-      color: string | null;
-      isSmall: boolean;
-      isCpuTask: boolean;
-      useNewBench: boolean;
-      skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId: number | null;
-      taskWrapperId: number;
-      isArchived: boolean;
-      notes: string;
-      staticChunks: number;
-      chunkSize: number;
-      forcePipe: boolean;
-      preprocessorId: number;
-      preprocessorCommand: string;
-      activeAgents?: number;
-      dispatched?: string;
-      searched?: string;
-      status?: 0 | 1 | 2 | 3 | 4;
-      estimatedTime?: number;
-      timeSpent?: number;
-      currentSpeed?: number;
-      cprogress?: number;
-    };
-  };
-};
-
-export type TaskListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'task';
     attributes: {
       taskName: string;
@@ -318,9 +493,9 @@ export type TaskListResponse = {
       isCpuTask: boolean;
       useNewBench: boolean;
       skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId: number | null;
-      taskWrapperId: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -328,91 +503,95 @@ export type TaskListResponse = {
       forcePipe: boolean;
       preprocessorId: number;
       preprocessorCommand: string;
-      activeAgents?: number;
+      totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
       status?: 0 | 1 | 2 | 3 | 4;
+      totalNumberOfChunks?: number;
+      currentSpeed?: number;
       estimatedTime?: number;
       timeSpent?: number;
-      currentSpeed?: number;
       cprogress?: number;
     };
-  }>;
-  relationships?: {
-    assignedAgents: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: Array<{
-        type: 'agent';
-        id: number;
-      }>;
+    links: {
+      self: string;
     };
-    crackerBinary: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      assignedAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: string;
+        }>;
       };
-      data?: {
-        type: 'crackerBinary';
-        id: number;
-      } | null;
-    };
-    crackerBinaryType: {
-      links: {
-        self: string;
-        related: string;
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'crackerBinaryType';
-        id: number;
-      } | null;
-    };
-    files: {
-      links: {
-        self: string;
-        related: string;
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'file';
-        id: number;
-      }>;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+      files: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'file';
+          id: string;
+        }>;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-    speeds: {
-      links: {
-        self: string;
-        related: string;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'speed';
-        id: number;
-      }>;
+      speeds: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'speed';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinary';
         attributes: {
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: string;
           version: string;
           downloadUrl: string;
           binaryName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
@@ -420,19 +599,19 @@ export type TaskListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -440,7 +619,7 @@ export type TaskListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -455,29 +634,29 @@ export type TaskListResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'file';
         attributes: {
           filename: string;
           size: number;
           isSecret: boolean;
           fileType: 0 | 1 | 2 | 100;
-          accessGroupId: number;
+          accessGroupId: string;
           lineCount: number;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'speed';
         attributes: {
-          agentId: number;
-          taskId: number;
+          agentId: string;
+          taskId: string;
           speed: number;
           time: number;
         };
@@ -485,22 +664,250 @@ export type TaskListResponse = {
   >;
 };
 
+export type TaskListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+      totalAssignedAgents?: number;
+      dispatched?: string;
+      searched?: string;
+      status?: 0 | 1 | 2 | 3 | 4;
+      totalNumberOfChunks?: number;
+      currentSpeed?: number;
+      estimatedTime?: number;
+      timeSpent?: number;
+      cprogress?: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      assignedAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: string;
+        }>;
+      };
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
+      };
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
+      };
+      files: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'file';
+          id: string;
+        }>;
+      };
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
+      speeds: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'speed';
+          id: string;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: string;
+        type: 'crackerBinary';
+        attributes: {
+          crackerBinaryTypeId: string;
+          version: string;
+          downloadUrl: string;
+          binaryName: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'crackerBinaryType';
+        attributes: {
+          typeName: string;
+          isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashlist';
+        attributes: {
+          name: string;
+          format: 0 | 1 | 2 | 3;
+          hashTypeId: string;
+          hashCount: number;
+          separator: string | null;
+          cracked: number;
+          isSecret: boolean;
+          isHexSalt: boolean;
+          isSalted: boolean;
+          accessGroupId: string;
+          notes: string;
+          useBrain: boolean;
+          brainFeatures: number;
+          isArchived: boolean;
+        };
+      }
+    | {
+        id: string;
+        type: 'agent';
+        attributes: {
+          agentName: string;
+          uid: string;
+          os: 0 | 1 | 2;
+          devices: string;
+          cmdPars: string;
+          ignoreErrors: 0 | 1 | 2;
+          isActive: boolean;
+          isTrusted: boolean;
+          token: string;
+          lastAct: string;
+          lastTime: number;
+          lastIp: string;
+          userId: string | null;
+          cpuOnly: boolean;
+          clientSignature: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'file';
+        attributes: {
+          filename: string;
+          size: number;
+          isSecret: boolean;
+          fileType: 0 | 1 | 2 | 100;
+          accessGroupId: string;
+          lineCount: number;
+        };
+      }
+    | {
+        id: string;
+        type: 'speed';
+        attributes: {
+          agentId: string;
+          taskId: string;
+          speed: number;
+          time: number;
+        };
+      }
+  >;
+};
+
+export type TaskCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type TaskRelationSpeeds = {
   data: Array<{
     type: 'speeds';
-    id: number;
+    id: string;
   }>;
 };
 
 export type TaskRelationSpeedsGetResponse = {
   data: Array<{
     type: 'speeds';
-    id: number;
+    id: string;
   }>;
 };
 
 export type DeleteTasksData = {
-  body?: never;
+  body: TaskDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/tasks';
@@ -515,43 +922,71 @@ export type DeleteTasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteTasksError = DeleteTasksErrors[keyof DeleteTasksErrors];
 
 export type DeleteTasksResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteTasksResponse = DeleteTasksResponses[keyof DeleteTasksResponses];
 
 export type GetTasksData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary, crackerBinaryType, hashlist, assignedAgents, files, speeds
      */
-    include?: string;
+    include?: Array<'crackerBinary' | 'crackerBinaryType' | 'hashlist' | 'assignedAgents' | 'files' | 'speeds'>;
+    /**
+     * Aggregated fields to include by type (comma separated values). Possible options: task: totalAssignedAgents, dispatched, searched, status, totalNumberOfChunks, currentSpeed, estimatedTime, cprogress, timeSpent, cracked
+     */
+    aggregate?: {
+      [key: string]: string;
+    };
   };
   url: '/api/v2/ui/tasks';
 };
@@ -565,6 +1000,10 @@ export type GetTasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTasksError = GetTasksErrors[keyof GetTasksErrors];
@@ -579,7 +1018,7 @@ export type GetTasksResponses = {
 export type GetTasksResponse = GetTasksResponses[keyof GetTasksResponses];
 
 export type PatchTasksData = {
-  body?: never;
+  body: TaskPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/tasks';
@@ -594,16 +1033,30 @@ export type PatchTasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTasksError = PatchTasksErrors[keyof PatchTasksErrors];
 
 export type PatchTasksResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchTasksResponse = PatchTasksResponses[keyof PatchTasksResponses];
 
 export type PostTasksData = {
   body: TaskCreate;
@@ -621,6 +1074,14 @@ export type PostTasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostTasksError = PostTasksErrors[keyof PostTasksErrors];
@@ -639,27 +1100,15 @@ export type GetTasksCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/tasks/count';
 };
@@ -673,6 +1122,10 @@ export type GetTasksCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTasksCountError = GetTasksCountErrors[keyof GetTasksCountErrors];
@@ -681,7 +1134,7 @@ export type GetTasksCountResponses = {
   /**
    * successful operation
    */
-  200: TaskListResponse;
+  200: TaskCountResponse;
 };
 
 export type GetTasksCountResponse = GetTasksCountResponses[keyof GetTasksCountResponses];
@@ -706,9 +1159,13 @@ export type GetTasksByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTasksByIdByRelationError = GetTasksByIdByRelationErrors[keyof GetTasksByIdByRelationErrors];
@@ -742,9 +1199,13 @@ export type DeleteTasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteTasksByIdRelationshipsByRelationError =
@@ -780,9 +1241,13 @@ export type GetTasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTasksByIdRelationshipsByRelationError =
@@ -818,9 +1283,17 @@ export type PatchTasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTasksByIdRelationshipsByRelationError =
@@ -837,9 +1310,7 @@ export type PatchTasksByIdRelationshipsByRelationResponse =
   PatchTasksByIdRelationshipsByRelationResponses[keyof PatchTasksByIdRelationshipsByRelationResponses];
 
 export type PostTasksByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: TaskRelationSpeeds;
   path: {
     id: number;
     relation: string;
@@ -858,9 +1329,17 @@ export type PostTasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostTasksByIdRelationshipsByRelationError =
@@ -877,9 +1356,7 @@ export type PostTasksByIdRelationshipsByRelationResponse =
   PostTasksByIdRelationshipsByRelationResponses[keyof PostTasksByIdRelationshipsByRelationResponses];
 
 export type DeleteTasksByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -897,9 +1374,13 @@ export type DeleteTasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteTasksByIdError = DeleteTasksByIdErrors[keyof DeleteTasksByIdErrors];
@@ -920,9 +1401,9 @@ export type GetTasksByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary, crackerBinaryType, hashlist, assignedAgents, files, speeds
      */
-    include?: string;
+    include?: Array<'crackerBinary' | 'crackerBinaryType' | 'hashlist' | 'assignedAgents' | 'files' | 'speeds'>;
   };
   url: '/api/v2/ui/tasks/{id}';
 };
@@ -937,9 +1418,13 @@ export type GetTasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTasksByIdError = GetTasksByIdErrors[keyof GetTasksByIdErrors];
@@ -972,9 +1457,17 @@ export type PatchTasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTasksByIdError = PatchTasksByIdErrors[keyof PatchTasksByIdErrors];

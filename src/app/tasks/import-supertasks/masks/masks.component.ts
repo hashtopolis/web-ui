@@ -108,7 +108,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       isCpuTask: new FormControl(false),
       optFlag: new FormControl(false),
       useNewBench: new FormControl(true),
-      crackerBinaryId: new FormControl(1),
+      crackerBinaryId: new FormControl('1'),
       masks: new FormControl('', [Validators.required])
     });
   }
@@ -143,7 +143,8 @@ export class MasksComponent implements OnInit, OnDestroy {
         isCpu: form.isCpuTask,
         isSmall: form.isSmall,
         optimized: form.optFlag,
-        crackerBinaryTypeId: form.crackerBinaryId,
+        // The maskSupertaskBuilder helper takes a numeric id.
+        crackerBinaryTypeId: Number(form.crackerBinaryId),
         benchtype: form.useNewBench ? 'speed' : 'runtime',
         maxAgents: form.maxAgents
       };

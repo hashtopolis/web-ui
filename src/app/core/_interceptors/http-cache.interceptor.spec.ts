@@ -41,7 +41,7 @@ describe('HttpCacheInterceptor', () => {
 
   it('should cache GET requests', () => {
     const testUrl = 'https://api.test.com/data';
-    const testData = { id: 1, name: 'Test Data' };
+    const testData = { id: '1', name: 'Test Data' };
 
     // First request - should hit the network
     httpClient.get(testUrl).subscribe((data) => {
@@ -62,7 +62,7 @@ describe('HttpCacheInterceptor', () => {
   it('should not cache POST requests', () => {
     const testUrl = 'https://api.test.com/data';
     const postData = { name: 'New Item' };
-    const response = { id: 1, ...postData };
+    const response = { id: '1', ...postData };
 
     httpClient.post(testUrl, postData).subscribe((data) => {
       expect(data).toEqual(response);
@@ -80,17 +80,17 @@ describe('HttpCacheInterceptor', () => {
     // Cache a GET request
     httpClient.get(getUrl).subscribe();
     const getReq = httpMock.expectOne(getUrl);
-    getReq.flush({ id: 1, name: 'Test' });
+    getReq.flush({ id: '1', name: 'Test' });
 
     // POST should invalidate the cache
     httpClient.post(postUrl, {}).subscribe();
     const postReq = httpMock.expectOne(postUrl);
-    postReq.flush({ id: 2 });
+    postReq.flush({ id: '2' });
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
     const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 3, name: 'Updated' });
+    secondGetReq.flush({ id: '3', name: 'Updated' });
   });
 
   it('should invalidate cache on PUT', () => {
@@ -100,17 +100,17 @@ describe('HttpCacheInterceptor', () => {
     // Cache a GET request
     httpClient.get(getUrl).subscribe();
     const getReq = httpMock.expectOne(getUrl);
-    getReq.flush({ id: 1, name: 'Test' });
+    getReq.flush({ id: '1', name: 'Test' });
 
     // PUT should invalidate the cache
     httpClient.put(putUrl, { name: 'Updated' }).subscribe();
     const putReq = httpMock.expectOne(putUrl);
-    putReq.flush({ id: 1, name: 'Updated' });
+    putReq.flush({ id: '1', name: 'Updated' });
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
     const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Updated' });
+    secondGetReq.flush({ id: '1', name: 'Updated' });
   });
 
   it('should invalidate cache on DELETE', () => {
@@ -120,7 +120,7 @@ describe('HttpCacheInterceptor', () => {
     // Cache a GET request
     httpClient.get(getUrl).subscribe();
     const getReq = httpMock.expectOne(getUrl);
-    getReq.flush({ id: 1, name: 'Test' });
+    getReq.flush({ id: '1', name: 'Test' });
 
     // DELETE should invalidate the cache
     httpClient.delete(deleteUrl).subscribe();
@@ -130,12 +130,12 @@ describe('HttpCacheInterceptor', () => {
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
     const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Test' }); // Or 404 if deleted
+    secondGetReq.flush({ id: '1', name: 'Test' }); // Or 404 if deleted
   });
 
   it('should skip caching when X-Cache-Skip header is present', () => {
     const testUrl = 'https://api.test.com/data';
-    const testData = { id: 1, name: 'Test Data' };
+    const testData = { id: '1', name: 'Test Data' };
 
     // First request with X-Cache-Skip
     httpClient.get(testUrl, { headers: { 'X-Cache-Skip': 'true' } }).subscribe((data) => {
@@ -156,7 +156,7 @@ describe('HttpCacheInterceptor', () => {
 
   it('should return cached response synchronously', (done) => {
     const testUrl = 'https://api.test.com/data';
-    const testData = { id: 1, name: 'Test Data' };
+    const testData = { id: '1', name: 'Test Data' };
 
     // First request - populate cache
     httpClient.get(testUrl).subscribe((data) => {
@@ -279,8 +279,8 @@ describe('HttpCacheInterceptor', () => {
 
     it('should serve a stale response immediately and trigger a background revalidation', () => {
       const testUrl = 'https://api.test.com/data';
-      const staleData = { id: 1, name: 'Stale' };
-      const freshData = { id: 1, name: 'Fresh' };
+      const staleData = { id: '1', name: 'Stale' };
+      const freshData = { id: '1', name: 'Fresh' };
 
       // Seed the cache with a stale entry by manipulating the service directly
       const staleResult: CacheGetResult = {
@@ -315,8 +315,8 @@ describe('HttpCacheInterceptor', () => {
       // revalidated value on a stale hit. firstValueFrom would resolve to staleData here
       // and cancel the revalidation, which is the frozen-data bug this replaces.
       const testUrl = 'https://api.test.com/data';
-      const staleData = { id: 1, name: 'Stale' };
-      const freshData = { id: 1, name: 'Fresh' };
+      const staleData = { id: '1', name: 'Stale' };
+      const freshData = { id: '1', name: 'Fresh' };
 
       spyOn(cacheService, 'get').and.returnValue({
         response: new HttpResponse({ body: staleData, status: 200, statusText: 'OK' }),
@@ -333,7 +333,7 @@ describe('HttpCacheInterceptor', () => {
 
     it('should not trigger a background revalidation for a fresh cache hit', () => {
       const testUrl = 'https://api.test.com/data';
-      const cachedData = { id: 1, name: 'Fresh' };
+      const cachedData = { id: '1', name: 'Fresh' };
 
       const freshResult: CacheGetResult = {
         response: new HttpResponse({
@@ -356,8 +356,8 @@ describe('HttpCacheInterceptor', () => {
       jasmine.clock().mockDate(new Date());
       try {
         const testUrl = 'https://api.test.com/data';
-        const staleData = { id: 1, name: 'v1' };
-        const freshData = { id: 1, name: 'v2' };
+        const staleData = { id: '1', name: 'v1' };
+        const freshData = { id: '1', name: 'v2' };
 
         // Seed the cache with a 1s TTL and a 60s stale window
         httpClient.get(testUrl).subscribe();

@@ -3,6 +3,7 @@ import { Observable, catchError, of } from 'rxjs';
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
+import { HashlistId } from '@models/id.types';
 
 import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
 import { SERV } from '@services/main.config';
@@ -368,7 +369,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.updateIsArchived(hashlist.id, false);
   }
 
-  private updateIsArchived(hashlistId: number, isArchived: boolean): void {
+  private updateIsArchived(hashlistId: HashlistId, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.HASHLISTS, hashlistId, { isArchived: isArchived }).subscribe(() => {

@@ -1,62 +1,61 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type HashResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'hash';
     attributes: {
-      hashlistId: number;
+      hashlistId: string;
       hash: string;
       salt: string;
       plaintext: string;
       timeCracked: number;
-      chunkId: number | null;
+      chunkId: string | null;
       isCracked: boolean;
       crackPos: number;
     };
-  };
-  relationships?: {
-    chunk: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'chunk';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      chunk: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'chunk';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'chunk';
         attributes: {
-          taskId: number;
+          taskId: string;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: string;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
@@ -67,19 +66,107 @@ export type HashResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
+          notes: string;
+          useBrain: boolean;
+          brainFeatures: number;
+          isArchived: boolean;
+        };
+      }
+  >;
+};
+
+export type HashSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: string;
+    type: 'hash';
+    attributes: {
+      hashlistId: string;
+      hash: string;
+      salt: string;
+      plaintext: string;
+      timeCracked: number;
+      chunkId: string | null;
+      isCracked: boolean;
+      crackPos: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      chunk: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'chunk';
+          id: string;
+        } | null;
+      };
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
+    };
+  };
+  included?: Array<
+    | {
+        id: string;
+        type: 'chunk';
+        attributes: {
+          taskId: string;
+          skip: number;
+          length: number;
+          agentId: string;
+          dispatchTime: number;
+          solveTime: number;
+          checkpoint: number;
+          progress: number;
+          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+          cracked: number;
+          speed: number;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashlist';
+        attributes: {
+          name: string;
+          format: 0 | 1 | 2 | 3;
+          hashTypeId: string;
+          hashCount: number;
+          separator: string | null;
+          cracked: number;
+          isSecret: boolean;
+          isHexSalt: boolean;
+          isSalted: boolean;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -94,58 +181,66 @@ export type HashListResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
   };
   data: Array<{
-    id: number;
+    id: string;
     type: 'hash';
     attributes: {
-      hashlistId: number;
+      hashlistId: string;
       hash: string;
       salt: string;
       plaintext: string;
       timeCracked: number;
-      chunkId: number | null;
+      chunkId: string | null;
       isCracked: boolean;
       crackPos: number;
     };
+    links: {
+      self: string;
+    };
+    relationships: {
+      chunk: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'chunk';
+          id: string;
+        } | null;
+      };
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
+    };
   }>;
-  relationships?: {
-    chunk: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'chunk';
-        id: number;
-      } | null;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-  };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'chunk';
         attributes: {
-          taskId: number;
+          taskId: string;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: string;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
@@ -156,19 +251,19 @@ export type HashListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -178,17 +273,40 @@ export type HashListResponse = {
   >;
 };
 
+export type HashCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type HashRelationHashlist = {
   data: {
     type: 'hashlist';
-    id: number;
+    id: string;
   };
 };
 
 export type HashRelationHashlistGetResponse = {
   data: {
     type: 'hashlist';
-    id: number;
+    id: string;
   };
 };
 
@@ -197,27 +315,39 @@ export type GetHashesData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"hashId": 123}}` -> `eyJwcmltYXJ5Ijp7Imhhc2hJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"hashId": 123}}` -> `eyJwcmltYXJ5Ijp7Imhhc2hJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[hashId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: chunk, hashlist
      */
-    include?: string;
+    include?: Array<'chunk' | 'hashlist'>;
   };
   url: '/api/v2/ui/hashes';
 };
@@ -231,6 +361,10 @@ export type GetHashesErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetHashesError = GetHashesErrors[keyof GetHashesErrors];
@@ -249,27 +383,15 @@ export type GetHashesCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[hashId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/hashes/count';
 };
@@ -283,6 +405,10 @@ export type GetHashesCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetHashesCountError = GetHashesCountErrors[keyof GetHashesCountErrors];
@@ -291,7 +417,7 @@ export type GetHashesCountResponses = {
   /**
    * successful operation
    */
-  200: HashListResponse;
+  200: HashCountResponse;
 };
 
 export type GetHashesCountResponse = GetHashesCountResponses[keyof GetHashesCountResponses];
@@ -316,9 +442,13 @@ export type GetHashesByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHashesByIdByRelationError = GetHashesByIdByRelationErrors[keyof GetHashesByIdByRelationErrors];
@@ -352,9 +482,13 @@ export type GetHashesByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHashesByIdRelationshipsByRelationError =
@@ -390,9 +524,17 @@ export type PatchHashesByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchHashesByIdRelationshipsByRelationError =
@@ -415,9 +557,9 @@ export type GetHashesByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: chunk, hashlist
      */
-    include?: string;
+    include?: Array<'chunk' | 'hashlist'>;
   };
   url: '/api/v2/ui/hashes/{id}';
 };
@@ -432,9 +574,13 @@ export type GetHashesByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHashesByIdError = GetHashesByIdErrors[keyof GetHashesByIdErrors];

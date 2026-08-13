@@ -16,7 +16,7 @@ import { TasksDataSource } from './tasks.datasource';
 import { mockResponse } from '@src/app/testing/mock-response';
 import { UIConfig } from '@models/config-ui.model';
 
-function buildMockResponse(taskWrappers: { id: number; attributes: Record<string, unknown> }[]): ResponseWrapper {
+function buildMockResponse(taskWrappers: { id: string; attributes: Record<string, unknown> }[]): ResponseWrapper {
   return mockResponse({
     data: taskWrappers.map((t) => ({
       id: t.id,
@@ -38,9 +38,13 @@ describe('TasksDataSource', () => {
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
     const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
     uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj('AutoRefreshService', ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'], {
-      refresh$: of()
-    });
+    const autoRefreshSpy = jasmine.createSpyObj(
+      'AutoRefreshService',
+      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
+      {
+        refresh$: of()
+      }
+    );
     const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
     const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
     storageSpy.getItem.and.returnValue(null);
@@ -63,33 +67,31 @@ describe('TasksDataSource', () => {
   describe('taskWrapperId mapping', () => {
     it('should set taskWrapperId from id when API does not return taskWrapperId', () => {
       const response = buildMockResponse([
-        { id: 5, attributes: { displayName: 'Task A', taskType: 1 } },
-        { id: 10, attributes: { displayName: 'Task B', taskType: 2 } }
+        { id: '5', attributes: { displayName: 'Task A', taskType: 1 } },
+        { id: '10', attributes: { displayName: 'Task B', taskType: 2 } }
       ]);
       gsSpy.getAll.and.returnValue(of(response));
 
       dataSource.loadAll();
 
       const data = dataSource.getOriginalData();
-      expect(data[0].taskWrapperId).toBe(5);
-      expect(data[1].taskWrapperId).toBe(10);
+      expect(data[0].taskWrapperId).toBe('5');
+      expect(data[1].taskWrapperId).toBe('10');
     });
 
     it('should keep existing taskWrapperId if API returns it', () => {
-      const response = buildMockResponse([
-        { id: 5, attributes: { displayName: 'Task A', taskWrapperId: 99 } }
-      ]);
+      const response = buildMockResponse([{ id: '5', attributes: { displayName: 'Task A', taskWrapperId: '99' } }]);
       gsSpy.getAll.and.returnValue(of(response));
 
       dataSource.loadAll();
 
       const data = dataSource.getOriginalData();
-      expect(data[0].taskWrapperId).toBe(99);
+      expect(data[0].taskWrapperId).toBe('99');
     });
 
     it('should preserve all other fields when mapping taskWrapperId', () => {
       const response = buildMockResponse([
-        { id: 5, attributes: { displayName: 'Task A', taskType: 1, hashlistId: 3 } }
+        { id: '5', attributes: { displayName: 'Task A', taskType: 1, hashlistId: '3' } }
       ]);
       gsSpy.getAll.and.returnValue(of(response));
 
@@ -97,8 +99,8 @@ describe('TasksDataSource', () => {
 
       const data = dataSource.getOriginalData();
       expect(data[0].displayName).toBe('Task A');
-      expect(data[0].hashlistId).toBe(3);
-      expect(data[0].id).toBe(5);
+      expect(data[0].hashlistId).toBe('3');
+      expect(data[0].id).toBe('5');
     });
   });
 
@@ -117,8 +119,8 @@ describe('TasksDataSource', () => {
 
     it('should set data from API response', () => {
       const response = buildMockResponse([
-        { id: 1, attributes: { displayName: 'Task 1' } },
-        { id: 2, attributes: { displayName: 'Task 2' } }
+        { id: '1', attributes: { displayName: 'Task 1' } },
+        { id: '2', attributes: { displayName: 'Task 2' } }
       ]);
       gsSpy.getAll.and.returnValue(of(response));
 

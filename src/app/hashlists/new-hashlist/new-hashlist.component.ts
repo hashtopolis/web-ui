@@ -167,7 +167,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     //subscribe to changes to handle select salted hashes
     this.form.controls.hashTypeId.valueChanges.subscribe((newvalue) => {
-      this.handleSelectedItems(Number(newvalue));
+      this.handleSelectedItems(newvalue ?? '');
     });
   }
 
@@ -211,7 +211,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * ToDO. id could change
    */
   loadConfigs() {
-    const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
+    const configSubscription$ = this.gs.get(SERV.CONFIGS, '66').subscribe((response: ResponseWrapper) => {
       const config: JConfig = new JsonAPISerializer().deserialize(response, zConfigResponse);
       this.brainenabled = Number(config.value);
       this.changeDetectorRef.detectChanges();
@@ -396,11 +396,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Handles changes in the hashTypeId form control and adjusts form values accordingly.
    * @param hashTypeId - The new value of the hashTypeId form control.
    */
-  handleSelectedItems(hashTypeId: number): void {
+  handleSelectedItems(hashTypeId: HashTypeId): void {
     const filter = this.hashtypes.filter((hashtype) => hashtype.id === hashTypeId);
     const salted = filter.length > 0 ? filter[0]['isSalted'] : false;
 
-    if (hashTypeId === 2500 || hashTypeId === 16800 || hashTypeId === 16801) {
+    if (hashTypeId === '2500' || hashTypeId === '16800' || hashTypeId === '16801') {
       this.form.patchValue({
         format: Number(1),
         isSalted: salted

@@ -69,7 +69,7 @@ describe('HashesTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JHash[];
+      const items = [{ id: '1' }] as JHash[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHash[]>;
       (component.table as HTTableComponent<BaseModel>).displayedColumns = [
         String(HashesTableCol.HASHES),
@@ -94,7 +94,7 @@ describe('HashesTableComponent', () => {
         String(HashesTableCol.HASHES),
         String(HashesTableCol.PLAINTEXT)
       ];
-      const items = [{ id: 1 }, { id: 2 }] as JHash[];
+      const items = [{ id: '1' }, { id: '2' }] as JHash[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHash[]>;
 
       component.exportActionClicked(event);

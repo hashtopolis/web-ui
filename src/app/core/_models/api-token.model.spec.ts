@@ -3,11 +3,11 @@ import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-to
 describe('computeApiTokenStatus', () => {
   function token(overrides: Partial<JApiToken> = {}): JApiToken {
     return {
-      id: 1,
+      id: '1',
       type: 'apiToken',
       startValid: 0,
       endValid: 1_000,
-      userId: 1,
+      userId: '1',
       isRevoked: false,
       ...overrides
     };

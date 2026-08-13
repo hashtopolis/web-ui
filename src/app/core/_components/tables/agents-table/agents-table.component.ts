@@ -40,20 +40,20 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _taskId: number;
+  private _taskId: string;
 
   @Input() datatype: DataType = 'agents';
   @Input() assignAgents? = false;
 
   @Input()
-  set taskId(value: number) {
+  set taskId(value: string) {
     if (value !== this._taskId) {
       this._taskId = value;
     }
   }
-  get taskId(): number {
+  get taskId(): string {
     if (this._taskId === undefined) {
-      return 0;
+      return '';
     } else {
       return this._taskId;
     }

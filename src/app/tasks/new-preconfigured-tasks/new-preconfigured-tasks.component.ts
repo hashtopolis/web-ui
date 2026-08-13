@@ -7,7 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DynamicModel } from '@models/base.model';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { JFile, TaskSelectFile } from '@models/file.model';
-import { CrackerBinaryTypeId } from '@models/id.types';
+import { CrackerBinaryTypeId, FileId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { NewPretaskRouteKind, zNewPretaskRouteData, zOptionalIdRouteParams } from '@models/routes.schema';
@@ -45,7 +45,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   };
 
   copyMode = false;
-  editedIndex: number;
+  editedIndex: string;
   whichView: string;
 
   private unsubscribeService = inject(UnsubscribeService);
@@ -64,7 +64,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       const { id } = zOptionalIdRouteParams.parse(params);
-      this.editedIndex = id ?? NaN;
+      this.editedIndex = id ?? '';
       this.copyMode = id !== undefined;
     });
   }
@@ -150,7 +150,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           const schema = isPretask ? zPreTaskResponse : zTaskResponse;
           const result: JPretask | JTask = new JsonAPISerializer().deserialize(response, schema);
 
-          const filesArray: number[] = (
+          const filesArray: FileId[] = (
             ((result as unknown as DynamicModel)[isPretask ? 'pretaskFiles' : 'files'] as JFile[]) || []
           ).map((file: JFile) => file['id']);
 
@@ -164,7 +164,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
             priority: result['priority'],
             color: result['color'] ?? '',
             isCpuTask: result['isCpuTask'],
-            crackerBinaryTypeId: result['crackerBinaryTypeId'] ?? 1,
+            crackerBinaryTypeId: result['crackerBinaryTypeId'] ?? '1',
             isSmall: result['isSmall'],
             useNewBench: result['useNewBench'],
             isMaskImport: false,
@@ -179,7 +179,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe({
+      // The pretask endpoint takes numeric file ids.
+      const payload = { ...this.createForm.value, files: (this.createForm.value.files ?? []).map(Number) };
+      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe({
         next: () => {
           this.alert.showSuccessMessage('New Preconfigured Task created');
           this.isCreatingLoading = false;

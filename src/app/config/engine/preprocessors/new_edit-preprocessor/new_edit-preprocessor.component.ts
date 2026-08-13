@@ -37,7 +37,7 @@ export class NewEditPreprocessorComponent implements OnInit {
   submitButtonText = 'Create';
 
   isEditMode = false;
-  preprocessorId: number | null = null;
+  preprocessorId: string | null = null;
 
   newEditPreprocessorForm: FormGroup<NewEditPreprocessorForm>;
 
@@ -104,7 +104,7 @@ export class NewEditPreprocessorComponent implements OnInit {
    * Load preprocessor data from the server and patch the form with the data
    * @param preprocessorId ID of the preprocessor to load
    */
-  private async loadPreprocessor(preprocessorId: number): Promise<void> {
+  private async loadPreprocessor(preprocessorId: string): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PREPROCESSORS.URL}/${preprocessorId}`;
 
     const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));

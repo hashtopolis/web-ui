@@ -70,7 +70,7 @@ describe('LogsTableComponent', () => {
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
       const items: JLog[] = [
-        { id: 1, type: 'log', level: 'information', issuer: 'API', issuerId: '1', message: 'test', time: 0 }
+        { id: '1', type: 'log', level: 'information', issuer: 'API', issuerId: '1', message: 'test', time: 0 }
       ];
       const event: ActionMenuEvent<JLog[]> = { data: items, menuItem: { action: 'excel', label: '' } };
       component.table.displayedColumns = component.tableColumns.map((col) => col.id.toString());
@@ -89,8 +89,8 @@ describe('LogsTableComponent', () => {
       const visibleIds = [LogsTableCol.ID, LogsTableCol.TIME];
       component.table.displayedColumns = visibleIds.map(String);
       const items: JLog[] = [
-        { id: 1, type: 'log', level: 'information', issuer: 'API', issuerId: '1', message: 'test', time: 0 },
-        { id: 2, type: 'log', level: 'error', issuer: 'User', issuerId: '2', message: 'error', time: 0 }
+        { id: '1', type: 'log', level: 'information', issuer: 'API', issuerId: '1', message: 'test', time: 0 },
+        { id: '2', type: 'log', level: 'error', issuer: 'User', issuerId: '2', message: 'error', time: 0 }
       ];
       const event: ActionMenuEvent<JLog[]> = { data: items, menuItem: { action: 'excel', label: '' } };
 

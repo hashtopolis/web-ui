@@ -77,7 +77,7 @@ describe('AuthService', () => {
     const userReq = httpMock.expectOne('http://localhost/ui/users/1');
     expect(userReq.request.method).toBe('GET');
 
-    userReq.flush({ id: 1, name: 'Demo User' });
+    userReq.flush({ id: '1', name: 'Demo User' });
   });
 });
 
@@ -93,7 +93,7 @@ describe('AuthService.autoLogin', () => {
         userData: {
           _token: 'dummy-token',
           _expires: new Date(Date.now() + 3_600_000),
-          userId: 1,
+          userId: '1',
           canonicalUsername: 'testuser'
         }
       } as Record<string, unknown>,

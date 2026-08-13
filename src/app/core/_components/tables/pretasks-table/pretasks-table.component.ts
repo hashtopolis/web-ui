@@ -38,21 +38,21 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  private _supertTaskId: number;
+  private _supertTaskId: string;
   private _reverseQuery = false;
   private _unassignOption = false;
   isDetail = false;
 
   // Input property to specify a supertask ID for filtering pretasks.
   @Input()
-  set supertTaskId(value: number) {
+  set supertTaskId(value: string) {
     if (value !== this._supertTaskId) {
       this._supertTaskId = value;
     }
   }
-  get supertTaskId(): number {
+  get supertTaskId(): string {
     if (this._supertTaskId === undefined) {
-      return 0;
+      return '';
     } else {
       return this._supertTaskId;
     }
@@ -263,7 +263,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       );
     }
 
-    if (this.supertTaskId !== 0) {
+    if (this.supertTaskId) {
       tableColumns.push({
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
         isNumeric: true,

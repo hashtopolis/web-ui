@@ -72,7 +72,7 @@ describe('HealthChecksTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JHealthCheck[];
+      const items = [{ id: '1' }] as JHealthCheck[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHealthCheck[]>;
       component.table.displayedColumns = [
         String(HealthChecksTableCol.ID),
@@ -93,7 +93,7 @@ describe('HealthChecksTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = [String(HealthChecksTableCol.ID), String(HealthChecksTableCol.CREATED)];
-      const items = [{ id: 1 }, { id: 2 }] as JHealthCheck[];
+      const items = [{ id: '1' }, { id: '2' }] as JHealthCheck[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHealthCheck[]>;
 
       component.exportActionClicked(event);

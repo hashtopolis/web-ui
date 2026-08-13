@@ -26,7 +26,7 @@ describe('NewEditPreprocessorComponent', () => {
 
   const preprocessorResponse = mockResponse({
     data: {
-      id: 9,
+      id: '9',
       type: 'preprocessor',
       attributes: {
         name: 'Test Preprocessor',

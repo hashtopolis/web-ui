@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
-import { CrackerBinaryTypeId } from '@models/id.types';
+import { CrackerBinaryTypeId, FileId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -28,10 +28,10 @@ interface WrbulkFormValue {
   isSmall: boolean;
   isCpuTask: boolean;
   useNewBench: boolean;
-  crackerBinaryId: number;
+  crackerBinaryId: CrackerBinaryTypeId;
   attackCmd: string;
-  baseFiles: number[];
-  iterFiles: number[];
+  baseFiles: FileId[];
+  iterFiles: FileId[];
 }
 
 export interface WrbulkForm {
@@ -40,10 +40,10 @@ export interface WrbulkForm {
   isSmall: FormControl<boolean>;
   isCpuTask: FormControl<boolean>;
   useNewBench: FormControl<boolean>;
-  crackerBinaryId: FormControl<number>;
+  crackerBinaryId: FormControl<CrackerBinaryTypeId>;
   attackCmd: FormControl<string>;
-  baseFiles: FormControl<number[]>;
-  iterFiles: FormControl<number[]>;
+  baseFiles: FormControl<FileId[]>;
+  iterFiles: FormControl<FileId[]>;
 }
 
 @Component({
@@ -118,13 +118,13 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       isSmall: new FormControl<boolean>(false, { nonNullable: true }),
       isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
       useNewBench: new FormControl<boolean>(true, { nonNullable: true }),
-      crackerBinaryId: new FormControl<number>(1, { nonNullable: true }),
+      crackerBinaryId: new FormControl<CrackerBinaryTypeId>('1', { nonNullable: true }),
       attackCmd: new FormControl<string>(this.uiService.getUISettings()?.hashlistAlias ?? '', {
         nonNullable: true,
         validators: [Validators.required]
       }),
-      baseFiles: new FormControl<number[]>([], { nonNullable: true }),
-      iterFiles: new FormControl<number[]>([], { nonNullable: true })
+      baseFiles: new FormControl<FileId[]>([], { nonNullable: true }),
+      iterFiles: new FormControl<FileId[]>([], { nonNullable: true })
     });
   }
 
@@ -159,11 +159,12 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       command: form.attackCmd,
       isCpu: form.isCpuTask,
       isSmall: form.isSmall,
-      crackerBinaryTypeId: form.crackerBinaryId,
+      // The bulkSupertaskBuilder helper takes numeric ids.
+      crackerBinaryTypeId: Number(form.crackerBinaryId),
       benchtype: form.useNewBench ? 'speed' : 'runtime',
       maxAgents: form.maxAgents,
-      basefiles: form.baseFiles,
-      iterfiles: form.iterFiles
+      basefiles: form.baseFiles.map(Number),
+      iterfiles: form.iterFiles.map(Number)
     };
 
     const subscription$ = this.gs.chelper(SERV.HELPER, 'bulkSupertaskBuilder', payload).subscribe({
@@ -195,8 +196,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     if (this.createForm.valid) {
       const formValue = this.createForm.getRawValue();
       const attackCmd: string = formValue.attackCmd;
-      const crackerBinaryId: number = formValue.crackerBinaryId;
-      const iterFiles: number[] = formValue.iterFiles;
+      const crackerBinaryId: CrackerBinaryTypeId = formValue.crackerBinaryId;
+      const iterFiles: FileId[] = formValue.iterFiles;
 
       const attackAlias = this.uiService.getUISettings()?.hashlistAlias ?? '';
       let hasError = false;

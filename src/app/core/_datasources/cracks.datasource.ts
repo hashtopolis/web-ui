@@ -74,7 +74,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    * @param taskId ID of task
    * @return Promise of task
    */
-  async loadTask(taskId: number) {
+  async loadTask(taskId: string) {
     try {
       const response = await lastValueFrom<ResponseWrapper>(
         this.service.get(SERV.TASKS, taskId).pipe(

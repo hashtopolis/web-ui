@@ -53,7 +53,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
       validators: [Validators.required, Validators.minLength(1)]
     }),
     notes: new FormControl<string>('', { nonNullable: true }),
-    hashlistId: new FormControl<number | null>(null, [Validators.required]),
+    hashlistId: new FormControl<HashlistId | null>(null, [Validators.required]),
     attackCmd: new FormControl<string>(uiService.getUISettings()?.hashlistAlias ?? '', {
       nonNullable: true,
       validators: [Validators.required, attackCommandWithAliasValidator()]
@@ -68,8 +68,8 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
     skipKeyspace: new FormControl<number>(0, { nonNullable: true }),
-    crackerBinaryId: new FormControl<number>(1, { nonNullable: true, validators: [Validators.required] }),
-    crackerBinaryTypeId: new FormControl<number | null>(null, [Validators.required]),
+    crackerBinaryId: new FormControl<CrackerBinaryId>('1', { nonNullable: true, validators: [Validators.required] }),
+    crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null, [Validators.required]),
     isArchived: new FormControl<boolean>(false, { nonNullable: true }),
     staticChunks: new FormControl<number>(0, { nonNullable: true }),
     chunkSize: new FormControl<number>(chunkSize, { nonNullable: true }),
@@ -78,7 +78,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     preprocessorCommand: new FormControl<string>('', { nonNullable: true }),
     isSmall: new FormControl<boolean>(false, { nonNullable: true }),
     useNewBench: new FormControl<boolean>(useSpeedBenchmark, { nonNullable: true }),
-    files: new FormControl<number[]>([], { nonNullable: true })
+    files: new FormControl<FileId[]>([], { nonNullable: true })
   });
 };
 

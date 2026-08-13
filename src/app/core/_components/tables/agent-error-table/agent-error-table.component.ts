@@ -31,7 +31,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   standalone: false
 })
 export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() agentId: number;
+  @Input() agentId: string;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
   selectedFilterColumn: HTTableColumn;

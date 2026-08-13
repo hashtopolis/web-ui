@@ -10,7 +10,7 @@ import { ReportSection } from '@src/app/shared/report-builder/reports/report-bui
   standalone: false
 })
 export class HashlistReportComponent extends BaseReportComponent implements OnInit, OnDestroy {
-  @Input() hashlistId = 0;
+  @Input() hashlistId = '';
 
   dataSource: HashlistReportDataSource;
   reportStructure: ReportSection[] = [];

@@ -10,9 +10,9 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
-  private _supertTaskId = 0;
+  private _supertTaskId = '';
 
-  setSuperTaskId(supertTaskId: number) {
+  setSuperTaskId(supertTaskId: string) {
     this._supertTaskId = supertTaskId;
   }
 

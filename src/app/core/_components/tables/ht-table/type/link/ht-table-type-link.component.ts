@@ -36,9 +36,9 @@ export class HTTableTypeLinkComponent implements OnDestroy {
   /** Template rendered into a CDK overlay so the hover preview escapes the table's scroll container. */
   @ViewChild('graphPreviewTpl', { static: true }) graphPreviewTpl: TemplateRef<unknown>;
 
-  private previewImageCache = new Map<number, SafeUrl>();
-  private pendingPreviewLoads = new Set<number>();
-  private previewLoadErrors = new Set<number>();
+  private previewImageCache = new Map<string, SafeUrl>();
+  private pendingPreviewLoads = new Set<string>();
+  private previewLoadErrors = new Set<string>();
   private objectUrls: string[] = [];
   private overlayRef?: OverlayRef | undefined;
   private http = inject(HttpClient);

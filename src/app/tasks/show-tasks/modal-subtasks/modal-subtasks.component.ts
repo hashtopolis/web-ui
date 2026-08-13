@@ -9,11 +9,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class ModalSubtasksComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { supertaskId: number; supertaskName: string },
+    public data: { supertaskId: string; supertaskName: string },
     private dialogRef: MatDialogRef<ModalSubtasksComponent>
   ) {}
 
-  get supertaskId(): number {
+  get supertaskId(): string {
     return this.data.supertaskId;
   }
 

@@ -28,7 +28,7 @@ import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.d
   standalone: false
 })
 export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() supertaskId = 0;
+  @Input() supertaskId = '';
 
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksPretasksDataSource;
@@ -217,7 +217,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    const pretaskData: { type: string; id: number }[] = [];
+    const pretaskData: { type: string; id: string }[] = [];
 
     pretasks.forEach((pretask) => {
       pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });

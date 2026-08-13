@@ -71,7 +71,7 @@ describe('CracksTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JHash[];
+      const items = [{ id: '1' }] as JHash[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHash[]>;
       component.table.displayedColumns = ['1', '2', '3', '5', '6', '7', '8'];
 
@@ -87,7 +87,7 @@ describe('CracksTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['1', '2'];
-      const items = [{ id: 1 }, { id: 2 }] as JHash[];
+      const items = [{ id: '1' }, { id: '2' }] as JHash[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHash[]>;
 
       component.exportActionClicked(event);

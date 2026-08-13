@@ -25,19 +25,19 @@ import { environment } from '@src/environments/environment';
 const MOCK_HASHLISTS_RESPONSE = {
   data: [
     {
-      id: 1,
+      id: '1',
       type: 'hashlist',
       attributes: {
         name: 'test-hashlist',
         format: 0,
-        hashTypeId: 0,
+        hashTypeId: '0',
         hashCount: 0,
         separator: null,
         cracked: 0,
         isSecret: false,
         isHexSalt: false,
         isSalted: false,
-        accessGroupId: 1,
+        accessGroupId: '1',
         notes: '',
         useBrain: false,
         brainFeatures: 0,
@@ -45,19 +45,19 @@ const MOCK_HASHLISTS_RESPONSE = {
       }
     },
     {
-      id: 2,
+      id: '2',
       type: 'hashlist',
       attributes: {
         name: 'second-hashlist',
         format: 0,
-        hashTypeId: 1,
+        hashTypeId: '1',
         hashCount: 0,
         separator: null,
         cracked: 0,
         isSecret: false,
         isHexSalt: false,
         isSalted: false,
-        accessGroupId: 1,
+        accessGroupId: '1',
         notes: '',
         useBrain: false,
         brainFeatures: 0,
@@ -74,21 +74,21 @@ const MOCK_EMPTY_HASHLISTS_RESPONSE = {
 const MOCK_CRACKER_TYPES_RESPONSE = {
   data: [
     {
-      id: 1,
+      id: '1',
       type: 'crackerBinaryType',
       attributes: { typeName: 'hashcat', isChunkingAvailable: true },
       relationships: {
         crackerVersions: {
-          data: [{ type: 'crackerBinary', id: 10 }]
+          data: [{ type: 'crackerBinary', id: '10' }]
         }
       }
     }
   ],
   included: [
     {
-      id: 10,
+      id: '10',
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: { crackerBinaryTypeId: '1', binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
   ]
 };
@@ -96,9 +96,9 @@ const MOCK_CRACKER_TYPES_RESPONSE = {
 const MOCK_CRACKERS_RESPONSE = {
   data: [
     {
-      id: 10,
+      id: '10',
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: { crackerBinaryTypeId: '1', binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
   ]
 };
@@ -110,7 +110,7 @@ const MOCK_CRACKERS_EMPTY_RESPONSE = {
 const MOCK_PREPROCESSORS_RESPONSE = {
   data: [
     {
-      id: 1,
+      id: '1',
       type: 'preprocessor',
       attributes: {
         name: 'prince',
@@ -132,12 +132,12 @@ const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   priority: 1,
   color: '#ff0000',
   isCpuTask: false,
-  crackerBinaryTypeId: 1,
+  crackerBinaryTypeId: '1',
   isSmall: false,
   useNewBench: true,
   statusTimer: 5,
   skipKeyspace: 100,
-  crackerBinaryId: 10,
+  crackerBinaryId: '10',
   staticChunks: 2,
   chunkSize: 1000,
   forcePipe: true,
@@ -147,7 +147,7 @@ const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   totalAssignedAgents: 0,
   keyspace: 0,
   keyspaceProgress: 0,
-  taskWrapperId: 1,
+  taskWrapperId: '1',
   isArchived: false
 };
 
@@ -159,7 +159,7 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
   priority: 5,
   color: '',
   isCpuTask: true,
-  crackerBinaryTypeId: 1,
+  crackerBinaryTypeId: '1',
   isSmall: true,
   useNewBench: false,
   statusTimer: 10,
@@ -168,37 +168,37 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
 
 const MOCK_TASK_GET_RESPONSE = {
   data: {
-    id: 42,
+    id: '42',
     type: 'task',
     attributes: MOCK_TASK_ATTRIBUTES,
     relationships: {
-      hashlist: { data: { id: 1, type: 'hashlist' } },
+      hashlist: { data: { id: '1', type: 'hashlist' } },
       files: {
         data: [
-          { id: 100, type: 'file' },
-          { id: 101, type: 'file' }
+          { id: '100', type: 'file' },
+          { id: '101', type: 'file' }
         ]
       },
       speeds: { data: [] },
-      crackerBinary: { data: { id: 10, type: 'crackerBinary' } },
-      crackerBinaryType: { data: { id: 1, type: 'crackerBinaryType' } }
+      crackerBinary: { data: { id: '10', type: 'crackerBinary' } },
+      crackerBinaryType: { data: { id: '1', type: 'crackerBinaryType' } }
     }
   },
   included: [
     {
-      id: 1,
+      id: '1',
       type: 'hashlist',
       attributes: {
         name: 'test-hashlist',
         format: 0,
-        hashTypeId: 0,
+        hashTypeId: '0',
         hashCount: 0,
         separator: null,
         cracked: 0,
         isSecret: false,
         isHexSalt: false,
         isSalted: false,
-        accessGroupId: 1,
+        accessGroupId: '1',
         notes: '',
         useBrain: false,
         brainFeatures: 0,
@@ -206,38 +206,38 @@ const MOCK_TASK_GET_RESPONSE = {
       }
     },
     {
-      id: 100,
+      id: '100',
       type: 'file',
-      attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: '1', lineCount: 0 }
     },
     {
-      id: 101,
+      id: '101',
       type: 'file',
-      attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: '1', lineCount: 0 }
     },
     {
-      id: 10,
+      id: '10',
       type: 'crackerBinary',
-      attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' }
+      attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: '1', downloadUrl: '' }
     },
-    { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
+    { id: '1', type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
 };
 
 const MOCK_PRETASK_GET_RESPONSE = {
   data: {
-    id: 7,
+    id: '7',
     type: 'preTask',
     attributes: MOCK_PRETASK_ATTRIBUTES,
     relationships: {
-      pretaskFiles: { data: [{ id: 200, type: 'file' }] }
+      pretaskFiles: { data: [{ id: '200', type: 'file' }] }
     }
   },
   included: [
     {
-      id: 200,
+      id: '200',
       type: 'file',
-      attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: '1', lineCount: 0 }
     }
   ]
 };
@@ -393,11 +393,11 @@ describe('NewTasksComponent', () => {
 
       component.form.patchValue({
         taskName: 'My Task',
-        hashlistId: 1,
+        hashlistId: '1',
         attackCmd: '-a 0 #HL# dict.txt',
         priority: 0,
-        crackerBinaryTypeId: 1,
-        crackerBinaryId: 10
+        crackerBinaryTypeId: '1',
+        crackerBinaryId: '10'
       });
       component.form.updateValueAndValidity();
 
@@ -409,15 +409,21 @@ describe('NewTasksComponent', () => {
 
       component.form.patchValue({
         taskName: 'My Task',
-        hashlistId: 1,
+        hashlistId: '1',
         attackCmd: '-a 0 #HL# dict.txt',
         priority: 0,
-        crackerBinaryId: 10
+        crackerBinaryId: '10'
       });
       component.form.updateValueAndValidity();
 
-      const payload = { ...component.form.value };
-      delete payload.crackerBinaryTypeId;
+      const formValue = { ...component.form.value };
+      delete formValue.crackerBinaryTypeId;
+      // The task endpoint takes numeric hashlist and file ids.
+      const payload = {
+        ...formValue,
+        hashlistId: Number(formValue.hashlistId),
+        files: (formValue.files ?? []).map(Number)
+      };
 
       await component['onSubmit']();
 
@@ -453,7 +459,7 @@ describe('NewTasksComponent', () => {
       expect(globalServiceSpy.get).toHaveBeenCalled();
       const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
       expect(endpoint).toEqual(SERV.TASKS);
-      expect(id).toBe(42);
+      expect(id).toBe('42');
     });
 
     it('should have a valid form after copying a task', async () => {
@@ -478,7 +484,7 @@ describe('NewTasksComponent', () => {
       expect(component.form.controls.priority.value).toBe(1);
       expect(component.form.controls.color.value).toBe('#ff0000');
       expect(component.form.controls.isCpuTask.value).toBe(false);
-      expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
+      expect(component.form.controls.crackerBinaryTypeId.value).toBe('1');
       expect(component.form.controls.isSmall.value).toBe(false);
       expect(component.form.controls.useNewBench.value).toBe(true);
       expect(component.form.controls.statusTimer.value).toBe(5);
@@ -494,7 +500,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(component.form.controls.skipKeyspace.value).toBe(100);
-      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+      expect(component.form.controls.crackerBinaryId.value).toBe('10');
       expect(component.form.controls.staticChunks.value).toBe(2);
       expect(component.form.controls.chunkSize.value).toBe(1000);
       expect(component.form.controls.forcePipe.value).toBe(true);
@@ -562,7 +568,7 @@ describe('NewTasksComponent', () => {
       expect(globalServiceSpy.get).toHaveBeenCalled();
       const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
       expect(endpoint).toEqual(SERV.PRETASKS);
-      expect(id).toBe(7);
+      expect(id).toBe('7');
     });
 
     it('should have an invalid form because hashlistId is missing', async () => {
@@ -596,14 +602,14 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(component.form.controls.hashlistId.value).toBeNull();
-      expect(component.form.controls.hashlistId.value).not.toBe(999999);
+      expect(component.form.controls.hashlistId.value).not.toBe('999999');
     });
 
     it('should set pretask defaults for task-specific fields', async () => {
       await initComponent(fixture);
 
       expect(component.form.controls.skipKeyspace.value).toBe(0);
-      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+      expect(component.form.controls.crackerBinaryId.value).toBe('10');
       expect(component.form.controls.staticChunks.value).toBe(0);
       expect(component.form.controls.chunkSize.value).toBe(environment.config.tasks.chunkSize);
       expect(component.form.controls.forcePipe.value).toBe(false);
@@ -671,7 +677,7 @@ describe('NewTasksComponent', () => {
       // Reset call tracking so we only see calls triggered by the value change
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.controls.crackerBinaryTypeId.setValue(2);
+      component.form.controls.crackerBinaryTypeId.setValue('2');
       await fixture.whenStable();
 
       // handleChangeBinary should have called gs.getAll(SERV.CRACKERS, ...)
@@ -744,7 +750,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
       globalServiceSpy.getAll.calls.reset();
 
-      component.form.controls.crackerBinaryTypeId.setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue('1');
       await fixture.whenStable();
 
       const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
@@ -756,14 +762,14 @@ describe('NewTasksComponent', () => {
       const multiVersionResponse = {
         data: [
           {
-            id: 10,
+            id: '10',
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
+            attributes: { crackerBinaryTypeId: '1', binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
           },
           {
-            id: 11,
+            id: '11',
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+            attributes: { crackerBinaryTypeId: '1', binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
         ]
       };
@@ -775,11 +781,11 @@ describe('NewTasksComponent', () => {
         buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) })
       );
 
-      component.form.controls.crackerBinaryTypeId.setValue(1);
+      component.form.controls.crackerBinaryTypeId.setValue('1');
       await fixture.whenStable();
 
       // Last version id should be 11 (Number-converted from SelectOption.id string '11')
-      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+      expect(component.form.controls.crackerBinaryId.value).toBe('11');
     });
 
     it('should set required error when no versions are available', async () => {
@@ -789,7 +795,7 @@ describe('NewTasksComponent', () => {
         buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_EMPTY_RESPONSE)) })
       );
 
-      component.form.controls.crackerBinaryTypeId.setValue(999);
+      component.form.controls.crackerBinaryTypeId.setValue('999');
       await fixture.whenStable();
 
       const crackerCtrl = component.form.controls.crackerBinaryId;
@@ -863,13 +869,13 @@ describe('NewTasksComponent', () => {
 
       component.form.patchValue({
         attackCmd: '-a 0 #HL# dict.txt',
-        files: [1, 2],
+        files: ['1', '2'],
         preprocessorCommand: '--prince'
       });
 
       const data = component['getFormData']();
       expect(data.attackCmd).toBe('-a 0 #HL# dict.txt');
-      expect(data.files).toEqual([1, 2]);
+      expect(data.files).toEqual(['1', '2']);
       expect(data.preprocessorCommand).toBe('--prince');
     });
 
@@ -907,12 +913,12 @@ describe('NewTasksComponent', () => {
       component['onUpdateForm']({
         type: 'CMD',
         attackCmd: '-a 3 ?a?a?a',
-        files: [10, 20],
+        files: ['10', '20'],
         otherFiles: []
       });
 
       expect(component.form.controls.attackCmd.value).toBe('-a 3 ?a?a?a');
-      expect(component.form.controls.files.value).toEqual([10, 20]);
+      expect(component.form.controls.files.value).toEqual(['10', '20']);
     });
 
     it('should update preprocessorCommand when event type is not CMD', async () => {
@@ -962,7 +968,7 @@ describe('NewTasksComponent', () => {
 
       component.form.patchValue({
         attackCmd: '-a 3 ?a?a?a',
-        files: [1, 2],
+        files: ['1', '2'],
         preprocessorCommand: '--prince'
       });
 

@@ -47,7 +47,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   updateForm: FormGroup;
 
   // Edit variables
-  editedHashlistIndex: number;
+  editedHashlistIndex: string;
   editedHashlist: JHashlist | undefined; // Change to Model
   hashtype: JHashtype | undefined;
   type: number | undefined; // Hashlist or Superhashlist (format)

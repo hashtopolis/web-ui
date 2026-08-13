@@ -59,8 +59,8 @@ describe('AgentStatGraphComponent', () => {
     component.agentStats = [
       {
         type: 'agentStat',
-        id: 23939,
-        agentId: 2,
+        id: '23939',
+        agentId: '2',
         statType: 1,
         time: 1766135394,
         value: [14]
@@ -124,8 +124,8 @@ describe('AgentStatGraphComponent', () => {
     component.agentStats = [
       {
         type: 'agentStat',
-        id: 23939,
-        agentId: 2,
+        id: '23939',
+        agentId: '2',
         statType: 2,
         time: 1766135394,
         value: [14]
@@ -189,8 +189,8 @@ describe('AgentStatGraphComponent', () => {
     component.agentStats = [
       {
         type: 'agentStat',
-        id: 23939,
-        agentId: 2,
+        id: '23939',
+        agentId: '2',
         statType: 3,
         time: 1766135394,
         value: [14]

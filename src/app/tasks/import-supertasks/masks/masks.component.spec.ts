@@ -77,7 +77,7 @@ describe('MasksComponent', () => {
     expect(val.isCpuTask).toBe(false);
     expect(val.optFlag).toBe(false);
     expect(val.useNewBench).toBe(true);
-    expect(val.crackerBinaryId).toBe(1);
+    expect(val.crackerBinaryId).toBe('1');
   });
 
   it('should become valid when name and masks are filled', () => {
@@ -184,7 +184,7 @@ describe('MasksComponent', () => {
       isSmall: true,
       optFlag: true,
       useNewBench: true,
-      crackerBinaryId: 5,
+      crackerBinaryId: '5',
       maxAgents: 3
     });
     component.onSubmit();

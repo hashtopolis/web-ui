@@ -40,7 +40,7 @@ describe('NewNotificationComponent', () => {
   const agentValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 1,
+        id: '1',
         type: 'agent',
         attributes: {
           agentName: 'Agent Smith',
@@ -66,7 +66,7 @@ describe('NewNotificationComponent', () => {
   const taskValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 101,
+        id: '101',
         type: 'task',
         attributes: {
           taskName: 'Password cracking',
@@ -82,9 +82,9 @@ describe('NewNotificationComponent', () => {
           isCpuTask: false,
           useNewBench: true,
           skipKeyspace: 0,
-          crackerBinaryId: 1,
-          crackerBinaryTypeId: 1,
-          taskWrapperId: 1,
+          crackerBinaryId: '1',
+          crackerBinaryTypeId: '1',
+          taskWrapperId: '1',
           isArchived: false,
           notes: '',
           staticChunks: 0,
@@ -96,7 +96,7 @@ describe('NewNotificationComponent', () => {
         }
       },
       {
-        id: 102,
+        id: '102',
         type: 'task',
         attributes: {
           taskName: 'GPU stress test',
@@ -112,9 +112,9 @@ describe('NewNotificationComponent', () => {
           isCpuTask: false,
           useNewBench: true,
           skipKeyspace: 0,
-          crackerBinaryId: 1,
+          crackerBinaryId: '1',
           crackerBinaryTypeId: null,
-          taskWrapperId: 1,
+          taskWrapperId: '1',
           isArchived: false,
           notes: '',
           staticChunks: 0,
@@ -131,7 +131,7 @@ describe('NewNotificationComponent', () => {
   const userValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 1,
+        id: '1',
         type: 'user',
         attributes: {
           name: 'Alice Admin',
@@ -141,7 +141,7 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1720000000,
           registeredSince: 1700000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 1,
+          globalPermissionGroupId: '1',
           yubikey: '',
           otp1: '',
           otp2: '',
@@ -150,7 +150,7 @@ describe('NewNotificationComponent', () => {
         }
       },
       {
-        id: 2,
+        id: '2',
         type: 'user',
         attributes: {
           name: 'Bob User',
@@ -160,7 +160,7 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1719900000,
           registeredSince: 1705000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 2,
+          globalPermissionGroupId: '2',
           yubikey: '',
           otp1: '',
           otp2: '',
@@ -174,19 +174,19 @@ describe('NewNotificationComponent', () => {
   const hashlistValues: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 1,
+        id: '1',
         type: 'hashlist',
         attributes: {
           name: 'Hashlist Alpha',
           format: 0,
-          hashTypeId: 100,
+          hashTypeId: '100',
           hashCount: 5000,
           separator: null,
           cracked: 3000,
           isSecret: false,
           isHexSalt: false,
           isSalted: false,
-          accessGroupId: 1,
+          accessGroupId: '1',
           notes: '',
           useBrain: false,
           brainFeatures: 0,
@@ -194,19 +194,19 @@ describe('NewNotificationComponent', () => {
         }
       },
       {
-        id: 2,
+        id: '2',
         type: 'hashlist',
         attributes: {
           name: 'Hashlist Beta',
           format: 0,
-          hashTypeId: 200,
+          hashTypeId: '200',
           hashCount: 1200,
           separator: null,
           cracked: 100,
           isSecret: false,
           isHexSalt: false,
           isSalted: false,
-          accessGroupId: 1,
+          accessGroupId: '1',
           notes: '',
           useBrain: false,
           brainFeatures: 0,

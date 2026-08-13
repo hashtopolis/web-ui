@@ -34,7 +34,7 @@ type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'st
   standalone: false
 })
 export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
-  @Input() supertaskId = 0;
+  @Input() supertaskId = '';
   @Output() linkClicked = new EventEmitter<void>();
 
   tableColumns: HTTableColumn[] = [];
@@ -433,7 +433,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     this.router.navigate(['tasks', 'show-tasks', task.id, 'edit']);
   }
 
-  private updateIsArchived(taskId: number, isArchived: boolean): void {
+  private updateIsArchived(taskId: string, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {

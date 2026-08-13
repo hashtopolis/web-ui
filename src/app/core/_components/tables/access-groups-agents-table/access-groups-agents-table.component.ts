@@ -28,7 +28,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
   standalone: false
 })
 export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() accessgroupId = 0;
+  @Input() accessgroupId = '';
   @Output() agentsRemoved = new EventEmitter<void>(); // Event to notify parent about removed agent(s)
 
   tableColumns: HTTableColumn[] = [];

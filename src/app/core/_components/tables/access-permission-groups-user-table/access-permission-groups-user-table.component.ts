@@ -81,7 +81,7 @@ export class AccessPermissionGroupsUserTableComponent
   @Input() mode: PermissionTableMode = PermissionTableMode.EDIT;
 
   /** Edit mode — id of the permission group to load. */
-  @Input() accesspermgroupId = 0;
+  @Input() accesspermgroupId = '';
 
   /**
    * Form mode — the current user's permission map (the value returned by

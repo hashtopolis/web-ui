@@ -54,7 +54,7 @@ export class HashesComponent implements OnInit, OnDestroy {
 
   // Component Properties
   editMode = false;
-  editedIndex: number;
+  editedIndex: string;
 
   // View type and filter options
   whichView: string;

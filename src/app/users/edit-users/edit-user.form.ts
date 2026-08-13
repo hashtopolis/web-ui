@@ -40,14 +40,14 @@ export interface UpdatePassForm {
  */
 export const getEditUserForm = () => {
   return new FormGroup<EditUserForm>({
-    id: new FormControl<number | null>({ value: null, disabled: true }),
+    id: new FormControl<UserId | null>({ value: null, disabled: true }),
     name: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
     email: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
     registered: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
     lastLogin: new FormControl<string>({ value: '', disabled: true }, { nonNullable: true }),
     globalPermissionGroup: new FormControl<JGlobalPermissionGroup | null>({ value: null, disabled: true }),
     updateData: new FormGroup({
-      globalPermissionGroupId: new FormControl<number | null>(null),
+      globalPermissionGroupId: new FormControl<GlobalPermissionGroupId | null>(null),
       isValid: new FormControl<boolean>(false, { nonNullable: true })
     })
   });

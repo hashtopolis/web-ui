@@ -21,16 +21,16 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_WRAPPER: JTaskWrapperDisplay = {
-  id: 1,
+  id: '1',
   type: 'taskWrapperDisplay',
-  taskWrapperId: 10,
+  taskWrapperId: '10',
   taskWrapperName: 'Test Wrapper',
   taskWrapperIsArchived: 0
 } as unknown as JTaskWrapperDisplay;
 
 /** Item that has no taskWrapperId — the map() fallback should use id instead. */
 const MOCK_WRAPPER_NO_WRAPPER_ID: JTaskWrapperDisplay = {
-  id: 99,
+  id: '99',
   type: 'taskWrapperDisplay',
   taskWrapperName: 'No-ID Wrapper',
   taskWrapperIsArchived: 0
@@ -91,8 +91,8 @@ describe('TasksDataSource', () => {
 
   describe('setHashlistID()', () => {
     it('should store the provided hashlist ID', () => {
-      dataSource.setHashlistID(7);
-      expect(dataSource['_hashlistID']).toBe(7);
+      dataSource.setHashlistID('7');
+      expect(dataSource['_hashlistID']).toBe('7');
     });
   });
 
@@ -175,10 +175,12 @@ describe('TasksDataSource', () => {
     });
 
     it('should add a hashlistId filter when _hashlistID is set', () => {
-      dataSource.setHashlistID(42);
+      dataSource.setHashlistID('42');
       dataSource.loadAll();
       const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'hashlistId', value: 42 }));
+      expect((params as RequestParams).filter).toContain(
+        jasmine.objectContaining({ field: 'hashlistId', value: '42' })
+      );
     });
 
     it('should not add a hashlistId filter when _hashlistID is 0', () => {

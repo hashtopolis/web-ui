@@ -7,6 +7,7 @@ import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, in
 import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary } from '@models/cracker-binary.model';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId, PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -28,7 +29,7 @@ import { environment } from '@src/environments/environment';
   standalone: false
 })
 export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) hashlistId: number;
+  @Input({ required: true }) hashlistId: HashlistId;
 
   /** Emitted after at least one task is created, so the host can refresh its tasks table. */
   @Output() created = new EventEmitter<void>();
@@ -38,7 +39,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   readonly pageSizeOptions = [10, 25, 50, 100];
 
-  selectedPretaskIds = new Set<number>();
+  selectedPretaskIds = new Set<PretaskId>();
   isCreating = false;
 
   // This is a plain selector table (no ht-table), so it owns its own error messaging via
@@ -46,7 +47,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   private readonly skipErrorDialog = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
 
   private readonly serializer = new JsonAPISerializer();
-  private readonly crackerVersionByType = new Map<number, number>();
+  private readonly crackerVersionByType = new Map<CrackerBinaryTypeId, CrackerBinaryId>();
   private tableSubscription?: Subscription;
 
   private readonly injector = inject(Injector);
@@ -80,7 +81,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     this.selectedPretaskIds.clear();
   }
 
-  togglePretaskSelection(pretaskId: number, checked: boolean): void {
+  togglePretaskSelection(pretaskId: PretaskId, checked: boolean): void {
     if (checked) {
       this.selectedPretaskIds.add(pretaskId);
       return;
@@ -191,8 +192,9 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         forcePipe: false,
         preprocessorId: 0,
         preprocessorCommand: '',
-        files: (pretask.pretaskFiles ?? []).map((file) => file.id),
-        hashlistId: this.hashlistId
+        // The task endpoint takes numeric file and hashlist ids.
+        files: (pretask.pretaskFiles ?? []).map((file) => Number(file.id)),
+        hashlistId: Number(this.hashlistId)
       };
 
       await firstValueFrom(this.gs.create(SERV.TASKS, payload, this.skipErrorDialog));
@@ -203,7 +205,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getCrackerVersionIdForType(crackerBinaryTypeId: number): Promise<number | null> {
+  private async getCrackerVersionIdForType(crackerBinaryTypeId: CrackerBinaryTypeId): Promise<CrackerBinaryId | null> {
     const cached = this.crackerVersionByType.get(crackerBinaryTypeId);
     if (cached) {
       return cached;

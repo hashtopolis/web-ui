@@ -21,7 +21,7 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 type ConfigValues = Record<string, string | boolean | number>;
-type ConfigIds = Record<string, number>;
+type ConfigIds = Record<string, string>;
 
 @Component({
   selector: 'app-form',

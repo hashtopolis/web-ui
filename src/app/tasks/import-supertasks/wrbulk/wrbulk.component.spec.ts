@@ -93,7 +93,7 @@ describe('WrbulkComponent', () => {
     expect(val.isSmall).toBe(false);
     expect(val.isCpuTask).toBe(false);
     expect(val.useNewBench).toBe(true);
-    expect(val.crackerBinaryId).toBe(1);
+    expect(val.crackerBinaryId).toBe('1');
     expect(val.baseFiles).toEqual([]);
     expect(val.iterFiles).toEqual([]);
   });
@@ -116,12 +116,12 @@ describe('WrbulkComponent', () => {
   // onSubmit — client-side validations
   // ──────────────────────────────────────────────
 
-  it('should show error if crackerBinaryId is falsy (0)', async () => {
+  it('should show error if crackerBinaryId is falsy (empty)', async () => {
     component.createForm.patchValue({
       name: 'Test',
       attackCmd: '#HL# -a 0 FILE dict.txt',
-      crackerBinaryId: 0,
-      iterFiles: [1]
+      crackerBinaryId: '',
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -133,7 +133,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Test',
       attackCmd: '-a 0 FILE dict.txt',
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -145,7 +145,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Test',
       attackCmd: '#HL# -a 0 dict.txt',
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -169,7 +169,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Test',
       attackCmd: 'no-alias-no-file',
-      crackerBinaryId: 0,
+      crackerBinaryId: '',
       iterFiles: []
     });
     await component.onSubmit();
@@ -186,8 +186,8 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Bulk Test',
       attackCmd: '#HL# -a 0 FILE',
-      baseFiles: [1, 2],
-      iterFiles: [3, 4]
+      baseFiles: ['1', '2'],
+      iterFiles: ['3', '4']
     });
     await component.onSubmit();
 
@@ -210,10 +210,10 @@ describe('WrbulkComponent', () => {
       isCpuTask: true,
       isSmall: true,
       useNewBench: true,
-      crackerBinaryId: 5,
+      crackerBinaryId: '5',
       maxAgents: 3,
-      baseFiles: [10],
-      iterFiles: [20]
+      baseFiles: ['10'],
+      iterFiles: ['20']
     });
     await component.onSubmit();
 
@@ -235,7 +235,7 @@ describe('WrbulkComponent', () => {
       name: 'Runtime',
       attackCmd: '#HL# FILE',
       useNewBench: false,
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -251,7 +251,7 @@ describe('WrbulkComponent', () => {
       name: 'Speed',
       attackCmd: '#HL# FILE',
       useNewBench: true,
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -270,7 +270,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'OK',
       attackCmd: '#HL# FILE',
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -287,7 +287,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Err',
       attackCmd: '#HL# FILE',
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -299,7 +299,7 @@ describe('WrbulkComponent', () => {
     component.createForm.patchValue({
       name: 'Err',
       attackCmd: '#HL# FILE',
-      iterFiles: [1]
+      iterFiles: ['1']
     });
     await component.onSubmit();
 
@@ -313,14 +313,14 @@ describe('WrbulkComponent', () => {
   it('should return current form data from getFormData()', () => {
     component.createForm.patchValue({
       attackCmd: '#HL# -a 0 FILE',
-      baseFiles: [1],
-      iterFiles: [2]
+      baseFiles: ['1'],
+      iterFiles: ['2']
     });
 
     expect(component.getFormData()).toEqual({
       attackCmd: '#HL# -a 0 FILE',
-      files: [1],
-      otherFiles: [2]
+      files: ['1'],
+      otherFiles: ['2']
     });
   });
 
@@ -332,12 +332,12 @@ describe('WrbulkComponent', () => {
     component.onUpdateForm({
       type: 'CMD',
       attackCmd: '#HL# -a 0 dict.txt FILE',
-      files: [10, 20],
+      files: ['10', '20'],
       otherFiles: []
     });
 
     expect(component.createForm.value.attackCmd).toBe('#HL# -a 0 dict.txt FILE');
-    expect(component.createForm.value.baseFiles).toEqual([10, 20]);
+    expect(component.createForm.value.baseFiles).toEqual(['10', '20']);
   });
 
   it('should update iterFiles on non-CMD event', () => {
@@ -345,9 +345,9 @@ describe('WrbulkComponent', () => {
       type: 'ITER',
       attackCmd: '',
       files: [],
-      otherFiles: [30, 40]
+      otherFiles: ['30', '40']
     });
 
-    expect(component.createForm.value.iterFiles).toEqual([30, 40]);
+    expect(component.createForm.value.iterFiles).toEqual(['30', '40']);
   });
 });

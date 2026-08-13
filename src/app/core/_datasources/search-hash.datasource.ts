@@ -128,7 +128,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
     this.search.forEach((hash, index) => {
       if (!rawHashes.includes(hash)) {
         const emptyHash: SearchHashModel = {
-          id: -1,
+          id: '-1',
           hash: hash,
           plaintext: '',
           hashlists: [],

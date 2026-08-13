@@ -128,15 +128,15 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should link to the agent edit page', (done) => {
-      const agent = { id: 42, agentName: 'Agent42' } as JAgent;
+      const agent = { id: '42', agentName: 'Agent42' } as JAgent;
       idCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
+        expect(links[0].routerLink).toEqual(['/agents', '42', 'edit']);
         done();
       });
     });
 
     it('should use the agent numeric ID as the link label (as string)', (done) => {
-      const agent = { id: 42, agentName: 'Agent42' } as JAgent;
+      const agent = { id: '42', agentName: 'Agent42' } as JAgent;
       idCol.routerLink!(agent).subscribe((links) => {
         expect(links[0].label).toBe('42');
         done();
@@ -153,16 +153,16 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should link to the agent detail/edit page using the agent name as label', (done) => {
-      const agent = { id: 7, agentName: 'TestAgent', isTrusted: false } as JAgent;
+      const agent = { id: '7', agentName: 'TestAgent', isTrusted: false } as JAgent;
       nameCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', '7', 'edit']);
         expect(links[0].label).toBe('TestAgent');
         done();
       });
     });
 
     it('should show a trusted-agent icon when the agent is trusted', (done) => {
-      const trustedAgent = { id: 7, agentName: 'TrustedAgent', isTrusted: true } as JAgent;
+      const trustedAgent = { id: '7', agentName: 'TrustedAgent', isTrusted: true } as JAgent;
       nameCol.routerLink!(trustedAgent).subscribe((links) => {
         expect(links[0].icon?.faIcon).toBeTruthy();
         expect(links[0].icon?.tooltip).toBe('Trusted Agent');
@@ -171,7 +171,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should NOT show a trusted-agent icon when the agent is not trusted', (done) => {
-      const agent = { id: 8, agentName: 'RegularAgent', isTrusted: false } as JAgent;
+      const agent = { id: '8', agentName: 'RegularAgent', isTrusted: false } as JAgent;
       nameCol.routerLink!(agent).subscribe((links) => {
         expect(links[0].icon?.faIcon).toBeUndefined();
         done();
@@ -188,7 +188,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
         afterClosed: () => afterClosedSubject.asObservable()
       } as MatDialogRef<unknown>);
 
-      const agent = { id: 5, agentName: 'AgentX' } as JAgent;
+      const agent = { id: '5', agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
       expect(mockDialog.open).toHaveBeenCalledTimes(1);
@@ -200,7 +200,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
         afterClosed: () => afterClosedSubject.asObservable()
       } as MatDialogRef<unknown>);
 
-      const agent = { id: 5, agentName: 'AgentX' } as JAgent;
+      const agent = { id: '5', agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
       const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { body: string } }).data;
@@ -208,7 +208,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should NOT open any dialog for actions other than DELETE', () => {
-      const agent = { id: 5, agentName: 'AgentX' } as JAgent;
+      const agent = { id: '5', agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
       expect(mockDialog.open).not.toHaveBeenCalled();
@@ -220,8 +220,8 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('bulkActionClicked', () => {
     it('should use plural wording in the dialog title for multiple agents', () => {
       const agents = [
-        { id: 1, agentName: 'A1' },
-        { id: 2, agentName: 'A2' }
+        { id: '1', agentName: 'A1' },
+        { id: '2', agentName: 'A2' }
       ] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
@@ -234,7 +234,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should use singular wording in the dialog title for a single agent', () => {
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -246,7 +246,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should mark the dialog as a warning (destructive action)', () => {
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -260,10 +260,10 @@ describe('AccessGroupsAgentsTableComponent', () => {
   // ─── Remove agents (API call + side effects) ─────────────────────────────────
 
   describe('removing agents from access group', () => {
-    const GROUP_ID = 99;
+    const GROUP_ID = '99';
     const agents = [
-      { id: 10, agentName: 'A10' },
-      { id: 20, agentName: 'A20' }
+      { id: '10', agentName: 'A10' },
+      { id: '20', agentName: 'A20' }
     ] as JAgent[];
 
     function triggerConfirmedRemoval(
@@ -289,8 +289,8 @@ describe('AccessGroupsAgentsTableComponent', () => {
         RelationshipType.AGENTMEMBER,
         {
           data: [
-            { type: RelationshipType.AGENTMEMBER, id: 10 },
-            { type: RelationshipType.AGENTMEMBER, id: 20 }
+            { type: RelationshipType.AGENTMEMBER, id: '10' },
+            { type: RelationshipType.AGENTMEMBER, id: '20' }
           ]
         }
       );
@@ -351,9 +351,9 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('table reload after removal', () => {
     it('should trigger a table reload after a successful removal', () => {
       mockGlobalService.deleteRelationships.and.returnValue(of({}));
-      component.accessgroupId = 99;
+      component.accessgroupId = '99';
 
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -364,9 +364,9 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('should NOT trigger a table reload when the API call fails', () => {
       mockGlobalService.deleteRelationships.and.returnValue(throwError(() => new Error('fail')));
-      component.accessgroupId = 99;
+      component.accessgroupId = '99';
 
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -381,8 +381,8 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('bulk dialog content', () => {
     it('should pass listAttribute "agentName" so the dialog renders agent names', () => {
       const agents = [
-        { id: 1, agentName: 'Alpha' },
-        { id: 2, agentName: 'Beta' }
+        { id: '1', agentName: 'Alpha' },
+        { id: '2', agentName: 'Beta' }
       ] as JAgent[];
       const subject = openDialogAndClose(component, mockDialog, () =>
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
@@ -401,7 +401,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const event = { data: agents, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
 
@@ -418,8 +418,8 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5'];
       const agents = [
-        { id: 1, agentName: 'A1' },
-        { id: 2, agentName: 'A2' }
+        { id: '1', agentName: 'A1' },
+        { id: '2', agentName: 'A2' }
       ] as JAgent[];
       const event = { data: agents, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
 
@@ -439,14 +439,14 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
   describe('column export callbacks', () => {
     it('ID column export should return the agent id as a string', async () => {
-      const agent = { id: 55, agentName: 'ExportAgent' } as JAgent;
+      const agent = { id: '55', agentName: 'ExportAgent' } as JAgent;
       const idCol = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.ID)!;
       const result = await idCol.export!(agent);
       expect(result).toBe('55');
     });
 
     it('NAME column export should return the agent name', async () => {
-      const agent = { id: 55, agentName: 'ExportAgent' } as JAgent;
+      const agent = { id: '55', agentName: 'ExportAgent' } as JAgent;
       const nameCol = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.NAME)!;
       const result = await nameCol.export!(agent);
       expect(result).toBe('ExportAgent');

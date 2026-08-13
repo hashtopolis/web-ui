@@ -289,7 +289,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.viewMode = view;
     this.form.patchValue({
       filename: '',
-      accessGroupId: 1,
+      accessGroupId: '1',
       sourceType: type,
       sourceData: ''
     });

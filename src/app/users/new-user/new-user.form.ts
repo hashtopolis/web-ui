@@ -32,7 +32,7 @@ export const getNewUserForm = () => {
       validators: [Validators.required, Validators.minLength(2)]
     }),
     email: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, emailValidator] }),
-    globalPermissionGroupId: new FormControl<number | null>(null, [Validators.required]),
+    globalPermissionGroupId: new FormControl<GlobalPermissionGroupId | null>(null, [Validators.required]),
     isValid: new FormControl<boolean>(false, { nonNullable: true })
   });
 };

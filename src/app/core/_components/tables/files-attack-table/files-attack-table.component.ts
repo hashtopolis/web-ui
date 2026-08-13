@@ -11,14 +11,15 @@ import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
+import { FileId } from '@src/app/core/_models/id.types';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
 import { AttackCommandData } from '@src/app/tasks/new-tasks/new-tasks.form';
 
 interface PrepareAttackResult {
   attackCmd: string;
-  files: number[];
-  otherFiles: number[];
+  files: FileId[];
+  otherFiles: FileId[];
   type: string;
 }
 

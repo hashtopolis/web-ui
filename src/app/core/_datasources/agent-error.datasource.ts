@@ -15,10 +15,10 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
-  private _agentId = 0;
+  private _agentId = '';
   private _currentFilter: Filter | null = null;
 
-  setAgentId(agentId: number): void {
+  setAgentId(agentId: string): void {
     this._agentId = agentId;
   }
   loadAll(query?: Filter): void {

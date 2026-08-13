@@ -30,7 +30,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
 })
 export class TasksChunksTableComponent extends BaseTableComponent implements OnInit, OnChanges {
   // Input property to specify a task ID for filtering chunks.
-  @Input() taskId: number;
+  @Input() taskId: string;
   // Input property to specify to filter all chunks or only live. Live = 0, All = 1
   @Input() isChunksLive: number;
 

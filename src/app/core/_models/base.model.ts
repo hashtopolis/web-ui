@@ -8,7 +8,7 @@ import { TJsonApiLinks } from 'jsona/lib/JsonaTypes';
  * @prop relationshipNames  Names of related resources
  */
 export interface BaseModel {
-  id: number;
+  id: string;
   type: string;
   links?: TJsonApiLinks;
   relationshipNames?: string[];

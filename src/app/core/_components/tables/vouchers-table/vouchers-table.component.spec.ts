@@ -74,7 +74,7 @@ describe('VouchersTableComponent', () => {
         String(VouchersTableCol.KEY),
         String(VouchersTableCol.CREATED)
       ];
-      const items = [{ id: 1 }] as JVoucher[];
+      const items = [{ id: '1' }] as JVoucher[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JVoucher[]>;
 
       component.exportActionClicked(event);
@@ -89,7 +89,7 @@ describe('VouchersTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = [String(VouchersTableCol.ID), String(VouchersTableCol.KEY)];
-      const items = [{ id: 1 }, { id: 2 }] as JVoucher[];
+      const items = [{ id: '1' }, { id: '2' }] as JVoucher[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JVoucher[]>;
 
       component.exportActionClicked(event);

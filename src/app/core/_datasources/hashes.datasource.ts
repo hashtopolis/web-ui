@@ -17,11 +17,11 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 const crackedFilterSchema = z.enum(['cracked', 'uncracked']);
 
 export class HashesDataSource extends BaseDataSource<JHash> {
-  private _id = 0;
+  private _id = '';
   private _dataType: string;
   private _filterparam: string;
 
-  setId(id: number): void {
+  setId(id: string): void {
     this._id = id;
   }
 

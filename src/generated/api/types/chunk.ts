@@ -1,25 +1,21 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type ChunkResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'chunk';
     attributes: {
-      taskId: number;
+      taskId: string;
       skip: number;
       length: number;
-      agentId: number;
+      agentId: string;
       dispatchTime: number;
       solveTime: number;
       checkpoint: number;
@@ -28,32 +24,35 @@ export type ChunkResponse = {
       cracked: number;
       speed: number;
     };
-  };
-  relationships?: {
-    agent: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'agent';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    task: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      agent: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'agent';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -68,13 +67,13 @@ export type ChunkResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -90,9 +89,9 @@ export type ChunkResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -110,21 +109,26 @@ export type ChunkListResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
   };
   data: Array<{
-    id: number;
+    id: string;
     type: 'chunk';
     attributes: {
-      taskId: number;
+      taskId: string;
       skip: number;
       length: number;
-      agentId: number;
+      agentId: string;
       dispatchTime: number;
       solveTime: number;
       checkpoint: number;
@@ -133,32 +137,35 @@ export type ChunkListResponse = {
       cracked: number;
       speed: number;
     };
+    links: {
+      self: string;
+    };
+    relationships: {
+      agent: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'agent';
+          id: string;
+        } | null;
+      };
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
+    };
   }>;
-  relationships?: {
-    agent: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'agent';
-        id: number;
-      } | null;
-    };
-    task: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
-    };
-  };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'agent';
         attributes: {
           agentName: string;
@@ -173,13 +180,13 @@ export type ChunkListResponse = {
           lastAct: string;
           lastTime: number;
           lastIp: string;
-          userId: number | null;
+          userId: string | null;
           cpuOnly: boolean;
           clientSignature: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -195,9 +202,9 @@ export type ChunkListResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -210,17 +217,40 @@ export type ChunkListResponse = {
   >;
 };
 
+export type ChunkCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type ChunkRelationTask = {
   data: {
     type: 'task';
-    id: number;
+    id: string;
   };
 };
 
 export type ChunkRelationTaskGetResponse = {
   data: {
     type: 'task';
-    id: number;
+    id: string;
   };
 };
 
@@ -229,27 +259,39 @@ export type GetChunksData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"chunkId": 123}}` -> `eyJwcmltYXJ5Ijp7ImNodW5rSWQiOiAxMjN9fQ==`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"chunkId": 123}}` -> `eyJwcmltYXJ5Ijp7ImNodW5rSWQiOiAxMjN9fQ==`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[chunkId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: agent, task
      */
-    include?: string;
+    include?: Array<'agent' | 'task'>;
   };
   url: '/api/v2/ui/chunks';
 };
@@ -263,6 +305,10 @@ export type GetChunksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetChunksError = GetChunksErrors[keyof GetChunksErrors];
@@ -281,27 +327,15 @@ export type GetChunksCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[chunkId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/chunks/count';
 };
@@ -315,6 +349,10 @@ export type GetChunksCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetChunksCountError = GetChunksCountErrors[keyof GetChunksCountErrors];
@@ -323,7 +361,7 @@ export type GetChunksCountResponses = {
   /**
    * successful operation
    */
-  200: ChunkListResponse;
+  200: ChunkCountResponse;
 };
 
 export type GetChunksCountResponse = GetChunksCountResponses[keyof GetChunksCountResponses];
@@ -348,9 +386,13 @@ export type GetChunksByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetChunksByIdByRelationError = GetChunksByIdByRelationErrors[keyof GetChunksByIdByRelationErrors];
@@ -384,9 +426,13 @@ export type GetChunksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetChunksByIdRelationshipsByRelationError =
@@ -422,9 +468,17 @@ export type PatchChunksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchChunksByIdRelationshipsByRelationError =
@@ -447,9 +501,9 @@ export type GetChunksByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: agent, task
      */
-    include?: string;
+    include?: Array<'agent' | 'task'>;
   };
   url: '/api/v2/ui/chunks/{id}';
 };
@@ -464,9 +518,13 @@ export type GetChunksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetChunksByIdError = GetChunksByIdErrors[keyof GetChunksByIdErrors];

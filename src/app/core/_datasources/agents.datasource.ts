@@ -9,6 +9,7 @@ import { HttpHeaders } from '@angular/common/http';
 
 import { JAgentAssignmentWith } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
+import { UserId } from '@models/id.types';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
@@ -19,11 +20,11 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
-  private _taskId = 0;
+  private _taskId = '';
   private _currentFilter: Filter | null = null;
   private agentStatsRequired: boolean = false;
 
-  setTaskId(taskId: number): void {
+  setTaskId(taskId: string): void {
     this._taskId = taskId;
   }
 
@@ -121,9 +122,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           'cracked' | 'currentSpeed' | 'crackingTime' | 'searched' | 'currentChunkId'
         >[];
         if (assignments && assignments.length > 0) {
-          const userIds: number[] = assignments
+          const userIds: UserId[] = assignments
             .map((assignment) => assignment.agent?.userId)
-            .filter((userId): userId is number => userId !== undefined && userId !== null);
+            .filter((userId): userId is UserId => userId !== undefined && userId !== null);
           const users = await this.loadUserData(userIds);
 
           const agents: JAgent[] = [];
@@ -142,7 +143,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             agent.currentSpeed = assignment.currentSpeed;
             agent.timeSpent = assignment.crackingTime;
             agent.searched = assignment.searched;
-            agent.chunkId = assignment.currentChunkId ?? undefined;
+            agent.chunkId = assignment.currentChunkId != null ? String(assignment.currentChunkId) : undefined;
             agents.push(agent);
           });
 
@@ -181,7 +182,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
    * @return promise containing an array of user objects matching the given IDs
    * @private
    */
-  private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
+  private async loadUserData(userIds: Array<UserId>): Promise<JUser[]> {
     let users: Array<JUser> = [];
     if (userIds.length > 0) {
       const userParams = new RequestParamBuilder().addFilter({

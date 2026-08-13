@@ -71,7 +71,7 @@ export class BaseTableComponent {
   readonly preconfiguredTasksRoleService = inject(PreconfiguredTasksRoleService);
 
   @ViewChild('table') table: HTTableComponent<BaseModel>;
-  @Input() shashlistId: number;
+  @Input() shashlistId: string;
   /** Name of the table, used when storing user customizations */
   @Input() name: TableSettingsKey;
   /** Flag to enable or disable selectable rows. */

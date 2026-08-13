@@ -6,7 +6,7 @@ export interface JAgentErrors extends BaseModel {
   agentId: AgentId;
   chunkId: ChunkId | null;
   error: string;
-  id: number;
+  id: string;
   taskId: TaskId;
   time: number;
   type: string;

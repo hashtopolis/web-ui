@@ -11,8 +11,8 @@ describe('TaskSpeedGraphComponent', () => {
   let component: TaskSpeedGraphComponent;
   let fixture: ComponentFixture<TaskSpeedGraphComponent>;
 
-  const speedStat = (time: number, speed: number, agentId = 1): SpeedStat =>
-    ({ id: time, type: 'speed', agentId, taskId: 1, speed, time }) as SpeedStat;
+  const speedStat = (time: number, speed: number, agentId = '1'): SpeedStat =>
+    ({ id: String(time), type: 'speed', agentId, taskId: '1', speed, time }) as SpeedStat;
 
   const drawWith = (speeds: SpeedStat[]) => {
     component.speeds = speeds;
@@ -57,7 +57,7 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('sums all agents into a single total even when their timestamps do not line up', () => {
     // Agent 1 (t=100) and agent 2 (t=105) both fall in the same 10s bucket: one 6 MH/s total, not two lines.
-    const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 3_000_000, 2)]);
+    const option = drawWith([speedStat(100, 3_000_000, '1'), speedStat(105, 3_000_000, '2')]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(plotted).toEqual([6]);
@@ -65,7 +65,7 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('keeps only the latest sample per agent within a bucket, never double-counting one agent', () => {
     // The same agent reports twice inside one 10s bucket; the later 4 MH/s wins instead of summing to 7.
-    const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 4_000_000, 1)]);
+    const option = drawWith([speedStat(100, 3_000_000, '1'), speedStat(105, 4_000_000, '1')]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(plotted).toEqual([4]);
@@ -75,11 +75,11 @@ describe('TaskSpeedGraphComponent', () => {
     // Agent 1 reports at 100 and 120 but skips the 110 bucket; agent 2 reports in all three.
     // The 110 bucket must still show the full 8 MH/s (5 carried + 3), not drop to 3.
     const option = drawWith([
-      speedStat(100, 5_000_000, 1),
-      speedStat(120, 5_000_000, 1),
-      speedStat(100, 3_000_000, 2),
-      speedStat(110, 3_000_000, 2),
-      speedStat(120, 3_000_000, 2)
+      speedStat(100, 5_000_000, '1'),
+      speedStat(120, 5_000_000, '1'),
+      speedStat(100, 3_000_000, '2'),
+      speedStat(110, 3_000_000, '2'),
+      speedStat(120, 3_000_000, '2')
     ]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
@@ -90,9 +90,9 @@ describe('TaskSpeedGraphComponent', () => {
     // Agent 1 runs the whole time; agent 2 stops after t=110. Beyond the 60s window the total falls to agent 1 alone.
     const running = [];
     for (let t = 100; t <= 300; t += 10) {
-      running.push(speedStat(t, 5_000_000, 1));
+      running.push(speedStat(t, 5_000_000, '1'));
     }
-    const option = drawWith([...running, speedStat(100, 3_000_000, 2), speedStat(110, 3_000_000, 2)]);
+    const option = drawWith([...running, speedStat(100, 3_000_000, '2'), speedStat(110, 3_000_000, '2')]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(plotted[0]).toBe(8); // both agents active
@@ -116,7 +116,7 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('plots against a time axis and defaults the zoom to the most recent 30 minutes', () => {
     // One hour of data: the initial view starts 30 minutes before the last record.
-    const option = drawWith([speedStat(0, 1_000_000, 1), speedStat(3600, 2_000_000, 1)]);
+    const option = drawWith([speedStat(0, 1_000_000, '1'), speedStat(3600, 2_000_000, '1')]);
     const [slider] = option.dataZoom;
 
     expect(option.xAxis[0].type).toBe('time');
@@ -125,7 +125,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('shows the whole range when it is shorter than the default window', () => {
-    const option = drawWith([speedStat(100, 1_000_000, 1), speedStat(200, 2_000_000, 1)]);
+    const option = drawWith([speedStat(100, 1_000_000, '1'), speedStat(200, 2_000_000, '1')]);
     const [slider] = option.dataZoom;
 
     expect(slider.startValue).toBe(100 * 1000);
@@ -133,7 +133,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('applies the recent-window bounds to both the slider and the inside (wheel/drag) zoom', () => {
-    const option = drawWith([speedStat(0, 1_000_000, 1), speedStat(3600, 2_000_000, 1)]);
+    const option = drawWith([speedStat(0, 1_000_000, '1'), speedStat(3600, 2_000_000, '1')]);
     const [slider, inside] = option.dataZoom;
 
     expect(slider.type).toBe('slider');
@@ -143,14 +143,14 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('spans the x-axis over the full data range so zooming out still shows everything', () => {
-    const option = drawWith([speedStat(0, 1_000_000, 1), speedStat(3600, 2_000_000, 1)]);
+    const option = drawWith([speedStat(0, 1_000_000, '1'), speedStat(3600, 2_000_000, '1')]);
 
     expect(option.xAxis[0].min).toBe(0);
     expect(option.xAxis[0].max).toBe(3600 * 1000);
   });
 
   it('falls back to the H/s unit for sub-kH/s totals', () => {
-    const option = drawWith([speedStat(100, 500, 1)]);
+    const option = drawWith([speedStat(100, 500, '1')]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(option.yAxis[0].name).toBe('H/s');
@@ -159,7 +159,7 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('breaks the line where reporting pauses longer than the activity window', () => {
     // A 900s silence (>> the 60s window) leaves every bucket in between with no active agent.
-    const option = drawWith([speedStat(100, 5_000_000, 1), speedStat(1000, 5_000_000, 1)]);
+    const option = drawWith([speedStat(100, 5_000_000, '1'), speedStat(1000, 5_000_000, '1')]);
     const times = option.series[0].data.map((point: { value: [number, number] }) => point.value[0]);
 
     expect(times).toContain(100 * 1000);
@@ -168,7 +168,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('places both Max and Min markers on the sole point when there is only one sample', () => {
-    const option = drawWith([speedStat(100, 5_000_000, 1)]);
+    const option = drawWith([speedStat(100, 5_000_000, '1')]);
     const markPoints = option.series[0].markPoint.data as { name: string; coord: [number, number]; value: string }[];
     const max = markPoints.find((point) => point.name === 'Max');
     const min = markPoints.find((point) => point.name === 'Min');
@@ -180,7 +180,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('formats the axis tooltip in the configured local-time format, matching the tables', () => {
-    const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 3_000_000, 2)]);
+    const option = drawWith([speedStat(100, 3_000_000, '1'), speedStat(105, 3_000_000, '2')]);
     const tooltip = Array.isArray(option.tooltip) ? option.tooltip[0] : option.tooltip;
     const html = tooltip.formatter([{ data: { value: [100 * 1000, 6], unit: 'MH/s' } }]);
 
@@ -189,7 +189,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('renders no tooltip for a mark-point style param without a [time, value] pair', () => {
-    const option = drawWith([speedStat(100, 3_000_000, 1)]);
+    const option = drawWith([speedStat(100, 3_000_000, '1')]);
     const tooltip = Array.isArray(option.tooltip) ? option.tooltip[0] : option.tooltip;
 
     expect(tooltip.formatter({ data: { value: '3 MH/s' } })).toBe('');
@@ -197,7 +197,7 @@ describe('TaskSpeedGraphComponent', () => {
   });
 
   it('labels the time axis with a local-time HH:MM:SS formatter', () => {
-    const option = drawWith([speedStat(100, 3_000_000, 1)]);
+    const option = drawWith([speedStat(100, 3_000_000, '1')]);
 
     expect(option.xAxis[0].axisLabel.formatter(100 * 1000)).toBe(formatDate(new Date(100 * 1000), 'hh:mm:ss'));
   });
@@ -206,7 +206,7 @@ describe('TaskSpeedGraphComponent', () => {
     // Fresh component whose speeds are set before the first render, mirroring the real @Input binding.
     const freshFixture = TestBed.createComponent(TaskSpeedGraphComponent);
     const fresh = freshFixture.componentInstance;
-    fresh.speeds = [speedStat(100, 5_000_000, 1), speedStat(105, 3_000_000, 2)];
+    fresh.speeds = [speedStat(100, 5_000_000, '1'), speedStat(105, 3_000_000, '2')];
     freshFixture.detectChanges(); // triggers ngAfterViewInit
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

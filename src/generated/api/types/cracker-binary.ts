@@ -1,10 +1,10 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type CrackerBinaryCreate = {
   data: {
     type: 'crackerBinary';
     attributes: {
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: string;
       version: string;
       downloadUrl: string;
       binaryName: string;
@@ -23,53 +23,71 @@ export type CrackerBinaryPatch = {
   };
 };
 
+export type CrackerBinaryPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'crackerBinary';
+    attributes: {
+      binaryName?: string;
+      downloadUrl?: string;
+      version?: string;
+    };
+  }>;
+};
+
+export type CrackerBinaryDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'crackerBinary';
+  }>;
+};
+
 export type CrackerBinaryResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'crackerBinary';
     attributes: {
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: string;
       version: string;
       downloadUrl: string;
       binaryName: string;
     };
-  };
-  relationships?: {
-    crackerBinaryType: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'crackerBinaryType';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
@@ -77,7 +95,7 @@ export type CrackerBinaryResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -93,9 +111,9 @@ export type CrackerBinaryResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -113,65 +131,47 @@ export type CrackerBinaryPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'crackerBinary';
-    attributes: {
-      crackerBinaryTypeId: number;
-      version: string;
-      downloadUrl: string;
-      binaryName: string;
-    };
-  };
-};
-
-export type CrackerBinaryListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'crackerBinary';
     attributes: {
-      crackerBinaryTypeId: number;
+      crackerBinaryTypeId: string;
       version: string;
       downloadUrl: string;
       binaryName: string;
     };
-  }>;
-  relationships?: {
-    crackerBinaryType: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'crackerBinaryType';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinaryType';
         attributes: {
           typeName: string;
@@ -179,7 +179,7 @@ export type CrackerBinaryListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -195,9 +195,9 @@ export type CrackerBinaryListResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -210,22 +210,138 @@ export type CrackerBinaryListResponse = {
   >;
 };
 
+export type CrackerBinaryListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'crackerBinary';
+    attributes: {
+      crackerBinaryTypeId: string;
+      version: string;
+      downloadUrl: string;
+      binaryName: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: string;
+        } | null;
+      };
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: string;
+        type: 'crackerBinaryType';
+        attributes: {
+          typeName: string;
+          isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: string;
+        type: 'task';
+        attributes: {
+          taskName: string;
+          attackCmd: string;
+          chunkTime: number;
+          statusTimer: number;
+          keyspace: number;
+          keyspaceProgress: number;
+          priority: number;
+          maxAgents: number;
+          color: string | null;
+          isSmall: boolean;
+          isCpuTask: boolean;
+          useNewBench: boolean;
+          skipKeyspace: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
+          isArchived: boolean;
+          notes: string;
+          staticChunks: number;
+          chunkSize: number;
+          forcePipe: boolean;
+          preprocessorId: number;
+          preprocessorCommand: string;
+        };
+      }
+  >;
+};
+
+export type CrackerBinaryCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type CrackerBinaryRelationTasks = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
 export type CrackerBinaryRelationTasksGetResponse = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
 export type DeleteCrackersData = {
-  body?: never;
+  body: CrackerBinaryDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/crackers';
@@ -240,43 +356,65 @@ export type DeleteCrackersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteCrackersError = DeleteCrackersErrors[keyof DeleteCrackersErrors];
 
 export type DeleteCrackersResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteCrackersResponse = DeleteCrackersResponses[keyof DeleteCrackersResponses];
 
 export type GetCrackersData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"crackerBinaryId": 123}}` -> `eyJwcmltYXJ5Ijp7ImNyYWNrZXJCaW5hcnlJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"crackerBinaryId": 123}}` -> `eyJwcmltYXJ5Ijp7ImNyYWNrZXJCaW5hcnlJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[crackerBinaryId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
      */
-    include?: string;
+    include?: Array<'crackerBinaryType' | 'tasks'>;
   };
   url: '/api/v2/ui/crackers';
 };
@@ -290,6 +428,10 @@ export type GetCrackersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetCrackersError = GetCrackersErrors[keyof GetCrackersErrors];
@@ -304,7 +446,7 @@ export type GetCrackersResponses = {
 export type GetCrackersResponse = GetCrackersResponses[keyof GetCrackersResponses];
 
 export type PatchCrackersData = {
-  body?: never;
+  body: CrackerBinaryPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/crackers';
@@ -319,16 +461,30 @@ export type PatchCrackersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchCrackersError = PatchCrackersErrors[keyof PatchCrackersErrors];
 
 export type PatchCrackersResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchCrackersResponse = PatchCrackersResponses[keyof PatchCrackersResponses];
 
 export type PostCrackersData = {
   body: CrackerBinaryCreate;
@@ -346,6 +502,14 @@ export type PostCrackersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostCrackersError = PostCrackersErrors[keyof PostCrackersErrors];
@@ -364,27 +528,15 @@ export type GetCrackersCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[crackerBinaryId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/crackers/count';
 };
@@ -398,6 +550,10 @@ export type GetCrackersCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetCrackersCountError = GetCrackersCountErrors[keyof GetCrackersCountErrors];
@@ -406,7 +562,7 @@ export type GetCrackersCountResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryListResponse;
+  200: CrackerBinaryCountResponse;
 };
 
 export type GetCrackersCountResponse = GetCrackersCountResponses[keyof GetCrackersCountResponses];
@@ -431,9 +587,13 @@ export type GetCrackersByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetCrackersByIdByRelationError = GetCrackersByIdByRelationErrors[keyof GetCrackersByIdByRelationErrors];
@@ -468,9 +628,13 @@ export type DeleteCrackersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteCrackersByIdRelationshipsByRelationError =
@@ -506,9 +670,13 @@ export type GetCrackersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetCrackersByIdRelationshipsByRelationError =
@@ -544,9 +712,17 @@ export type PatchCrackersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchCrackersByIdRelationshipsByRelationError =
@@ -563,9 +739,7 @@ export type PatchCrackersByIdRelationshipsByRelationResponse =
   PatchCrackersByIdRelationshipsByRelationResponses[keyof PatchCrackersByIdRelationshipsByRelationResponses];
 
 export type PostCrackersByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: CrackerBinaryRelationTasks;
   path: {
     id: number;
     relation: string;
@@ -584,9 +758,17 @@ export type PostCrackersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostCrackersByIdRelationshipsByRelationError =
@@ -603,9 +785,7 @@ export type PostCrackersByIdRelationshipsByRelationResponse =
   PostCrackersByIdRelationshipsByRelationResponses[keyof PostCrackersByIdRelationshipsByRelationResponses];
 
 export type DeleteCrackersByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -623,9 +803,13 @@ export type DeleteCrackersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteCrackersByIdError = DeleteCrackersByIdErrors[keyof DeleteCrackersByIdErrors];
@@ -646,9 +830,9 @@ export type GetCrackersByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
      */
-    include?: string;
+    include?: Array<'crackerBinaryType' | 'tasks'>;
   };
   url: '/api/v2/ui/crackers/{id}';
 };
@@ -663,9 +847,13 @@ export type GetCrackersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetCrackersByIdError = GetCrackersByIdErrors[keyof GetCrackersByIdErrors];
@@ -698,9 +886,17 @@ export type PatchCrackersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchCrackersByIdError = PatchCrackersByIdErrors[keyof PatchCrackersByIdErrors];

@@ -2,6 +2,7 @@ import { zTaskWrapperDisplayListResponse } from '@generated/api/zod';
 import { EMPTY, catchError } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
+import { TaskWrapperId } from '@models/id.types';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapperDisplayOverview } from '@models/task.model';
@@ -13,7 +14,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview> {
   private _isArchived: boolean | null = false;
-  private _hashlistID = 0;
+  private _hashlistID = '';
   private filterQuery: Filter;
   setFilterQuery(filter: Filter): void {
     this.filterQuery = filter;
@@ -26,7 +27,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
     this._isArchived = isArchived;
   }
 
-  setHashlistID(hashlistID: number): void {
+  setHashlistID(hashlistID: string): void {
     this._hashlistID = hashlistID;
   }
 
@@ -47,7 +48,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
       params.addFilter(query);
     }
 
-    if (this._hashlistID && this._hashlistID > 0) {
+    if (this._hashlistID) {
       params.addFilter({
         field: 'hashlistId',
         operator: FilterType.EQUAL,
@@ -70,7 +71,11 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
         .subscribe((response: ResponseWrapper) => {
           const taskWrappers: JTaskWrapperDisplayOverview[] = this.serializer
             .deserialize(response, zTaskWrapperDisplayListResponse, requestParams)
-            .map((w) => ({ ...w, taskWrapperId: w.taskWrapperId ?? w.id }));
+            .map((w) => {
+              // The spec omits taskWrapperId from the display attributes, the API still sends it.
+              const wrapper = w as typeof w & { taskWrapperId?: TaskWrapperId };
+              return { ...wrapper, taskWrapperId: wrapper.taskWrapperId ?? wrapper.id };
+            });
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;

@@ -26,11 +26,16 @@ type JsonaRuntimeProps = {
 
 // ── Relationship resolution types ────────────────────────────────
 
-/** Extract the typed relationships object from a JSON:API envelope. */
-type ExtractRelationships<T> = T extends { relationships?: infer R } ? NonNullable<R> : Record<string, never>;
+/** Extract the typed relationships object from a JSON:API resource object. */
+type ExtractRelationships<T> = T extends { relationships?: infer R | undefined }
+  ? NonNullable<R>
+  : Record<string, never>;
 
 /** Extract the union of included resource types from a JSON:API envelope. */
-type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;
+type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] | undefined } ? I : never;
+
+/** The envelope's primary resource object, single or first of a collection. */
+type DataItem<T> = T extends { data: (infer D)[] } ? D : T extends { data: infer D } ? D : T;
 
 /**
  * Resolve a relationship to its flattened type.
@@ -40,7 +45,7 @@ type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;
  */
 type ResolveRel<K extends string, Rel, IncUnion> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  NonNullable<Rel extends { data?: infer D } ? D : never> extends readonly any[]
+  NonNullable<Rel extends { data?: infer D | undefined } ? D : never> extends readonly any[]
     ? FlattenItem<Extract<IncUnion, { type: K }>>[]
     : FlattenItem<Extract<IncUnion, { type: K }>> | null;
 
@@ -106,9 +111,9 @@ type JsonApiPayloadInner<
       ? FlattenItem<D, AggAll, AggReq>
       : T
   : T extends { data: (infer D)[] }
-    ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>[]
+    ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<D>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>[]
     : T extends { data: infer D }
-      ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<T>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>
+      ? RequireKeys<FlattenItemWithRels<D, ExtractRelationships<D>, ExtractIncludedUnion<T>, AggAll, AggReq>, IncKeys>
       : T;
 
 /**
@@ -129,7 +134,7 @@ export type JsonApiPayload<
 > = JsonApiPayloadInner<NormalizeEnvelope<T>, IncKeys, AggAll, AggReq>;
 
 /** Valid relationship key names from an envelope type. */
-export type RelationshipKeysOf<T> = keyof ExtractRelationships<T> & string;
+export type RelationshipKeysOf<T> = keyof ExtractRelationships<DataItem<NormalizeEnvelope<T>>> & string;
 
 /** Valid relationship key names from a Zod envelope schema. */
 export type RelationshipKeysOfSchema<TSchema extends z.ZodTypeAny> = RelationshipKeysOf<z.infer<TSchema>>;

@@ -23,7 +23,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   standalone: false
 })
 export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() healthCheckId = 0;
+  @Input() healthCheckId = '';
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthCheckAgentsDataSource;

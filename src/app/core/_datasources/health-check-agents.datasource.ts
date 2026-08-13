@@ -11,9 +11,9 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
-  private _healthCheckId = 0;
+  private _healthCheckId = '';
 
-  setHealthCheckId(healthCheckId: number): void {
+  setHealthCheckId(healthCheckId: string): void {
     this._healthCheckId = healthCheckId;
   }
 

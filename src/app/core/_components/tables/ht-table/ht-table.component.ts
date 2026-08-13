@@ -155,7 +155,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   @Input() isCmdTask = false;
 
   /** Selected checkbox Cmd files */
-  @Input() isCmdFiles: CheckboxFiles | number[];
+  @Input() isCmdFiles: CheckboxFiles | string[];
 
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;

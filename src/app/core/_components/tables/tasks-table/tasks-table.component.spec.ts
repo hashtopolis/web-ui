@@ -155,7 +155,7 @@ describe('TasksTableComponent', () => {
       const idColumn = columns.find((col) => col.id === TaskTableCol.ID);
       const testWrapper = {
         taskType: TaskType.TASK,
-        taskId: 123
+        taskId: '123'
       } as JTaskWrapperDisplay;
 
       expect(idColumn).toBeDefined();
@@ -169,7 +169,7 @@ describe('TasksTableComponent', () => {
       const idColumn = columns.find((col) => col.id === TaskTableCol.ID);
       const testWrapper = {
         taskType: TaskType.SUPERTASK,
-        taskId: 123
+        taskId: '123'
       } as JTaskWrapperDisplay;
 
       expect(idColumn?.render!(testWrapper)).toBe('');
@@ -205,13 +205,13 @@ describe('TasksTableComponent', () => {
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
         taskType: TaskType.TASK,
-        taskId: 1,
+        taskId: '1',
         displayName: 'Test Task'
       } as JTaskWrapperDisplay;
 
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Task');
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', '1', 'edit']);
         done();
       });
     });
@@ -222,13 +222,13 @@ describe('TasksTableComponent', () => {
       const longName = 'A'.repeat(50);
       const taskWrapper = {
         taskType: TaskType.TASK,
-        taskId: 1,
+        taskId: '1',
         displayName: longName
       } as JTaskWrapperDisplay;
 
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe(longName);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', '1', 'edit']);
         done();
       });
     });
@@ -237,7 +237,7 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
-        id: 42,
+        id: '42',
         taskType: TaskType.SUPERTASK,
         displayName: 'Test Supertask'
       } as JTaskWrapperDisplay;
@@ -255,7 +255,7 @@ describe('TasksTableComponent', () => {
         expect(mockDialog.open).toHaveBeenCalledWith(
           jasmine.anything(),
           jasmine.objectContaining({
-            data: { supertaskId: 42, supertaskName: 'Test Supertask' }
+            data: { supertaskId: '42', supertaskName: 'Test Supertask' }
           })
         );
         done();
@@ -385,7 +385,7 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const hashTypeColumn = columns.find((col) => col.id === TaskTableCol.HASHTYPE);
       const taskWrapper = {
-        hashTypeId: 1000,
+        hashTypeId: '1000',
         hashTypeDescription: 'MD5'
       } as JTaskWrapperDisplay;
 
@@ -407,7 +407,7 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const hashTypeColumn = columns.find((col) => col.id === TaskTableCol.HASHTYPE);
       const taskWrapper = {
-        hashTypeId: 1000,
+        hashTypeId: '1000',
         hashTypeDescription: undefined
       } as unknown as JTaskWrapperDisplay;
 
@@ -443,13 +443,13 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const taskWrapper = {
-        hashlistId: 5,
+        hashlistId: '5',
         hashlistName: 'Test Hashlist'
       } as JTaskWrapperDisplay;
 
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Hashlist');
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', '5', 'edit']);
         done();
       });
     });
@@ -459,14 +459,14 @@ describe('TasksTableComponent', () => {
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const longName = 'This is a very long hashlist name that should be truncated';
       const taskWrapper = {
-        hashlistId: 11,
+        hashlistId: '11',
         hashlistName: longName
       } as JTaskWrapperDisplay;
 
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('This is a very long ...');
         expect(links[0].tooltip).toBe(longName);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', '11', 'edit']);
         done();
       });
     });
@@ -475,13 +475,13 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const taskWrapper = {
-        hashlistId: 10,
+        hashlistId: '10',
         hashlistName: undefined
       } as unknown as JTaskWrapperDisplay;
 
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('10');
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 10, 'edit']);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', '10', 'edit']);
         done();
       });
     });
@@ -583,13 +583,13 @@ describe('TasksTableComponent', () => {
       const columns = component.getColumns();
       const accessGroupColumn = columns.find((col) => col.id === TaskTableCol.ACCESS_GROUP);
       const taskWrapper = {
-        accessGroupId: 7,
+        accessGroupId: '7',
         groupName: 'Test Group'
       } as JTaskWrapperDisplay;
 
       accessGroupColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Group');
-        expect(links[0].routerLink).toEqual(['/users', 'access-groups', 7, 'edit']);
+        expect(links[0].routerLink).toEqual(['/users', 'access-groups', '7', 'edit']);
         done();
       });
     });
@@ -692,18 +692,18 @@ describe('TasksTableComponent', () => {
     it('should navigate to task edit page for EDIT_TASKS action on TASK', () => {
       const event = {
         menuItem: { label: 'Edit', action: RowActionMenuAction.EDIT_TASKS },
-        data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.TASK, taskId: '123' } as JTaskWrapperDisplay
       };
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'show-tasks', 123, 'edit']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'show-tasks', '123', 'edit']);
     });
 
     it('should not navigate for EDIT_TASKS action on SUPERTASK', () => {
       const event = {
         menuItem: { label: 'Edit', action: RowActionMenuAction.EDIT_TASKS },
-        data: { taskType: TaskType.SUPERTASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.SUPERTASK, taskId: '123' } as JTaskWrapperDisplay
       };
 
       component.rowActionClicked(event);
@@ -714,7 +714,7 @@ describe('TasksTableComponent', () => {
     it('should open modal subtasks dialog for SHOW_SUBTASKS action', () => {
       const event = {
         menuItem: { label: 'Subtasks', action: RowActionMenuAction.SHOW_SUBTASKS },
-        data: { id: 1, displayName: 'Test Supertask' } as JTaskWrapperDisplay
+        data: { id: '1', displayName: 'Test Supertask' } as JTaskWrapperDisplay
       };
 
       component.rowActionClicked(event);
@@ -725,53 +725,53 @@ describe('TasksTableComponent', () => {
     it('should navigate to copy task page for COPY_TO_TASK action', () => {
       const event = {
         menuItem: { label: 'Copy', action: RowActionMenuAction.COPY_TO_TASK },
-        data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.TASK, taskId: '123' } as JTaskWrapperDisplay
       };
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'new-tasks', 123, 'copy']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'new-tasks', '123', 'copy']);
     });
 
     it('should navigate to copy pretask page for COPY_TO_PRETASK action', () => {
       const event = {
         menuItem: { label: 'Copy to Pretask', action: RowActionMenuAction.COPY_TO_PRETASK },
-        data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.TASK, taskId: '123' } as JTaskWrapperDisplay
       };
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'preconfigured-tasks', 123, 'copytask']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['tasks', 'preconfigured-tasks', '123', 'copytask']);
     });
 
     it('should call updateIsArchived for ARCHIVE action', () => {
       const event = {
         menuItem: { label: 'Archive', action: RowActionMenuAction.ARCHIVE },
-        data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.TASK, taskId: '123' } as JTaskWrapperDisplay
       };
       const updateIsArchivedSpy = spyOn(component as unknown as { updateIsArchived: jasmine.Spy }, 'updateIsArchived');
 
       component.rowActionClicked(event);
 
-      expect(updateIsArchivedSpy).toHaveBeenCalledWith(123, true);
+      expect(updateIsArchivedSpy).toHaveBeenCalledWith('123', true);
     });
 
     it('should call updateIsArchived for UNARCHIVE action', () => {
       const event = {
         menuItem: { label: 'Unarchive', action: RowActionMenuAction.UNARCHIVE },
-        data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.TASK, taskId: '123' } as JTaskWrapperDisplay
       };
       const updateIsArchivedSpy = spyOn(component as unknown as { updateIsArchived: jasmine.Spy }, 'updateIsArchived');
 
       component.rowActionClicked(event);
 
-      expect(updateIsArchivedSpy).toHaveBeenCalledWith(123, false);
+      expect(updateIsArchivedSpy).toHaveBeenCalledWith('123', false);
     });
 
     it('should call updateTaskWrapperIsArchived for ARCHIVE action on SUPERTASK', () => {
       const event = {
         menuItem: { label: 'Archive', action: RowActionMenuAction.ARCHIVE },
-        data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.SUPERTASK, taskWrapperId: '456' } as JTaskWrapperDisplay
       };
       const updateTaskWrapperIsArchivedSpy = spyOn(
         component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
@@ -780,13 +780,13 @@ describe('TasksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith(456, true);
+      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith('456', true);
     });
 
     it('should call updateTaskWrapperIsArchived for UNARCHIVE action on SUPERTASK', () => {
       const event = {
         menuItem: { label: 'Unarchive', action: RowActionMenuAction.UNARCHIVE },
-        data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
+        data: { taskType: TaskType.SUPERTASK, taskWrapperId: '456' } as JTaskWrapperDisplay
       };
       const updateTaskWrapperIsArchivedSpy = spyOn(
         component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
@@ -795,7 +795,7 @@ describe('TasksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith(456, false);
+      expect(updateTaskWrapperIsArchivedSpy).toHaveBeenCalledWith('456', false);
     });
 
     it('should open delete dialog for DELETE action', () => {
@@ -826,11 +826,11 @@ describe('TasksTableComponent', () => {
     });
 
     it('should preserve other properties', () => {
-      const data = { displayName: 'Test Task', id: 123, taskId: 456 } as JTaskWrapperDisplay;
+      const data = { displayName: 'Test Task', id: '123', taskId: '456' } as JTaskWrapperDisplay;
       const result = component.getRowDeleteLabel(data);
 
-      expect(result.id).toBe(123);
-      expect(result.taskId).toBe(456);
+      expect(result.id).toBe('123');
+      expect(result.taskId).toBe('456');
     });
   });
 
@@ -859,8 +859,8 @@ describe('TasksTableComponent', () => {
       const event = {
         menuItem: { label: 'Archive', action: BulkActionMenuAction.ARCHIVE },
         data: [
-          { taskType: TaskType.TASK, taskId: 1, displayName: 'Task 1' },
-          { taskType: TaskType.TASK, taskId: 2, displayName: 'Task 2' }
+          { taskType: TaskType.TASK, taskId: '1', displayName: 'Task 1' },
+          { taskType: TaskType.TASK, taskId: '2', displayName: 'Task 2' }
         ] as JTaskWrapperDisplay[]
       };
 
@@ -881,7 +881,7 @@ describe('TasksTableComponent', () => {
     it('should call bulkActionDelete when DELETE dialog is confirmed', () => {
       const event = {
         menuItem: { label: 'Delete', action: BulkActionMenuAction.DELETE },
-        data: [{ taskWrapperId: 1, displayName: 'Task 1' }] as JTaskWrapperDisplay[]
+        data: [{ taskWrapperId: '1', displayName: 'Task 1' }] as JTaskWrapperDisplay[]
       };
 
       mockDialog.open.and.returnValue({
@@ -927,11 +927,11 @@ describe('TasksTableComponent', () => {
 
     it('should subscribe to afterClosed and call rowActionDelete for DELETE action', () => {
       mockDialog.open.and.returnValue({
-        afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1 }] })
+        afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: '1' }] })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ id: 1 }] as JTaskWrapperDisplay[],
+        rows: [{ id: '1' }] as JTaskWrapperDisplay[],
         title: 'Delete',
         action: RowActionMenuAction.DELETE
       });
@@ -945,12 +945,12 @@ describe('TasksTableComponent', () => {
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
-            data: [{ taskType: TaskType.TASK, taskId: 1 }]
+            data: [{ taskType: TaskType.TASK, taskId: '1' }]
           })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ taskType: TaskType.TASK, taskId: 1 }] as JTaskWrapperDisplay[],
+        rows: [{ taskType: TaskType.TASK, taskId: '1' }] as JTaskWrapperDisplay[],
         title: 'Archive',
         action: BulkActionMenuAction.ARCHIVE
       });
@@ -964,12 +964,12 @@ describe('TasksTableComponent', () => {
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
-            data: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }]
+            data: [{ taskType: TaskType.SUPERTASK, taskWrapperId: '10' }]
           })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }] as JTaskWrapperDisplay[],
+        rows: [{ taskType: TaskType.SUPERTASK, taskWrapperId: '10' }] as JTaskWrapperDisplay[],
         title: 'Archive',
         action: BulkActionMenuAction.ARCHIVE
       });
@@ -985,12 +985,12 @@ describe('TasksTableComponent', () => {
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.DELETE,
-            data: [{ taskWrapperId: 1 }]
+            data: [{ taskWrapperId: '1' }]
           })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ taskWrapperId: 1 }] as JTaskWrapperDisplay[],
+        rows: [{ taskWrapperId: '1' }] as JTaskWrapperDisplay[],
         title: 'Delete',
         action: BulkActionMenuAction.DELETE
       });
@@ -1005,7 +1005,7 @@ describe('TasksTableComponent', () => {
       } as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ id: 1 }] as JTaskWrapperDisplay[],
+        rows: [{ id: '1' }] as JTaskWrapperDisplay[],
         title: 'Delete',
         action: RowActionMenuAction.DELETE
       });
@@ -1017,32 +1017,32 @@ describe('TasksTableComponent', () => {
   describe('updateTaskWrapperIsArchived', () => {
     it('should call gs.update with TASKS_WRAPPER endpoint when archiving', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
-      ).updateTaskWrapperIsArchived(456, true);
+        component as unknown as { updateTaskWrapperIsArchived: (id: string, b: boolean) => void }
+      ).updateTaskWrapperIsArchived('456', true);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: true });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, '456', { isArchived: true });
     });
 
     it('should call gs.update with TASKS_WRAPPER endpoint when unarchiving', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
-      ).updateTaskWrapperIsArchived(456, false);
+        component as unknown as { updateTaskWrapperIsArchived: (id: string, b: boolean) => void }
+      ).updateTaskWrapperIsArchived('456', false);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: false });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, '456', { isArchived: false });
     });
 
     it('should show "Successfully archived supertask!" on archive success', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
-      ).updateTaskWrapperIsArchived(456, true);
+        component as unknown as { updateTaskWrapperIsArchived: (id: string, b: boolean) => void }
+      ).updateTaskWrapperIsArchived('456', true);
 
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived supertask!');
     });
 
     it('should show "Successfully unarchived supertask!" on unarchive success', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
-      ).updateTaskWrapperIsArchived(456, false);
+        component as unknown as { updateTaskWrapperIsArchived: (id: string, b: boolean) => void }
+      ).updateTaskWrapperIsArchived('456', false);
 
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully unarchived supertask!');
     });
@@ -1279,7 +1279,7 @@ describe('TasksTableComponent', () => {
   describe('editableSaved', () => {
     it('should call changePriority for CHANGE_PRIORITY action', () => {
       const editable = {
-        data: { taskType: TaskType.TASK, taskId: 1 } as JTaskWrapperDisplay,
+        data: { taskType: TaskType.TASK, taskId: '1' } as JTaskWrapperDisplay,
         value: '10',
         action: TaskTableEditableAction.CHANGE_PRIORITY
       };
@@ -1292,7 +1292,7 @@ describe('TasksTableComponent', () => {
 
     it('should call changeMaxAgents for CHANGE_MAX_AGENTS action', () => {
       const editable = {
-        data: { taskType: TaskType.TASK, taskId: 1 } as JTaskWrapperDisplay,
+        data: { taskType: TaskType.TASK, taskId: '1' } as JTaskWrapperDisplay,
         value: '5',
         action: TaskTableEditableAction.CHANGE_MAX_AGENTS
       };
@@ -1327,7 +1327,7 @@ describe('TasksTableComponent', () => {
       ];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1, taskName: 'Test' }]
+        data: [{ id: '1', taskName: 'Test' }]
       } as ActionMenuEvent<JTaskWrapperDisplay[]>;
 
       component.exportActionClicked(event);
@@ -1345,7 +1345,7 @@ describe('TasksTableComponent', () => {
       component.table.displayedColumns = ['0'];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1, taskName: 'Test' }]
+        data: [{ id: '1', taskName: 'Test' }]
       } as ActionMenuEvent<JTaskWrapperDisplay[]>;
 
       component.exportActionClicked(event);
@@ -1379,7 +1379,7 @@ describe('TasksTableComponent', () => {
       ];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1, taskName: 'Test' }]
+        data: [{ id: '1', taskName: 'Test' }]
       } as ActionMenuEvent<JTaskWrapperDisplay[]>;
 
       component.exportActionClicked(event);
@@ -1395,31 +1395,31 @@ describe('TasksTableComponent', () => {
 
   describe('hashlistId setter', () => {
     it('should set _hashlistId when different value provided', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 0;
+      (component as unknown as { _hashlistId: string })._hashlistId = '';
 
-      component.hashlistId = 5;
+      component.hashlistId = '5';
 
-      expect((component as unknown as { _hashlistId: number })._hashlistId).toBe(5);
+      expect((component as unknown as { _hashlistId: string })._hashlistId).toBe('5');
     });
 
     it('should not set _hashlistId when same value provided', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 5;
+      (component as unknown as { _hashlistId: string })._hashlistId = '5';
 
-      component.hashlistId = 5;
+      component.hashlistId = '5';
 
-      expect((component as unknown as { _hashlistId: number })._hashlistId).toBe(5);
+      expect((component as unknown as { _hashlistId: string })._hashlistId).toBe('5');
     });
 
     it('should return 0 when _hashlistId is undefined', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = undefined as unknown as number;
+      (component as unknown as { _hashlistId: string })._hashlistId = undefined as unknown as string;
 
-      expect(component.hashlistId).toBe(0);
+      expect(component.hashlistId).toBe('');
     });
 
     it('should return _hashlistId value when set', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 10;
+      (component as unknown as { _hashlistId: string })._hashlistId = '10';
 
-      expect(component.hashlistId).toBe(10);
+      expect(component.hashlistId).toBe('10');
     });
   });
 

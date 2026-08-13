@@ -15,9 +15,9 @@ import {
 } from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<ReportSection> {
-  private _hashlistId = 0;
+  private _hashlistId = '';
 
-  setHashlistId(hashlistId: number): void {
+  setHashlistId(hashlistId: string): void {
     this._hashlistId = hashlistId;
   }
 

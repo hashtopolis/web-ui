@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type PreprocessorCreate = {
   data: {
@@ -28,20 +28,38 @@ export type PreprocessorPatch = {
   };
 };
 
+export type PreprocessorPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'preprocessor';
+    attributes: {
+      binaryName?: string;
+      keyspaceCommand?: string;
+      limitCommand?: string;
+      name?: string;
+      skipCommand?: string;
+      url?: string;
+    };
+  }>;
+};
+
+export type PreprocessorDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'preprocessor';
+  }>;
+};
+
 export type PreprocessorResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'preprocessor';
     attributes: {
       name: string;
@@ -51,11 +69,10 @@ export type PreprocessorResponse = {
       skipCommand: string;
       limitCommand: string;
     };
+    links: {
+      self: string;
+    };
   };
-  relationships?: {
-    [key: string]: unknown;
-  };
-  included?: Array<unknown>;
 };
 
 export type PreprocessorPostPatchResponse = {
@@ -63,8 +80,11 @@ export type PreprocessorPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
+  links: {
+    self: string;
+  };
   data: {
-    id: number;
+    id: string;
     type: 'preprocessor';
     attributes: {
       name: string;
@@ -73,6 +93,9 @@ export type PreprocessorPostPatchResponse = {
       keyspaceCommand: string;
       skipCommand: string;
       limitCommand: string;
+    };
+    links: {
+      self: string;
     };
   };
 };
@@ -82,15 +105,20 @@ export type PreprocessorListResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
   };
   data: Array<{
-    id: number;
+    id: string;
     type: 'preprocessor';
     attributes: {
       name: string;
@@ -100,15 +128,37 @@ export type PreprocessorListResponse = {
       skipCommand: string;
       limitCommand: string;
     };
+    links: {
+      self: string;
+    };
   }>;
-  relationships?: {
-    [key: string]: unknown;
+};
+
+export type PreprocessorCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
   };
-  included?: Array<unknown>;
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
 };
 
 export type DeletePreprocessorsData = {
-  body?: never;
+  body: PreprocessorDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/preprocessors';
@@ -123,43 +173,65 @@ export type DeletePreprocessorsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeletePreprocessorsError = DeletePreprocessorsErrors[keyof DeletePreprocessorsErrors];
 
 export type DeletePreprocessorsResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeletePreprocessorsResponse = DeletePreprocessorsResponses[keyof DeletePreprocessorsResponses];
 
 export type GetPreprocessorsData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"preprocessorId": 123}}` -> `eyJwcmltYXJ5Ijp7InByZXByb2Nlc3NvcklkIjogMTIzfX0=`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"preprocessorId": 123}}` -> `eyJwcmltYXJ5Ijp7InByZXByb2Nlc3NvcklkIjogMTIzfX0=`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[preprocessorId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options:
      */
-    include?: string;
+    include?: Array<string>;
   };
   url: '/api/v2/ui/preprocessors';
 };
@@ -173,6 +245,10 @@ export type GetPreprocessorsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetPreprocessorsError = GetPreprocessorsErrors[keyof GetPreprocessorsErrors];
@@ -187,7 +263,7 @@ export type GetPreprocessorsResponses = {
 export type GetPreprocessorsResponse = GetPreprocessorsResponses[keyof GetPreprocessorsResponses];
 
 export type PatchPreprocessorsData = {
-  body?: never;
+  body: PreprocessorPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/preprocessors';
@@ -202,16 +278,30 @@ export type PatchPreprocessorsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchPreprocessorsError = PatchPreprocessorsErrors[keyof PatchPreprocessorsErrors];
 
 export type PatchPreprocessorsResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchPreprocessorsResponse = PatchPreprocessorsResponses[keyof PatchPreprocessorsResponses];
 
 export type PostPreprocessorsData = {
   body: PreprocessorCreate;
@@ -229,6 +319,14 @@ export type PostPreprocessorsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostPreprocessorsError = PostPreprocessorsErrors[keyof PostPreprocessorsErrors];
@@ -247,27 +345,15 @@ export type GetPreprocessorsCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[preprocessorId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/preprocessors/count';
 };
@@ -281,6 +367,10 @@ export type GetPreprocessorsCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetPreprocessorsCountError = GetPreprocessorsCountErrors[keyof GetPreprocessorsCountErrors];
@@ -289,15 +379,13 @@ export type GetPreprocessorsCountResponses = {
   /**
    * successful operation
    */
-  200: PreprocessorListResponse;
+  200: PreprocessorCountResponse;
 };
 
 export type GetPreprocessorsCountResponse = GetPreprocessorsCountResponses[keyof GetPreprocessorsCountResponses];
 
 export type DeletePreprocessorsByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -315,9 +403,13 @@ export type DeletePreprocessorsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeletePreprocessorsByIdError = DeletePreprocessorsByIdErrors[keyof DeletePreprocessorsByIdErrors];
@@ -338,9 +430,9 @@ export type GetPreprocessorsByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options:
      */
-    include?: string;
+    include?: Array<string>;
   };
   url: '/api/v2/ui/preprocessors/{id}';
 };
@@ -355,9 +447,13 @@ export type GetPreprocessorsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetPreprocessorsByIdError = GetPreprocessorsByIdErrors[keyof GetPreprocessorsByIdErrors];
@@ -390,9 +486,17 @@ export type PatchPreprocessorsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchPreprocessorsByIdError = PatchPreprocessorsByIdErrors[keyof PatchPreprocessorsByIdErrors];

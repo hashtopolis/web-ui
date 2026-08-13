@@ -64,26 +64,66 @@ export const zNotificationSettingPatch = z.object({
   })
 });
 
+export const zNotificationSettingPatchMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.string().regex(/^[0-9]+$/),
+      type: z.literal('notificationSetting'),
+      attributes: z.object({
+        action: z
+          .union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')])
+          .optional(),
+        isActive: z.boolean().optional(),
+        notification: z
+          .union([
+            z.literal('taskComplete'),
+            z.literal('agentError'),
+            z.literal('ownAgentError'),
+            z.literal('logError'),
+            z.literal('newTask'),
+            z.literal('newHashlist'),
+            z.literal('hashlistAllCracked'),
+            z.literal('hashlistCrackedHash'),
+            z.literal('userCreated'),
+            z.literal('userDeleted'),
+            z.literal('userLoginFailed'),
+            z.literal('logWarn'),
+            z.literal('logFatal'),
+            z.literal('newAgent'),
+            z.literal('deleteTask'),
+            z.literal('deleteHashlist'),
+            z.literal('deleteAgent')
+          ])
+          .optional(),
+        receiver: z.string().optional()
+      })
+    })
+  )
+});
+
+export const zNotificationSettingDeleteMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.string().regex(/^[0-9]+$/),
+      type: z.literal('notificationSetting')
+    })
+  )
+});
+
 export const zNotificationSettingResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
-    })
-    .optional(),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/notifications/1')
+  }),
   data: z.object({
-    id: z.int(),
+    id: z.string().regex(/^[0-9]+$/),
     type: z.literal('notificationSetting'),
     attributes: z.object({
       action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int().nullish(),
+      objectId: z.int().nullable(),
       notification: z.union([
         z.literal('taskComplete'),
         z.literal('agentError'),
@@ -103,13 +143,14 @@ export const zNotificationSettingResponse = z.object({
         z.literal('deleteHashlist'),
         z.literal('deleteAgent')
       ]),
-      userId: z.int(),
+      userId: z.string(),
       receiver: z.string(),
       isActive: z.boolean()
-    })
-  }),
-  relationships: z
-    .object({
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/notifications/1')
+    }),
+    relationships: z.object({
       user: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/notifications/relationships/user'),
@@ -118,16 +159,16 @@ export const zNotificationSettingResponse = z.object({
         data: z
           .object({
             type: z.literal('user'),
-            id: z.int()
+            id: z.string().regex(/^[0-9]+$/)
           })
           .nullish()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.object({
-        id: z.int(),
+        id: z.string().regex(/^[0-9]+$/),
         type: z.literal('user'),
         attributes: z.object({
           name: z.string(),
@@ -137,7 +178,7 @@ export const zNotificationSettingResponse = z.object({
           lastLoginDate: z.number(),
           registeredSince: z.number(),
           sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
+          globalPermissionGroupId: z.string(),
           yubikey: z.string(),
           otp1: z.string(),
           otp2: z.string(),
@@ -154,12 +195,15 @@ export const zNotificationSettingPostPatchResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/notifications/1')
+  }),
   data: z.object({
-    id: z.int(),
+    id: z.string().regex(/^[0-9]+$/),
     type: z.literal('notificationSetting'),
     attributes: z.object({
       action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-      objectId: z.int().nullish(),
+      objectId: z.int().nullable(),
       notification: z.union([
         z.literal('taskComplete'),
         z.literal('agentError'),
@@ -179,11 +223,51 @@ export const zNotificationSettingPostPatchResponse = z.object({
         z.literal('deleteHashlist'),
         z.literal('deleteAgent')
       ]),
-      userId: z.int(),
+      userId: z.string(),
       receiver: z.string(),
       isActive: z.boolean()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/notifications/1')
+    }),
+    relationships: z.object({
+      user: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+          related: z.string().default('/api/v2/ui/notifications/user')
+        }),
+        data: z
+          .object({
+            type: z.literal('user'),
+            id: z.string().regex(/^[0-9]+$/)
+          })
+          .nullish()
+      })
     })
-  })
+  }),
+  included: z
+    .array(
+      z.object({
+        id: z.string().regex(/^[0-9]+$/),
+        type: z.literal('user'),
+        attributes: z.object({
+          name: z.string(),
+          email: z.string(),
+          isValid: z.boolean(),
+          isComputedPassword: z.boolean(),
+          lastLoginDate: z.number(),
+          registeredSince: z.number(),
+          sessionLifetime: z.int(),
+          globalPermissionGroupId: z.string(),
+          yubikey: z.string(),
+          otp1: z.string(),
+          otp2: z.string(),
+          otp3: z.string(),
+          otp4: z.string()
+        })
+      })
+    )
+    .optional()
 });
 
 export const zNotificationSettingListResponse = z.object({
@@ -191,22 +275,40 @@ export const zNotificationSettingListResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/notifications?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/notifications?page[size]=25&page[before]=25')
+  links: z.object({
+    self: z.string().default('/api/v2/ui/notifications?page[size]=25'),
+    first: z.string().default('/api/v2/ui/notifications?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/notifications?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/notifications?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/notifications?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
     })
-    .optional(),
+  }),
   data: z.array(
     z.object({
-      id: z.int(),
+      id: z.string().regex(/^[0-9]+$/),
       type: z.literal('notificationSetting'),
       attributes: z.object({
         action: z.union([z.literal('createNotification'), z.literal('setActive'), z.literal('deleteNotification')]),
-        objectId: z.int().nullish(),
+        objectId: z.int().nullable(),
         notification: z.union([
           z.literal('taskComplete'),
           z.literal('agentError'),
@@ -226,32 +328,33 @@ export const zNotificationSettingListResponse = z.object({
           z.literal('deleteHashlist'),
           z.literal('deleteAgent')
         ]),
-        userId: z.int(),
+        userId: z.string(),
         receiver: z.string(),
         isActive: z.boolean()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/notifications/1')
+      }),
+      relationships: z.object({
+        user: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/notifications/relationships/user'),
+            related: z.string().default('/api/v2/ui/notifications/user')
+          }),
+          data: z
+            .object({
+              type: z.literal('user'),
+              id: z.string().regex(/^[0-9]+$/)
+            })
+            .nullish()
+        })
       })
     })
   ),
-  relationships: z
-    .object({
-      user: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/notifications/relationships/user'),
-          related: z.string().default('/api/v2/ui/notifications/user')
-        }),
-        data: z
-          .object({
-            type: z.literal('user'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
   included: z
     .array(
       z.object({
-        id: z.int(),
+        id: z.string().regex(/^[0-9]+$/),
         type: z.literal('user'),
         attributes: z.object({
           name: z.string(),
@@ -261,7 +364,7 @@ export const zNotificationSettingListResponse = z.object({
           lastLoginDate: z.number(),
           registeredSince: z.number(),
           sessionLifetime: z.int(),
-          globalPermissionGroupId: z.int(),
+          globalPermissionGroupId: z.string(),
           yubikey: z.string(),
           otp1: z.string(),
           otp2: z.string(),
@@ -273,50 +376,49 @@ export const zNotificationSettingListResponse = z.object({
     .optional()
 });
 
+export const zNotificationSettingCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
 export const zNotificationSettingRelationUser = z.object({
   data: z.object({
     type: z.literal('user'),
-    id: z.int().default(1)
+    id: z.string().regex(/^[0-9]+$/)
   })
 });
 
 export const zNotificationSettingRelationUserGetResponse = z.object({
   data: z.object({
     type: z.literal('user'),
-    id: z.int().default(1)
+    id: z.string().regex(/^[0-9]+$/)
   })
 });
 
-export const zDeleteNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteNotificationsBody = zNotificationSettingDeleteMultiple;
 
-export const zGetNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+/**
+ * successfully deleted
+ */
+export const zDeleteNotificationsResponse = z.void();
+
+export const zGetNotificationsQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['user'])).optional()
 });
 
 /**
@@ -324,64 +426,36 @@ export const zGetNotificationsData = z.object({
  */
 export const zGetNotificationsResponse = zNotificationSettingListResponse;
 
-export const zPatchNotificationsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchNotificationsBody = zNotificationSettingPatchMultiple;
 
-export const zPostNotificationsData = z.object({
-  body: zNotificationSettingCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+/**
+ * successfully updated
+ */
+export const zPatchNotificationsResponse = z.void();
+
+export const zPostNotificationsBody = zNotificationSettingCreate;
 
 /**
  * successful operation
  */
 export const zPostNotificationsResponse = zNotificationSettingPostPatchResponse;
 
-export const zGetNotificationsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetNotificationsCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
  * successful operation
  */
-export const zGetNotificationsCountResponse = zNotificationSettingListResponse;
+export const zGetNotificationsCountResponse = zNotificationSettingCountResponse;
 
-export const zGetNotificationsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetNotificationsByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -389,16 +463,12 @@ export const zGetNotificationsByIdByRelationData = z.object({
  */
 export const zGetNotificationsByIdByRelationResponse = zNotificationSettingRelationUserGetResponse;
 
-export const zGetNotificationsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetNotificationsByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -406,13 +476,11 @@ export const zGetNotificationsByIdRelationshipsByRelationData = z.object({
  */
 export const zGetNotificationsByIdRelationshipsByRelationResponse = zNotificationSettingResponse;
 
-export const zPatchNotificationsByIdRelationshipsByRelationData = z.object({
-  body: zNotificationSettingRelationUser,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchNotificationsByIdRelationshipsByRelationBody = zNotificationSettingRelationUser;
+
+export const zPatchNotificationsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -420,12 +488,8 @@ export const zPatchNotificationsByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchNotificationsByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteNotificationsByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteNotificationsByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -433,19 +497,15 @@ export const zDeleteNotificationsByIdData = z.object({
  */
 export const zDeleteNotificationsByIdResponse = z.void();
 
-export const zGetNotificationsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetNotificationsByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetNotificationsByIdQuery = z.object({
+  include: z.array(z.enum(['user'])).optional()
 });
 
 /**
@@ -453,12 +513,10 @@ export const zGetNotificationsByIdData = z.object({
  */
 export const zGetNotificationsByIdResponse = zNotificationSettingResponse;
 
-export const zPatchNotificationsByIdData = z.object({
-  body: zNotificationSettingPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchNotificationsByIdBody = zNotificationSettingPatch;
+
+export const zPatchNotificationsByIdPath = z.object({
+  id: z.int()
 });
 
 /**

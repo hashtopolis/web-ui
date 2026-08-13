@@ -107,15 +107,15 @@ describe('TasksAgentsTableComponent', () => {
   describe('assignment aggregate columns', () => {
     // loadAssignments() copies the assignment aggregates onto each agent; the task comes from the include.
     const working = {
-      id: 1,
+      id: '1',
       currentSpeed: 1200,
-      chunkId: 289,
+      chunkId: '289',
       timeSpent: 30,
       searched: 250,
       cracked: 2,
-      task: { id: 10, keyspace: 1000 }
+      task: { id: '10', keyspace: 1000 }
     } as unknown as JAgent;
-    const idle = { id: 2, task: { id: 10, keyspace: 1000 } } as unknown as JAgent;
+    const idle = { id: '2', task: { id: '10', keyspace: 1000 } } as unknown as JAgent;
 
     function column(id: TasksAgentsTableCol): HTTableColumn {
       return component.tableColumns.find((col: HTTableColumn) => col.id === id)!;
@@ -136,7 +136,7 @@ describe('TasksAgentsTableComponent', () => {
 
     it('should link to the current chunk', (done) => {
       column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working).subscribe((links) => {
-        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
+        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', '289', 'view'], label: '289' }]);
         done();
       });
     });
@@ -159,7 +159,7 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should render a dash when the task keyspace is unknown', () => {
-      const noKeyspace = { ...working, task: { id: 10 } } as unknown as JAgent;
+      const noKeyspace = { ...working, task: { id: '10' } } as unknown as JAgent;
       expect(column(TasksAgentsTableCol.SEARCHED).render!(noKeyspace)).toBe('-');
     });
 
@@ -188,7 +188,7 @@ describe('TasksAgentsTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const items = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
       component.table.displayedColumns = component.tableColumns.map((col) => col.id.toString());
 
@@ -205,8 +205,8 @@ describe('TasksAgentsTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
       const items = [
-        { id: 1, agentName: 'A1' },
-        { id: 2, agentName: 'A2' }
+        { id: '1', agentName: 'A1' },
+        { id: '2', agentName: 'A2' }
       ] as JAgent[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
 
@@ -238,16 +238,16 @@ describe('TasksAgentsTableComponent', () => {
 
     it('should call gs.delete with SERV.AGENT_ASSIGN and the assignment ID when the agent has one', () => {
       mockGlobalService.delete.and.returnValue(of({}));
-      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+      const agent = { id: '1', agentName: 'A1', assignmentId: '42' } as JAgent;
 
       triggerConfirmedUnassign(agent);
 
-      expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, 42);
+      expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, '42');
     });
 
     it('should show a success message, reload the table, and emit assignedAgentsChanged after a successful unassign', () => {
       mockGlobalService.delete.and.returnValue(of({}));
-      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+      const agent = { id: '1', agentName: 'A1', assignmentId: '42' } as JAgent;
       let emitted = false;
       component.assignedAgentsChanged.subscribe(() => (emitted = true));
 
@@ -259,7 +259,7 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should show an error message and NOT call the API when the agent has no assignment ID', () => {
-      const agent = { id: 1, agentName: 'A1' } as JAgent;
+      const agent = { id: '1', agentName: 'A1' } as JAgent;
 
       triggerConfirmedUnassign(agent);
 
@@ -268,7 +268,7 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {
-      const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
+      const agent = { id: '1', agentName: 'A1', assignmentId: '42' } as JAgent;
 
       const subject = openDialogAndClose(mockDialog, () =>
         component.rowActionClicked({
@@ -299,19 +299,19 @@ describe('TasksAgentsTableComponent', () => {
     it('should call gs.bulkDelete with SERV.AGENT_ASSIGN and the assignment IDs of the assigned agents', () => {
       mockGlobalService.bulkDelete.and.returnValue(of({}));
       const agents = [
-        { id: 1, agentName: 'A1', assignmentId: 42 },
-        { id: 2, agentName: 'A2', assignmentId: 43 }
+        { id: '1', agentName: 'A1', assignmentId: '42' },
+        { id: '2', agentName: 'A2', assignmentId: '43' }
       ] as JAgent[];
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: '42' }, { id: '43' }]);
     });
 
     it('should show a success message, reload the data source, and emit assignedAgentsChanged after a successful bulk unassign', () => {
       mockGlobalService.bulkDelete.and.returnValue(of({}));
       spyOn(component.dataSource, 'reload');
-      const agents = [{ id: 1, agentName: 'A1', assignmentId: 42 }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1', assignmentId: '42' }] as JAgent[];
       let emitted = false;
       component.assignedAgentsChanged.subscribe(() => (emitted = true));
 
@@ -325,18 +325,18 @@ describe('TasksAgentsTableComponent', () => {
     it('should show an error message per agent and exclude them from the bulkDelete request when some agents have no assignment ID', () => {
       mockGlobalService.bulkDelete.and.returnValue(of({}));
       const agents = [
-        { id: 1, agentName: 'A1', assignmentId: 42 },
-        { id: 2, agentName: 'A2' }
+        { id: '1', agentName: 'A1', assignmentId: '42' },
+        { id: '2', agentName: 'A2' }
       ] as JAgent[];
 
       triggerConfirmedBulkUnassign(agents);
 
       expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!A2');
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: '42' }]);
     });
 
     it('should NOT call the API when none of the agents have an assignment ID', () => {
-      const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1' }] as JAgent[];
 
       triggerConfirmedBulkUnassign(agents);
 
@@ -345,7 +345,7 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {
-      const agents = [{ id: 1, agentName: 'A1', assignmentId: 42 }] as JAgent[];
+      const agents = [{ id: '1', agentName: 'A1', assignmentId: '42' }] as JAgent[];
 
       const subject = openDialogAndClose(mockDialog, () =>
         component.bulkActionClicked({

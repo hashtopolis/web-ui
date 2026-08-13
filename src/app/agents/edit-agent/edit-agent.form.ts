@@ -37,7 +37,7 @@ export const getEditAgentForm = (readonly: boolean = false) => {
       { value: false, disabled: readonly },
       { nonNullable: true, validators: [Validators.required] }
     ),
-    userId: new FormControl<number | null>({ value: null, disabled: readonly }),
+    userId: new FormControl<UserId | null>({ value: null, disabled: readonly }),
     agentName: new FormControl<string>(
       { value: '', disabled: readonly },
       { nonNullable: true, validators: [Validators.required] }
@@ -54,6 +54,6 @@ export const getEditAgentForm = (readonly: boolean = false) => {
  */
 export const getUpdateAssignmentForm = (readonly: boolean = false) => {
   return new FormGroup<UpdateAssignmentForm>({
-    taskId: new FormControl<number | null>({ value: null, disabled: readonly })
+    taskId: new FormControl<TaskId | null>({ value: null, disabled: readonly })
   });
 };

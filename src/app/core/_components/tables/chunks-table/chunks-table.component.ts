@@ -27,7 +27,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
 })
 export class ChunksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   // Input property to specify an agent ID for filtering chunks.
-  @Input() agentId: number;
+  @Input() agentId: string;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;

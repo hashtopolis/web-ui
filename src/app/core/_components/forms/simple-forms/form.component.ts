@@ -70,7 +70,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * This value is set when editing an existing item and represents the unique identifier of the item.
    * @type {number}
    */
-  editedIndex: number;
+  editedIndex: string;
 
   /**
    * Title to be displayed in the form.

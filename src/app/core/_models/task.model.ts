@@ -4,7 +4,16 @@ import { ChunkData } from '@models/chunk.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { JFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
-import { CrackerBinaryId, CrackerBinaryTypeId, PreprocessorId, TaskWrapperId } from '@models/id.types';
+import {
+  AccessGroupId,
+  CrackerBinaryId,
+  CrackerBinaryTypeId,
+  HashTypeId,
+  HashlistId,
+  PreprocessorId,
+  TaskId,
+  TaskWrapperId
+} from '@models/id.types';
 import { SpeedStat } from '@models/speed-stat.model';
 
 /**
@@ -92,18 +101,18 @@ export type JTaskWith<K extends JTaskAggregates> = JTask & Pick<JTaskAggregateFi
  * Interface definition for a task wrapper display (combined view for tasks and task wrappers)
  */
 export interface JTaskWrapperDisplay extends BaseModel {
-  taskWrapperId?: number;
+  taskWrapperId?: TaskWrapperId;
   taskWrapperPriority?: number;
   taskWrapperMaxAgents?: number;
   taskType?: number;
-  hashlistId?: number;
-  accessGroupId?: number;
+  hashlistId?: HashlistId;
+  accessGroupId?: AccessGroupId;
   taskWrapperName?: string;
   displayName?: string;
   taskWrapperIsArchived?: boolean;
   cracked?: number;
   // Task-derived columns: `null` for supertask wrappers (the view LEFT JOINs Task on taskType=0).
-  taskId?: number | null;
+  taskId?: TaskId | null;
   taskName?: string | null;
   attackCmd?: string | null;
   chunkTime?: number | null;
@@ -119,7 +128,7 @@ export interface JTaskWrapperDisplay extends BaseModel {
   hashlistName?: string;
   hashCount?: number;
   hashlistCracked?: number;
-  hashTypeId?: number;
+  hashTypeId?: HashTypeId;
   hashTypeDescription?: string;
   groupName?: string;
   status?: number;

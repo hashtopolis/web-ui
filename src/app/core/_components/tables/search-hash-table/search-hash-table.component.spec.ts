@@ -72,7 +72,7 @@ describe('SearchHashTableComponent', () => {
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
       const items: SearchHashModel[] = [
-        { id: 1, type: 'hash', hash: 'abc', plaintext: '', hashlists: [], hashInfo: '' }
+        { id: '1', type: 'hash', hash: 'abc', plaintext: '', hashlists: [], hashInfo: '' }
       ];
       const event: ActionMenuEvent<SearchHashModel[]> = {
         menuItem: { label: '', action: 'excel' },
@@ -94,8 +94,8 @@ describe('SearchHashTableComponent', () => {
       const visibleIds: number[] = [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT];
       component.table.displayedColumns = visibleIds.map(String);
       const items: SearchHashModel[] = [
-        { id: 1, type: 'hash', hash: 'abc', plaintext: '', hashlists: [], hashInfo: '' },
-        { id: 2, type: 'hash', hash: 'def', plaintext: '', hashlists: [], hashInfo: '' }
+        { id: '1', type: 'hash', hash: 'abc', plaintext: '', hashlists: [], hashInfo: '' },
+        { id: '2', type: 'hash', hash: 'def', plaintext: '', hashlists: [], hashInfo: '' }
       ];
       const event: ActionMenuEvent<SearchHashModel[]> = {
         menuItem: { label: '', action: 'excel' },

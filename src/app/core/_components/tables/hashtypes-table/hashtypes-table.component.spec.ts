@@ -69,7 +69,7 @@ describe('HashtypesTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items: JHashtype[] = [{ id: 1, type: 'hashtype', description: '', isSalted: false, isSlowHash: false }];
+      const items: JHashtype[] = [{ id: '1', type: 'hashtype', description: '', isSalted: false, isSlowHash: false }];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHashtype[]>;
       component.table.displayedColumns = ['0', '1', '2', '3'];
 
@@ -86,8 +86,8 @@ describe('HashtypesTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
       const items: JHashtype[] = [
-        { id: 1, type: 'hashtype', description: '', isSalted: false, isSlowHash: false },
-        { id: 2, type: 'hashtype', description: '', isSalted: false, isSlowHash: false }
+        { id: '1', type: 'hashtype', description: '', isSalted: false, isSlowHash: false },
+        { id: '2', type: 'hashtype', description: '', isSalted: false, isSlowHash: false }
       ];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JHashtype[]>;
 

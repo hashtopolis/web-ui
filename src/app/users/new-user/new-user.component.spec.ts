@@ -27,7 +27,7 @@ describe('NewUserComponent', () => {
   const mockPermissionResponse: ResponseWrapper = mockResponse({
     data: [
       {
-        id: 1,
+        id: '1',
         type: 'globalPermissionGroup',
         attributes: {
           name: 'Default Group',
@@ -35,7 +35,7 @@ describe('NewUserComponent', () => {
         }
       },
       {
-        id: 2,
+        id: '2',
         type: 'globalPermissionGroup',
         attributes: {
           name: 'Custom Group',
@@ -120,7 +120,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.patchValue({
       username: 'a',
       email: 'test@example.com',
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       isValid: true
     });
     await component.onSubmit();
@@ -131,7 +131,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.patchValue({
       username: 'testuser',
       email: 'test@example.com',
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       isValid: true
     });
     component.newUserForm.updateValueAndValidity();
@@ -144,7 +144,7 @@ describe('NewUserComponent', () => {
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.USERS, {
       name: 'testuser',
       email: 'test@example.com',
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       isValid: true,
       sessionLifetime: 3600
     });
@@ -156,7 +156,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.patchValue({
       username: 'testuser',
       email: 'test@example.com',
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       isValid: true
     });
     component.newUserForm.updateValueAndValidity();
@@ -173,7 +173,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.patchValue({
       username: 'failuser',
       email: 'fail@example.com',
-      globalPermissionGroupId: 2,
+      globalPermissionGroupId: '2',
       isValid: true
     });
 

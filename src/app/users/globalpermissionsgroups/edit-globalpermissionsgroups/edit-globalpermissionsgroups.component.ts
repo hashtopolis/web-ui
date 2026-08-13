@@ -34,7 +34,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   processing = false;
 
   // Filters and forms
-  editedGPGIndex: number;
+  editedGPGIndex: string;
   editedGPG: JGlobalPermissionGroup | undefined;
 
   constructor() {

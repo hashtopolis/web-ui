@@ -38,13 +38,13 @@ describe('HTTableComponent', () => {
     it('should emit bulkActionClicked with selected rows as data', () => {
       const { component, mockSelection } = makeComponent();
 
-      const row1: TestModel = { id: 1, type: 'task', name: 'Task A' };
-      const row2: TestModel = { id: 2, type: 'task', name: 'Task B' };
+      const row1: TestModel = { id: '1', type: 'task', name: 'Task A' };
+      const row2: TestModel = { id: '2', type: 'task', name: 'Task B' };
       mockSelection.select(row1, row2);
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Delete', action: 'delete' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.bulkAction(event);
@@ -61,7 +61,7 @@ describe('HTTableComponent', () => {
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Archive', action: 'archive' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.bulkAction(event);
@@ -76,10 +76,10 @@ describe('HTTableComponent', () => {
     it('should replace dummy data object with actual selected rows', () => {
       const { component, mockSelection } = makeComponent();
 
-      const selectedRow: TestModel = { id: 5, type: 'task', name: 'Real Task' };
+      const selectedRow: TestModel = { id: '5', type: 'task', name: 'Real Task' };
       mockSelection.select(selectedRow);
 
-      const dummyData = { id: 0 } as BaseModel;
+      const dummyData = { id: '0' } as BaseModel;
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Delete', action: 'delete' },
         data: dummyData
@@ -97,7 +97,7 @@ describe('HTTableComponent', () => {
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Delete', action: 'delete' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.bulkAction(event);
@@ -114,13 +114,13 @@ describe('HTTableComponent', () => {
     it('should emit exportActionClicked with selected rows as data', () => {
       const { component, mockSelection } = makeComponent();
 
-      const row1: TestModel = { id: 1, type: 'task', name: 'Task A' };
-      const row2: TestModel = { id: 2, type: 'task', name: 'Task B' };
+      const row1: TestModel = { id: '1', type: 'task', name: 'Task A' };
+      const row2: TestModel = { id: '2', type: 'task', name: 'Task B' };
       mockSelection.select(row1, row2);
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.exportAction(event);
@@ -137,7 +137,7 @@ describe('HTTableComponent', () => {
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'CSV', action: 'export-csv' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.exportAction(event);
@@ -152,10 +152,10 @@ describe('HTTableComponent', () => {
     it('should replace dummy data object with actual selected rows', () => {
       const { component, mockSelection } = makeComponent();
 
-      const selectedRow: TestModel = { id: 5, type: 'task', name: 'Real Task' };
+      const selectedRow: TestModel = { id: '5', type: 'task', name: 'Real Task' };
       mockSelection.select(selectedRow);
 
-      const dummyData = { id: 0 } as BaseModel;
+      const dummyData = { id: '0' } as BaseModel;
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
         data: dummyData
@@ -173,7 +173,7 @@ describe('HTTableComponent', () => {
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.exportAction(event);
@@ -188,12 +188,12 @@ describe('HTTableComponent', () => {
     it('should emit data as an iterable array (regression: rawData is not iterable)', () => {
       const { component, mockSelection } = makeComponent();
 
-      const row: TestModel = { id: 7, type: 'task', name: 'Iterable Task' };
+      const row: TestModel = { id: '7', type: 'task', name: 'Iterable Task' };
       mockSelection.select(row);
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.exportAction(event);
@@ -210,17 +210,17 @@ describe('HTTableComponent', () => {
     it('should emit the same selected rows as bulkAction (parity)', () => {
       const { component, mockSelection } = makeComponent();
 
-      const row1: TestModel = { id: 11, type: 'task', name: 'Shared A' };
-      const row2: TestModel = { id: 12, type: 'task', name: 'Shared B' };
+      const row1: TestModel = { id: '11', type: 'task', name: 'Shared A' };
+      const row2: TestModel = { id: '12', type: 'task', name: 'Shared B' };
       mockSelection.select(row1, row2);
 
       const bulkEvent: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Delete', action: 'delete' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
       const exportEvent: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
 
       component.bulkAction(bulkEvent);
@@ -234,16 +234,16 @@ describe('HTTableComponent', () => {
     it('should emit the current selection, not a stale snapshot', () => {
       const { component, mockSelection } = makeComponent();
 
-      const initialRow: TestModel = { id: 21, type: 'task', name: 'Initial' };
+      const initialRow: TestModel = { id: '21', type: 'task', name: 'Initial' };
       mockSelection.select(initialRow);
 
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: { label: 'Excel', action: 'export-excel' },
-        data: { id: 0 } as BaseModel
+        data: { id: '0' } as BaseModel
       };
       component.exportAction(event);
 
-      const newRow: TestModel = { id: 22, type: 'task', name: 'Added Later' };
+      const newRow: TestModel = { id: '22', type: 'task', name: 'Added Later' };
       mockSelection.select(newRow);
       component.exportAction(event);
 
@@ -255,10 +255,10 @@ describe('HTTableComponent', () => {
     it('should not mutate the original event object', () => {
       const { component, mockSelection } = makeComponent();
 
-      const selectedRow: TestModel = { id: 31, type: 'task', name: 'Selected' };
+      const selectedRow: TestModel = { id: '31', type: 'task', name: 'Selected' };
       mockSelection.select(selectedRow);
 
-      const originalData = { id: 0 } as BaseModel;
+      const originalData = { id: '0' } as BaseModel;
       const originalMenuItem = { label: 'Excel', action: 'export-excel' };
       const event: ActionMenuEvent<BaseModel> = {
         menuItem: originalMenuItem,

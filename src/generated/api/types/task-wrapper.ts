@@ -1,10 +1,10 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type TaskWrapperPatch = {
   data: {
     type: 'taskWrapper';
     attributes: {
-      accessGroupId?: number;
+      accessGroupId?: string;
       isArchived?: boolean;
       maxAgents?: number;
       priority?: number;
@@ -13,106 +13,126 @@ export type TaskWrapperPatch = {
   };
 };
 
+export type TaskWrapperPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'taskWrapper';
+    attributes: {
+      accessGroupId?: string;
+      isArchived?: boolean;
+      maxAgents?: number;
+      priority?: number;
+      taskWrapperName?: string;
+    };
+  }>;
+};
+
+export type TaskWrapperDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'taskWrapper';
+  }>;
+};
+
 export type TaskWrapperResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'taskWrapper';
     attributes: {
       priority: number;
       maxAgents: number;
       taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
+      hashlistId: string;
+      accessGroupId: string;
       taskWrapperName: string;
       isArchived: boolean;
       cracked: number;
     };
-  };
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashType: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashType';
-        id: number;
-      } | null;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-    task: {
-      links: {
-        self: string;
-        related: string;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
-    };
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'accessGroup';
         attributes: {
           groupName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -120,7 +140,7 @@ export type TaskWrapperResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashType';
         attributes: {
           description: string;
@@ -129,7 +149,7 @@ export type TaskWrapperResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -145,9 +165,9 @@ export type TaskWrapperResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -161,94 +181,104 @@ export type TaskWrapperResponse = {
 };
 
 export type TaskWrapperSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
   data: {
-    id: number;
+    id: string;
     type: 'taskWrapper';
     attributes: {
       priority: number;
       maxAgents: number;
       taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
+      hashlistId: string;
+      accessGroupId: string;
       taskWrapperName: string;
       isArchived: boolean;
       cracked: number;
     };
-  };
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashType: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashType';
-        id: number;
-      } | null;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-    task: {
-      links: {
-        self: string;
-        related: string;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
-    };
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'accessGroup';
         attributes: {
           groupName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -256,7 +286,7 @@ export type TaskWrapperSingleResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashType';
         attributes: {
           description: string;
@@ -265,7 +295,7 @@ export type TaskWrapperSingleResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -281,9 +311,9 @@ export type TaskWrapperSingleResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -301,122 +331,100 @@ export type TaskWrapperPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'taskWrapper';
-    attributes: {
-      priority: number;
-      maxAgents: number;
-      taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
-      taskWrapperName: string;
-      isArchived: boolean;
-      cracked: number;
-    };
-  };
-};
-
-export type TaskWrapperListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'taskWrapper';
     attributes: {
       priority: number;
       maxAgents: number;
       taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
+      hashlistId: string;
+      accessGroupId: string;
       taskWrapperName: string;
       isArchived: boolean;
       cracked: number;
     };
-  }>;
-  relationships?: {
-    accessGroup: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'accessGroup';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashType: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashType';
-        id: number;
-      } | null;
-    };
-    hashlist: {
-      links: {
-        self: string;
-        related: string;
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashlist';
-        id: number;
-      } | null;
-    };
-    task: {
-      links: {
-        self: string;
-        related: string;
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'task';
-        id: number;
-      } | null;
-    };
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'accessGroup';
         attributes: {
           groupName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashlist';
         attributes: {
           name: string;
           format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
+          hashTypeId: string;
           hashCount: number;
           separator: string | null;
           cracked: number;
           isSecret: boolean;
           isHexSalt: boolean;
           isSalted: boolean;
-          accessGroupId: number;
+          accessGroupId: string;
           notes: string;
           useBrain: boolean;
           brainFeatures: number;
@@ -424,7 +432,7 @@ export type TaskWrapperListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashType';
         attributes: {
           description: string;
@@ -433,7 +441,7 @@ export type TaskWrapperListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'task';
         attributes: {
           taskName: string;
@@ -449,9 +457,9 @@ export type TaskWrapperListResponse = {
           isCpuTask: boolean;
           useNewBench: boolean;
           skipKeyspace: number;
-          crackerBinaryId: number;
-          crackerBinaryTypeId: number | null;
-          taskWrapperId: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
           isArchived: boolean;
           notes: string;
           staticChunks: number;
@@ -464,17 +472,195 @@ export type TaskWrapperListResponse = {
   >;
 };
 
+export type TaskWrapperListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'taskWrapper';
+    attributes: {
+      priority: number;
+      maxAgents: number;
+      taskType: 0 | 1;
+      hashlistId: string;
+      accessGroupId: string;
+      taskWrapperName: string;
+      isArchived: boolean;
+      cracked: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: string;
+        } | null;
+      };
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
+      };
+      hashlist: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashlist';
+          id: string;
+        } | null;
+      };
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: string;
+        } | null;
+      };
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: string;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashlist';
+        attributes: {
+          name: string;
+          format: 0 | 1 | 2 | 3;
+          hashTypeId: string;
+          hashCount: number;
+          separator: string | null;
+          cracked: number;
+          isSecret: boolean;
+          isHexSalt: boolean;
+          isSalted: boolean;
+          accessGroupId: string;
+          notes: string;
+          useBrain: boolean;
+          brainFeatures: number;
+          isArchived: boolean;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
+        };
+      }
+    | {
+        id: string;
+        type: 'task';
+        attributes: {
+          taskName: string;
+          attackCmd: string;
+          chunkTime: number;
+          statusTimer: number;
+          keyspace: number;
+          keyspaceProgress: number;
+          priority: number;
+          maxAgents: number;
+          color: string | null;
+          isSmall: boolean;
+          isCpuTask: boolean;
+          useNewBench: boolean;
+          skipKeyspace: number;
+          crackerBinaryId: string;
+          crackerBinaryTypeId: string | null;
+          taskWrapperId: string;
+          isArchived: boolean;
+          notes: string;
+          staticChunks: number;
+          chunkSize: number;
+          forcePipe: boolean;
+          preprocessorId: number;
+          preprocessorCommand: string;
+        };
+      }
+  >;
+};
+
+export type TaskWrapperCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type TaskWrapperRelationTasks = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
 export type TaskWrapperRelationTasksGetResponse = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
@@ -483,28 +669,25 @@ export type TaskWrapperDisplayResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'taskWrapperDisplay';
     attributes: {
       taskWrapperPriority: number;
       taskWrapperMaxAgents: number;
       taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
+      hashlistId: string;
+      accessGroupId: string;
       taskWrapperName: string;
       displayName: string;
       taskWrapperIsArchived: boolean;
       cracked: number;
-      taskId: number;
+      taskId: string;
       taskName: string;
+      color: string | null;
       attackCmd: string;
       chunkTime: number;
       statusTimer: number;
@@ -519,25 +702,28 @@ export type TaskWrapperDisplayResponse = {
       hashlistName: string;
       hashCount: number;
       hashlistCracked: number;
-      hashTypeId: number;
+      hashTypeId: string;
       hashTypeDescription: string;
       groupName: string;
     };
-  };
-  relationships?: {
-    tasks: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
       };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
-    id: number;
+    id: string;
     type: 'task';
     attributes: {
       taskName: string;
@@ -553,9 +739,9 @@ export type TaskWrapperDisplayResponse = {
       isCpuTask: boolean;
       useNewBench: boolean;
       skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId: number | null;
-      taskWrapperId: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -572,28 +758,34 @@ export type TaskWrapperDisplayListResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
   };
   data: Array<{
-    id: number;
+    id: string;
     type: 'taskWrapperDisplay';
     attributes: {
       taskWrapperPriority: number;
       taskWrapperMaxAgents: number;
       taskType: 0 | 1;
-      hashlistId: number;
-      accessGroupId: number;
+      hashlistId: string;
+      accessGroupId: string;
       taskWrapperName: string;
       displayName: string;
       taskWrapperIsArchived: boolean;
       cracked: number;
-      taskId: number;
+      taskId: string;
       taskName: string;
+      color: string | null;
       attackCmd: string;
       chunkTime: number;
       statusTimer: number;
@@ -608,25 +800,28 @@ export type TaskWrapperDisplayListResponse = {
       hashlistName: string;
       hashCount: number;
       hashlistCracked: number;
-      hashTypeId: number;
+      hashTypeId: string;
       hashTypeDescription: string;
       groupName: string;
     };
-  }>;
-  relationships?: {
-    tasks: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: Array<{
-        type: 'task';
-        id: number;
-      }>;
+    links: {
+      self: string;
     };
-  };
+    relationships: {
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: string;
+        }>;
+      };
+    };
+  }>;
   included?: Array<{
-    id: number;
+    id: string;
     type: 'task';
     attributes: {
       taskName: string;
@@ -642,9 +837,9 @@ export type TaskWrapperDisplayListResponse = {
       isCpuTask: boolean;
       useNewBench: boolean;
       skipKeyspace: number;
-      crackerBinaryId: number;
-      crackerBinaryTypeId: number | null;
-      taskWrapperId: number;
+      crackerBinaryId: string;
+      crackerBinaryTypeId: string | null;
+      taskWrapperId: string;
       isArchived: boolean;
       notes: string;
       staticChunks: number;
@@ -656,22 +851,45 @@ export type TaskWrapperDisplayListResponse = {
   }>;
 };
 
+export type TaskWrapperDisplayCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type TaskWrapperDisplayRelationTasks = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
 export type TaskWrapperDisplayRelationTasksGetResponse = {
   data: Array<{
     type: 'tasks';
-    id: number;
+    id: string;
   }>;
 };
 
 export type DeleteTaskwrappersData = {
-  body?: never;
+  body: TaskWrapperDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/taskwrappers';
@@ -686,43 +904,65 @@ export type DeleteTaskwrappersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteTaskwrappersError = DeleteTaskwrappersErrors[keyof DeleteTaskwrappersErrors];
 
 export type DeleteTaskwrappersResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteTaskwrappersResponse = DeleteTaskwrappersResponses[keyof DeleteTaskwrappersResponses];
 
 export type GetTaskwrappersData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskWrapperId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tXcmFwcGVySWQiOiAxMjN9fQ==`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskWrapperId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tXcmFwcGVySWQiOiAxMjN9fQ==`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskWrapperId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: accessGroup, hashlist, hashType, task, tasks
      */
-    include?: string;
+    include?: Array<'accessGroup' | 'hashlist' | 'hashType' | 'task' | 'tasks'>;
   };
   url: '/api/v2/ui/taskwrappers';
 };
@@ -736,6 +976,10 @@ export type GetTaskwrappersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTaskwrappersError = GetTaskwrappersErrors[keyof GetTaskwrappersErrors];
@@ -750,7 +994,7 @@ export type GetTaskwrappersResponses = {
 export type GetTaskwrappersResponse = GetTaskwrappersResponses[keyof GetTaskwrappersResponses];
 
 export type PatchTaskwrappersData = {
-  body?: never;
+  body: TaskWrapperPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/taskwrappers';
@@ -765,43 +1009,45 @@ export type PatchTaskwrappersErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTaskwrappersError = PatchTaskwrappersErrors[keyof PatchTaskwrappersErrors];
 
 export type PatchTaskwrappersResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchTaskwrappersResponse = PatchTaskwrappersResponses[keyof PatchTaskwrappersResponses];
 
 export type GetTaskwrappersCountData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskWrapperId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/taskwrappers/count';
 };
@@ -815,6 +1061,10 @@ export type GetTaskwrappersCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTaskwrappersCountError = GetTaskwrappersCountErrors[keyof GetTaskwrappersCountErrors];
@@ -823,7 +1073,7 @@ export type GetTaskwrappersCountResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperListResponse;
+  200: TaskWrapperCountResponse;
 };
 
 export type GetTaskwrappersCountResponse = GetTaskwrappersCountResponses[keyof GetTaskwrappersCountResponses];
@@ -848,9 +1098,13 @@ export type GetTaskwrappersByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrappersByIdByRelationError =
@@ -886,9 +1140,13 @@ export type DeleteTaskwrappersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteTaskwrappersByIdRelationshipsByRelationError =
@@ -924,9 +1182,13 @@ export type GetTaskwrappersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsByRelationError =
@@ -962,9 +1224,17 @@ export type PatchTaskwrappersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTaskwrappersByIdRelationshipsByRelationError =
@@ -981,9 +1251,7 @@ export type PatchTaskwrappersByIdRelationshipsByRelationResponse =
   PatchTaskwrappersByIdRelationshipsByRelationResponses[keyof PatchTaskwrappersByIdRelationshipsByRelationResponses];
 
 export type PostTaskwrappersByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: TaskWrapperRelationTasks;
   path: {
     id: number;
     relation: string;
@@ -1002,9 +1270,17 @@ export type PostTaskwrappersByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostTaskwrappersByIdRelationshipsByRelationError =
@@ -1021,9 +1297,7 @@ export type PostTaskwrappersByIdRelationshipsByRelationResponse =
   PostTaskwrappersByIdRelationshipsByRelationResponses[keyof PostTaskwrappersByIdRelationshipsByRelationResponses];
 
 export type DeleteTaskwrappersByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -1041,9 +1315,13 @@ export type DeleteTaskwrappersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteTaskwrappersByIdError = DeleteTaskwrappersByIdErrors[keyof DeleteTaskwrappersByIdErrors];
@@ -1064,9 +1342,9 @@ export type GetTaskwrappersByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: accessGroup, hashlist, hashType, task, tasks
      */
-    include?: string;
+    include?: Array<'accessGroup' | 'hashlist' | 'hashType' | 'task' | 'tasks'>;
   };
   url: '/api/v2/ui/taskwrappers/{id}';
 };
@@ -1081,9 +1359,13 @@ export type GetTaskwrappersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrappersByIdError = GetTaskwrappersByIdErrors[keyof GetTaskwrappersByIdErrors];
@@ -1116,9 +1398,17 @@ export type PatchTaskwrappersByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTaskwrappersByIdError = PatchTaskwrappersByIdErrors[keyof PatchTaskwrappersByIdErrors];

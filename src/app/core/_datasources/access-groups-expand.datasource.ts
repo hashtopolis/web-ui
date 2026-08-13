@@ -15,12 +15,12 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
-  private _accessgroupId = 0;
+  private _accessgroupId = '';
   private _include = '';
   private _activeFilterValue = '';
   private _activeFilterColumn: HTTableColumn | null = null;
 
-  setAccessGroupId(accessgroupId: number) {
+  setAccessGroupId(accessgroupId: string) {
     this._accessgroupId = accessgroupId;
   }
 

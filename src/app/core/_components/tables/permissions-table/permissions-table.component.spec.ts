@@ -72,7 +72,7 @@ describe('PermissionsTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1 }] as JGlobalPermissionGroup[];
+      const items = [{ id: '1' }] as JGlobalPermissionGroup[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<
         JGlobalPermissionGroup[]
       >;
@@ -94,7 +94,7 @@ describe('PermissionsTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = [String(PermissionsTableCol.ID), String(PermissionsTableCol.NAME)];
-      const items = [{ id: 1 }, { id: 2 }] as JGlobalPermissionGroup[];
+      const items = [{ id: '1' }, { id: '2' }] as JGlobalPermissionGroup[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<
         JGlobalPermissionGroup[]
       >;

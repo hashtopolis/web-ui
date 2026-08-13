@@ -24,28 +24,28 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_MEMBER_A: JHashlist = {
-  id: 11,
+  id: '11',
   type: 'hashlist',
   name: 'member_a',
   format: HashListFormat.TEXT
 } as unknown as JHashlist;
 
 const MOCK_MEMBER_B: JHashlist = {
-  id: 22,
+  id: '22',
   type: 'hashlist',
   name: 'member_b',
   format: HashListFormat.TEXT
 } as unknown as JHashlist;
 
 const MOCK_PLAIN_HASHLIST: JHashlist = {
-  id: 5,
+  id: '5',
   type: 'hashlist',
   name: 'plain_hashlist',
   format: HashListFormat.TEXT
 } as unknown as JHashlist;
 
 const MOCK_SUPER_HASHLIST: JHashlist = {
-  id: 77,
+  id: '77',
   type: 'hashlist',
   name: 'super_hashlist',
   format: HashListFormat.SUPERHASHLIST,
@@ -54,18 +54,18 @@ const MOCK_SUPER_HASHLIST: JHashlist = {
 
 const MOCK_EMPTY_SUPER_HASHLIST: JHashlist = {
   ...MOCK_SUPER_HASHLIST,
-  id: 88,
+  id: '88',
   name: 'empty_super_hashlist',
   hashlists: []
 };
 
 const MOCK_HASHES: JHash[] = [
   {
-    id: 1,
+    id: '1',
     type: 'hash',
     hash: 'aabbcc',
     plaintext: 'secret',
-    hashlistId: 11,
+    hashlistId: '11',
     salt: '',
     timeCracked: 0,
     isCracked: true,
@@ -131,11 +131,11 @@ describe('HashesDataSource', () => {
 
   describe('setters', () => {
     it('should store id, dataType and filterParam', () => {
-      dataSource.setId(42);
+      dataSource.setId('42');
       dataSource.setDataType('hashlists');
       dataSource.setFilterParam('cracked');
 
-      expect(dataSource['_id']).toBe(42);
+      expect(dataSource['_id']).toBe('42');
       expect(dataSource['_dataType']).toBe('hashlists');
       expect(dataSource['_filterparam']).toBe('cracked');
     });
@@ -146,7 +146,7 @@ describe('HashesDataSource', () => {
   describe('loadAll() - plain hashlist', () => {
     beforeEach(() => {
       resolvedHashlist = MOCK_PLAIN_HASHLIST;
-      dataSource.setId(5);
+      dataSource.setId('5');
       dataSource.setDataType('hashlists');
     });
 
@@ -155,7 +155,7 @@ describe('HashesDataSource', () => {
 
       const [serviceConfig, entityId, params] = gsSpy.get.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
-      expect(entityId).toBe(5);
+      expect(entityId).toBe('5');
       expect((params as RequestParams).include).toContain('hashlists');
     });
 
@@ -165,7 +165,7 @@ describe('HashesDataSource', () => {
       const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.HASHES);
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 5 })
+        jasmine.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: '5' })
       );
     });
 
@@ -226,7 +226,7 @@ describe('HashesDataSource', () => {
   describe('loadAll() - super hashlist', () => {
     beforeEach(() => {
       resolvedHashlist = MOCK_SUPER_HASHLIST;
-      dataSource.setId(77);
+      dataSource.setId('77');
       dataSource.setDataType('hashlists');
     });
 
@@ -276,7 +276,7 @@ describe('HashesDataSource', () => {
   describe('loadAll() - empty super hashlist', () => {
     beforeEach(() => {
       resolvedHashlist = MOCK_EMPTY_SUPER_HASHLIST;
-      dataSource.setId(88);
+      dataSource.setId('88');
       dataSource.setDataType('hashlists');
     });
 
@@ -303,7 +303,7 @@ describe('HashesDataSource', () => {
 
   describe('loadAll() - chunks', () => {
     beforeEach(() => {
-      dataSource.setId(9);
+      dataSource.setId('9');
       dataSource.setDataType('chunks');
     });
 
@@ -318,7 +318,7 @@ describe('HashesDataSource', () => {
       const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.HASHES);
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: 9 })
+        jasmine.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: '9' })
       );
     });
   });
@@ -327,7 +327,7 @@ describe('HashesDataSource', () => {
 
   describe('loadAll() - tasks', () => {
     beforeEach(() => {
-      dataSource.setId(3);
+      dataSource.setId('3');
       dataSource.setDataType('tasks');
     });
 
@@ -339,7 +339,7 @@ describe('HashesDataSource', () => {
       const [serviceConfig, helper, payload] = gsSpy.ghelper.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.HELPER);
       expect(helper).toBe('getCracksOfTask');
-      expect(payload).toEqual({ task: 3 });
+      expect(payload).toEqual({ task: '3' });
     });
 
     it('should populate the hashes from the helper response', () => {
@@ -352,7 +352,7 @@ describe('HashesDataSource', () => {
 
   describe('error handling', () => {
     beforeEach(() => {
-      dataSource.setId(5);
+      dataSource.setId('5');
       dataSource.setDataType('hashlists');
     });
 
@@ -378,7 +378,7 @@ describe('HashesDataSource', () => {
 
   describe('reload()', () => {
     it('should clear the current selection', () => {
-      dataSource.setId(5);
+      dataSource.setId('5');
       dataSource.setDataType('hashlists');
       dataSource.selection.select(MOCK_HASHES[0]);
 
@@ -388,7 +388,7 @@ describe('HashesDataSource', () => {
     });
 
     it('should trigger a fresh load', () => {
-      dataSource.setId(9);
+      dataSource.setId('9');
       dataSource.setDataType('chunks');
       gsSpy.getAll.calls.reset();
 

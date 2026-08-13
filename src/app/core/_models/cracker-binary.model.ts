@@ -33,16 +33,16 @@ export interface JCrackerBinaryType extends BaseModel {
  * Use after jsona.deserialize() to validate that relationship data was included.
  */
 export const zCrackerBinary = z.object({
-  id: z.number(),
+  id: z.string(),
   type: z.string(),
   binaryName: z.string(),
-  crackerBinaryTypeId: z.number(),
+  crackerBinaryTypeId: z.string(),
   downloadUrl: z.string(),
   version: z.string()
 });
 
 export const zCrackerBinaryType = z.object({
-  id: z.number(),
+  id: z.string(),
   type: z.string(),
   typeName: z.string(),
   isChunkingAvailable: z.boolean(),

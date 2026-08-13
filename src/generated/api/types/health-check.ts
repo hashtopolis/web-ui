@@ -1,12 +1,12 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type HealthCheckCreate = {
   data: {
     type: 'healthCheck';
     attributes: {
       checkType: 0 | 3200;
-      hashtypeId: number;
-      crackerBinaryId: number;
+      hashtypeId: string;
+      crackerBinaryId: string;
     };
   };
 };
@@ -20,76 +20,92 @@ export type HealthCheckPatch = {
   };
 };
 
+export type HealthCheckPatchMultiple = {
+  data: Array<{
+    id: string;
+    type: 'healthCheck';
+    attributes: {
+      checkType?: 0 | 3200;
+    };
+  }>;
+};
+
+export type HealthCheckDeleteMultiple = {
+  data: Array<{
+    id: string;
+    type: 'healthCheck';
+  }>;
+};
+
 export type HealthCheckResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
-    id: number;
+    id: string;
     type: 'healthCheck';
     attributes: {
       time: number;
       status: -1 | 0 | 1;
       checkType: 0 | 3200;
-      hashtypeId: number;
-      crackerBinaryId: number;
+      hashtypeId: string;
+      crackerBinaryId: string;
       expectedCracks: number;
       attackCmd: string;
     };
-  };
-  relationships?: {
-    crackerBinary: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'crackerBinary';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashType: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashType';
-        id: number;
-      } | null;
-    };
-    healthCheckAgents: {
-      links: {
-        self: string;
-        related: string;
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'healthCheckAgent';
-        id: number;
-      }>;
+      healthCheckAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'healthCheckAgent';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinary';
         attributes: {
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: string;
           version: string;
           downloadUrl: string;
           binaryName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashType';
         attributes: {
           description: string;
@@ -98,11 +114,11 @@ export type HealthCheckResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'healthCheckAgent';
         attributes: {
-          healthCheckId: number;
-          agentId: number;
+          healthCheckId: string;
+          agentId: string;
           status: -1 | 0 | 1;
           cracked: number;
           numGpus: number;
@@ -119,91 +135,70 @@ export type HealthCheckPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
-  data: {
-    id: number;
-    type: 'healthCheck';
-    attributes: {
-      time: number;
-      status: -1 | 0 | 1;
-      checkType: 0 | 3200;
-      hashtypeId: number;
-      crackerBinaryId: number;
-      expectedCracks: number;
-      attackCmd: string;
-    };
-  };
-};
-
-export type HealthCheckListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
-  data: Array<{
-    id: number;
+  data: {
+    id: string;
     type: 'healthCheck';
     attributes: {
       time: number;
       status: -1 | 0 | 1;
       checkType: 0 | 3200;
-      hashtypeId: number;
-      crackerBinaryId: number;
+      hashtypeId: string;
+      crackerBinaryId: string;
       expectedCracks: number;
       attackCmd: string;
     };
-  }>;
-  relationships?: {
-    crackerBinary: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: {
-        type: 'crackerBinary';
-        id: number;
-      } | null;
+    links: {
+      self: string;
     };
-    hashType: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
       };
-      data?: {
-        type: 'hashType';
-        id: number;
-      } | null;
-    };
-    healthCheckAgents: {
-      links: {
-        self: string;
-        related: string;
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
       };
-      data?: Array<{
-        type: 'healthCheckAgent';
-        id: number;
-      }>;
+      healthCheckAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'healthCheckAgent';
+          id: string;
+        }>;
+      };
     };
   };
   included?: Array<
     | {
-        id: number;
+        id: string;
         type: 'crackerBinary';
         attributes: {
-          crackerBinaryTypeId: number;
+          crackerBinaryTypeId: string;
           version: string;
           downloadUrl: string;
           binaryName: string;
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'hashType';
         attributes: {
           description: string;
@@ -212,11 +207,11 @@ export type HealthCheckListResponse = {
         };
       }
     | {
-        id: number;
+        id: string;
         type: 'healthCheckAgent';
         attributes: {
-          healthCheckId: number;
-          agentId: number;
+          healthCheckId: string;
+          agentId: string;
           status: -1 | 0 | 1;
           cracked: number;
           numGpus: number;
@@ -228,22 +223,147 @@ export type HealthCheckListResponse = {
   >;
 };
 
+export type HealthCheckListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: string;
+    type: 'healthCheck';
+    attributes: {
+      time: number;
+      status: -1 | 0 | 1;
+      checkType: 0 | 3200;
+      hashtypeId: string;
+      crackerBinaryId: string;
+      expectedCracks: number;
+      attackCmd: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: string;
+        } | null;
+      };
+      hashType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'hashType';
+          id: string;
+        } | null;
+      };
+      healthCheckAgents: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'healthCheckAgent';
+          id: string;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: string;
+        type: 'crackerBinary';
+        attributes: {
+          crackerBinaryTypeId: string;
+          version: string;
+          downloadUrl: string;
+          binaryName: string;
+        };
+      }
+    | {
+        id: string;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
+        };
+      }
+    | {
+        id: string;
+        type: 'healthCheckAgent';
+        attributes: {
+          healthCheckId: string;
+          agentId: string;
+          status: -1 | 0 | 1;
+          cracked: number;
+          numGpus: number;
+          start: number;
+          end: number;
+          errors: string;
+        };
+      }
+  >;
+};
+
+export type HealthCheckCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type HealthCheckRelationHealthCheckAgents = {
   data: Array<{
     type: 'healthCheckAgents';
-    id: number;
+    id: string;
   }>;
 };
 
 export type HealthCheckRelationHealthCheckAgentsGetResponse = {
   data: Array<{
     type: 'healthCheckAgents';
-    id: number;
+    id: string;
   }>;
 };
 
 export type DeleteHealthchecksData = {
-  body?: never;
+  body: HealthCheckDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/healthchecks';
@@ -258,43 +378,65 @@ export type DeleteHealthchecksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteHealthchecksError = DeleteHealthchecksErrors[keyof DeleteHealthchecksErrors];
 
 export type DeleteHealthchecksResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteHealthchecksResponse = DeleteHealthchecksResponses[keyof DeleteHealthchecksResponses];
 
 export type GetHealthchecksData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"healthCheckId": 123}}` -> `eyJwcmltYXJ5Ijp7ImhlYWx0aENoZWNrSWQiOiAxMjN9fQ==`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"healthCheckId": 123}}` -> `eyJwcmltYXJ5Ijp7ImhlYWx0aENoZWNrSWQiOiAxMjN9fQ==`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[healthCheckId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary, hashType, healthCheckAgents
      */
-    include?: string;
+    include?: Array<'crackerBinary' | 'hashType' | 'healthCheckAgents'>;
   };
   url: '/api/v2/ui/healthchecks';
 };
@@ -308,6 +450,10 @@ export type GetHealthchecksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetHealthchecksError = GetHealthchecksErrors[keyof GetHealthchecksErrors];
@@ -322,7 +468,7 @@ export type GetHealthchecksResponses = {
 export type GetHealthchecksResponse = GetHealthchecksResponses[keyof GetHealthchecksResponses];
 
 export type PatchHealthchecksData = {
-  body?: never;
+  body: HealthCheckPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/healthchecks';
@@ -337,16 +483,30 @@ export type PatchHealthchecksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchHealthchecksError = PatchHealthchecksErrors[keyof PatchHealthchecksErrors];
 
 export type PatchHealthchecksResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchHealthchecksResponse = PatchHealthchecksResponses[keyof PatchHealthchecksResponses];
 
 export type PostHealthchecksData = {
   body: HealthCheckCreate;
@@ -364,6 +524,14 @@ export type PostHealthchecksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostHealthchecksError = PostHealthchecksErrors[keyof PostHealthchecksErrors];
@@ -382,27 +550,15 @@ export type GetHealthchecksCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[healthCheckId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/healthchecks/count';
 };
@@ -416,6 +572,10 @@ export type GetHealthchecksCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetHealthchecksCountError = GetHealthchecksCountErrors[keyof GetHealthchecksCountErrors];
@@ -424,7 +584,7 @@ export type GetHealthchecksCountResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckListResponse;
+  200: HealthCheckCountResponse;
 };
 
 export type GetHealthchecksCountResponse = GetHealthchecksCountResponses[keyof GetHealthchecksCountResponses];
@@ -449,9 +609,13 @@ export type GetHealthchecksByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHealthchecksByIdByRelationError =
@@ -487,9 +651,13 @@ export type DeleteHealthchecksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteHealthchecksByIdRelationshipsByRelationError =
@@ -525,9 +693,13 @@ export type GetHealthchecksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHealthchecksByIdRelationshipsByRelationError =
@@ -563,9 +735,17 @@ export type PatchHealthchecksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchHealthchecksByIdRelationshipsByRelationError =
@@ -582,9 +762,7 @@ export type PatchHealthchecksByIdRelationshipsByRelationResponse =
   PatchHealthchecksByIdRelationshipsByRelationResponses[keyof PatchHealthchecksByIdRelationshipsByRelationResponses];
 
 export type PostHealthchecksByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: HealthCheckRelationHealthCheckAgents;
   path: {
     id: number;
     relation: string;
@@ -603,9 +781,17 @@ export type PostHealthchecksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostHealthchecksByIdRelationshipsByRelationError =
@@ -622,9 +808,7 @@ export type PostHealthchecksByIdRelationshipsByRelationResponse =
   PostHealthchecksByIdRelationshipsByRelationResponses[keyof PostHealthchecksByIdRelationshipsByRelationResponses];
 
 export type DeleteHealthchecksByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -642,9 +826,13 @@ export type DeleteHealthchecksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteHealthchecksByIdError = DeleteHealthchecksByIdErrors[keyof DeleteHealthchecksByIdErrors];
@@ -665,9 +853,9 @@ export type GetHealthchecksByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary, hashType, healthCheckAgents
      */
-    include?: string;
+    include?: Array<'crackerBinary' | 'hashType' | 'healthCheckAgents'>;
   };
   url: '/api/v2/ui/healthchecks/{id}';
 };
@@ -682,9 +870,13 @@ export type GetHealthchecksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetHealthchecksByIdError = GetHealthchecksByIdErrors[keyof GetHealthchecksByIdErrors];
@@ -717,9 +909,17 @@ export type PatchHealthchecksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchHealthchecksByIdError = PatchHealthchecksByIdErrors[keyof PatchHealthchecksByIdErrors];

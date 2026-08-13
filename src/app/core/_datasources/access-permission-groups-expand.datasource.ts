@@ -13,11 +13,11 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { PermissionMatrixRow, buildPermissionMatrix } from '@src/app/shared/utils/permission-matrix';
 
 export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | PermissionMatrixRow> {
-  private _accesspermgroupId = 0;
+  private _accesspermgroupId = '';
   private _expand = '';
   private _perm = 0;
 
-  setAccessPermGroupId(accesspermgroupId: number) {
+  setAccessPermGroupId(accesspermgroupId: string) {
     this._accesspermgroupId = accesspermgroupId;
   }
 

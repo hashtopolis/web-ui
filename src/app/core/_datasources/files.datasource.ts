@@ -24,7 +24,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
  */
 export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
-  private editIndex?: number;
+  private editIndex?: string;
   private editType?: number;
   private _currentFilter: Filter | null = null;
   isDetail = false;
@@ -45,7 +45,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
    * @param index
    * @param editType
    */
-  setEditValues(index: number, editType: number): void {
+  setEditValues(index: string, editType: number): void {
     this.editIndex = index;
     this.editType = editType;
   }

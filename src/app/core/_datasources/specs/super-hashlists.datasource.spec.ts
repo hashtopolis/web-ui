@@ -24,7 +24,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_HASHTYPE: JHashtype = {
-  id: 100,
+  id: '100',
   type: 'hashType',
   description: 'SHA1',
   isSalted: false,
@@ -32,17 +32,17 @@ const MOCK_HASHTYPE: JHashtype = {
 } as unknown as JHashtype;
 
 const MOCK_CHILD_HASHLIST: JHashlist = {
-  id: 56,
+  id: '56',
   type: 'hashlist',
   name: 'hashlist_sha1_131',
   format: HashListFormat.TEXT,
-  hashTypeId: 100,
+  hashTypeId: '100',
   hashCount: 6,
   cracked: 5,
   isSecret: false,
   isHexSalt: false,
   isSalted: false,
-  accessGroupId: 1,
+  accessGroupId: '1',
   notes: '',
   useBrain: false,
   brainFeatures: 3,
@@ -50,18 +50,18 @@ const MOCK_CHILD_HASHLIST: JHashlist = {
 } as unknown as JHashlist;
 
 const MOCK_SUPERHASHLIST: JHashlist = {
-  id: 268,
+  id: '268',
   type: 'hashlist',
   name: 'sha1 super',
   format: HashListFormat.SUPERHASHLIST,
-  hashTypeId: 100,
+  hashTypeId: '100',
   hashType: MOCK_HASHTYPE,
   hashCount: 17,
   cracked: 15,
   isSecret: false,
   isHexSalt: false,
   isSalted: false,
-  accessGroupId: 1,
+  accessGroupId: '1',
   notes: '',
   useBrain: false,
   brainFeatures: 0,
@@ -71,18 +71,18 @@ const MOCK_SUPERHASHLIST: JHashlist = {
 
 // A super hashlist whose hashType is null (no hashType relationship data)
 const MOCK_SUPERHASHLIST_NO_HASHTYPE: JHashlist = {
-  id: 269,
+  id: '269',
   type: 'hashlist',
   name: 'Super_MD5_hashlist',
   format: HashListFormat.SUPERHASHLIST,
-  hashTypeId: 0,
+  hashTypeId: '0',
   hashType: null,
   hashCount: 20,
   cracked: 20,
   isSecret: false,
   isHexSalt: false,
   isSalted: false,
-  accessGroupId: 1,
+  accessGroupId: '1',
   notes: '',
   useBrain: false,
   brainFeatures: 0,

@@ -66,10 +66,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /** Assign Tasks */
   assignTasks: SelectOption<TaskId>[] = [];
   assignNew = false;
-  assignId: number | null = null;
+  assignId: string | null = null;
 
   // Edit Index
-  editedAgentIndex: number;
+  editedAgentIndex: string;
   showagent: ShownAgent;
 
   pageTitle = 'Agent';
@@ -102,7 +102,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   private onInitialize(): void {
     const routeParams = zIdRouteParams.safeParse(this.route.snapshot.params);
-    this.editedAgentIndex = routeParams.success ? routeParams.data.id : NaN;
+    this.editedAgentIndex = routeParams.success ? routeParams.data.id : '';
 
     if (!routeParams.success) {
       this.router.navigate(['/not-found']);
@@ -113,7 +113,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
-    if (!this.editedAgentIndex || Number.isNaN(this.editedAgentIndex)) {
+    if (!this.editedAgentIndex) {
       return;
     }
 
@@ -188,7 +188,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         .addInclude('assignments')
         .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
         .create();
-      const agent: ShownAgent = this.serializer.deserialize(response, zAgentResponse, typingParams);
+      // `crackingTime` is a documented agent aggregate but missing from the spec's agent attributes,
+      // so the deserialized type cannot carry it.
+      const agent = this.serializer.deserialize(response, zAgentResponse, typingParams) as unknown as ShownAgent;
       this.showagent = agent;
       this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
       if (this.agentRoleService.hasRole('readAssignment')) {
@@ -325,7 +327,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Assigns the agent to the provided taskID or removes a current assignment
    * @param taskId The task ID.
    */
-  onUpdateAssign(taskId: number | null): void {
+  onUpdateAssign(taskId: TaskId | null): void {
     let request$;
 
     if (taskId) {

@@ -92,7 +92,7 @@ export class NewTasksComponent implements OnInit {
   // Copy Task or Preconfigured Task configuration
   copyMode = false;
   copyFiles: FileId[];
-  editedIndex: number;
+  editedIndex: string;
 
   // Tooltips
   tasktip: TaskTooltipsLevel;
@@ -129,7 +129,7 @@ export class NewTasksComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         switchMap(async ([params, data]) => {
           const { id } = zOptionalIdRouteParams.parse(params);
-          this.editedIndex = id ?? NaN;
+          this.editedIndex = id ?? '';
           this.copyMode = id !== undefined;
           this.buildForm();
           await this.loadSelectOptions();
@@ -244,8 +244,8 @@ export class NewTasksComponent implements OnInit {
       this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
       const lastItemId = this.selectCrackerversions.slice(-1)[0]?.id;
-      if (typeId) this.form.controls.crackerBinaryTypeId.patchValue(Number(typeId), { emitEvent: false });
-      if (lastItemId) this.form.controls.crackerBinaryId.patchValue(Number(lastItemId), { emitEvent: false });
+      if (typeId) this.form.controls.crackerBinaryTypeId.patchValue(typeId, { emitEvent: false });
+      if (lastItemId) this.form.controls.crackerBinaryId.patchValue(lastItemId, { emitEvent: false });
 
       this.changeDetectorRef.detectChanges();
     } catch (error) {
@@ -312,7 +312,7 @@ export class NewTasksComponent implements OnInit {
    * Handle the change of cracker binary type and update the available cracker versions.
    * @param {number} id - The identifier of the selected cracker binary type.
    */
-  private async handleChangeBinary(id: number): Promise<void> {
+  private async handleChangeBinary(id: string): Promise<void> {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
@@ -327,7 +327,7 @@ export class NewTasksComponent implements OnInit {
       const crackerCtrl = this.form.controls.crackerBinaryId;
 
       if (lastVersionId) {
-        crackerCtrl.patchValue(Number(lastVersionId), { emitEvent: false });
+        crackerCtrl.patchValue(lastVersionId, { emitEvent: false });
         crackerCtrl.setErrors(null);
       } else {
         crackerCtrl.setErrors({ required: true });
@@ -346,7 +346,7 @@ export class NewTasksComponent implements OnInit {
    * - Only update value when necessary to avoid recursive calls
    * @param newId
    */
-  private handleChangePreprocessor(newId: number): void {
+  private handleChangePreprocessor(newId: PreprocessorId): void {
     if (newId !== this.form.controls.preprocessorId.value) {
       this.form.controls.preprocessorId.setValue(newId, { emitEvent: false });
     }
@@ -405,8 +405,14 @@ export class NewTasksComponent implements OnInit {
     if (this.form.valid) {
       this.isCreatingLoading = true;
 
-      const payload = { ...this.form.value };
-      delete payload.crackerBinaryTypeId;
+      const formValue = { ...this.form.value };
+      delete formValue.crackerBinaryTypeId;
+      // The task endpoint takes numeric hashlist and file ids.
+      const payload = {
+        ...formValue,
+        hashlistId: Number(formValue.hashlistId),
+        files: (formValue.files ?? []).map(Number)
+      };
 
       this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {
@@ -466,7 +472,7 @@ export class NewTasksComponent implements OnInit {
       files: (p.pretaskFiles ?? []).map((f) => f.id),
       hashlistId: null,
       skipKeyspace: 0,
-      crackerBinaryId: 1,
+      crackerBinaryId: '1',
       staticChunks: 0,
       chunkSize: environment.config.tasks.chunkSize,
       forcePipe: false,

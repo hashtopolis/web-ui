@@ -71,7 +71,7 @@ describe('AgentsStatusTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [{ id: 1, agentName: 'A1' }] as JAgent[];
+      const items = [{ id: '1', agentName: 'A1' }] as JAgent[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -87,7 +87,7 @@ describe('AgentsStatusTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items = [{ id: 1 }, { id: 2 }] as JAgent[];
+      const items = [{ id: '1' }, { id: '2' }] as JAgent[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JAgent[]>;
 
       component.exportActionClicked(event);

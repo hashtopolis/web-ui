@@ -34,14 +34,14 @@ class TestSuperTasksPretasksTableComponent extends SuperTasksPretasksTableCompon
   }
 }
 
-function createMockPretask(id: number): JPretask {
+function createMockPretask(id: string): JPretask {
   return {
     id,
     type: 'pretask',
     attackCmd: '',
     chunkTime: 0,
     color: '',
-    crackerBinaryTypeId: 0,
+    crackerBinaryTypeId: '0',
     isCpuTask: false,
     isMaskImport: false,
     isSmall: false,
@@ -91,7 +91,7 @@ describe('SuperTasksPretasksTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const items = [createMockPretask(1)];
+      const items = [createMockPretask('1')];
       const event: ActionMenuEvent<JPretask[]> = { data: items, menuItem: { action: 'excel', label: '' } };
       component.table.displayedColumns = Object.values(SupertasksPretasksTableCol)
         .filter((v): v is number => typeof v === 'number')
@@ -110,7 +110,7 @@ describe('SuperTasksPretasksTableComponent', () => {
     it('should pass only visible columns when displayedColumns is set', () => {
       const visibleIds = [SupertasksPretasksTableCol.ID, SupertasksPretasksTableCol.NAME];
       component.table.displayedColumns = visibleIds.map(String);
-      const items = [createMockPretask(1), createMockPretask(2)];
+      const items = [createMockPretask('1'), createMockPretask('2')];
       const event: ActionMenuEvent<JPretask[]> = { data: items, menuItem: { action: 'excel', label: '' } };
 
       component.exportActionClicked(event);

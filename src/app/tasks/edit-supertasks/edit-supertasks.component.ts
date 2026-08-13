@@ -44,16 +44,16 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   selectPretasks: SelectOption<PretaskId>[] | undefined;
 
   // Edit
-  private _editedSTIndex: number;
+  private _editedSTIndex: string;
   @Input()
-  set editedSTIndex(value: number) {
+  set editedSTIndex(value: string) {
     if (value !== this._editedSTIndex) {
       this._editedSTIndex = value;
     }
   }
-  get editedSTIndex(): number {
+  get editedSTIndex(): string {
     if (this._editedSTIndex === undefined) {
-      return 0;
+      return '';
     } else {
       return this._editedSTIndex;
     }
@@ -237,9 +237,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const pretasks: { type: string; id: number }[] = [];
+      const pretasks: { type: string; id: PretaskId }[] = [];
 
-      (this.updateForm.value['pretasks'] as number[]).forEach((pretask: number) => {
+      (this.updateForm.value['pretasks'] as PretaskId[]).forEach((pretask: PretaskId) => {
         pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
       });
 

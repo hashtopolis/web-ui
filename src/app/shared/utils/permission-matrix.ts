@@ -59,7 +59,7 @@ export function buildPermissionMatrix(permissions: Permission): PermissionMatrix
     let row = acc.find((item) => item.key === operation);
     if (!row) {
       row = {
-        id: permId++,
+        id: String(permId++),
         type: 'userPermission',
         name: operationName,
         key: operation,

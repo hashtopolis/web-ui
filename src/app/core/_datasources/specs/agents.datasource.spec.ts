@@ -25,7 +25,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_TASK: JTask = {
-  id: 10,
+  id: '10',
   type: 'task',
   taskName: 'Test Task',
   keyspace: 1000
@@ -34,14 +34,14 @@ const MOCK_TASK: JTask = {
 const NOW = Math.floor(Date.now() / 1000);
 
 const MOCK_USER: JUser = {
-  id: 5,
+  id: '5',
   type: 'user',
   name: 'TestUser',
   email: 'test@test.com'
 } as unknown as JUser;
 
 const MOCK_AGENT: JAgent = {
-  id: 1,
+  id: '1',
   type: 'agent',
   agentName: 'Agent1',
   userId: MOCK_USER.id,
@@ -50,7 +50,7 @@ const MOCK_AGENT: JAgent = {
 } as unknown as JAgent;
 
 const MOCK_AGENT_NO_TASKS: JAgent = {
-  id: 2,
+  id: '2',
   type: 'agent',
   agentName: 'Agent2',
   userId: undefined,
@@ -58,10 +58,10 @@ const MOCK_AGENT_NO_TASKS: JAgent = {
 } as unknown as JAgent;
 
 const MOCK_ASSIGNMENT: JAgentAssignment = {
-  id: 1,
+  id: '1',
   type: 'agentAssignment',
-  taskId: 10,
-  agentId: 1,
+  taskId: '10',
+  agentId: '1',
   benchmark: '1000H/s',
   cracked: 2,
   currentSpeed: 1200,
@@ -125,8 +125,8 @@ describe('AgentsDataSource', () => {
 
   describe('setTaskId()', () => {
     it('should store the provided task ID', () => {
-      dataSource.setTaskId(42);
-      expect(dataSource['_taskId']).toBe(42);
+      dataSource.setTaskId('42');
+      expect(dataSource['_taskId']).toBe('42');
     });
   });
 
@@ -217,7 +217,7 @@ describe('AgentsDataSource', () => {
 
   describe('loadAssignments()', () => {
     beforeEach(() => {
-      dataSource.setTaskId(10);
+      dataSource.setTaskId('10');
 
       gsSpy.getAll.and.callFake((serviceConfig) => {
         if (serviceConfig === SERV.AGENT_ASSIGN) {
@@ -242,7 +242,7 @@ describe('AgentsDataSource', () => {
       dataSource.loadAssignments();
       flushMicrotasks();
       const [, params] = gsSpy.getAll.calls.all()[0].args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
+      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: '10' }));
     }));
 
     it('should not request nested agent chunks include on assignments endpoint', fakeAsync(() => {
@@ -297,7 +297,7 @@ describe('AgentsDataSource', () => {
       expect(agent.currentSpeed).toBe(1200);
       expect(agent.timeSpent).toBe(30);
       expect(agent.searched).toBe(250);
-      expect(agent.chunkId).toBe(100);
+      expect(agent.chunkId).toBe('100');
     }));
 
     it('should expose lastTime from the included agent for the last activity column', fakeAsync(() => {
@@ -349,7 +349,7 @@ describe('AgentsDataSource', () => {
 
     it('should call loadAssignments() when a taskId is set', () => {
       spyOn(dataSource, 'loadAssignments');
-      dataSource.setTaskId(10);
+      dataSource.setTaskId('10');
       dataSource.reload();
       expect(dataSource.loadAssignments).toHaveBeenCalled();
     });

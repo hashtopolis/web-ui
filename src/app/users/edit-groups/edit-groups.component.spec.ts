@@ -24,7 +24,7 @@ import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.comp
 
 const mockAccessGroupResponse: ResponseWrapper = mockResponse({
   data: {
-    id: 1,
+    id: '1',
     type: 'accessGroup',
     attributes: {
       groupName: 'Test Group'
@@ -49,7 +49,7 @@ describe('EditGroupsComponent deserialization', () => {
     jsonapi,
     data: [
       {
-        id: 10,
+        id: '10',
         type: 'user',
         attributes: {
           name: 'alice',
@@ -59,7 +59,7 @@ describe('EditGroupsComponent deserialization', () => {
           lastLoginDate: 1752647000,
           registeredSince: 1744086300,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 2,
+          globalPermissionGroupId: '2',
           yubikey: '0',
           otp1: '',
           otp2: '',
@@ -68,7 +68,7 @@ describe('EditGroupsComponent deserialization', () => {
         }
       },
       {
-        id: 20,
+        id: '20',
         type: 'user',
         attributes: {
           name: 'bob',
@@ -78,7 +78,7 @@ describe('EditGroupsComponent deserialization', () => {
           lastLoginDate: 1752647100,
           registeredSince: 1744086400,
           sessionLifetime: 7200,
-          globalPermissionGroupId: 1,
+          globalPermissionGroupId: '1',
           yubikey: '0',
           otp1: '',
           otp2: '',
@@ -170,7 +170,7 @@ describe('EditGroupsComponent', () => {
   describe('adding members', () => {
     it('should reload the user table after successfully adding users', async () => {
       mockGlobalService.postRelationships.and.returnValue(of({}));
-      component.addUsersForm.patchValue({ userIds: [1, 2] });
+      component.addUsersForm.patchValue({ userIds: ['1', '2'] });
 
       await component.onAddUsers();
 
@@ -179,7 +179,7 @@ describe('EditGroupsComponent', () => {
 
     it('should reload the agent table after successfully adding agents', async () => {
       mockGlobalService.postRelationships.and.returnValue(of({}));
-      component.addAgentsForm.patchValue({ agentIds: [3] });
+      component.addAgentsForm.patchValue({ agentIds: ['3'] });
 
       await component.onAddAgents();
 
@@ -208,7 +208,7 @@ describe('EditGroupsComponent', () => {
   describe('postRelationships payload', () => {
     it('should post the selected user IDs to the correct relationship endpoint', async () => {
       mockGlobalService.postRelationships.and.returnValue(of({}));
-      component.addUsersForm.patchValue({ userIds: [10, 20] });
+      component.addUsersForm.patchValue({ userIds: ['10', '20'] });
 
       await component.onAddUsers();
 
@@ -218,8 +218,8 @@ describe('EditGroupsComponent', () => {
         RelationshipType.USERMEMBERS,
         {
           data: [
-            { type: RelationshipType.USERMEMBERS, id: 10 },
-            { type: RelationshipType.USERMEMBERS, id: 20 }
+            { type: RelationshipType.USERMEMBERS, id: '10' },
+            { type: RelationshipType.USERMEMBERS, id: '20' }
           ]
         }
       );
@@ -227,7 +227,7 @@ describe('EditGroupsComponent', () => {
 
     it('should post the selected agent IDs to the correct relationship endpoint', async () => {
       mockGlobalService.postRelationships.and.returnValue(of({}));
-      component.addAgentsForm.patchValue({ agentIds: [5] });
+      component.addAgentsForm.patchValue({ agentIds: ['5'] });
 
       await component.onAddAgents();
 
@@ -236,7 +236,7 @@ describe('EditGroupsComponent', () => {
         component.editedAccessGroupIndex,
         RelationshipType.AGENTMEMBER,
         {
-          data: [{ type: RelationshipType.AGENTMEMBER, id: 5 }]
+          data: [{ type: RelationshipType.AGENTMEMBER, id: '5' }]
         }
       );
     });

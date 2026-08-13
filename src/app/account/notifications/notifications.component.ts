@@ -4,7 +4,7 @@ import { NotificationsRoleService } from '@services/roles/config/notifications-r
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 export interface Filter {
-  id: number;
+  id: string;
   name: string;
 }
 

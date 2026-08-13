@@ -25,7 +25,7 @@ export class AccessPermissionGroupsUsersTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
-  @Input() accesspermgroupId = 0;
+  @Input() accesspermgroupId = '';
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;

@@ -80,7 +80,7 @@ describe('AccessGroupsUsersTableComponent', () => {
 
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
-      const users = [{ id: 1, name: 'U1' }] as JUser[];
+      const users = [{ id: '1', name: 'U1' }] as JUser[];
       const event = { data: users, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JUser[]>;
       component.table.displayedColumns = ['0', '1', '2'];
 
@@ -96,7 +96,7 @@ describe('AccessGroupsUsersTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items = [{ id: 1, name: 'u1', isValid: true }] as JUser[];
+      const items = [{ id: '1', name: 'u1', isValid: true }] as JUser[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JUser[]>;
 
       component.exportActionClicked(event);

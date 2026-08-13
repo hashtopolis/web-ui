@@ -92,10 +92,10 @@ describe('ChunksTableComponent', () => {
 
     it('should call setAgentId when agentId input is provided', () => {
       const testComponent = TestBed.createComponent(TestChunksTableComponent).componentInstance;
-      testComponent.agentId = 5;
+      testComponent.agentId = '5';
       testComponent.ngOnInit();
 
-      expect(testComponent.mockDataSource.setAgentId).toHaveBeenCalledWith(5);
+      expect(testComponent.mockDataSource.setAgentId).toHaveBeenCalledWith('5');
     });
 
     it('should not call setAgentId when agentId is not provided', () => {
@@ -186,11 +186,11 @@ describe('ChunksTableComponent', () => {
     it('should render TASK column routerLink with correct path and label', (done) => {
       const columns = component.getColumns();
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
-      const chunk = { taskId: 5, task: { taskName: 'Test Task' } } as JChunk;
+      const chunk = { taskId: '5', task: { taskName: 'Test Task' } } as JChunk;
 
       taskColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
+        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', '5', 'edit']);
         expect(links[0].label).toBe('Test Task');
         done();
       });
@@ -199,11 +199,11 @@ describe('ChunksTableComponent', () => {
     it('should render TASK column routerLink with taskId as label when taskName is undefined', (done) => {
       const columns = component.getColumns();
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
-      const chunk = { taskId: 10, task: { taskName: undefined } } as unknown as JChunk;
+      const chunk = { taskId: '10', task: { taskName: undefined } } as unknown as JChunk;
 
       taskColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
+        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', '10', 'edit']);
         expect(links[0].label).toBeUndefined();
         done();
       });
@@ -222,11 +222,11 @@ describe('ChunksTableComponent', () => {
     it('should render AGENT column routerLink with correct path and label', (done) => {
       const columns = component.getColumns();
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
-      const chunk = { agentId: 7, agentName: 'Test Agent' } as JChunk;
+      const chunk = { agentId: '7', agentName: 'Test Agent' } as JChunk;
 
       agentColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', '7', 'edit']);
         expect(links[0].label).toBe('Test Agent');
         done();
       });
@@ -235,11 +235,11 @@ describe('ChunksTableComponent', () => {
     it('should render AGENT column routerLink with agentId as label when agentName is undefined', (done) => {
       const columns = component.getColumns();
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
-      const chunk = { agentId: 3, agentName: undefined } as unknown as JChunk;
+      const chunk = { agentId: '3', agentName: undefined } as unknown as JChunk;
 
       agentColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
+        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', '3', 'edit']);
         expect(links[0].label).toBe('3');
         done();
       });
@@ -298,11 +298,11 @@ describe('ChunksTableComponent', () => {
     it('should render CRACKED column routerLink with correct path and label', (done) => {
       const columns = component.getColumns();
       const crackedColumn = columns.find((col) => col.id === ChunksTableCol.CRACKED);
-      const chunk = { id: 9, taskId: 5, cracked: 100 } as JChunk;
+      const chunk = { id: '9', taskId: '5', cracked: 100 } as JChunk;
 
       crackedColumn?.routerLink!(chunk).subscribe((links) => {
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
+        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', '9']);
         expect(links[0].label).toBe('100');
         done();
       });
@@ -634,7 +634,7 @@ describe('ChunksTableComponent', () => {
 
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
-      component.selectedFilterColumn = { id: 1, dataKey: 'state', parent: undefined } as unknown as HTTableColumn;
+      component.selectedFilterColumn = { id: '1', dataKey: 'state', parent: undefined } as unknown as HTTableColumn;
       component.mockDataSource.loadAll.calls.reset();
 
       component.filter('Running');
@@ -648,7 +648,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should call dataSource.loadAll without filter when input is empty string', () => {
-      component.selectedFilterColumn = { id: 1, dataKey: 'state' } as unknown as HTTableColumn;
+      component.selectedFilterColumn = { id: '1', dataKey: 'state' } as unknown as HTTableColumn;
       component.mockDataSource.loadAll.calls.reset();
 
       component.filter('');
@@ -667,7 +667,7 @@ describe('ChunksTableComponent', () => {
 
     it('should pass parent from selectedFilterColumn to filter', () => {
       component.selectedFilterColumn = {
-        id: 1,
+        id: '1',
         dataKey: 'taskName',
         parent: 'task'
       } as unknown as HTTableColumn;
@@ -720,7 +720,7 @@ describe('ChunksTableComponent', () => {
 
   describe('rowActionClicked', () => {
     it('should call chunkActions.resetChunk for RESET action', () => {
-      const chunk = { id: 1, state: 0 } as JChunk;
+      const chunk = { id: '1', state: 0 } as JChunk;
       const event = {
         menuItem: { action: RowActionMenuAction.RESET },
         data: chunk
@@ -732,7 +732,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should show success message after reset succeeds', () => {
-      const chunk = { id: 1, state: 0 } as JChunk;
+      const chunk = { id: '1', state: 0 } as JChunk;
       const event = {
         menuItem: { action: RowActionMenuAction.RESET },
         data: chunk
@@ -744,7 +744,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should call reload after reset succeeds', () => {
-      const chunk = { id: 1, state: 0 } as JChunk;
+      const chunk = { id: '1', state: 0 } as JChunk;
       const event = {
         menuItem: { action: RowActionMenuAction.RESET },
         data: chunk
@@ -756,7 +756,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should handle in-progress chunk (state 2)', () => {
-      const chunk = { id: 1, state: 2 } as JChunk;
+      const chunk = { id: '1', state: 2 } as JChunk;
       const event = {
         menuItem: { action: RowActionMenuAction.RESET },
         data: chunk
@@ -768,7 +768,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should not call any action for unknown action', () => {
-      const chunk = { id: 1, state: 0 } as JChunk;
+      const chunk = { id: '1', state: 0 } as JChunk;
       const event = {
         menuItem: { action: 'unknown' },
         data: chunk

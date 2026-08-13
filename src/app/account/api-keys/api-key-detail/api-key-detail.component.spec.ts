@@ -31,11 +31,11 @@ describe('ApiKeyDetailComponent', () => {
 
   /** Token returned by the (stubbed) deserializer for the happy path. */
   const loadedToken: JApiToken = {
-    id: 7,
+    id: '7',
     type: 'apiToken',
     startValid: 1_700_000_000,
     endValid: 1_700_086_400,
-    userId: 42,
+    userId: '42',
     isRevoked: false
   };
 

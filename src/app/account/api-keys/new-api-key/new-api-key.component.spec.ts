@@ -35,18 +35,18 @@ describe('NewApiKeyComponent', () => {
 
   /** Token shape returned by the (stubbed) deserializer for the happy path. */
   const createdToken: JApiToken = {
-    id: 1,
+    id: '1',
     type: 'apiToken',
     startValid: 0,
     endValid: 1_000,
-    userId: 42,
+    userId: '42',
     isRevoked: false,
     token: 'jwt-xyz'
   };
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['create']);
-    Object.defineProperty(mockGlobalService, 'userId', { value: 42, configurable: true });
+    Object.defineProperty(mockGlobalService, 'userId', { value: '42', configurable: true });
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockRouter.navigate.and.resolveTo(true);
     mockAlert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
@@ -95,7 +95,7 @@ describe('NewApiKeyComponent', () => {
 
     await component.onSubmit();
 
-    expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.API_TOKENS, jasmine.objectContaining({ userId: 42 }));
+    expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.API_TOKENS, jasmine.objectContaining({ userId: '42' }));
     expect(mockStore.set).toHaveBeenCalledWith('jwt-xyz');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/account/api-keys']);
     expect(mockAlert.showSuccessMessage).toHaveBeenCalled();

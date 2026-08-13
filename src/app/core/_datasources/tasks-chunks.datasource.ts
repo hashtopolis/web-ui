@@ -13,11 +13,11 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
-  private _taskId = 0;
+  private _taskId = '';
   private _isChunksLive = 0;
   private _currentFilter: Filter | null = null;
 
-  setTaskId(taskId: number) {
+  setTaskId(taskId: string) {
     this._taskId = taskId;
   }
 

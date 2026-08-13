@@ -23,19 +23,19 @@ import { mockResponse } from '@src/app/testing/mock-response';
 // Mock data
 
 const MOCK_HASHLIST: JHashlist = {
-  id: 4,
+  id: '4',
   type: 'hashlist',
   name: 'hashlist_sha1_1',
   format: HashListFormat.TEXT,
-  hashTypeId: 100,
-  hashType: { id: 100, description: 'SHA1' } as unknown as JHashlist['hashType'],
+  hashTypeId: '100',
+  hashType: { id: '100', description: 'SHA1' } as unknown as JHashlist['hashType'],
   hashCount: 10346,
   cracked: 10346,
   separator: ':',
   isSecret: false,
   isHexSalt: false,
   isSalted: false,
-  accessGroupId: 1,
+  accessGroupId: '1',
   notes: '',
   useBrain: false,
   brainFeatures: 3,
@@ -44,24 +44,24 @@ const MOCK_HASHLIST: JHashlist = {
 
 const MOCK_HASHLIST_WITHOUT_HASHTYPE: JHashlist = {
   ...MOCK_HASHLIST,
-  id: 5,
+  id: '5',
   hashType: null,
   hashTypeDescription: undefined,
-  hashTypeId: 0
+  hashTypeId: '0'
 };
 
 const MOCK_SUPER_HASHLIST: JHashlist = {
-  id: 77,
+  id: '77',
   type: 'hashlist',
   name: 'superhashlist',
-  hashTypeId: 100,
-  hashType: { id: 100, description: 'SHA1' } as unknown as JHashlist['hashType'],
+  hashTypeId: '100',
+  hashType: { id: '100', description: 'SHA1' } as unknown as JHashlist['hashType'],
   hashCount: 2,
   cracked: 1,
   isSecret: false,
   isHexSalt: false,
   isSalted: false,
-  accessGroupId: 1,
+  accessGroupId: '1',
   notes: '',
   useBrain: false,
   brainFeatures: 3,
@@ -155,8 +155,8 @@ describe('HashlistsDataSource', () => {
 
   describe('setSuperHashListID()', () => {
     it('should store the provided super hashlist ID', () => {
-      dataSource.setSuperHashListID(123);
-      expect(dataSource['superHashListID']).toBe(123);
+      dataSource.setSuperHashListID('123');
+      expect(dataSource['superHashListID']).toBe('123');
     });
   });
 
@@ -212,7 +212,7 @@ describe('HashlistsDataSource', () => {
       dataSource.loadAll();
       const item = dataSource.getOriginalData()[0];
       expect(item.hashTypeDescription).toBe('SHA1');
-      expect(item.hashTypeId).toBe(100);
+      expect(item.hashTypeId).toBe('100');
     });
 
     it('should set hashTypeDescription to empty string when hashType is missing', () => {
@@ -294,7 +294,7 @@ describe('HashlistsDataSource', () => {
 
   describe('loadAll() - super hashlist mode', () => {
     beforeEach(() => {
-      dataSource.setSuperHashListID(77);
+      dataSource.setSuperHashListID('77');
     });
 
     it('should call service.get with SERV.HASHLISTS and superHashListID', () => {
@@ -304,7 +304,7 @@ describe('HashlistsDataSource', () => {
 
       const [serviceConfig, entityId] = gsSpy.get.calls.mostRecent().args;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
-      expect(entityId).toBe(77);
+      expect(entityId).toBe('77');
     });
 
     it('should include hashlists and hashType in params', () => {

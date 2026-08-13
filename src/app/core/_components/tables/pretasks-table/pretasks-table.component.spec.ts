@@ -153,7 +153,7 @@ describe('PretasksTableComponent', () => {
     it('should include NAME column with routerLink function that returns correct URL', (done) => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === PretasksTableCol.NAME);
-      const pretask = { id: 5, taskName: 'Test Pretask' } as JPretask;
+      const pretask = { id: '5', taskName: 'Test Pretask' } as JPretask;
 
       expect(nameColumn).toBeDefined();
       expect(nameColumn?.routerLink).toBeDefined();
@@ -162,7 +162,7 @@ describe('PretasksTableComponent', () => {
       link$.subscribe((links) => {
         expect(links).toBeDefined();
         expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
+        expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', '5', 'edit']);
         done();
       });
     });
@@ -170,8 +170,12 @@ describe('PretasksTableComponent', () => {
     it('should include FILES_TOTAL column with render function that returns correct count', () => {
       const columns = component.getColumns();
       const filesTotalColumn = columns.find((col) => col.id === PretasksTableCol.FILES_TOTAL);
-      const pretaskWithFiles = { id: 1, taskName: 'Test', pretaskFiles: [{ id: 1 }, { id: 2 }, { id: 3 }] } as JPretask;
-      const pretaskWithoutFiles = { id: 2, taskName: 'Test' } as JPretask;
+      const pretaskWithFiles = {
+        id: '1',
+        taskName: 'Test',
+        pretaskFiles: [{ id: '1' }, { id: '2' }, { id: '3' }]
+      } as JPretask;
+      const pretaskWithoutFiles = { id: '2', taskName: 'Test' } as JPretask;
 
       expect(filesTotalColumn).toBeDefined();
       expect(filesTotalColumn?.render).toBeDefined();
@@ -185,20 +189,20 @@ describe('PretasksTableComponent', () => {
       const columns = component.getColumns();
       const filesSizeColumn = columns.find((col) => col.id === PretasksTableCol.FILES_SIZE);
       const pretaskWithMultipleFiles = {
-        id: 1,
+        id: '1',
         taskName: 'Test',
         pretaskFiles: [
-          { id: 1, size: 1024 },
-          { id: 2, size: 2048 },
-          { id: 3, size: 512 }
+          { id: '1', size: 1024 },
+          { id: '2', size: 2048 },
+          { id: '3', size: 512 }
         ]
       } as JPretask;
       const pretaskWithInvalidSizes = {
-        id: 2,
+        id: '2',
         taskName: 'Test',
-        pretaskFiles: [{ id: 1, size: 1000 }, { id: 2, size: NaN }, { id: 3 }]
+        pretaskFiles: [{ id: '1', size: 1000 }, { id: '2', size: NaN }, { id: '3' }]
       } as JPretask;
-      const pretaskWithoutFiles = { id: 3, taskName: 'Test' } as JPretask;
+      const pretaskWithoutFiles = { id: '3', taskName: 'Test' } as JPretask;
 
       expect(filesSizeColumn).toBeDefined();
       expect(filesSizeColumn?.render).toBeDefined();
@@ -250,7 +254,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should include ESTIMATED_KEYSPACE column when supertTaskId is set', () => {
-      component.supertTaskId = 1;
+      component.supertTaskId = '1';
       const columns = component.getColumns();
       const keyspaceColumn = columns.find((col) => col.id === PretasksTableCol.ESTIMATED_KEYSPACE);
 
@@ -259,7 +263,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should not include ESTIMATED_KEYSPACE column when supertTaskId is 0', () => {
-      component.supertTaskId = 0;
+      component.supertTaskId = '';
       const columns = component.getColumns();
       const keyspaceColumn = columns.find((col) => col.id === PretasksTableCol.ESTIMATED_KEYSPACE);
 
@@ -270,9 +274,12 @@ describe('PretasksTableComponent', () => {
   describe('renderSecretIcon', () => {
     it('should return lock icon when pretask has secret files', () => {
       const pretask = {
-        id: 1,
+        id: '1',
         taskName: 'Test',
-        pretaskFiles: [{ id: 1, isSecret: true, size: 100 } as JFile, { id: 2, isSecret: false, size: 200 } as JFile]
+        pretaskFiles: [
+          { id: '1', isSecret: true, size: 100 } as JFile,
+          { id: '2', isSecret: false, size: 200 } as JFile
+        ]
       } as JPretask;
 
       const result = component.renderSecretIcon(pretask);
@@ -283,9 +290,9 @@ describe('PretasksTableComponent', () => {
 
     it('should return lock icon with plural for multiple secret files', () => {
       const pretask = {
-        id: 1,
+        id: '1',
         taskName: 'Test',
-        pretaskFiles: [{ id: 1, isSecret: true, size: 100 } as JFile, { id: 2, isSecret: true, size: 200 } as JFile]
+        pretaskFiles: [{ id: '1', isSecret: true, size: 100 } as JFile, { id: '2', isSecret: true, size: 200 } as JFile]
       } as JPretask;
 
       const result = component.renderSecretIcon(pretask);
@@ -296,9 +303,9 @@ describe('PretasksTableComponent', () => {
 
     it('should return empty icon name when no secret files', () => {
       const pretask = {
-        id: 1,
+        id: '1',
         taskName: 'Test',
-        pretaskFiles: [{ id: 1, isSecret: false, size: 100 } as JFile]
+        pretaskFiles: [{ id: '1', isSecret: false, size: 100 } as JFile]
       } as JPretask;
 
       const result = component.renderSecretIcon(pretask);
@@ -307,7 +314,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should return empty icon name when no pretaskFiles', () => {
-      const pretask = { id: 1, taskName: 'Test' } as JPretask;
+      const pretask = { id: '1', taskName: 'Test' } as JPretask;
 
       const result = component.renderSecretIcon(pretask);
 
@@ -318,10 +325,10 @@ describe('PretasksTableComponent', () => {
   describe('renderEstimatedKeyspace', () => {
     it('should render keyspace as formatted number', () => {
       const pretask = {
-        id: 1,
+        id: '1',
         taskName: 'Test',
         attackCmd: 'test',
-        pretaskFiles: [{ id: 1, size: 1000, lineCount: 100 } as JFile]
+        pretaskFiles: [{ id: '1', size: 1000, lineCount: 100 } as JFile]
       } as JPretask;
 
       const result = component.renderEstimatedKeyspace(pretask);
@@ -331,7 +338,7 @@ describe('PretasksTableComponent', () => {
   });
 
   describe('rowActionClicked', () => {
-    const testPretask = { id: 5, taskName: 'Test Pretask' } as JPretask;
+    const testPretask = { id: '5', taskName: 'Test Pretask' } as JPretask;
 
     beforeEach(() => {
       mockDialog.open.and.returnValue({
@@ -359,7 +366,7 @@ describe('PretasksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/preconfigured-tasks', 5, 'edit']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/preconfigured-tasks', '5', 'edit']);
     });
 
     it('should navigate to new task copy page for COPY_TO_TASK action', () => {
@@ -370,7 +377,7 @@ describe('PretasksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/new-tasks', 5, 'copypretask']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/new-tasks', '5', 'copypretask']);
     });
 
     it('should navigate to pretask copy page for COPY_TO_PRETASK action', () => {
@@ -381,7 +388,7 @@ describe('PretasksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/preconfigured-tasks', 5, 'copy']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks/preconfigured-tasks', '5', 'copy']);
     });
 
     it('should open dialog for DELETE action when isDelete is true', () => {
@@ -418,8 +425,8 @@ describe('PretasksTableComponent', () => {
 
     it('should emit pretaskAdd for ADD action', () => {
       const pretasks = [
-        { id: 1, taskName: 'Test 1' },
-        { id: 2, taskName: 'Test 2' }
+        { id: '1', taskName: 'Test 1' },
+        { id: '2', taskName: 'Test 2' }
       ] as JPretask[];
       const event = {
         menuItem: { label: 'Add', action: BulkActionMenuAction.ADD },
@@ -434,7 +441,7 @@ describe('PretasksTableComponent', () => {
 
     it('should open dialog for DELETE action when isDelete is true', () => {
       component.unassignOption = false;
-      const pretasks = [{ id: 1, taskName: 'Test 1' }] as JPretask[];
+      const pretasks = [{ id: '1', taskName: 'Test 1' }] as JPretask[];
       const event = {
         menuItem: { label: 'Delete', action: BulkActionMenuAction.DELETE },
         data: pretasks
@@ -447,7 +454,7 @@ describe('PretasksTableComponent', () => {
 
     it('should open dialog for DELETE action when isDelete is false (unassign)', () => {
       component.unassignOption = true;
-      const pretasks = [{ id: 1, taskName: 'Test 1' }] as JPretask[];
+      const pretasks = [{ id: '1', taskName: 'Test 1' }] as JPretask[];
       const event = {
         menuItem: { label: 'Delete', action: BulkActionMenuAction.DELETE },
         data: pretasks
@@ -508,7 +515,7 @@ describe('PretasksTableComponent', () => {
       component.table.displayedColumns = ['0', '1', '2', '3', '4', '5', '6'];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1, taskName: 'Test' }]
+        data: [{ id: '1', taskName: 'Test' }]
       } as ActionMenuEvent<JPretask[]>;
 
       component.exportActionClicked(event);
@@ -525,7 +532,7 @@ describe('PretasksTableComponent', () => {
       component.table.displayedColumns = ['0', '1'];
       const event = {
         menuItem: { label: 'Export' },
-        data: [{ id: 1 }, { id: 2 }]
+        data: [{ id: '1' }, { id: '2' }]
       } as ActionMenuEvent<JPretask[]>;
 
       component.exportActionClicked(event);
@@ -549,7 +556,7 @@ describe('PretasksTableComponent', () => {
 
     it('should open dialog with correct configuration', () => {
       component.openDialog({
-        rows: [{ id: 1, taskName: 'Test' }] as JPretask[],
+        rows: [{ id: '1', taskName: 'Test' }] as JPretask[],
         title: 'Test Title',
         icon: 'warning',
         body: 'Test body',
@@ -565,12 +572,12 @@ describe('PretasksTableComponent', () => {
 
     it('should handle dialog close with DELETE action', () => {
       const dialogRefMock = {
-        afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1, taskName: 'Test' }] })
+        afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: '1', taskName: 'Test' }] })
       };
       mockDialog.open.and.returnValue(dialogRefMock as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
-        rows: [{ id: 1, taskName: 'Test' }] as JPretask[],
+        rows: [{ id: '1', taskName: 'Test' }] as JPretask[],
         title: 'Test Title',
         icon: 'warning',
         body: 'Test body',
@@ -586,36 +593,36 @@ describe('PretasksTableComponent', () => {
     it('should call globalService.update for CHANGE_PRIORITY action', () => {
       const editable = {
         action: PretasksTableEditableAction.CHANGE_PRIORITY,
-        data: { id: 1, taskName: 'Test', priority: 5 } as JPretask,
+        data: { id: '1', taskName: 'Test', priority: 5 } as JPretask,
         value: '10'
       };
 
       component.editableSaved(editable);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), 1, { priority: 10 });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), '1', { priority: 10 });
     });
 
     it('should call globalService.update for CHANGE_MAX_AGENTS action', () => {
       const editable = {
         action: PretasksTableEditableAction.CHANGE_MAX_AGENTS,
-        data: { id: 1, taskName: 'Test', maxAgents: 5 } as JPretask,
+        data: { id: '1', taskName: 'Test', maxAgents: 5 } as JPretask,
         value: '10'
       };
 
       component.editableSaved(editable);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), 1, { maxAgents: 10 });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), '1', { maxAgents: 10 });
     });
   });
 
   describe('Input setters', () => {
     it('should set supertTaskId correctly', () => {
-      component.supertTaskId = 5;
-      expect(component.supertTaskId).toBe(5);
+      component.supertTaskId = '5';
+      expect(component.supertTaskId).toBe('5');
     });
 
     it('should return 0 when supertTaskId is undefined', () => {
-      expect(component.supertTaskId).toBe(0);
+      expect(component.supertTaskId).toBe('');
     });
 
     it('should set reverseQuery correctly', () => {
@@ -644,7 +651,7 @@ describe('PretasksTableComponent', () => {
   describe('rowActionAddToSupertask', () => {
     it('should emit pretaskAdd with single pretask', () => {
       spyOn(component.pretaskAdd, 'emit');
-      const pretask = { id: 1, taskName: 'Test' } as JPretask;
+      const pretask = { id: '1', taskName: 'Test' } as JPretask;
 
       (component as unknown as { rowActionAddToSupertask: (pretask: JPretask) => void }).rowActionAddToSupertask(
         pretask

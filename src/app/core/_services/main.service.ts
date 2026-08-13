@@ -14,7 +14,7 @@ import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
 
 interface JsonApiRelationshipData {
-  data: { type: string; id: number }[];
+  data: { type: string; id: string }[];
 }
 
 @Injectable({
@@ -128,18 +128,18 @@ export class GlobalService {
    * Overloads keep backwards compatibility and allow passing custom headers.
    */
   // Overload 1 (compat)
-  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<ResponseWrapper>;
+  get(serviceConfig: ServiceConfig, id: string, routerParams?: RequestParams): Observable<ResponseWrapper>;
   // Overload 2 (with headers)
   get(
     serviceConfig: ServiceConfig,
-    id: number,
+    id: string,
     routerParams: RequestParams | undefined,
     httpOptions: { headers?: HttpHeaders }
   ): Observable<ResponseWrapper>;
   // Implementation
   get(
     serviceConfig: ServiceConfig,
-    id: number,
+    id: string,
     routerParams?: RequestParams,
     httpOptions?: { headers?: HttpHeaders }
   ): Observable<ResponseWrapper> {
@@ -165,7 +165,7 @@ export class GlobalService {
    * @param id            ID of file to get
    * @param filename      Filname to use for the downloaded file
    */
-  getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
+  getFile(serviceConfig: ServiceConfig, id: string, filename: string): void {
     this.http
       .get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, {
         responseType: 'blob'
@@ -211,12 +211,12 @@ export class GlobalService {
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param id            ID of object to delete
    */
-  delete(serviceConfig: ServiceConfig, id: number): Observable<object> {
+  delete(serviceConfig: ServiceConfig, id: string): Observable<object> {
     return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
   }
 
-  bulkDelete(serviceConfig: ServiceConfig, objects: { id: number }[]): Observable<object> {
-    const objectdata: { id: number; type: string }[] = [];
+  bulkDelete(serviceConfig: ServiceConfig, objects: { id: string }[]): Observable<object> {
+    const objectdata: { id: string; type: string }[] = [];
 
     for (const object of objects) {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
@@ -232,7 +232,7 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
+  update(serviceConfig: ServiceConfig, id: string, arr: Record<string, unknown>): Observable<object> {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
     return this.http
@@ -248,10 +248,10 @@ export class GlobalService {
    */
   bulkUpdate(
     serviceConfig: ServiceConfig,
-    objects: { id: number }[],
+    objects: { id: string }[],
     attributes: Record<string, unknown>
   ): Observable<object> {
-    const objectdata: { id: number; type: string; attributes: Record<string, unknown> }[] = [];
+    const objectdata: { id: string; type: string; attributes: Record<string, unknown> }[] = [];
 
     for (const object of objects) {
       objectdata.push({
@@ -266,7 +266,7 @@ export class GlobalService {
 
   postRelationships(
     serviceConfig: ServiceConfig,
-    id: number,
+    id: string,
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
@@ -277,7 +277,7 @@ export class GlobalService {
 
   deleteRelationships(
     serviceConfig: ServiceConfig,
-    id: number,
+    id: string,
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
@@ -288,7 +288,7 @@ export class GlobalService {
       .pipe(debounceTime(2000));
   }
 
-  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
+  getRelationships(serviceConfig: ServiceConfig, id: string, relType: string): Observable<ResponseWrapper> {
     return this.http
       .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
       .pipe(debounceTime(2000));
@@ -300,7 +300,7 @@ export class GlobalService {
    * @param id - agent id
    * @returns Object
    **/
-  archive(serviceConfig: ServiceConfig, id: number): Observable<object> {
+  archive(serviceConfig: ServiceConfig, id: string): Observable<object> {
     return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
   }
 
@@ -371,7 +371,7 @@ export class GlobalService {
    **/
   uhelper(
     serviceConfig: ServiceConfig,
-    id: number,
+    id: string,
     option: HelperEndpoint,
     arr: Record<string, unknown>
   ): Observable<object> {

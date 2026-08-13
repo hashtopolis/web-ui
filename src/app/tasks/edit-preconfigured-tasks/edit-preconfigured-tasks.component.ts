@@ -48,7 +48,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   selectBenchmarktype = benchmarkType;
 
   // Edit Options
-  editedPretaskIndex: number;
+  editedPretaskIndex: string;
 
   pretaskName = '';
 

@@ -6,7 +6,7 @@ import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, in
 import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
@@ -29,7 +29,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   standalone: false
 })
 export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) hashlistId: number;
+  @Input({ required: true }) hashlistId: HashlistId;
 
   /** Emitted after a supertask is created, so the host can refresh its tasks table. */
   @Output() created = new EventEmitter<void>();
@@ -40,14 +40,14 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   readonly pageSizeOptions = [10, 25, 50, 100];
 
   crackerTypes: SelectOption<CrackerBinaryTypeId>[] = [];
-  rowVersions: Partial<Record<number, SelectOption<CrackerBinaryId>[]>> = {};
+  rowVersions: Partial<Record<string, SelectOption<CrackerBinaryId>[]>> = {};
 
-  selectedTypeByRow: Partial<Record<number, CrackerBinaryTypeId>> = {};
-  selectedVersionByRow: Partial<Record<number, CrackerBinaryId>> = {};
-  rowLoading: Partial<Record<number, boolean>> = {};
+  selectedTypeByRow: Partial<Record<string, CrackerBinaryTypeId>> = {};
+  selectedVersionByRow: Partial<Record<string, CrackerBinaryId>> = {};
+  rowLoading: Partial<Record<string, boolean>> = {};
 
   private readonly serializer = new JsonAPISerializer();
-  private readonly versionsByType = new Map<number, SelectOption<CrackerBinaryId>[]>();
+  private readonly versionsByType = new Map<CrackerBinaryTypeId, SelectOption<CrackerBinaryId>[]>();
   private tableSubscription?: Subscription;
 
   private readonly injector = inject(Injector);
@@ -103,7 +103,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     this.dataSource.reload();
   }
 
-  async onTypeChanged(rowId: number, typeId: number): Promise<void> {
+  async onTypeChanged(rowId: string, typeId: CrackerBinaryTypeId): Promise<void> {
     this.selectedTypeByRow[rowId] = typeId;
     try {
       const versions = await this.getVersionsForType(typeId);
@@ -115,7 +115,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     }
   }
 
-  async createSupertask(supertaskTemplateId: number): Promise<void> {
+  async createSupertask(supertaskTemplateId: string): Promise<void> {
     const crackerVersionId = this.selectedVersionByRow[supertaskTemplateId];
     if (!crackerVersionId) {
       this.alert.showErrorMessage('Select a binary version first.');
@@ -126,10 +126,11 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
     try {
       await firstValueFrom(
+        // The createSupertask helper takes numeric ids.
         this.gs.chelper(SERV.HELPER, 'createSupertask', {
-          supertaskTemplateId,
-          hashlistId: this.hashlistId,
-          crackerVersionId
+          supertaskTemplateId: Number(supertaskTemplateId),
+          hashlistId: Number(this.hashlistId),
+          crackerVersionId: Number(crackerVersionId)
         })
       );
 
@@ -182,7 +183,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     this.crackerTypes = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
   }
 
-  private async getVersionsForType(typeId: number): Promise<SelectOption<CrackerBinaryId>[]> {
+  private async getVersionsForType(typeId: CrackerBinaryTypeId): Promise<SelectOption<CrackerBinaryId>[]> {
     const cached = this.versionsByType.get(typeId);
     if (cached) {
       return cached;

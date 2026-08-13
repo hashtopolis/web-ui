@@ -59,7 +59,7 @@ export interface HTTableRouterLink {
   onClick?: () => void;
   visualGraph?: {
     enabled: boolean;
-    taskId: number;
+    taskId: string;
     imageUrl?: string;
     overallProgress?: number;
     overallProgressLabel?: string;

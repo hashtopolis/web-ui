@@ -45,7 +45,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
     fixture = TestBed.createComponent(TestHashlistSupertaskBuilderTableComponent);
     component = fixture.componentInstance;
-    component.hashlistId = 4;
+    component.hashlistId = '4';
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -57,8 +57,8 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
   it('should render supertask rows', async () => {
     component.supertasks = [
-      { id: 10, supertaskName: 'BF set', type: 'supertask' } as JSuperTask,
-      { id: 11, supertaskName: 'WL set', type: 'supertask' } as JSuperTask
+      { id: '10', supertaskName: 'BF set', type: 'supertask' } as JSuperTask,
+      { id: '11', supertaskName: 'WL set', type: 'supertask' } as JSuperTask
     ];
 
     fixture.detectChanges();
@@ -71,7 +71,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should link the name to the supertask', async () => {
-    component.supertasks = [{ id: 10, supertaskName: 'BF set', type: 'supertask' } as JSuperTask];
+    component.supertasks = [{ id: '10', supertaskName: 'BF set', type: 'supertask' } as JSuperTask];
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -83,7 +83,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should show error and not call backend when no version is selected', async () => {
-    await component.createSupertask(10);
+    await component.createSupertask('10');
     await fixture.whenStable();
 
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Select a binary version first.');
@@ -91,9 +91,9 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should call backend helper and show success when creating supertask', async () => {
-    component.selectedVersionByRow[10] = 77 as CrackerBinaryId;
+    component.selectedVersionByRow[10] = '77' as CrackerBinaryId;
 
-    await component.createSupertask(10);
+    await component.createSupertask('10');
     await fixture.whenStable();
 
     expect(mockGlobalService.chelper).toHaveBeenCalledWith(SERV.HELPER, 'createSupertask', {
@@ -107,8 +107,8 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
   it('should update versions and default selected version when binary type changes', async () => {
     const versions = [
-      { id: 1 as CrackerBinaryId, name: '6.2.6' },
-      { id: 2 as CrackerBinaryId, name: '6.2.7' }
+      { id: '1' as CrackerBinaryId, name: '6.2.6' },
+      { id: '2' as CrackerBinaryId, name: '6.2.7' }
     ] as SelectOption<CrackerBinaryId>[];
 
     const privateComponent = component as unknown as {
@@ -116,12 +116,12 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     };
     privateComponent['getVersionsForType'] = async (): Promise<SelectOption<CrackerBinaryId>[]> => versions;
 
-    await component.onTypeChanged(22, 5 as CrackerBinaryTypeId);
+    await component.onTypeChanged('22', '5' as CrackerBinaryTypeId);
     await fixture.whenStable();
 
-    expect(component.selectedTypeByRow[22]).toBe(5 as CrackerBinaryTypeId);
+    expect(component.selectedTypeByRow[22]).toBe('5' as CrackerBinaryTypeId);
     expect(component.rowVersions[22]).toEqual(versions);
-    expect(component.selectedVersionByRow[22]).toBe(2 as CrackerBinaryId);
+    expect(component.selectedVersionByRow[22]).toBe('2' as CrackerBinaryId);
   });
 
   it('should keep the after cursor when paging forward', () => {

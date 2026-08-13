@@ -41,7 +41,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
     fixture = TestBed.createComponent(TestHashlistPretaskBuilderTableComponent);
     component = fixture.componentInstance;
-    component.hashlistId = 4;
+    component.hashlistId = '4';
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -64,10 +64,10 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
   it('should render color preview when pretask has color and keep empty when no color', async () => {
     component.pretasks = [
-      { id: 1, taskName: 'Stored without hash', color: 'ff0000', type: 'pretask' } as JPretask,
-      { id: 2, taskName: 'Stored with hash', color: '#00ff00', type: 'pretask' } as JPretask,
-      { id: 3, taskName: 'No color', color: '', type: 'pretask' } as JPretask,
-      { id: 4, taskName: 'Invalid color', color: 'not-a-color', type: 'pretask' } as JPretask
+      { id: '1', taskName: 'Stored without hash', color: 'ff0000', type: 'pretask' } as JPretask,
+      { id: '2', taskName: 'Stored with hash', color: '#00ff00', type: 'pretask' } as JPretask,
+      { id: '3', taskName: 'No color', color: '', type: 'pretask' } as JPretask,
+      { id: '4', taskName: 'Invalid color', color: 'not-a-color', type: 'pretask' } as JPretask
     ];
 
     fixture.detectChanges();
@@ -83,7 +83,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
   });
 
   it('should link the name to the pretask', async () => {
-    component.pretasks = [{ id: 7, taskName: 'Linked', type: 'pretask' } as JPretask];
+    component.pretasks = [{ id: '7', taskName: 'Linked', type: 'pretask' } as JPretask];
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -96,8 +96,8 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
   it('should select and unselect all rows', () => {
     component.pretasks = [
-      { id: 1, taskName: 'A', type: 'pretask' } as JPretask,
-      { id: 2, taskName: 'B', type: 'pretask' } as JPretask
+      { id: '1', taskName: 'A', type: 'pretask' } as JPretask,
+      { id: '2', taskName: 'B', type: 'pretask' } as JPretask
     ];
 
     component.toggleSelectAll(true);
@@ -109,19 +109,19 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
   it('should keep the selection when rows are re-emitted and drop ids that vanished', () => {
     const rows = [
-      { id: 1, taskName: 'A', type: 'pretask' } as JPretask,
-      { id: 2, taskName: 'B', type: 'pretask' } as JPretask
+      { id: '1', taskName: 'A', type: 'pretask' } as JPretask,
+      { id: '2', taskName: 'B', type: 'pretask' } as JPretask
     ];
     component.pretasks = rows;
-    component.selectedPretaskIds = new Set([1, 2]);
+    component.selectedPretaskIds = new Set(['1', '2']);
 
     const privateComponent = component as unknown as { retainSelection(rows: JPretask[]): void };
 
     privateComponent.retainSelection(rows);
-    expect(Array.from(component.selectedPretaskIds)).toEqual([1, 2]);
+    expect(Array.from(component.selectedPretaskIds)).toEqual(['1', '2']);
 
     privateComponent.retainSelection([rows[0]]);
-    expect(Array.from(component.selectedPretaskIds)).toEqual([1]);
+    expect(Array.from(component.selectedPretaskIds)).toEqual(['1']);
   });
 
   it('should show an error when creating with no selection', async () => {
@@ -133,15 +133,15 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
   it('should report success and failed count for mixed create results', async () => {
     component.pretasks = [
-      { id: 1, taskName: 'A', type: 'pretask' } as JPretask,
-      { id: 2, taskName: 'B', type: 'pretask' } as JPretask
+      { id: '1', taskName: 'A', type: 'pretask' } as JPretask,
+      { id: '2', taskName: 'B', type: 'pretask' } as JPretask
     ];
-    component.selectedPretaskIds = new Set([1, 2]);
+    component.selectedPretaskIds = new Set(['1', '2']);
 
     const privateComponent = component as unknown as {
       [key: string]: unknown;
     };
-    privateComponent['createTaskFromPretask'] = async (pretask: JPretask): Promise<boolean> => pretask.id !== 2;
+    privateComponent['createTaskFromPretask'] = async (pretask: JPretask): Promise<boolean> => pretask.id !== '2';
 
     await component.createTasksFromSelection();
     await fixture.whenStable();
@@ -153,7 +153,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
   it('should keep the after cursor and clear selection when paging forward', () => {
     const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
     const reload = jasmine.createSpy('reload');
-    component.selectedPretaskIds = new Set([1, 2]);
+    component.selectedPretaskIds = new Set(['1', '2']);
     (component as unknown as { dataSource: unknown }).dataSource = {
       pageAfter: 'AFTER',
       pageBefore: 'BEFORE',

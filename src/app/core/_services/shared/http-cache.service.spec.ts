@@ -26,7 +26,7 @@ describe('HttpCacheService', () => {
   it('should cache a GET request response', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK',
       url: 'https://api.test.com/data'
@@ -36,7 +36,7 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: '1', name: 'Test' });
     expect(cached?.isStale).toBeFalse();
   });
 
@@ -89,7 +89,7 @@ describe('HttpCacheService', () => {
   it('should cache JSON responses', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK',
       headers: new HttpHeaders({ 'content-type': 'application/json' })
@@ -99,13 +99,13 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: '1', name: 'Test' });
   });
 
   it('should invalidate cache on command', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });
@@ -122,7 +122,7 @@ describe('HttpCacheService', () => {
   it('should mark entries as stale after TTL but keep serving them within the stale window', (done) => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });
@@ -137,7 +137,7 @@ describe('HttpCacheService', () => {
       const stale = service.get(req);
       expect(stale).toBeTruthy();
       expect(stale?.isStale).toBeTrue();
-      expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
+      expect(stale?.response.body).toEqual({ id: '1', name: 'Test' });
       done();
     }, 150);
   });
@@ -145,7 +145,7 @@ describe('HttpCacheService', () => {
   it('should return null once the stale window has also elapsed', (done) => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });
@@ -162,7 +162,7 @@ describe('HttpCacheService', () => {
   it('should skip caching when TTL is 0 or negative', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });
@@ -176,7 +176,7 @@ describe('HttpCacheService', () => {
   it('should persist cache to sessionStorage', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });
@@ -185,7 +185,7 @@ describe('HttpCacheService', () => {
 
     // Clear memory cache to force retrieval from sessionStorage
     const cached = service.get(req);
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toEqual({ id: '1', name: 'Test' });
 
     // Verify that data is in sessionStorage (as a sanity check)
     expect(sessionStorage.length).toBeGreaterThan(0);
@@ -194,7 +194,7 @@ describe('HttpCacheService', () => {
   it('should return isStale false for a fresh entry', () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
-      body: { id: 1, name: 'Test' },
+      body: { id: '1', name: 'Test' },
       status: 200,
       statusText: 'OK'
     });

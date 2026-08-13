@@ -26,8 +26,8 @@ export interface EditHashlistForm {
  */
 export const getEditHashlistForm = (): FormGroup<EditHashlistForm> => {
   return new FormGroup<EditHashlistForm>({
-    hashlistId: new FormControl<number | null>({ value: null, disabled: true }),
-    accessGroupId: new FormControl<number | null>({ value: null, disabled: true }),
+    hashlistId: new FormControl<HashlistId | null>({ value: null, disabled: true }),
+    accessGroupId: new FormControl<AccessGroupId | null>({ value: null, disabled: true }),
     useBrain: new FormControl<boolean | null>({ value: null, disabled: true }),
     format: new FormControl<string | null>({ value: null, disabled: true }),
     hashCount: new FormControl<string | null>({ value: null, disabled: true }),
@@ -37,7 +37,7 @@ export const getEditHashlistForm = (): FormGroup<EditHashlistForm> => {
       name: new FormControl<string | null>(null, [Validators.required]),
       notes: new FormControl<string | null>(null),
       isSecret: new FormControl<boolean | null>(null),
-      accessGroupId: new FormControl<number | null>(null)
+      accessGroupId: new FormControl<AccessGroupId | null>(null)
     })
   });
 };

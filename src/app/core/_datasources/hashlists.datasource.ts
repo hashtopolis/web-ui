@@ -16,7 +16,7 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
-  private superHashListID = 0;
+  private superHashListID = '';
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
     this.reset(true);
@@ -25,7 +25,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
     this.index = 0;
   }
 
-  setSuperHashListID(superHashListID: number): void {
+  setSuperHashListID(superHashListID: string): void {
     this.superHashListID = superHashListID;
   }
   loadAll(query?: Filter): void {

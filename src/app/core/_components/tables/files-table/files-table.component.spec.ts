@@ -84,31 +84,31 @@ describe('FilesTableComponent', () => {
     });
 
     it('should set a non-secret file to secret', () => {
-      const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
+      const file = { id: '7', filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.TOGGLE_SECRET, label: '' } });
 
-      expect(gs.update).toHaveBeenCalledWith(SERV.FILES, 7, { isSecret: true });
+      expect(gs.update).toHaveBeenCalledWith(SERV.FILES, '7', { isSecret: true });
       expect(component.reload).toHaveBeenCalled();
     });
 
     it('should unset a secret file', () => {
-      const file = { id: 7, filename: 'a.txt', isSecret: true } as JFile;
+      const file = { id: '7', filename: 'a.txt', isSecret: true } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.TOGGLE_SECRET, label: '' } });
 
-      expect(gs.update).toHaveBeenCalledWith(SERV.FILES, 7, { isSecret: false });
+      expect(gs.update).toHaveBeenCalledWith(SERV.FILES, '7', { isSecret: false });
     });
 
     it('should call the recountFileLines helper', () => {
-      const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
+      const file = { id: '7', filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.RECOUNT_LINES, label: '' } });
 
-      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recountFileLines', { fileId: 7 });
+      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recountFileLines', { fileId: '7' });
       expect(component.reload).toHaveBeenCalled();
     });
 
     it('should not update or recount on a plain edit action', () => {
       spyOn(component as unknown as { rowActionEdit: () => void }, 'rowActionEdit');
-      const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
+      const file = { id: '7', filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
       expect(gs.update).not.toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('FilesTableComponent', () => {
   describe('exportActionClicked', () => {
     it('should delegate to exportService with the correct file name', () => {
       component.table.displayedColumns = component.tableColumns.map((col) => col.id.toString());
-      const items = [{ id: 1 }] as JFile[];
+      const items = [{ id: '1' }] as JFile[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JFile[]>;
 
       component.exportActionClicked(event);
@@ -134,7 +134,7 @@ describe('FilesTableComponent', () => {
 
     it('should pass only visible columns when displayedColumns is set', () => {
       component.table.displayedColumns = ['0', '1'];
-      const items = [{ id: 1 }, { id: 2 }] as JFile[];
+      const items = [{ id: '1' }, { id: '2' }] as JFile[];
       const event = { data: items, menuItem: { action: 'excel', label: '' } } as ActionMenuEvent<JFile[]>;
 
       component.exportActionClicked(event);

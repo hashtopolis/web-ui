@@ -19,7 +19,7 @@ import { ThinJAgent } from '@models/agent.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
-import { AgentId } from '@models/id.types';
+import { AgentId, TaskWrapperId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { EditTaskRouteKind, zEditTaskRouteData, zIdRouteParams } from '@models/routes.schema';
@@ -59,8 +59,8 @@ type EditedTask = JTaskWith<
 })
 export class EditTasksComponent implements OnInit, OnDestroy {
   editMode = false;
-  editedTaskIndex: number;
-  taskWrapperId: number;
+  editedTaskIndex: string;
+  taskWrapperId: TaskWrapperId;
   originalValue: JTask;
 
   pageTitle = 'Task';
@@ -376,7 +376,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   /**
    * The below functions are related with assign, manage and delete agents
    */
-  private assingAgentInit(assignedAgentIds: Array<number>): void {
+  private assingAgentInit(assignedAgentIds: Array<AgentId>): void {
     this.isLoadingAgents = true;
     const params = new RequestParamBuilder();
     if (assignedAgentIds.length > 0) {
@@ -399,7 +399,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         responseAssignments,
         zAgentAssignmentListResponse
       );
-      const agentAssignmentsAgentIds: Array<number> = agentAssignments.map(
+      const agentAssignmentsAgentIds: Array<AgentId> = agentAssignments.map(
         (agentAssignment) => agentAssignment.agentId
       );
       this.assingAgentInit(agentAssignmentsAgentIds);

@@ -11,13 +11,13 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
 
-const ITEMS: SelectOption<number>[] = [
-  { id: 1, name: 'Alpha' },
-  { id: 2, name: 'Beta' },
-  { id: 3, name: 'Gamma' },
-  { id: 4, name: 'Delta' },
-  { id: 5, name: 'Epsilon' },
-  { id: 6, name: 'Zeta' }
+const ITEMS: SelectOption<string>[] = [
+  { id: '1', name: 'Alpha' },
+  { id: '2', name: 'Beta' },
+  { id: '3', name: 'Gamma' },
+  { id: '4', name: 'Delta' },
+  { id: '5', name: 'Epsilon' },
+  { id: '6', name: 'Zeta' }
 ];
 
 describe('InputMultiSelectComponent', () => {
@@ -47,7 +47,7 @@ describe('InputMultiSelectComponent', () => {
     });
 
     it('should replace filteredItems when items are replaced', () => {
-      component.items = [{ id: 10, name: 'New' }];
+      component.items = [{ id: '10', name: 'New' }];
       expect(component.filteredItems.length).toBe(1);
       expect(component.filteredItems[0].name).toBe('New');
     });
@@ -57,7 +57,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter items by name (case-insensitive)', () => {
       component.onSearchInputChange({ target: { value: 'alpha' } } as unknown as Event);
       expect(component.filteredItems.length).toBe(1);
-      expect(component.filteredItems[0].id).toBe(1);
+      expect(component.filteredItems[0].id).toBe('1');
     });
 
     it('should return all items when search is cleared', () => {
@@ -74,7 +74,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter by id when mergeIdAndName is true', () => {
       component.mergeIdAndName = true;
       component.onSearchInputChange({ target: { value: '2' } } as unknown as Event);
-      expect(component.filteredItems.some((i) => i.id === 2)).toBeTrue();
+      expect(component.filteredItems.some((i) => i.id === '2')).toBeTrue();
     });
   });
 
@@ -99,7 +99,10 @@ describe('InputMultiSelectComponent', () => {
       component.onSearchInputChange({ target: { value: 'ga' } } as unknown as Event);
 
       const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
-      component.onInputChipAdd({ value: 'ga', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+      component.onInputChipAdd({
+        value: 'ga',
+        chipInput
+      } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
       expect(component.selectedItems).toEqual([ITEMS[2]]);
       expect(chipInput.clear).toHaveBeenCalled();
@@ -112,7 +115,10 @@ describe('InputMultiSelectComponent', () => {
       component.onSearchInputChange({ target: { value: 'zzz' } } as unknown as Event);
 
       const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
-      component.onInputChipAdd({ value: 'zzz', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+      component.onInputChipAdd({
+        value: 'zzz',
+        chipInput
+      } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
       expect(component.selectedItems).toEqual([]);
       expect(control.hasError('invalidSelection')).toBeTrue();
@@ -170,14 +176,14 @@ describe('InputMultiSelectComponent', () => {
 
   describe('writeValue', () => {
     it('should pre-select item by numeric id', () => {
-      component.writeValue(1);
+      component.writeValue('1');
       expect(component.selectedItems.length).toBe(1);
-      expect(component.selectedItems[0].id).toBe(1);
+      expect(component.selectedItems[0].id).toBe('1');
     });
 
     it('should pre-select multiple items by id array', () => {
       component.multiselectEnabled = true;
-      component.writeValue([1, 2]);
+      component.writeValue(['1', '2']);
       expect(component.selectedItems.length).toBe(2);
     });
 

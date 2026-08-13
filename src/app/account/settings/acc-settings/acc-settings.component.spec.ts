@@ -32,7 +32,7 @@ describe('AccountSettingsComponent', () => {
 
   const userResponse = {
     type: 'user',
-    id: 1,
+    id: '1',
     attributes: {
       name: 'admin',
       email: 'admin@localhost',
@@ -41,7 +41,7 @@ describe('AccountSettingsComponent', () => {
       lastLoginDate: 1752647017,
       registeredSince: 1744086356,
       sessionLifetime: 3600,
-      globalPermissionGroupId: 1,
+      globalPermissionGroupId: '1',
       yubikey: '0',
       otp1: '',
       otp2: '',
@@ -70,14 +70,14 @@ describe('AccountSettingsComponent', () => {
     ghelper(_serviceConfig: unknown, _option: string) {
       return of(mockResponse({ data: userResponse }));
     },
-    uhelper(_serviceConfig: unknown, _id: number, _option: string, _payload: Record<string, unknown>) {
+    uhelper(_serviceConfig: unknown, _id: string, _option: string, _payload: Record<string, unknown>) {
       return of({});
     },
-    userId: 1
+    userId: '1'
   };
 
   const mockUser = {
-    id: 1,
+    id: '1',
     name: userResponse.attributes.name,
     email: userResponse.attributes.email,
     isValid: userResponse.attributes.isValid,
@@ -205,12 +205,7 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].uhelper).toHaveBeenCalledWith(
-        SERV.HELPER,
-        Number(component['gs'].userId),
-        'currentUser',
-        component.form.value
-      );
+      expect(component['gs'].uhelper).toHaveBeenCalledWith(SERV.HELPER, '1', 'currentUser', component.form.value);
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
     });
 
