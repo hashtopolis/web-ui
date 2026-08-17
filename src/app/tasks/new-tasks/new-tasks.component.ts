@@ -94,6 +94,8 @@ export class NewTasksComponent implements OnInit {
   copyFiles: FileId[];
   editedIndex: number;
 
+  private preprocessorFiles: FileId[] = [];
+
   // Tooltips
   tasktip: TaskTooltipsLevel;
 
@@ -174,6 +176,10 @@ export class NewTasksComponent implements OnInit {
       });
 
     this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
+      if (newValue === 0) {
+        this.preprocessorFiles = [];
+        this.form.controls.preprocessorCommand.setValue('', { emitEvent: false });
+      }
       this.handleChangePreprocessor(newValue);
     });
   }
@@ -279,6 +285,7 @@ export class NewTasksComponent implements OnInit {
     return {
       attackCmd: this.form.controls.attackCmd.value,
       files: this.form.controls.files.value,
+      otherFiles: this.preprocessorFiles,
       preprocessorCommand: this.form.controls.preprocessorCommand.value
     };
   }
@@ -303,6 +310,7 @@ export class NewTasksComponent implements OnInit {
         files: event.files
       });
     } else {
+      this.preprocessorFiles = event.otherFiles;
       this.form.patchValue({
         preprocessorCommand: event.attackCmd
       });
@@ -408,6 +416,7 @@ export class NewTasksComponent implements OnInit {
 
       const payload = { ...this.form.value };
       delete payload.crackerBinaryTypeId;
+      payload.files = [...new Set([...(payload.files ?? []), ...this.preprocessorFiles])];
 
       this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {

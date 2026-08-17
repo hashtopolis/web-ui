@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { UiSettings } from '@models/config-ui.schema';
+import { FileType } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
@@ -424,6 +425,60 @@ describe('NewTasksComponent', () => {
       expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.TASKS, payload);
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New Task created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
+    });
+
+    it('should merge the preprocessor files into the task files', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        taskName: 'My Task',
+        hashlistId: 1,
+        attackCmd: '-a 0 #HL# dict.txt',
+        priority: 0,
+        crackerBinaryId: 10,
+        files: [10]
+      });
+      component['onUpdateForm']({
+        type: 'CMD_PREPRO',
+        attackCmd: '--prince keyspace.txt',
+        files: [],
+        otherFiles: [10, 30]
+      });
+      component.form.updateValueAndValidity();
+
+      await component['onSubmit']();
+
+      const payload = globalServiceSpy.create.calls.mostRecent().args[1] as { files: number[] };
+      expect(payload.files).toEqual([10, 30]);
+    });
+
+    it('should drop the preprocessor files when the preprocessor is set to none', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({
+        taskName: 'My Task',
+        hashlistId: 1,
+        attackCmd: '-a 0 #HL# dict.txt',
+        priority: 0,
+        crackerBinaryId: 10,
+        preprocessorId: 1,
+        files: [10]
+      });
+      component['onUpdateForm']({
+        type: 'CMD_PREPRO',
+        attackCmd: '--prince keyspace.txt',
+        files: [],
+        otherFiles: [30]
+      });
+
+      component.form.controls.preprocessorId.setValue(0);
+      component.form.updateValueAndValidity();
+
+      await component['onSubmit']();
+
+      const payload = globalServiceSpy.create.calls.mostRecent().args[1] as { files: number[] };
+      expect(payload.files).toEqual([10]);
+      expect(component.form.controls.preprocessorCommand.value).toBe('');
     });
 
     it('should mark form as touched when invalid and not submit', async () => {
@@ -900,6 +955,41 @@ describe('NewTasksComponent', () => {
     });
   });
 
+  describe('Preprocessor file selection', () => {
+    function cmdPreproByFileType(): Record<number, unknown> {
+      const tables = Array.from(fixture.nativeElement.querySelectorAll('app-files-attack-table')) as Record<
+        string,
+        unknown
+      >[];
+
+      return Object.fromEntries(tables.map((table) => [table['fileType'] as number, table['cmdPrepro']]));
+    }
+
+    it('should offer the preprocessor checkbox for wordlists and other files when a preprocessor is set', async () => {
+      await initComponent(fixture);
+
+      component.form.controls.preprocessorId.setValue(5, { emitEvent: false });
+      fixture.detectChanges();
+
+      const cmdPrepro = cmdPreproByFileType();
+      expect(cmdPrepro[FileType.WORDLIST]).toBe(true);
+      expect(cmdPrepro[FileType.OTHER]).toBe(true);
+      expect(cmdPrepro[FileType.RULES]).toBe(false);
+    });
+
+    it('should hide the preprocessor checkbox on every file table when no preprocessor is set', async () => {
+      await initComponent(fixture);
+
+      component.form.controls.preprocessorId.setValue(0, { emitEvent: false });
+      fixture.detectChanges();
+
+      const cmdPrepro = cmdPreproByFileType();
+      expect(cmdPrepro[FileType.WORDLIST]).toBe(false);
+      expect(cmdPrepro[FileType.OTHER]).toBe(false);
+      expect(cmdPrepro[FileType.RULES]).toBe(false);
+    });
+  });
+
   describe('onUpdateForm', () => {
     it('should update attackCmd and files when event type is CMD', async () => {
       await initComponent(fixture);
@@ -926,6 +1016,22 @@ describe('NewTasksComponent', () => {
       });
 
       expect(component.form.controls.preprocessorCommand.value).toBe('--prince-elem-cnt-min=1');
+    });
+
+    it('should keep the preprocessor files out of the task files when event type is not CMD', async () => {
+      await initComponent(fixture);
+
+      component.form.controls.files.setValue([10]);
+
+      component['onUpdateForm']({
+        type: 'CMD_PREPRO',
+        attackCmd: '--prince keyspace.txt',
+        files: [],
+        otherFiles: [30]
+      });
+
+      expect(component.form.controls.preprocessorCommand.value).toBe('--prince keyspace.txt');
+      expect(component.form.controls.files.value).toEqual([10]);
     });
   });
 
