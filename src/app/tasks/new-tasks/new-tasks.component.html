@@ -188,7 +188,7 @@
             [fileType]="FileType.OTHER"
             [formData]="getFormData()"
             (updateFormEvent)="onUpdateForm($event)"
-            [cmdPrepro]="false"
+            [cmdPrepro]="isPreprocessor()"
           ></app-files-attack-table>
         </mat-expansion-panel>
       </mat-accordion>
