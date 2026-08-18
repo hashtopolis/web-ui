@@ -1,5 +1,5 @@
 import { HashListFormat } from '@constants/hashlist.config';
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpMethod } from '@constants/http.config';
 import { zHashlistResponse } from '@generated/api/zod';
 import { Subject, lastValueFrom, takeUntil } from 'rxjs';
 
@@ -24,7 +24,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { HashSource, hashSource } from '@src/app/core/_constants/hashlist.config';
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
+import { StaticArrayKind, StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import {
   ImportCrackedHashesForm,
   getImportCrackedHashesForm
@@ -258,7 +258,13 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
       const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
       const response = await lastValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(
+          SERV.HELPER,
+          'importFile',
+          undefined,
+          HttpMethod.GET,
+          httpOptions
+        )
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));
@@ -280,7 +286,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     const alreadyExists = await this.fileExistsInServerImportDir(filename);
     if (alreadyExists) {
       this.submitImport({
-        sourceType: 'import',
+        sourceType: HashSource.IMPORT,
         hashlistId: this.editedHashlistIndex,
         separator: this.form.controls.fieldSeparator.value,
         sourceData: filename,
@@ -304,7 +310,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         },
         complete: () => {
           this.submitImport({
-            sourceType: 'import',
+            sourceType: HashSource.IMPORT,
             hashlistId: this.editedHashlistIndex,
             separator: this.form.controls.fieldSeparator.value,
             sourceData: filename,
@@ -321,7 +327,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
     try {
       const response = await lastValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET')
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, HttpMethod.GET)
       );
       const files = response.meta || [];
       this.serverFiles = files;
@@ -343,7 +349,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
     const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
     const createSubscription$ = this.gs
-      .chelper(SERV.HELPER, 'importCrackedHashes', payload, 'POST', httpOptions)
+      .chelper(SERV.HELPER, 'importCrackedHashes', payload, HttpMethod.POST, httpOptions)
       .subscribe({
         next: (response: ResponseWrapper) => {
           this.alert.showSuccessMessage(
@@ -382,11 +388,11 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
 
         this.form.setValue({
           name: hashlist.name,
-          hashlistFormat: this.format.transform(hashlist.format, 'formats'),
+          hashlistFormat: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
           fieldSeparator: ':',
           isSalted: hashlist.isSalted,
           hashCount: hashlist.hashCount,
-          sourceType: 'paste',
+          sourceType: HashSource.PASTE,
           sourceData: '',
           hashes: '',
           conflictResolution: false

@@ -16,6 +16,15 @@ export const FileType = {
 export type FileType = (typeof FileType)[keyof typeof FileType];
 
 /**
+ * Where the bytes of a new file come from, matching the `sourceType` attribute the API expects.
+ */
+export const FileSource = {
+  IMPORT: 'import',
+  URL: 'url'
+} as const;
+export type FileSource = (typeof FileSource)[keyof typeof FileSource];
+
+/**
  * Interface definition for an uploaded file
  * @extends BaseModel
  */

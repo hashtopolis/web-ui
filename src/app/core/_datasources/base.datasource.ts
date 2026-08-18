@@ -8,7 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
-import { UIConfig } from '@models/config-ui.model';
+import { DEFAULT_PAGE_SIZE, UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -33,9 +33,6 @@ import { environment } from '@src/environments/environment';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
-/** Rows fetched per page before the user picks a different page size. */
-export const DEFAULT_PAGE_SIZE = 25;
-
 @Injectable()
 export abstract class BaseDataSource<
   T extends BaseModel,

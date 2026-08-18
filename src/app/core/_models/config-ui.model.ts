@@ -34,6 +34,9 @@ import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constan
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
+/** Rows fetched per page before the user picks a different page size. */
+export const DEFAULT_PAGE_SIZE = 25;
+
 export const Layout = {
   FULL: 'full',
   FIXED: 'fixed'
@@ -114,7 +117,7 @@ const _uiConfigDefault = {
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
     notificationsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         NotificationsTableCol.ID,
         NotificationsTableCol.STATUS,
@@ -132,7 +135,7 @@ const _uiConfigDefault = {
       search: ''
     },
     apiTokensTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         ApiTokensTableCol.ID,
         ApiTokensTableCol.VALID_FROM,
@@ -149,7 +152,7 @@ const _uiConfigDefault = {
       search: ''
     },
     vouchersTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
         id: VouchersTableCol.ID,
@@ -160,7 +163,7 @@ const _uiConfigDefault = {
       search: ''
     },
     permissionsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
         id: PermissionsTableCol.NAME,
@@ -171,7 +174,7 @@ const _uiConfigDefault = {
       search: ''
     },
     cracksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         CracksTableCol.FOUND,
         CracksTableCol.PLAINTEXT,
@@ -190,7 +193,7 @@ const _uiConfigDefault = {
       search: ''
     },
     agentsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AgentsTableCol.ID,
         AgentsTableCol.NAME,
@@ -209,7 +212,7 @@ const _uiConfigDefault = {
       search: ''
     },
     agentErrorTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AgentErrorTableCol.ID,
         AgentErrorTableCol.TIME,
@@ -227,7 +230,7 @@ const _uiConfigDefault = {
       search: ''
     },
     agentStatusTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AgentsStatusTableCol.ID,
         AgentsStatusTableCol.NAME,
@@ -249,7 +252,7 @@ const _uiConfigDefault = {
       search: ''
     },
     assignedAgentsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         TasksAgentsTableCol.ID,
         TasksAgentsTableCol.NAME,
@@ -270,7 +273,7 @@ const _uiConfigDefault = {
       search: ''
     },
     chunksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         ChunksTableCol.ID,
         ChunksTableCol.PROGRESS,
@@ -291,7 +294,7 @@ const _uiConfigDefault = {
       search: ''
     },
     hashlistsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HashlistsTableCol.ID,
         HashlistsTableCol.NAME,
@@ -309,7 +312,7 @@ const _uiConfigDefault = {
       search: ''
     },
     hashlistsInShTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HashlistsTableCol.ID,
         HashlistsTableCol.NAME,
@@ -326,7 +329,7 @@ const _uiConfigDefault = {
       search: ''
     },
     superHashlistsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         SuperHashlistsTableCol.ID,
         SuperHashlistsTableCol.NAME,
@@ -343,7 +346,7 @@ const _uiConfigDefault = {
       search: ''
     },
     hashtypesTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HashtypesTableCol.HASHTYPE,
         HashtypesTableCol.DESCRIPTION,
@@ -359,7 +362,7 @@ const _uiConfigDefault = {
       search: ''
     },
     filesTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         FilesTableCol.ID,
         FilesTableCol.NAME,
@@ -376,7 +379,7 @@ const _uiConfigDefault = {
       search: ''
     },
     filesWordlistTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         FilesTableCol.ID,
         FilesTableCol.NAME,
@@ -393,7 +396,7 @@ const _uiConfigDefault = {
       search: ''
     },
     filesRuleTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         FilesTableCol.ID,
         FilesTableCol.NAME,
@@ -410,7 +413,7 @@ const _uiConfigDefault = {
       search: ''
     },
     filesOtherTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         FilesTableCol.ID,
         FilesTableCol.NAME,
@@ -428,7 +431,7 @@ const _uiConfigDefault = {
     },
     filesTableInPreTasks: {
       start: 0,
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [FilesTableCol.ID, FilesTableCol.NAME, FilesTableCol.SIZE, FilesTableCol.LINE_COUNT],
       order: {
         id: FilesTableCol.ID,
@@ -439,7 +442,7 @@ const _uiConfigDefault = {
       search: ''
     },
     filesAttackTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
         id: FilesAttackTableCol.ID,
@@ -450,7 +453,7 @@ const _uiConfigDefault = {
       search: ''
     },
     crackersTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [CrackersTableCol.ID, CrackersTableCol.TYPE, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
@@ -461,7 +464,7 @@ const _uiConfigDefault = {
       search: ''
     },
     preprocessorsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
       order: {
         id: PreprocessorsTableCol.ID,
@@ -472,7 +475,7 @@ const _uiConfigDefault = {
       search: ''
     },
     agentBinariesTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AgentBinariesTableCol.ID,
         AgentBinariesTableCol.FILENAME,
@@ -490,7 +493,7 @@ const _uiConfigDefault = {
       search: ''
     },
     healthChecksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HealthChecksTableCol.ID,
         HealthChecksTableCol.CREATED,
@@ -506,7 +509,7 @@ const _uiConfigDefault = {
       search: ''
     },
     healthCheckAgentsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HealthCheckAgentsTableCol.AGENT_ID,
         HealthCheckAgentsTableCol.AGENT_NAME,
@@ -524,7 +527,7 @@ const _uiConfigDefault = {
       search: ''
     },
     pretasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         PretasksTableCol.ID,
         PretasksTableCol.NAME,
@@ -543,7 +546,7 @@ const _uiConfigDefault = {
       search: ''
     },
     tasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         TaskTableCol.ID,
         TaskTableCol.TASK_TYPE,
@@ -567,7 +570,7 @@ const _uiConfigDefault = {
       search: ''
     },
     tasksChunksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         TasksChunksTableCol.ID,
         TasksChunksTableCol.PROGRESS,
@@ -587,7 +590,7 @@ const _uiConfigDefault = {
       search: ''
     },
     tasksSupertasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         TasksSupertasksDataSourceTableCol.ID,
         TasksSupertasksDataSourceTableCol.NAME,
@@ -608,7 +611,7 @@ const _uiConfigDefault = {
       search: ''
     },
     supertasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
@@ -619,7 +622,7 @@ const _uiConfigDefault = {
       search: ''
     },
     supertasksPretasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         SupertasksPretasksTableCol.ID,
         SupertasksPretasksTableCol.NAME,
@@ -635,7 +638,7 @@ const _uiConfigDefault = {
       search: ''
     },
     superTasksPretasksEditTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         PretasksTableCol.ID,
         PretasksTableCol.NAME,
@@ -655,7 +658,7 @@ const _uiConfigDefault = {
       search: ''
     },
     hashlistTasksTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
         id: TaskTableCol.ID,
@@ -666,7 +669,7 @@ const _uiConfigDefault = {
       search: ''
     },
     hashesTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         HashesTableCol.HASHES,
         HashesTableCol.PLAINTEXT,
@@ -684,7 +687,7 @@ const _uiConfigDefault = {
       search: ''
     },
     searchHashTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         SearchHashTableCol.HASH,
         SearchHashTableCol.PLAINTEXT,
@@ -700,7 +703,7 @@ const _uiConfigDefault = {
       search: ''
     },
     usersTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         UsersTableCol.ID,
         UsersTableCol.NAME,
@@ -720,7 +723,7 @@ const _uiConfigDefault = {
       search: ''
     },
     logsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
         id: LogsTableCol.ID,
@@ -731,7 +734,7 @@ const _uiConfigDefault = {
       search: ''
     },
     accessGroupsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AccessGroupsTableCol.ID,
         AccessGroupsTableCol.NAME,
@@ -747,7 +750,7 @@ const _uiConfigDefault = {
       search: ''
     },
     accessGroupsUsersTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
         id: AccessGroupsUsersTableCol.ID,
@@ -775,7 +778,7 @@ const _uiConfigDefault = {
       search: ''
     },
     accessPermissionGroupsUsersTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [
         AccessPermissionGroupsUsersTableCol.ID,
         AccessPermissionGroupsUsersTableCol.NAME,
@@ -791,7 +794,7 @@ const _uiConfigDefault = {
       search: ''
     },
     accessGroupsAgentsTable: {
-      page: 25,
+      page: DEFAULT_PAGE_SIZE,
       columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
       order: {
         id: AccessGroupsAgentsTableCol.ID,

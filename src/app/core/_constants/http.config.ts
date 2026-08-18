@@ -14,6 +14,18 @@ export const HttpStatus = {
 export type HttpStatus = (typeof HttpStatus)[keyof typeof HttpStatus];
 
 /**
+ * HTTP methods the frontend issues.
+ */
+export const HttpMethod = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  PATCH: 'PATCH',
+  DELETE: 'DELETE'
+} as const;
+export type HttpMethod = (typeof HttpMethod)[keyof typeof HttpMethod];
+
+/**
  * Custom request headers interpreted by the app's HTTP interceptors.
  * - `SKIP_ERROR_DIALOG` suppresses the global error modal/snackbar (`HttpResInterceptor`)
  * - `SKIP_CACHE` bypasses the stale-while-revalidate cache (`HttpCacheInterceptor`)

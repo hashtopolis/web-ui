@@ -14,7 +14,12 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import {
+  DEFAULT_CRACKER_BINARY_TYPE_NAME,
+  JCrackerBinary,
+  JCrackerBinaryType,
+  zCrackerBinaryTypeList
+} from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
@@ -222,7 +227,7 @@ export class NewTasksComponent implements OnInit {
       );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
 
-      let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
+      let typeId = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME)?.id;
       if (!typeId && this.selectCrackertype.length > 0) {
         typeId = this.selectCrackertype.slice(-1)[0].id;
       }

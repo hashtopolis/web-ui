@@ -21,7 +21,7 @@ import { GlobalService } from '@services/main.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { HashesViewType, displays, filters } from '@src/app/core/_constants/hashes.config';
+import { HashesSelectKind, HashesViewType, displays, filters } from '@src/app/core/_constants/hashes.config';
 
 export interface HashesViewForm {
   display: FormControl<string | null>;
@@ -97,11 +97,11 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
     if (qp.filter) {
       this.filtering = qp.filter;
-      this.filteringDescr = this.getDescrip(this.filtering, 2) ?? '';
+      this.filteringDescr = this.getDescrip(this.filtering, HashesSelectKind.FILTER) ?? '';
     }
     if (qp.display) {
       this.displaying = qp.display;
-      this.displayingDescr = this.getDescrip(this.displaying, 3) ?? '';
+      this.displayingDescr = this.getDescrip(this.displaying, HashesSelectKind.DISPLAY) ?? '';
     }
     this.viewForm = new FormGroup<HashesViewForm>({
       display: new FormControl<string | null>(this.displaying),
@@ -112,11 +112,11 @@ export class HashesComponent implements OnInit, OnDestroy {
 
     //subscribe to changes to handle select trigger actions
     this.viewForm.controls.display.valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue ?? '', 0);
+      this.onQueryp(newvalue ?? '', HashesSelectKind.DISPLAY);
     });
 
     this.viewForm.controls.filter.valueChanges.subscribe((newvalue) => {
-      this.onQueryp(newvalue ?? '', 1);
+      this.onQueryp(newvalue ?? '', HashesSelectKind.FILTER);
     });
   }
 
@@ -178,12 +178,12 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   // Update query parameters and trigger updates
-  onQueryp(name: string, type: number) {
+  onQueryp(name: string, type: HashesSelectKind) {
     let query = {};
-    if (type == 0) {
+    if (type === HashesSelectKind.DISPLAY) {
       query = { display: name };
     }
-    if (type == 1) {
+    if (type === HashesSelectKind.FILTER) {
       query = { filter: name };
     }
     this.router.navigate(['/hashlists/hashes/', this.whichView, this.editedIndex], {
@@ -194,15 +194,15 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   // Update display or filter options
-  onDisplaying(name: string, type: number) {
-    if (type == 0) {
+  onDisplaying(name: string, type: HashesSelectKind) {
+    if (type === HashesSelectKind.DISPLAY) {
       this.displaying = name;
       this.viewForm.patchValue({
         display: this.displaying,
         displaydes: this.getDescrip(name, type) ?? null
       });
     }
-    if (type == 1) {
+    if (type === HashesSelectKind.FILTER) {
       this.filtering = name;
       this.viewForm.patchValue({
         filter: this.filtering,
@@ -212,14 +212,14 @@ export class HashesComponent implements OnInit, OnDestroy {
   }
 
   // Get the description for filter and display options
-  getDescrip(item: string, type: number): string | undefined {
-    const selectedArray = type === 0 ? this.selectDisplays : this.selectFilters;
+  getDescrip(item: string, type: HashesSelectKind): string | undefined {
+    const selectedArray = type === HashesSelectKind.DISPLAY ? this.selectDisplays : this.selectFilters;
     const selectedItem = selectedArray?.find((obj) => obj?._id === item);
 
     if (selectedItem) {
-      if (type === 0) {
+      if (type === HashesSelectKind.DISPLAY) {
         this.displayingDescr = selectedItem.name;
-      } else if (type === 1) {
+      } else if (type === HashesSelectKind.FILTER) {
         this.filteringDescr = selectedItem.name;
       }
 

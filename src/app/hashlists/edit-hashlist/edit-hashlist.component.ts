@@ -28,7 +28,7 @@ import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
+import { StaticArrayKind, StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
@@ -159,7 +159,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         hashlistId: hashlist.id,
         accessGroupId: hashlist.accessGroupId,
         useBrain: hashlist.useBrain,
-        format: this.format.transform(hashlist.format, 'formats'),
+        format: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
         hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
         cracked: (hashlist.cracked ?? 0).toLocaleString(),
         remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
@@ -187,7 +187,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
           hashlistId: hashlist.id,
           accessGroupId: hashlist.accessGroupId,
           useBrain: hashlist.useBrain,
-          format: this.format.transform(hashlist.format, 'formats'),
+          format: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
           hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
           cracked: (hashlist.cracked ?? 0).toLocaleString(),
           remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),

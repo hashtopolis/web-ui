@@ -32,11 +32,6 @@ export class UploadTUSService {
   private chunked = environment.config.chunkSizeTUS;
 
   /**
-   * The storage key for retrieving user data from local storage.
-   */
-  static readonly STORAGE_KEY = 'userData';
-
-  /**
    * Represents the ongoing TUS upload. It is initialized as null.
    */
   private tusUpload: tus.Upload | null = null;

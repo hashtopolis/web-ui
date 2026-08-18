@@ -1,7 +1,7 @@
 /**
  * This module contains the component class to create a new hashlist
  */
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpMethod } from '@constants/http.config';
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
 
@@ -295,7 +295,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
       const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
       const response = await lastValueFrom(
-        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(SERV.HELPER, 'importFile', undefined, 'GET', httpOptions)
+        this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(
+          SERV.HELPER,
+          'importFile',
+          undefined,
+          HttpMethod.GET,
+          httpOptions
+        )
       );
       this.serverFiles = response.meta || [];
       this.serverFileOptions = this.serverFiles.map((file) => ({ id: file.file, name: file.file }));

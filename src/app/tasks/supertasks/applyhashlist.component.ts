@@ -5,7 +5,12 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import {
+  DEFAULT_CRACKER_BINARY_TYPE_NAME,
+  JCrackerBinary,
+  JCrackerBinaryType,
+  zCrackerBinaryTypeList
+} from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
@@ -196,7 +201,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         );
         this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
         let id: number = 0;
-        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
+        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME);
         if (hashcatOption?.id) {
           id = hashcatOption.id;
         } else {

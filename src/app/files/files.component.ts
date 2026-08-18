@@ -32,13 +32,13 @@ export class FilesComponent implements OnInit {
     this.loadFiles();
     this.showCreateButton = this.fileRolesService.hasRole('create');
     switch (this.fileType) {
-      case 0:
+      case FileType.WORDLIST:
         this.name = 'filesWordlistTable';
         break;
-      case 1:
+      case FileType.RULES:
         this.name = 'filesRuleTable';
         break;
-      case 2:
+      case FileType.OTHER:
         this.name = 'filesOtherTable';
         break;
     }

@@ -9,6 +9,15 @@ export const HashesViewType = {
 export type HashesViewType = (typeof HashesViewType)[keyof typeof HashesViewType];
 
 /**
+ * Which of the two selects on the hashes view a value belongs to.
+ */
+export const HashesSelectKind = {
+  DISPLAY: 0,
+  FILTER: 1
+} as const;
+export type HashesSelectKind = (typeof HashesSelectKind)[keyof typeof HashesSelectKind];
+
+/**
  * `cracked` filter values for the hashes view. An empty id means "no filter".
  */
 export const HashesFilter = {

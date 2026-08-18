@@ -7,18 +7,18 @@
  * - `NOTIN`    Fetch all resources not contained in list of values
  * - `CONTAINS`  Fetch all resources containing value
  * - `ICONTAINS` Fetch all resources containing value (case insensitive)
- * @enum
  */
-export enum FilterType {
-  EQUAL = 'eq',
-  NOTEQUAL = 'neq',
-  GREATER = 'gt',
-  IN = 'in',
-  NOTIN = 'nin',
-  CONTAINS = 'contains',
-  ICONTAINS = 'icontains',
-  LESSER = 'lt'
-}
+export const FilterType = {
+  EQUAL: 'eq',
+  NOTEQUAL: 'neq',
+  GREATER: 'gt',
+  IN: 'in',
+  NOTIN: 'nin',
+  CONTAINS: 'contains',
+  ICONTAINS: 'icontains',
+  LESSER: 'lt'
+} as const;
+export type FilterType = (typeof FilterType)[keyof typeof FilterType];
 
 /**
  * Interface definition for API Filter

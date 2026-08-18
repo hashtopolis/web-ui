@@ -12,7 +12,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-import { HashesViewType } from '@src/app/core/_constants/hashes.config';
+import { HashesFilter, HashesViewType } from '@src/app/core/_constants/hashes.config';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 const crackedFilterSchema = z.enum(['cracked', 'uncracked']);
@@ -112,7 +112,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
               params.addFilter({
                 field: 'isCracked',
                 operator: FilterType.EQUAL,
-                value: crackedFilter.data === 'cracked'
+                value: crackedFilter.data === HashesFilter.CRACKED
               });
             }
 

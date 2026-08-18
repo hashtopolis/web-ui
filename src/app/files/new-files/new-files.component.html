@@ -6,9 +6,9 @@
           type="button"
           role="tab"
           class="files-theme"
-          [class.active]="viewMode === 'tab1'"
-          [attr.aria-selected]="viewMode === 'tab1'"
-          (click)="onChangeType('import', 'tab1')"
+          [class.active]="viewMode === NewFileTab.UPLOAD"
+          [attr.aria-selected]="viewMode === NewFileTab.UPLOAD"
+          (click)="onChangeType(FileSource.IMPORT, NewFileTab.UPLOAD)"
           matTooltip="Upload using local file"
         >
           <mat-icon>upload_file</mat-icon>
@@ -18,9 +18,9 @@
           type="button"
           role="tab"
           class="files-theme"
-          [class.active]="viewMode === 'tab2'"
-          [attr.aria-selected]="viewMode === 'tab2'"
-          (click)="onChangeType('url', 'tab2')"
+          [class.active]="viewMode === NewFileTab.LINK"
+          [attr.aria-selected]="viewMode === NewFileTab.LINK"
+          (click)="onChangeType(FileSource.URL, NewFileTab.LINK)"
           matTooltip="Upload using link"
         >
           <mat-icon>insert_link</mat-icon>
@@ -30,9 +30,9 @@
           type="button"
           role="tab"
           class="files-theme"
-          [class.active]="viewMode === 'tab3'"
-          [attr.aria-selected]="viewMode === 'tab3'"
-          (click)="onChangeType('import', 'tab3')"
+          [class.active]="viewMode === NewFileTab.SERVER_IMPORT"
+          [attr.aria-selected]="viewMode === NewFileTab.SERVER_IMPORT"
+          (click)="onChangeType(FileSource.IMPORT, NewFileTab.SERVER_IMPORT)"
           matTooltip="Import from server import directory"
         >
           <mat-icon>cloud_download</mat-icon>
@@ -42,7 +42,7 @@
     </div>
     <div class="tab-slider--container">
       @switch (viewMode) {
-        @case ('tab1') {
+        @case (NewFileTab.UPLOAD) {
           <div id="tab1" class="tab-slider--body">
             <h4>Upload from your computer</h4>
             <form [formGroup]="form">
@@ -94,7 +94,7 @@
             </form>
           </div>
         }
-        @case ('tab2') {
+        @case (NewFileTab.LINK) {
           <div id="tab2" class="tab-slider--body">
             <h4>Upload to the server using a public/private link</h4>
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -119,7 +119,7 @@
             </form>
           </div>
         }
-        @case ('tab3') {
+        @case (NewFileTab.SERVER_IMPORT) {
           <div id="tab3" class="tab-slider--body">
             <h4>Import from server import directory</h4>
 
