@@ -1,5 +1,5 @@
 // typescript
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { catchError, lastValueFrom } from 'rxjs';
 
@@ -107,7 +107,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
    * @private
    */
   private async loadPretasks(params: RequestParams): Promise<JPretask[]> {
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     try {
       const response = await lastValueFrom<ResponseWrapper>(
         this.service.getAll(SERV.PRETASKS, params, httpOptions).pipe(
@@ -132,7 +132,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   }
 
   private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask | null> {
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     try {
       const response = await lastValueFrom<ResponseWrapper>(
         this.service.get(SERV.SUPER_TASKS, superTaskId, params, httpOptions).pipe(
@@ -172,7 +172,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       }
       paramsBuilder = this.applyFilterWithPaginationReset(paramsBuilder, activeFilter, query);
       const paramsPretaskFiles = paramsBuilder.create();
-      const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+      const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
       try {
         const response = await lastValueFrom<ResponseWrapper>(
           this.service.getAll(SERV.PRETASKS, paramsPretaskFiles, httpOptions).pipe(

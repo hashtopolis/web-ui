@@ -1,4 +1,4 @@
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -29,7 +29,7 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params.create(), httpOptions);
 
     this.subscriptions.push(

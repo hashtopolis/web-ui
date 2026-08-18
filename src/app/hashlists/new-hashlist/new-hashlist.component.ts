@@ -1,7 +1,7 @@
 /**
  * This module contains the component class to create a new hashlist
  */
-import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpMethod } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG, HttpMethod } from '@constants/http.config';
 import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { Subject, Subscription, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
 
@@ -293,7 +293,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
     try {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
-      const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+      const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
       const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(
           SERV.HELPER,
@@ -379,7 +379,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
           : this.form.getRawValue();
 
       // Handle the error here so we can surface the backend reason; skip the global error dialog to avoid double messaging.
-      const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+      const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
 
       this.isCreatingLoading = true;
       try {

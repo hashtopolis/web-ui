@@ -1,4 +1,4 @@
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { Observable } from 'rxjs';
 import * as tus from 'tus-js-client';
 
@@ -37,7 +37,7 @@ export class UploadTUSService {
   private tusUpload: tus.Upload | null = null;
 
   private readonly skipErrorDialogHeaders = {
-    headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED })
+    headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG)
   };
 
   /**

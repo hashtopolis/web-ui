@@ -3,7 +3,7 @@
  * @module
  */
 
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zFileListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -57,7 +57,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
     this.loading = true;
 
     let files$: ReturnType<typeof this.service.get> | ReturnType<typeof this.service.getAll> | undefined;
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
 
     const paramsBuilder = new RequestParamBuilder();
 

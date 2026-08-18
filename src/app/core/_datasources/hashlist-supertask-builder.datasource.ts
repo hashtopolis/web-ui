@@ -1,4 +1,4 @@
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zSupertaskListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -17,7 +17,7 @@ export class HashlistSupertaskBuilderDataSource extends BaseDataSource<JSuperTas
     this.loading = true;
 
     const params = new RequestParamBuilder().addInitial(this);
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params.create(), httpOptions);
 
     this.subscriptions.push(

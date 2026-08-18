@@ -1,5 +1,5 @@
 import { HashListFormat } from '@constants/hashlist.config';
-import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpMethod } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG, HttpMethod } from '@constants/http.config';
 import { zHashlistResponse } from '@generated/api/zod';
 import { Subject, lastValueFrom, takeUntil } from 'rxjs';
 
@@ -256,7 +256,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     this.isLoadingServerFiles = true;
     try {
       // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
-      const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+      const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
       const response = await lastValueFrom(
         this.gs.chelper<ResponseWrapper<ServerImportFile[]>>(
           SERV.HELPER,
@@ -347,7 +347,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   }): void {
     this.isCreatingLoading = true;
     // Surface a single toast on failure; skip the global error dialog to avoid double messaging.
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     const createSubscription$ = this.gs
       .chelper(SERV.HELPER, 'importCrackedHashes', payload, HttpMethod.POST, httpOptions)
       .subscribe({

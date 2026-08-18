@@ -1,4 +1,4 @@
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zNotificationSettingListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -28,7 +28,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const httpOptions = { headers: new HttpHeaders({ [HttpHeaderName.SKIP_ERROR_DIALOG]: HTTP_HEADER_ENABLED }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
 
     const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params.create(), httpOptions);
 

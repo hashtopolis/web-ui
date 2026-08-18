@@ -1,4 +1,4 @@
-import { HTTP_HEADER_ENABLED, HttpHeaderName } from '@constants/http.config';
+import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
 import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 import { lastValueFrom } from 'rxjs';
 
@@ -140,7 +140,7 @@ describe('HttpCacheInterceptor', () => {
     const testData = { id: 1, name: 'Test Data' };
 
     // First request with X-Cache-Skip
-    httpClient.get(testUrl, { headers: { [HttpHeaderName.SKIP_CACHE]: HTTP_HEADER_ENABLED } }).subscribe((data) => {
+    httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
       expect(data).toEqual(testData);
     });
 
@@ -148,7 +148,7 @@ describe('HttpCacheInterceptor', () => {
     firstReq.flush(testData);
 
     // Second request should also hit the network (not cached)
-    httpClient.get(testUrl, { headers: { [HttpHeaderName.SKIP_CACHE]: HTTP_HEADER_ENABLED } }).subscribe((data) => {
+    httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
       expect(data).toEqual(testData);
     });
 

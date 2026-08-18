@@ -1,5 +1,5 @@
 import { HashListFormat } from '@constants/hashlist.config';
-import { HTTP_HEADER_ENABLED, HttpHeaderName, HttpStatus } from '@constants/http.config';
+import { HTTP_SKIP_CACHE_HEADER_CONFIG, HttpStatus } from '@constants/http.config';
 import { StaticChunking } from '@constants/tasks.config';
 import {
   zAgentAssignmentListResponse,
@@ -268,7 +268,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private async loadTask(): Promise<EditedTask> {
-    const noCacheHeaders = new HttpHeaders({ [HttpHeaderName.SKIP_CACHE]: HTTP_HEADER_ENABLED });
+    const noCacheHeaders = new HttpHeaders(HTTP_SKIP_CACHE_HEADER_CONFIG);
     const params = new RequestParamBuilder()
       .addInclude('hashlist')
       .addInclude('crackerBinary')

@@ -36,5 +36,12 @@ export const HttpHeaderName = {
 } as const;
 export type HttpHeaderName = (typeof HttpHeaderName)[keyof typeof HttpHeaderName];
 
-/** Value used for the boolean-style custom headers above. */
-export const HTTP_HEADER_ENABLED = 'true';
+/** Header config that suppresses the global error dialog for a single request. */
+export const HTTP_SKIP_ERROR_HEADER_CONFIG = {
+  [HttpHeaderName.SKIP_ERROR_DIALOG]: 'true'
+} as const;
+
+/** Header config that bypasses the stale-while-revalidate cache for a single request. */
+export const HTTP_SKIP_CACHE_HEADER_CONFIG = {
+  [HttpHeaderName.SKIP_CACHE]: 'true'
+} as const;
