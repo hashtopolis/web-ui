@@ -1,5 +1,6 @@
 <ht-table #table name="filesAttackTable" dataType="files-attack" [columnLabels]="columnLabels" [dataSource]="dataSource"
   [tableColumns]="tableColumns" [isFilterable]="isFilterable" [isPageable]="true" [isCmdTask]="cmdTask"
-  [isCmdLabel]="customLabel" [isCmdPreproAttack]="cmdPrepro" [isCmdFiles]="formData.files" [isSelectable]="true"
+  [isCmdLabel]="customLabel" [isCmdPreproAttack]="cmdPrepro" [isCmdFiles]="formData.files"
+  [isCmdPreproFiles]="formData.otherFiles ?? []" [isSelectable]="true"
   [showExport]="false" [isDetailPage]="true" (checkboxChanged)="onCheckboxChanged($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event" (backendSqlFilter)="handleBackendSqlFilter($event)" />
