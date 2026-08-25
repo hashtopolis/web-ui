@@ -1,11 +1,11 @@
-import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -42,7 +42,7 @@ export interface AccChangePasswordForm {
   providers: [uiDatePipe],
   standalone: false
 })
-export class AccountSettingsComponent implements OnInit, OnDestroy {
+export class AccountSettingsComponent implements OnInit {
   static readonly PWD_MIN = 4;
 
   pwdMin = AccountSettingsComponent.PWD_MIN;
@@ -68,11 +68,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   showNewPassword: boolean = false;
   showConfirmNewPassword: boolean = false;
 
-  /**
-   * Array to hold subscriptions for cleanup on component destruction.
-   * This prevents memory leaks by unsubscribing from observables when the component is destroyed.
-   */
-  subscriptions: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
 
   /**
    * FormControl reference for easier access to form controls.
@@ -103,14 +99,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.form.updateValueAndValidity();
   }
 
-  /**
-   * Unsubscribes from all active subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   /**
    * Creates and configures basic controls
    */
@@ -162,8 +150,10 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
-      this.subscriptions.push(
-        this.gs.uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value).subscribe({
+      this.gs
+        .uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
           next: () => {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;
@@ -172,8 +162,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
             console.error('Error updating user', err);
             this.isUpdatingLoading = false;
           }
-        })
-      );
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
@@ -200,39 +189,40 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       newPassword: this.newPasswordValueFromForm,
       confirmPassword: this.confirmNewPasswordValueFromForm
     };
-    this.subscriptions.push(
-      this.gs
-        .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
-        .pipe(
-          map((r) => {
-            const parseResult = changeOwnPasswordResponseSchema.safeParse(r);
-            if (!parseResult.success) {
-              console.error('Password change response validation failed', parseResult.error);
-              this.alert.showErrorMessage('Unexpected response from server.');
-              throw parseResult.error;
-            }
-            return parseResult.data;
-          })
-        )
-        .subscribe({
-          next: (val) => {
-            this.alert.showSuccessMessage(val.meta['Change password']);
-            this.isUpdatingPassLoading = false;
-            this.resetPasswordForm();
-          },
-          error: () => {
-            this.isUpdatingPassLoading = false;
+    this.gs
+      .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
+      .pipe(
+        map((r) => {
+          const parseResult = changeOwnPasswordResponseSchema.safeParse(r);
+          if (!parseResult.success) {
+            console.error('Password change response validation failed', parseResult.error);
+            this.alert.showErrorMessage('Unexpected response from server.');
+            throw parseResult.error;
           }
-        })
-    );
+          return parseResult.data;
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (val) => {
+          this.alert.showSuccessMessage(val.meta['Change password']);
+          this.isUpdatingPassLoading = false;
+          this.resetPasswordForm();
+        },
+        error: () => {
+          this.isUpdatingPassLoading = false;
+        }
+      });
   }
 
   /**
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
-    this.subscriptions.push(
-      this.gs.ghelper(SERV.HELPER, 'currentUser').subscribe((response) => {
+    this.gs
+      .ghelper(SERV.HELPER, 'currentUser')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
 
         this.form.patchValue({
@@ -240,7 +230,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
           registeredSince: this.datePipe.transform(user.registeredSince),
           email: user.email ?? null
         });
-      })
-    );
+      });
   }
 }

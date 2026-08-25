@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -28,10 +29,7 @@ import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
   templateUrl: './super-hashlist-hashlist-table.component.html',
   standalone: false
 })
-export class SuperHashlistsHashlistsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
@@ -51,12 +49,6 @@ export class SuperHashlistsHashlistsTableComponent
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -123,8 +115,10 @@ export class SuperHashlistsHashlistsTableComponent
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -138,8 +132,7 @@ export class SuperHashlistsHashlistsTableComponent
               break;
           }
         }
-      })
-    );
+      });
   }
 
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
@@ -233,52 +226,51 @@ export class SuperHashlistsHashlistsTableComponent
    */
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
-    this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
+    this.gs
+      .bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} hashlists!`);
         this.reload();
-      })
-    );
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private bulkActionDelete(hashlists: JHashlist[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.HASHLISTS, hashlists)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.HASHLISTS, hashlists)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(hashlists: JHashlist[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.HASHLISTS, hashlists[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted hashlist!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.HASHLISTS, hashlists[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted hashlist!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(hashlist: JHashlist): void {
@@ -297,20 +289,19 @@ export class SuperHashlistsHashlistsTableComponent
    */
   private rowActionExport(hashlist: JHashlist): void {
     const payload = { hashlistId: hashlist.id };
-    this.subscriptions.push(
-      this.gs
-        .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during exporting:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Cracked hashes from hashlist exported sucessfully!');
-          this.reload();
-        })
-    );
+    this.gs
+      .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during exporting:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Cracked hashes from hashlist exported sucessfully!');
+        this.reload();
+      });
   }
 
   private rowActionImport(hashlist: JHashlist): void {

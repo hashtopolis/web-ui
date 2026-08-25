@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JPretask } from '@models/pretask.model';
 
@@ -27,7 +28,7 @@ import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.d
   templateUrl: './supertasks-pretasks-table.component.html',
   standalone: false
 })
-export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() supertaskId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -47,12 +48,6 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -110,8 +105,10 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -122,8 +119,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -224,20 +220,19 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     });
 
     const responseBody = { data: pretaskData };
-    this.subscriptions.push(
-      this.gs
-        .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deleting: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted pretasks from supertask!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deleting: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted pretasks from supertask!`);
+        this.dataSource.reload();
+      });
   }
 
   editableSaved(editable: HTTableEditable<JPretask>): void {
@@ -267,20 +262,19 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       priority: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update priority!`);
-            console.error('Failed to update priority:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed priority to ${val} on PreTask #${pretask.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update priority!`);
+          console.error('Failed to update priority:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed priority to ${val} on PreTask #${pretask.id}!`);
+        this.reload();
+      });
   }
 
   private changeMaxAgents(pretask: JPretask, max: string): void {
@@ -299,20 +293,19 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       maxAgents: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update max agents!`);
-            console.error('Failed to update max agents:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on PreTask #${pretask.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update max agents!`);
+          console.error('Failed to update max agents:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on PreTask #${pretask.id}!`);
+        this.reload();
+      });
   }
 
   private rowActionCopyToTask(pretask: JPretask): void {

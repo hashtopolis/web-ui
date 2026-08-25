@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -35,7 +35,7 @@ class MockDataSource {
   setSuperTaskId = jasmine.createSpy('setSuperTaskId');
   setReverseQuery = jasmine.createSpy('setReverseQuery');
   reset = jasmine.createSpy('reset');
-  filterError$ = { subscribe: jasmine.createSpy('subscribe') };
+  filterError$ = new Subject<string>();
 }
 
 class TestPretasksTableComponent extends PretasksTableComponent {
@@ -57,10 +57,6 @@ class TestPretasksTableComponent extends PretasksTableComponent {
   }
 
   override ngAfterViewInit(): void {}
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
-  }
 }
 
 describe('PretasksTableComponent', () => {

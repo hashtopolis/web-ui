@@ -1,5 +1,3 @@
-import { Subscription } from 'rxjs';
-
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -23,7 +21,6 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class BaseReportComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
-  protected subscriptions: Subscription[] = [];
 
   protected gs = inject(GlobalService);
   protected cs = inject(ConfigService);

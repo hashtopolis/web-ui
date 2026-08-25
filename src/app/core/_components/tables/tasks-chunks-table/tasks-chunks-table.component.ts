@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
@@ -217,12 +218,13 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   rowActionClicked(event: ActionMenuEvent<JChunk>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.RESET:
-        this.subscriptions.push(
-          this.chunkActions.resetChunk(event.data).subscribe(() => {
+        this.chunkActions
+          .resetChunk(event.data)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
             this.alertService.showSuccessMessage('Successfully reseted chunk!');
             this.reload();
-          })
-        );
+          });
         break;
     }
   }

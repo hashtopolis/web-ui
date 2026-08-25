@@ -169,11 +169,4 @@ describe('NewAgentComponent', () => {
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New voucher successfully created!');
     expect(component.table.reload).toHaveBeenCalled();
   }));
-
-  it('should unsubscribe on destroy', () => {
-    // Setup subscription spy
-    component.newVoucherSubscription = jasmine.createSpyObj('Subscription', ['unsubscribe']);
-    component.ngOnDestroy();
-    expect(component.newVoucherSubscription.unsubscribe).toHaveBeenCalled();
-  });
 });

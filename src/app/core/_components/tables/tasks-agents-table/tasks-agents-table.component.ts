@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
@@ -37,7 +38,7 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   templateUrl: './tasks-agents-table.component.html',
   standalone: false
 })
-export class TasksAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TasksAgentsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';
@@ -61,12 +62,6 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
 
   ngOnInit(): void {
     this.setColumnLabels(TasksAgentsTableColumnLabel);
@@ -217,8 +212,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.UNASSIGN:
@@ -235,8 +232,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -456,12 +452,13 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
   private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
     const action = isActive ? 'activated' : 'deactivated';
 
-    this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.AGENTS, agents, { isActive: isActive }).subscribe(() => {
+    this.gs
+      .bulkUpdate(SERV.AGENTS, agents, { isActive: isActive })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} agents!`);
         this.dataSource.reload();
-      })
-    );
+      });
   }
 
   private rowActionEdit(agent: JAgent): void {
@@ -483,32 +480,32 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
 
     const assignments = assignedAgents.map((agent) => ({ id: agent.assignmentId }));
 
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENT_ASSIGN, assignments)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during unassignment: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully unassigned agents!`);
-          this.dataSource.reload();
-          this.assignedAgentsChanged.emit();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.AGENT_ASSIGN, assignments)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during unassignment: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully unassigned agents!`);
+        this.dataSource.reload();
+        this.assignedAgentsChanged.emit();
+      });
   }
   private rowActionUnassign(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
+      this.gs
+        .delete(SERV.AGENT_ASSIGN, agent.assignmentId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.reload();
           this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
-        })
-      );
+        });
     } else {
       this.alertService.showErrorMessage('Failed to unassign agent!');
     }
@@ -529,19 +526,18 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
     const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.assignmentId, {
       benchmark: benchmark
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update benchmark!`);
-            console.error('Failed to update benchmark:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update benchmark!`);
+          console.error('Failed to update benchmark:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
+        this.reload();
+      });
   }
 }

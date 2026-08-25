@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { HashlistReportDataSource } from '@src/app/shared/report-builder/datasources/hashlists.datasource';
 import { BaseReportComponent } from '@src/app/shared/report-builder/reports/base-report/base-report.component';
@@ -9,7 +9,7 @@ import { ReportSection } from '@src/app/shared/report-builder/reports/report-bui
   templateUrl: './hashlist-report.component.html',
   standalone: false
 })
-export class HashlistReportComponent extends BaseReportComponent implements OnInit, OnDestroy {
+export class HashlistReportComponent extends BaseReportComponent implements OnInit {
   @Input() hashlistId = 0;
 
   dataSource: HashlistReportDataSource;
@@ -21,11 +21,5 @@ export class HashlistReportComponent extends BaseReportComponent implements OnIn
       this.dataSource.setHashlistId(this.hashlistId);
     }
     this.dataSource.reload();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 }

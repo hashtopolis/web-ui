@@ -1,6 +1,7 @@
 import { catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JUser } from '@models/user.model';
 
@@ -27,7 +28,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
   templateUrl: './access-groups-agents-table.component.html',
   standalone: false
 })
-export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() accessgroupId = 0;
   @Output() agentsRemoved = new EventEmitter<void>(); // Event to notify parent about removed agent(s)
 
@@ -50,12 +51,6 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -92,13 +87,14 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           this.bulkActionUnassign(result.data);
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -164,23 +160,22 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
       RelationshipType.AGENTMEMBER,
       payload
     );
-    this.subscriptions.push(
-      removeRequest
-        .pipe(
-          catchError((error) => {
-            const msg = 'Error while removing agents from access group';
-            console.error(`${msg}: `, error);
-            this.alertService.showErrorMessage(msg);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.agentsRemoved.emit();
-          this.alertService.showSuccessMessage(
-            `Successfully removed ${agents.length} agent${agents.length > 1 ? 's' : ''} from this group`
-          );
-          this.reload();
-        })
-    );
+    removeRequest
+      .pipe(
+        catchError((error) => {
+          const msg = 'Error while removing agents from access group';
+          console.error(`${msg}: `, error);
+          this.alertService.showErrorMessage(msg);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.agentsRemoved.emit();
+        this.alertService.showSuccessMessage(
+          `Successfully removed ${agents.length} agent${agents.length > 1 ? 's' : ''} from this group`
+        );
+        this.reload();
+      });
   }
 }

@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JUser } from '@models/user.model';
 
@@ -30,7 +31,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './users-table.component.html',
   standalone: false
 })
-export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class UsersTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -44,12 +45,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.loadAll();
     // Setup filter error handling
     this.setupFilterErrorSubscription(this.dataSource);
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -146,8 +141,10 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -164,8 +161,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -237,20 +233,19 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
    * @todo Implement error handling.
    */
   private bulkActionDelete(users: JUser[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.USERS, users)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted users!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.USERS, users)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted users!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
@@ -259,32 +254,32 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
   private bulkActionActivate(users: JUser[], isValid: boolean): void {
     const action = isValid ? 'activated' : 'deactivated';
 
-    this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe(() => {
+    this.gs
+      .bulkUpdate(SERV.USERS, users, { isValid: isValid })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} users!`);
         this.reload();
-      })
-    );
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(users: JUser[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.USERS, users[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted user!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.USERS, users[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted user!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(user: JUser): void {

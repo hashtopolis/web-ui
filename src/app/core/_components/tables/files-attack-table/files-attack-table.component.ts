@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -27,7 +27,7 @@ interface PrepareAttackResult {
   templateUrl: './files-attack-table.component.html',
   standalone: false
 })
-export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
@@ -52,12 +52,6 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
