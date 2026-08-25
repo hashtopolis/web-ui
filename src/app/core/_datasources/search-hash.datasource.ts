@@ -14,7 +14,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   private search: string[];
-  private dateFormat: string;
+  private dateTimeFormat: string;
 
   /**
    * Set search input array from form field
@@ -28,10 +28,10 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
 
   /**
    * Set user's preferred date and time format from UI settings
-   * @param dateFormat - preferred date and time format as string
+   * @param dateTimeFormat - preferred date and time format as string
    */
-  setDateFormat(dateFormat: string): void {
-    this.dateFormat = dateFormat;
+  setDateFormat(dateTimeFormat: string): void {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -92,7 +92,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
           plaintext: hash.plaintext,
           hashlists: hash.hashlist ? [hash.hashlist!] : [],
           hashInfo: hash.isCracked
-            ? `Cracked on ${formatUnixTimestamp(hash.timeCracked, this.dateFormat)}`
+            ? `Cracked on ${formatUnixTimestamp(hash.timeCracked, this.dateTimeFormat)}`
             : 'Not cracked yet',
           type: 'SearchHash'
         });

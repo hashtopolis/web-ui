@@ -143,7 +143,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateTimeFormat)
       },
       {
         id: AgentsStatusTableCol.GPU_UTILISATION,
@@ -471,7 +471,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateTimeFormat);
     const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
     /*     const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : ''; */

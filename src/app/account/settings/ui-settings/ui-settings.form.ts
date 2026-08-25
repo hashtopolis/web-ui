@@ -1,3 +1,5 @@
+import { DateFormat, TimeFormat, browserDateFormat, browserTimeFormat } from '@constants/settings.config';
+
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { Layout, Theme } from '@models/config-ui.model';
@@ -6,7 +8,8 @@ import { Layout, Theme } from '@models/config-ui.model';
  * Type definition for the UI Settings Form.
  */
 export type UiSettingsForm = {
-  timefmt: FormControl<string>;
+  dateFmt: FormControl<DateFormat>;
+  timeFmt: FormControl<TimeFormat>;
   layout: FormControl<Layout>;
   theme: FormControl<Theme>;
   refreshPage: FormControl<boolean>;
@@ -22,7 +25,8 @@ export class UiSettingsFormGroup extends FormGroup<UiSettingsForm> {
 
   constructor() {
     super({
-      timefmt: new FormControl<string>('', { nonNullable: true }),
+      dateFmt: new FormControl<DateFormat>(browserDateFormat(), { nonNullable: true }),
+      timeFmt: new FormControl<TimeFormat>(browserTimeFormat(), { nonNullable: true }),
       layout: new FormControl<Layout>('fixed', { nonNullable: true }),
       theme: new FormControl<Theme>('light', { nonNullable: true }),
       refreshPage: new FormControl<boolean>(false, { nonNullable: true }),

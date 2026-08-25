@@ -101,7 +101,7 @@ globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
  * Simulates localStorage behavior by stubbing `getItem` and `setItem`.
  */
 const mockLocalStorageService = {
-  /** Simulates retrieving a value from localStorage. Returns uiConfigDefault so UISettingsUtilityClass has a valid timefmt. */
+  /** Simulates retrieving a value from localStorage. Returns uiConfigDefault so UISettingsUtilityClass has valid date and time formats. */
   getItem: jasmine.createSpy('getItem').and.returnValue(uiConfigDefault),
 
   /** Simulates saving a value in localStorage. Does not persist anything. */

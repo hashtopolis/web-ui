@@ -198,7 +198,11 @@
           <ng-container>
             <!-- CMD Preprocessor -->
             @if (isCmdPreproAttack) {
-              <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAttack($event, row, 'CMD_PREPRO')" />
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="toggleAttack($event, row, 'CMD_PREPRO')"
+                [checked]="isPreproSelected(row)"
+              />
             }
           </ng-container>
         </td>

@@ -76,9 +76,10 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         id: HealthCheckAgentsTableCol.START,
         dataKey: 'start',
         isSortable: true,
-        render: (HealthCheckAgent: JHealthCheckAgent) => formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat),
+        render: (HealthCheckAgent: JHealthCheckAgent) =>
+          formatUnixTimestamp(HealthCheckAgent.start, this.dateTimeFormat),
         export: async (HealthCheckAgent: JHealthCheckAgent) =>
-          formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat)
+          formatUnixTimestamp(HealthCheckAgent.start, this.dateTimeFormat)
       },
       {
         id: HealthCheckAgentsTableCol.GPUS,

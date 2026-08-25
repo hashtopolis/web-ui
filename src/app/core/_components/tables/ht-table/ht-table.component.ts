@@ -160,6 +160,8 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
 
+  @Input() isCmdPreproFiles: number[] = [];
+
   /** Flag to add dual label text. */
   @Input() isCmdLabel: string;
 
@@ -675,6 +677,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     } else {
       return this.dataSource.isSelected(row);
     }
+  }
+
+  isPreproSelected(row: T): boolean {
+    return this.isCmdPreproFiles.includes(row.id);
   }
 
   /**

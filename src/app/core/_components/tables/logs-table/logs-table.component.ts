@@ -71,8 +71,8 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, Af
         id: LogsTableCol.TIME,
         dataKey: 'time',
         isSortable: true,
-        render: (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat),
-        export: async (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat)
+        render: (log: JLog) => formatUnixTimestamp(log.time, this.dateTimeFormat),
+        export: async (log: JLog) => formatUnixTimestamp(log.time, this.dateTimeFormat)
       },
       {
         id: LogsTableCol.LEVEL,
