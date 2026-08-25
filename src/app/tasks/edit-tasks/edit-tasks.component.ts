@@ -5,7 +5,7 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Subscription, finalize, lastValueFrom } from 'rxjs';
+import { finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -101,8 +101,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   taskProgressImageUrl: SafeUrl | null = null;
   private rawTaskProgressObjectUrl: string | null = null;
-
-  private routeSub: Subscription | undefined;
 
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -219,8 +217,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-
     if (this.rawTaskProgressObjectUrl) {
       URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
       this.rawTaskProgressObjectUrl = null;

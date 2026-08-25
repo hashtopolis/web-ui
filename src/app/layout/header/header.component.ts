@@ -1,6 +1,5 @@
-import { Subject, Subscription, takeUntil } from 'rxjs';
-
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
@@ -39,7 +38,7 @@ import { environment } from '@src/environments/environment';
   templateUrl: './header.component.html',
   standalone: false
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themes = inject(ThemeService);
@@ -62,22 +61,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private userRoleWrapperService = inject(UserRoleWrapperService);
   private apiTokensRoleService = inject(ApiTokensRoleService);
 
-  private subscriptions: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
   currentTheme = 'light';
   themeOptions: RuntimeThemeOption[] = [];
-  private themeSub: Subscription;
 
   // Before showing header check Authentification
-  private userSub: Subscription;
   isAuthenticated = false;
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
   userMenu: MainMenuItem[] = [];
-  private destroy$ = new Subject<void>();
 
   constructor() {
     this.isAuth();
@@ -85,26 +81,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   isAuth(): void {
-    this.userSub = this.authService.user.subscribe((user) => {
+    this.authService.user.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
       this.isAuthenticated = !!user;
     });
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(
-      this.authService.user.subscribe((user) => {
-        if (user) {
-          this.username = user.canonicalUsername;
-        }
-      })
-    );
-    this.subscriptions.push(
-      this.permissionService.getPermissions().subscribe(() => {
+    this.authService.user.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
+      if (user) {
+        this.username = user.canonicalUsername;
+      }
+    });
+    this.permissionService
+      .getPermissions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         // Trigger menu rebuild once permissions are available
         this.rebuildMenu();
-      })
-    );
-    this.themeSub = this.themes.theme$.subscribe((theme) => {
+      });
+    this.themes.theme$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((theme) => {
       this.currentTheme = theme ?? this.themes.current;
       this.isDarkMode = this.themes.isDark(this.currentTheme);
     });
@@ -114,22 +109,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Listen for Konami code
     this.easterEggService
       .onKonamiCodeDetected()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.activateSecretFeature();
       });
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-    this.userSub.unsubscribe();
-    if (this.themeSub) {
-      this.themeSub.unsubscribe();
-    }
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   easterEggFlag: boolean = false;

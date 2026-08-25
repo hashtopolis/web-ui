@@ -2,7 +2,7 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -16,7 +16,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './logs-table.component.html',
   standalone: false
 })
-export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class LogsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -35,11 +35,6 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {

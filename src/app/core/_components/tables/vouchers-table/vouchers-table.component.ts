@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel } from '@models/base.model';
 
@@ -28,7 +29,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './vouchers-table.component.html',
   standalone: false
 })
-export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class VouchersTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: VouchersDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -39,12 +40,6 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new VoucherContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   /**
@@ -100,8 +95,10 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -112,8 +109,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -175,40 +171,38 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    * @todo Implement error handling.
    */
   private bulkActionDelete(vouchers: JVoucher[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.VOUCHER, vouchers)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted vouchers!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.VOUCHER, vouchers)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted vouchers!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(vouchers: JVoucher[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.VOUCHER, vouchers[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted voucher!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.VOUCHER, vouchers[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted voucher!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(voucher: JVoucher): void {

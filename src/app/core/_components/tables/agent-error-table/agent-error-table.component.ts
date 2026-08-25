@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgentErrors } from '@models/agent-errors.model';
@@ -30,14 +31,11 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './agent-error-table.component.html',
   standalone: false
 })
-export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
   selectedFilterColumn: HTTableColumn;
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -135,8 +133,10 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case BulkActionMenuAction.DELETE:
@@ -147,8 +147,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
               break;
           }
         }
-      })
-    );
+      });
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
@@ -194,32 +193,32 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
    * @todo Implement error handling.
    */
   private bulkActionDelete(errors: JAgentErrors[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENT_ERRORS, errors)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted errors!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.AGENT_ERRORS, errors)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted errors!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(errors: JAgentErrors[]): void {
-    this.subscriptions.push(
-      this.gs.delete(SERV.AGENT_ERRORS, errors[0].id).subscribe(() => {
+    this.gs
+      .delete(SERV.AGENT_ERRORS, errors[0].id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted error!');
         this.dataSource.reload();
-      })
-    );
+      });
   }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);

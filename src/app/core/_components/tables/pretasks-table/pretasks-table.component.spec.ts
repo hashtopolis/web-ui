@@ -57,10 +57,6 @@ class TestPretasksTableComponent extends PretasksTableComponent {
   }
 
   override ngAfterViewInit(): void {}
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
-  }
 }
 
 describe('PretasksTableComponent', () => {

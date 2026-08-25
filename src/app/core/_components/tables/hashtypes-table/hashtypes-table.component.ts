@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DynamicModel } from '@models/base.model';
 import { JHashtype } from '@models/hashtype.model';
@@ -110,8 +111,10 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -122,8 +125,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
               break;
           }
         }
-      })
-    );
+      });
   }
 
   rowActionClicked(event: ActionMenuEvent<JHashtype>): void {
@@ -175,40 +177,38 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionDelete(hashtypes: JHashtype[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.HASHTYPES, hashtypes)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted hashtypes!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.HASHTYPES, hashtypes)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted hashtypes!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(hashtypes: JHashtype[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.HASHTYPES, hashtypes[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted hashtype!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.HASHTYPES, hashtypes[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted hashtype!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(hashtype: JHashtype): void {

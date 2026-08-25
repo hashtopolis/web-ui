@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JSuperTask, JSuperTaskAggregateFields } from '@models/supertask.model';
 
@@ -29,7 +30,7 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
   templateUrl: './supertasks-table.component.html',
   standalone: false
 })
-export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -49,11 +50,6 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -112,8 +108,10 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -124,8 +122,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -195,20 +192,19 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
    * @todo Implement error handling.
    */
   private rowActionDelete(supertasks: JSuperTask[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.SUPER_TASKS, supertasks[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted supertask!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.SUPER_TASKS, supertasks[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted supertask!');
+        this.reload();
+      });
   }
 
   private rowActionApplyToHashlist(supertask: JSuperTask): void {

@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JHealthCheck } from '@models/health-check.model';
 
@@ -30,7 +31,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './health-checks-table.component.html',
   standalone: false
 })
-export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -49,12 +50,6 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -121,8 +116,10 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -133,8 +130,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -204,40 +200,38 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
    * @todo Implement error handling.
    */
   private bulkActionDelete(healthChecks: JHealthCheck[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.HEALTH_CHECKS, healthChecks)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted healthchecks!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.HEALTH_CHECKS, healthChecks)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted healthchecks!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(healthChecks: JHealthCheck[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.HEALTH_CHECKS, healthChecks[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted health check!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.HEALTH_CHECKS, healthChecks[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted health check!');
+        this.reload();
+      });
   }
 
   private rowActionView(healthCheck: JHealthCheck): void {

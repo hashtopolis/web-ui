@@ -1,8 +1,8 @@
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { Subscription } from 'rxjs';
 
-import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
@@ -48,11 +48,11 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
   private readonly serializer = new JsonAPISerializer();
   private readonly versionsByType = new Map<number, SelectOption<CrackerBinaryId>[]>();
-  private tableSubscription?: Subscription;
 
   private readonly injector = inject(Injector);
   private readonly gs = inject(GlobalService);
   private readonly alert = inject(AlertService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.dataSource = new HashlistSupertaskBuilderDataSource(this.injector);
@@ -60,10 +60,13 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
     // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
     // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
-    this.tableSubscription = this.dataSource.connect(null as never).subscribe((rows) => {
-      this.supertasks = rows;
-      void this.initializeRows();
-    });
+    this.dataSource
+      .connect(null as never)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rows) => {
+        this.supertasks = rows;
+        void this.initializeRows();
+      });
 
     // Types must be known before rows initialize, but a failure must not stop the rows from loading:
     // without types the create controls stay disabled while the templates are still listed.
@@ -78,7 +81,6 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   }
 
   ngOnDestroy(): void {
-    this.tableSubscription?.unsubscribe();
     this.dataSource.disconnect(null as never);
   }
 

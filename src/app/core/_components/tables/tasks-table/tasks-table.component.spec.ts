@@ -59,10 +59,6 @@ class TestTasksTableComponent extends TasksTableComponent {
       this.dataSource.startAutoRefresh();
     }
   }
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
-  }
 }
 
 describe('TasksTableComponent', () => {

@@ -53,10 +53,6 @@ class TestHashlistsTableComponent extends HashlistsTableComponent {
   }
 
   override ngAfterViewInit(): void {}
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
-  }
 }
 
 describe('HashlistsTableComponent', () => {

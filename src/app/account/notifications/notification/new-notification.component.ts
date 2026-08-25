@@ -1,7 +1,7 @@
 import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
-import { Subscription } from 'rxjs';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -42,12 +42,13 @@ export interface NewNotificationForm {
   templateUrl: './new-notification.component.html',
   standalone: false
 })
-export class NewNotificationComponent implements OnInit, OnDestroy {
+export class NewNotificationComponent implements OnInit {
   private titleService = inject(AutoTitleService);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
   private router = inject(Router);
   private roleService = inject(NotificationsRoleService);
+  private destroyRef = inject(DestroyRef);
 
   static readonly SUBMITLABEL = 'Save Notification';
   static readonly SUBTITLE = 'Create Notification';
@@ -63,7 +64,6 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
 
   maxResults: string | number;
   notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
-  subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
   actionToServiceMap: Record<string, { URL: string; RESOURCE: string } | null> = {
@@ -111,15 +111,6 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
-
-  /**
    * Creates the form for creating a new notification.
    * Initializes form controls with default values and validators.
    */
@@ -164,8 +155,10 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       ctrl.setValidators([Validators.required]);
       ctrl.updateValueAndValidity();
 
-      this.subscriptions.push(
-        this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
+      this.gs
+        .getAll(path)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((response: ResponseWrapper) => {
           let _filters: Filter[] = [];
 
           if (path === SERV.AGENTS) {
@@ -183,8 +176,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
           }
 
           this.filters = _filters;
-        })
-      );
+        });
     } else {
       this.active = false;
       this.actionFilterIsRequired = false;
@@ -221,8 +213,10 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     });
     if (this.form.valid) {
       this.isCreatingLoading = true;
-      this.subscriptions.push(
-        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe({
+      this.gs
+        .create(SERV.NOTIFICATIONS, this.form.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
           next: () => {
             this.alert.showSuccessMessage('New Notification created');
             this.isCreatingLoading = false;
@@ -232,8 +226,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
             console.error('Error creating new notification', err);
             this.isCreatingLoading = false;
           }
-        })
-      );
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
