@@ -1,11 +1,11 @@
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { uiConfigDefault } from '@models/config-ui.model';
+import { DEFAULT_DATETIME_FORMAT, uiConfigDefault } from '@models/config-ui.model';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
-import { formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatDate, formatUnixTimestamp, timeFormat } from '@src/app/shared/utils/datetime';
 
 describe('TaskSpeedGraphComponent', () => {
   let component: TaskSpeedGraphComponent;
@@ -185,7 +185,7 @@ describe('TaskSpeedGraphComponent', () => {
     const html = tooltip.formatter([{ data: { value: [100 * 1000, 6], unit: 'MH/s' } }]);
 
     expect(html).toContain('<strong>6 MH/s</strong>');
-    expect(html).toContain(formatUnixTimestamp(100, uiConfigDefault.timefmt));
+    expect(html).toContain(formatUnixTimestamp(100, DEFAULT_DATETIME_FORMAT));
   });
 
   it('renders no tooltip for a mark-point style param without a [time, value] pair', () => {
@@ -196,10 +196,12 @@ describe('TaskSpeedGraphComponent', () => {
     expect(tooltip.formatter([])).toBe('');
   });
 
-  it('labels the time axis with a local-time HH:MM:SS formatter', () => {
+  it('labels the time axis with a time-only formatter in the configured clock convention', () => {
     const option = drawWith([speedStat(100, 3_000_000, 1)]);
 
-    expect(option.xAxis[0].axisLabel.formatter(100 * 1000)).toBe(formatDate(new Date(100 * 1000), 'hh:mm:ss'));
+    expect(option.xAxis[0].axisLabel.formatter(100 * 1000)).toBe(
+      formatDate(new Date(100 * 1000), timeFormat(uiConfigDefault.timeFmt, TimePrecision.SECONDS))
+    );
   });
 
   it('draws on ngAfterViewInit when speeds are already present (initial load path)', () => {

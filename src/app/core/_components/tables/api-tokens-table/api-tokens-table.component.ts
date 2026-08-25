@@ -60,16 +60,16 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
       {
         id: ApiTokensTableCol.VALID_FROM,
         dataKey: 'startValid',
-        render: (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateFormat),
+        render: (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateTimeFormat),
         isSortable: true,
-        export: async (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateFormat)
+        export: async (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateTimeFormat)
       },
       {
         id: ApiTokensTableCol.VALID_UNTIL,
         dataKey: 'endValid',
-        render: (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat),
+        render: (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateTimeFormat),
         isSortable: true,
-        export: async (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat)
+        export: async (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateTimeFormat)
       },
       {
         id: ApiTokensTableCol.STATUS,

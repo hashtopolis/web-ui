@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <input-text
         title="Created"
-        [value]="healthc ? formatUnixTimestamp(healthc.time, this.dateFormat) : ''"
+        [value]="healthc ? formatUnixTimestamp(healthc.time, this.dateTimeFormat) : ''"
         [readonly]="true"
       ></input-text>
       <input-text

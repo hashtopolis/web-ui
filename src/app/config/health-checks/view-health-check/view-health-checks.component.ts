@@ -4,7 +4,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { UIConfig } from '@models/config-ui.model';
 import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -16,7 +16,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-view-health-checks',
@@ -32,7 +32,7 @@ export class ViewHealthChecksComponent implements OnInit {
   //Date format
   protected uiSettings: UISettingsUtilityClass;
   formatUnixTimestamp = formatUnixTimestamp;
-  protected dateFormat: string;
+  protected dateTimeFormat: string;
 
   /**
    * Constructs a new instance of the YourComponentName class.
@@ -57,7 +57,7 @@ export class ViewHealthChecksComponent implements OnInit {
   onInitialize(): void {
     this.viewedHealthCIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
     this.uiSettings = new UISettingsUtilityClass(this.settingsService);
-    this.dateFormat = this.getDateFormat();
+    this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
   /**
@@ -78,11 +78,5 @@ export class ViewHealthChecksComponent implements OnInit {
         const healthCheck: JHealthCheck = new JsonAPISerializer().deserialize(response, zHealthCheckResponse);
         this.healthc = healthCheck;
       });
-  }
-
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }

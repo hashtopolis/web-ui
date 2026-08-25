@@ -83,8 +83,8 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
         id: VouchersTableCol.CREATED,
         dataKey: 'time',
         isSortable: true,
-        render: (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateFormat),
-        export: async (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateFormat)
+        render: (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateTimeFormat),
+        export: async (voucher: JVoucher) => formatUnixTimestamp(voucher.time, this.dateTimeFormat)
       }
     ];
   }
