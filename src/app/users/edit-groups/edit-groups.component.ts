@@ -325,8 +325,7 @@ export class EditGroupsComponent implements OnInit {
               // Successful deletion
               this.router
                 .navigate(['/users/access-groups'])
-                .then(() => this.alert.showSuccessMessage(`Succesfully deleted access group: ${this.editName}`));
-            });
+                .then(() => this.alert.showSuccessMessage(`Successfully deleted access group: ${this.editName}`));
         }
       });
   }
