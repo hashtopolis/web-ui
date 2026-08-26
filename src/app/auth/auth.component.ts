@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, OnInit, inject } from '@angular/core';
-import { OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
@@ -7,7 +7,6 @@ import { Validators } from '@angular/forms';
 import { AuthService } from '@services/access/auth.service';
 import { ConfigService } from '@services/shared/config.service';
 import { ThemeService } from '@services/shared/theme.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
@@ -23,8 +22,8 @@ export interface LoginForm {
   styleUrls: ['./auth.component.scss'],
   standalone: false
 })
-export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
-  private unsubscribeService = inject(UnsubscribeService);
+export class AuthComponent implements OnInit, AfterViewInit {
+  private destroyRef = inject(DestroyRef);
   private configService = inject(ConfigService);
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
@@ -49,11 +48,9 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
    * Lifecycle hook called after component initialization.
    */
   ngOnInit(): void {
-    this.unsubscribeService.add(
-      this.themeService.isDarkMode$.subscribe((isDark) => {
-        this.isDarkMode = isDark;
-      })
-    );
+    this.themeService.isDarkMode$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isDark) => {
+      this.isDarkMode = isDark;
+    });
     this.setupConfig();
     this.configService.getEndpoint();
   }
@@ -74,14 +71,6 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setupConfig(): void {
     this.configService.getEndpoint();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -110,7 +99,7 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const authObs = this.authService.logIn(username, password);
 
-    const authSubscription$ = authObs.subscribe({
+    authObs.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loginForm.reset();
       },
@@ -123,7 +112,5 @@ export class AuthComponent implements OnInit, OnDestroy, AfterViewInit {
         this.isLoading = false; // Hide spinner after attempting to log in
       }
     });
-
-    this.unsubscribeService.add(authSubscription$);
   }
 }

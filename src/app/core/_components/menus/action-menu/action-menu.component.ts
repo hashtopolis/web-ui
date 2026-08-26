@@ -2,11 +2,11 @@
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-import { Subscription } from 'rxjs';
 
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -16,6 +16,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -44,7 +45,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    *  between trigger and panel. */
   static readonly hoverCloseDelayMs = 150;
 
-  private subscriptions: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
 
   /** Handle for the deferred hover-close timeout */
   hoverTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -135,43 +136,35 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * and close the menu when navigation occurs.
    */
   ngOnInit(): void {
-    this.subscriptions.push(
-      this.themeService.isDarkMode$.subscribe((isDark) => {
-        this.isDarkMode = isDark;
-        this.faIconColor = isDark ? 'white' : 'black';
-      })
-    );
+    this.themeService.isDarkMode$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isDark) => {
+      this.isDarkMode = isDark;
+      this.faIconColor = isDark ? 'white' : 'black';
+    });
 
-    this.subscriptions.push(
-      this.router.events.subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          this.currentUrl = event.url.split('/').slice(1);
-          this.checkIsActive();
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.currentUrl = event.url.split('/').slice(1);
+        this.checkIsActive();
 
-          if (this.trigger?.menuOpen) {
-            this.trigger.closeMenu();
-          }
+        if (this.trigger?.menuOpen) {
+          this.trigger.closeMenu();
         }
-      })
-    );
+      }
+    });
   }
 
   ngAfterViewInit(): void {
-    this.subscriptions.push(
-      this.trigger.menuOpened.subscribe(() => {
-        this.attachPanelHoverListeners();
-      })
-    );
+    this.trigger.menuOpened.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.attachPanelHoverListeners();
+    });
 
-    this.subscriptions.push(
-      this.trigger.menuClosed.subscribe(() => {
-        if (ActionMenuComponent.openMenuTrigger === this.trigger) {
-          ActionMenuComponent.openMenuTrigger = null;
-        }
-        this.detachPanelHoverListeners();
-        this.hoveringMenu = false;
-      })
-    );
+    this.trigger.menuClosed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (ActionMenuComponent.openMenuTrigger === this.trigger) {
+        ActionMenuComponent.openMenuTrigger = null;
+      }
+      this.detachPanelHoverListeners();
+      this.hoveringMenu = false;
+    });
   }
 
   /**
@@ -203,9 +196,6 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
     this.detachPanelHoverListeners();
     this.clearHoverTimeout();
   }

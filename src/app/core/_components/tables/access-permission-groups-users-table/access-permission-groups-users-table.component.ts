@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
@@ -21,10 +21,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './access-permission-groups-users-table.component.html',
   standalone: false
 })
-export class AccessPermissionGroupsUsersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -45,12 +42,6 @@ export class AccessPermissionGroupsUsersTableComponent
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   getColumns(): HTTableColumn[] {

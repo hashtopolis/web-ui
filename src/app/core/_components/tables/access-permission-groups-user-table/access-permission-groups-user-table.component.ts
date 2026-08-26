@@ -1,16 +1,7 @@
 import { catchError } from 'rxjs';
 
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Permission, UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
@@ -64,7 +55,7 @@ const VERB_TO_ACTION: Record<CrudVerb, string> = {
 })
 export class AccessPermissionGroupsUserTableComponent
   extends BaseTableComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+  implements OnInit, OnChanges, AfterViewInit
 {
   /**
    * `'edit'` (default): live-edit a persisted access-permission group. Loads via
@@ -141,12 +132,6 @@ export class AccessPermissionGroupsUserTableComponent
       // Push fresh rows so ht-table's OnPush cells re-instantiate with the
       // latest derived `value`/`disabled`/`tooltip` from their checkbox callbacks.
       this.dataSource.loadFromMap(this.granted);
-    }
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
     }
   }
 
@@ -310,21 +295,20 @@ export class AccessPermissionGroupsUserTableComponent
     };
 
     const request$ = this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS, this.accesspermgroupId, payload);
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update permission!`);
-            console.error('Failed to update permission:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(
-            `Changed permission in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
-          );
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update permission!`);
+          console.error('Failed to update permission:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(
+          `Changed permission in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
+        );
+        this.reload();
+      });
   }
 }

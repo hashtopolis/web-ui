@@ -2,7 +2,8 @@ import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
 import { benchmarkType } from '@constants/tasks.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -14,7 +15,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
@@ -29,9 +29,8 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   templateUrl: './masks.component.html',
   standalone: false
 })
-export class MasksComponent implements OnInit, OnDestroy {
+export class MasksComponent implements OnInit {
   /**
-   * @private unsubscribeService - The service responsible for managing subscriptions.
    * @private changeDetectorRef - The reference to the Angular ChangeDetectorRef.
    * @private titleService - The service responsible for setting the page title.
    * @private alert - The service for displaying alert messages.
@@ -40,7 +39,7 @@ export class MasksComponent implements OnInit, OnDestroy {
    * @private serializer - The serializer service for API response.
    */
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
@@ -90,14 +89,6 @@ export class MasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Builds the form for creating a new Mask.
    */
   buildForm(): void {
@@ -117,8 +108,9 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
@@ -126,7 +118,6 @@ export class MasksComponent implements OnInit, OnDestroy {
 
         this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -148,21 +139,22 @@ export class MasksComponent implements OnInit, OnDestroy {
         maxAgents: form.maxAgents
       };
 
-      const subscription$ = this.gs.chelper(SERV.HELPER, 'maskSupertaskBuilder', payload).subscribe({
-        next: () => {
-          this.alert.showSuccessMessage('New Supertask Mask created');
-          this.router.navigate(['/tasks/supertasks']);
-        },
-        error: (error) => {
-          console.error('Error creating mask supertask:', error);
-          this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
-        }
-      });
-
-      this.unsubscribeService.add(subscription$);
+      this.gs
+        .chelper(SERV.HELPER, 'maskSupertaskBuilder', payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('New Supertask Mask created');
+            this.router.navigate(['/tasks/supertasks']);
+          },
+          error: (error) => {
+            console.error('Error creating mask supertask:', error);
+            this.isLoading = false;
+          },
+          complete: () => {
+            this.isLoading = false;
+          }
+        });
     } else {
       this.createForm.markAllAsTouched();
       this.createForm.updateValueAndValidity();

@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -38,7 +38,7 @@ class MockDataSource {
   reset = jasmine.createSpy('reset');
   stopAutoRefresh = jasmine.createSpy('stopAutoRefresh');
   startAutoRefresh = jasmine.createSpy('startAutoRefresh');
-  filterError$ = { subscribe: jasmine.createSpy('subscribe') };
+  filterError$ = new Subject<string>();
 }
 
 class TestTasksTableComponent extends TasksTableComponent {
@@ -58,10 +58,6 @@ class TestTasksTableComponent extends TasksTableComponent {
     if (this.dataSource.autoRefreshService?.refreshPage) {
       this.dataSource.startAutoRefresh();
     }
-  }
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
   }
 }
 

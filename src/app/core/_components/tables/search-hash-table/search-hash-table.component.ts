@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { SearchHashModel } from '@models/hash.model';
 
@@ -21,7 +21,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './search-hash-table.component.html',
   standalone: false
 })
-export class SearchHashTableComponent extends BaseTableComponent implements OnInit, OnDestroy, OnChanges {
+export class SearchHashTableComponent extends BaseTableComponent implements OnInit, OnChanges {
   @Input() search: string[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
@@ -38,12 +38,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
     this.initDone = true;
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {

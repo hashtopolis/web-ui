@@ -15,7 +15,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { FormConfigComponent } from '@src/app/core/_components/forms/simple-forms/formconfig.component';
 import { mockResponse } from '@src/app/testing/mock-response';
@@ -58,8 +57,7 @@ describe('FormConfigComponent', () => {
         { provide: NotificationsRoleService, useValue: notificationRoleService },
         { provide: ActivatedRoute, useValue: activatedRoute },
         JsonAPISerializer,
-        MetadataService,
-        UnsubscribeService
+        MetadataService
       ]
     }).compileComponents();
 
@@ -382,14 +380,5 @@ describe('FormConfigComponent', () => {
     component.ngOnInit();
 
     expect(component['menuItems'].some((item) => item.label === 'Notifications')).toBeTrue();
-  });
-
-  it('should call unsubscribeAll when destroyed', () => {
-    const unsubscribeService = TestBed.inject(UnsubscribeService);
-    spyOn(unsubscribeService, 'unsubscribeAll');
-
-    component.ngOnDestroy();
-
-    expect(unsubscribeService.unsubscribeAll).toHaveBeenCalled();
   });
 });

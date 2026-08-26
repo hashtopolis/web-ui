@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
 
 import { JHelper, RebuildChunkCacheMeta, RescanGlobalFilesMeta } from '@models/helper.model';
@@ -6,7 +7,6 @@ import { JHelper, RebuildChunkCacheMeta, RescanGlobalFilesMeta } from '@models/h
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 
@@ -17,7 +17,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
   styleUrl: './server-actions.component.scss'
 })
 export class ServerActionsComponent {
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private gs = inject(GlobalService);
   private alert = inject(AlertService);
 
@@ -27,22 +27,23 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rebuildChunkCache(): void {
-    const sub$ = this.gs.chelper<JHelper<RebuildChunkCacheMeta>>(SERV.HELPER, 'rebuildChunkCache').subscribe((res) => {
-      const meta = res?.meta;
+    this.gs
+      .chelper<JHelper<RebuildChunkCacheMeta>>(SERV.HELPER, 'rebuildChunkCache')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res) => {
+        const meta = res?.meta;
 
-      if (meta && String(meta.Rebuild).toLowerCase() === 'success') {
-        const correctedChunks = meta.correctedChunks;
-        const correctedHashlists = meta.correctedHashlists;
+        if (meta && String(meta.Rebuild).toLowerCase() === 'success') {
+          const correctedChunks = meta.correctedChunks;
+          const correctedHashlists = meta.correctedHashlists;
 
-        this.alert.showSuccessMessage(
-          `Updated all chunks and hashlists. Corrected ${correctedChunks} chunks and ${correctedHashlists} hashlists.`
-        );
-      } else {
-        this.alert.showErrorMessage('Error while executing rebuild chunk cache');
-      }
-    });
-
-    this.unsubscribeService.add(sub$);
+          this.alert.showSuccessMessage(
+            `Updated all chunks and hashlists. Corrected ${correctedChunks} chunks and ${correctedHashlists} hashlists.`
+          );
+        } else {
+          this.alert.showErrorMessage('Error while executing rebuild chunk cache');
+        }
+      });
   }
 
   /**
@@ -51,16 +52,17 @@ export class ServerActionsComponent {
    * otherwise shows an error message.
    */
   rescanGlobalFiles(): void {
-    const sub$ = this.gs.chelper<JHelper<RescanGlobalFilesMeta>>(SERV.HELPER, 'rescanGlobalFiles').subscribe((res) => {
-      const meta = res?.meta;
+    this.gs
+      .chelper<JHelper<RescanGlobalFilesMeta>>(SERV.HELPER, 'rescanGlobalFiles')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res) => {
+        const meta = res?.meta;
 
-      if (meta && String(meta.Rescan).toLowerCase() === 'success') {
-        this.alert.showSuccessMessage(`File scan was successful, no actions required!`);
-      } else {
-        this.alert.showErrorMessage('Error while executing rescan global files');
-      }
-    });
-
-    this.unsubscribeService.add(sub$);
+        if (meta && String(meta.Rescan).toLowerCase() === 'success') {
+          this.alert.showSuccessMessage(`File scan was successful, no actions required!`);
+        } else {
+          this.alert.showErrorMessage('Error while executing rescan global files');
+        }
+      });
   }
 }

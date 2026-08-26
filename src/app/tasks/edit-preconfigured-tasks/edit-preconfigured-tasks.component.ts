@@ -2,7 +2,8 @@ import { zPreTaskResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -19,7 +20,6 @@ import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfigur
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { yesNo } from '@src/app/core/_constants/general.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
@@ -33,7 +33,7 @@ import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attac
   templateUrl: './edit-preconfigured-tasks.component.html',
   standalone: false
 })
-export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
+export class EditPreconfiguredTasksComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -55,7 +55,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Read-only mode based on roles */
   isReadOnly = false;
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
@@ -106,14 +106,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       return;
     }
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -188,9 +180,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       .addInclude('pretaskFiles')
       .create();
 
-    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe();
-
-    this.unsubscribeService.add(loadtableSubscription$);
+    this.gs.getAll(SERV.PRETASKS, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
@@ -200,8 +190,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.updateForm.valid && !this.isReadOnly) {
       this.isUpdatingLoading = true;
-      const updateSubscription$ = this.gs
+      this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
@@ -213,8 +204,6 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
             this.isUpdatingLoading = false;
           }
         });
-
-      this.unsubscribeService.add(updateSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();

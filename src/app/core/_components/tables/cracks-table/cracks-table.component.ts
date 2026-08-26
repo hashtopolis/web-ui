@@ -1,6 +1,7 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
@@ -29,7 +30,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './cracks-table.component.html',
   standalone: false
 })
-export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CracksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -43,12 +44,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll().then(() => {});
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -155,8 +150,10 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -167,8 +164,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -279,39 +275,37 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       return this.gs.delete(SERV.CRACKERS_TYPES, crack.id);
     });
 
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} cracks!`);
-          this.reload();
-        })
-    );
+    forkJoin(requests)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((results) => {
+        this.alertService.showSuccessMessage(`Successfully deleted ${results.length} cracks!`);
+        this.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(cracks: JHash[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.CRACKERS_TYPES, cracks[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted crack!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.CRACKERS_TYPES, cracks[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted crack!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(crack: JHash): void {

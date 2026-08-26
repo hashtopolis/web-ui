@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JPreprocessor } from '@models/preprocessor.model';
 
@@ -28,7 +29,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './preprocessors-table.component.html',
   standalone: false
 })
-export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -41,12 +42,6 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     this.dataSource.loadAll();
     // Setup filter error handling
     this.setupFilterErrorSubscription(this.dataSource);
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -98,8 +93,10 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -110,8 +107,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -182,40 +178,38 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(preprocessors: JPreprocessor[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.PREPROCESSORS, preprocessors)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted preprocessors!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.PREPROCESSORS, preprocessors)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted preprocessors!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(preprocessors: JPreprocessor[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.PREPROCESSORS, preprocessors[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted preprocessor!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.PREPROCESSORS, preprocessors[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted preprocessor!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(preprocessor: JPreprocessor): void {

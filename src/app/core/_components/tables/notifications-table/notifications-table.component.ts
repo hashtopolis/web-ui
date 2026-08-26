@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JNotification } from '@models/notification.model';
 
@@ -29,7 +30,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './notifications-table.component.html',
   standalone: false
 })
-export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class NotificationsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -46,12 +47,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -131,8 +126,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case BulkActionMenuAction.ACTIVATE:
@@ -149,8 +146,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -225,20 +221,19 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(notifications: JNotification[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.NOTIFICATIONS, notifications)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted notifications!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.NOTIFICATIONS, notifications)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted notifications!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
@@ -247,32 +242,32 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   private bulkActionActivate(notifications: JNotification[], isActive: boolean): void {
     const action = isActive ? 'activated' : 'deactivated';
 
-    this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive }).subscribe(() => {
+    this.gs
+      .bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} notifications!`);
         this.dataSource.reload();
-      })
-    );
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(notifications: JNotification[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.NOTIFICATIONS, notifications[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted notification!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.NOTIFICATIONS, notifications[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted notification!');
+        this.reload();
+      });
   }
 
   private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {
