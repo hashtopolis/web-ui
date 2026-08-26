@@ -75,6 +75,10 @@ export interface HTTableEditable<T> {
   tooltip?: string;
   // indeterminate if checkbox is half filled (instead of full check) so we know that only some and not all entries are checked
   indeterminate?: boolean;
+  // Optional display string - useful if text for displaying and value for editing differ, e.g. to show values with units
+  display?: string;
+  // Optional flag to hide value when not in editing mode - useful for only showing the edit icon
+  hidden?: boolean;
 }
 
 /** Column type for checkbox toggle events in attack file tables. */

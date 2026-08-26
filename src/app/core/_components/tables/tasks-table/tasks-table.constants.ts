@@ -38,5 +38,6 @@ export const TaskTableColumnLabel = {
 
 export const TaskTableEditableAction = {
   CHANGE_PRIORITY: 'change-priority',
-  CHANGE_MAX_AGENTS: 'change-max-agents'
+  CHANGE_MAX_AGENTS: 'change-max-agents',
+  CHANGE_NAME: 'change-name'
 };
