@@ -76,6 +76,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   color = '';
   tusepreprocessor: number;
+  preprocessorCommand: string;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: ThinJAgent[] = [];
@@ -137,6 +138,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
+      this.preprocessorCommand = task.preprocessorCommand;
       this.ctimespent = task.timeSpent ?? 0;
       this.currenspeed = task.currentSpeed ?? 0;
       this.estimatedTime = task.estimatedTime ?? 0;

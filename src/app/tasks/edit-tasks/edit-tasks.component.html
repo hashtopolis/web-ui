@@ -18,6 +18,13 @@
                 formControlName="attackCmd"
                 [isRequired]="!isReadOnly"
               ></input-text-area>
+              @if (tusepreprocessor) {
+                <input-text-area
+                  title="Preprocessor Command"
+                  [value]="preprocessorCommand"
+                  [readonly]="true"
+                ></input-text-area>
+              }
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
               <app-form-row [columns]="4">
