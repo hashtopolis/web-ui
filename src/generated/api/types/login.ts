@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse, Token, TokenRequest } from './common';
+import type { ErrorResponse, Token, TokenRequest } from './common';
 
 export type PostTokenData = {
   body: TokenRequest;
@@ -9,13 +9,13 @@ export type PostTokenData = {
 
 export type PostTokenErrors = {
   /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
    * Authentication failed
    */
   401: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: NotFoundResponse;
 };
 
 export type PostTokenError = PostTokenErrors[keyof PostTokenErrors];
@@ -24,7 +24,7 @@ export type PostTokenResponses = {
   /**
    * Success
    */
-  200: Token;
+  201: Token;
 };
 
 export type PostTokenResponse = PostTokenResponses[keyof PostTokenResponses];
