@@ -70,7 +70,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapperDisplayOverview>
         .subscribe((response: ResponseWrapper) => {
           const taskWrappers: JTaskWrapperDisplayOverview[] = this.serializer
             .deserialize(response, zTaskWrapperDisplayListResponse, requestParams)
-            .map((w) => ({ ...w, taskWrapperId: w.taskWrapperId ?? w.id }));
+            .map((w) => ({ ...w, taskWrapperId: w.id }));
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
