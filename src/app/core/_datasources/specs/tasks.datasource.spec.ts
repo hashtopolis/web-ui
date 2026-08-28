@@ -28,7 +28,7 @@ const MOCK_WRAPPER: JTaskWrapperDisplay = {
   taskWrapperIsArchived: 0
 } as unknown as JTaskWrapperDisplay;
 
-/** Item that has no taskWrapperId — the map() fallback should use id instead. */
+/** taskWrapperId is the resource id in the JSON:API-compliant response; the map() derives it from id. */
 const MOCK_WRAPPER_NO_WRAPPER_ID: JTaskWrapperDisplay = {
   id: 99,
   type: 'taskWrapperDisplay',
@@ -188,12 +188,12 @@ describe('TasksDataSource', () => {
       expect(filter.some((f: Filter) => f.field === 'hashlistId')).toBeFalse();
     });
 
-    it('should preserve taskWrapperId when it is present on the item', () => {
+    it('should derive taskWrapperId from the resource id', () => {
       dataSource.loadAll();
-      expect(dataSource.getOriginalData()[0].taskWrapperId).toBe(MOCK_WRAPPER.taskWrapperId);
+      expect(dataSource.getOriginalData()[0].taskWrapperId).toBe(MOCK_WRAPPER.id);
     });
 
-    it('should fall back to id as taskWrapperId when taskWrapperId is absent', () => {
+    it('should derive taskWrapperId from the resource id for every item', () => {
       deserializeSpy.and.returnValue([MOCK_WRAPPER_NO_WRAPPER_ID]);
       dataSource.loadAll();
       expect(dataSource.getOriginalData()[0].taskWrapperId).toBe(MOCK_WRAPPER_NO_WRAPPER_ID.id);

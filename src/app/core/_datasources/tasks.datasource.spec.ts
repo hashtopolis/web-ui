@@ -75,18 +75,6 @@ describe('TasksDataSource', () => {
       expect(data[1].taskWrapperId).toBe(10);
     });
 
-    it('should keep existing taskWrapperId if API returns it', () => {
-      const response = buildMockResponse([
-        { id: 5, attributes: { displayName: 'Task A', taskWrapperId: 99 } }
-      ]);
-      gsSpy.getAll.and.returnValue(of(response));
-
-      dataSource.loadAll();
-
-      const data = dataSource.getOriginalData();
-      expect(data[0].taskWrapperId).toBe(99);
-    });
-
     it('should preserve all other fields when mapping taskWrapperId', () => {
       const response = buildMockResponse([
         { id: 5, attributes: { displayName: 'Task A', taskType: 1, hashlistId: 3 } }
