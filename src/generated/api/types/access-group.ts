@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type AccessGroupCreate = {
   data: {
@@ -18,17 +18,30 @@ export type AccessGroupPatch = {
   };
 };
 
+export type AccessGroupPatchMultiple = {
+  data: Array<{
+    id: number;
+    type: 'accessGroup';
+    attributes: {
+      groupName?: string;
+    };
+  }>;
+};
+
+export type AccessGroupDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'accessGroup';
+  }>;
+};
+
 export type AccessGroupResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
     id: number;
@@ -36,27 +49,114 @@ export type AccessGroupResponse = {
     attributes: {
       groupName: string;
     };
-  };
-  relationships?: {
-    agentMembers: {
-      links: {
-        self: string;
-        related: string;
-      };
-      data?: Array<{
-        type: 'agent';
-        id: number;
-      }>;
+    links: {
+      self: string;
     };
-    userMembers: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      agentMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'user';
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
+      };
+    };
+  };
+  included?: Array<
+    | {
         id: number;
-      }>;
+        type: 'user';
+        attributes: {
+          name: string;
+          email?: string;
+          isValid?: boolean;
+          isComputedPassword?: boolean;
+          lastLoginDate?: number;
+          registeredSince?: number;
+          sessionLifetime?: number;
+          globalPermissionGroupId?: number;
+          yubikey?: string;
+          otp1?: string;
+          otp2?: string;
+          otp3?: string;
+          otp4?: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'agent';
+        attributes: {
+          agentName: string;
+          uid: string;
+          os: 0 | 1 | 2;
+          devices: string;
+          cmdPars: string;
+          ignoreErrors: 0 | 1 | 2;
+          isActive: boolean;
+          isTrusted: boolean;
+          token: string;
+          lastAct: string;
+          lastTime: number;
+          lastIp: string;
+          userId: number | null;
+          cpuOnly: boolean;
+          clientSignature: string;
+        };
+      }
+  >;
+};
+
+export type AccessGroupSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: number;
+    type: 'accessGroup';
+    attributes: {
+      groupName: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      agentMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: number;
+        }>;
+      };
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
+      };
     };
   };
   included?: Array<
@@ -108,54 +208,39 @@ export type AccessGroupPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
+  links: {
+    self: string;
+  };
   data: {
     id: number;
     type: 'accessGroup';
     attributes: {
       groupName: string;
     };
-  };
-};
-
-export type AccessGroupListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
-    self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
-  };
-  data: Array<{
-    id: number;
-    type: 'accessGroup';
-    attributes: {
-      groupName: string;
+    links: {
+      self: string;
     };
-  }>;
-  relationships?: {
-    agentMembers: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      agentMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'agent';
-        id: number;
-      }>;
-    };
-    userMembers: {
-      links: {
-        self: string;
-        related: string;
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'user';
-        id: number;
-      }>;
     };
   };
   included?: Array<
@@ -202,6 +287,122 @@ export type AccessGroupListResponse = {
   >;
 };
 
+export type AccessGroupListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'accessGroup';
+    attributes: {
+      groupName: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      agentMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'agent';
+          id: number;
+        }>;
+      };
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<
+    | {
+        id: number;
+        type: 'user';
+        attributes: {
+          name: string;
+          email?: string;
+          isValid?: boolean;
+          isComputedPassword?: boolean;
+          lastLoginDate?: number;
+          registeredSince?: number;
+          sessionLifetime?: number;
+          globalPermissionGroupId?: number;
+          yubikey?: string;
+          otp1?: string;
+          otp2?: string;
+          otp3?: string;
+          otp4?: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'agent';
+        attributes: {
+          agentName: string;
+          uid: string;
+          os: 0 | 1 | 2;
+          devices: string;
+          cmdPars: string;
+          ignoreErrors: 0 | 1 | 2;
+          isActive: boolean;
+          isTrusted: boolean;
+          token: string;
+          lastAct: string;
+          lastTime: number;
+          lastIp: string;
+          userId: number | null;
+          cpuOnly: boolean;
+          clientSignature: string;
+        };
+      }
+  >;
+};
+
+export type AccessGroupCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type AccessGroupRelationAgentMembers = {
   data: Array<{
     type: 'agentMembers';
@@ -217,7 +418,7 @@ export type AccessGroupRelationAgentMembersGetResponse = {
 };
 
 export type DeleteAccessgroupsData = {
-  body?: never;
+  body: AccessGroupDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/accessgroups';
@@ -232,43 +433,65 @@ export type DeleteAccessgroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteAccessgroupsError = DeleteAccessgroupsErrors[keyof DeleteAccessgroupsErrors];
 
 export type DeleteAccessgroupsResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteAccessgroupsResponse = DeleteAccessgroupsResponses[keyof DeleteAccessgroupsResponses];
 
 export type GetAccessgroupsData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"accessGroupId": 123}}` -> `eyJwcmltYXJ5Ijp7ImFjY2Vzc0dyb3VwSWQiOiAxMjN9fQ==`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"accessGroupId": 123}}` -> `eyJwcmltYXJ5Ijp7ImFjY2Vzc0dyb3VwSWQiOiAxMjN9fQ==`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[accessGroupId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: userMembers, agentMembers
      */
-    include?: string;
+    include?: Array<'userMembers' | 'agentMembers'>;
   };
   url: '/api/v2/ui/accessgroups';
 };
@@ -282,6 +505,10 @@ export type GetAccessgroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetAccessgroupsError = GetAccessgroupsErrors[keyof GetAccessgroupsErrors];
@@ -296,7 +523,7 @@ export type GetAccessgroupsResponses = {
 export type GetAccessgroupsResponse = GetAccessgroupsResponses[keyof GetAccessgroupsResponses];
 
 export type PatchAccessgroupsData = {
-  body?: never;
+  body: AccessGroupPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/accessgroups';
@@ -311,16 +538,30 @@ export type PatchAccessgroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAccessgroupsError = PatchAccessgroupsErrors[keyof PatchAccessgroupsErrors];
 
 export type PatchAccessgroupsResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchAccessgroupsResponse = PatchAccessgroupsResponses[keyof PatchAccessgroupsResponses];
 
 export type PostAccessgroupsData = {
   body: AccessGroupCreate;
@@ -338,6 +579,14 @@ export type PostAccessgroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostAccessgroupsError = PostAccessgroupsErrors[keyof PostAccessgroupsErrors];
@@ -356,27 +605,15 @@ export type GetAccessgroupsCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[accessGroupId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/accessgroups/count';
 };
@@ -390,6 +627,10 @@ export type GetAccessgroupsCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetAccessgroupsCountError = GetAccessgroupsCountErrors[keyof GetAccessgroupsCountErrors];
@@ -398,7 +639,7 @@ export type GetAccessgroupsCountResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupListResponse;
+  200: AccessGroupCountResponse;
 };
 
 export type GetAccessgroupsCountResponse = GetAccessgroupsCountResponses[keyof GetAccessgroupsCountResponses];
@@ -423,9 +664,13 @@ export type GetAccessgroupsByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAccessgroupsByIdByRelationError =
@@ -461,9 +706,13 @@ export type DeleteAccessgroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteAccessgroupsByIdRelationshipsByRelationError =
@@ -499,9 +748,13 @@ export type GetAccessgroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAccessgroupsByIdRelationshipsByRelationError =
@@ -537,9 +790,17 @@ export type PatchAccessgroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAccessgroupsByIdRelationshipsByRelationError =
@@ -556,9 +817,7 @@ export type PatchAccessgroupsByIdRelationshipsByRelationResponse =
   PatchAccessgroupsByIdRelationshipsByRelationResponses[keyof PatchAccessgroupsByIdRelationshipsByRelationResponses];
 
 export type PostAccessgroupsByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: AccessGroupRelationAgentMembers;
   path: {
     id: number;
     relation: string;
@@ -577,9 +836,17 @@ export type PostAccessgroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostAccessgroupsByIdRelationshipsByRelationError =
@@ -596,9 +863,7 @@ export type PostAccessgroupsByIdRelationshipsByRelationResponse =
   PostAccessgroupsByIdRelationshipsByRelationResponses[keyof PostAccessgroupsByIdRelationshipsByRelationResponses];
 
 export type DeleteAccessgroupsByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -616,9 +881,13 @@ export type DeleteAccessgroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteAccessgroupsByIdError = DeleteAccessgroupsByIdErrors[keyof DeleteAccessgroupsByIdErrors];
@@ -639,9 +908,9 @@ export type GetAccessgroupsByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: userMembers, agentMembers
      */
-    include?: string;
+    include?: Array<'userMembers' | 'agentMembers'>;
   };
   url: '/api/v2/ui/accessgroups/{id}';
 };
@@ -656,9 +925,13 @@ export type GetAccessgroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetAccessgroupsByIdError = GetAccessgroupsByIdErrors[keyof GetAccessgroupsByIdErrors];
@@ -691,9 +964,17 @@ export type PatchAccessgroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchAccessgroupsByIdError = PatchAccessgroupsByIdErrors[keyof PatchAccessgroupsByIdErrors];
