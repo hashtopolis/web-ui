@@ -411,7 +411,7 @@ describe('EditAgentComponent', () => {
     component.onUpdateAssign(5);
     tick();
 
-    expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, {
+    expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', {
       taskId: 5,
       agentId: 1
     });
