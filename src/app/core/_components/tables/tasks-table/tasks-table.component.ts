@@ -156,6 +156,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'displayName',
         cssClass: 'cell-task-name',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderTaskWrapperLink(wrapper),
+        editable: (wrapper: JTaskWrapperDisplayOverview) => {
+          return {
+            data: wrapper,
+            value: wrapper.displayName ?? '',
+            hidden: true,
+            action: TaskTableEditableAction.CHANGE_NAME
+          };
+        },
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.displayName ?? ''
@@ -551,6 +559,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       case TaskTableEditableAction.CHANGE_MAX_AGENTS:
         this.changeMaxAgents(editable.data, editable.value);
         break;
+      case TaskTableEditableAction.CHANGE_NAME:
+        this.changeName(editable.data, editable.value);
+        break;
     }
   }
 
@@ -808,6 +819,43 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       )
       .subscribe(() => {
         this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${task.id}!`);
+        this.reload();
+      });
+  }
+
+  private changeName(wrapper: JTaskWrapperDisplayOverview, name: string): void {
+    const val = name;
+
+    let task: { id: number; name: string; attributeName: keyof JTaskWrapperDisplayOverview };
+    let serv: ServiceConfig;
+
+    if (wrapper.taskType === TaskType.TASK) {
+      task = { id: wrapper.taskId!, name: wrapper.taskName!, attributeName: 'taskName' };
+      serv = SERV.TASKS;
+    } else {
+      task = { id: wrapper.taskWrapperId!, name: wrapper.taskWrapperName!, attributeName: 'taskWrapperName' };
+      serv = SERV.TASKS_WRAPPER;
+    }
+
+    if (task.name == val) {
+      this.alertService.showInfoMessage('Nothing changed');
+      return;
+    }
+
+    const request$ = this.gs.update(serv, task.id, {
+      [task.attributeName]: val
+    });
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update task name!`);
+          console.error('Failed to update task name:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed name to '${val}' on Task #${task.id}!`);
         this.reload();
       });
   }
