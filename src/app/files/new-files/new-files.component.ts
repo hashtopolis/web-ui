@@ -1,5 +1,5 @@
 import { HttpMethod } from '@constants/http.config';
-import { zAccessGroupListResponse } from '@generated/api/zod';
+import { zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -179,7 +179,10 @@ export class NewFilesComponent implements OnInit {
     try {
       const response: ResponseWrapper = await lastValueFrom(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
-      const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+      const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(
+        response,
+        zGetAccessGroupsHelperApiResponse
+      );
 
       this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     } catch (error) {
