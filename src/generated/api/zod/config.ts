@@ -1,5 +1,75 @@
 import * as z from 'zod';
 
+export const zConfigResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('config'),
+  attributes: z.union([
+    z.object({
+      configSectionId: z.int(),
+      item: z.literal('serverLogLevel'),
+      value: z.union([
+        z.literal('0'),
+        z.literal('10'),
+        z.literal('20'),
+        z.literal('30'),
+        z.literal('40'),
+        z.literal('50')
+      ]),
+      valueBoundaries: z
+        .object({
+          min: z.int().optional(),
+          max: z.int().optional(),
+          maxLength: z.int().optional(),
+          binaryValues: z.array(z.string()).optional()
+        })
+        .optional()
+    }),
+    z.object({
+      configSectionId: z.int(),
+      item: z.literal('notificationsProxyType'),
+      value: z.union([z.literal('HTTP'), z.literal('HTTPS'), z.literal('SOCKS4'), z.literal('SOCKS5')]),
+      valueBoundaries: z
+        .object({
+          min: z.int().optional(),
+          max: z.int().optional(),
+          maxLength: z.int().optional(),
+          binaryValues: z.array(z.string()).optional()
+        })
+        .optional()
+    }),
+    z.object({
+      configSectionId: z.int(),
+      item: z.string(),
+      value: z.string(),
+      valueBoundaries: z
+        .object({
+          min: z.int().optional(),
+          max: z.int().optional(),
+          maxLength: z.int().optional(),
+          binaryValues: z.array(z.string()).optional()
+        })
+        .optional()
+    })
+  ]),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/configs/1')
+  }),
+  relationships: z.object({
+    configSection: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
+        related: z.string().default('/api/v2/ui/configs/configSection')
+      }),
+      data: z
+        .object({
+          type: z.literal('configSection'),
+          id: z.int()
+        })
+        .nullish()
+    })
+  })
+});
+
 export const zConfigPatch = z.object({
   data: z.object({
     type: z.literal('config'),
@@ -24,96 +94,6 @@ export const zConfigPatchMultiple = z.object({
 });
 
 export const zConfigResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z.object({
-    self: z.string().default('/api/v2/ui/configs/1')
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('config'),
-    attributes: z.union([
-      z.object({
-        configSectionId: z.int(),
-        item: z.literal('serverLogLevel'),
-        value: z.union([
-          z.literal('0'),
-          z.literal('10'),
-          z.literal('20'),
-          z.literal('30'),
-          z.literal('40'),
-          z.literal('50')
-        ]),
-        valueBoundaries: z
-          .object({
-            min: z.int().optional(),
-            max: z.int().optional(),
-            maxLength: z.int().optional(),
-            binaryValues: z.array(z.string()).optional()
-          })
-          .optional()
-      }),
-      z.object({
-        configSectionId: z.int(),
-        item: z.literal('notificationsProxyType'),
-        value: z.union([z.literal('HTTP'), z.literal('HTTPS'), z.literal('SOCKS4'), z.literal('SOCKS5')]),
-        valueBoundaries: z
-          .object({
-            min: z.int().optional(),
-            max: z.int().optional(),
-            maxLength: z.int().optional(),
-            binaryValues: z.array(z.string()).optional()
-          })
-          .optional()
-      }),
-      z.object({
-        configSectionId: z.int(),
-        item: z.string(),
-        value: z.string(),
-        valueBoundaries: z
-          .object({
-            min: z.int().optional(),
-            max: z.int().optional(),
-            maxLength: z.int().optional(),
-            binaryValues: z.array(z.string()).optional()
-          })
-          .optional()
-      })
-    ]),
-    links: z.object({
-      self: z.string().default('/api/v2/ui/configs/1')
-    }),
-    relationships: z.object({
-      configSection: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/configs/relationships/configSection'),
-          related: z.string().default('/api/v2/ui/configs/configSection')
-        }),
-        data: z
-          .object({
-            type: z.literal('configSection'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-  }),
-  included: z
-    .array(
-      z.object({
-        id: z.int(),
-        type: z.literal('configSection'),
-        attributes: z.object({
-          sectionName: z.string()
-        })
-      })
-    )
-    .optional()
-});
-
-export const zConfigSingleResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])

@@ -1,5 +1,56 @@
 import * as z from 'zod';
 
+export const zUserResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('user'),
+  attributes: z.object({
+    name: z.string(),
+    email: z.string().optional(),
+    isValid: z.boolean().optional(),
+    isComputedPassword: z.boolean().optional(),
+    lastLoginDate: z.number().optional(),
+    registeredSince: z.number().optional(),
+    sessionLifetime: z.int().optional(),
+    globalPermissionGroupId: z.int().optional(),
+    yubikey: z.string().optional(),
+    otp1: z.string().optional(),
+    otp2: z.string().optional(),
+    otp3: z.string().optional(),
+    otp4: z.string().optional()
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/users/1')
+  }),
+  relationships: z.object({
+    accessGroups: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/users/relationships/accessGroups'),
+        related: z.string().default('/api/v2/ui/users/accessGroups')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('accessGroup'),
+            id: z.int()
+          })
+        )
+        .optional()
+    }),
+    globalPermissionGroup: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/users/relationships/globalPermissionGroup'),
+        related: z.string().default('/api/v2/ui/users/globalPermissionGroup')
+      }),
+      data: z
+        .object({
+          type: z.literal('globalPermissionGroup'),
+          id: z.int()
+        })
+        .nullish()
+    })
+  })
+});
+
 export const zUserCreate = z.object({
   data: z.object({
     type: z.literal('user'),

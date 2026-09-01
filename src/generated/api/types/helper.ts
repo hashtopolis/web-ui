@@ -1,12 +1,12 @@
-import type { AccessGroupSingleResponse } from './access-group';
+import type { AccessGroupResourceObject } from './access-group';
 import type { ErrorResponse } from './common';
-import type { ConfigSingleResponse } from './config';
+import type { ConfigResourceObject } from './config';
 import type { FileSingleResponse } from './file';
-import type { GlobalPermissionGroupSingleResponse } from './global-permission-group';
-import type { HashSingleResponse } from './hash';
+import type { GlobalPermissionGroupResourceObject } from './global-permission-group';
+import type { HashResourceObject } from './hash';
 import type { HashlistSingleResponse } from './hashlist';
 import type { SupertaskSingleResponse } from './supertask';
-import type { TaskSingleResponse } from './task';
+import type { TaskResourceObject } from './task';
 import type {
   TaskWrapperDisplayCountResponse,
   TaskWrapperDisplayListResponse,
@@ -15,7 +15,7 @@ import type {
   TaskWrapperDisplayResponse,
   TaskWrapperSingleResponse
 } from './task-wrapper';
-import type { UserSingleResponse } from './user';
+import type { UserResourceObject, UserSingleResponse } from './user';
 
 export type AbortChunkHelperApi = {
   chunkId?: number;
@@ -103,6 +103,14 @@ export type CreateSupertaskHelperApi = {
   crackerVersionId?: number;
 };
 
+export type CurrentUserHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: UserResourceObject;
+};
+
 export type ExportCrackedHashesHelperApi = {
   hashlistId?: number;
 };
@@ -113,6 +121,82 @@ export type ExportLeftHashesHelperApi = {
 
 export type ExportWordlistHelperApi = {
   hashlistId?: number;
+};
+
+export type GetAccessGroupsHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<AccessGroupResourceObject>;
+};
+
+export type GetBestTasksAgentResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<TaskResourceObject>;
+};
+
+export type GetCompletedCountHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    completedTasks?: number;
+    completedSupertasks?: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type GetCracksOfTaskHelperResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<HashResourceObject>;
+};
+
+export type GetCracksPerDayHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  /**
+   * Map of date (YYYY-MM-DD) to the number of hashes cracked on that day; days without cracks are omitted.
+   */
+  meta: {
+    [key: string]: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type GetGlobalConfigHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<ConfigResourceObject>;
+};
+
+export type GetUserPermissionHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: GlobalPermissionGroupResourceObject;
 };
 
 export type ImportCrackedHashesHelperApi = {
@@ -1003,7 +1087,7 @@ export type GetCurrentUserResponses = {
   /**
    * successful operation
    */
-  200: UserSingleResponse;
+  200: CurrentUserHelperApiResponse;
 };
 
 export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
@@ -1197,7 +1281,7 @@ export type GetGetAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupSingleResponse;
+  200: GetAccessGroupsHelperApiResponse;
 };
 
 export type GetGetAccessGroupsResponse = GetGetAccessGroupsResponses[keyof GetGetAccessGroupsResponses];
@@ -1279,7 +1363,7 @@ export type GetGetBestTasksAgentResponses = {
   /**
    * successful operation
    */
-  200: TaskSingleResponse;
+  200: GetBestTasksAgentResponse;
 };
 
 export type GetGetBestTasksAgentResponse = GetGetBestTasksAgentResponses[keyof GetGetBestTasksAgentResponses];
@@ -1316,7 +1400,7 @@ export type GetGetCompletedCountResponses = {
   /**
    * successful operation
    */
-  200: TaskSingleResponse;
+  200: GetCompletedCountHelperApiResponse;
 };
 
 export type GetGetCompletedCountResponse = GetGetCompletedCountResponses[keyof GetGetCompletedCountResponses];
@@ -1358,7 +1442,7 @@ export type GetGetCracksOfTaskResponses = {
   /**
    * successful operation
    */
-  200: HashSingleResponse;
+  200: GetCracksOfTaskHelperResponse;
 };
 
 export type GetGetCracksOfTaskResponse = GetGetCracksOfTaskResponses[keyof GetGetCracksOfTaskResponses];
@@ -1395,8 +1479,10 @@ export type GetGetCracksPerDayResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: GetCracksPerDayHelperApiResponse;
 };
+
+export type GetGetCracksPerDayResponse = GetGetCracksPerDayResponses[keyof GetGetCracksPerDayResponses];
 
 export type GetGetFileData = {
   body?: never;
@@ -1470,7 +1556,7 @@ export type GetGetGlobalConfigResponses = {
   /**
    * successful operation
    */
-  200: ConfigSingleResponse;
+  200: GetGlobalConfigHelperApiResponse;
 };
 
 export type GetGetGlobalConfigResponse = GetGetGlobalConfigResponses[keyof GetGetGlobalConfigResponses];
@@ -1551,7 +1637,7 @@ export type GetGetUserPermissionResponses = {
   /**
    * successful operation
    */
-  200: GlobalPermissionGroupSingleResponse;
+  200: GetUserPermissionHelperApiResponse;
 };
 
 export type GetGetUserPermissionResponse = GetGetUserPermissionResponses[keyof GetGetUserPermissionResponses];

@@ -1,114 +1,50 @@
 import * as z from 'zod';
 
-export const zHashResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+export const zHashResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('hash'),
+  attributes: z.object({
+    hashlistId: z.int(),
+    hash: z.string(),
+    salt: z.string(),
+    plaintext: z.string(),
+    timeCracked: z.number(),
+    chunkId: z.int().nullable(),
+    isCracked: z.boolean(),
+    crackPos: z.number()
   }),
   links: z.object({
     self: z.string().default('/api/v2/ui/hashes/1')
   }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('hash'),
-    attributes: z.object({
-      hashlistId: z.int(),
-      hash: z.string(),
-      salt: z.string(),
-      plaintext: z.string(),
-      timeCracked: z.number(),
-      chunkId: z.int().nullable(),
-      isCracked: z.boolean(),
-      crackPos: z.number()
-    }),
-    links: z.object({
-      self: z.string().default('/api/v2/ui/hashes/1')
-    }),
-    relationships: z.object({
-      chunk: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
-          related: z.string().default('/api/v2/ui/hashes/chunk')
-        }),
-        data: z
-          .object({
-            type: z.literal('chunk'),
-            id: z.int()
-          })
-          .nullish()
+  relationships: z.object({
+    chunk: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/hashes/relationships/chunk'),
+        related: z.string().default('/api/v2/ui/hashes/chunk')
       }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/hashes/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-  }),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
+      data: z
+        .object({
           type: z.literal('chunk'),
-          attributes: z.object({
-            taskId: z.int(),
-            skip: z.int(),
-            length: z.int(),
-            agentId: z.int(),
-            dispatchTime: z.number(),
-            solveTime: z.number(),
-            checkpoint: z.number(),
-            progress: z.int(),
-            state: z.union([
-              z.literal(0),
-              z.literal(1),
-              z.literal(2),
-              z.literal(3),
-              z.literal(4),
-              z.literal(5),
-              z.literal(6),
-              z.literal(7),
-              z.literal(8),
-              z.literal(9),
-              z.literal(10)
-            ]),
-            cracked: z.int(),
-            speed: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
+          id: z.int()
         })
-      ])
-    )
-    .optional()
+        .nullish()
+    }),
+    hashlist: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/hashes/relationships/hashlist'),
+        related: z.string().default('/api/v2/ui/hashes/hashlist')
+      }),
+      data: z
+        .object({
+          type: z.literal('hashlist'),
+          id: z.int()
+        })
+        .nullish()
+    })
+  })
 });
 
-export const zHashSingleResponse = z.object({
+export const zHashResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
