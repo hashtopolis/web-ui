@@ -1,4 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
@@ -28,7 +29,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 // Mock components - only for components not included in imported modules
 @Component({
@@ -183,9 +184,9 @@ describe('EditAgentComponent', () => {
     agentRoleServiceSpy.hasRole.and.returnValue(false);
 
     // Default service responses
-    globalServiceSpy.get.and.returnValue(of(mockResponse({ data: mockAgent })));
-    globalServiceSpy.getAll.and.returnValue(of(mockResponse({ data: [mockUser] })));
-    globalServiceSpy.ghelper.and.returnValue(of(mockResponse({ data: [] })));
+    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+    globalServiceSpy.getAll.and.returnValue(of(mockValidResponse(zUserListResponse, { data: [mockUser] })));
+    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [] })));
     globalServiceSpy.chelper.and.returnValue(of(mockResponse()));
     globalServiceSpy.update.and.returnValue(of(mockResponse()));
     globalServiceSpy.create.and.returnValue(of(mockResponse()));
@@ -281,8 +282,8 @@ describe('EditAgentComponent', () => {
   it('should load tasks when user has readAssignment role', fakeAsync(() => {
     // Create new fixture with updated role service
     agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'readAssignment');
-    globalServiceSpy.ghelper.and.returnValue(of(mockResponse({ data: [mockTask] })));
-    globalServiceSpy.get.and.returnValue(of(mockResponse({ data: mockAgent })));
+    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
+    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -486,7 +487,7 @@ describe('EditAgentComponent', () => {
     const error = { status: 500 };
     globalServiceSpy.get.and.returnValues(
       throwError(() => error),
-      of(mockResponse({ data: mockAgent }))
+      of(mockValidResponse(zAgentResponse, { data: mockAgent }))
     );
 
     fixture.detectChanges();
